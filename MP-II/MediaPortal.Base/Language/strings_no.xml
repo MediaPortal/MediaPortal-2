@@ -97,7 +97,7 @@
     <String name="5" text="Sorter"/>
     <String name="6" text="Spill DVD"/>
     <String name="7" text="Løs ut"/>
-    <String name="8" text="Bibliotek"/>
+    <String name="8" text="Visning"/>
     <String name="dvd" text="DVD Bibliotek"/>
   </Section>
   <Section name="music">
