@@ -255,8 +255,8 @@ Section "Visual C++ Redist" SEC0003
     WriteRegStr HKLM "${INSTDIR_REG_KEY}\Components" "Visual C++ Redist" 1
 SectionEnd
 
-LangString DESC_SEC0002 ${LANG_ENGLISH} "Installs the IR Server Suite"
-LangString DESC_SEC0003 ${LANG_ENGLISH} "Installs th Visual C++ Runtime (recommended)"
+LangString DESC_SEC0002 ${LANG_ENGLISH} "Installs the IR Server Suite for handling input via Remotes"
+LangString DESC_SEC0003 ${LANG_ENGLISH} "Installs the Visual C++ Runtime (recommended)."
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC0002} $(DESC_SEC0002)
