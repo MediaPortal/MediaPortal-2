@@ -211,7 +211,7 @@ Section -post SEC0001
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\MediaPortal2.lnk" "$INSTDIR\MediaPortal.exe" "" "$INSTDIR\MediaPortal.exe" 0 "" "" "MediaPortal2" 
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^UninstallLink).lnk" $INSTDIR\uninstall.exe
     
-    CreateShortcut "$DESKTOP\MediaPortal.lnk" "$INSTDIR\MediaPortal.exe" "" "$INSTDIR\MediaPortal.exe" 0 "" "" "MediaPortal2" 
+    CreateShortcut "$DESKTOP\MediaPortal2.lnk" "$INSTDIR\MediaPortal.exe" "" "$INSTDIR\MediaPortal.exe" 0 "" "" "MediaPortal2" 
     !insertmacro MUI_STARTMENU_WRITE_END
     
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
