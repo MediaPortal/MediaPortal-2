@@ -1,0 +1,17 @@
+<Plugin name        = "UPnPServer"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "UPNP Server">
+
+  <Manifest>
+    <Identity name = "MediaPortal.UPnPServer.UPnPServer"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "upnpserver.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "UPnPServer" class = "MediaPortal.UPnPServer.UPnPServer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  </Register>
+</Plugin>

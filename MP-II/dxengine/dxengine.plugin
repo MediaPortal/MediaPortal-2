@@ -1,0 +1,18 @@
+<Plugin name        = "DirectxGui"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "DirectX GUI">
+
+  <Manifest>
+    <Identity name = "dxEngine.DirectxGui"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "dxEngine.dll"/>
+    <Import assembly = "skinengine.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "DirectxGui" class = "dxEngine.DirectxGui"/>
+  </Register>
+</Plugin>

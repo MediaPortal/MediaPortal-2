@@ -1,0 +1,17 @@
+<Plugin name        = "DatabaseProvider"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Database Provider">
+
+  <Manifest>
+    <Identity name = "DatabaseProvider.DatabaseProvider"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "DatabaseProvider.dll"/>
+  </Runtime>
+
+  <Register location = "/Media/Providers">
+    <Class id = "DatabaseProvider" class = "DatabaseProvider.DatabaseProvider"/>
+  </Register>
+</Plugin>

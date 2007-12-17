@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<styles>
+
+  <!-- style for the search button in weather setup -->
+  <style name="style_button_pause">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <group visible="#script:IsVideoNotPaused">
+      <controls>
+        <image source="osd_pause_focus.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+        <image source="osd_pause_nofocus.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+      </controls>
+    </group>
+    <group visible="#script:IsVideoPaused">
+      <controls>
+        <image source="play_enabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+        <image source="play_disabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+      </controls>
+    </group>
+  </style>
+  <style name="style_button_stop">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <image source="stop_enabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+    <image source="stop_disabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+  </style>
+  <style name="style_button_rewind">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <image source="rew_enabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+    <image source="rew_disabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+  </style>
+  <style name="style_button_forward">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <image source="fastforward_enabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+    <image source="fastforward_disabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+  </style>
+  <style name="style_button_mute">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+
+      <group visible="Players.IsMuted">
+      <controls>
+        <image source="mute_Offenabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+        <image source="mute_Offdisabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+      </controls>
+    </group>
+    <group visible="#script:IsNotMuted">
+      <controls>
+        <image source="mute_enabled.png" visible="#script:HasFocus" position="-10,0"  width="32" height="32"/>
+        <image source="mute_disabled.png" visible="#script:HasNoFocus" position="-10,0" width="32" height="32"/>
+      </controls>
+    </group>
+  </style>
+
+</styles>

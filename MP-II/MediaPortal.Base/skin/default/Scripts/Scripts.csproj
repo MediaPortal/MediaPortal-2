@@ -1,0 +1,105 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{32A37F1A-5728-489C-9517-F5700F8E86DB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Scripts</RootNamespace>
+    <AssemblyName>Scripts</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MediaLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dxengine\bin\x86\Debug\MediaLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dxengine\bin\x86\Debug\MediaPortal.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.Database, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dxengine\bin\x86\Debug\MediaPortal.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dxengine\bin\x86\Debug\MediaPortal.Services.dll</HintPath>
+    </Reference>
+    <Reference Include="skinengine, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dxengine\bin\x86\Debug\skinengine.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="buttonLabel.cs" />
+    <Compile Include="ContentAboutToChange.cs" />
+    <Compile Include="ContentChange.cs" />
+    <Compile Include="ControlName.cs" />
+    <Compile Include="SelectedListItemLabelFalse.cs" />
+    <Compile Include="HasContainerFocus.cs" />
+    <Compile Include="HasContainerNoFocus.cs" />
+    <Compile Include="HasControlFocus.cs" />
+    <Compile Include="HasControlNoFocus.cs" />
+    <Compile Include="HasFocus.cs" />
+    <Compile Include="HasFocusNoScrolling.cs" />
+    <Compile Include="HasItemFocus.cs" />
+    <Compile Include="HasListItem.cs" />
+    <Compile Include="HasNoFocus.cs" />
+    <Compile Include="IsMouseUsed.cs" />
+    <Compile Include="IsNotSelected.cs" />
+    <Compile Include="IsScrolling.cs" />
+    <Compile Include="IsScrollingDown.cs" />
+    <Compile Include="IsScrollingLeft.cs" />
+    <Compile Include="IsScrollingRight.cs" />
+    <Compile Include="IsScrollingUp.cs" />
+    <Compile Include="IsSelected.cs" />
+    <Compile Include="IsVideoPaused.cs" />
+    <Compile Include="IsVideoPlaying.cs" />
+    <Compile Include="LabelChanged.cs" />
+    <Compile Include="ListItem.cs" />
+    <Compile Include="ListItemLabel.cs" />
+    <Compile Include="ListSubItem.cs" />
+    <Compile Include="PageDown.cs" />
+    <Compile Include="PageUp.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectedItem.cs" />
+    <Compile Include="SelectedItemSubItems.cs" />
+    <Compile Include="SelectedListItem.cs" />
+    <Compile Include="SelectedListItemLabelTrue.cs" />
+    <Compile Include="SelectItemPosition.cs" />
+    <Compile Include="StyleHasFocus.cs" />
+    <Compile Include="Time.cs" />
+    <Compile Include="upDownLabel.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

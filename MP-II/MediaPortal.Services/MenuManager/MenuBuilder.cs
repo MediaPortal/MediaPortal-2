@@ -1,0 +1,85 @@
+﻿#region Copyright (C) 2007 Team MediaPortal
+
+/*
+    Copyright (C) 2007 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Xml;
+using MediaPortal.Core;
+using MediaPortal.Core.MenuManager;
+using MediaPortal.Core.WindowManager;
+using MediaPortal.Core.Localisation;
+
+namespace MediaPortal.Services.MenuManager
+{
+  public class MenuBuilder : IMenuBuilder
+  {
+    #region IMenuBuilder Members
+
+    /// <summary>
+    /// Builds the specified menu .
+    /// </summary>
+    /// <param name="menuName">Name of the menu.</param>
+    /// <returns></returns>
+    public IMenu Build(string menuName)
+    {
+      MediaPortal.Services.MenuManager.Menu menu = new MediaPortal.Services.MenuManager.Menu(menuName);
+      //load menu configurarion
+      //for now we simply load it from an .xml file since 
+      //i dont know yet how the pluginmanager could do this.
+
+      string skinName = ServiceScope.Get<IWindowManager>().SkinName;
+      menuName = menuName.Replace("/", "_");
+      string xmlName = String.Format(@"skin\{0}\menus\{1}.xml", skinName, menuName);
+
+      XmlDocument doc = new XmlDocument();
+      doc.Load(xmlName);
+      XmlNodeList nodesItems = doc.SelectNodes("/menu/items/item");
+      foreach (XmlNode nodeItem in nodesItems)
+      {
+        menu.Items.Add(GetMenuItem(nodeItem));
+      }
+      return menu;
+    }
+
+    IMenuItem GetMenuItem(XmlNode node)
+    {
+      string label = node.Attributes["text"].Value;
+      string image = node.Attributes["image"].Value;
+      string command = node.Attributes["command"].Value;
+      string parameter = node.Attributes["parameter"].Value;
+      StringId localized = new StringId(label);
+      MenuItem item = new MenuItem(localized, image, command, parameter);
+
+      XmlNodeList nodesItems = node.SelectNodes("items/item");
+      foreach (XmlNode nodeItem in nodesItems)
+      {
+        item.Items.Add(GetMenuItem(nodeItem));
+      }
+      return item;
+    }
+
+    #endregion
+  }
+}

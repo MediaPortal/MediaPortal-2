@@ -1,0 +1,8 @@
+<menu>
+  <items>
+    <item text="[playback.1]" image="" command="WindowManager.CloseDialog+WindowManager.ShowPreviousWindow" parameter=""/>
+    <item text="[playback.0]" image="" command="WindowManager.ShowDialog" parameter="dialogZoomModes"/>
+    <item text="[playback.2]" image="" command="WindowManager.ShowDialog" parameter="dialogCropping"/>
+  </items>
+
+</menu>

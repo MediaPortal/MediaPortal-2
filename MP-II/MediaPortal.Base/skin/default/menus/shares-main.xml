@@ -1,0 +1,8 @@
+<menu>
+  <items>
+    <item text="[shares.addnewshares]" image="" command="WindowManager.ShowWindow" parameter="sharesAdd"/>
+    <item text="[shares.removeshares]" image="" command="WindowManager.ShowWindow" parameter="sharesRemove"/>
+    <item text="[importers.refresh]" image="" command="model.RefreshLibrary" parameter=""/>
+    <item text="[shares.back]" image="" command="WindowManager.ShowPreviousWindow" parameter=""/>
+  </items>
+</menu>

@@ -1,0 +1,17 @@
+<Plugin name        = "PicturePlayerPlugin"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Picture Player">
+
+  <Manifest>
+    <Identity name = "PicturePlayer.PicturePlayerPlugin"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "PicturePlayer.dll"/>
+  </Runtime>
+
+  <Register location = "/Media/Players">
+    <Player id = "PicturePlayerPlugin" class = "PicturePlayer.PicturePlayerPlugin" type="image" extensions=".jpg,.png,.bmp,.gif"/>
+  </Register>
+</Plugin>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<skin defaultfocus="keyb">
+	<styles>
+		<include name="styles.xml"/>
+		<include name="styles_list.xml"/>
+		<include name="styles_keyboard.xml"/>
+		<include name="styles_weather.xml"/>
+	</styles>
+	<models>
+		<model name="model" assembly="myweather" class="WeatherSetupViewModel"/>
+	</models>
+	<group>
+		<controls>
+			<include source="background.xml"/>
+			<label name="header"  font="font26" position="70,15" label="[weather.0]" width="500" height="32" />
+			<image source="#header" position="70,55" width="500" height="32">
+				<animation trigger="onwindowopen" type="rotate" axis="x" from="180" to="180" duration="1" center="0,25"/>
+				<opacitymask>
+					<gradientstop offset="0.0" color="100" />
+					<gradientstop offset="1.0" color="0" />
+				</opacitymask>
+			</image>
+			<label align="left"   font="font13" label="[weathersetup.0]" position="70,120"  width="500" height="32"/>
+			<button position ="370, 153" name="btnSearch" style="button_style_search" label="[weathersetup.1]" command="model.SearchLocations+WindowManager.ShowDialog+keyb.Clear" parameter="keyb.CurrentString+dialogWeatherSearch"/>
+			<button position ="370, 500" name="btnSave" style="button_style_search" label="[weathersetup.3]" command="model.SaveSettings+WindowManager.ShowPreviousWindow"/>
+			<keyboard name="keyb" position="70,150" width ="500" height="400"  style="keyboard_styles_closed" focusable="true"/>
+      <list name="list" style="style_list_weather_setup" position="70,180" items="model.SetupLocations" command="model.Delete" parameter="list.#script:SelectedItem"/>
+    </controls>
+		<animation trigger="onwindowclose" type="fade" from="1" to="0"  duration="800"/>
+		<animation trigger="onwindowopen" type="fade" from="0" to="1"  duration="800"/>
+	</group>
+</skin>

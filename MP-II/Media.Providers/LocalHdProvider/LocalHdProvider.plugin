@@ -1,0 +1,17 @@
+<Plugin name        = "LocalHdProvider"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Local HD Provider">
+
+  <Manifest>
+    <Identity name = "LocalHdProvider.LocalHdProvider"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "LocalHdProvider.dll"/>
+  </Runtime>
+
+  <Register location = "/Media/Providers">
+    <Class id = "LocalHdProvider" class = "LocalHdProvider.LocalHdProvider"/>
+  </Register>
+</Plugin>

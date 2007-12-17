@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "ThumbnailGenerator.csproj", "{48D8E092-16AD-4022-B584-B19E75E4FD38}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.ActiveCfg = Debug|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.Build.0 = Debug|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.ActiveCfg = Release|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

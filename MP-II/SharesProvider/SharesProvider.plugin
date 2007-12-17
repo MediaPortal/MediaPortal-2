@@ -1,0 +1,17 @@
+<Plugin name        = "SharesProvider"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Predefined shares Provider">
+
+  <Manifest>
+    <Identity name = "SharesProvider.SharesProvider"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "SharesProvider.dll"/>
+  </Runtime>
+
+  <Register location = "/Media/Providers">
+    <Class id = "SharesProvider" class = "SharesProvider.SharesProvider"/>
+  </Register>
+</Plugin>

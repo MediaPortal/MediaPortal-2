@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<skin defaultfocus="mainMenu">
+	<models>
+		<model name="model" assembly="mymusic" class="Model"/>
+	</models>
+	<styles>
+		<include name="styles.xml"/>
+		<include name="styles_list.xml"/>
+	</styles>
+
+	<group name="maingroup">
+		<controls>
+			<include source="background.xml"/>
+			<label name="header"  font="font26" position="70,15" label="[music.3]" width="500" height="32" />
+			<label name="headerReflection"  font="font26" position="70,55" label="[music.3]" width="500" height="32">
+				<animation trigger="onwindowopen" type="rotate" axis="x" from="180" to="180" duration="1" center="0,25"/>
+				<opacitymask>
+          <gradientstop offset="0.0" color="100" />
+          <gradientstop offset="0.7" color="20" />
+          <gradientstop offset="1.0" color="0" />
+        </opacitymask>
+			</label>
+
+			<group name="menuPanel">
+        <controls>
+          <list name="mainMenu" position="30,97" style="style_list_menu" items="model.MainMenu" >
+            <animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+            <animation trigger="onwindowopen" type="slide"  from="-300.0" to="0,0"  duration="1300"/>
+          </list>
+          <list name="list" style="style_list" items="model.Songs" onselecteditemchanged="model.SelectedItem" command="model.Select" parameter="list.#script:SelectedItem" contextmenu="$WindowManager.ShowDialog('dialogMusicContextMenu')"/>
+          <updown style="updown_style" position="630,530" container="list" name="updown" label="#script:upDownLabel"/>
+        </controls>
+        <animation trigger="hasfocus(smallvideo)" type="zoom" from="1.0" to="0.96"  duration="300"/>
+        <animation trigger="!hasfocus(smallvideo)" type="zoom" from="0.96" to="1.0"  duration="300" />
+        <opacitymask visible="#script:HasControlFocus(smallvideo)">
+          <gradientstop offset="0.0" color="255" />
+          <gradientstop offset="0.4" color="30" />
+          <gradientstop offset="1.0" color="0" />
+				</opacitymask>
+			</group>
+
+      <button name="smallvideo" style="button_small_video" visible="#script:IsVideoPlaying" position="31,450"  command="WindowManager.ShowWindow" parameter="fullscreenvideo">
+        <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1"  duration="300" center="104,104"/>
+        <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" duration="300" center="104,104" />
+      </button>
+      <include source="osd.xml"/>
+    </controls>
+    <animation trigger="onwindowclose" type="fade" from="1" to="0"  duration="800"/>
+		<animation trigger="onwindowopen" type="fade" from="0" to="1"  duration="800"/>
+	</group>
+</skin>

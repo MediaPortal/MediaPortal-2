@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section name="system">
+    <String name="0" text="Avsluta"/>
+    <String name="1" text="Felaktig inmatning"/>
+    <String name="2" text="timmar"/>
+    <String name="3" text="min."/>
+    <String name="4" text="sek."/>
+    <String name="5" text="Meny"/>
+    <String name="eject" text="Mata ut"/>
+    <String name="yes" text="ja"/>
+    <String name="no" text="nej"/>
+  </Section>
+  <Section name="general">
+    <String name="name" text="Namn"/>
+    <String name="date" text="Datum"/>
+    <String name="size" text="Storlek"/>
+    <String name="view" text="Vy"/>
+    <String name="sort" text="Sortera"/>
+    <String name="options" text="Inställningar"/>
+    <String name="tags" text="Tagar"/>
+    <String name="filename" text="Filnamn"/>
+  </Section>
+  <Section name="days">
+    <String name="0" text="Söndag"/>
+    <String name="1" text="Måndag"/>
+    <String name="2" text="Tisdag"/>
+    <String name="3" text="Onsdag"/>
+    <String name="4" text="Torsdag"/>
+    <String name="5" text="Fredag"/>
+    <String name="6" text="Lördag"/>
+  </Section>
+  <Section name="importers">
+    <String name="addshare" text="Lägg till share"/>
+    <String name="removeshare" text="Ta bort share"/>
+    <String name="refresh" text="Uppdatera databasen"/>
+  </Section>
+  <Section name="shares">
+    <String name="shares" text="Delade foldrar"/>
+    <String name="add" text="Lägg till"/>
+    <String name="done" text="Klar"/>
+    <String name="description" text="Lägg till eller ta bort foldrar till biblioteket"/>
+  </Section>
+  <Section name="playback">
+    <String name="0" text="Zoom modes"/>
+    <String name="1" text="Föregående skärm"/>
+    <String name="2" text="Beskärning"/>
+    <String name="3" text="Undertexter språk"/>
+    <String name="4" text="Ljud språk"/>
+    <String name="5" text="Början"/>
+    <String name="6" text="Slut"/>
+    <String name="7" text="Letterbox 4:3"/>
+    <String name="8" text="Normal"/>
+    <String name="9" text="Original"/>
+    <String name="10" text="Pan&amp;Scan"/>
+    <String name="11" text="Utsträckt"/>
+    <String name="12" text="Zoom"/>
+    <String name="13" text="Zoom 14:9"/>
+    <String name="14" text="Undertexter"/>
+    <String name="15" text="Upp vänster"/>
+    <String name="16" text="Ner höger"/>
+    <String name="17" text="av"/>
+    <String name="18" text=" (stor)"/>
+    <String name="19" text=" (barn)"/>
+    <String name="20" text=" (Textning)"/>
+    <String name="21" text=" (Textning stor)"/>
+    <String name="22" text=" (Textning barn)"/>
+    <String name="23" text=" (tvingad)"/>
+    <String name="24" text=" (Regissörens kommentarer)"/>
+    <String name="25" text=" (Regissörens kommentarer Stor)"/>
+    <String name="26" text=" (Regissörens kommentarer 2)"/>
+    <String name="27" text=" (Dubbad)"/>
+    <String name="28" text="Titlar"/>
+    <String name="29" text="Kapitel"/>
+    <String name="30" text="PiP"/>
+    <String name="31" text="Inaktivera"/>
+    <String name="32" text="Växla"/>
+    <String name="33" text="Stoppad"/>
+    <String name="34" text="Färdig"/>
+    <String name="35" text="Återuppta"/>
+    <String name="36" text="Starta om"/>
+    <String name="37" text="Ta bort"/>
+    <String name="38" text="Slut"/>
+    <String name="intelligentzoom" text="Intelligent zoom"/>
+  </Section>
+  <Section name="movies">
+    <String name="0" text="Namn"/>
+    <String name="1" text="Datum"/>
+    <String name="2" text="Storlek"/>
+    <String name="duration" text="Längd"/>
+    <String name="3" text="Mina Videos"/>
+    <String name="4" text="Vy"/>
+    <String name="5" text="Sortera"/>
+    <String name="6" text="Spela DVD"/>
+    <String name="7" text="Mata ut"/>
+    <String name="8" text="Bibliotek"/>
+    <String name="dvd" text="DVD-Bibliotek"/>
+  </Section>
+  <Section name="music">
+    <String name="0" text="Namn"/>
+    <String name="1" text="Datum"/>
+    <String name="2" text="Storlek"/>
+    <String name="3" text="Min Musik"/>
+    <String name="4" text="Vy"/>
+    <String name="5" text="Sortera"/>
+    <String name="6" text="Spela CD"/>
+    <String name="7" text="Mata ut"/>
+    <String name="8" text="Bibliotek"/>
+  </Section>
+  <Section name="media">
+    <String name="name" text="Min Media"/>
+  </Section>
+  <Section name="home">
+    <String name="title" text="MediaPortal"/>
+  </Section>
+  <Section name="login">
+    <String name="welcome" text="Välkomen"/>
+  </Section>
+  <Section name="weather">
+    <String name="0" text="Mitt Väder"/>
+    <String name="1" text="Plats"/>
+    <String name="2" text="Uppdatera"/>
+    <String name="3" text="Väder"/>
+    <String name="4" text="Inställningar"/>
+    <String name="5" text="Ingen data"/>
+    <String name="6" text="Temp"/>
+    <String name="7" text="Känns som"/>
+    <String name="8" text="UV Index"/>
+    <String name="9" text="Vind"/>
+    <String name="10" text="Fuktighet"/>
+    <String name="11" text="Daggvärde"/>
+    <String name="12" text="Soluppgång"/>
+    <String name="13" text="Solnedgång"/>
+    <String name="370" text="T-Storms"/>
+    <String name="371" text="Delvis"/>
+    <String name="372" text="Mestadels"/>
+    <String name="373" text="Soligt"/>
+    <String name="374" text="Månligt"/>
+    <String name="375" text="Snö"/>
+    <String name="376" text="Regn"/>
+    <String name="377" text="Ljust"/>
+    <String name="378" text="AM"/>
+    <String name="379" text="PM"/>
+    <String name="380" text="Showers"/>
+    <String name="381" text="Några"/>
+    <String name="382" text="Spridda"/>
+    <String name="383" text="Vind"/>
+    <String name="384" text="Stark"/>
+    <String name="386" text="Klart"/>
+    <String name="387" text="Tidigt"/>
+    <String name="389" text="Dimma"/>
+    <String name="390" text="Dis"/>
+    <String name="391" text="Blåsigt"/>
+    <String name="392" text="Dugga"/>
+    <String name="393" text="Fryser"/>
+    <String name="394" text="N/A"/>
+    <String name="395" text="Dimma"/>
+    <String name="798" text="låg"/>
+    <String name="799" text="hög"/>
+    <String name="543" text="Åska"/>
+    <String name="553" text="Sent"/>
+    <String name="535" text="N"/>
+    <String name="536" text="E"/>
+    <String name="537" text="S"/>
+    <String name="538" text="W"/>
+    <String name="539" text="NE"/>
+    <String name="540" text="SE"/>
+    <String name="541" text="SW"/>
+    <String name="542" text="NW"/>
+    <String name="543" text="Åska"/>
+    <String name="544" text="NNE"/>
+    <String name="545" text="ENE"/>
+    <String name="546" text="ESE"/>
+    <String name="547" text="SSE"/>
+    <String name="548" text="SSW"/>
+    <String name="549" text="WSW"/>
+    <String name="551" text="WNW"/>
+    <String name="552" text="NNW"/>
+    <String name="555" text="Från {0} till {1} {2}"/>
+    <String name="556" text="skiftande"/>
+    <String name="557" text="lugn"/>
+    <String name="558" text="Ingen vind"/>
+    <String name="559" text="i omgivningen"/>
+    <String name="560" text="Uppklarnande"/>
+  </Section>
+  <Section name="weathersetup">
+    <String name="0" text="Skriv in namnet på din stad!"/>
+    <String name="1" text="Sök"/>
+    <String name="2" text="Välj..."/>
+    <String name="3" text="Spara"/>
+  </Section>
+  <Section name="pictures">
+    <String name="0" text="Titel"/>
+    <String name="1" text="Tagar"/>
+    <String name="2" text="Storlek"/>
+    <String name="3" text="Mina Bilder"/>
+    <String name="4" text="Bibliotek"/>
+    <String name="5" text="Sotera"/>
+    <String name="6" text="Bildspel"/>
+    <String name="picinfo" text="Bildinformation"/>
+    <String name="save"  text="Spara"/>
+    <String name="cancel" text="Avbryt"/>
+    <String name="crop"    text="Beskär"/>
+    <String name="print"   text="Skriv ut"/>
+    <String name="redeye"  text="Ta bort röda ögon"/>
+    <String name="contrast"  text="Kontrast"/>
+    <String name="edit"  text="Ändra"/>
+    <String name="model" text="Kamera Modell"/>
+    <String name="maker"  text="Maker"/>
+    <String name="flash"  text="Blixt"/>
+    <String name="dimension" text="Dimensioner"/>
+    <String name="expcomp" text="Exponeringskompensation"/>
+    <String name="exptime" text="Exponeringstid"/>
+    <String name="metmod" text="Metering Mod"/>
+    <String name="sspeed" text="Slutarhastighet"/>
+    <String name="fstop" text="F Stop"/>
+  </Section>
+  <Section name="settings">
+    <String name="0" text="Inställningar"/>
+    <String name="1" text="Skal"/>
+    <String name="2" text="Språk"/>
+    <String name="3" text="Spara"/>
+    <String name="4" text="Fullskärm"/>
+    <String name="theme" text="Tema"/>
+    <String name="mpg2videocodec" text="MPEG-2 videokodec"/>
+    <String name="h264videocodec" text="H-264 videokodec"/>
+    <String name="xvidvideocodec" text="DivX/XVID videokodec"/>
+    <String name="audiocodec" text="Ljudkodec"/>
+    <String name="playback" text="Uppspelning"/>
+    <String name="refreshrate" text="Skärmuppdatering"/>
+    <String name="5" text="Uppdatering"/>
+    <String name="6" text="24 BPS"/>
+    <String name="7" text="25 BPS"/>
+    <String name="8" text="30 BPS"/>
+    <String name="9" text="Standard BPS"/>
+    <String name="music" text="Music"/>
+  </Section>
+  <Section name="radio">
+    <String name="name" text="Min Radio"/>
+  </Section>
+  <Section name="tv">
+    <String name="name" text="Min TV"/>
+  </Section>
+  <Section name="playlists">
+    <String name="add" text="Lägg till en i spellistan"/>
+    <String name="addall" text="Lägg till alla i spellistan"/>
+    <String name="playlist" text="Spellista"/>
+    <String name="play" text="Spela"/>
+    <String name="clear" text="Rensa"/>
+    <String name="shuffle" text="Blanda"/>
+  </Section>
+</Language>

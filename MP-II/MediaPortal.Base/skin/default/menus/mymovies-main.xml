@@ -1,0 +1,10 @@
+<menu>
+  <items>
+    <item text="[movies.4]" image="" command="list.SwitchStyle" parameter=""/>
+    <item text="[movies.5]" image="" command="WindowManager.ShowDialog" parameter="dialogMovieSortMenu"/>
+    <item text="[movies.8]" image="" command="WindowManager.ShowDialog" parameter="dialogMovieViewMenu"/>
+    <item text="[movies.6]" image="" command="model.PlayDvd" parameter=""/>
+    <item text="[movies.7]" image="" command="model.Eject" parameter=""/>
+  </items>
+
+</menu>

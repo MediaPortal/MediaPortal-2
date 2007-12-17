@@ -1,0 +1,30 @@
+<theme>
+  <images>
+    <image name="theme-image-background" value="background.png"/>
+    <image name="theme-menu-button-focus" value="menu_list_focus.png"/>
+    <image name="theme-menu-button-nofocus" value="menu_list_nofocus.png"/>
+    <image name="theme-list-button-focus" value="list_sub_focus.png"/>
+    <image name="theme-list-button-nofocus" value="list_sub_nofocus.png"/>
+    <image name="theme-list-button-green-focus" value="button_green_focus.png"/>
+    <image name="theme-list-button-green-nofocus" value="button_green_nofocus.png"/>
+    <image name="theme-picture-view-bg" value="picture_bg.png"/>
+  </images>
+
+  <fonts>
+    <font name="font123" face="segoe20" size="20"/>
+  </fonts>
+
+  <colors>
+    <color name="whitehalftransparent" value="255,255,255,128"/>
+    <color name="blacktransparent" value="0,0,0,255"/>
+    <color name="white" value="255,255,255,255"/>
+    <color name="black" value="0,0,0,255"/>
+    <color name="green" value="0,255,0,255"/>
+    <color name="darkgrey" value="173,173,173,255"/>
+    <color name="darkyellow" value="241,233,148,255"/>
+    <color name="lightblue" value="205,217,227"/>
+    <color name="almostblack" value="50,50,50"/>
+    <color name="lightgrey" value="199,199,199,255"/>
+    <color name="greytransparent" value="109,163,202"/>
+  </colors>
+</theme>

@@ -1,0 +1,21 @@
+<Plugin name        = "PlayerManager"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Player and Playlist Manager and Factory">
+
+  <Manifest>
+    <Identity name = "MediaPortal.Plugins.PlayerManager.PlayerFactory"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "PlayerManager.dll">
+      <Builder name = 'Player' class = 'MediaPortal.Plugins.PlayerManager.PlayerBuilder'/>
+    </Import>
+  </Runtime>
+
+  <Register location = "/Services">
+    <Class id = "IPlayerFactory" class = "MediaPortal.Plugins.PlayerManager.PlayerFactory"/>
+    <Class id = "IPlaylistManager" class = "MediaPortal.Plugins.PlayerManager.PlaylistManager"/>
+    <Class id = "IPlayListFactory" class = "MediaPortal.Plugins.PlayerManager.PlayListFactory"/>
+  </Register>
+</Plugin>

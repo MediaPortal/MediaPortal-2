@@ -1,0 +1,10 @@
+<menu>
+  <items>
+    <item text="[settings.5]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsRefreshrateControl"/>
+    <item text="[settings.6]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsRefreshrate24FPS"/>
+    <item text="[settings.7]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsRefreshrate25FPS"/>
+    <item text="[settings.8]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsRefreshrate30FPS"/>
+    <item text="[settings.9]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsRefreshrateDefault"/>
+  </items>
+
+</menu>

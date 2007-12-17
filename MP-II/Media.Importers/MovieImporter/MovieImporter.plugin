@@ -1,0 +1,17 @@
+<Plugin name        = "MovieImporter"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Movie Importer">
+
+  <Manifest>
+    <Identity name = "MovieImporter.Importer"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MovieImporter.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "MovieImporter" class = "MovieImporter.Importer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  </Register>
+</Plugin>

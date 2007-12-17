@@ -1,0 +1,17 @@
+<Plugin name        = "MusicImporter"
+        author      = "hwahrmann"
+        copyright   = "GPL"
+        description = "Music Importer">
+
+  <Manifest>
+    <Identity name = "MusicImporter.MusicImporter"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MusicImporter.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "MusicImporter" class = "MusicImporter.MusicImporter" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  </Register>
+</Plugin>

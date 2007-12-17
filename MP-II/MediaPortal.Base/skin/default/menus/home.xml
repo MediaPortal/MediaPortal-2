@@ -1,0 +1,26 @@
+<menu>
+  <items>
+    <item text="[movies.3]" image="hover_my videos.png" command="WindowManager.PrepareWindow+mymovies:Model.SetView+WindowManager.ShowWindow" parameter="movies+Movies+movies">
+      <items>
+        <item text="[movies.dvd]" image="defaultDVDRomBig.png" command="WindowManager.PrepareWindow+mymovies:Model.SetView+WindowManager.ShowWindow" parameter="movies+Dvds+movies"/>
+      </items>
+      <items>
+        <item text="[weather.4]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsPlayback"/>
+      </items>
+    </item>
+    <item text="[weather.0]" image="hover_my weather.png" command="WindowManager.ShowWindow" parameter="weather">
+      <items>
+        <item text="[weather.4]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="weathersetup"/>
+      </items>
+    </item>
+    <item text="[music.3]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="music">
+      <items>
+        <item text="[playlists.playlist]" image="hover_playlist.png" command="WindowManager.ShowWindow" parameter="playlist"/>
+        <item text="[music.settings]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsMusic"/>
+      </items>
+    </item>
+    <item text="[media.name]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="media"/>
+    <item text="[pictures.3]" image="hover_my pictures.png" command="WindowManager.ShowWindow" parameter="Pictures"/>
+    <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsSkin"/>
+  </items>
+</menu>

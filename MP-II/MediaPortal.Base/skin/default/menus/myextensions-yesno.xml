@@ -1,0 +1,6 @@
+<menu>
+  <items>
+    <item text="[system.yes]" image="" command="WindowManager.CloseDialog+model.Install" parameter="+model.SelectedItem"/>
+    <item text="[system.no]" image="" command="WindowManager.CloseDialog" parameter=""/>
+  </items>
+</menu>

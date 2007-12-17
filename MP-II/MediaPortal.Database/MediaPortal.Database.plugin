@@ -1,0 +1,17 @@
+<Plugin name        = "Database Factory"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Database Factory">
+
+  <Manifest>
+    <Identity name = "MediaPortal.Database.DatabasePlugin"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MediaPortal.Database.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "Database" class = "MediaPortal.Database.DatabasePlugin" insertbefore = "MediaManager"/>
+  </Register>
+</Plugin>

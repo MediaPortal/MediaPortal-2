@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section name="system">
+    <String name="0" text="Exit"/>
+    <String name="1" text="Invalid string"/>
+    <String name="2" text="hours"/>
+    <String name="3" text="mins"/>
+    <String name="4" text="secs"/>
+    <String name="5" text="Menu"/>
+    <String name="eject" text="Eject"/>
+    <String name="yes" text="yes"/>
+    <String name="no" text="no"/>
+  </Section>
+  <Section name="general">
+    <String name="name" text="Name"/>
+    <String name="date" text="Date"/>
+    <String name="size" text="Size"/>
+    <String name="view" text="View"/>
+    <String name="sort" text="Sort"/>
+    <String name="options" text="Options"/>
+    <String name="tags" text="Tags"/>
+    <String name="filename" text="File Name"/>
+  </Section>
+  <Section name="days">
+    <String name="0" text="Sunday"/>
+    <String name="1" text="Monday"/>
+    <String name="2" text="Tuesday"/>
+    <String name="3" text="Wednesday"/>
+    <String name="4" text="Thursday"/>
+    <String name="5" text="Friday"/>
+    <String name="6" text="Saturday"/>
+  </Section>
+  <Section name="importers">
+    <String name="addshare" text="Add share"/>
+    <String name="removeshare" text="Remove share"/>
+    <String name="refresh" text="Refresh database"/>
+  </Section>
+  <Section name="shares">
+    <String name="shares" text="Library Setup"/>
+    <String name="addnewshares" text="Add folders to watch"/>
+    <String name="removeshares" text="Stop watching folders"/>
+    <String name="done" text="Done"/>
+    <String name="description" text="Add or remove folders to the library"/>
+    <String name="selectsharetoremove" text="Select folders which you dont want to watch anymore"/>
+    <String name="back" text="Back"/>
+    <String name="cancel" text="Cancel"/>
+  </Section>
+  <Section name="playback">
+    <String name="0" text="Zoom modes"/>
+    <String name="1" text="Previous Window"/>
+    <String name="2" text="Cropping"/>
+    <String name="3" text="Subtitle Language"/>
+    <String name="4" text="Audio Language"/>
+    <String name="5" text="start"/>
+    <String name="6" text="end"/>
+    <String name="7" text="Letterbox 4:3"/>
+    <String name="8" text="Normal"/>
+    <String name="9" text="Original"/>
+    <String name="10" text="Pan&amp;Scan"/>
+    <String name="11" text="Stretch"/>
+    <String name="12" text="Zoom"/>
+    <String name="13" text="Zoom 14:9"/>
+    <String name="14" text="Subtitles"/>
+    <String name="15" text="Top Left"/>
+    <String name="16" text="Bottom Right"/>
+    <String name="17" text="Off"/>
+    <String name="18" text=" (big)"/>
+    <String name="19" text=" (children)"/>
+    <String name="20" text=" (CC)"/>
+    <String name="21" text=" (CC big)"/>
+    <String name="22" text=" (CC children)"/>
+    <String name="23" text=" (forced)"/>
+    <String name="24" text=" (Directors Comments)"/>
+    <String name="25" text=" (Directors Comments big)"/>
+    <String name="26" text=" (Directors Comments 2)"/>
+    <String name="27" text=" (Visually Impaired)"/>
+    <String name="28" text="Titles"/>
+    <String name="29" text="Chapters"/>
+    <String name="30" text="PiP"/>
+    <String name="31" text="Disable"/>
+    <String name="32" text="Switch"/>
+    <String name="33" text="Stopped"/>
+    <String name="34" text="Done"/>
+    <String name="35" text="Resume"/>
+    <String name="36" text="Restart"/>
+    <String name="37" text="Delete"/>
+    <String name="38" text="Ended"/>
+    <String name="intelligentzoom" text="Intelligent Zoom"/>
+  </Section>
+  <Section name="movies">
+    <String name="0" text="Name"/>
+    <String name="1" text="Date"/>
+    <String name="2" text="Size"/>
+    <String name="duration" text="Duration"/>
+    <String name="3" text="My Movies"/>
+    <String name="4" text="View"/>
+    <String name="5" text="Sort"/>
+    <String name="6" text="Play DVD"/>
+    <String name="7" text="Eject"/>
+    <String name="8" text="Library"/>
+    <String name="dvd" text="DVD Library"/>
+  </Section>
+  <Section name="music">
+    <String name="0" text="Name"/>
+    <String name="1" text="Date"/>
+    <String name="2" text="Size"/>
+    <String name="3" text="My Music"/>
+    <String name="4" text="View"/>
+    <String name="5" text="Sort"/>
+    <String name="6" text="Play CD"/>
+    <String name="7" text="Eject"/>
+    <String name="8" text="Library"/>
+    <String name="settings" text="Settings"/>
+    <String name="settingsgeneral" text="General"/>
+    <String name="settingsfade" text="Fade on Stop"/>
+    <String name="settingsgapless" text="Gapless Playback"/>
+  </Section>
+  <Section name="media">
+    <String name="name" text="My Media"/>
+  </Section>
+  <Section name="home">
+    <String name="title" text="MediaPortal"/>
+  </Section>
+  <Section name="login">
+    <String name="welcome" text="welcome"/>
+  </Section>
+  <Section name="weather">
+    <String name="0" text="My Weather"/>
+    <String name="1" text="Location"/>
+    <String name="2" text="Refresh"/>
+    <String name="3" text="Weather"/>
+    <String name="4" text="Setup"/>
+    <String name="5" text="no data"/>
+    <String name="6" text="Temp"/>
+    <String name="7" text="Feels Like"/>
+    <String name="8" text="UV Index"/>
+    <String name="9" text="Wind"/>
+    <String name="10" text="Humidity"/>
+    <String name="11" text="Dew Point"/>
+    <String name="12" text="Sunrise"/>
+    <String name="13" text="Sunset"/>
+    <String name="370" text="T-Storms"/>
+    <String name="371" text="Partly"/>
+    <String name="372" text="Mostly"/>
+    <String name="373" text="Sunny"/>
+    <String name="374" text="Cloudy"/>
+    <String name="375" text="Snow"/>
+    <String name="376" text="Rain"/>
+    <String name="377" text="Light"/>
+    <String name="378" text="AM"/>
+    <String name="379" text="PM"/>
+    <String name="380" text="Showers"/>
+    <String name="381" text="Few"/>
+    <String name="382" text="Scattered"/>
+    <String name="383" text="Wind"/>
+    <String name="384" text="Strong"/>
+    <String name="386" text="Clear"/>
+    <String name="387" text="Early"/>
+    <String name="389" text="Fog"/>
+    <String name="390" text="Haze"/>
+    <String name="391" text="Windy"/>
+    <String name="392" text="Drizzle"/>
+    <String name="393" text="Freezing"/>
+    <String name="394" text="N/A"/>
+    <String name="395" text="Mist"/>
+    <String name="798" text="low"/>
+    <String name="799" text="high"/>
+    <String name="543" text="Thunder"/>
+    <String name="553" text="Late"/>
+    <String name="535" text="N"/>
+    <String name="536" text="E"/>
+    <String name="537" text="S"/>
+    <String name="538" text="W"/>
+    <String name="539" text="NE"/>
+    <String name="540" text="SE"/>
+    <String name="541" text="SW"/>
+    <String name="542" text="NW"/>
+    <String name="543" text="Thunder"/>
+    <String name="544" text="NNE"/>
+    <String name="545" text="ENE"/>
+    <String name="546" text="ESE"/>
+    <String name="547" text="SSE"/>
+    <String name="548" text="SSW"/>
+    <String name="549" text="WSW"/>
+    <String name="551" text="WNW"/>
+    <String name="552" text="NNW"/>
+    <String name="555" text="From {0} at {1} {2}"/>
+    <String name="556" text="various"/>
+    <String name="557" text="calm"/>
+    <String name="558" text="No wind"/>
+    <String name="559" text="in the vicinity"/>
+    <String name="560" text="Clearing"/>
+  </Section>
+  <Section name="weathersetup">
+    <String name="0" text="Please enter the name of your City!"/>
+    <String name="1" text="Search"/>
+    <String name="2" text="Select..."/>
+    <String name="3" text="Save"/>
+  </Section>
+  <Section name="pictures">
+    <String name="0" text="Title"/>
+    <String name="1" text="Tags"/>
+    <String name="2" text="Size"/>
+    <String name="3" text="My Pictures"/>
+    <String name="4" text="Library"/>
+    <String name="5" text="Sort"/>
+    <String name="6" text="Slideshow"/>
+    <String name="picinfo" text="Picture Info"/>
+    <String name="save"  text="Save"/>
+    <String name="cancel"    text="Cancel"/>
+    <String name="crop"    text="Crop"/>
+    <String name="print"   text="Print"/>
+    <String name="redeye"  text="Red-eye"/>
+    <String name="contrast"  text="Contrast"/>
+    <String name="edit"  text="Edit"/>
+    <String name="model" text="Camera Model"/>
+    <String name="maker"  text="Maker"/>
+    <String name="flash"  text="Flash"/>
+    <String name="dimension"  text="Dimensions"/>
+    <String name="expcomp"  text="Exposure Compensation"/>
+    <String name="exptime"  text="Exposure Time"/>
+    <String name="metmod"  text="Metering Mod"/>
+    <String name="sspeed"  text="Shutter Speed"/>
+    <String name="fstop"  text="F Stop"/>
+  </Section>
+  <Section name="settings">
+    <String name="0" text="Settings"/>
+    <String name="1" text="Skin"/>
+    <String name="2" text="Language"/>
+    <String name="3" text="Save"/>
+    <String name="4" text="Fullscreen"/>
+    <String name="theme" text="Theme"/>
+    <String name="mpg2videocodec" text="MPEG-2 Video Codec"/>
+    <String name="h264videocodec" text="H-264 Video Codec"/>
+    <String name="xvidvideocodec" text="DivX/XVID Video Codec"/>
+    <String name="audiocodec" text="Audio Codec"/>
+    <String name="playback" text="Playback"/>
+    <String name="refreshrate" text="Refresh rate"/>
+    <String name="5" text="Refresh Rate Control"/>
+    <String name="6" text="24 FPS"/>
+    <String name="7" text="25 FPS"/>
+    <String name="8" text="30 FPS"/>
+    <String name="9" text="FPS Default"/>
+    <String name="music" text="Music"/>
+  </Section>
+  <Section name="radio">
+    <String name="name" text="My Radio"/>
+  </Section>
+  <Section name="tv">
+    <String name="name" text="My Tv"/>
+  </Section>
+  <Section name="playlists">
+    <String name="add" text="Add to playlist"/>
+    <String name="addall" text="Add all to playlist"/>
+    <String name="playlist" text="Playlist"/>
+    <String name="play" text="Play"/>
+    <String name="clear" text="Clear"/>
+    <String name="shuffle" text="Shuffle"/>
+  </Section>
+  <Section name="extensions">
+    <String name="myextensions" text="My extensions"/>
+    <String name="view" text="View"/>
+    <String name="sort" text="Sort"/>
+    <String name="views" text="Library"/>
+    <String name="install" text="Install"/>
+    <String name="uninstall" text="Uninstall"/>
+    <String name="downloadinstall" text="Download &amp; Install"/>
+    <String name="downloadlist" text="Refresh list"/>
+    <String name="cancelinstall" text="Cancel install"/>
+    <String name="canceluninstall" text="Cancel uninstall"/>
+    <String name="cancelreinstall" text="Cancel reinstall"/>
+    <String name="cancelupdate" text="Cancel update"/>
+    <String name="name" text="Name"/>
+    <String name="downloads" text="Downloads"/>
+    <String name="reinstall" text="Reinstall"/>
+    <String name="installinfo" text="This action will be executed in next restart of MediaPortal"/>
+    <String name="dependecyinfo" text="This extension depend one ore more extension this will be installed to. Continue ?"/>
+    <String name="notification" text="Notification"/>
+    <String name="dependon" text="Depend On"/>
+    <String name="flatview" text="Flat"/>
+    <String name="collection" text="Collection"/>
+    <String name="update" text="Update"/>
+  </Section>
+</Language>

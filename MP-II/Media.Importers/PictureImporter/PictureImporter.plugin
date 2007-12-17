@@ -1,0 +1,17 @@
+<Plugin name        = "PictureImporter"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "Picture Importer">
+
+  <Manifest>
+    <Identity name = "PictureImporter.Importer"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "PictureImporter.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "PictureImporter" class = "PictureImporter.Importer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  </Register>
+</Plugin>

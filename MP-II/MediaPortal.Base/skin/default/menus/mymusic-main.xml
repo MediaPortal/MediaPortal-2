@@ -1,0 +1,9 @@
+<menu>
+  <items>
+    <item text="[music.4]" image="" command="list.SwitchStyle" parameter=""/>
+    <item text="[music.5]" image="" command="WindowManager.ShowDialog" parameter="dialogMusicSortMenu"/>
+    <item text="[music.8]" image="" command="WindowManager.ShowDialog" parameter="dialogMusicViewMenu"/>
+    <item text="[playlists.playlist]" image="" command="WindowManager.ShowWindow" parameter="playlist"/>
+  </items>
+
+</menu>

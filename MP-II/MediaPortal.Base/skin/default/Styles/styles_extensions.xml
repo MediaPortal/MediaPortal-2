@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<styles>
+	<!-- styles for the list control small list-->
+	<style name="list_button_style_extensions_small">
+		<image source="theme-list-button-focus" position="0,0" center="200,16"  width="400" height="46">
+			<animation trigger="#script:HasFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+			<animation trigger="#script:HasNoFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+		</image>
+		<image source="theme-list-button-nofocus" position="0,0" center="200,16" width="400" height="46">
+			<animation trigger="#script:HasNoFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+			<animation trigger="#script:HasFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+		</image>
+		<image source="theme-list-button-nofocus" visible="false" position="0,0" width="400" center="200,17" height="46"/>
+		<image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)"  position="18,8"  width="32" height="32"/>
+		<label font="font13" position="80,9" label="#script:ListItemLabel(Name)" width="300" height="32" scroll="#script:HasFocus"/>
+    <label font="font12" position="-10,9" align="right" label="#script:ListItemLabel(Size)"  width="400" height="32"/>
+    <image source="extension_installed.png"  visible="#script:ListItemLabelIsValue(State:Installed)" position="362,8"  width="30" height="30"/>
+    <image source="extension_install.png"  visible="#script:ListItemLabelIsValue(State:QueueInstall)" position="362,8"  width="30" height="30"/>
+    <image source="extension_uninstall.png"  visible="#script:ListItemLabelIsValue(State:QueueUnInstall)" position="362,8"  width="30" height="30"/>
+    <image source="extension_reinstall.png"  visible="#script:ListItemLabelIsValue(State:ReInstall)" position="362,8"  width="30" height="30"/>
+	<image source="extension_update.png"  visible="#script:ListItemLabelIsValue(State:Update)" position="362,8"  width="30" height="30"/>
+	<image source="extension_online.png"  visible="#script:ListItemLabelIsValue(State:Online)" position="362,8"  width="30" height="30"/>
+    <animation trigger="isvisible" type="fade" from="0.0" to="1.0"  duration="100" />
+		<animation trigger="!isvisible" type="fade" from="1.0" to="0.0"  duration="100" />
+		<animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+		<animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300"/>
+	</style>
+
+  <!-- styles for the list container -->
+	<styles name="style_list_extensions">
+		<style name="list_style_small" position="260,97" move="0,1,0,1" wrap="false">
+			<animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="rotate" axis="y"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="rotate" axis="x"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+			<animation trigger="visiblechange" type="fade" from="0.0" to="1.0" duration="300"/>
+			<label font="font13" position="0,-32" scroll="true" label="#script:SelectedListItem(Name)"  width="400" height="32" />
+			<group name="small_list" position="0,-46" layout="stack">
+				<animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
+				<animation trigger="#script:IsScrollingDown" type="slide" from="0,0" to="0,-46" tween="quad" ease="easeout" duration="300"/>
+				<animation trigger="#script:IsScrollingUp" type="slide" from="0,0" to="0,46" tween="quad" ease="easeout" duration="300"/>
+				<controls>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(-1)" focusable="false" visible="#script:IsScrollingUp">
+						<animation trigger="#script:IsScrollingUp" type="fade" from="0.0" to="1.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(0)" visible="#script:HasListItem">
+						<animation trigger="#script:IsScrollingDown" type="fade" from="1.0" to="0.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(1)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(2)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(3)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(4)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(5)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(6)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(7)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(8)" visible="#script:HasListItem">
+						<animation trigger="#script:IsScrollingUp" type="fade" from="1.0" to="0.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(9)" focusable="false" visible="#script:IsScrollingDown">
+						<animation trigger="#script:IsScrollingDown" type="fade" from="0.0" to="1.0" duration="100"/>
+					</button>
+				</controls>
+			</group>
+			<visualbrush position="0,0" width="400" height="414" source="260,97,400,414" visible="#script:ContentAboutToChange" clip="260,97,400,414" effect="normal">
+				<animation trigger="#script:ContentChange" type="fade" from="1.0" to="0.0"  duration="200"/>
+			</visualbrush>
+		</style>
+	</styles>
+	
+	<styles name="style_list_extensions_ver">
+		<style name="list_style_small" position="260,97" move="0,1,0,1" wrap="false">
+			<animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="rotate" axis="y"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="rotate" axis="x"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+			<animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+			<animation trigger="visiblechange" type="fade" from="0.0" to="1.0" duration="300"/>
+			<group name="small_list" position="0,-46" layout="stack">
+				<animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
+				<animation trigger="#script:IsScrollingDown" type="slide" from="0,0" to="0,-46" tween="quad" ease="easeout" duration="300"/>
+				<animation trigger="#script:IsScrollingUp" type="slide" from="0,0" to="0,46" tween="quad" ease="easeout" duration="300"/>
+				<controls>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(-1)" focusable="false" visible="#script:IsScrollingUp">
+						<animation trigger="#script:IsScrollingUp" type="fade" from="0.0" to="1.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(0)" visible="#script:HasListItem">
+						<animation trigger="#script:IsScrollingDown" type="fade" from="1.0" to="0.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(1)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(2)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(3)" visible="#script:HasListItem"/>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(4)" visible="#script:HasListItem">
+						<animation trigger="#script:IsScrollingUp" type="fade" from="1.0" to="0.0" duration="100"/>
+					</button>
+					<button style="list_button_style_extensions_small"  item="#script:ListItem(5)" focusable="false" visible="#script:IsScrollingDown">
+						<animation trigger="#script:IsScrollingDown" type="fade" from="0.0" to="1.0" duration="100"/>
+					</button>
+				</controls>
+			</group>
+			<visualbrush position="0,0" width="400" height="414" source="260,97,400,414" visible="#script:ContentAboutToChange" clip="260,97,400,414" effect="normal">
+				<animation trigger="#script:ContentChange" type="fade" from="1.0" to="0.0"  duration="200"/>
+			</visualbrush>
+		</style>
+	</styles>	
+</styles>

@@ -1,0 +1,5 @@
+- layout (stack,...)
+- skew transforms
+
+- style for thumbnail list : small icons
+- style for thumbnail list : big icons

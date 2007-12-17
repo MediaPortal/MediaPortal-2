@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<skin defaultfocus="cropButton" opencommand="model.Editor.Reset">
+  <models>
+    <model name="model" assembly="mypicture" class="PictureModel"/>
+  </models>
+  <styles>
+    <include name="styles.xml"/>
+    <include name="styles_list.xml"/>
+  </styles>
+  <group>
+    <controls>
+      <include source="background.xml"/>
+      <label font="font13" position="230,100" width="500" height="30" label="model.SlideShow.Info.ImgTitle" visible="true"/>
+      <image name="picture" source="model.Editor.CurrentPicture"  position="230,130" width="400" height="300" usethumbnail="false" keepaspectratio="true" zoom="false"/>
+
+      <button style="buttonLeft32_style" position="230,435" command="model.Editor.MoveLeft" visible="model.Editor.CroppingEnabled"/>
+      <button style="buttonRight32_style" position="264,435" command="model.Editor.MoveRight" visible="model.Editor.CroppingEnabled"/>
+
+      <button style="buttonUp32_style" position="304,435" command="model.Editor.MoveUp" visible="model.Editor.CroppingEnabled"/>
+      <button style="buttonDown32_style" position="338,435" command="model.Editor.MoveDown" visible="model.Editor.CroppingEnabled"/>
+
+      <button style="buttonZoomOut32_style" position="378,435" command="model.Editor.ZoomOut" visible="model.Editor.CroppingEnabled"/>
+      <button style="buttonZoomIn32_style" position="412,435" command="model.Editor.ZoomIn" visible="model.Editor.CroppingEnabled"/>
+
+      <button style="buttonRotateLeft32_style" position="454,435" command="model.Editor.RotateLeft"/>
+      <button style="buttonRotateRight32_style" position="488,435" command="model.Editor.RotateRight"/>
+      <group name="menuPanel" position="30,97" layout="stack" width="200">
+        <controls>
+          <button style="normal_button_style" label="[pictures.save]"  command="model.Editor.SaveImage+WindowManager.ShowPreviousWindow"/>
+          <button style="normal_button_style" label="[pictures.cancel]" command="WindowManager.ShowPreviousWindow"/>
+          <checkbox name="cropButton" style="checkbox_style_main" label="[pictures.crop]" command="model.Editor.TransformImage" onselecteditemchanged="model.Editor.EnableCropping"/>
+          <checkbox style="checkbox_style_main" label="[pictures.redeye]" command="model.Editor.TransformImage"  onselecteditemchanged="model.Editor.EnableRedEye"/>
+          <button style="normal_button_style" label="[pictures.print]"/>
+          <checkbox style="checkbox_style_main" label="[pictures.contrast]" command="model.Editor.TransformImage" onselecteditemchanged="model.Editor.EnableContrast"/>
+        </controls>
+        <animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+        <animation trigger="onwindowopen" type="slide"  from="-300.0" to="0,0"  duration="1300"/>
+      </group>
+    </controls>
+    <animation trigger="onwindowclose" type="fade" from="1" to="0"  duration="800"/>
+    <animation trigger="onwindowopen" type="fade" from="0" to="1"  duration="800"/>
+  </group>
+
+  <keybinding key="Left" command="model.SlideShow.ShowPreviousPicture"/>
+  <keybinding key="Right" command="model.SlideShow.ShowNextPicture"/>
+  <keybinding key="Space" command="model.SlideShow.Pause"/>
+</skin>

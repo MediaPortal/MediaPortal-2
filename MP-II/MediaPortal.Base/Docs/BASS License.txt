@@ -1,0 +1,122 @@
+==========
+BASS License Info
+
+Copyright, disclaimer, and all that other jazz ==============================================
+The BASS library is free for non-commercial use. If you are a non- commercial entity and are not charging for your software, and the software has no other commercial purpose (eg. advertising/promotion), then you can use BASS in it for free. If you wish to use BASS in commercial products, then please see the next section.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, BASS IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS SHALL NOT BE HELD LIABLE FOR ANY DAMAGE THAT MAY RESULT FROM THE USE OF BASS. BASICALLY, YOU USE BASS ENTIRELY AT YOUR OWN RISK.
+
+Usage of BASS indicates that you agree to the above conditions.
+
+You may freely distribute the BASS package as long as NO FEE is charged and all the files remain INTACT AND UNMODIFIED.
+
+All trademarks and other registered names contained in the BASS package are the property of their respective owners.
+
+
+BASS in commercial software?
+============================
+BASS is available for use in your commercial software. The license types available are as follows:
+
+SHAREWARE: Allows the usage of BASS in an unlimited number of your shareware products, which must sell for no more than 30 Euros ($40) each. If you're an individual making and selling your own software (and the price is within the limit), this is the license for you.
+
+SINGLE COMMERCIAL: Allows the usage of BASS in a single commercial product.
+
+UNLIMITED COMMERCIAL: Allows the usage of BASS in an unlimited number of your commercial products. This license is on a per site basis. So if your company has two sites and both use BASS, then two licenses are required.
+
+Please note that the "unlimited" licenses only cover your own software.
+not the publishing of other's software. If you publish other's software, its developers (or the software itself) will need to be licensed to use BASS.
+
+These licenses are on a per-platform basis, with reductions available when licensing for both platforms. In all cases there are no royalties to pay, and you can use future BASS updates without further cost. One license covers one person or entity and is not transferable.
+
+These licenses do not allow reselling/sublicensing of BASS. For example, if a licensed product is a development system, the users of said product are not licensed to use BASS in their productions - they will need their own licenses.
+
+If the standard licenses do not meet your requirements, or if you have any questions, please get in touch (email: bass@un4seen.com).
+
+Visit the BASS website for the latest pricing and updates:
+
+	www.un4seen.com
+
+
+MP3
+===
+MP3 technology is patented, and Thomson license the use of their and Fraunhofer's patents. The inclusion of an MP3 decoder (eg. BASS) in a commercial product requires an MP3 patent license. Contact Thomson for
+details:
+
+	www.mp3licensing.com
+
+Alternatively, the "MP3-FREE" BASS version doesn't include its own MP3 decoder but uses the already licensed Windows/OSX MP3 decoders instead.
+
+NOTE: When using the Windows/OSX MP3 decoders, BASS still does the file
+      handling so all the usual features are still supported, including
+      streaming, tag reading, pre-scanning, gapless playback, etc...
+-----------------
+==========
+
+
+============================================================
+LICENSE AGREEMENT:
+------------------------------------------------------------
+BASS.NET API - Freeware License
+-------------------------------
+
+Date: 2006/12/08
+
+This license agreement is a legal agreement between -Team MediaPortal- (the 'LICENSEE') and -TEN53 GbR, Gryphiusstrasse 9, 22299 Hamburg, Germany- (the 'LICENSOR'), for use of the BASS.NET API software ('BASS.NET') in any of the LICENSEE’s freeware software ('FREEWARE').
+
+Freeware software is herewith defined as computer software developed for the public domain or personal use only for non-money making use, to which no charge is associated at all and which has absolutely no commercial purpose. Freeware software - if made available for use to any 3rd party - must be free of charge, for an unlimited time.
+
+This freeware version of BASS.NET is free for non-money making use. If you are not charging for or making any money with your software AND you are an individual person (not a company) AND your software is intended for personal use only, then you can use the BASS.NET API in your software for free.
+Free in this case means, that the LICENSEE can use BASS.NET without any further license fees. It does NOT mean that you are free to change, copy, redistribute, share or use BASS.NET in any purpose.
+
+If you wish to use BASS.NET in shareware or commercial software (or your software has any other commercial purpose, e.g. advertising, training etc.), you will require another license which is NOT covered by this license agreement.
+This license agreement is ONLY valid for freeware software.
+
+BASS.NET is the property of TEN53 GbR and is protected by copyright laws and international copyright treaties. BASS.NET is not sold, it is licensed. The LICENSOR represents that it has all of the rights necessary to grant to the LICENSEE the rights set forth in this license agreement, subject to the terms set forth below regarding BASS and MP3 technology.
+
+Permitted use and restrictions:
+ - - - - - - - - - - - - - - -
+This license agreement allows the LICENSEE to use BASS.NET in any of his FREEWARE products.
+By using this software, you agree to the following conditions:
+ 1) The LICENSEE may not charge for or make any money with the software using BASS.NET. The LICENSEE’s software might also have no other commercial purpose and might only be used for personal needs.
+ 2) It is prohibited to change any of the provided source code and all the files must at any time remain intact and unmodified.
+ 3) The LICENSEE may not decompile, disassemble, reverse engineer or modify any part of BASS.NET.
+ 4) The LICENSEE may ONLY distribute the DLL part of BASS.NET with the FREEWARE (Bass.Net.dll). No other part of BASS.NET may be distributed.
+ 5) The LICENSEE may not transfer the license to anyone else.
+ 6) The LICENSEE may not resell or sublicense BASS.NET.
+ 7) A splash screen will appear every time at start-up (unless you obtained a valid Registration-Key).
+
+No royalty payments are required for the use of BASS.NET in the FREEWARE, and the LICENSEE may freely use future updates of BASS.NET in updates of the FREEWARE.
+This license agreement is between only the LICENSEE and the LICENSOR. The LICENSEE may not transfer the license to anyone else.
+The LICENSOR reserves all rights not expressly granted.
+
+Term and termination:
+ - - - - - - - - - -
+This license agreement will continue in perpetuity unless terminated as set forth herein. This license agreement may be terminated in the event that the LICENSEE breaches any term or condition of the agreement. The LICENSEE may voluntarily terminate this license agreement in writing.
+Upon termination of this agreement, the LICENSEE must cease to use BASS.NET in the FREEWARE.
+
+Third party intellectual property rights:
+ - - - - - - - - - - - - - - - - - - - - BASS.NET is a .Net wrapper of the product BASS (www.un4seen.com). In order to use BASS.NET an additional BASS license needs to be obtained separately.
+MP3 technology is patented, and so the use of the BASS MP3 decoder in the PRODUCTS requires the LICENSEE to have a patent license from Thomson (www.mp3licensing.com). Alternatively, the LICENSEE does not need a patent license if BASS is set to use the already licensed Windows MP3 decoder.
+
+Shareware or Commercial Versions:
+ - - - - - - - - - - - - - - - -
+If you are using BASS.NET in software which is NOT FREEWARE (as described above) OR you are trying to make money with your software OR your software using BASS.NET has any commercial purpose OR you are a company then you must obtain a separate license from TEN53 GbR!
+In this case please contact:
+Bernd Niedergesaess, TEN53 GbR
+Gryphiusstrasse 9
+22299 Hamburg, Germany
+Mail: bn@ten53.de or bn@radio42.com
+
+Disclaimer:
+ - - - - -
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, BASS.NET IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. THE LICENSOR AND ITS SUPPLIERS SHALL NOT BE HELD LIABLE FOR ANY DAMAGE THAT MAY RESULT FROM THE USE OF BASS.NET. THE LICENSEE USES BASS.NET ENTIRELY AT ITS OWN RISK.
+
+
+Issued: 2006/12/08
+Ten53 GbR, Gryphiusstrasse 9
+22299 Hamburg, Germany
+Bernd Niedergesaess - www.ten53.de
+----------------------------------
+This license agreement is created automatically and is valid without a signature.
+
+============================================================

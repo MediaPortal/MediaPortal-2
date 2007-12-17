@@ -1,0 +1,11 @@
+1. Download BMFont from http://www.angelcode.com/products/bmfont/
+
+2. install, run it
+
+3. choose Options->FontSettings
+
+Padding 	: 2,2,2,2
+Spacing 	: 2,2
+Bit Depth	: 32 bits
+Font descriptor : Text
+Textures	: tga - Targa

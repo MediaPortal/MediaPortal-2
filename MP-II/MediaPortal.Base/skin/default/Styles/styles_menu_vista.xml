@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<styles>
+  <!-- styles for a menu-item -->
+  <style name="style_menu_item">
+    <label font="font13" position="0,0" width="190" height="32" label="#script:ListItemLabel(Name)" color="white"/>
+    <animation trigger="hasmousefocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasmousefocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <style name="list_button_style_menu">
+    <label font="font12" position="-10,10" width="140" height="32" label="#script:ListItemLabel(Name)" color="white" align="right"/>
+    <image source="#script:ListItemLabel(CoverArt)" position="0,10" width="64"  height="64" />
+  </style>
+
+  <style name="style_menu_item_focus">
+    <label font="font12"  position="-10,8" width="140" height="32" label="#script:ListItemLabel(Name)" color="white" align="right" />
+    <image source="#script:ListItemLabel(CoverArt)" position="60,30" width="64" height="64" />
+  </style>
+
+
+  <style name="style_sub_menu_item">
+    <label font="font12"  position="-10,8" width="140" height="32" label="#script:ListItemLabel(Name)" color="white" align="right" visible="#script:HasListItem"/>
+    <image source="#script:ListItemLabel(CoverArt)" position="60,30" width="64" height="64" visible="#script:HasListItem"/>
+    <animation trigger="hasmousefocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasmousefocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <!-- styles for a menu-->
+  <styles name="style_vista_menu">
+    <style name="vista_menu_style_1" position="250,150" move="1,1,1,1" wrap="true">
+      <button style="style_mouse_up" position="40,-20"  mouseonly="true" focusable="false" visible="#script:IsMouseUsed" command="InputManager.PressKey" parameter="Up"/>
+      <button style="style_mouse_down" position="40,280" mouseonly="true" focusable="false" visible="#script:IsMouseUsed" command="InputManager.PressKey" parameter="Down"/>
+      <button style="style_mouse_left" position="-230,140"  mouseonly="true" focusable="false" visible="#script:IsMouseUsed+#script:ListCanScrollLeft" command="InputManager.PressKey" parameter="Left"/>
+      <button style="style_mouse_right" position="430,140" mouseonly="true" focusable="false" visible="#script:IsMouseUsed+#script:ListCanScrollRight" command="InputManager.PressKey" parameter="Right"/>
+      <group  clip="50,150,720,300">
+        <controls>
+          <button style="style_menu_item" position="0,-40" item="#script:ListItem(-3)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,40,0" duration="300" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-40,0" duration="300" />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+          <button style="style_menu_item" position="0,0" item="#script:ListItem(-2)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,40,0" duration="300" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-40,0" duration="300" />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+
+          <button style="style_menu_item" position="0,40"  item="#script:ListItem(-1)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,20,0" duration="150" />
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="-10,20,0" duration="150" delay="150" />
+            <animation trigger="#script:IsScrollingUp" type="zoom" from="1.00" to="1.2988" duration="300"  />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-50,0" duration="300" />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+
+          <!-- big white for current selected menu item-->
+          <label font="font13" position="-10,80" width="190" height="32" item="#script:ListItem(0)"  label="#script:ListItemLabel(Name)" color="white">
+            <animation trigger="#script:IsScrollingUp" type="zoom" from="1.00" to="0.77" duration="300"  />
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="10,20,0" duration="150" delay="150" />
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,120,0" duration="150" />
+
+            <animation trigger="#script:IsScrollingDown" type="zoom" from="1.00" to="0.77" duration="300"  />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="10,-20,0" duration="150" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-20,0" duration="150" delay="150" />
+          </label>
+
+          <button style="style_menu_item" position="0,220"  item="#script:ListItem(1)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,50,0" duration="300" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="-10,-20,0" duration="150" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-120,0" duration="150" delay="150" />
+            <animation trigger="#script:IsScrollingDown" type="zoom" from="1.00" to="1.2988" duration="300"  />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+
+          <button style="style_menu_item" position="0,260"  item="#script:ListItem(2)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,40,0" duration="300" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-40,0" duration="300" />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+
+          <button style="style_menu_item" position="0,300"  item="#script:ListItem(3)" focusable="false" visible="#script:HasListItem" mouseonly="true" >
+            <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,40,0" duration="300" />
+            <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-40,0" duration="300" />
+            <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.77" duration="1"/>
+          </button>
+
+          <!-- horizontal listitems -->
+          <group>
+            <controls>
+              <button style="style_sub_menu_item" focusable="false" position="-260,110"  item="#script:ListSubItem(-2)" mouseonly="true" >
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:onwindowopen" type="zoom" from="1.0" to="0.8" duration="1"/>
+              </button>
+              <button style="style_sub_menu_item" focusable="false"  position="-150,110" item="#script:ListSubItem(-1)" mouseonly="true" >
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="130,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="1.25" duration="300"/>
+                <animation trigger="#script:onwindowopen" type="zoom" from="1.0" to="0.8" duration="1"/>
+              </button>
+              <image source="rectangle_light.png" position="-20,110" width="150"  height="100"/>
+              <button name="thebutton" style="style_menu_item_focus" position="-20,110"  item="#script:ListSubItem(0)">
+                <animation trigger="#script:IsScrollingUpDown" type="fade" from="1" to="0" duration="300"/>
+                <animation trigger="#script:IsNotScrollingUpDown" type="fade" from="1" to="1" duration="1"/>>
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-163,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="163,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="0.8" duration="300"/>
+                <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="0.8" duration="300"/>
+              </button>
+
+              <button style="style_menu_item_focus" focusable="false" position="-20,110"  item="#script:NextListSubItem(0)" visible="#script:IsScrollingDown">
+                <animation trigger="#script:IsScrollingDown" type="fade" from="0.0" to="1.0" duration="300"/>
+              </button>
+
+              <button style="style_menu_item_focus" focusable="false" position="-20,110"  item="#script:PreviousListSubItem(0)" visible="#script:IsScrollingUp">
+                <animation trigger="#script:IsScrollingUp" type="fade" from="0.0" to="1.0" duration="300"/>
+              </button>
+
+              <button style="style_sub_menu_item" focusable="false" position="110,110"  item="#script:ListSubItem(1)" mouseonly="true" >
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-130,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="1.25" duration="300"/>
+                <animation trigger="#script:onwindowopen" type="zoom" from="1.0" to="0.8" duration="1"/>
+              </button>
+              <button style="style_sub_menu_item" position="220,110" focusable="false" item="#script:ListSubItem(2)" mouseonly="true" >
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:onwindowopen" type="zoom" from="1.0" to="0.8" duration="1"/>
+              </button>
+              <button style="style_sub_menu_item" position="330,110" focusable="false"  item="#script:ListSubItem(3)" mouseonly="true" >
+                <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="138,0,0" duration="300" ease="easeout"/>
+                <animation trigger="#script:onwindowopen" type="zoom" from="1.0" to="0.8" duration="1"/>
+
+              </button>
+            </controls>
+          </group>
+        </controls>
+
+        <opacitymask>
+          <gradientstop offset="0.0" color="10" />
+          <gradientstop offset="0.25" color="255" />
+          <gradientstop offset="0.3" color="255" />
+          <gradientstop offset="1.0" color="10" />
+        </opacitymask>
+      </group>
+    </style>
+  </styles>
+</styles>

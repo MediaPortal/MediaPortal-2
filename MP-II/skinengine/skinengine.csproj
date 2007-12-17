@@ -1,0 +1,251 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7E943389-3589-40C9-B481-2E223554CC49}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>skinengine</RootNamespace>
+    <AssemblyName>skinengine</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CSScriptLibrary, Version=1.9.0.0, Culture=neutral, PublicKeyToken=70fcc3d18c749033">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxEngine\references\CSScriptLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxEngine\references\DirectShowLib-2005.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxEngine\references\Microsoft.DirectX.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.DirectX.Direct3D, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxEngine\references\Microsoft.DirectX.Direct3D.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.DirectX.Direct3DX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxEngine\references\Microsoft.DirectX.Direct3DX.dll</HintPath>
+    </Reference>
+    <Reference Include="NMock2, Version=1.0.2313.18049, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxengine\references\NMock2.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.2.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxengine\references\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Animations\Animations\AlphaAnimation.cs" />
+    <Compile Include="Animations\Animations\AnimationGroup.cs" />
+    <Compile Include="Animations\Animations\AnimationList.cs" />
+    <Compile Include="Animations\Animations\RotateAnimation.cs" />
+    <Compile Include="Animations\Animations\SlideAnimation.cs" />
+    <Compile Include="Animations\Triggers\FocusNamedControlTrigger.cs" />
+    <Compile Include="Animations\Triggers\MouseFocusTrigger.cs" />
+    <Compile Include="Animations\Triggers\ScriptTrigger.cs" />
+    <Compile Include="Animations\Triggers\FocusTrigger.cs" />
+    <Compile Include="Animations\Triggers\ITrigger.cs" />
+    <Compile Include="Animations\Animations\Tween.cs" />
+    <Compile Include="Animations\Animations\ZoomAnimation.cs" />
+    <Compile Include="Animations\Triggers\VisibleTrigger.cs" />
+    <Compile Include="Animations\Triggers\WindowOpenTrigger.cs" />
+    <Compile Include="Commands\CommandBuilder.cs" />
+    <Compile Include="Commands\Expression\EventClasses.cs" />
+    <Compile Include="Commands\Expression\ExprEval.cs" />
+    <Compile Include="Commands\Expression\FunctionEval.cs" />
+    <Compile Include="Commands\Expression\IExpression.cs" />
+    <Compile Include="Commands\Expression\RegexObjects.cs" />
+    <Compile Include="Commands\ObjectFactory.cs" />
+    <Compile Include="Commands\ObjectParameter.cs" />
+    <Compile Include="Commands\ReflectionCommand.cs" />
+    <Compile Include="Commands\ReflectionCommandResult.cs" />
+    <Compile Include="Commands\StringParameter.cs" />
+    <Compile Include="ContentManagement\FontBufferAsset.cs" />
+    <Compile Include="ContentManagement\VertextBufferAsset.cs" />
+    <Compile Include="Controls\AlphaMask.cs" />
+    <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\Progress.cs" />
+    <Compile Include="Controls\Textbox.cs" />
+    <Compile Include="Controls\GradientStop.cs" />
+    <Compile Include="Controls\IControlExt.cs" />
+    <Compile Include="Controls\KeyBinding.cs" />
+    <Compile Include="Controls\Keyboard.cs" />
+    <Compile Include="Controls\TreeContainer.cs" />
+    <Compile Include="Controls\TreeItem.cs" />
+    <Compile Include="Controls\VisualBrush.cs" />
+    <Compile Include="Controls\WaitCursor.cs" />
+    <Compile Include="Animations\Animations\IAnimation.cs" />
+    <Compile Include="DirectX\d3denumeration.cs" />
+    <Compile Include="DirectX\D3DSettingsForm.cs" />
+    <Compile Include="DirectX\d3dSetup.cs" />
+    <Compile Include="DirectX\d3dutil.cs" />
+    <Compile Include="DirectX\GraphicsDevice.cs" />
+    <Compile Include="DirectX\Vertex.cs" />
+    <Compile Include="Effects\EffectAsset.cs" />
+    <Compile Include="ExtendedMatrix.cs" />
+    <Compile Include="Models\Model.cs" />
+    <Compile Include="Models\ModelManager.cs" />
+    <Compile Include="Players\CropSettings.cs" />
+    <Compile Include="Players\DvdPlayer.cs" />
+    <Compile Include="Players\FilterGraphTools.cs" />
+    <Compile Include="Players\Geometry\Geometry.cs" />
+    <Compile Include="Players\Geometry\GeometryIntelligentZoom.cs" />
+    <Compile Include="Players\Geometry\GeometryLetterBox.cs" />
+    <Compile Include="Players\Geometry\GeometryNormal.cs" />
+    <Compile Include="Players\Geometry\GeometryOrignal.cs" />
+    <Compile Include="Players\Geometry\GeometryZoom149.cs" />
+    <Compile Include="Players\Geometry\GeometryPanAndScan.cs" />
+    <Compile Include="Players\Geometry\GeometryStretch.cs" />
+    <Compile Include="Players\Geometry\GeometryZoom.cs" />
+    <Compile Include="Players\IPersistMemory.cs" />
+    <Compile Include="Players\OsdProperties.cs" />
+    <Compile Include="Players\PlaybackSettings.cs" />
+    <Compile Include="Players\PlayerFactory.cs" />
+    <Compile Include="Players\Players.cs" />
+    <Compile Include="Players\Seeking.cs" />
+    <Compile Include="Players\StringTokenizer.cs" />
+    <Compile Include="Players\SubtitleRenderer.cs" />
+    <Compile Include="Players\TsVideoPlayer.cs" />
+    <Compile Include="Players\VideoPlayer.cs" />
+    <Compile Include="Players\VideoSettings.cs" />
+    <Compile Include="Players\Vmr9\Allocator.cs" />
+    <Compile Include="Property\PropertySystem\Dependency.cs" />
+    <Compile Include="Property\Implementations\BooleanProperty.cs" />
+    <Compile Include="ContentManagement\ContentManager.cs" />
+    <Compile Include="ContentManagement\IAsset.cs" />
+    <Compile Include="ContentManagement\TextureAsset.cs" />
+    <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\Control.cs" />
+    <Compile Include="Controls\Group.cs" />
+    <Compile Include="Controls\Image.cs" />
+    <Compile Include="Controls\Label.cs" />
+    <Compile Include="Controls\ListContainer.cs" />
+    <Compile Include="Controls\UpDown.cs" />
+    <Compile Include="Fonts\Font.cs" />
+    <Compile Include="Fonts\FontManager.cs" />
+    <Compile Include="Fonts\FontQuad.cs" />
+    <Compile Include="Fonts\Quad.cs" />
+    <Compile Include="Property\Implementations\BooleanPropertyControl.cs" />
+    <Compile Include="Property\Implementations\BooleanReflectionProperty.cs" />
+    <Compile Include="Property\Implementations\FloatProperty.cs" />
+    <Compile Include="Property\Implementations\FloatPropertyControl.cs" />
+    <Compile Include="Property\Implementations\FloatReflectionProperty.cs" />
+    <Compile Include="InputManager\InputManager.cs" />
+    <Compile Include="Property\Implementations\LabelProperty.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Property\Implementations\LabelReflectionProperty.cs" />
+    <Compile Include="Property\Implementations\Vector3Property.cs" />
+    <Compile Include="Property\interfaces\IVector3Property.cs" />
+    <Compile Include="Property\PropertySystem\DependencyAnd.cs" />
+    <Compile Include="Property\PropertySystem\IScriptProperty.cs" />
+    <Compile Include="Property\PropertySystem\PositionDependency.cs" />
+    <Compile Include="Property\PropertySystem\ReflectionDependency.cs" />
+    <Compile Include="Scripts\ScriptManager.cs" />
+    <Compile Include="ShowWaitCursor.cs" />
+    <Compile Include="SkinContext.cs" />
+    <Compile Include="Skin\ControlBuilders\BuilderHelper.cs" />
+    <Compile Include="Skin\ControlBuilders\ButtonBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\CheckBoxBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\GroupBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\IControlBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\ImageBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\KeyBindingBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\KeyboardBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\LabelBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\ListBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\ProgressBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\RepeaterBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\TreeBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\TreeItemBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\UpDownBuilder.cs" />
+    <Compile Include="Skin\ControlBuilders\VisualBrushBuilder.cs" />
+    <Compile Include="Skin\ISkinLoader.cs" />
+    <Compile Include="Skin\Layout\FlowLayout.cs" />
+    <Compile Include="Skin\Layout\ILayout.cs" />
+    <Compile Include="Skin\Layout\StackLayout.cs" />
+    <Compile Include="Skin\Loader.cs" />
+    <Compile Include="Skin\SkinLoaderContext.cs" />
+    <Compile Include="Skin\Style.cs" />
+    <Compile Include="Skin\StylesCollection.cs" />
+    <Compile Include="Skin\Themes\Theme.cs" />
+    <Compile Include="Skin\Themes\ThemeLoader.cs" />
+    <Compile Include="WindowManagement\nUnit\TestWindow.cs" />
+    <Compile Include="WindowManagement\nUnit\TestWindowManager.cs" />
+    <Compile Include="WindowManagement\Window.cs" />
+    <Compile Include="WindowManagement\WindowManager.cs" />
+    <Compile Include="WindowManagement\WindowSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\thumbNails\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj">
+      <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
+      <Name>ThumbnailGenerator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\dxengine\"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

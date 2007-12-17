@@ -1,0 +1,17 @@
+<Plugin name        = "MyInput"
+        author      = "and-81"
+        copyright   = "GPL"
+        description = "MediaPortal Input Service plugin">
+
+  <Manifest>
+    <Identity name = "MediaPortal.MyInput.MyInput"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyInput.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "MyInput" class = "MediaPortal.MyInput.MyInput" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  </Register>
+</Plugin>

@@ -1,0 +1,17 @@
+<Plugin name        = "UpNpProvider"
+        author      = "Frodo"
+        copyright   = "GPL"
+        description = "UPNP Provider">
+
+  <Manifest>
+    <Identity name = "UpNpProvider.UpNpProvider"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "UpNpProvider.dll"/>
+  </Runtime>
+
+  <Register location = "/Media/Providers">
+    <Class id = "UpNpProvider" class = "UpNpProvider.UpNpProvider"/>
+  </Register>
+</Plugin>

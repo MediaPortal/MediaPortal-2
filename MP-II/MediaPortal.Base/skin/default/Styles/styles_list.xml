@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8"?>
+<styles>
+
+  <!-- styles for the picture-view-list-button -->
+  <style name="list_button_style_image_center1">
+    <image source="theme-picture-view-bg" width="150" height="150" depthtest="true"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106" depthtest="true"/>
+
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="60" duration="200"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-186,0,0" tween="quad" duration="200"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="0.67" duration="200"/>
+
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="10" duration="400" delay="200"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="634,0,-0.2" tween="quad" duration="400" delay="200"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="0.67" duration="400" delay="200"/>
+
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasfocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <style name="list_button_style_image_center2">
+    <image source="theme-picture-view-bg" width="150" height="150" depthtest="true"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106" depthtest="true"/>
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="35" duration="300" delay="100"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-410,0,-0.1" tween="quad" duration="300" delay="100"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="0.67" duration="300" delay="100"/>
+
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="35" duration="300" delay="100"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="410,0,-0.1" tween="quad" duration="300" delay="100"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="0.67" duration="300" delay="100"/>
+
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasfocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <style name="list_button_style_image_center3" position="0,0,-0.1">
+    <image source="theme-picture-view-bg" width="150" height="150" depthtest="true"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106" depthtest="true"/>
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="10" duration="400" delay="200"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-634,0,-0.2" tween="quad" duration="400" delay="200"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="0.67" duration="400" delay="200"/>
+
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="60" duration="200"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="186,0,0" tween="quad" duration="200"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="0.67" duration="200"/>
+
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasfocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <style name="list_button_style_image_left1">
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="10" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="-10" duration="400" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0" to="283,0" tween="quad" duration="400" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="1.5" duration="400" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_left2">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="35" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="-35" duration="300" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0" to="183,0" tween="quad" duration="300" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="1.5" duration="300" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_left3">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="60" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingLeft" type="rotate" axis="z" from="0" to="-60" duration="200" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="70,0,0" tween="quad" duration="200" delay="500"/>
+    <animation trigger="#script:IsScrollingLeft" type="zoom" from="1.0" to="1.79" duration="200" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_right1">
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="10" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="-10" duration="400" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0" to="-283,0" tween="quad" duration="400" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="1.5" duration="400" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_right2">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="35" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="-35" duration="300" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0" to="-183,0" tween="quad" duration="300" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="1.5" duration="300" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_right3">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="60" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+    <animation trigger="#script:IsScrollingRight" type="rotate" axis="z" from="0" to="-60" duration="200" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-70,0,0" tween="quad" duration="200" delay="500"/>
+    <animation trigger="#script:IsScrollingRight" type="zoom" from="1.0" to="1.79" duration="200" delay="500"/>
+  </style>
+
+  <style name="list_button_style_image_left_static1">
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="10" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <style name="list_button_style_image_left_static2">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="35" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <style name="list_button_style_image_left_static3">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="60" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <style name="list_button_style_image_right_static1">
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="10" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <style name="list_button_style_image_right_static2">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="35" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <style name="list_button_style_image_right_static3">
+    <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="60" duration="1"/>
+    <animation trigger="onwindowopen" type="zoom" from="1.0" to="0.67" duration="1"/>
+    <image source="theme-picture-view-bg" width="150" height="150"/>
+    <image source="#script:ListItemLabel(CoverArt)" zoom="true" default="#script:ListItemLabel(defaulticon)" position="20,23" width="106" height="106"/>
+  </style>
+
+  <!-- styles for the coverflow button-->
+  <style name="list_button_style_coverflow">
+    <animation trigger="onwindowopen" type="zoom" from="0.5" to="1.0" tween="back" ease="easeout" duration="800"/>
+    <animation trigger="onwindowopen" type="fade" from="0.0" to="1.0" duration="800"/>
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.2" tween="back" ease="easeout" duration="300"/>
+    <animation trigger="!hasfocus" type="zoom" from="1.2" to="1.0" tween="back" ease="easeout" duration="300"/>
+    <image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)" position="5,5" width="100" height="100" depthtest="true"/>
+    <image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)" position="5,155" width="100" height="100" depthtest="true" alphamask="0,0,0.39,0.39">
+      <animation trigger="onwindowopen" type="rotate" axis="x" from="180" to="180" duration="1" center="0,25"/>
+    </image>
+  </style>
+
+
+  <!-- styles for the list control small list-->
+  <style name="list_button_style_small">
+    <image source="theme-list-button-focus" position="0,0" center="200,16"  width="400" height="46">
+      <animation trigger="#script:HasFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+      <animation trigger="#script:HasNoFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+    </image>
+    <image source="theme-list-button-nofocus" position="0,0" center="200,16" width="400" height="46">
+      <animation trigger="#script:HasNoFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+      <animation trigger="#script:HasFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+    </image>
+    <image source="theme-list-button-nofocus" visible="false" position="0,0" width="400" center="200,17" height="46"/>
+    <image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)"  position="18,8"  width="32" height="32"/>
+    <label font="font13" position="80,9" label="#script:ListItemLabel(Name)" width="300" height="32" scroll="#script:HasFocus"/>
+    <label font="font12" position="-10,9" align="right" label="#script:ListItemLabel(Size)"  width="400" height="32"/>
+    <animation trigger="isvisible" type="fade" from="0.0" to="1.0"  duration="100" />
+    <animation trigger="!isvisible" type="fade" from="1.0" to="0.0"  duration="100" />
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <!-- styles for the list control  big list-->
+  <style name="list_button_style_big">
+    <image source="theme-list-button-focus" position="0,0" center="200,32"  width="400" height="64">
+      <animation trigger="#script:HasFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+      <animation trigger="#script:HasNoFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+    </image>
+    <image source="theme-list-button-nofocus" visible="#script:HasNoFocus" position="0,0" center="200,32" width="400" height="64">
+      <animation trigger="#script:HasNoFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+      <animation trigger="#script:HasFocus" type="fade" from="1.0" to="0.0" duration="100"/>
+    </image>
+    <image source="theme-list-button-nofocus" visible="false" position="0,0" width="400" center="200,32" height="68"/>
+    <image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)"  position="10,10"  width="45" height="45"/>
+    <label font="font13" position="80,10" label="#script:ListItemLabel(Name)" width="270" height="32" scroll="#script:HasFocus"/>
+    <label font="font12" position="-10,35" align="right" label="#script:ListItemLabel(Size)"  width="400" height="32"/>
+    <animation trigger="isvisible" type="fade" from="0.0" to="1.0"  duration="100" />
+    <animation trigger="!isvisible" type="fade" from="1.0" to="0.0"  duration="100" />
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300"/>
+  </style>
+
+  <!-- styles for the list control  big thumbs-->
+  <style name="thumb_button_style_big">
+    <animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="300" />
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" duration="200"/>
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" duration="200"/>
+    <image source="#script:ListItemLabel(CoverArt)" keepaspectratio="true" zoom="true" default="#script:ListItemLabel(defaulticon)" position="15,5"  width="70" height="70"/>
+    <label font="font13" position="5,80" label="#script:ListItemLabel(Name)"  width="90" height="32" scroll="#script:HasFocusNoScrolling"/>
+  </style>
+
+  <style name="style_white_border_thumb">
+    <image source="coverflow_selector.png" visible="#script:HasContainerFocus"  position="-5,-5"  width="115" height="120"/>
+    <!--
+		<animation trigger="isvisible" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+      -->
+  </style>
+
+  <!-- styles for the list container -->
+  <styles name="style_list">
+
+    <style name="list_style_small" position="260,97" move="0,1,0,1" wrap="false">
+      <animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
+      <animation trigger="onwindowopen" type="rotate" axis="y"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+      <animation trigger="onwindowopen" type="rotate" axis="x"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
+      <animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+      <animation trigger="visiblechange" type="fade" from="0.0" to="1.0" duration="300"/>
+      <label font="font13" position="0,-32" scroll="true" label="#script:SelectedListItem(Name)"  width="400" height="32" />
+      <group name="small_list" position="0,-46" layout="stack">
+        <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
+        <animation trigger="#script:IsScrollingDown" type="slide" from="0,0" to="0,-46" tween="quad" ease="easeout" duration="300"/>
+        <animation trigger="#script:IsScrollingUp" type="slide" from="0,0" to="0,46" tween="quad" ease="easeout" duration="300"/>
+        <controls>
+          <button style="list_button_style_small"  item="#script:ListItem(-1)" focusable="false" visible="#script:IsScrollingUp">
+            <animation trigger="#script:IsScrollingUp" type="fade" from="0.0" to="1.0" duration="100"/>
+          </button>
+          <button style="list_button_style_small"  item="#script:ListItem(0)" visible="#script:HasListItem">
+            <animation trigger="#script:IsScrollingDown" type="fade" from="1.0" to="0.0" duration="100"/>
+          </button>
+          <button style="list_button_style_small"  item="#script:ListItem(1)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(2)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(3)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(4)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(5)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(6)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(7)" visible="#script:HasListItem"/>
+          <button style="list_button_style_small"  item="#script:ListItem(8)" visible="#script:HasListItem">
+            <animation trigger="#script:IsScrollingUp" type="fade" from="1.0" to="0.0" duration="100"/>
+          </button>
+          <button style="list_button_style_small"  item="#script:ListItem(9)" focusable="false" visible="#script:IsScrollingDown">
+            <animation trigger="#script:IsScrollingDown" type="fade" from="0.0" to="1.0" duration="100"/>
+          </button>
+        </controls>
+      </group>
+      <visualbrush position="0,0" width="400" height="414" source="260,97,400,414" visible="#script:ContentAboutToChange" clip="260,97,400,414" effect="normal">
+        <animation trigger="#script:ContentChange" type="fade" from="1.0" to="0.0"  duration="200"/>
+      </visualbrush>
+    </style>
+
+    <style name="list_style_big" position="260,97" move="0,1,0,1" wrap="false">
+      <animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
+      <animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
+      <label font="font13" position="0,-32" scroll="true" label="#script:SelectedListItem(Name)"  width="400" height="32" />
+      <group layout="stack" position="0,-64">
+        <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
+        <animation trigger="#script:IsScrollingDown" type="slide" from="0,0" to="0,-68" tween="quad" ease="easeout" duration="300"/>
+        <animation trigger="#script:IsScrollingUp" type="slide" from="0,0" to="0,68" tween="quad" ease="easeout" duration="300"/>
+        <controls>
+          <button style="list_button_style_big" item="#script:ListItem(-1)" focusable="false"  visible="#script:IsScrollingUp">
+            <animation trigger="#script:IsScrollingUp" type="fade" from="0.0" to="1.0" duration="100"/>
+          </button>
+          <button style="list_button_style_big" item="#script:ListItem(0)" visible="#script:HasListItem">
+            <animation trigger="#script:IsScrollingDown" type="fade" from="1.0" to="0.0" duration="100"/>
+          </button>
+          <button style="list_button_style_big" item="#script:ListItem(1)" visible="#script:HasListItem"/>
+          <button style="list_button_style_big" item="#script:ListItem(2)" visible="#script:HasListItem"/>
+          <button style="list_button_style_big" item="#script:ListItem(3)" visible="#script:HasListItem"/>
+          <button style="list_button_style_big" item="#script:ListItem(4)" visible="#script:HasListItem"/>
+          <button style="list_button_style_big" item="#script:ListItem(5)" visible="#script:HasListItem">
+            <animation trigger="#script:IsScrollingUp" type="fade" from="1.0" to="0.0" duration="100"/>
+          </button>
+          <button style="list_button_style_big" item="#script:ListItem(6)" focusable="false"  visible="#script:IsScrollingDown">
+            <animation trigger="#script:IsScrollingDown" type="fade" from="0.0" to="1.0" duration="100"/>
+          </button>
+        </controls>
+      </group>
+      <visualbrush position="0,0" width="400" height="442" source="260,97,400,442" visible="#script:ContentAboutToChange" clip="260,97,400,442">
+        <animation trigger="#script:ContentChange" type="fade" from="1.0" to="0.0"  duration="200"/>
+      </visualbrush>
+    </style>
+
+    <style name="list_coverflow" position="-100,300" move="1,0,1,0" wrap="true" >
+      <group>
+        <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
+        <animation trigger="onwindowopen" type="rotate" duration="1" axis="x" from="0" to="10"/>
+        <controls>
+          <image source="coverflow_bg.png" position="0,0" width="1000" height="600"/>
+          <button style="list_button_style_coverflow" position="0,0" focusable="false" item="#script:ListItem(-7)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="50,0" focusable="false" item="#script:ListItem(-6)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="100,0" focusable="false" item="#script:ListItem(-5)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="150,0" focusable="false" item="#script:ListItem(-4)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="200,0" focusable="false" item="#script:ListItem(-3)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="250,0" focusable="false" item="#script:ListItem(-2)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="-90" duration="1"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="300,0" focusable="false" item="#script:ListItem(-1)" visible="#script:HasListItem">
+            <animation trigger="hasfocus" type="rotate" axis="y" from="-90" to="0" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="!hasfocus" type="rotate" axis="y" from="0" to="-90" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="83,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+
+          <button style="list_button_style_coverflow" position="400,0" focusable="true" item="#script:ListItem(0)" visible="#script:HasListItem">
+            <animation trigger="#script:IsScrollingLeft" type="rotate" axis="y" from="0" to="90" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="#script:IsScrollingRight" type="rotate" axis="y" from="0" to="-90" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="100,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-100,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+
+          <button style="list_button_style_coverflow" position="500,0" focusable="false" item="#script:ListItem(1)" visible="#script:HasListItem">
+            <animation trigger="hasfocus" type="rotate" axis="y" from="90" to="0" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="!hasfocus" type="rotate" axis="y" from="0" to="90" duration="250" ease="easeout" tween="quad"/>
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-83,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="550,0" focusable="false" item="#script:ListItem(2)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="600,0" focusable="false" item="#script:ListItem(3)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="650,0" focusable="false" item="#script:ListItem(4)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="700,0" focusable="false" item="#script:ListItem(5)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="750,0" focusable="false" item="#script:ListItem(6)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <button style="list_button_style_coverflow" position="800,0" focusable="false" item="#script:ListItem(7)" visible="#script:HasListItem">
+            <animation trigger="onwindowopen" type="rotate" axis="y" from="0" to="90" duration="1" />
+            <animation trigger="#script:IsScrollingLeft" type="slide" from="0,0,0" to="50,0,0" duration="250" ease="easeout" tween="quad" />
+            <animation trigger="#script:IsScrollingRight" type="slide" from="0,0,0" to="-50,0,0" duration="250" ease="easeout" tween="quad" />
+          </button>
+          <group>
+            <animation trigger="#script:HasContainerFocus" type="fade" from="0.0" to="1.0"/>
+            <animation trigger="#script:HasContainerNoFocus" type="fade" from="1.0" to="0.0"/>
+            <controls>
+              <image source="coverflow_infobg.png" position="300,130" width="300" height="70"/>
+              <label font="font13" position="320,150" width="260" height="50" align="center" scroll="true" label="#script:SelectedListItem(Name)"/>
+            </controls>
+          </group>
+        </controls>
+      </group>
+    </style>
+
+    <style name="coverthrow" position="20,300" move="3,0,3,0" wrap="true">
+      <image source="coverflow_bg.png" position="-200,0" width="1200" height="600"/>
+      <group name="original">
+        <controls>
+          <group name="preview_area" position="200,-220" visible="#script:HasContainerFocus">
+            <controls>
+              <image source="picture_bg_preview.png" width="180" height="180"/>
+              <!-- show the picture -->
+              <image source="#script:SelectedListItem(CoverArt)" visible="#script:HasControlFocus(center1)" position="25,30" keepaspectratio="true" zoom="true" width="125" height="125">
+                <animation trigger="#script:HasControlFocus(center1)" type="fade" from="0.0" to="1.0" duration="400" delay="200"/>
+              </image>
+              <image source="#script:SelectedListItem(CoverArt)" visible="#script:HasControlFocus(center2)" position="25,30" keepaspectratio="true" zoom="true" width="125" height="125">
+                <animation trigger="#script:HasControlFocus(center2)" type="fade" from="0.0" to="1.0" duration="400" delay="200"/>
+              </image>
+              <image source="#script:SelectedListItem(CoverArt)" visible="#script:HasControlFocus(center3)" position="25,30" keepaspectratio="true" zoom="true" width="125" height="125">
+                <animation trigger="#script:HasControlFocus(center3)" type="fade" from="0.0" to="1.0" duration="400" delay="200"/>
+              </image>
+              <!-- show the name -->
+              <label label="#script:SelectedListItem(Name)" visible="#script:HasControlFocus(center1)" position="180,30" font="font13" color="lightblue" width="400">
+                <animation trigger="#script:HasControlFocus(center1)" type="fade" from="0.0" to="1.0" duration="300"/>
+                <animation trigger="#script:HasControlFocus(center1)" type="slide" from="70,0" to="0,0" duration="700" tween="quad"/>
+              </label>
+              <label label="#script:SelectedListItem(Name)" visible="#script:HasControlFocus(center2)" position="180,30" font="font13" color="lightblue" width="400">
+                <animation trigger="#script:HasControlFocus(center2)" type="fade" from="0.0" to="1.0" duration="300"/>
+                <animation trigger="#script:HasControlFocus(center2)" type="slide" from="70,0" to="0,0" duration="700" tween="quad"/>
+              </label>
+              <label label="#script:SelectedListItem(Name)" visible="#script:HasControlFocus(center3)" position="180,30" font="font13" color="lightblue" width="400">
+                <animation trigger="#script:HasControlFocus(center3)" type="fade" from="0.0" to="1.0" duration="300"/>
+                <animation trigger="#script:HasControlFocus(center3)" type="slide" from="70,0" to="0,0" duration="700" tween="quad"/>
+              </label>
+              <!-- show the size -->
+              <label label="#script:SelectedListItem(Size)" visible="#script:HasControlFocus(center1)" position="180,60" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center1)" type="fade" from="0.0" to="1.0" duration="400" delay="100"/>
+                <animation trigger="#script:HasControlFocus(center1)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="100"/>
+              </label>
+              <label label="#script:SelectedListItem(Size)" visible="#script:HasControlFocus(center2)" position="180,60" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center2)" type="fade" from="0.0" to="1.0" duration="400" delay="100"/>
+                <animation trigger="#script:HasControlFocus(center2)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="100"/>
+              </label>
+              <label label="#script:SelectedListItem(Size)" visible="#script:HasControlFocus(center3)" position="180,60" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center3)" type="fade" from="0.0" to="1.0" duration="400" delay="100"/>
+                <animation trigger="#script:HasControlFocus(center3)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="100"/>
+              </label>
+              <!-- show the date -->
+              <label label="#script:SelectedListItem(Date)" visible="#script:HasControlFocus(center1)" position="180,85" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center1)" type="fade" from="0.0" to="1.0" duration="500" delay="200"/>
+                <animation trigger="#script:HasControlFocus(center1)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="200"/>
+              </label>
+              <label label="#script:SelectedListItem(Date)" visible="#script:HasControlFocus(center2)" position="180,85" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center2)" type="fade" from="0.0" to="1.0" duration="500" delay="200"/>
+                <animation trigger="#script:HasControlFocus(center2)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="200"/>
+              </label>
+              <label label="#script:SelectedListItem(Date)" visible="#script:HasControlFocus(center3)" position="180,85" font="font12" color="white" width="400">
+                <animation trigger="#script:HasControlFocus(center3)" type="fade" from="0.0" to="1.0" duration="500" delay="200"/>
+                <animation trigger="#script:HasControlFocus(center3)" type="slide" from="70,0" to="0,0" duration="700" tween="quad" delay="200"/>
+              </label>
+            </controls>
+            <!-- move in the info when the container got focus, and move out if container looses focus -->
+            <animation trigger="#script:HasContainerFocus" type="fade" from="0.0" to="1.0" duration="400"/>
+            <animation trigger="#script:HasContainerFocus" type="slide" from="0,220" to="0,0" duration="400" tween="back"/>
+            <animation trigger="#script:HasContainerNoFocus" type="fade" from="1.0" to="0.0" duration="200"/>
+          </group>
+          <group name="preview_area_reflect" position="200,-75">
+            <controls>
+              <image source="#preview_area" width="580" height="180">
+                <animation trigger="onwindowopen" type="rotate" from="180" to="180" axis="x" duration="1"/>
+                <opacitymask>
+                  <gradientstop offset="0.0" color="0" />
+                  <gradientstop offset="0.5" color="0" />
+                  <gradientstop offset="0.8" color="70" />
+                  <gradientstop offset="1.0" color="80" />
+                </opacitymask>
+              </image>
+            </controls>
+            <!-- move in the info when the container got focus, and move out if container looses focus -->
+            <animation trigger="#script:HasContainerFocus" type="fade" from="0.0" to="1.0" duration="100"/>
+            <animation trigger="#script:HasContainerNoFocus" type="fade" from="1.0" to="0.0" duration="200"/>
+          </group>
+          <group name="selection_part" position="0,20">
+            <controls>
+              <group name="left_side_static" position="0,0">
+                <controls>
+                  <button style="list_button_style_image_left_static3" item="#script:ListItem(-6)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_left_static2" item="#script:ListItem(-5)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_left_static1" item="#script:ListItem(-4)" visible="#script:HasListItem" focusable="false"/>
+                </controls>
+              </group>
+              <group name="right_side_static" position="550,0">
+                <controls>
+                  <button style="list_button_style_image_right_static3" item="#script:ListItem(8)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_right_static2" item="#script:ListItem(7)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_right_static1" item="#script:ListItem(6)" visible="#script:HasListItem" focusable="false"/>
+                </controls>
+              </group>
+              <group name="left_side" position="0,0">
+                <controls>
+                  <button style="list_button_style_image_left3" item="#script:ListItem(-3)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_left2" item="#script:ListItem(-2)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_left1" item="#script:ListItem(-1)" visible="#script:HasListItem" focusable="false"/>
+                </controls>
+              </group>
+              <group name="right_side" position="550,0">
+                <controls>
+                  <button style="list_button_style_image_right3" item="#script:ListItem(5)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_right2" item="#script:ListItem(4)" visible="#script:HasListItem" focusable="false"/>
+                  <button style="list_button_style_image_right1" item="#script:ListItem(3)" visible="#script:HasListItem" focusable="false"/>
+                </controls>
+              </group>
+              <group name="picture_group" layout="flow" position="145,0">
+                <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300"/>
+                <controls>
+                  <button name="center1" style="list_button_style_image_center1" item="#script:ListItem(0)" visible="#script:HasListItem"/>
+                  <button name="center2" style="list_button_style_image_center2" item="#script:ListItem(1)" visible="#script:HasListItem"/>
+                  <button name="center3" style="list_button_style_image_center3" item="#script:ListItem(2)" visible="#script:HasListItem"/>
+                </controls>
+              </group>
+            </controls>
+          </group>
+        </controls>
+      </group>
+    </style>
+
+    <style name="list_thumb_big" position="250,70" move="0,4,0,4" wrap="true">
+      <button name="whiteBorderThumbBig" style="style_white_border_thumb" position="#script:SelectItemPosition" canfocus="false" focusable="false" >
+        <!--
+				<animation trigger="#script:ContentAboutToChange" type="fade" from="1.0" to="0.0" duration="1"/>
+				<animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0" duration="300"/>
+            -->
+      </button>
+      <group name="thumbgroup" clip="0,70,720,380" >
+        <animation trigger="#script:IsScrollingDown" type="slide" from="0,0,0" to="0,-130,0" duration="300" tween="quad" ease="easeout"/>
+        <animation trigger="#script:IsScrollingUp" type="slide" from="0,0,0" to="0,130,0" duration="300" tween="quad" ease="easeout"/>
+        <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300"/>
+        <controls>
+          <button style="thumb_button_style_big" canfocus="false" focusable="false" position="0,-130" item="#script:ListItem(-4)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" canfocus="false" focusable="false" position="100,-130" item="#script:ListItem(-3)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" canfocus="false" focusable="false" position="200,-130" item="#script:ListItem(-2)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" canfocus="false" focusable="false" position="300,-130" item="#script:ListItem(-1)" visible="#script:HasListItem"/>
+
+          <button style="thumb_button_style_big" position="0,0" item="#script:ListItem(0)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="100,0" item="#script:ListItem(1)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="200,0" item="#script:ListItem(2)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="300,0" item="#script:ListItem(3)" visible="#script:HasListItem"/>
+
+          <button style="thumb_button_style_big" position="0,130" item="#script:ListItem(4)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="100,130" item="#script:ListItem(5)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="200,130" item="#script:ListItem(6)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="300,130" item="#script:ListItem(7)" visible="#script:HasListItem"/>
+
+          <button style="thumb_button_style_big" position="0,260" item="#script:ListItem(8)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="100,260" item="#script:ListItem(9)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="200,260" item="#script:ListItem(10)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="300,260" item="#script:ListItem(11)" visible="#script:HasListItem"/>
+
+          <button style="thumb_button_style_big" position="0,390"   canfocus="false" focusable="false" item="#script:ListItem(12)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="100,390" canfocus="false" focusable="false" item="#script:ListItem(13)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="200,390" canfocus="false" focusable="false" item="#script:ListItem(14)" visible="#script:HasListItem"/>
+          <button style="thumb_button_style_big" position="300,390" canfocus="false" focusable="false" item="#script:ListItem(15)" visible="#script:HasListItem"/>
+        </controls>
+      </group>
+      <group>
+        <animation trigger="#script:HasContainerFocus" type="fade" from="0.0" to="1.0"/>
+        <animation trigger="#script:HasContainerNoFocus" type="fade" from="1.0" to="0.0"/>
+        <controls>
+          <image source="coverflow_infobg.png" position="60,400" width="300" height="70"/>
+          <label font="font13" position="80,420" width="260" height="50" align="center" scroll="true" label="#script:SelectedListItem(Name)"/>
+        </controls>
+      </group>
+    </style>
+  </styles>
+
+
+
+  <!-- styles for the list control small list-->
+  <style name="list_menu_button_style">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <image source="theme-list-button-green-focus" visible="#script:HasFocus" position="0,0"  width="160" height="35"/>
+    <image source="theme-list-button-green-nofocus" visible="#script:HasNoFocus" position="0,0" width="160" height="35"/>
+    <label font="font13" position="10,8" visible="#script:HasFocus"  width="160" height="32" label="#script:ListItemLabel(Name)" color="white"/>
+    <label font="font13" position="10,8" visible="#script:HasNoFocus" width="160" height="32" label="#script:ListItemLabel(Name)" color="lightblue"/>
+  </style>
+
+  <styles name="style_list_menu">
+    <style move="0,1,0,1" wrap="false">
+      <group layout="stack">
+        <controls>
+          <button style="list_menu_button_style"  item="#script:ListItem(0)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(1)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(2)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(3)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(4)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(5)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(6)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(7)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style"  item="#script:ListItem(8)" visible="#script:HasListItem"/>
+        </controls>
+      </group>
+    </style>
+  </styles>
+
+  <style name="list_menu_button_style_wide">
+    <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1" tween="back" ease="easeout" duration="300" />
+    <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" tween="back" ease="easeout" duration="300" />
+    <image source="theme-list-button-green-focus" visible="#script:HasFocus" position="0,0"  width="300" height="35"/>
+    <image source="theme-list-button-green-nofocus" visible="#script:HasNoFocus" position="0,0" width="300" height="35"/>
+    <label font="font13" position="10,8" visible="#script:HasFocus"  width="300" height="32" label="#script:ListItemLabel(Name)" color="white"/>
+    <label font="font13" position="10,8" visible="#script:HasNoFocus" width="300" height="32" label="#script:ListItemLabel(Name)" color="lightblue"/>
+  </style>
+  <styles name="style_list_menu_wide">
+    <style move="0,1,0,1" wrap="false">
+      <group layout="stack">
+        <controls>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(0)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(1)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(2)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(3)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(4)" visible="#script:HasListItem"/>
+          <button style="list_menu_button_style_wide"  item="#script:ListItem(5)" visible="#script:HasListItem"/>
+        </controls>
+      </group>
+    </style>
+  </styles>
+</styles>

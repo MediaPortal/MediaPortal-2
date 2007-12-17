@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<skin defaultfocus="listPlugins">
+	<models>
+		<model name="model" assembly="menu" class="HomeMenu"/>
+	</models>
+	<styles>
+		<include name="styles_menu.xml"/>
+		<include name="styles.xml"/>
+	</styles>
+	<group>
+		<controls>
+			<group>
+				<controls>
+          <include source="background.xml"/>
+
+          <label name="header"  font="font26" position="70,15" label="[home.title]" width="500" height="32" />
+
+					<image source="#header" position="70,55" width="500" height="24" effect="normal">
+						<animation trigger="onwindowopen" type="rotate" axis="x" from="180" to="180" duration="1" center="0,25"/>
+						<opacitymask>
+              <gradientstop offset="0.0" color="100" />
+              <gradientstop offset="1.0" color="0" />
+            </opacitymask>
+					</image>
+
+					<list name="listPlugins" style="style_list_menu" items="model.Plugins" />
+					<button name="smallvideo" style="button_small_video" visible="#script:IsVideoPlaying" position="31,450" width="104" height="104" command="WindowManager.ShowWindow" parameter="fullscreenvideo">
+            <animation trigger="hasfocus" type="zoom" from="1.0" to="1.1"  duration="300" center="104,104"/>
+            <animation trigger="!hasfocus" type="zoom" from="1.1" to="1.0" duration="300" center="104,104" />
+          </button>
+        </controls>
+      </group>
+		</controls>
+		<animation trigger="onwindowclose" type="fade" from="1" to="0"  duration="800"/>
+		<animation trigger="onwindowopen" type="fade" from="0" to="1"  duration="800"/>
+	</group>
+</skin>

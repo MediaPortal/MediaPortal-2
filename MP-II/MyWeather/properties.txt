@@ -1,0 +1,44 @@
+okay, here are the properties which can be databound...:
+
+BindingPath
+------------
+
++ City CurrentLocation | List<City> AvailableLocations[n]
+		+ string Name
+		+ string Id
+		+ bool HasData
+		|
+		+ -- CurrentCondition Condition
+		|		+ string City
+		|		+ string LastUpdate
+		|		+ string Temperature
+		|		+ string FeelsLikeTemp
+		|		+ string Condition
+		|		+ Uri Icon
+		|		+ string Humidity
+		|		+ string Wind 
+		|		+ string UVIndex 
+		|		+ string DewPoint
+		|		
+		+ -- LocInfo LocationInfo
+		|		+ string CityCode
+		|		+ string City
+		|		+ string Time 
+		|		+ string Lat
+		|		+ string Lon
+		|		+ string SunRise
+		|		+ string SunSet
+		|		+ string Zone
+		|	
+		+ -- List<DayForeCast> Forecast[n]
+				+ Uri IconImageNameLow
+				+ Uri IconImageNameHigh
+				+ string Overview
+				+ string Day
+				+ string High
+				+ string Low
+				+ string SunRise
+				+ string SunSet
+				+ string Precipitation
+				+ string Humidity
+				+ string Wind

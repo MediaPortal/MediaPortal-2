@@ -1,0 +1,7 @@
+<menu>
+  <items>
+    <item text="[pictures.edit]" image="" command="WindowManager.ShowWindow" parameter="pictureEditting"/>
+    <item text="[pictures.picinfo]" image="" command="WindowManager.ShowWindow" parameter="picturedetail"/>
+    <item text="[shares.shares]" image="" command="WindowManager.ShowWindow" parameter="shares"/>
+  </items>
+</menu>
