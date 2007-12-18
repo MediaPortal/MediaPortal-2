@@ -5,6 +5,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 
 using Skinengine.Controls.Transforms;
+using Skinengine.Controls.Visuals;
 
 namespace Skinengine.Controls.Brushes
 {
@@ -13,6 +14,7 @@ namespace Skinengine.Controls.Brushes
     Property _opacityProperty;
     Property _relativeTransformProperty;
     Property _transformProperty;
+
     public Brush()
     {
       _opacityProperty = new Property((double)1.0f);
@@ -90,6 +92,17 @@ namespace Skinengine.Controls.Brushes
       {
         _transformProperty.SetValue(value);
       }
+    }
+
+    public double GetTotalOpacity(UIElement uielement)
+    {
+      double opacity = (uielement != null) ? uielement.GetTotalOpacity() : 1.0;
+
+      double brush_opacity = Opacity;
+      if (brush_opacity < 1.0)
+        opacity *= brush_opacity;
+
+      return opacity;
     }
   }
 }

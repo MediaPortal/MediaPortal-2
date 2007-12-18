@@ -132,7 +132,13 @@
     <Compile Include="Controls\IControlExt.cs" />
     <Compile Include="Controls\KeyBinding.cs" />
     <Compile Include="Controls\Keyboard.cs" />
+    <Compile Include="Controls\Transforms\RotateTransform.cs" />
+    <Compile Include="Controls\Transforms\ScaleTransform.cs" />
+    <Compile Include="Controls\Transforms\SkewTransform.cs" />
+    <Compile Include="Controls\Transforms\Transform.cs" />
+    <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
+    <Compile Include="Controls\Transforms\TranslateTransform.cs" />
     <Compile Include="Controls\TreeContainer.cs" />
     <Compile Include="Controls\TreeItem.cs" />
     <Compile Include="Controls\VisualBrush.cs" />

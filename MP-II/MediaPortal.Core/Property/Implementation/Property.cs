@@ -80,7 +80,15 @@ namespace MediaPortal.Core.Properties
       else if (value == null)
         changed = false;
       _object = value;
-      if (changed && PropertyChanged != null)
+      if (changed)
+      {
+        Fire();
+      }
+    }
+
+    public void Fire()
+    {
+      if (PropertyChanged != null)
       {
         PropertyChanged(this);
       }
