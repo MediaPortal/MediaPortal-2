@@ -243,7 +243,7 @@ namespace MediaPortal.Services.Burning
 
         CdrProc.OutputDataReceived += new DataReceivedEventHandler(StdOutDataReceived);
         CdrProc.ErrorDataReceived += new DataReceivedEventHandler(StdErrDataReceived);
-        CdrProc.EnableRaisingEvents = true;                                        // We want to know when and why the process died
+        CdrProc.EnableRaisingEvents = true;                                        // We want to know when and why the process died        
         CdrProc.StartInfo = ProcOptions;
         if (File.Exists(ProcOptions.FileName))
         {
@@ -252,6 +252,14 @@ namespace MediaPortal.Services.Burning
             CdrProc.Start();
             CdrProc.BeginErrorReadLine();
             CdrProc.BeginOutputReadLine();
+            try
+            {
+              CdrProc.PriorityClass = ProcessPriorityClass.BelowNormal;            // Execute all processes in the background so movies, etc stay fluent
+            }
+            catch (Exception ex2)
+            {
+              Logger.Error("Devicehelper: Error setting process priority for {0}: {1}", aAppName, ex2.Message);
+            }
             // wait this many seconds until crdtools has to be finished
             CdrProc.WaitForExit(aExpectedTimeoutMs);
             if (CdrProc.HasExited && CdrProc.ExitCode != 0 && !aArguments.Contains(@"-minfo"))

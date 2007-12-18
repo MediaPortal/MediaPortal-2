@@ -614,7 +614,7 @@ namespace MediaPortal.Services.Burning
       System.Windows.Forms.Application.DoEvents();
       System.Threading.Thread.Sleep(2000);
       // Do a test burn which has nothing to do at this place - do not worry; I was just lazy :P
-      BurnCdClone();
+      // BurnCdClone();
       // BurnIsoFile(ProjectType.IsoDVD, @"E:\Dateien\Quellen\MP2\MediaPortal\bin\x86\Debug\Burner\test.iso");
       // BurnFolder(ProjectType.Autoselect, Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
     }
