@@ -34,6 +34,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _colorProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }

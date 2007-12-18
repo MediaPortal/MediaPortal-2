@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using MediaPortal.Core.Properties;
 
 namespace Skinengine.Controls.Visuals
@@ -9,6 +10,7 @@ namespace Skinengine.Controls.Visuals
   {
     double _total_opacity;
     Property _opacityProperty;
+    public Rectangle bounds;
 
     public UIElement()
     {

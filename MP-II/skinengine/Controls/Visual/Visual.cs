@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties; 
+using MediaPortal.Core.Properties;
 
 namespace Skinengine.Controls.Visuals
 {

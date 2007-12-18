@@ -9,7 +9,7 @@ using Skinengine.Controls.Visuals;
 
 namespace Skinengine.Controls.Brushes
 {
-  public class Brush
+  public class Brush : Property
   {
     Property _opacityProperty;
     Property _relativeTransformProperty;
@@ -20,6 +20,10 @@ namespace Skinengine.Controls.Brushes
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
       _transformProperty = new Property(new TransformGroup());
+    }
+    public void OnPropertyChanged()
+    {
+      Fire();
     }
     public Property OpacityProperty
     {
@@ -42,6 +46,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _opacityProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -55,6 +60,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _relativeTransformProperty = value;
+        OnPropertyChanged();
       }
     }
 
@@ -67,6 +73,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _relativeTransformProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -91,6 +98,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _transformProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 

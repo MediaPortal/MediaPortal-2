@@ -50,6 +50,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _alignmentXProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -74,6 +75,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _alignmentYProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -97,6 +99,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _stretchProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }

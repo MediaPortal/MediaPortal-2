@@ -41,6 +41,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _centerProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -65,6 +66,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _gradientOriginProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -90,6 +92,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _radiusXProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -114,6 +117,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _radiusYProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 

@@ -37,6 +37,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _imageSourceProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
     public Property DownloadProgressProperty
@@ -60,6 +61,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _downloadProgressProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }

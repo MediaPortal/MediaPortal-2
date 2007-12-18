@@ -37,6 +37,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _startPointProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
     public Property EndPointProperty
@@ -60,6 +61,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _endPointProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }

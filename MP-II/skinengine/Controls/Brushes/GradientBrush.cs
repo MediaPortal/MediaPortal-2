@@ -63,6 +63,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _colorInterpolationModeProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -87,6 +88,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _gradientStopsProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -110,6 +112,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _mappingModeProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -134,6 +137,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _spreadMethodProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }

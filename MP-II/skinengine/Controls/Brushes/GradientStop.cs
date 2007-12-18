@@ -6,7 +6,7 @@ using MediaPortal.Core.Properties;
 
 namespace Skinengine.Controls.Brushes
 {
-  public class GradientStop
+  public class GradientStop : Property
   {
     Property _colorProperty;
     Property _offsetProperty;
@@ -14,6 +14,10 @@ namespace Skinengine.Controls.Brushes
     {
       _colorProperty = new Property(Color.White);
       _offsetProperty = new Property((double)0.0f);
+    }
+    public void OnPropertyChanged()
+    {
+      Fire();
     }
 
     public Property ColorProperty
@@ -37,6 +41,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _colorProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
 
@@ -61,6 +66,7 @@ namespace Skinengine.Controls.Brushes
       set
       {
         _offsetProperty.SetValue(value);
+        OnPropertyChanged();
       }
     }
   }
