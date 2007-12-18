@@ -198,7 +198,7 @@ namespace MediaPortal.Services.Importers
       ServiceScope.Get<ISettingsManager>().Save(_settings);
 
       ForceImport(folder);
-      IQueue queue=ServiceScope.Get<IMessageBroker>().Get("importers");
+      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("importers");
       MPMessage msg = new MPMessage();
       msg.MetaData["action"] = "shareadded";
       msg.MetaData["folder"] = folder;
@@ -365,8 +365,9 @@ namespace MediaPortal.Services.Importers
       {
         WatchedFolder watchedFolder = (WatchedFolder)obj;
         ServiceScope.Get<ILogger>().Info("importer:import {0}", watchedFolder.Folder);
-        foreach (Share share in _settings.Shares)
+        for (int i = 0; i < _settings.Shares.Count; ++i)
         {
+          Share share = _settings.Shares[i];
           if (share.Folder == watchedFolder.Folder)
           {
             foreach (IImporter importer in _importers)
