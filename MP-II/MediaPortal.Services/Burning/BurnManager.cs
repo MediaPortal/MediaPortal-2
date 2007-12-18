@@ -167,6 +167,20 @@ namespace MediaPortal.Services.Burning
       return true;
     }
 
+    public bool BlankDisk(bool aUseFastMode)
+    {      
+      string MyFastArg = aUseFastMode ? "blank=fast" : "blank=all";
+      string MyBlankArgs = string.Format("dev={0} {1} {2}", CurrentDrive.BusId, MyFastArg, "-v -force");
+      Logger.Info("BurnManager: Blanking inserted disk...");      
+      DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", MyBlankArgs, 900000); // assume 15 minutes max for blanking
+
+      if (CurrentDrive.HasMedia) // to refresh the media status
+        if (CurrentDrive.CurrentMediaInfo.DiskStatus == BlankStatus.empty)
+          return true;
+
+      return false;
+    }
+
     public BurnResult BurnCdClone()
     {
       // readcd dev=3,0,0 speed=52 -clone -noerror f=/cygdrive/D/Temp/Burner/testcd.iso
@@ -255,6 +269,7 @@ namespace MediaPortal.Services.Burning
     // internally used for all kind of prepared files.
     private BurnResult BurnIsoToDisk(string aIsoToBurn)
     {
+      List<string> MyCommandOutput = new List<string>(50);
       if (!aIsoToBurn.ToLowerInvariant().EndsWith(@".iso"))
         return BurnResult.UnsupportedInput;
 
@@ -276,9 +291,9 @@ namespace MediaPortal.Services.Burning
       string unixFilename = aIsoToBurn.Replace('\\', '/');
       string IsoArgs = DeviceHelper.GetCommonParamsForDevice(CurrentDrive) + " \"" + unixFilename + "\"";
       
-      DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", IsoArgs, 3600000);
+      MyCommandOutput = DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", IsoArgs, 3600000);
 
-      if (CurrentStatus == BurnStatus.Finished)
+      if (CurrentStatus == BurnStatus.Finished && !MyCommandOutput.Contains(@"A write error occured."))
       {
         // if unsuccessful keep the ISO for retrying / debugging
         CleanUpCachedFiles(unixFilename);
@@ -368,7 +383,7 @@ namespace MediaPortal.Services.Burning
               return true;
 
             // Blank disk now!
-            return true;
+            return BlankDisk(true);            
           }
         }
         // did not blank so do not use the medium
@@ -596,9 +611,10 @@ namespace MediaPortal.Services.Burning
       System.Threading.Thread.Sleep(7000);
       GetDrives();
 
-      // System.Threading.Thread.Sleep(2000);
+      System.Windows.Forms.Application.DoEvents();
+      System.Threading.Thread.Sleep(2000);
       // Do a test burn which has nothing to do at this place - do not worry; I was just lazy :P
-      // BurnCdClone();
+      BurnCdClone();
       // BurnIsoFile(ProjectType.IsoDVD, @"E:\Dateien\Quellen\MP2\MediaPortal\bin\x86\Debug\Burner\test.iso");
       // BurnFolder(ProjectType.Autoselect, Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
     }

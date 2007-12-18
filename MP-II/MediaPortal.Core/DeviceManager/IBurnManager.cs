@@ -65,13 +65,26 @@ namespace MediaPortal.Core.DeviceManager
     int GetTotalMbForPath(string aPathname);
 
     /// <summary>
+    /// Erases rewriteable media
+    /// </summary>
+    /// <param name="aUseFastMode">true only deletes the TOC, false does a full format</param>
+    /// <returns>Whether the blanking succeded</returns>
+    bool BlankDisk(bool aUseFastMode);
+
+    /// <summary>
     /// Burns the given file to disk - the ISO is not checked for consistency and will not be converted
     /// </summary>
     /// <param name="aProjectType">Indicates whether we want e.g. a CD or DVD ISO.</param>
     /// <param name="aIsoToBurn">Path to the ISO file</param>
-    /// <returns></returns>
+    /// <returns>A specific status information about success or failure</returns>
     BurnResult BurnIsoFile(ProjectType aProjectType, string aIsoToBurn);
 
+    /// <summary>
+    /// Burns all items in the given folder to disk
+    /// </summary>
+    /// <param name="aProjectType">Indicates whether we want e.g. a CD or DVD ISO.</param>
+    /// <param name="aPathToBurn">A folder containing all items to be burnt</param>
+    /// <returns>A specific status information about success or failure</returns>
     BurnResult BurnFolder(ProjectType aProjectType, string aPathToBurn);
   }
 }

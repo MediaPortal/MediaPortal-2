@@ -99,6 +99,7 @@ namespace MediaPortal.Services.Burning
       sb.Append(" -overburn");             // allow overburning just in case we calculate wrong by a few KiB
       sb.Append(" -dao");                  // overburning usually requires disc-at-once mode                                                             
       sb.Append(" -eject");                // Open Tray when finished
+      // sb.Append(" -clone");                // Write disk in clone mode
       // sb.Append(" -dummy");                // only simulate for debugging purposes
 
       return sb.ToString();
@@ -334,12 +335,24 @@ namespace MediaPortal.Services.Burning
           if (pos > 0)
           {
             string progress = e.Data.Substring(pos + 1);
+            int MyIsoSize = fIsoSizeMB;
+
             pos = progress.IndexOf("of");
-            if ((pos > 0) && (fIsoSizeMB > 0))
+            if (pos > 0)
             {
-              progress = progress.Remove(pos).Trim();
-              int percentage = (int)((Convert.ToInt16(progress) * 100) / fIsoSizeMB);
-              fDeviceHelper.ReportProgress(BurnStatus.Burning, percentage);
+              if (MyIsoSize < 1)
+              {
+                // property not set during iso creation - use cdrecord's output
+                MyIsoSize = Convert.ToInt32(progress.Substring(pos + 2, 5).Trim());
+                fIsoSizeMB = MyIsoSize;
+              }
+
+              if (MyIsoSize > 0)
+              {
+                progress = progress.Remove(pos).Trim();
+                int percentage = (int)((Convert.ToInt16(progress) * 100) / MyIsoSize);
+                fDeviceHelper.ReportProgress(BurnStatus.Burning, percentage);
+              }
             }
           }
         }
@@ -384,8 +397,13 @@ namespace MediaPortal.Services.Burning
         // fetch all optical drives
         FoundDeviceIDs = ParsePossibleDevices(ExecuteProcReturnStdOut("cdrecord.exe", "-scanbus", 45000));
 
-        foreach (string devstr in FoundDeviceIDs)        
-          FoundDrives.Add(new Burner(devstr));
+        foreach (string devstr in FoundDeviceIDs)
+        {
+          // let pending job finish
+          System.Windows.Forms.Application.DoEvents();
+          FoundDrives.Add(new Burner(devstr));          
+          System.Threading.Thread.Sleep(1000);
+        }
 
         return FoundDrives;
       }

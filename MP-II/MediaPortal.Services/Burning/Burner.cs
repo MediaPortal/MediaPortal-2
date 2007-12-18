@@ -122,7 +122,7 @@ namespace MediaPortal.Services.Burning
     {
       get
       {
-        if (fCurrentMediaInfo == null)
+        if (fCurrentMediaInfo == null || fCurrentMediaInfo.CurrentCapacityType == CapacityType.Unknown)
           this.GetCurrentMediaStatus();
         return fCurrentMediaInfo;
       }
@@ -133,124 +133,128 @@ namespace MediaPortal.Services.Burning
 
     private void GetCurrentMediaStatus()
     {
+      List<string> MediaDescription = new List<string>(80);
+      MediaInfo MyMediaInfo = new MediaInfo(MediaType.None, false, "Standard", BlankStatus.empty, BlankStatus.empty, FormatStatus.none, 1, 1, false, 0);
       string cdrParam = string.Format(@"dev={0} -minfo -v", fBusId);
 
-      ParseDescriptionForMediaInfo(DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", cdrParam, 40000)); // 40 sec because an open tray will be closed, etc
+      MediaDescription = DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", cdrParam, 40000);
+      ParseDescriptionForMediaInfo(MediaDescription, ref MyMediaInfo); // 40 sec because an open tray will be closed, etc
     }
 
-    private void ParseDescriptionForMediaInfo(List<string> MediaInfoDescription)
+    private void ParseDescriptionForMediaInfo(List<string> MediaInfoDescription, ref MediaInfo aMediaInfo)
     {
-      MediaInfo currentMedia = new MediaInfo(MediaType.None, false, "Standard", BlankStatus.empty, BlankStatus.empty, FormatStatus.none, 1, 1, false, 0);
-
-      if (MediaInfoDescription.Count > 5)
+      lock (this)
       {
-        for (int i = 0; i < MediaInfoDescription.Count; i++)
+        if (MediaInfoDescription.Count > 5)
         {
-          string checkStr = MediaInfoDescription[i];
-
-          if (checkStr.Contains(@"Mounted media type"))
+          for (int i = 0; i < MediaInfoDescription.Count; i++)
           {
-            // Mounted media type:       DVD+R/DL
-            // Using generic SCSI-3/mmc-3 DVD+RW driver (mmc_dvdplusrw).
-            int checkPos = checkStr.IndexOf(@":");
-            if (checkPos >= 0)
+            string checkStr = MediaInfoDescription[i];
+
+            if (checkStr.Contains(@"Mounted media type"))
             {
-              // Assume a disc is there (cdr will close the tray) - if not present it will be set later
-              fHasMedia = true;
-              string mounted = (checkStr.Substring(checkPos + 1)).Trim();
-              checkPos = mounted.IndexOf(@" ");
+              // Mounted media type:       DVD+R/DL
+              // Using generic SCSI-3/mmc-3 DVD+RW driver (mmc_dvdplusrw).
+              int checkPos = checkStr.IndexOf(@":");
               if (checkPos >= 0)
-                mounted = (mounted.Remove(checkPos));
-
-              switch (mounted)
               {
-                case "DVD+R/DL":
-                  currentMedia.CurrentMediaType = MediaType.DlDVDplusR;
-                  break;
-                case "DVD-R/DL":
-                  currentMedia.CurrentMediaType = MediaType.DlDVDminusR;
-                  break;
-                case "DVD+RW":
-                  currentMedia.CurrentMediaType = MediaType.DVDplusRW;
-                  break;
-                case "DVD+R":
-                  currentMedia.CurrentMediaType = MediaType.DVDplusR;
-                  break;
-                case "DVD-RW":
-                  currentMedia.CurrentMediaType = MediaType.DVDminusRW;
-                  break;
-                case "DVD-R":
-                  currentMedia.CurrentMediaType = MediaType.DVDminusR;
-                  break;
-                case "DVD-RAM":
-                  currentMedia.CurrentMediaType = MediaType.DVDRam;
-                  break;
-                case "DVD-ROM":
-                  currentMedia.CurrentMediaType = MediaType.ReadOnly;
-                  break;
-                case "CD-RW":
-                  currentMedia.CurrentMediaType = MediaType.CDRW;
-                  break;
-                case "CD-R":
-                  currentMedia.CurrentMediaType = MediaType.CDR;
-                  break;
-                case "CD-ROM":
-                  currentMedia.CurrentMediaType = MediaType.ReadOnly;
-                  break;
+                // Assume a disc is there (cdr will close the tray) - if not present it will be set later
+                fHasMedia = true;
+                string mounted = (checkStr.Substring(checkPos + 1)).Trim();
+                checkPos = mounted.IndexOf(@" ");
+                if (checkPos >= 0)
+                  mounted = (mounted.Remove(checkPos));
 
-                default:
-                  ServiceScope.Get<ILogger>().Debug("Burner: Could not recognize media type: {0}", mounted);
-                  currentMedia.CurrentMediaType = MediaType.None;
-                  fHasMedia = false;
-                  break;
-              }
-            }
-            else
-              currentMedia.CurrentMediaType = MediaType.None;
-          }
-          else
-            if (checkStr.Contains(@"Disk Is erasable"))
-            {
-              currentMedia.IsErasable = true;
-              // cdrecord will use the mmc_cdr driver for CDRW as well
-              if (currentMedia.CurrentMediaType == MediaType.CDR)
-                currentMedia.CurrentMediaType = MediaType.CDRW;
-            }
-            else
-              if (checkStr.Contains(@"data type:"))
-              {
-                // data type:                standard
-                string dataType = checkStr.Substring(11).Trim(trimchars);
-                currentMedia.DataType = dataType;
+                switch (mounted)
+                {
+                  case "DVD+R/DL":
+                    aMediaInfo.CurrentMediaType = MediaType.DlDVDplusR;
+                    break;
+                  case "DVD-R/DL":
+                    aMediaInfo.CurrentMediaType = MediaType.DlDVDminusR;
+                    break;
+                  case "DVD+RW":
+                    aMediaInfo.CurrentMediaType = MediaType.DVDplusRW;
+                    break;
+                  case "DVD+R":
+                    aMediaInfo.CurrentMediaType = MediaType.DVDplusR;
+                    break;
+                  case "DVD-RW":
+                    aMediaInfo.CurrentMediaType = MediaType.DVDminusRW;
+                    break;
+                  case "DVD-R":
+                    aMediaInfo.CurrentMediaType = MediaType.DVDminusR;
+                    break;
+                  case "DVD-RAM":
+                    aMediaInfo.CurrentMediaType = MediaType.DVDRam;
+                    break;
+                  case "DVD-ROM":
+                    aMediaInfo.CurrentMediaType = MediaType.ReadOnly;
+                    break;
+                  case "CD-RW":
+                    aMediaInfo.CurrentMediaType = MediaType.CDRW;
+                    break;
+                  case "CD-R":
+                    aMediaInfo.CurrentMediaType = MediaType.CDR;
+                    break;
+                  case "CD-ROM":
+                    aMediaInfo.CurrentMediaType = MediaType.ReadOnly;
+                    break;
+
+                  default:
+                    ServiceScope.Get<ILogger>().Debug("Burner: Could not recognize media type: {0}", mounted);
+                    aMediaInfo.CurrentMediaType = MediaType.None;
+                    fHasMedia = false;
+                    break;
+                }
               }
               else
-                if (checkStr.Contains(@"disk status:"))
+                aMediaInfo.CurrentMediaType = MediaType.None;
+            }
+            else
+              if (checkStr.Contains(@"Disk Is erasable"))
+              {
+                aMediaInfo.IsErasable = true;
+                // cdrecord will use the mmc_cdr driver for CDRW as well
+                if (aMediaInfo.CurrentMediaType == MediaType.CDR)
+                  aMediaInfo.CurrentMediaType = MediaType.CDRW;
+              }
+              else
+                if (checkStr.Contains(@"data type:"))
                 {
-                  // disk status:              empty
-                  string diskStatus = checkStr.Substring(13).Trim(trimchars);
-                  if (diskStatus != "empty")
-                    currentMedia.DiskStatus = BlankStatus.complete;
+                  // data type:                standard
+                  string dataType = checkStr.Substring(11).Trim(trimchars);
+                  aMediaInfo.DataType = dataType;
                 }
                 else
-                  if (checkStr.Contains(@"session status:"))
+                  if (checkStr.Contains(@"disk status:"))
                   {
-                    // session status:           empty
-                    string sessionStatus = checkStr.Substring(16).Trim(trimchars);
-                    if (sessionStatus != "empty")
-                      currentMedia.SessionStatus = BlankStatus.complete;
+                    // disk status:              empty
+                    string diskStatus = checkStr.Substring(13).Trim(trimchars);
+                    if (diskStatus != "empty")
+                      aMediaInfo.DiskStatus = BlankStatus.complete;
                   }
                   else
-                    if (checkStr.Contains(@"Disk Is not unrestricted"))
-                      currentMedia.IsRestricted = true; // false reports here?
+                    if (checkStr.Contains(@"session status:"))
+                    {
+                      // session status:           empty
+                      string sessionStatus = checkStr.Substring(16).Trim(trimchars);
+                      if (sessionStatus != "empty")
+                        aMediaInfo.SessionStatus = BlankStatus.complete;
+                    }
+                    else
+                      if (checkStr.Contains(@"Disk Is not unrestricted"))
+                        aMediaInfo.IsRestricted = true; // false reports here?
+          }
         }
-      }
-      else // Less than 5 lines of info? Tray must be empty
-      {
-        fHasMedia = false;
-        currentMedia.CurrentMediaType = MediaType.None;
-      }
+        else // Less than 5 lines of info? Tray must be empty
+        {
+          fHasMedia = false;
+          aMediaInfo.CurrentMediaType = MediaType.None;
+        }
 
-      fCurrentMediaInfo = currentMedia;
+        fCurrentMediaInfo = aMediaInfo;
+      }
     }
 
     /// <summary>
@@ -258,95 +262,99 @@ namespace MediaPortal.Services.Burning
     /// </summary>
     private void GetFeatures()
     {
-      // List<string> FeatureDescription = new List<string>(80);
+      List<string> FeatureDescription = new List<string>(80);
       string cdrParam = string.Format(@"dev={0} -prcap -v", fBusId);
 
-      ParseDescriptionForFeatures(DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", cdrParam, 10000));
+      FeatureDescription = DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", cdrParam, 10000);
+      ParseDescriptionForFeatures(FeatureDescription);
     }
 
     // ToDo: sort this out..
     private void ParseDescriptionForFeatures(List<string> FeatureDescription)
     {
-      DriveFeatures currentFeatures = new DriveFeatures(false, false, false, false, false, false, false, false, false, false, false, false, string.Empty, string.Empty);
-      MediaTypeSupport currentProfile = new MediaTypeSupport(false, false, false, false, false, false, false, false, false, false);
-
-      for (int i = 0; i < FeatureDescription.Count; i++)
+      lock (this)
       {
-        string checkStr = FeatureDescription[i];
+        DriveFeatures currentFeatures = new DriveFeatures(false, false, false, false, false, false, false, false, false, false, false, false, string.Empty, string.Empty);
+        MediaTypeSupport currentProfile = new MediaTypeSupport(false, false, false, false, false, false, false, false, false, false);
 
-        if (checkStr.Contains(@"Does read CD-R media"))
-          currentFeatures.ReadsCDR = true;
-        else
-          if (checkStr.Contains(@"Does write CD-R media"))
-            currentFeatures.WriteCDR = true;
+        for (int i = 0; i < FeatureDescription.Count; i++)
+        {
+          string checkStr = FeatureDescription[i];
+
+          if (checkStr.Contains(@"Does read CD-R media"))
+            currentFeatures.ReadsCDR = true;
           else
-            if (checkStr.Contains(@"Does read CD-RW media"))
-              currentFeatures.ReadsCDRW = true;
+            if (checkStr.Contains(@"Does write CD-R media"))
+              currentFeatures.WriteCDR = true;
             else
-              if (checkStr.Contains(@"Does write CD-RW"))
-                currentFeatures.WriteCDRW = true;
+              if (checkStr.Contains(@"Does read CD-RW media"))
+                currentFeatures.ReadsCDRW = true;
               else
-                if (checkStr.Contains(@"Does read DVD-ROM"))
-                  currentFeatures.ReadsDVDRom = true;
+                if (checkStr.Contains(@"Does write CD-RW"))
+                  currentFeatures.WriteCDRW = true;
                 else
-                  if (checkStr.Contains(@"Does read DVD-R"))
-                    currentFeatures.ReadsDVDR = true;
+                  if (checkStr.Contains(@"Does read DVD-ROM"))
+                    currentFeatures.ReadsDVDRom = true;
                   else
-                    if (checkStr.Contains(@"Does write DVD-R"))
-                      currentFeatures.WriteDVDR = true;
+                    if (checkStr.Contains(@"Does read DVD-R"))
+                      currentFeatures.ReadsDVDR = true;
                     else
-                      if (checkStr.Contains(@"Does read DVD-RAM"))
-                        currentFeatures.ReadsDVDRam = true;
+                      if (checkStr.Contains(@"Does write DVD-R"))
+                        currentFeatures.WriteDVDR = true;
                       else
-                        if (checkStr.Contains(@"Does write DVD-RAM"))
-                          currentFeatures.WriteDVDRam = true;
+                        if (checkStr.Contains(@"Does read DVD-RAM"))
+                          currentFeatures.ReadsDVDRam = true;
                         else
-                          if (checkStr.Contains(@"Does support Buffer-Underrun-Free recording"))
-                            currentFeatures.SupportsBurnFree = true;
+                          if (checkStr.Contains(@"Does write DVD-RAM"))
+                            currentFeatures.WriteDVDRam = true;
                           else
-                            if (checkStr.Contains(@"Does support test writing"))
-                              currentFeatures.AllowsDummyWrite = true;
+                            if (checkStr.Contains(@"Does support Buffer-Underrun-Free recording"))
+                              currentFeatures.SupportsBurnFree = true;
                             else
-                              if (checkStr.Contains(@"Maximum read"))
-                                currentFeatures.MaxReadSpeed = checkStr.Substring(23).Trim(trimchars);
+                              if (checkStr.Contains(@"Does support test writing"))
+                                currentFeatures.AllowsDummyWrite = true;
                               else
-                                if (checkStr.Contains(@"Maximum write"))
-                                  currentFeatures.MaxWriteSpeed = checkStr.Substring(23).Trim(trimchars);
+                                if (checkStr.Contains(@"Maximum read"))
+                                  currentFeatures.MaxReadSpeed = checkStr.Substring(23).Trim(trimchars);
                                 else
-                                  if (checkStr.Contains(@"Vendor_info"))
-                                    fDeviceVendor = checkStr.Substring(16).Trim(trimchars);
+                                  if (checkStr.Contains(@"Maximum write"))
+                                    currentFeatures.MaxWriteSpeed = checkStr.Substring(23).Trim(trimchars);
                                   else
-                                    if (checkStr.Contains(@"Identifikation : "))
-                                      fDeviceName = checkStr.Substring(16).Trim(trimchars);
+                                    if (checkStr.Contains(@"Vendor_info"))
+                                      fDeviceVendor = checkStr.Substring(16).Trim(trimchars);
                                     else
-                                      if (checkStr.Contains(@" DVD+R/DL"))
-                                        currentProfile.WriteDlDVDplusR = true;
+                                      if (checkStr.Contains(@"Identifikation : "))
+                                        fDeviceName = checkStr.Substring(16).Trim(trimchars);
                                       else
-                                        if (checkStr.Contains(@" DVD+RW"))
-                                          currentProfile.WriteDVDplusRW = true;
+                                        if (checkStr.Contains(@" DVD+R/DL"))
+                                          currentProfile.WriteDlDVDplusR = true;
                                         else
-                                          if (checkStr.Contains(@" DVD+R"))
-                                            currentProfile.WriteDVDplusR = true;
+                                          if (checkStr.Contains(@" DVD+RW"))
+                                            currentProfile.WriteDVDplusRW = true;
                                           else
-                                            if (checkStr.Contains(@" DVD-RW"))
-                                              currentProfile.WriteDVDminusRW = true;
+                                            if (checkStr.Contains(@" DVD+R"))
+                                              currentProfile.WriteDVDplusR = true;
                                             else
-                                              if (checkStr.Contains(@" DVD-R"))
-                                                currentProfile.WriteDVDminusR = true;
+                                              if (checkStr.Contains(@" DVD-RW"))
+                                                currentProfile.WriteDVDminusRW = true;
                                               else
-                                                if (checkStr.Contains(@" CD-RW"))
-                                                  currentProfile.WriteCDRW = true;
+                                                if (checkStr.Contains(@" DVD-R"))
+                                                  currentProfile.WriteDVDminusR = true;
                                                 else
-                                                  if (checkStr.Contains(@" CD-R"))
-                                                    currentProfile.WriteCDR = true;
+                                                  if (checkStr.Contains(@" CD-RW"))
+                                                    currentProfile.WriteCDRW = true;
                                                   else
-                                                    if (checkStr.Contains(@"BD-ROM"))
-                                                      currentFeatures.ReadsBRRom = true;
+                                                    if (checkStr.Contains(@" CD-R"))
+                                                      currentProfile.WriteCDR = true;
+                                                    else
+                                                      if (checkStr.Contains(@"BD-ROM"))
+                                                        currentFeatures.ReadsBRRom = true;
 
+        }
+
+        fDriveFeatures = currentFeatures;
+        fMediaFeatures = currentProfile;
       }
-
-      fDriveFeatures = currentFeatures;
-      fMediaFeatures = currentProfile;
     }
     #endregion
   }
