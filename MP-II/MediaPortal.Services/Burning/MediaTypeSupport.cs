@@ -157,5 +157,153 @@ namespace MediaPortal.Services.Burning
           return false;
       }
     }
+
+    #region static methods
+
+    public static bool CheckInsertedMediaType(ProjectType aProjectType, Burner aSelectedBurner)
+    {
+      CapacityType CurrentType = aSelectedBurner.CurrentMediaInfo.CurrentCapacityType;
+
+      switch (aProjectType)
+      {
+        case ProjectType.Autoselect:
+          return CurrentType != CapacityType.Unknown;
+        case ProjectType.DataCD:
+          return CurrentType == CapacityType.CDR;
+        case ProjectType.AudioCD:
+          return CurrentType == CapacityType.CDR;
+        case ProjectType.PhotoCD:
+          return CurrentType == CapacityType.CDR;
+        case ProjectType.IsoCD:
+          return CurrentType == CapacityType.CDR;
+        case ProjectType.DataDVD:
+          return CurrentType == CapacityType.DVDR;
+        case ProjectType.VideoDVD:
+          return CurrentType == CapacityType.DVDR;
+        case ProjectType.IsoDVD:
+          return CurrentType == CapacityType.DVDR;
+        case ProjectType.LargeDataDVD:
+          return CurrentType == CapacityType.DualDVDR;
+        case ProjectType.LargeIsoDVD:
+          return CurrentType == CapacityType.DualDVDR;
+        default:
+          return false;
+      }
+    }
+
+    /// <summary>
+    /// Checks whether the needed Drive is present
+    /// </summary>
+    /// <param name="aProjectType">The ProjectType like Audio-CD, Video-DVD, etc.</param>
+    /// <param name="aSelectedBurner">The drive to check</param>
+    /// <returns>Whether the given drive could handle the project's files</returns>
+    public static bool CheckBurnerRequirements(ProjectType aProjectType, Burner aSelectedBurner)
+    {
+      switch (aProjectType)
+      {
+        case ProjectType.Autoselect:
+          return aSelectedBurner.MediaFeatures.WriteCDR;
+        case ProjectType.DataCD:
+          return aSelectedBurner.MediaFeatures.WriteCDR;
+        case ProjectType.AudioCD:
+          return aSelectedBurner.MediaFeatures.WriteCDR;
+        case ProjectType.PhotoCD:
+          return aSelectedBurner.MediaFeatures.WriteCDR;
+        case ProjectType.IsoCD:
+          return aSelectedBurner.MediaFeatures.WriteCDR;
+        case ProjectType.DataDVD:
+          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
+        case ProjectType.VideoDVD:
+          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
+        case ProjectType.IsoDVD:
+          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
+        case ProjectType.LargeDataDVD:
+          return (aSelectedBurner.MediaFeatures.WriteDlDVDplusR || aSelectedBurner.MediaFeatures.WriteDlDVDminusR);
+        case ProjectType.LargeIsoDVD:
+          return (aSelectedBurner.MediaFeatures.WriteDlDVDplusR || aSelectedBurner.MediaFeatures.WriteDlDVDminusR);
+        default:
+          return false;
+      }
+    }
+
+    public static int GetMediaSizeMbByType(MediaType aMediaType)
+    {
+      switch (aMediaType)
+      {
+        case MediaType.None:
+          return 0;
+        case MediaType.ReadOnly:
+          return 0;
+        case MediaType.CDR:
+          return 700;
+        case MediaType.CDRW:
+          return 650;
+        case MediaType.DVDplusR:
+          return 4482;
+        case MediaType.DVDminusR:
+          return 4482;
+        case MediaType.DVDplusRW:
+          return 4482;
+        case MediaType.DVDminusRW:
+          return 4482;
+        case MediaType.DlDVDplusR:
+          return 8964;
+        case MediaType.DlDVDminusR:
+          return 8964;
+        case MediaType.DlDVDplusRW:
+          return 8964;
+        case MediaType.DlDVDminusRW:
+          return 8964;
+        case MediaType.DVDRam: // Type 2
+          return 4482;
+        case MediaType.DlDVDRam:
+          return 8964;
+        default:
+          return 0;
+      }
+    }
+
+    public static int GetMaxMediaSizeMbByProjectType(ProjectType aProjectType, Burner aCurrentDrive)
+    {
+      switch (aProjectType)
+      {
+        case ProjectType.DataCD:
+          return 700;
+        case ProjectType.AudioCD:
+          return 700;
+        case ProjectType.PhotoCD:
+          return 700;
+        case ProjectType.IsoCD:
+          return 700;
+        case ProjectType.DataDVD:
+          return 4482;
+        case ProjectType.VideoDVD:
+          return 4482;
+        case ProjectType.IsoDVD:
+          return 4482;
+        case ProjectType.LargeDataDVD:
+          return 8964;
+        case ProjectType.LargeIsoDVD:
+          return 8964;
+        case ProjectType.Autoselect:
+          if (aCurrentDrive == null)
+            return 0;
+          else
+          {
+            if (aCurrentDrive.MediaFeatures.WriteDlDVDplusR || aCurrentDrive.MediaFeatures.WriteDlDVDminusR || aCurrentDrive.MediaFeatures.WriteDlDVDRam)
+              return 8964;
+            if (aCurrentDrive.MediaFeatures.WriteDVDplusR || aCurrentDrive.MediaFeatures.WriteDVDminusR)
+              return 4482;
+            else
+              return 700;
+          }
+        default:
+          return 0;
+      }
+    }
+
+    #endregion
+
+
   }
 }

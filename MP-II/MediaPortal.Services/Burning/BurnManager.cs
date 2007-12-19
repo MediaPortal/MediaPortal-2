@@ -48,12 +48,13 @@ namespace MediaPortal.Services.Burning
     #endregion
 
     private ILogger Logger;
-    private List<Burner> AvailableDrives = new List<Burner>(1);
+    private List<Burner> AvailableDrives;
     private Burner CurrentDrive = null;
     private BurnStatus CurrentStatus = BurnStatus.Unknown;
 
     public BurnManager()
     {
+      AvailableDrives = new List<Burner>(1);
       Logger = ServiceScope.Get<ILogger>();
       // Making sure the singleton constructor is called.
       DeviceHelper.Init();
@@ -81,9 +82,17 @@ namespace MediaPortal.Services.Burning
     public bool GetDrives()
     {
       bool result = false;
-
+      AvailableDrives.Clear();
       // For now just use cdrtools to get drives, we could add WMI, Network-Burners etc. later.
       AvailableDrives = DeviceHelper.QueryBurners();
+      
+      if (AvailableDrives.Count < 1)
+      {
+        // maybe the system was not ready yet - try again...
+        System.Threading.Thread.Sleep(1000);
+        AvailableDrives.Clear();
+        AvailableDrives = DeviceHelper.QueryBurners();
+      }
 
       if (AvailableDrives.Count > 0)
       {
@@ -134,7 +143,7 @@ namespace MediaPortal.Services.Burning
         return false;
       }
       // E.g. CD-Burner does not support Data-DVD
-      if (!CheckBurnerRequirements(aProjectType, CurrentDrive))
+      if (!MediaTypeSupport.CheckBurnerRequirements(aProjectType, CurrentDrive))
       {
         aBurnResult = BurnResult.UnsupportedInput;
         return false;
@@ -144,7 +153,7 @@ namespace MediaPortal.Services.Burning
       if (aCheckMediaStatus)
       {
         // Check whether the correct type (CD,DVD) of media is inserted
-        if (!CheckInsertedMediaType(aProjectType, CurrentDrive))
+        if (!MediaTypeSupport.CheckInsertedMediaType(aProjectType, CurrentDrive))
         {
           aBurnResult = BurnResult.WrongMediaType;
           return false;
@@ -193,7 +202,7 @@ namespace MediaPortal.Services.Burning
         return result;
       }
       string cacheFile = Path.Combine(Path.GetTempPath(), "MP2-temp.iso");
-      string readCdArgs = "dev=" + CurrentDrive.BusId + " -clone -noerror f=\"" + cacheFile + "\"";
+      string readCdArgs = "dev=" + CurrentDrive.BusId + " retries=128 -v -clone -nocorr -notrunc f=\"" + cacheFile + "\"";
       Logger.Info("BurnManager: Creating clone of inserted disk as {0}", cacheFile);
       ReportProgress(BurnStatus.Caching, 0);
       DeviceHelper.ExecuteProcReturnStdOut("readcd.exe", readCdArgs, 900000); // assume 15 minutes max for cloning
@@ -207,7 +216,7 @@ namespace MediaPortal.Services.Burning
         ReportError(result, ProjectType.DataCD);
         return result;
       }
-      result = BurnIsoToDisk(cacheFile);
+      result = BurnIsoToDisk(cacheFile, true);
       if (result != BurnResult.Successful)
         ReportError(result, ProjectType.DataCD);
       return result;
@@ -222,7 +231,7 @@ namespace MediaPortal.Services.Burning
         ReportError(result, aProjectType);
         return result;
       }
-      result = BurnIsoToDisk(aIsoToBurn);
+      result = BurnIsoToDisk(aIsoToBurn, false);
       if (result != BurnResult.Successful)
         ReportError(result, aProjectType);
       return result;
@@ -257,7 +266,7 @@ namespace MediaPortal.Services.Burning
       Logger.Info("BurnManager: Creating ISO of folder: {0} as {1}", fullPathname, cacheFile);
       DeviceHelper.ExecuteProcReturnStdOut("mkisofs.exe", IsoBuildArgs, 1800000); // assume 30 minutes max to create a 4,7 GB Iso
 
-      result = BurnIsoToDisk(cacheFile);
+      result = BurnIsoToDisk(cacheFile, true);
       if (result != BurnResult.Successful)
         ReportError(result, aProjectType);
       return result;
@@ -267,7 +276,7 @@ namespace MediaPortal.Services.Burning
 
     #region private functions
     // internally used for all kind of prepared files.
-    private BurnResult BurnIsoToDisk(string aIsoToBurn)
+    private BurnResult BurnIsoToDisk(string aIsoToBurn, bool aDeleteIsoOnSuccess)
     {
       List<string> MyCommandOutput = new List<string>(50);
       if (!aIsoToBurn.ToLowerInvariant().EndsWith(@".iso"))
@@ -296,7 +305,9 @@ namespace MediaPortal.Services.Burning
       if (CurrentStatus == BurnStatus.Finished && !MyCommandOutput.Contains(@"A write error occured."))
       {
         // if unsuccessful keep the ISO for retrying / debugging
-        CleanUpCachedFiles(unixFilename);
+        if (aDeleteIsoOnSuccess)
+          CleanUpCachedFiles(unixFilename);
+
         return BurnResult.Successful;
       }
       else
@@ -316,40 +327,6 @@ namespace MediaPortal.Services.Burning
       }
     }
 
-    /// <summary>
-    /// Checks whether the needed Drive is present
-    /// </summary>
-    /// <param name="aProjectType">The ProjectType like Audio-CD, Video-DVD, etc.</param>
-    /// <param name="aSelectedBurner">The drive to check</param>
-    /// <returns>Whether the given drive could handle the project's files</returns>
-    private bool CheckBurnerRequirements(ProjectType aProjectType, Burner aSelectedBurner)
-    {
-      switch (aProjectType)
-      {
-        case ProjectType.Autoselect:
-          return aSelectedBurner.MediaFeatures.WriteCDR;
-        case ProjectType.DataCD:
-          return aSelectedBurner.MediaFeatures.WriteCDR;
-        case ProjectType.AudioCD:
-          return aSelectedBurner.MediaFeatures.WriteCDR;
-        case ProjectType.PhotoCD:
-          return aSelectedBurner.MediaFeatures.WriteCDR;
-        case ProjectType.IsoCD:
-          return aSelectedBurner.MediaFeatures.WriteCDR;
-        case ProjectType.DataDVD:
-          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
-        case ProjectType.VideoDVD:
-          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
-        case ProjectType.IsoDVD:
-          return (aSelectedBurner.MediaFeatures.WriteDVDplusR || aSelectedBurner.MediaFeatures.WriteDVDminusR);
-        case ProjectType.LargeDataDVD:
-          return (aSelectedBurner.MediaFeatures.WriteDlDVDplusR || aSelectedBurner.MediaFeatures.WriteDlDVDminusR);
-        case ProjectType.LargeIsoDVD:
-          return (aSelectedBurner.MediaFeatures.WriteDlDVDplusR || aSelectedBurner.MediaFeatures.WriteDlDVDminusR);
-        default:
-          return false;          
-      }
-    }
 
     /// <summary>
     /// Checks whether the needed media can be handled
@@ -393,41 +370,10 @@ namespace MediaPortal.Services.Burning
         return true;
     }
 
-    private bool CheckInsertedMediaType(ProjectType aProjectType, Burner aSelectedBurner)
-    {
-      CapacityType CurrentType = aSelectedBurner.CurrentMediaInfo.CurrentCapacityType;
-
-      switch (aProjectType)
-      {
-        case ProjectType.Autoselect:
-          return CurrentType != CapacityType.Unknown;
-        case ProjectType.DataCD:
-          return CurrentType == CapacityType.CDR;
-        case ProjectType.AudioCD:
-          return CurrentType == CapacityType.CDR;
-        case ProjectType.PhotoCD:
-          return CurrentType == CapacityType.CDR;
-        case ProjectType.IsoCD:
-          return CurrentType == CapacityType.CDR;
-        case ProjectType.DataDVD:
-          return CurrentType == CapacityType.DVDR;
-        case ProjectType.VideoDVD:
-          return CurrentType == CapacityType.DVDR;
-        case ProjectType.IsoDVD:
-          return CurrentType == CapacityType.DVDR;
-        case ProjectType.LargeDataDVD:
-          return CurrentType == CapacityType.DualDVDR;
-        case ProjectType.LargeIsoDVD:
-          return CurrentType == CapacityType.DualDVDR;
-        default:
-          return false;
-      }
-    }
-
     private bool CheckInsertedMediaCapacity(Burner aSelectedBurner, int aIsoSize)
     {
       int currentSpace = (int)(aSelectedBurner.CurrentMediaInfo.Size / 1024);
-      int currentSpaceGuess = GetMediaSizeMbByType(aSelectedBurner.CurrentMediaInfo.CurrentMediaType);
+      int currentSpaceGuess = MediaTypeSupport.GetMediaSizeMbByType(aSelectedBurner.CurrentMediaInfo.CurrentMediaType);
       // first try the "true" disk size
       if (currentSpace < aIsoSize)
       {
@@ -437,80 +383,9 @@ namespace MediaPortal.Services.Burning
       return true;
     }
 
-    private int GetMediaSizeMbByType(MediaType aMediaType)
-    {
-      switch (aMediaType)
-      {
-        case MediaType.None:
-          return 0;
-        case MediaType.ReadOnly:
-          return 0;
-        case MediaType.CDR:
-          return 700;
-        case MediaType.CDRW:
-          return 650;
-        case MediaType.DVDplusR:
-          return 4482;
-        case MediaType.DVDminusR:
-          return 4482;
-        case MediaType.DVDplusRW:
-          return 4482;
-        case MediaType.DVDminusRW:
-          return 4482;
-        case MediaType.DlDVDplusR:
-          return 8964;
-        case MediaType.DlDVDminusR:
-          return 8964;
-        case MediaType.DlDVDplusRW:
-          return 8964;
-        case MediaType.DlDVDminusRW:
-          return 8964;
-        case MediaType.DVDRam: // Type 2
-          return 4482;
-        case MediaType.DlDVDRam:
-          return 8964;
-        default:
-          return 0;
-      }
-    }
-
-    private int GetMaxMediaSizeMbByProjectType(ProjectType aProjectType)
-    {
-      switch (aProjectType)
-      {
-        case ProjectType.DataCD:
-          return 700;
-        case ProjectType.AudioCD:
-          return 700;
-        case ProjectType.PhotoCD:
-          return 700;
-        case ProjectType.IsoCD:
-          return 700;
-        case ProjectType.DataDVD:
-          return 4482;
-        case ProjectType.VideoDVD:
-          return 4482;
-        case ProjectType.IsoDVD:
-          return 4482;
-        case ProjectType.LargeDataDVD:
-          return 8964;
-        case ProjectType.LargeIsoDVD:
-          return 8964;
-        case ProjectType.Autoselect:
-          if (CurrentDrive.MediaFeatures.WriteDlDVDplusR || CurrentDrive.MediaFeatures.WriteDlDVDminusR || CurrentDrive.MediaFeatures.WriteDlDVDRam)
-            return 8964;
-          if (CurrentDrive.MediaFeatures.WriteDVDplusR || CurrentDrive.MediaFeatures.WriteDVDminusR)
-            return 4482;
-          else
-            return 700;
-        default:
-          return 0;          
-      }
-    }
-
     private bool CheckRequiredSpaceForPath(ProjectType aProjectType, string fullPathname)
     {
-      int availableSpace = GetMaxMediaSizeMbByProjectType(aProjectType);
+      int availableSpace = MediaTypeSupport.GetMaxMediaSizeMbByProjectType(aProjectType, CurrentDrive);
       int neededSpace = GetTotalMbForPath(fullPathname);
 
       Logger.Debug("BurnManager: Project {0} of {1} needs a media with an estimated size of at least {2} MB - available: {3} MB", aProjectType.ToString(), fullPathname, Convert.ToString(neededSpace), Convert.ToString(availableSpace));

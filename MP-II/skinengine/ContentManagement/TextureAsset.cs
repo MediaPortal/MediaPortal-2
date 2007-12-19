@@ -49,7 +49,7 @@ namespace SkinEngine
       Unknown,
       Creating,
       Created,
-      DoesNotExists
+      DoesNotExist
     } ;
 
     private Texture _texture = null;
@@ -163,10 +163,10 @@ namespace SkinEngine
     {
       if (_textureName == null || _textureName.Length == 0)
       {
-        _state = State.DoesNotExists;
+        _state = State.DoesNotExist;
         return;
       }
-      if (_state == State.DoesNotExists)
+      if (_state == State.DoesNotExist)
       {
         return;
       }
@@ -221,7 +221,7 @@ namespace SkinEngine
             if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
             {
               ServiceScope.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
-              _state = State.DoesNotExists;
+              _state = State.DoesNotExist;
               return;
             }
 
@@ -285,7 +285,7 @@ namespace SkinEngine
             }
             else
             {
-              _state = State.DoesNotExists;
+              _state = State.DoesNotExist;
             }
           }
         }
@@ -295,7 +295,7 @@ namespace SkinEngine
       {
         return;
       }
-      if (_state == State.DoesNotExists)
+      if (_state == State.DoesNotExist)
       {
         return;
       }
@@ -378,7 +378,7 @@ namespace SkinEngine
           }
           catch (Exception)
           {
-            _state = State.DoesNotExists;
+            _state = State.DoesNotExist;
           }
         }
       }
@@ -447,7 +447,7 @@ namespace SkinEngine
         }
         catch (Exception)
         {
-          _state = State.DoesNotExists;
+          _state = State.DoesNotExist;
         }
       }
       if (_texture != null)
@@ -464,11 +464,10 @@ namespace SkinEngine
     {
       if (e.Error != null)
       {
-        ServiceScope.Get<ILogger>().Error("Contentmanager:Failed to download {0}", _textureName);
-        ServiceScope.Get<ILogger>().Error(e.Error.Message);
+        ServiceScope.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);        
         _webClient.Dispose();
         _webClient = null;
-        _state = State.DoesNotExists;
+        _state = State.DoesNotExist;
         return;
       }
       Trace.WriteLine("downloaded " + _textureName);

@@ -427,9 +427,9 @@ namespace MediaPortal.Services.Burning
 
         foreach (string devstr in FoundDeviceIDs)
         {
+          FoundDrives.Add(new Burner(devstr));
           // let pending job finish
           System.Windows.Forms.Application.DoEvents();
-          FoundDrives.Add(new Burner(devstr));
         }
 
         return FoundDrives;
