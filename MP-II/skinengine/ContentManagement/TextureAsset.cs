@@ -465,7 +465,7 @@ namespace SkinEngine
       if (e.Error != null)
       {
         ServiceScope.Get<ILogger>().Error("Contentmanager:Failed to download {0}", _textureName);
-        ServiceScope.Get<ILogger>().Error(e.Error);
+        ServiceScope.Get<ILogger>().Error(e.Error.Message);
         _webClient.Dispose();
         _webClient = null;
         _state = State.DoesNotExists;
