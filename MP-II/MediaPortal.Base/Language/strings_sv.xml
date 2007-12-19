@@ -176,7 +176,7 @@
     <String name="549" text="WSW"/>
     <String name="551" text="WNW"/>
     <String name="552" text="NNW"/>
-    <String name="555" text="Från {0} till {1} {2}"/>
+    <String name="555" text="{1} {2} från {0}"/>
     <String name="556" text="skiftande"/>
     <String name="557" text="lugn"/>
     <String name="558" text="Ingen vind"/>
