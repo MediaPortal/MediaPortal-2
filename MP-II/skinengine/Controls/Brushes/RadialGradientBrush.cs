@@ -4,7 +4,7 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 
-namespace Skinengine.Controls.Brushes
+namespace SkinEngine.Controls.Brushes
 {
   public class RadialGradientBrush : GradientBrush
   {

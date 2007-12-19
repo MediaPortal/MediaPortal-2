@@ -1,13 +1,39 @@
+#region Copyright (C) 2007 Team MediaPortal
+
+/*
+    Copyright (C) 2007 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 
-using Skinengine.Controls.Transforms;
-using Skinengine.Controls.Visuals;
+using SkinEngine.Controls.Transforms;
+using SkinEngine.Controls.Visuals;
+using SkinEngine.Effects;
+using SkinEngine;
 
-namespace Skinengine.Controls.Brushes
+namespace SkinEngine.Controls.Brushes
 {
   public class Brush : Property
   {
@@ -21,10 +47,16 @@ namespace Skinengine.Controls.Brushes
       _relativeTransformProperty = new Property(new TransformGroup());
       _transformProperty = new Property(new TransformGroup());
     }
+
     public void OnPropertyChanged()
     {
       Fire();
     }
+
+    /// <summary>
+    /// Gets or sets the opacity property.
+    /// </summary>
+    /// <value>The opacity property.</value>
     public Property OpacityProperty
     {
       get
@@ -37,6 +69,10 @@ namespace Skinengine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the opacity.
+    /// </summary>
+    /// <value>The opacity.</value>
     public double Opacity
     {
       get
@@ -51,6 +87,10 @@ namespace Skinengine.Controls.Brushes
     }
 
 
+    /// <summary>
+    /// Gets or sets the relative transform property.
+    /// </summary>
+    /// <value>The relative transform property.</value>
     public Property RelativeTransformProperty
     {
       get
@@ -64,6 +104,10 @@ namespace Skinengine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the relative transform.
+    /// </summary>
+    /// <value>The relative transform.</value>
     public TransformGroup RelativeTransform
     {
       get
@@ -77,6 +121,10 @@ namespace Skinengine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the transform property.
+    /// </summary>
+    /// <value>The transform property.</value>
     public Property TransformProperty
     {
       get
@@ -89,6 +137,10 @@ namespace Skinengine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the transform.
+    /// </summary>
+    /// <value>The transform.</value>
     public TransformGroup Transform
     {
       get
@@ -102,15 +154,19 @@ namespace Skinengine.Controls.Brushes
       }
     }
 
-    public double GetTotalOpacity(UIElement uielement)
+    /// <summary>
+    /// Setups the brush.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    public virtual void SetupBrush(FrameworkElement element)
     {
-      double opacity = (uielement != null) ? uielement.GetTotalOpacity() : 1.0;
 
-      double brush_opacity = Opacity;
-      if (brush_opacity < 1.0)
-        opacity *= brush_opacity;
-
-      return opacity;
+    }
+    public virtual void BeginRender()
+    {
+    }
+    public virtual void EndRender()
+    {
     }
   }
 }

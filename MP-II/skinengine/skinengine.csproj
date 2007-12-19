@@ -142,6 +142,7 @@
     <Compile Include="Controls\TreeContainer.cs" />
     <Compile Include="Controls\TreeItem.cs" />
     <Compile Include="Controls\VisualBrush.cs" />
+    <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\FrameworkElement.cs" />
     <Compile Include="Controls\Visual\UIElement.cs" />
     <Compile Include="Controls\Visual\Visual.cs" />

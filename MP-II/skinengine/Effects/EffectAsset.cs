@@ -23,11 +23,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Effects
@@ -39,6 +41,7 @@ namespace SkinEngine.Effects
     private DateTime _lastUsed = DateTime.MinValue;
     private double _ticksPerSecond = 0;
     private double _lastElapsedTime = 0;
+    Dictionary<string, object> _effectParameters;
 
     [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
     [DllImport("kernel32")]
@@ -54,14 +57,15 @@ namespace SkinEngine.Effects
     /// <param name="effectName">Name of the effect.</param>
     public EffectAsset(string effectName)
     {
+      _effectParameters = new Dictionary<string, object>();
       _effectName = effectName;
       long ticksPerSecond = 0;
       bool res = QueryPerformanceFrequency(ref ticksPerSecond);
-      _ticksPerSecond = (float) ticksPerSecond;
+      _ticksPerSecond = (float)ticksPerSecond;
 
       long time = 0;
       QueryPerformanceCounter(ref time);
-      _lastElapsedTime = (double) time;
+      _lastElapsedTime = (double)time;
     }
 
     /// <summary>
@@ -74,7 +78,7 @@ namespace SkinEngine.Effects
       {
         ShaderFlags shaderFlags = ShaderFlags.NoPreShader;
         string errors = "";
-        _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, shaderFlags,null, out errors);
+        _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, shaderFlags, null, out errors);
         if (_effect == null)
         {
           ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
@@ -82,15 +86,14 @@ namespace SkinEngine.Effects
           _lastUsed = SkinContext.Now;
         }
       }
-      /*
-            effect.SetValue("g_MaterialAmbientColor", new ColorValue(0.35f, 0.35f, 0.35f, 0));
-            effect.SetValue("g_MaterialDiffuseColor", WhiteColor);
-            effect.SetValue("g_MeshTexture", meshTexture);
-        
-            effect.SetValue("worldViewProjection", worldMatrix * camera.ViewMatrix * camera.ProjectionMatrix);
-            effect.SetValue("worldMatrix", worldMatrix);
-            effect.SetValue("appTime", (float)appTime);
-       */
+    }
+
+    public Dictionary<string, object> Parameters
+    {
+      get
+      {
+        return _effectParameters;
+      }
     }
 
     #region IAsset Members
@@ -161,13 +164,14 @@ namespace SkinEngine.Effects
 
       long time = 0;
       QueryPerformanceCounter(ref time);
-      double elapsedTime = (double) (time - _lastElapsedTime)/(double) _ticksPerSecond;
+      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
       _effect.SetValue("worldViewProj",
-                       SkinContext.FinalMatrix.Matrix*GraphicsDevice.Device.Transform.View*
+                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
                        GraphicsDevice.Device.Transform.Projection);
       _effect.SetValue("g_texture", tex.Texture);
-      _effect.SetValue("appTime", (float) elapsedTime);
+      _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";
+      SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
       tex.Draw(0);
@@ -176,41 +180,79 @@ namespace SkinEngine.Effects
       _lastUsed = SkinContext.Now;
     }
 
-    public void Render(Texture tex)
+    public void StartRender(Texture tex)
     {
       if (!IsAllocated)
       {
         Allocate();
       }
-
       if (!IsAllocated)
       {
         //render without effect
         GraphicsDevice.Device.SetTexture(0, tex);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-        GraphicsDevice.Device.SetTexture(0, null);
         return;
       }
-
       long time = 0;
       QueryPerformanceCounter(ref time);
-      double elapsedTime = (double) (time - _lastElapsedTime)/(double) _ticksPerSecond;
+      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
       _effect.SetValue("worldViewProj",
-                       SkinContext.FinalMatrix.Matrix*GraphicsDevice.Device.Transform.View*
+                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
                        GraphicsDevice.Device.Transform.Projection);
       _effect.SetValue("g_texture", tex);
-      _effect.SetValue("appTime", (float) elapsedTime);
+      _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";
+      SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
 
       GraphicsDevice.Device.SetTexture(0, tex);
-      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-
-      _effect.EndPass();
-      _effect.End();
-      _lastUsed = SkinContext.Now;
+    }
+    public void EndRender()
+    {
+      if (_effect != null)
+      {
+        _effect.EndPass();
+        _effect.End();
+        _lastUsed = SkinContext.Now;
+      }
       GraphicsDevice.Device.SetTexture(0, null);
+    }
+
+    public void Render(Texture tex)
+    {
+      StartRender(tex);
+      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+      EndRender();
+    }
+
+    void SetEffectParameters()
+    {
+      Dictionary<string, object>.Enumerator enumer = _effectParameters.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        object v = enumer.Current.Value;
+        Type type = v.GetType();
+        if (type == typeof(ColorValue))
+          _effect.SetValue(enumer.Current.Key, (ColorValue)v);
+
+        else if (type == typeof(float))
+          _effect.SetValue(enumer.Current.Key, (float)v);
+
+        else if (type == typeof(Matrix))
+          _effect.SetValue(enumer.Current.Key, (Matrix)v);
+
+        else if (type == typeof(Vector4))
+          _effect.SetValue(enumer.Current.Key, (Vector4)v);
+
+        else if (type == typeof(bool))
+          _effect.SetValue(enumer.Current.Key, (bool)v);
+
+        else if (type == typeof(float))
+          _effect.SetValue(enumer.Current.Key, (float)v);
+
+        else if (type == typeof(int))
+          _effect.SetValue(enumer.Current.Key, (int)v);
+      }
     }
   }
 }

@@ -1,65 +1,83 @@
+#region Copyright (C) 2007 Team MediaPortal
+
+/*
+    Copyright (C) 2007 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#endregion
+
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 
-namespace Skinengine.Controls.Visuals
+namespace SkinEngine.Controls.Visuals
 {
   public class UIElement : Visual
   {
-    double _total_opacity;
-    Property _opacityProperty;
-    public Rectangle bounds;
+    Property _visibleProperty;
 
     public UIElement()
     {
-      _opacityProperty = new Property((double)1.0f);
+      _visibleProperty = new Property((bool)true);
     }
-    public Property OpacityProperty
+
+    /// <summary>
+    /// Gets or sets the is visible property.
+    /// </summary>
+    /// <value>The is visible property.</value>
+    public Property IsVisibleProperty
     {
       get
       {
-        return _opacityProperty;
+        return _visibleProperty;
       }
       set
       {
-        _opacityProperty = value;
+        _visibleProperty = value;
       }
     }
 
-    public double Opacity
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is visible.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is visible; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsVisible
     {
       get
       {
-        return (double)_opacityProperty.GetValue();
+        return (bool)_visibleProperty.GetValue();
       }
       set
       {
-        _opacityProperty.SetValue(value);
+        _visibleProperty.SetValue(value);
       }
     }
 
-    // GetTotalOpacity
-    //   Get the cumulative opacity of this element, including all it's parents
-    public double GetTotalOpacity()
-    {
-      return _total_opacity;
-    }
-
-    public void ComputeTotalOpacity()
-    {
-      if (VisualParent != null)
-        VisualParent.ComputeTotalOpacity();
-
-      double local_opacity = Opacity;
-      _total_opacity = local_opacity * ((VisualParent != null) ? VisualParent.GetTotalOpacity() : 1.0);
-    }
-
-
-    //
-    // GetSizeForBrush:
-    //   Gets the size of the area to be painted by a Brush (needed for image/video scaling)
+    /// <summary>
+    /// Gets the size for brush.
+    /// </summary>
+    /// <param name="width">The width.</param>
+    /// <param name="height">The height.</param>
     public virtual void GetSizeForBrush(out double width, out double height)
     {
       width = 0.0;
