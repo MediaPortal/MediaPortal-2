@@ -262,8 +262,8 @@ namespace MediaPortal.Services.Burning
             }
             // wait this many seconds until crdtools has to be finished
             CdrProc.WaitForExit(aExpectedTimeoutMs);
-            if (CdrProc.HasExited && CdrProc.ExitCode != 0 && !aArguments.Contains(@"-minfo"))
-              Logger.Debug("Devicehelper: {0} did not exit properly with arguments: {1}, exitcode: {2}", aAppName, aArguments, CdrProc.ExitCode);
+            if (CdrProc.HasExited && CdrProc.ExitCode != 0)
+              ProcessErrorHandler(aAppName, aArguments, CdrProc.ExitCode);              
           }
           catch (Exception ex)
           {
@@ -274,6 +274,23 @@ namespace MediaPortal.Services.Burning
           Logger.Warn("Devicehelper: Could not start {0} because it doesn't exist!", ProcOptions.FileName);
 
         return StdOutList;
+      }
+    }
+
+    private static void ProcessErrorHandler(string aAppName, string aArguments, int aExitcode)
+    {
+      switch (aAppName)
+      {
+        case "cdrecord.exe":
+          if (!aArguments.Contains(@"-minfo"))
+            Logger.Warn("Devicehelper: {0} did not exit properly with arguments: {1}, exitcode: {2}", aAppName, aArguments, aExitcode);
+          break;
+        case "mkisofs.exe":
+          if (aExitcode == 253)
+            Logger.Error("Devicehelper: ISO creation failed. Possible error: The source files did change.");
+          else
+            Logger.Warn("Devicehelper: {0} did not exit properly with arguments: {1}, exitcode: {2}", aAppName, aArguments, aExitcode);
+          break;
       }
     }
     
@@ -399,18 +416,20 @@ namespace MediaPortal.Services.Burning
     private List<Burner> QueryForBurners()
     {
       try
-      {        
+      {
+        List<string> DeviceInfo = new List<string>(74);
         List<string> FoundDeviceIDs = new List<string>(2);
         List<Burner> FoundDrives = new List<Burner>(1);
+        DeviceInfo = ExecuteProcReturnStdOut("cdrecord.exe", "-scanbus", 45000);
+
         // fetch all optical drives
-        FoundDeviceIDs = ParsePossibleDevices(ExecuteProcReturnStdOut("cdrecord.exe", "-scanbus", 45000));
+        FoundDeviceIDs = ParsePossibleDevices(DeviceInfo);
 
         foreach (string devstr in FoundDeviceIDs)
         {
           // let pending job finish
           System.Windows.Forms.Application.DoEvents();
-          FoundDrives.Add(new Burner(devstr));          
-          System.Threading.Thread.Sleep(1000);
+          FoundDrives.Add(new Burner(devstr));
         }
 
         return FoundDrives;

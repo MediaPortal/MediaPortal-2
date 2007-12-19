@@ -604,11 +604,11 @@ namespace MediaPortal.Services.Burning
       this.Dispose();
     }
 
-    // Since gathering device info is not time critical perform it by a BackgroundWorker for now
+    // Since gathering device info is not time critical perform it by a background thread for now
     private void WorkerGetDrives()
     {
       // Get MP some time to start up quickly on single core CPUs
-      System.Threading.Thread.Sleep(7000);
+      System.Threading.Thread.Sleep(8000);
       GetDrives();
 
       System.Windows.Forms.Application.DoEvents();

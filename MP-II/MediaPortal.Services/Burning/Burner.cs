@@ -133,7 +133,7 @@ namespace MediaPortal.Services.Burning
 
     private void GetCurrentMediaStatus()
     {
-      List<string> MediaDescription = new List<string>(80);
+      List<string> MediaDescription = new List<string>(94);
       MediaInfo MyMediaInfo = new MediaInfo(MediaType.None, false, "Standard", BlankStatus.empty, BlankStatus.empty, FormatStatus.none, 1, 1, false, 0);
       string cdrParam = string.Format(@"dev={0} -minfo -v", fBusId);
 
@@ -262,7 +262,7 @@ namespace MediaPortal.Services.Burning
     /// </summary>
     private void GetFeatures()
     {
-      List<string> FeatureDescription = new List<string>(80);
+      List<string> FeatureDescription = new List<string>(85);
       string cdrParam = string.Format(@"dev={0} -prcap -v", fBusId);
 
       FeatureDescription = DeviceHelper.ExecuteProcReturnStdOut("cdrecord.exe", cdrParam, 10000);
