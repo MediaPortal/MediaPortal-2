@@ -198,12 +198,12 @@ namespace SkinEngine.Controls.Visuals
         PerformLayout();
       }
 
-      if (BorderBrush != null)
+      if (BorderBrush != null && BorderThickness > 0)
       {
         BorderBrush.SetupBrush(this);
         BorderBrush.BeginRender();
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBorder);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
         BorderBrush.EndRender();
       }
 
@@ -221,27 +221,31 @@ namespace SkinEngine.Controls.Visuals
 
     public void PerformLayout()
     {
+      int x = 100;
+      int y = 100;
       Width = 200;
       Height = 46;
       Free();
+
+      //background brush
       int xoff;
       int yoff;
-      if (BorderBrush == null)
+      if (BorderBrush == null || BorderThickness <= 0)
       {
-        xoff = 100;
-        yoff = 100;
+        xoff = x;
+        yoff = y;
         ActualWidth = Width;
         ActualHeight = Height;
       }
       else
       {
-        xoff = 100 + (int)BorderThickness;
-        yoff = 100 + (int)BorderThickness;
+        xoff = x + (int)BorderThickness;
+        yoff = y + (int)BorderThickness;
         ActualWidth = Width - 2 * +BorderThickness;
         ActualHeight = Height - 2 * +BorderThickness;
       }
       GraphicsPath path = GetRoundedRect(new RectangleF(xoff, yoff, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
-      PointF[] vertices = ConvertPathToVertices(path, (int)+(xoff + ActualWidth / 2), (int)(yoff + ActualHeight / 2));
+      PointF[] vertices = ConvertPathToTriangleFan(path, (int)+(xoff + ActualWidth / 2), (int)(yoff + ActualHeight / 2));
 
       _vertexBufferBackground = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexBufferBackground.Lock(0, 0);
@@ -262,14 +266,15 @@ namespace SkinEngine.Controls.Visuals
       _vertexBufferBackground.Unlock();
       _verticesCountBackground = (verts.Length - 2);
 
-      if (BorderBrush != null)
+      //border brush
+      if (BorderBrush != null && BorderThickness > 0)
       {
-        xoff = 100;
-        yoff = 100;
+        xoff = x;
+        yoff = y;
         ActualWidth = Width;
         ActualHeight = Height;
         path = GetRoundedRect(new RectangleF(xoff, yoff, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
-        vertices = ConvertPathToVertices(path, (int)+(xoff + ActualWidth / 2), (int)(yoff + ActualHeight / 2));
+        vertices = ConvertPathToTriangleStrip(path, (int)+(xoff + ActualWidth / 2), (int)(yoff + ActualHeight / 2), (float)BorderThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
@@ -410,7 +415,7 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
-    PointF[] ConvertPathToVertices(GraphicsPath path, int cx, int cy)
+    PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
     {
       PointF[] points = path.PathPoints;
       int verticeCount = points.Length + 2;
@@ -426,5 +431,23 @@ namespace SkinEngine.Controls.Visuals
       return vertices;
     }
 
+    PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
+    {
+      PointF[] points = path.PathPoints;
+      int verticeCount = points.Length * 2 + 2;
+      PointF[] vertices = new PointF[verticeCount];
+      for (int i = 0; i < points.Length; ++i)
+      {
+        float diffx = thickNess;
+        float diffy = thickNess;
+        if (points[i].X > cx) diffx = -thickNess;
+        if (points[i].Y > cy) diffy = -thickNess;
+        vertices[i * 2] = points[i];
+        vertices[i * 2 + 1] = new PointF(points[i].X + diffx, points[i].Y + diffy);
+      }
+      vertices[verticeCount - 2] = points[0];
+      vertices[verticeCount - 1] = new PointF(points[0].X + thickNess, points[0].Y + thickNess);
+      return vertices;
+    }
   }
 }

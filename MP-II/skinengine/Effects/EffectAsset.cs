@@ -235,8 +235,15 @@ namespace SkinEngine.Effects
         if (type == typeof(ColorValue))
           _effect.SetValue(enumer.Current.Key, (ColorValue)v);
 
+        else if (type == typeof(ColorValue[]))
+          _effect.SetValue(enumer.Current.Key, (ColorValue[])v);
+
         else if (type == typeof(float))
           _effect.SetValue(enumer.Current.Key, (float)v);
+
+        else if (type == typeof(float[]))
+          _effect.SetValue(enumer.Current.Key, (float[])v);
+
 
         else if (type == typeof(Matrix))
           _effect.SetValue(enumer.Current.Key, (Matrix)v);
@@ -252,6 +259,7 @@ namespace SkinEngine.Effects
 
         else if (type == typeof(int))
           _effect.SetValue(enumer.Current.Key, (int)v);
+
       }
     }
   }

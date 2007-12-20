@@ -26,13 +26,24 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
+using SkinEngine.Effects;
+using Microsoft.DirectX.Direct3D;
+using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush
   {
+    Texture _texture;
+    double _height;
+    double _width;
+    EffectAsset _effect;
+
     Property _startPointProperty;
     Property _endPointProperty;
+    float[] _offsets = new float[12];
+    ColorValue[] _colors = new ColorValue[12];
+
     public LinearGradientBrush()
     {
       _startPointProperty = new Property((double)0.0f);
@@ -85,6 +96,52 @@ namespace SkinEngine.Controls.Brushes
       {
         _endPointProperty.SetValue(value);
         OnPropertyChanged();
+      }
+    }
+    /// <summary>
+    /// Setups the brush.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    public override void SetupBrush(FrameworkElement element)
+    {
+      if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
+      {
+        if (_texture != null)
+        {
+          _texture.Dispose();
+        }
+        _height = element.ActualHeight;
+        _width = element.ActualWidth;
+        _texture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+
+        int index = 0;
+        foreach (GradientStop stop in GradientStops)
+        {
+          _offsets[index] = (float)stop.Offset;
+          _colors[index] = ColorValue.FromColor(stop.Color);
+        }
+        for (int i = index + 1; i < 12; i++)
+        {
+          _offsets[index] = 2.0f;
+          _colors[index] = _colors[index];
+        }
+      }
+    }
+    public override void BeginRender()
+    {
+      if (_texture == null) return;
+      _effect = ContentManager.GetEffect("lineargradient");
+      _effect.Parameters["g_offset"] = _offsets;
+      _effect.Parameters["g_color"] = _colors;
+      _effect.StartRender(_texture);
+    }
+
+    public override void EndRender()
+    {
+      if (_effect != null)
+      {
+        _effect.EndRender();
+        _effect = null;
       }
     }
   }

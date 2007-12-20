@@ -38,6 +38,13 @@ namespace SkinEngine.Controls.Brushes
       _colorProperty = new Property(Color.White);
       _offsetProperty = new Property((double)0.0f);
     }
+
+    public GradientStop(float offset, Color color)
+    {
+      _colorProperty = new Property(color);
+      _offsetProperty = new Property((double)offset);
+    }
+
     public void OnPropertyChanged()
     {
       Fire();

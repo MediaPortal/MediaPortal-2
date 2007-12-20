@@ -57,6 +57,7 @@ namespace SkinEngine.Controls.Brushes
     Property _spreadMethodProperty;
     Property _mappingModeProperty;
 
+
     public GradientBrush()
     {
       _gradientStopsProperty = new Property(new GradientStopCollection());
@@ -126,6 +127,7 @@ namespace SkinEngine.Controls.Brushes
         _mappingModeProperty = value;
       }
     }
+
     public BrushMappingMode MappingMode
     {
       get
@@ -163,5 +165,6 @@ namespace SkinEngine.Controls.Brushes
         OnPropertyChanged();
       }
     }
+
   }
 }
