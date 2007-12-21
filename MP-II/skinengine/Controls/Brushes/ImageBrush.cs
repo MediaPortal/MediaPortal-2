@@ -26,6 +26,10 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals;
+using SkinEngine.Effects;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -33,6 +37,8 @@ namespace SkinEngine.Controls.Brushes
   {
     Property _imageSourceProperty;
     Property _downloadProgressProperty;
+    TextureAsset _tex;
+
     public ImageBrush()
     {
       _imageSourceProperty = new Property(null);
@@ -51,11 +57,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public Uri ImageSource
+    public string ImageSource
     {
       get
       {
-        return (Uri)_imageSourceProperty.GetValue();
+        return (string)_imageSourceProperty.GetValue();
       }
       set
       {
@@ -63,6 +69,7 @@ namespace SkinEngine.Controls.Brushes
         OnPropertyChanged();
       }
     }
+
     public Property DownloadProgressProperty
     {
       get
@@ -86,6 +93,34 @@ namespace SkinEngine.Controls.Brushes
         _downloadProgressProperty.SetValue(value);
         OnPropertyChanged();
       }
+    }
+
+    public override void SetupBrush(FrameworkElement element)
+    {
+      if (_tex == null)
+      {
+        bool thumb = true;
+        _tex = ContentManager.GetTexture(ImageSource.ToString(), thumb);
+        _tex.Allocate();
+      }
+    }
+
+    public override void BeginRender()
+    {
+      if (_tex == null) return;
+      _tex.Set(0);
+    }
+
+    public override void EndRender()
+    {
+      GraphicsDevice.Device.SetTexture(0, null);
+    }
+
+    public override void Scale(ref float u, ref float v)
+    {
+      if (_tex == null) return;
+      u *= _tex.MaxU;
+      v *= _tex.MaxV;
     }
   }
 }

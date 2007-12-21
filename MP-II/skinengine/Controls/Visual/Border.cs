@@ -200,7 +200,6 @@ namespace SkinEngine.Controls.Visuals
 
       if (BorderBrush != null && BorderThickness > 0)
       {
-        BorderBrush.SetupBrush(this);
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
         BorderBrush.BeginRender();
@@ -210,7 +209,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (Background != null)
       {
-        Background.SetupBrush(this);
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         Background.BeginRender();
@@ -229,6 +228,15 @@ namespace SkinEngine.Controls.Visuals
       Height = 46;
       Free();
 
+      if (Background != null)
+      {
+        Background.SetupBrush(this);
+      }
+
+      if (BorderBrush != null)
+      {
+        BorderBrush.SetupBrush(this);
+      }
       //background brush
       int xoff;
       int yoff;
@@ -259,14 +267,19 @@ namespace SkinEngine.Controls.Visuals
           v /= (float)ActualHeight;
           float u = vertices[i].X - xoff;
           u /= (float)ActualWidth;
-          verts[i].Color = 0xffffff;
+          if (u < 0) u = 0;
+          if (u > 1) u = 1;
+          if (v < 0) v = 0;
+          if (v > 1) v = 1;
+          Background.Scale(ref u, ref v);
+          verts[i].Color = (int)0xffffffff;
           verts[i].X = vertices[i].X;
           verts[i].Y = vertices[i].Y;
-          verts[i].Z = 0.0f;
+          verts[i].Z = 1.0f;
           verts[i].Tu1 = u;
           verts[i].Tv1 = v;
-          verts[i].Tu2 = u;
-          verts[i].Tv2 = v;
+          verts[i].Tu2 = 0;
+          verts[i].Tv2 = 0;
         }
       }
       _vertexBufferBackground.Unlock();
@@ -300,15 +313,20 @@ namespace SkinEngine.Controls.Visuals
             u = (float)(x1 - xoff);
             u /= (float)(Width);
 
+            if (u < 0) u = 0;
+            if (u > 1) u = 1;
+            if (v < 0) v = 0;
+            if (v > 1) v = 1;
+            BorderBrush.Scale(ref u, ref v);
 
-            verts[i].Color = 0xffffff;
+            verts[i].Color = (int)0xffffffff;
             verts[i].X = vertices[i].X;
             verts[i].Y = vertices[i].Y;
-            verts[i].Z = 0.0f;
+            verts[i].Z = 1.0f;
             verts[i].Tu1 = u;
-            verts[i].Tu2 = u;
             verts[i].Tv1 = v;
-            verts[i].Tv2 = v;
+            verts[i].Tu2 = 0;
+            verts[i].Tv2 = 0;
           }
         }
         _vertexBufferBorder.Unlock();

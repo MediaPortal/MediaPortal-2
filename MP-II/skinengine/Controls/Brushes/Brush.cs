@@ -53,6 +53,9 @@ namespace SkinEngine.Controls.Brushes
       Fire();
     }
 
+    public virtual void Scale(ref float u, ref float v)
+    {
+    }
     /// <summary>
     /// Gets or sets the opacity property.
     /// </summary>
