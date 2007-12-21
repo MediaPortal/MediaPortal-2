@@ -228,34 +228,23 @@ namespace SkinEngine.Controls.Visuals
       Height = 150;
       Free();
 
-      if (Background != null)
-      {
-        Background.SetupBrush(this);
-      }
-
-      if (BorderBrush != null)
-      {
-        BorderBrush.SetupBrush(this);
-      }
       //background brush
       int xoff;
       int yoff;
       if (BorderBrush == null || BorderThickness <= 0)
       {
-        xoff = x;
-        yoff = y;
+        ActualPosition = new Vector3(x, y, 1);
         ActualWidth = Width;
         ActualHeight = Height;
       }
       else
       {
-        xoff = x + (int)BorderThickness;
-        yoff = y + (int)BorderThickness;
+        ActualPosition = new Vector3((float)(x + BorderThickness), (float)(y + BorderThickness), 1);
         ActualWidth = Width - 2 * +BorderThickness;
         ActualHeight = Height - 2 * +BorderThickness;
       }
-      GraphicsPath path = GetRoundedRect(new RectangleF(xoff, yoff, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
-      PointF[] vertices = ConvertPathToTriangleFan(path, (int)+(xoff + ActualWidth / 2), (int)(yoff + ActualHeight / 2));
+      GraphicsPath path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
+      PointF[] vertices = ConvertPathToTriangleFan(path, (int)+(ActualPosition.X + ActualWidth / 2), (int)(ActualPosition.Y + ActualHeight / 2));
 
       _vertexBufferBackground = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexBufferBackground.Lock(0, 0);
@@ -263,39 +252,24 @@ namespace SkinEngine.Controls.Visuals
       {
         for (int i = 0; i < vertices.Length; ++i)
         {
-          float v = vertices[i].Y - yoff;
-          v /= (float)ActualHeight;
-          float u = vertices[i].X - xoff;
-          u /= (float)ActualWidth;
-          if (u < 0) u = 0;
-          if (u > 1) u = 1;
-          if (v < 0) v = 0;
-          if (v > 1) v = 1;
-          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
-          Background.Scale(ref u, ref v, ref color);
-          verts[i].Color = color.ToArgb();
           verts[i].X = vertices[i].X;
           verts[i].Y = vertices[i].Y;
           verts[i].Z = 1.0f;
-          verts[i].Tu1 = u;
-          verts[i].Tv1 = v;
-          verts[i].Tu2 = 0;
-          verts[i].Tv2 = 0;
         }
       }
+      Background.SetupBrush(this, ref verts);
       _vertexBufferBackground.Unlock();
       _verticesCountBackground = (verts.Length - 2);
 
       //border brush
       if (BorderBrush != null && BorderThickness > 0)
       {
-        xoff = x;
-        yoff = y;
+        ActualPosition = new Vector3(x, y, 1);
         ActualWidth = Width;
         ActualHeight = Height;
-        float centerX = (float)(xoff + ActualWidth / 2);
-        float centerY = (float)(yoff + ActualHeight / 2);
-        path = GetRoundedRect(new RectangleF(xoff, yoff, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
+        float centerX = (float)(ActualPosition.X + ActualWidth / 2);
+        float centerY = (float)(ActualPosition.Y + ActualHeight / 2);
+        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
         vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)BorderThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
@@ -304,33 +278,12 @@ namespace SkinEngine.Controls.Visuals
         {
           for (int i = 0; i < vertices.Length; ++i)
           {
-            float u, v;
-            float x1, y1;
-            y1 = (float)vertices[i].Y;
-            v = (float)(y1 - yoff);
-            v /= (float)(Height);
-
-            x1 = (float)vertices[i].X;
-            u = (float)(x1 - xoff);
-            u /= (float)(Width);
-
-            if (u < 0) u = 0;
-            if (u > 1) u = 1;
-            if (v < 0) v = 0;
-            if (v > 1) v = 1;
-            ColorValue color = ColorValue.FromArgb((int)0xffffffff);
-            BorderBrush.Scale(ref u, ref v, ref color);
-
-            verts[i].Color = color.ToArgb();
             verts[i].X = vertices[i].X;
             verts[i].Y = vertices[i].Y;
             verts[i].Z = 1.0f;
-            verts[i].Tu1 = u;
-            verts[i].Tv1 = v;
-            verts[i].Tu2 = 0;
-            verts[i].Tv2 = 0;
           }
         }
+        BorderBrush.SetupBrush(this, ref verts);
         _vertexBufferBorder.Unlock();
         _verticesCountBorder = (verts.Length - 2);
       }

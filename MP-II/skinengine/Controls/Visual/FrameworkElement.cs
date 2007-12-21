@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -35,6 +37,8 @@ namespace SkinEngine.Controls.Visuals
 
     Property _acutalWidthProperty;
     Property _actualHeightProperty;
+    Property _acutalPositionProperty;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
     /// </summary>
@@ -46,6 +50,8 @@ namespace SkinEngine.Controls.Visuals
 
       _acutalWidthProperty = new Property((double)0.0f);
       _actualHeightProperty = new Property((double)0.0f);
+
+      _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
     }
 
     #region properties
@@ -163,6 +169,30 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    public Property ActualPositionProperty
+    {
+      get
+      {
+        return _acutalPositionProperty;
+      }
+      set
+      {
+        _acutalPositionProperty = value;
+      }
+    }
+
+    public Vector3 ActualPosition
+    {
+      get
+      {
+        return (Vector3)_acutalPositionProperty.GetValue();
+      }
+      set
+      {
+        _acutalPositionProperty.SetValue(value);
+        OnPropertyChanged();
+      }
+    }
     /// <summary>
     /// Gets or sets the height.
     /// </summary>

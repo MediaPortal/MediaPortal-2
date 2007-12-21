@@ -28,6 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
+using SkinEngine.DirectX;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 
@@ -95,13 +96,14 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public override void SetupBrush(FrameworkElement element)
+    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_tex == null)
       {
         bool thumb = true;
         _tex = ContentManager.GetTexture(ImageSource.ToString(), thumb);
         _tex.Allocate();
+        base.SetupBrush(element, ref verts);
       }
     }
 
@@ -116,12 +118,21 @@ namespace SkinEngine.Controls.Brushes
       GraphicsDevice.Device.SetTexture(0, null);
     }
 
-    public override void Scale(ref float u, ref float v, ref ColorValue color)
+    protected override void Scale(ref float u, ref float v)
     {
       if (_tex == null) return;
-      color.Alpha *= (float)Opacity;
       u *= _tex.MaxU;
       v *= _tex.MaxV;
+    }
+
+    protected override Vector2 BrushDimensions
+    {
+      get
+      {
+        if (_tex == null)
+          return base.BrushDimensions;
+        return new Vector2(_tex.Width, _tex.Height);
+      }
     }
   }
 }

@@ -26,6 +26,11 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using SkinEngine.DirectX;
+using SkinEngine.Controls.Visuals;
+
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -134,6 +139,56 @@ namespace SkinEngine.Controls.Brushes
       {
         _stretchProperty.SetValue(value);
         OnPropertyChanged();
+      }
+    }
+
+    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    {
+      // todo here:
+      ///   - stretchmode
+      ///   - tilemode
+      ///   - alignmentx/alignmenty
+      ///   - viewbox
+      
+      for (int i = 0; i < verts.Length; ++i)
+      {
+        float u, v;
+        float x1, y1;
+        y1 = (float)verts[i].Y;
+        v = (float)(y1 - element.ActualPosition.Y);
+        v /= (float)(element.ActualHeight);
+
+        x1 = (float)verts[i].X;
+        u = (float)(x1 - element.ActualPosition.X);
+        u /= (float)(element.ActualWidth);
+        Scale(ref u, ref v);
+
+        if (u < 0) u = 0;
+        if (u > 1) u = 1;
+        if (v < 0) v = 0;
+        if (v > 1) v = 1;
+        unchecked
+        {
+          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+          color.Alpha *= (float)Opacity;
+          verts[i].Color = color.ToArgb();
+        }
+        verts[i].Tu1 = u;
+        verts[i].Tv1 = v;
+        verts[i].Tu2 = 0;
+        verts[i].Tv2 = 0;
+      }
+    }
+
+    protected virtual void Scale(ref float u, ref float v)
+    {
+    }
+
+    protected virtual Vector2 BrushDimensions
+    {
+      get
+      {
+        return new Vector2(1, 1);
       }
     }
   }

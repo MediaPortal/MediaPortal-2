@@ -32,6 +32,7 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine;
+using SkinEngine.DirectX;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 
@@ -44,6 +45,7 @@ namespace SkinEngine.Controls.Brushes
   ///   - tilemode
   ///   - alignmentx/alignmenty
   ///   - viewbox
+  ///   - resource cleanup (textures & vertexbuffers)
   /// </summary>
   public class Brush : Property
   {
@@ -172,9 +174,35 @@ namespace SkinEngine.Controls.Brushes
     /// Setups the brush.
     /// </summary>
     /// <param name="element">The element.</param>
-    public virtual void SetupBrush(FrameworkElement element)
+    public virtual void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
+      for (int i = 0; i < verts.Length; ++i)
+      {
+        float u, v;
+        float x1, y1;
+        y1 = (float)verts[i].Y;
+        v = (float)(y1 - element.ActualPosition.Y);
+        v /= (float)(element.ActualHeight);
 
+        x1 = (float)verts[i].X;
+        u = (float)(x1 - element.ActualPosition.X);
+        u /= (float)(element.ActualWidth);
+
+        if (u < 0) u = 0;
+        if (u > 1) u = 1;
+        if (v < 0) v = 0;
+        if (v > 1) v = 1;
+        unchecked
+        {
+          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+          color.Alpha *= (float)Opacity;
+          verts[i].Color = color.ToArgb();
+        }
+        verts[i].Tu1 = u;
+        verts[i].Tv1 = v;
+        verts[i].Tu2 = 0;
+        verts[i].Tv2 = 0;
+      }
     }
 
     public virtual void BeginRender()

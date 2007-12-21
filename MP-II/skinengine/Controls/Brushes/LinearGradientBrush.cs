@@ -27,8 +27,10 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine.Effects;
-using Microsoft.DirectX.Direct3D;
+using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -102,10 +104,12 @@ namespace SkinEngine.Controls.Brushes
     /// Setups the brush.
     /// </summary>
     /// <param name="element">The element.</param>
-    public override void SetupBrush(FrameworkElement element)
+    public override void SetupBrush(FrameworkElement element,ref PositionColored2Textured[] verts)
     {
       if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
+        base.SetupBrush(element,ref verts);
+
         if (_texture != null)
         {
           _texture.Dispose();
