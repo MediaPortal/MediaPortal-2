@@ -94,11 +94,11 @@ namespace SkinEngine.Controls.Brushes
         }
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _texture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
       }
     }
 
-    public override void BeginRender( )
+    public override void BeginRender()
     {
       if (_texture == null) return;
       ColorValue color = ColorValue.FromArgb(Color.ToArgb());

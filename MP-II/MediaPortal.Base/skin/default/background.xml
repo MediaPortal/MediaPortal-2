@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <skin>
-  <image name="background" source="theme-image-background" width="720" height="576" position="0,0"/>
+  <image name="background" source="theme-image-background" width="720" height="576" position="0,0" />
   <image source="bgsatin.png" width="720" height="576" position="0,0">
     <animationgroup trigger="onwindowopen" duration="60000" repeat="-1">
       <animation trigger="onwindowopen" type="rotate" axis="z" from="0" to="360" duration="60000" center="360,288"/>

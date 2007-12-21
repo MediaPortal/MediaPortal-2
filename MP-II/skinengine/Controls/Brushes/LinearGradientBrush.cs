@@ -112,18 +112,19 @@ namespace SkinEngine.Controls.Brushes
         }
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _texture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
 
         int index = 0;
         foreach (GradientStop stop in GradientStops)
         {
           _offsets[index] = (float)stop.Offset;
           _colors[index] = ColorValue.FromColor(stop.Color);
+          index++;
         }
         for (int i = index + 1; i < 12; i++)
         {
-          _offsets[index] = 2.0f;
-          _colors[index] = _colors[index];
+          _offsets[i] = 2.0f;
+          _colors[i] = _colors[index];
         }
       }
     }
