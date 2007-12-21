@@ -32,9 +32,19 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Brushes
 {
+  /// <summary>
+  /// todo:
+  ///   - transforms
+  ///   - stretchmode
+  ///   - tilemode
+  ///   - alignmentx/alignmenty
+  ///   - viewbox
+  /// </summary>
   public class Brush : Property
   {
     Property _opacityProperty;
@@ -53,7 +63,7 @@ namespace SkinEngine.Controls.Brushes
       Fire();
     }
 
-    public virtual void Scale(ref float u, ref float v)
+    public virtual void Scale(ref float u, ref float v, ref ColorValue color)
     {
     }
 
@@ -166,9 +176,11 @@ namespace SkinEngine.Controls.Brushes
     {
 
     }
+
     public virtual void BeginRender()
     {
     }
+
     public virtual void EndRender()
     {
     }

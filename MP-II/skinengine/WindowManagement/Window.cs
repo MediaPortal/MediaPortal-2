@@ -31,7 +31,8 @@ using MediaPortal.Core.InputManager;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.WindowManager;
 using SkinEngine.Controls;
-
+using SkinEngine.Controls.Brushes;
+using SkinEngine.Controls.Visuals;
 namespace SkinEngine
 {
   public class Window : IWindow
@@ -72,7 +73,7 @@ namespace SkinEngine
     private Control _focusedControl;
     private Control _focusedMouseControl;
     private bool _history;
-
+    Border _border;
     #endregion
 
     /// <summary>
@@ -100,6 +101,27 @@ namespace SkinEngine
       _models = new Dictionary<string, Model>();
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
+
+
+      _border = new Border();
+      _border.BorderThickness = 6;
+      _border.CornerRadius = 10;
+      //ImageBrush backgroundBrush = new ImageBrush();
+      //backgroundBrush.ImageSource = "hover_my videos.png";
+
+      SolidColorBrush backgroundBrush = new SolidColorBrush();
+      backgroundBrush.Color = System.Drawing.Color.Red;
+
+      backgroundBrush.Opacity = 0.7f;
+      _border.Background = backgroundBrush;
+
+      LinearGradientBrush borderbrush = new LinearGradientBrush();
+      borderbrush.Opacity = 0.6f;
+      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.0f, System.Drawing.Color.Red));
+      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.3f, System.Drawing.Color.Green));
+      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(1.0f, System.Drawing.Color.Blue));
+      _border.BorderBrush = borderbrush;
+
     }
 
     public Control FocusedControl
@@ -360,6 +382,9 @@ namespace SkinEngine
         _thread.Name = "Window Close Thread";
         _thread.Start();
       }
+
+      //only enable this to test brushed&borders
+      //      _border.DoRender();
     }
 
     /// <summary>

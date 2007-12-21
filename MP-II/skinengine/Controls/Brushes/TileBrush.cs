@@ -34,10 +34,19 @@ namespace SkinEngine.Controls.Brushes
 
   public enum Stretch
   {
-    StretchNone,
-    StretchFill,
-    StretchUniform,
-    StretchUniformToFill
+    //The content preserves its original size.
+    None,
+
+    //The content is resized to fill the destination dimensions. The aspect ratio is not preserved.
+    Fill,
+
+    //The content is resized to fit in the destination dimensions while it preserves its native aspect ratio.
+    Uniform,
+
+    //The content is resized to fill the destination dimensions while it preserves its native aspect ratio. 
+    //If the aspect ratio of the destination rectangle differs from the source, the source content is 
+    //clipped to fit in the destination dimensions (zoom-in)
+    UniformToFill
   };
 
   public class TileBrush : Brush
@@ -45,11 +54,12 @@ namespace SkinEngine.Controls.Brushes
     Property _alignmentXProperty;
     Property _alignmentYProperty;
     Property _stretchProperty;
+
     public TileBrush()
     {
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Center);
-      _stretchProperty = new Property(Stretch.StretchFill);
+      _stretchProperty = new Property(Stretch.Fill);
     }
 
     public Property AlignmentXProperty
@@ -113,6 +123,7 @@ namespace SkinEngine.Controls.Brushes
         _stretchProperty = value;
       }
     }
+
     public Stretch Stretch
     {
       get

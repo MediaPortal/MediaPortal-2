@@ -102,10 +102,12 @@ namespace SkinEngine.Controls.Brushes
     {
       if (_texture == null) return;
       ColorValue color = ColorValue.FromArgb(Color.ToArgb());
+      color.Alpha *= (float)Opacity;
       _effect = ContentManager.GetEffect("solidbrush");
       _effect.Parameters["g_solidColor"] = color;
       _effect.StartRender(_texture);
     }
+
     public override void EndRender()
     {
       if (_effect != null)

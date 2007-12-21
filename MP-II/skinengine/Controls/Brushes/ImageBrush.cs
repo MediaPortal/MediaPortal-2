@@ -116,9 +116,10 @@ namespace SkinEngine.Controls.Brushes
       GraphicsDevice.Device.SetTexture(0, null);
     }
 
-    public override void Scale(ref float u, ref float v)
+    public override void Scale(ref float u, ref float v, ref ColorValue color)
     {
       if (_tex == null) return;
+      color.Alpha *= (float)Opacity;
       u *= _tex.MaxU;
       v *= _tex.MaxV;
     }

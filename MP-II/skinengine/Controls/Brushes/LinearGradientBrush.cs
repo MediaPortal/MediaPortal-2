@@ -119,6 +119,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _offsets[index] = (float)stop.Offset;
           _colors[index] = ColorValue.FromColor(stop.Color);
+          _colors[index].Alpha *= (float)Opacity;
           index++;
         }
         for (int i = index + 1; i < 12; i++)

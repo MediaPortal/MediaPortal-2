@@ -271,8 +271,9 @@ namespace SkinEngine.Controls.Visuals
           if (u > 1) u = 1;
           if (v < 0) v = 0;
           if (v > 1) v = 1;
-          Background.Scale(ref u, ref v);
-          verts[i].Color = (int)0xffffffff;
+          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+          Background.Scale(ref u, ref v, ref color);
+          verts[i].Color = color.ToArgb();
           verts[i].X = vertices[i].X;
           verts[i].Y = vertices[i].Y;
           verts[i].Z = 1.0f;
@@ -317,9 +318,10 @@ namespace SkinEngine.Controls.Visuals
             if (u > 1) u = 1;
             if (v < 0) v = 0;
             if (v > 1) v = 1;
-            BorderBrush.Scale(ref u, ref v);
+            ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+            BorderBrush.Scale(ref u, ref v, ref color);
 
-            verts[i].Color = (int)0xffffffff;
+            verts[i].Color = color.ToArgb();
             verts[i].X = vertices[i].X;
             verts[i].Y = vertices[i].Y;
             verts[i].Z = 1.0f;
