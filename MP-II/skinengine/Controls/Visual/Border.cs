@@ -224,8 +224,8 @@ namespace SkinEngine.Controls.Visuals
     {
       int x = 100;
       int y = 100;
-      Width = 200;
-      Height = 46;
+      Width = 300;
+      Height = 150;
       Free();
 
       if (Background != null)
