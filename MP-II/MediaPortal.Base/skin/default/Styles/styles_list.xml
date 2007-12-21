@@ -222,7 +222,7 @@
   <!-- styles for the list container -->
   <styles name="style_list">
 
-    <style name="list_style_small" position="260,97" move="0,1,0,1" wrap="false">
+    <style name="list_style_small" displayname="[list.small]"  position="260,97" move="0,1,0,1" wrap="false">
       <animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
       <animation trigger="onwindowopen" type="rotate" axis="y"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
       <animation trigger="onwindowopen" type="rotate" axis="x"  from="-90" to="0" tween="back" ease="easeout" duration="1300" />
@@ -260,7 +260,7 @@
       </visualbrush>
     </style>
 
-    <style name="list_style_big" position="260,97" move="0,1,0,1" wrap="false">
+    <style name="list_style_big"  displayname="[list.big]" position="260,97" move="0,1,0,1" wrap="false">
       <animation trigger="onwindowopen" type="zoom" from="0.01" to="1.0" tween="back" ease="easeout" duration="1300" />
       <animation trigger="onwindowopen" type="fade" from="0.0" to="1"  duration="1300"/>
       <label font="font13" position="0,-32" scroll="true" label="#script:SelectedListItem(Name)"  width="400" height="32" />
@@ -292,7 +292,7 @@
       </visualbrush>
     </style>
 
-    <style name="list_coverflow" position="-100,300" move="1,0,1,0" wrap="true" >
+    <style name="list_coverflow" displayname="[list.coverflow]" position="-100,300" move="1,0,1,0" wrap="true" >
       <group>
         <animation trigger="#script:ContentChange" type="fade" from="0.0" to="1.0"  duration="300" delay="200"/>
         <animation trigger="onwindowopen" type="rotate" duration="1" axis="x" from="0" to="10"/>
@@ -390,7 +390,7 @@
       </group>
     </style>
 
-    <style name="coverthrow" position="20,300" move="3,0,3,0" wrap="true">
+    <style name="coverthrow"  displayname="[list.coverthrow]" position="20,300" move="3,0,3,0" wrap="true">
       <image source="coverflow_bg.png" position="-200,0" width="1200" height="600"/>
       <group name="original">
         <controls>
@@ -512,7 +512,7 @@
       </group>
     </style>
 
-    <style name="list_thumb_big" position="250,70" move="0,4,0,4" wrap="true">
+    <style name="list_thumb_big"  displayname="[list.thumbs]" position="250,70" move="0,4,0,4" wrap="true">
       <button name="whiteBorderThumbBig" style="style_white_border_thumb" position="#script:SelectItemPosition" canfocus="false" focusable="false" >
         <!--
 				<animation trigger="#script:ContentAboutToChange" type="fade" from="1.0" to="0.0" duration="1"/>

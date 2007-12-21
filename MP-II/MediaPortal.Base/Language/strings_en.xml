@@ -281,4 +281,11 @@
     <String name="collection" text="Collection"/>
     <String name="update" text="Update"/>
   </Section>
+  <Section name="list">
+    <String name="small" text="Small List"/>
+    <String name="big" text="Big List"/>
+    <String name="thumbs" text="Thumbs"/>
+    <String name="coverthrow" text="Coverthrow"/>
+    <String name="coverflow" text="Coverflow"/>
+  </Section>
 </Language>

@@ -474,6 +474,29 @@ namespace SkinEngine.Controls
     }
 
     /// <summary>
+    /// Gets all available ViewModes
+    /// </summary>
+    /// <value>The styles.</value>
+    public ItemsCollection ViewModes
+    {
+      get
+      {
+        ItemsCollection viewModes = new ItemsCollection();
+        // add all style-names to the list
+        ListItem item = null;
+        foreach(Style style in _styles.Styles)
+        {
+          item = new ListItem();
+          item.Labels["Name"] = new LabelProperty(style.DisplayName);
+          item.Labels["StyleName"] = new LabelProperty(style.Name);
+          viewModes.Add(item);
+        }
+        viewModes.FireChange();
+        return viewModes;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the current offset in ListContainer.Items 
     /// </summary>
     /// <value>The page offset.</value>
@@ -1250,6 +1273,43 @@ namespace SkinEngine.Controls
       SelectedSubItemIndex = 0;
 
       UpdateSelectedItem();
+    }
+
+    /// <summary>
+    /// Sets a style by name
+    /// </summary>
+    /// <param name="name">the name of the style</param>
+    public void SetStyleByName(string name)
+    {
+      Style foundStyle = null;
+
+      for (int i = 0; i < _styles.Styles.Count; i++)
+      {
+        if (_styles.Styles[i].Name.Equals(name))
+        {
+          // check if this style isn't selected already
+          if (_styles.SelectedStyleIndex == i)
+            return;
+          foundStyle = _styles.Styles[i];
+          _styles.SelectedStyleIndex = i;
+          break;
+        }
+      }
+      // no style found with the matching name
+      if (foundStyle == null) return;
+      PageOffset = 0;
+      PageSize = -1;
+      SelectedSubItemIndex = 0;
+      UpdateSelectedItem();
+    }
+
+    /// <summary>
+    /// Sets a style
+    /// </summary>
+    /// <param name="item">the listitem that contains the name of the style</param>
+    public void SetStyle(ListItem item)
+    {
+      SetStyleByName(item.Labels["StyleName"].Evaluate(null, null));
     }
 
     /// <summary>

@@ -104,6 +104,7 @@ namespace SkinEngine.Skin
         style.AlphaMask = GetVector4(styleNode, "alphamask", new Vector4(1, 1, 1, 1));
         style.AlphaGradient = LoadAlphaGradient(styleNode, window);
         style.Name = GetName(styleNode);
+        style.DisplayNameProperty = new Property(GetName(styleNode, "displayname"));
         LoadClipPlane(window, styleNode, style, "clip");
 
         LoadAnimations(window, styleNode, container);
@@ -150,6 +151,7 @@ namespace SkinEngine.Skin
       style.AlphaGradient = LoadAlphaGradient(styleRoot, window);
       style.Window = window;
       style.Name = GetName(styleRoot);
+      style.DisplayNameProperty = new Property(GetName(styleRoot, "displayname"));
       LoadClipPlane(window, styleRoot, style, "clip");
       XmlNodeList nodes = styleRoot.ChildNodes;
       ISkinLoader loader = ServiceScope.Get<ISkinLoader>();

@@ -34,6 +34,7 @@ namespace SkinEngine.Skin
 
     private Vector4 _move = new Vector4(0, 1, 0, 1);
     private Property _wrap;
+    private Property _displayName;
 
     #endregion
 
@@ -62,6 +63,21 @@ namespace SkinEngine.Skin
     {
       get { return _wrap; }
       set { _wrap = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the Display name used for this Style
+    /// </summary>
+    public string DisplayName
+    {
+      get { return (string)_displayName.GetValue(); }
+      set { _displayName.SetValue(value); }
+    }
+
+    public Property DisplayNameProperty
+    {
+      get { return _displayName; }
+      set { _displayName = value; }
     }
 
     /// <summary>
