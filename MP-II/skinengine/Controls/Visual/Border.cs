@@ -229,12 +229,10 @@ namespace SkinEngine.Controls.Visuals
       int x = 100;
       int y = 100;
       Width = 300;
-      Height = 150;
+      Height = 300;
       Free();
 
       //background brush
-      int xoff;
-      int yoff;
       if (BorderBrush == null || BorderThickness <= 0)
       {
         ActualPosition = new Vector3(x, y, 1);

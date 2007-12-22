@@ -126,11 +126,6 @@ namespace SkinEngine.Controls.Brushes
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
-        for (int i = index + 1; i < 12; i++)
-        {
-          _offsets[i] = 2.0f;
-          _colors[i] = _colors[index];
-        }
       }
     }
     public override void BeginRender()
@@ -139,8 +134,12 @@ namespace SkinEngine.Controls.Brushes
       _effect = ContentManager.GetEffect("lineargradient");
       _effect.Parameters["g_offset"] = _offsets;
       _effect.Parameters["g_color"] = _colors;
+      _effect.Parameters["g_stops"] = (int)GradientStops.Count;
       _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
       _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+      Matrix m = Matrix.Identity;
+      RelativeTransform.GetTransform(out m);
+      _effect.Parameters["RelativeTransform"] = m;
 
       _effect.StartRender(_texture);
     }

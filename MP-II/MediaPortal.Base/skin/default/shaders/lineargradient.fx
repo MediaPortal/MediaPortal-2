@@ -1,25 +1,26 @@
 
-float4 g_color[12]={ {1.0f,0.0f,0.0f,1.0f},  //red
-                    {0.0f,1.0f,0.0f,1.0f},  //green
-                    {0.0f,0.0f,1.0f,1.0f},  // blue
-                    {0.0f,0.0f,1.0f,1.0f}, // end
+float4 g_color[12]={ {0.0f,0.0f,0.0f,0.0f},  //red
+                    {0.0f,0.0f,0.0f,0.0f},  //green
+                    {0.0f,0.0f,0.0f,0.0f},  // blue
+                    {0.0f,0.0f,0.0f,0.0f}, // end
                     
-                    {1.0f,0.0f,0.0f,1.0f},  //red
-                    {0.0f,1.0f,0.0f,1.0f},  //green
-                    {0.0f,0.0f,1.0f,1.0f},  // blue
-                    {0.0f,0.0f,1.0f,1.0f}, // end
+                    {0.0f,0.0f,0.0f,0.0f},  //red
+                    {0.0f,0.0f,0.0f,0.0f},  //green
+                    {0.0f,0.0f,0.0f,0.0f},  // blue
+                    {0.0f,0.0f,0.0f,0.0f}, // end
                     
-                    {1.0f,0.0f,0.0f,1.0f},  //red
-                    {0.0f,1.0f,0.0f,1.0f},  //green
-                    {0.0f,0.0f,1.0f,1.0f},  // blue
-                    {0.0f,0.0f,1.0f,1.0f}}; // end
+                    {0.0f,0.0f,0.0f,0.0f},  //red
+                    {0.0f,0.0f,0.0f,0.0f},  //green
+                    {0.0f,0.0f,0.0f,0.0f},  // blue
+                    {0.0f,0.0f,0.0f,0.0f}}; // end
                     
-float g_offset[12]={0.0f,0.5f,1.0f,2.0f ,2.0f,2.0f,2.0f,2.0f ,2.0f,2.0f,2.0f,2.0f};
+float g_offset[12]={0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f};
 
 float4x4 worldViewProj     : WORLDVIEWPROJ; //our world view projection matrix
 float4x4 RelativeTransform ;//: WORLDVIEWPROJ; 
 float2   g_StartPoint={0.0f,0.0f};
 float2   g_EndPoint={1.0f,1.0f};
+int      g_stops=3;
 texture  g_texture;                      // Color texture 
 float    appTime;                   // App's time in seconds
 
@@ -49,16 +50,14 @@ struct p2f
 
 float4 GetColor(float2 pos):COLOR
 {
-  
   float2 Vector1=pos-g_StartPoint;
   float2 Vector2=g_EndPoint-g_StartPoint;
-  float vector2lengthsquared = (Vector2.x*Vector2.x) + (Vector2.y*Vector2.y);
-  float2 Resultpoint=g_StartPoint + (dot(Vector1,Vector2))*Vector2/vector2lengthsquared;
-
+  float vector2lengthsquared = dot(Vector2,Vector2);
+  float2 Resultpoint=(g_StartPoint + (dot(Vector1,Vector2))*Vector2 )/ vector2lengthsquared;
   float dist=distance(Resultpoint,g_StartPoint);
-  dist%=1.0f;
+
   int index=0;
-  while (dist >= g_offset[index])
+  while (dist >= g_offset[index] && index+1<g_stops)
   {
     index=index+1;
   }
@@ -85,8 +84,8 @@ void renderVertexShader( in a2v IN, out v2p OUT )
 
 void renderPixelShader( in v2p IN, out p2f OUT) 
 { 
-  //float2 pos=mul(IN.Texcoord, RelativeTransform);
-  float4 color=GetColor(IN.Texcoord);
+  float2 pos=mul(IN.Texcoord, RelativeTransform);
+  float4 color=GetColor(pos);
   OUT.Color=color;
 }
 
