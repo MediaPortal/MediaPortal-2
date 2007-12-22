@@ -37,6 +37,18 @@ namespace SkinEngine.Controls.Brushes
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };
 
+  public enum TileMode
+  {
+    //no tiling
+    None,
+    //content is tiled
+    Tile,
+    //content is tiled and flipped around x-axis
+    FlipX,
+    //content is tiled and flipped around y-axis
+    FlipY
+  };
+
   public enum Stretch
   {
     //The content preserves its original size.
@@ -59,12 +71,16 @@ namespace SkinEngine.Controls.Brushes
     Property _alignmentXProperty;
     Property _alignmentYProperty;
     Property _stretchProperty;
+    Property _viewPortProperty;
+    Property _tileModeProperty;
 
     public TileBrush()
     {
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Center);
       _stretchProperty = new Property(Stretch.Fill);
+      _tileModeProperty = new Property(TileMode.None);
+      _viewPortProperty = new Property(new Vector4(0, 0, 1, 1));
     }
 
     public Property AlignmentXProperty
@@ -142,31 +158,97 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    public Property ViewPortProperty
+    {
+      get
+      {
+        return _viewPortProperty;
+      }
+      set
+      {
+        _viewPortProperty = value;
+      }
+    }
+
+    public Vector4 ViewPort
+    {
+      get
+      {
+        return (Vector4)_viewPortProperty.GetValue();
+      }
+      set
+      {
+        _viewPortProperty.SetValue(value);
+        OnPropertyChanged();
+      }
+    }
+
+
+    public Property TileProperty
+    {
+      get
+      {
+        return _tileModeProperty;
+      }
+      set
+      {
+        _tileModeProperty = value;
+      }
+    }
+
+    public TileMode Tile
+    {
+      get
+      {
+        return (TileMode)_tileModeProperty.GetValue();
+      }
+      set
+      {
+        _tileModeProperty.SetValue(value);
+        OnPropertyChanged();
+      }
+    }
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       // todo here:
       ///   - stretchmode
-      ///   - tilemode
+      ///   - tilemode  : none,tile,flipx,flipy
       ///   - alignmentx/alignmenty
-      ///   - viewbox
-      
+      ///   - viewport  : dimensions of a single tile
+      ///   
+      switch (Stretch)
+      {
+        case Stretch.None:
+          //center, original size
+          break;
+
+        case Stretch.Uniform:
+          //center, keep aspect ratio and show borders
+          break;
+
+        case Stretch.UniformToFill:
+          //keep aspect ratio, zoom in to avoid borders
+          break;
+
+        case Stretch.Fill:
+          //stretch to fill
+          break;
+      }
+
+
       for (int i = 0; i < verts.Length; ++i)
       {
         float u, v;
         float x1, y1;
-        y1 = (float)verts[i].Y;
-        v = (float)(y1 - element.ActualPosition.Y);
-        v /= (float)(element.ActualHeight);
+        y1 = (float)(verts[i].Y - element.ActualPosition.Y);
+        v = y1 / (float)(element.ActualHeight * ViewPort.W);
+        v += ViewPort.Y;
 
-        x1 = (float)verts[i].X;
-        u = (float)(x1 - element.ActualPosition.X);
-        u /= (float)(element.ActualWidth);
+        x1 = (float)(verts[i].X - element.ActualPosition.X);
+        u = x1 / (float)(element.ActualWidth * ViewPort.Z);
+        u += ViewPort.X;
         Scale(ref u, ref v);
-
-        if (u < 0) u = 0;
-        if (u > 1) u = 1;
-        if (v < 0) v = 0;
-        if (v > 1) v = 1;
         unchecked
         {
           ColorValue color = ColorValue.FromArgb((int)0xffffffff);

@@ -48,8 +48,8 @@ namespace SkinEngine.Controls.Brushes
 
     public LinearGradientBrush()
     {
-      _startPointProperty = new Property((double)0.0f);
-      _endPointProperty = new Property((double)1.0f);
+      _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
+      _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
     }
 
     public Property StartPointProperty
@@ -64,11 +64,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public Point StartPoint
+    public Vector2 StartPoint
     {
       get
       {
-        return (Point)_startPointProperty.GetValue();
+        return (Vector2)_startPointProperty.GetValue();
       }
       set
       {
@@ -88,11 +88,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public Point EndPoint
+    public Vector2 EndPoint
     {
       get
       {
-        return (Point)_endPointProperty.GetValue();
+        return (Vector2)_endPointProperty.GetValue();
       }
       set
       {
@@ -104,11 +104,11 @@ namespace SkinEngine.Controls.Brushes
     /// Setups the brush.
     /// </summary>
     /// <param name="element">The element.</param>
-    public override void SetupBrush(FrameworkElement element,ref PositionColored2Textured[] verts)
+    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        base.SetupBrush(element,ref verts);
+        base.SetupBrush(element, ref verts);
 
         if (_texture != null)
         {
@@ -139,6 +139,9 @@ namespace SkinEngine.Controls.Brushes
       _effect = ContentManager.GetEffect("lineargradient");
       _effect.Parameters["g_offset"] = _offsets;
       _effect.Parameters["g_color"] = _colors;
+      _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
+      _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+
       _effect.StartRender(_texture);
     }
 

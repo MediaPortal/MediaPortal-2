@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Transforms
 {
@@ -130,9 +132,9 @@ namespace SkinEngine.Controls.Transforms
       }
       else
       {
-        _matrix.Translate((float)CenterX, (float)CenterY, 0);
-        _matrix.RotateZ((float)radians);
         _matrix.Translate((float)-CenterX, (float)-CenterY, 0);
+        _matrix *= Matrix.RotationZ((float)radians);
+        _matrix *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
       }
     }
   }

@@ -34,6 +34,7 @@ using SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
+using Matrix = Microsoft.DirectX.Matrix;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -209,7 +210,10 @@ namespace SkinEngine.Controls.Visuals
 
       if (Background != null)
       {
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        Matrix mrel,mt;
+        Background.RelativeTransform.GetTransform(out mrel);
+        Background.Transform.GetTransform(out mt);
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix*mrel*mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         Background.BeginRender();
