@@ -52,9 +52,7 @@ float4 GetColor(float2 pos):COLOR
 {
   float2 Vector1=pos-g_StartPoint;
   float2 Vector2=g_EndPoint-g_StartPoint;
-  float vector2lengthsquared = dot(Vector2,Vector2);
-  float2 Resultpoint=(g_StartPoint + (dot(Vector1,Vector2))*Vector2 )/ vector2lengthsquared;
-  float dist=distance(Resultpoint,g_StartPoint);
+  float dist=dot(Vector1,Vector2)/dot(Vector2,Vector2);
 
   int index=0;
   while (dist >= g_offset[index] && index+1<g_stops)
