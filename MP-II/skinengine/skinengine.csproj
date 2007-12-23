@@ -126,6 +126,8 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\Panels\Canvas.cs" />
+    <Compile Include="Controls\Panels\DockPanel.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\StackPanel.cs" />
     <Compile Include="Controls\Progress.cs" />

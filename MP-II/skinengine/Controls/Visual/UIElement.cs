@@ -26,6 +26,8 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Visuals
@@ -34,12 +36,37 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _visibleProperty;
     protected Size _desiredSize;
+    Property _acutalPositionProperty;
 
     public UIElement()
     {
       _visibleProperty = new Property((bool)true);
+      _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
     }
 
+    public Property ActualPositionProperty
+    {
+      get
+      {
+        return _acutalPositionProperty;
+      }
+      set
+      {
+        _acutalPositionProperty = value;
+      }
+    }
+
+    public Vector3 ActualPosition
+    {
+      get
+      {
+        return (Vector3)_acutalPositionProperty.GetValue();
+      }
+      set
+      {
+        _acutalPositionProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the is visible property.
     /// </summary>

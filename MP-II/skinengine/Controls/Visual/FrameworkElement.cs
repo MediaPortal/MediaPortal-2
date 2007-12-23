@@ -37,7 +37,6 @@ namespace SkinEngine.Controls.Visuals
 
     Property _acutalWidthProperty;
     Property _actualHeightProperty;
-    Property _acutalPositionProperty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
@@ -51,7 +50,6 @@ namespace SkinEngine.Controls.Visuals
       _acutalWidthProperty = new Property((double)0.0f);
       _actualHeightProperty = new Property((double)0.0f);
 
-      _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
     }
 
     #region properties
@@ -169,30 +167,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public Property ActualPositionProperty
-    {
-      get
-      {
-        return _acutalPositionProperty;
-      }
-      set
-      {
-        _acutalPositionProperty = value;
-      }
-    }
-
-    public Vector3 ActualPosition
-    {
-      get
-      {
-        return (Vector3)_acutalPositionProperty.GetValue();
-      }
-      set
-      {
-        _acutalPositionProperty.SetValue(value);
-        OnPropertyChanged();
-      }
-    }
     /// <summary>
     /// Gets or sets the height.
     /// </summary>
