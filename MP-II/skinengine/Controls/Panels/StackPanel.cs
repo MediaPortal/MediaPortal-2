@@ -23,6 +23,9 @@ namespace SkinEngine.Controls.Panels
 
     public override void Arrange(Rectangle finalRect)
     {
+      this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);
+      this.ActualWidth = finalRect.Width;
+      this.ActualHeight = finalRect.Height;
       float totalHeight = 0;
       foreach (UIElement child in Children)
       {
@@ -39,6 +42,7 @@ namespace SkinEngine.Controls.Panels
           location.X = finalRect.Right - child.DesiredSize.Width;
         }
 
+        //align vertically 
         if (AlignmentY == AlignmentY.Center)
         {
           location.Y += (int)((finalRect.Height - DesiredSize.Height) / 2);
