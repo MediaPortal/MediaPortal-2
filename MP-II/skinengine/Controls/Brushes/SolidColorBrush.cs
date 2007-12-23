@@ -152,7 +152,11 @@ namespace SkinEngine.Controls.Brushes
 
     public void Free()
     {
-      Free();
+      if (_texture != null)
+      {
+        _texture.Dispose();
+        _texture = null;
+      }
     }
 
     #endregion
