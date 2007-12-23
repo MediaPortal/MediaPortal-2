@@ -64,7 +64,6 @@ namespace SkinEngine.Controls.Panels
           if (child.DesiredSize.Height > totalHeight)
             totalHeight = child.DesiredSize.Height;
         }
-
       }
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
     }
@@ -146,6 +145,7 @@ namespace SkinEngine.Controls.Panels
           }
           break;
       }
+      base.PerformLayout();
     }
   }
 }

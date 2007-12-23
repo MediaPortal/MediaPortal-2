@@ -447,6 +447,7 @@ namespace SkinEngine.Controls.Visuals
       ActualHeight = finalRect.Height;
       PerformLayout();
     }
+
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
