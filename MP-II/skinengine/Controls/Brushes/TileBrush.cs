@@ -34,8 +34,6 @@ using Microsoft.DirectX.Direct3D;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public enum AlignmentX { Left, Center, Right };
-  public enum AlignmentY { Top, Center, Bottom };
 
   public enum TileMode
   {

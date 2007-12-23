@@ -14,7 +14,7 @@ namespace SkinEngine.Controls.Panels
       foreach (UIElement child in Children)
       {
         child.Measure(childSize);
-        childSize.Height -= child.DesiredSize.Height;
+        childSize.Width -= child.DesiredSize.Width;
       }
       _desiredSize = availableSize;
     }

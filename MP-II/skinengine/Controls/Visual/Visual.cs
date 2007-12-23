@@ -29,6 +29,8 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Visuals
 {
+  public enum AlignmentX { Left, Center, Right };
+  public enum AlignmentY { Top, Center, Bottom };
   public class Visual
   {
     Property _surfaceProperty;
