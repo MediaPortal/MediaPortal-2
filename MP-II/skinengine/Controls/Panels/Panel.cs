@@ -7,16 +7,18 @@ using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Brushes;
+using SkinEngine;
 
 namespace SkinEngine.Controls.Panels
 {
-  public class Panel : FrameworkElement
+  public class Panel : FrameworkElement, IAsset
   {
     Property _alignmentXProperty;
     Property _alignmentYProperty;
     Property _childrenProperty;
     Property _backgroundProperty;
     VertexBuffer _vertexBufferBackground;
+    DateTime _lastTimeUsed;
 
     public Panel()
     {
@@ -24,6 +26,7 @@ namespace SkinEngine.Controls.Panels
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Top);
       _backgroundProperty = new Property(null);
+      ContentManager.Add(this);
     }
     /// <summary>
     /// Gets or sets the background property.
@@ -159,6 +162,7 @@ namespace SkinEngine.Controls.Panels
           element.DoRender();
         }
       }
+      _lastTimeUsed = SkinContext.Now;
     }
 
     public void PerformLayout()
@@ -190,5 +194,36 @@ namespace SkinEngine.Controls.Panels
         _vertexBufferBackground = null;
       }
     }
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get
+      {
+        return (_vertexBufferBackground != null);
+      }
+    }
+
+    public bool CanBeDeleted
+    {
+      get
+      {
+        if (!IsAllocated)
+        {
+          return false;
+        }
+        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        if (ts.TotalSeconds >= 1)
+        {
+          return true;
+        }
+
+        return false;
+      }
+    }
+
+
+    #endregion
   }
 }

@@ -32,16 +32,17 @@ using SkinEngine.Effects;
 using SkinEngine.DirectX;
 using System.Drawing;
 using Microsoft.DirectX.Direct3D;
-
+using SkinEngine;
 namespace SkinEngine.Controls.Brushes
 {
-  public class SolidColorBrush : Brush
+  public class SolidColorBrush : Brush, IAsset
   {
     Property _colorProperty;
     Texture _texture;
     double _height;
     double _width;
     EffectAsset _effect;
+    DateTime _lastTimeUsed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SolidColorBrush"/> class.
@@ -49,6 +50,7 @@ namespace SkinEngine.Controls.Brushes
     public SolidColorBrush()
     {
       _colorProperty = new Property(Color.White);
+      ContentManager.Add(this);
     }
 
     /// <summary>
@@ -85,11 +87,11 @@ namespace SkinEngine.Controls.Brushes
     /// Setups the brush.
     /// </summary>
     /// <param name="element">The element.</param>
-    public override void SetupBrush(FrameworkElement element,ref PositionColored2Textured[] verts)
+    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        base.SetupBrush(element,ref verts);
+        base.SetupBrush(element, ref verts);
         if (_texture != null)
         {
           _texture.Dispose();
@@ -108,6 +110,7 @@ namespace SkinEngine.Controls.Brushes
       _effect = ContentManager.GetEffect("solidbrush");
       _effect.Parameters["g_solidColor"] = color;
       _effect.StartRender(_texture);
+      _lastTimeUsed = SkinContext.Now;
     }
 
     public override void EndRender()
@@ -118,5 +121,40 @@ namespace SkinEngine.Controls.Brushes
         _effect = null;
       }
     }
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get
+      {
+        return (_texture != null);
+      }
+    }
+
+    public bool CanBeDeleted
+    {
+      get
+      {
+        if (!IsAllocated)
+        {
+          return false;
+        }
+        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        if (ts.TotalSeconds >= 1)
+        {
+          return true;
+        }
+
+        return false;
+      }
+    }
+
+    public void Free()
+    {
+      Free();
+    }
+
+    #endregion
   }
 }

@@ -31,15 +31,17 @@ using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using SkinEngine;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public class LinearGradientBrush : GradientBrush
+  public class LinearGradientBrush : GradientBrush, IAsset
   {
     Texture _texture;
     double _height;
     double _width;
     EffectAsset _effect;
+    DateTime _lastTimeUsed;
 
     Property _startPointProperty;
     Property _endPointProperty;
@@ -50,6 +52,7 @@ namespace SkinEngine.Controls.Brushes
     {
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
+      ContentManager.Add(this);
     }
 
     public Property StartPointProperty
@@ -142,6 +145,7 @@ namespace SkinEngine.Controls.Brushes
       _effect.Parameters["RelativeTransform"] = m;
 
       _effect.StartRender(_texture);
+      _lastTimeUsed = SkinContext.Now;
     }
 
     public override void EndRender()
@@ -152,5 +156,41 @@ namespace SkinEngine.Controls.Brushes
         _effect = null;
       }
     }
+
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get
+      {
+        return (_texture != null);
+      }
+    }
+
+    public bool CanBeDeleted
+    {
+      get
+      {
+        if (!IsAllocated)
+        {
+          return false;
+        }
+        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        if (ts.TotalSeconds >= 1)
+        {
+          return true;
+        }
+
+        return false;
+      }
+    }
+
+    public void Free()
+    {
+      Free();
+    }
+
+    #endregion
   }
 }

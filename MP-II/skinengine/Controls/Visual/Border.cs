@@ -35,10 +35,11 @@ using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = Microsoft.DirectX.Matrix;
+using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Border : FrameworkElement
+  public class Border : FrameworkElement, IAsset
   {
     Property _backgroundProperty;
     Property _borderProperty;
@@ -48,6 +49,7 @@ namespace SkinEngine.Controls.Visuals
     int _verticesCountBackground;
     VertexBuffer _vertexBufferBorder;
     int _verticesCountBorder;
+    DateTime _lastTimeUsed;
 
 
     public Border()
@@ -56,6 +58,7 @@ namespace SkinEngine.Controls.Visuals
       _backgroundProperty = new Property(null);
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)10.0);
+      ContentManager.Add(this);
     }
 
     #region properties
@@ -221,6 +224,7 @@ namespace SkinEngine.Controls.Visuals
         Background.EndRender();
       }
       base.DoRender();
+      _lastTimeUsed = SkinContext.Now;
     }
 
 
@@ -452,5 +456,37 @@ namespace SkinEngine.Controls.Visuals
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
     }
+
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get
+      {
+        return (_vertexBufferBackground != null || _vertexBufferBorder != null);
+      }
+    }
+
+    public bool CanBeDeleted
+    {
+      get
+      {
+        if (!IsAllocated)
+        {
+          return false;
+        }
+        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        if (ts.TotalSeconds >= 1)
+        {
+          return true;
+        }
+
+        return false;
+      }
+    }
+
+
+    #endregion
   }
 }
