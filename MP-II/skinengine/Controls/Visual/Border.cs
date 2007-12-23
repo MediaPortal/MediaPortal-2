@@ -300,6 +300,11 @@ namespace SkinEngine.Controls.Visuals
         _vertexBufferBackground.Dispose();
         _vertexBufferBackground = null;
       }
+      if (_vertexBufferBorder != null)
+      {
+        _vertexBufferBorder.Dispose();
+        _vertexBufferBorder = null;
+      }
     }
 
     #region Get the desired Rounded Rectangle path.
