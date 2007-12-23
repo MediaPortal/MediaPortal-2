@@ -210,10 +210,10 @@ namespace SkinEngine.Controls.Visuals
 
       if (Background != null)
       {
-        Matrix mrel,mt;
+        Matrix mrel, mt;
         Background.RelativeTransform.GetTransform(out mrel);
         Background.Transform.GetTransform(out mt);
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix*mrel*mt;
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         Background.BeginRender();
@@ -226,22 +226,18 @@ namespace SkinEngine.Controls.Visuals
 
     public void PerformLayout()
     {
-      int x = 100;
-      int y = 100;
-      Width = 300;
-      Height = 300;
       Free();
 
       //background brush
       if (BorderBrush == null || BorderThickness <= 0)
       {
-        ActualPosition = new Vector3(x, y, 1);
+        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
         ActualWidth = Width;
         ActualHeight = Height;
       }
       else
       {
-        ActualPosition = new Vector3((float)(x + BorderThickness), (float)(y + BorderThickness), 1);
+        ActualPosition = new Vector3((float)(ActualPosition.X + BorderThickness), (float)(ActualPosition.Y + BorderThickness), 1);
         ActualWidth = Width - 2 * +BorderThickness;
         ActualHeight = Height - 2 * +BorderThickness;
       }
@@ -266,7 +262,7 @@ namespace SkinEngine.Controls.Visuals
       //border brush
       if (BorderBrush != null && BorderThickness > 0)
       {
-        ActualPosition = new Vector3(x, y, 1);
+        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
         ActualWidth = Width;
         ActualHeight = Height;
         float centerX = (float)(ActualPosition.X + ActualWidth / 2);
@@ -442,6 +438,18 @@ namespace SkinEngine.Controls.Visuals
       vertices[verticeCount - 2] = points[0];
       vertices[verticeCount - 1] = new PointF(points[0].X + thickNess, points[0].Y + thickNess);
       return vertices;
+    }
+
+    public override void Arrange(System.Drawing.Rectangle finalRect)
+    {
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+      PerformLayout();
+    }
+    public override void Measure(System.Drawing.Size availableSize)
+    {
+      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
     }
   }
 }

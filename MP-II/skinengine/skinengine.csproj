@@ -126,6 +126,9 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\Panels\FlowPanel.cs" />
+    <Compile Include="Controls\Panels\Panel.cs" />
+    <Compile Include="Controls\Panels\StackPanel.cs" />
     <Compile Include="Controls\Progress.cs" />
     <Compile Include="Controls\Textbox.cs" />
     <Compile Include="Controls\GradientStop.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\FrameworkElement.cs" />
     <Compile Include="Controls\Visual\UIElement.cs" />
+    <Compile Include="Controls\Visual\UIElementCollection.cs" />
     <Compile Include="Controls\Visual\Visual.cs" />
     <Compile Include="Controls\WaitCursor.cs" />
     <Compile Include="Animations\Animations\IAnimation.cs" />

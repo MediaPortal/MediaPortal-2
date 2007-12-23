@@ -33,6 +33,7 @@ namespace SkinEngine.Controls.Visuals
   public class UIElement : Visual
   {
     Property _visibleProperty;
+    protected Size _desiredSize;
 
     public UIElement()
     {
@@ -72,7 +73,13 @@ namespace SkinEngine.Controls.Visuals
         _visibleProperty.SetValue(value);
       }
     }
-
+    public Size DesiredSize
+    {
+      get
+      {
+        return _desiredSize;
+      }
+    }
     /// <summary>
     /// Gets the size for brush.
     /// </summary>
@@ -83,5 +90,24 @@ namespace SkinEngine.Controls.Visuals
       width = 0.0;
       height = 0.0;
     }
+
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements. </param>
+    /// <returns>The size that this element determines it needs during layout, based on its calculations of child element sizes.</returns>
+    public virtual void Measure(Size availableSize)
+    {
+      _desiredSize = new Size(0, 0);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+    public virtual void Arrange(Rectangle finalRect)
+    {
+    }
+
   }
 }
