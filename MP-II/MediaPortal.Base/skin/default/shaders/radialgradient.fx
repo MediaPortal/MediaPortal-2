@@ -51,9 +51,10 @@ struct p2f
 
 float4 GetColor(float2 pos):COLOR
 {
+  float2 newpos = float2((pos.x-g_center.x)/g_radius.x*0.5+g_center.x, (pos.y-g_center.y)/g_radius.y*0.5+g_center.y);
   float R=0.5f;
   float2 v1=g_focus-g_center;
-  float2 v2=pos-g_center;
+  float2 v2=newpos-g_center;
   float Theta=atan((v2.y-v1.y)/(v2.x-v1.x));
   matrix <float, 2, 2> rotMatrix={cos(Theta),sin(Theta),-sin(Theta),cos(Theta)};
   float2 vr1=mul(rotMatrix, v1);
