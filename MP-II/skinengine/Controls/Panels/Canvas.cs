@@ -10,11 +10,13 @@ namespace SkinEngine.Controls.Panels
   {
     public override void Measure(Size availableSize)
     {
+      Rectangle rect = new Rectangle(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
         child.Measure(availableSize);
+        rect = Rectangle.Union(rect, new Rectangle(new Point((int)child.Position.X, (int)child.Position.Y), new Size((int)child.DesiredSize.Width, (int)child.DesiredSize.Height)));
       }
-      _desiredSize = availableSize;
+      _desiredSize = rect.Size;
     }
 
     public override void Arrange(Rectangle finalRect)
@@ -24,8 +26,8 @@ namespace SkinEngine.Controls.Panels
       this.ActualHeight = finalRect.Height;
       foreach (UIElement child in Children)
       {
-        child.Arrange(new Rectangle(new Point((int)(child.ActualPosition.X + this.ActualPosition.X),
-                                               (int)(child.ActualPosition.Y + this.ActualPosition.Y)),
+        child.Arrange(new Rectangle(new Point((int)(child.Position.X + this.ActualPosition.X),
+                                               (int)(child.Position.Y + this.ActualPosition.Y)),
                                                child.DesiredSize));
       }
       base.PerformLayout();

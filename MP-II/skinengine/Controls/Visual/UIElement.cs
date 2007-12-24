@@ -37,11 +37,15 @@ namespace SkinEngine.Controls.Visuals
     Property _visibleProperty;
     protected Size _desiredSize;
     Property _acutalPositionProperty;
+    Property _positionProperty;
+    Property _dockProperty;
 
     public UIElement()
     {
       _visibleProperty = new Property((bool)true);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
+      _positionProperty = new Property(new Vector3(0, 0, 1));
+      _dockProperty = new Property(Dock.Top);
     }
 
     public Property ActualPositionProperty
@@ -65,6 +69,53 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _acutalPositionProperty.SetValue(value);
+      }
+    }
+
+    public Property PositionProperty
+    {
+      get
+      {
+        return _positionProperty;
+      }
+      set
+      {
+        _positionProperty = value;
+      }
+    }
+
+    public Vector3 Position
+    {
+      get
+      {
+        return (Vector3)_positionProperty.GetValue();
+      }
+      set
+      {
+        _positionProperty.SetValue(value);
+      }
+    }
+    public Property DockProperty
+    {
+      get
+      {
+        return _dockProperty;
+      }
+      set
+      {
+        _dockProperty = value;
+      }
+    }
+
+    public Dock Dock
+    {
+      get
+      {
+        return (Dock)_dockProperty.GetValue();
+      }
+      set
+      {
+        _dockProperty.SetValue(value);
       }
     }
     /// <summary>
