@@ -53,8 +53,8 @@ namespace SkinEngine.Controls.Brushes
 
     public RadialGradientBrush()
     {
-      _centerProperty = new Property(new Point(0, 0));
-      _gradientOriginProperty = new Property(new Point(0, 0));
+      _centerProperty = new Property(new Vector2(0.5f, 0.5f));
+      _gradientOriginProperty = new Property(new Vector2(0.5f, 0.5f));
       _radiusXProperty = new Property((double)0.5f);
       _radiusYProperty = new Property((double)0.5f);
       ContentManager.Add(this);
@@ -76,11 +76,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public Point Center
+    public Vector2 Center
     {
       get
       {
-        return (Point)_centerProperty.GetValue();
+        return (Vector2)_centerProperty.GetValue();
       }
       set
       {
@@ -100,11 +100,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public Point GradientOrigin
+    public Vector2 GradientOrigin
     {
       get
       {
-        return (Point)_gradientOriginProperty.GetValue();
+        return (Vector2)_gradientOriginProperty.GetValue();
       }
       set
       {
@@ -200,6 +200,7 @@ namespace SkinEngine.Controls.Brushes
       _effect.Parameters["g_offset"] = _offsets;
       _effect.Parameters["g_color"] = _colors;
       _effect.Parameters["g_stops"] = (int)GradientStops.Count;
+      _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
       _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
       _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
       Matrix m = Matrix.Identity;

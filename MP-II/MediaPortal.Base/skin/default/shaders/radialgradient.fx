@@ -20,6 +20,7 @@ float4x4 worldViewProj     : WORLDVIEWPROJ; //our world view projection matrix
 float4x4 RelativeTransform ;//: WORLDVIEWPROJ; 
 float2   g_radius={0.5f,0.5f};
 float2   g_center={0.5f,0.5f};
+float2   g_focus={0.5f,0.5f};
 int      g_stops=3;
 texture  g_texture;                      // Color texture 
 float    appTime;                   // App's time in seconds
@@ -50,10 +51,22 @@ struct p2f
 
 float4 GetColor(float2 pos):COLOR
 {
-  float distx = length(pos - g_center) / g_radius.x;
-  float disty = length(pos - g_center) / g_radius.y;
-  float dist = sqrt(dot(distx,disty));
-
+  float R=0.5f;
+  float2 v1=g_focus-g_center;
+  float2 v2=pos-g_center;
+  float Theta=atan((v2.y-v1.y)/(v2.x-v1.x));
+  matrix <float, 2, 2> rotMatrix={cos(Theta),sin(Theta),-sin(Theta),cos(Theta)};
+  float2 vr1=mul(rotMatrix, v1);
+  float2 vr2=mul(rotMatrix, v2);
+  float dist1=abs(vr2.x-vr1.x);
+  float xmax=sqrt( (R*R) - (vr1.y*vr1.y));
+  float dist2;
+  if (vr2.x>vr1.x) 
+    dist2=xmax-vr1.x;
+   else
+    dist2=vr1.x+xmax;
+  float dist=dist1/dist2;
+  
   int index=0;
   while (dist >= g_offset[index] && index+1<g_stops)
   {
