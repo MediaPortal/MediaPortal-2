@@ -71,6 +71,7 @@ namespace SkinEngine.Controls.Panels
         }
       }
       base.PerformLayout();
+      base.Arrange(finalRect);
     }
   }
 }

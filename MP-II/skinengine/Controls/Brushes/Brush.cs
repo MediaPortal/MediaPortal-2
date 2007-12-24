@@ -58,11 +58,11 @@ namespace SkinEngine.Controls.Brushes
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
       _transformProperty = new Property(new TransformGroup());
+      _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
-    public void OnPropertyChanged()
+    protected virtual void OnPropertyChanged(Property prop)
     {
-      Fire();
     }
 
     public virtual void Scale(ref float u, ref float v, ref ColorValue color)
@@ -98,7 +98,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _opacityProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -116,7 +115,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _relativeTransformProperty = value;
-        OnPropertyChanged();
       }
     }
 
@@ -133,7 +131,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _relativeTransformProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -166,7 +163,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _transformProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 

@@ -31,6 +31,7 @@ namespace SkinEngine.Controls.Panels
                                                child.DesiredSize));
       }
       base.PerformLayout();
+      base.Arrange(finalRect);
     }
   }
 }

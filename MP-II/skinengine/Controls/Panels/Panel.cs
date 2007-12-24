@@ -22,12 +22,26 @@ namespace SkinEngine.Controls.Panels
 
     public Panel()
     {
-      _childrenProperty = new Property(new UIElementCollection());
+      _childrenProperty = new Property(new UIElementCollection(this));
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Top);
       _backgroundProperty = new Property(null);
       ContentManager.Add(this);
+
+      _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
+      _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
+      _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
+    protected void OnPropertyInvalidate(Property property)
+    {
+      Invalidate();
+    }
+    protected void OnPropertyChanged(Property property)
+    {
+      Free();
+    }
+
     /// <summary>
     /// Gets or sets the background property.
     /// </summary>
@@ -57,7 +71,6 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _backgroundProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -82,7 +95,6 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _childrenProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -107,7 +119,6 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _alignmentXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -132,7 +143,6 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _alignmentYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -225,5 +235,7 @@ namespace SkinEngine.Controls.Panels
 
 
     #endregion
+
+
   }
 }

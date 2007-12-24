@@ -22,12 +22,142 @@
 
 #endregion
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : List<GradientStop>
+  public class GradientStopCollection : IEnumerable<GradientStop>
   {
+    public class GradientStopEnumerator : IEnumerator<GradientStop>
+    {
+      int index = -1;
+      List<GradientStop> _elements;
+      public GradientStopEnumerator(List<GradientStop> elements)
+      {
+        _elements = elements;
+      }
+
+      public GradientStop Current
+      {
+        get
+        {
+          return _elements[index];
+        }
+      }
+
+      public void Dispose()
+      {
+      }
+
+      object System.Collections.IEnumerator.Current
+      {
+        get
+        {
+          return _elements[index];
+        }
+      }
+
+      public bool MoveNext()
+      {
+        index++;
+        return (index < _elements.Count);
+      }
+
+      public void Reset()
+      {
+        index = -1;
+      }
+    }
+
+    GradientBrush _parent;
+    List<GradientStop> _elements;
+    PropertyChangedHandler _handler;
+
+    public GradientStopCollection(GradientBrush parent)
+    {
+      _parent = parent;
+      _elements = new List<GradientStop>();
+      _handler = new PropertyChangedHandler(OnStopChanged);
+    }
+
+    void OnStopChanged(Property prop)
+    {
+      _parent.OnGradientsChanged();
+    }
+
+    public void Add(GradientStop element)
+    {
+      element.Attach(_handler);
+      _elements.Add(element);
+      _parent.OnGradientsChanged();
+    }
+
+    public void Remove(GradientStop element)
+    {
+      if (_elements.Contains(element))
+      {
+        _elements.Remove(element);
+        element.Detach(_handler);
+      }
+      _parent.OnGradientsChanged();
+    }
+
+    public void Clear()
+    {
+      foreach (GradientStop stop in _elements)
+      {
+        stop.Detach(_handler);
+      }
+      _elements.Clear();
+      _parent.OnGradientsChanged();
+    }
+
+    public int Count
+    {
+      get
+      {
+        return _elements.Count;
+      }
+    }
+
+    public GradientStop this[int index]
+    {
+      get
+      {
+        return _elements[index];
+      }
+      set
+      {
+        if (value != _elements[index])
+        {
+          _elements[index].Detach(_handler);
+          _elements[index] = value;
+          _elements[index].Attach(_handler);
+          _parent.OnGradientsChanged();
+        }
+      }
+    }
+
+
+    #region IEnumerable<GradientStop> Members
+
+    public IEnumerator<GradientStop> GetEnumerator()
+    {
+      return new GradientStopEnumerator(_elements);
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return new GradientStopEnumerator(_elements);
+    }
+
+    #endregion
   }
 }

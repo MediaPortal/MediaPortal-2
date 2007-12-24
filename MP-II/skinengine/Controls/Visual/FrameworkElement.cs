@@ -50,6 +50,14 @@ namespace SkinEngine.Controls.Visuals
       _acutalWidthProperty = new Property((double)0.0f);
       _actualHeightProperty = new Property((double)0.0f);
 
+
+      _widthProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    void OnPropertyChanged(Property property)
+    {
+      Invalidate();
     }
 
     #region properties
@@ -82,7 +90,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _widthProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
     /// <summary>
@@ -114,7 +121,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _heightProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -148,7 +154,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _acutalWidthProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
     /// <summary>
@@ -180,70 +185,9 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _actualHeightProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
     #endregion
-
-    /// <summary>
-    /// Called when [property changed].
-    /// </summary>
-    public void OnPropertyChanged()
-    {
-    }
-
-    /// <summary>
-    /// Computes the bounds.
-    /// </summary>
-    public virtual void ComputeBounds()
-    {
-      double x1, x2, y1, y2;
-
-      x1 = y1 = 0.0;
-      x2 = Width;
-      y2 = Height;
-
-      //if (x2 != 0.0 && y2 != 0.0)
-      //bounds = bounding_rect_for_transformed_rect(&absolute_xform, IntersectBoundsWithClipPath(Rect(x1, y1, x2, y2), false));
-    }
-
-    /// <summary>
-    /// Insides the object.
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <returns></returns>
-    public override bool InsideObject(double x, double y)
-    {
-      double nx = x, ny = y;
-
-      //uielement_transform_point(this, &nx, &ny);
-      if (nx < 0 || ny < 0 || nx > Width || ny > Height)
-        return false;
-
-      //return base.InsideObject( x, y);
-      return false;
-    }
-
-    /// <summary>
-    /// Gets the size for brush.
-    /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    public override void GetSizeForBrush(out double width, out double height)
-    {
-      double x1, x2, y1, y2;
-
-      x1 = y1 = 0.0;
-      x2 = Width;
-      y2 = Height;
-
-      //cairo_matrix_transform_point(&absolute_xform, &x1, &y1);
-      //cairo_matrix_transform_point(&absolute_xform, &x2, &y2);
-
-      width = x2 - x1;
-      height = y2 - y1;
-    }
 
 
   }

@@ -58,6 +58,10 @@ namespace SkinEngine.Controls.Brushes
       _radiusXProperty = new Property((double)0.5f);
       _radiusYProperty = new Property((double)0.5f);
       ContentManager.Add(this);
+      _centerProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _gradientOriginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _radiusXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _radiusYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public Property CenterProperty
@@ -81,7 +85,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _centerProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -106,7 +109,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _gradientOriginProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -132,7 +134,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _radiusXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -157,10 +158,13 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _radiusYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
+    protected override void OnPropertyChanged(Property prop)
+    {
+      Free();
+    }
     /// <summary>
     /// Setups the brush.
     /// </summary>

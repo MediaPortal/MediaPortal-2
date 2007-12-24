@@ -4,7 +4,6 @@ using System.Text;
 using SkinEngine.Controls.Visuals;
 using System.Drawing;
 using MediaPortal.Core.Properties;
-using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Panels
 {
@@ -14,6 +13,7 @@ namespace SkinEngine.Controls.Panels
     public StackPanel()
     {
       _orientationProperty = new Property(Orientation.Vertical);
+      _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
     }
 
     public Property OrientationProperty
@@ -37,7 +37,6 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _orientationProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -146,6 +145,7 @@ namespace SkinEngine.Controls.Panels
           break;
       }
       base.PerformLayout();
+      base.Arrange(finalRect);
     }
   }
 }

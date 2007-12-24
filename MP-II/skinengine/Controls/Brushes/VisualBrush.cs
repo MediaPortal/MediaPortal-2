@@ -58,7 +58,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _visualProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
   }

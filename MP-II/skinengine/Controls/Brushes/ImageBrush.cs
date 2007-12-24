@@ -44,6 +44,7 @@ namespace SkinEngine.Controls.Brushes
     {
       _imageSourceProperty = new Property(null);
       _downloadProgressProperty = new Property((double)0.0f);
+      _imageSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public Property ImageSourceProperty
@@ -67,7 +68,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _imageSourceProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -92,24 +92,41 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _downloadProgressProperty.SetValue(value);
-        OnPropertyChanged();
       }
+    }
+
+    protected override void OnPropertyChanged(Property prop)
+    {
+      Free();
+    }
+
+    public void Free()
+    {
+      _tex = null;
+    }
+
+    public void Allocate()
+    {
+      bool thumb = true;
+      _tex = ContentManager.GetTexture(ImageSource.ToString(), thumb);
+      _tex.Allocate();
     }
 
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_tex == null)
       {
-        bool thumb = true;
-        _tex = ContentManager.GetTexture(ImageSource.ToString(), thumb);
-        _tex.Allocate();
+        Allocate();
         base.SetupBrush(element, ref verts);
       }
     }
 
     public override void BeginRender()
     {
-      if (_tex == null) return;
+      if (_tex == null)
+      {
+        Allocate();
+      }
       _tex.Set(0);
     }
 

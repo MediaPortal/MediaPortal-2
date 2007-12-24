@@ -33,10 +33,13 @@ namespace SkinEngine.Controls.Brushes
   {
     Property _colorProperty;
     Property _offsetProperty;
+
     public GradientStop()
     {
       _colorProperty = new Property(Color.White);
       _offsetProperty = new Property((double)0.0f);
+      _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _offsetProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public GradientStop(float offset, Color color)
@@ -45,7 +48,7 @@ namespace SkinEngine.Controls.Brushes
       _offsetProperty = new Property((double)offset);
     }
 
-    public void OnPropertyChanged()
+    public void OnPropertyChanged(Property prop)
     {
       Fire();
     }
@@ -71,7 +74,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _colorProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -96,7 +98,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _offsetProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
   }

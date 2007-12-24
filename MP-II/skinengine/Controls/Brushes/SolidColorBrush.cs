@@ -32,7 +32,6 @@ using SkinEngine.Effects;
 using SkinEngine.DirectX;
 using System.Drawing;
 using Microsoft.DirectX.Direct3D;
-using SkinEngine;
 namespace SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush, IAsset
@@ -51,6 +50,7 @@ namespace SkinEngine.Controls.Brushes
     {
       _colorProperty = new Property(Color.White);
       ContentManager.Add(this);
+      _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     /// <summary>
@@ -79,8 +79,11 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _colorProperty.SetValue(value);
-        OnPropertyChanged();
       }
+    }
+    protected override void OnPropertyChanged(Property prop)
+    {
+      Free();
     }
 
     /// <summary>

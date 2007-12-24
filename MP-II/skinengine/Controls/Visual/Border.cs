@@ -35,7 +35,6 @@ using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = Microsoft.DirectX.Matrix;
-using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -59,6 +58,16 @@ namespace SkinEngine.Controls.Visuals
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)10.0);
       ContentManager.Add(this);
+
+      _borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    void OnPropertyChanged(Property property)
+    {
+      Free();
     }
 
     #region properties
@@ -91,7 +100,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _backgroundProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -124,7 +132,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _borderProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -157,7 +164,6 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _borderThicknessProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -455,6 +461,7 @@ namespace SkinEngine.Controls.Visuals
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
       PerformLayout();
+      base.Arrange(finalRect);
     }
 
     public override void Measure(System.Drawing.Size availableSize)

@@ -53,6 +53,8 @@ namespace SkinEngine.Controls.Brushes
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
       ContentManager.Add(this);
+      _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public Property StartPointProperty
@@ -76,7 +78,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _startPointProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
     public Property EndPointProperty
@@ -100,8 +101,12 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _endPointProperty.SetValue(value);
-        OnPropertyChanged();
       }
+    }
+
+    protected override void OnPropertyChanged(Property prop)
+    {
+      Free();
     }
     /// <summary>
     /// Setups the brush.

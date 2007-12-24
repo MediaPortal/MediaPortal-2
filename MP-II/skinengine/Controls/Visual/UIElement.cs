@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Visuals
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
+    bool _layoutValid;
 
     public UIElement()
     {
@@ -46,6 +47,16 @@ namespace SkinEngine.Controls.Visuals
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
       _dockProperty = new Property(Dock.Top);
+
+      _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+
+    }
+
+    void OnPropertyChanged(Property property)
+    {
+      Invalidate();
     }
 
     public Property ActualPositionProperty
@@ -151,6 +162,19 @@ namespace SkinEngine.Controls.Visuals
         _visibleProperty.SetValue(value);
       }
     }
+
+    public bool LayoutValid
+    {
+      get
+      {
+        return _layoutValid;
+      }
+      set
+      {
+        _layoutValid = value;
+      }
+    }
+
     public Size DesiredSize
     {
       get
@@ -185,7 +209,27 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public virtual void Arrange(Rectangle finalRect)
     {
+      LayoutValid = true;
     }
 
+    public virtual void Invalidate()
+    {
+      if (!LayoutValid) return;
+      System.Drawing.Size sizeOld = _desiredSize;
+      Measure(sizeOld);
+      if (_desiredSize == sizeOld)
+      {
+        Arrange(new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
+      }
+      else if (VisualParent != null)
+      {
+        VisualParent.Invalidate();
+      }
+      else
+      {
+        Measure(new Size((int)SkinContext.Width, (int)SkinContext.Height));
+        Arrange(new Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
+      }
+    }
   }
 }

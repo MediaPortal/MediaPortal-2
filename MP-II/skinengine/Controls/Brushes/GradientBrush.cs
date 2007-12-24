@@ -60,10 +60,20 @@ namespace SkinEngine.Controls.Brushes
 
     public GradientBrush()
     {
-      _gradientStopsProperty = new Property(new GradientStopCollection());
+      _gradientStopsProperty = new Property(new GradientStopCollection(this));
       _colorInterpolationModeProperty = new Property(ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new Property(GradientSpreadMethod.GradientSpreadMethodPad);
       _mappingModeProperty = new Property(BrushMappingMode.BrushMappingModeRelativeToBoundingBox);
+
+      _gradientStopsProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _colorInterpolationModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _spreadMethodProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _mappingModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    public void OnGradientsChanged()
+    {
+      OnPropertyChanged(GradientStopsProperty);
     }
 
     public Property ColorInterpolationModeProperty
@@ -87,7 +97,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _colorInterpolationModeProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -112,7 +121,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _gradientStopsProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -137,7 +145,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _mappingModeProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -162,7 +169,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _spreadMethodProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 

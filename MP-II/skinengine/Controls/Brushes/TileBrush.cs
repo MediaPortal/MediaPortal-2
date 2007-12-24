@@ -79,6 +79,12 @@ namespace SkinEngine.Controls.Brushes
       _stretchProperty = new Property(Stretch.Fill);
       _tileModeProperty = new Property(TileMode.None);
       _viewPortProperty = new Property(new Vector4(0, 0, 1, 1));
+
+      _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _tileModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _viewPortProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public Property AlignmentXProperty
@@ -102,7 +108,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _alignmentXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -127,7 +132,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _alignmentYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -152,7 +156,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _stretchProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -177,7 +180,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _viewPortProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -203,7 +205,6 @@ namespace SkinEngine.Controls.Brushes
       set
       {
         _tileModeProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
