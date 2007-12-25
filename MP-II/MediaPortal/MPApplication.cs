@@ -26,6 +26,7 @@ using System;
 using System.Diagnostics;
 using MediaPortal;
 using MediaPortal.Core;
+using MediaPortal.Core.Threading;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
@@ -38,6 +39,7 @@ using MediaPortal.Core.MPIManager;
 using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Players;
 
+using MediaPortal.Services.Threading;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
@@ -81,6 +83,14 @@ public class MPApplication : MarshalByRefObject
 
 
       //register core service implementations
+
+      logger.Debug("MPApplication: Registering ThreadPool");
+      MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
+      pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
+      pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
+      pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);
+      pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
+      ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
 
       logger.Debug("MPApplication: Registering Message Broker");
       ServiceScope.Add<IMessageBroker>(new MessageBroker());

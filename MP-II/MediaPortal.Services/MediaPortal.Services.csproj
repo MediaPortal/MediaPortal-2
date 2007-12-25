@@ -128,6 +128,9 @@
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Settings\xml\XmlNoNamespaceWriter.cs" />
     <Compile Include="Settings\xml\XmlFileHandler.cs" />
+    <Compile Include="Threading\ThreadPool.cs" />
+    <Compile Include="Threading\ThreadPoolStartInfo.cs" />
+    <Compile Include="Threading\WorkQueue.cs" />
     <Compile Include="UserManagement\Permission.cs" />
     <Compile Include="UserManagement\Role.cs" />
     <Compile Include="UserManagement\User.cs" />
