@@ -249,11 +249,20 @@ namespace SkinEngine
 
       if (_supportsFiltering)
       {
+        /* DX9 supports the following filter combinations
+         * Filter       Minification Magnifcation Mipmap
+         * None                  No            No    Yes
+         * Point                Yes           Yes    Yes
+         * Linear               Yes           Yes    Yes
+         * Anisotropic          Yes           Yes     No
+         * Flat Cubic            No           Yes     No
+         * Gaussian Cubic        No           Yes     No
+         */
         try
         {
           Device.SamplerState[0].MinFilter = TextureFilter.Anisotropic;
           Device.SamplerState[0].MagFilter = TextureFilter.Anisotropic;
-          Device.SamplerState[0].MipFilter = TextureFilter.Anisotropic;
+          Device.SamplerState[0].MipFilter = TextureFilter.Linear;
           Device.SamplerState[0].MaxAnisotropy = _anisotropy;
         }
         catch (Exception)
