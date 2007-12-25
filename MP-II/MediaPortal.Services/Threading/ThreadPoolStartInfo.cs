@@ -44,7 +44,7 @@ namespace MediaPortal.Services.Threading
     public string Name = "MediaPortal ThreadPool";
 
     /// <summary>
-    /// Minimum number of threads in the threadpool (default 0)
+    /// Minimum number of threads in the threadpool (default 1)
     /// </summary>
     public int MinimumThreads = 1;
 
@@ -61,7 +61,7 @@ namespace MediaPortal.Services.Threading
 
     /// <summary>
     /// Indicates whether the pool waits with initialization until first work is being
-    /// received (false) or whether to initialize the pool upon pool creation (false).
+    /// received (true) or whether to initialize the pool upon pool creation (false).
     /// </summary>
     public bool DelayedInit = true;
 
