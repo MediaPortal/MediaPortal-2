@@ -31,6 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.MenuManager;
+using MediaPortal.Core.Logging;
 namespace Shares
 {
   public class Model
@@ -178,7 +179,7 @@ namespace Shares
     {
       if (collection.Count == 0) return;
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
-      foreach (FolderItem item in _folders)
+      foreach (FolderItem item in collection)
       {
         mgr.RemoveShare(item.Folder);
         if (item.SubItems != null && item.SubItems.Count > 0)
