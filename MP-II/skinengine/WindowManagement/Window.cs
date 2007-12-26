@@ -33,6 +33,9 @@ using MediaPortal.Core.WindowManager;
 using SkinEngine.Controls;
 using SkinEngine.Controls.Brushes;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Controls.Transforms;
+using SkinEngine.Controls.Panels;
+using SkinEngine.Controls.Animations;
 namespace SkinEngine
 {
   public class Window : IWindow
@@ -73,7 +76,9 @@ namespace SkinEngine
     private Control _focusedControl;
     private Control _focusedMouseControl;
     private bool _history;
-    Border _border;
+    Panel _stackPanel;
+    Storyboard _storyBoard;
+
     #endregion
 
     /// <summary>
@@ -103,24 +108,112 @@ namespace SkinEngine
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
 
 
-      _border = new Border();
-      _border.BorderThickness = 6;
-      _border.CornerRadius = 10;
-      //ImageBrush backgroundBrush = new ImageBrush();
-      //backgroundBrush.ImageSource = "hover_my videos.png";
+      Border border1 = new Border();
+      border1.BorderThickness = 0;
+      border1.CornerRadius = 0;
+      LinearGradientBrush backgroundBrush1 = new LinearGradientBrush();
+      backgroundBrush1.StartPoint = new Microsoft.DirectX.Vector2(0.0f, 0.0f);
+      backgroundBrush1.EndPoint = new Microsoft.DirectX.Vector2(1.1f, 1.0f);
+      backgroundBrush1.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.0f, System.Drawing.Color.Red));
+      backgroundBrush1.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.5f, System.Drawing.Color.Green));
+      backgroundBrush1.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(1.0f, System.Drawing.Color.Blue));
+      backgroundBrush1.Opacity = 1.0f;
+      border1.Background = backgroundBrush1;
+      border1.Width = 40;
+      border1.Height = 40;
 
-      SolidColorBrush backgroundBrush = new SolidColorBrush();
-      backgroundBrush.Color = System.Drawing.Color.Red;
+      Border border2 = new Border();
+      border2.BorderThickness = 0;
+      border2.CornerRadius = 0;
+      LinearGradientBrush backgroundBrush2 = new LinearGradientBrush();
+      backgroundBrush2.StartPoint = new Microsoft.DirectX.Vector2(0.0f, 0.0f);
+      backgroundBrush2.EndPoint = new Microsoft.DirectX.Vector2(1.1f, 1.0f);
+      backgroundBrush2.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.0f, System.Drawing.Color.Red));
+      backgroundBrush2.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.5f, System.Drawing.Color.Green));
+      backgroundBrush2.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(1.0f, System.Drawing.Color.Blue));
+      backgroundBrush2.Opacity = 1.0f;
+      border2.Background = backgroundBrush2;
+      border2.Width = 70;
+      border2.Height = 70;
 
-      backgroundBrush.Opacity = 0.7f;
-      _border.Background = backgroundBrush;
 
-      LinearGradientBrush borderbrush = new LinearGradientBrush();
-      borderbrush.Opacity = 0.6f;
-      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.0f, System.Drawing.Color.Red));
-      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.3f, System.Drawing.Color.Green));
-      borderbrush.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(1.0f, System.Drawing.Color.Blue));
-      _border.BorderBrush = borderbrush;
+      Border border3 = new Border();
+      border3.BorderThickness = 0;
+      border3.CornerRadius = 0;
+      RadialGradientBrush backgroundBrush3 = new RadialGradientBrush();
+      backgroundBrush3.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.0f, System.Drawing.Color.Red));
+      backgroundBrush3.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(0.5f, System.Drawing.Color.Green));
+      backgroundBrush3.GradientStops.Add(new SkinEngine.Controls.Brushes.GradientStop(1.0f, System.Drawing.Color.Blue));
+      backgroundBrush3.Opacity = 1.0f;
+      border3.Background = backgroundBrush3;
+      border3.Width = 200;
+      border3.Height = 100;
+
+      StackPanel sub = new StackPanel();
+      sub.AlignmentY = AlignmentY.Center;
+      SolidColorBrush subBack = new SolidColorBrush();
+      subBack.Color = System.Drawing.Color.Beige;
+      sub.Background = subBack;
+
+      Border b1 = new Border();
+      b1.Width = 60;
+      b1.Height = 60;
+      SolidColorBrush s1 = new SolidColorBrush();
+      s1.Color = System.Drawing.Color.Red;
+      b1.Background = s1;
+
+      Border b2 = new Border();
+      b2.Width = 60;
+      b2.Height = 60;
+      SolidColorBrush s2 = new SolidColorBrush();
+      s2.Color = System.Drawing.Color.Green;
+      b2.Background = s2;
+
+      sub.Children.Add(b1);
+      sub.Children.Add(b2);
+      /*
+      _stackPanel = new StackPanel();
+      _stackPanel.Children.Add(border1);
+      _stackPanel.Children.Add(border2);
+      _stackPanel.Children.Add(sub);
+      _stackPanel.Children.Add(border3);
+       */
+      _stackPanel = new DockPanel();
+      border1.Dock = Dock.Top;
+      border2.Dock = Dock.Top;
+      border3.Dock = Dock.Bottom;
+      sub.Dock = Dock.Right;
+
+      _stackPanel.Children.Add(border1);
+      _stackPanel.Children.Add(border2);
+      _stackPanel.Children.Add(sub);
+      _stackPanel.Children.Add(border3);
+      SolidColorBrush yellow = new SolidColorBrush();
+      yellow.Color = System.Drawing.Color.Yellow;
+      _stackPanel.Background = yellow;
+      //_stackPanel.Orientation = Orientation.Horizontal;
+      _stackPanel.Measure(new System.Drawing.Size(200, 400));
+      _stackPanel.Arrange(new System.Drawing.Rectangle(0, 0, 200, 400));
+
+      _storyBoard = new Storyboard();
+      DoubleAnimation anim = new DoubleAnimation();
+      anim.From = 60;
+      anim.To = 120;
+      anim.AutoReverse = true;
+      anim.Duration = new TimeSpan(0, 0, 4);
+      anim.RepeatBehaviour = RepeatBehaviour.Forever;
+      anim.TargetProperty = b2.WidthProperty;
+      _storyBoard.Children.Add(anim);
+
+      ColorAnimation animColor = new ColorAnimation();
+      animColor.From = System.Drawing.Color.Red;
+      animColor.To = System.Drawing.Color.Yellow;
+      animColor.AutoReverse = true;
+      animColor.Duration = new TimeSpan(0, 0, 2);
+      animColor.RepeatBehaviour = RepeatBehaviour.Forever;
+      animColor.TargetProperty = backgroundBrush3.GradientStops[0].ColorProperty;
+      _storyBoard.Children.Add(animColor);
+      _storyBoard.Start(0);
 
     }
 
@@ -384,7 +477,8 @@ namespace SkinEngine
       }
 
       //only enable this to test brushed&borders
-      //      _border.DoRender();
+      //_stackPanel.DoRender();
+      //_storyBoard.Animate(time);
     }
 
     /// <summary>

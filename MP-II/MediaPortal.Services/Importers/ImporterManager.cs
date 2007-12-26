@@ -271,8 +271,9 @@ namespace MediaPortal.Services.Importers
     public void ForceImport(string folder)
     {
       //check if folder is already monitored.
-      foreach (WatchedFolder watchedFolder in _folders)
+      for (int i = 0; i < _folders.Count; ++i)
       {
+        WatchedFolder watchedFolder = _folders[i];
         if (String.Compare(folder, watchedFolder.Folder, true) == 0)
         {
           ServiceScope.Get<ILogger>().Info("importer: force import from {0}", folder);
@@ -313,6 +314,11 @@ namespace MediaPortal.Services.Importers
             DoProcessChanges(changes);
           }
         }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("importer:error _timer_Elapsed");
+        ServiceScope.Get<ILogger>().Error(ex);
       }
       finally
       {
@@ -363,20 +369,28 @@ namespace MediaPortal.Services.Importers
       // this is not recommended - the better solution would be to use mutexes for parallel imports
       lock (this)
       {
-        WatchedFolder watchedFolder = (WatchedFolder)obj;
-        ServiceScope.Get<ILogger>().Info("importer:import {0}", watchedFolder.Folder);
-        for (int i = 0; i < _settings.Shares.Count; ++i)
+        try
         {
-          Share share = _settings.Shares[i];
-          if (share.Folder == watchedFolder.Folder)
+          WatchedFolder watchedFolder = (WatchedFolder)obj;
+          ServiceScope.Get<ILogger>().Info("importer:import {0}", watchedFolder.Folder);
+          for (int i = 0; i < _settings.Shares.Count; ++i)
           {
-            foreach (IImporter importer in _importers)
+            Share share = _settings.Shares[i];
+            if (share.Folder == watchedFolder.Folder)
             {
-              importer.ImportFolder(watchedFolder.Folder, share.LastImport);
+              foreach (IImporter importer in _importers)
+              {
+                importer.ImportFolder(watchedFolder.Folder, share.LastImport);
+              }
+              share.LastImport = DateTime.Now;
+              ServiceScope.Get<ISettingsManager>().Save(_settings);
             }
-            share.LastImport = DateTime.Now;
-            ServiceScope.Get<ISettingsManager>().Save(_settings);
           }
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Info("importers:import failed");
+          ServiceScope.Get<ILogger>().Error(ex);
         }
       }
     }
@@ -388,27 +402,35 @@ namespace MediaPortal.Services.Importers
     /// <param name="items">The items.</param>
     public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
     {
-      List<string> extensions = new List<string>();
-      foreach (IAbstractMediaItem item in items)
+      try
       {
-        if (item.ContentUri.IsFile)
+        List<string> extensions = new List<string>();
+        foreach (IAbstractMediaItem item in items)
         {
-          string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
-          if (!extensions.Contains(ext))
-            extensions.Add(ext);
-        }
-      }
-
-      foreach (IImporter importer in _importers)
-      {
-        foreach (string ext in extensions)
-        {
-          if (importer.Extensions.Contains(ext))
+          if (item.ContentUri.IsFile)
           {
-            importer.GetMetaDataFor(folder, ref items);
-            break;
+            string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
+            if (!extensions.Contains(ext))
+              extensions.Add(ext);
           }
         }
+
+        foreach (IImporter importer in _importers)
+        {
+          foreach (string ext in extensions)
+          {
+            if (importer.Extensions.Contains(ext))
+            {
+              importer.GetMetaDataFor(folder, ref items);
+              break;
+            }
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("importers:GetMetadataFor:{0} failed", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
   }

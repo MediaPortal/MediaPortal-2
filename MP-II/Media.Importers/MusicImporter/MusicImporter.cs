@@ -165,33 +165,43 @@ namespace MusicImporter
     /// <param name="file">The filename of the new file.</param>
     public void FileCreated(string file)
     {
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Song Created {0}", file);
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
+      try
       {
-        // Has the song already be added? 
-        // This happens when a full directory is copied into the share.
-        if (SongExists(file))
-          return;
-        // For some reason the Create is fired already by windows while the file is still copied.
-        // This happens especially on large songs copied via WLAN.
-        // The result is that Tagreader is throwing an IO Exception.
-        // I'm trying to open the file here. In case of an exception the file is processed by the Change Event.
-        try
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Created {0}", file);
+        string ext = Path.GetExtension(file).ToLower();
+        if (Extensions.Contains(ext))
         {
-          FileInfo fileInfo = new FileInfo(file);
-          Stream s = null;
-          s = fileInfo.OpenRead();
-          s.Close();
+          // Has the song already be added? 
+          // This happens when a full directory is copied into the share.
+          if (SongExists(file))
+            return;
+          // For some reason the Create is fired already by windows while the file is still copied.
+          // This happens especially on large songs copied via WLAN.
+          // The result is that Tagreader is throwing an IO Exception.
+          // I'm trying to open the file here. In case of an exception the file is processed by the Change Event.
+          try
+          {
+            FileInfo fileInfo = new FileInfo(file);
+            Stream s = null;
+            s = fileInfo.OpenRead();
+            s.Close();
+          }
+          catch (Exception)
+          {
+            // The file is not closed yet. Ignore the event, it will be processed by the Change event
+            return;
+          }
+          IDbItem track = AddSong(file);
+          if (track != null) track.Save();
         }
-        catch (Exception)
-        {
-          // The file is not closed yet. Ignore the event, it will be processed by the Change event
-          return;
-        }
-        IDbItem track = AddSong(file);
-        if (track != null) track.Save();
+
       }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error FileCreated:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
+
     }
 
     /// <summary>
@@ -201,20 +211,29 @@ namespace MusicImporter
     /// <param name="file">The filename of the updated file.</param>
     public void FileChanged(string file)
     {
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Song Changed {0}", file);
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
+      try
       {
-        if (SongExists(file))
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Changed {0}", file);
+        string ext = Path.GetExtension(file).ToLower();
+        if (Extensions.Contains(ext))
         {
-          IDbItem track = UpdateSong(file);
-          if (track != null) track.Save();
+          if (SongExists(file))
+          {
+            IDbItem track = UpdateSong(file);
+            if (track != null) track.Save();
+          }
+          else
+          {
+            IDbItem track = AddSong(file);
+            if (track != null) track.Save();
+          }
         }
-        else
-        {
-          IDbItem track = AddSong(file);
-          if (track != null) track.Save();
-        }
+
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error FileChanged:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
@@ -226,52 +245,25 @@ namespace MusicImporter
     /// <param name="oldfFile">The previous filename of the renamed file / folder.</param>
     public void FileRenamed(string file, string oldFile)
     {
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Song / Directory Renamed {0} to {1}", file, oldFile);
-
-      // The rename may have been on a directory or a file
-      FileInfo fi = new FileInfo(file);
-      if (fi.Exists)
+      try
       {
-        List<IDbItem> result;
-        try
-        {
-          Query trackByFilename = new Query("contenturi", Operator.Same, oldFile);
-          result = _musicDatabase.Query(trackByFilename);
-          if (result.Count > 0)
-          {
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song / Directory Renamed {0} to {1}", file, oldFile);
 
-            IDbItem track = result[0];
-            track["contenturi"] = file;
-            track.Save();
-          }
-        }
-        catch (Exception)
-        {
-          return;
-        }
-      }
-      else
-      {
-        // Must be a directory, so let's change the path entries, containing the old
-        // name with the new name
-        DirectoryInfo di = new DirectoryInfo(file);
-        if (di.Exists)
+        // The rename may have been on a directory or a file
+        FileInfo fi = new FileInfo(file);
+        if (fi.Exists)
         {
           List<IDbItem> result;
           try
           {
-            Query trackByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+            Query trackByFilename = new Query("contenturi", Operator.Same, oldFile);
             result = _musicDatabase.Query(trackByFilename);
             if (result.Count > 0)
             {
-              // We might have changed a Top directory, so we get a lot of path entries returned
-              for (int i = 0; i < result.Count; i++)
-              {
-                IDbItem track = result[i];
-                string strPath = track["contenturi"].ToString().Replace(oldFile, file);
-                track["contenturi"] = strPath;
-                track.Save();
-              }
+
+              IDbItem track = result[0];
+              track["contenturi"] = file;
+              track.Save();
             }
           }
           catch (Exception)
@@ -279,6 +271,41 @@ namespace MusicImporter
             return;
           }
         }
+        else
+        {
+          // Must be a directory, so let's change the path entries, containing the old
+          // name with the new name
+          DirectoryInfo di = new DirectoryInfo(file);
+          if (di.Exists)
+          {
+            List<IDbItem> result;
+            try
+            {
+              Query trackByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+              result = _musicDatabase.Query(trackByFilename);
+              if (result.Count > 0)
+              {
+                // We might have changed a Top directory, so we get a lot of path entries returned
+                for (int i = 0; i < result.Count; i++)
+                {
+                  IDbItem track = result[i];
+                  string strPath = track["contenturi"].ToString().Replace(oldFile, file);
+                  track["contenturi"] = strPath;
+                  track.Save();
+                }
+              }
+            }
+            catch (Exception)
+            {
+              return;
+            }
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error FileRenamed:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
@@ -391,91 +418,107 @@ namespace MusicImporter
     /// </summary>
     void CreateMusicDatabase()
     {
-      IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-      IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\musicV3.db3");
+      try
+      {
+        IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
+        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\musicV3.db3");
 
-      _musicDatabase = factory.Open("Music");
+        _musicDatabase = factory.Open("Music");
 
-      // Add the attributes
-      _musicDatabase.Add("contenturi", typeof(string), 255);
-      _musicDatabase.Add("path", typeof(string), 1024);
-      _musicDatabase.Add("artist", typeof(List<string>), 1024);
-      _musicDatabase.Add("albumArtist", typeof(List<string>), 1024);
-      _musicDatabase.Add("album", typeof(string), 255);
-      _musicDatabase.Add("genre", typeof(List<string>), 255);
-      _musicDatabase.Add("title", typeof(string), 255);
-      _musicDatabase.Add("track", typeof(int));
-      _musicDatabase.Add("trackCount", typeof(int));
-      _musicDatabase.Add("disc", typeof(int));
-      _musicDatabase.Add("discCount", typeof(int));
-      _musicDatabase.Add("duration", typeof(int));
-      _musicDatabase.Add("year", typeof(int));
-      _musicDatabase.Add("timesPlayed", typeof(int));
-      _musicDatabase.Add("rating", typeof(int));
-      _musicDatabase.Add("favorite", typeof(int));
-      _musicDatabase.Add("resumeAt", typeof(int));
-      _musicDatabase.Add("gainTrack", typeof(double));
-      _musicDatabase.Add("peakTrack", typeof(double));
-      _musicDatabase.Add("lyrics", typeof(string), 1024);
-      _musicDatabase.Add("musicBrainzID", typeof(string), 255);
-      _musicDatabase.Add("dateLastPlayed", typeof(DateTime));
-      _musicDatabase.Add("dateAdded", typeof(DateTime));
+        // Add the attributes
+        _musicDatabase.Add("contenturi", typeof(string), 255);
+        _musicDatabase.Add("path", typeof(string), 1024);
+        _musicDatabase.Add("artist", typeof(List<string>), 1024);
+        _musicDatabase.Add("albumArtist", typeof(List<string>), 1024);
+        _musicDatabase.Add("album", typeof(string), 255);
+        _musicDatabase.Add("genre", typeof(List<string>), 255);
+        _musicDatabase.Add("title", typeof(string), 255);
+        _musicDatabase.Add("track", typeof(int));
+        _musicDatabase.Add("trackCount", typeof(int));
+        _musicDatabase.Add("disc", typeof(int));
+        _musicDatabase.Add("discCount", typeof(int));
+        _musicDatabase.Add("duration", typeof(int));
+        _musicDatabase.Add("year", typeof(int));
+        _musicDatabase.Add("timesPlayed", typeof(int));
+        _musicDatabase.Add("rating", typeof(int));
+        _musicDatabase.Add("favorite", typeof(int));
+        _musicDatabase.Add("resumeAt", typeof(int));
+        _musicDatabase.Add("gainTrack", typeof(double));
+        _musicDatabase.Add("peakTrack", typeof(double));
+        _musicDatabase.Add("lyrics", typeof(string), 1024);
+        _musicDatabase.Add("musicBrainzID", typeof(string), 255);
+        _musicDatabase.Add("dateLastPlayed", typeof(DateTime));
+        _musicDatabase.Add("dateAdded", typeof(DateTime));
 
-      _musicDatabase.AddIndex("Music", "contenturi", "asc");
-      _musicDatabase.AddIndex("Music", "artist", "asc");
-      _musicDatabase.AddIndex("Music", "albumArtist", "asc");
-      _musicDatabase.AddIndex("Music", "album", "asc");
-      _musicDatabase.AddIndex("Music", "genre", "asc");
+        _musicDatabase.AddIndex("Music", "contenturi", "asc");
+        _musicDatabase.AddIndex("Music", "artist", "asc");
+        _musicDatabase.AddIndex("Music", "albumArtist", "asc");
+        _musicDatabase.AddIndex("Music", "album", "asc");
+        _musicDatabase.AddIndex("Music", "genre", "asc");
 
-      //get date/time of last import done....
-      Query lastDateQuery = new Query();
-      lastDateQuery.Sort = SortOrder.Descending;
-      lastDateQuery.SortFields.Add("dateAdded");
-      lastDateQuery.Limit = 1;
-      List<IDbItem> lastItems = _musicDatabase.Query(lastDateQuery);
-      if (lastItems.Count == 0)
-        _lastImport = DateTime.MinValue;
-      else
-        _lastImport = (DateTime)lastItems[0]["dateAdded"];
+        //get date/time of last import done....
+        Query lastDateQuery = new Query();
+        lastDateQuery.Sort = SortOrder.Descending;
+        lastDateQuery.SortFields.Add("dateAdded");
+        lastDateQuery.Limit = 1;
+        List<IDbItem> lastItems = _musicDatabase.Query(lastDateQuery);
+        if (lastItems.Count == 0)
+          _lastImport = DateTime.MinValue;
+        else
+          _lastImport = (DateTime)lastItems[0]["dateAdded"];
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error creating database");
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
 
     void Import(string folder, DateTime lastImport)
     {
-      DateTime importDate = _lastImport;
-
-      ServiceScope.Get<ILogger>().Info("MusicImport. import {0} from {1}", folder, importDate.ToShortDateString());
-      DateTime startTime = DateTime.Now;
-      int fileCount = 0;
       try
       {
-        ServiceScope.Get<ILogger>().Info("MusicImport: Delete non-exiting songs from database");
+        DateTime importDate = _lastImport;
 
-        DeleteNonExistingSongs();
+        ServiceScope.Get<ILogger>().Info("MusicImport. import {0} from {1}", folder, importDate.ToShortDateString());
+        DateTime startTime = DateTime.Now;
+        int fileCount = 0;
+        try
+        {
+          ServiceScope.Get<ILogger>().Info("MusicImport: Delete non-exiting songs from database");
 
-        ServiceScope.Get<ILogger>().Info("MusicImport: Get files in Share");
-        int GetFilesResult = GetFiles(folder, ref fileCount, importDate);
-        ServiceScope.Get<ILogger>().Info("MusicImport: Add / Update files: {0} files added / updated", GetFilesResult);
+          DeleteNonExistingSongs();
+
+          ServiceScope.Get<ILogger>().Info("MusicImport: Get files in Share");
+          int GetFilesResult = GetFiles(folder, ref fileCount, importDate);
+          ServiceScope.Get<ILogger>().Info("MusicImport: Add / Update files: {0} files added / updated", GetFilesResult);
+        }
+
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("MusicImport: Error");
+          ServiceScope.Get<ILogger>().Error(ex);
+        }
+
+        finally
+        {
+          DateTime stopTime = DateTime.Now;
+          TimeSpan ts = stopTime - startTime;
+          float fSecsPerTrack = ((float)ts.TotalSeconds / fileCount);
+          string trackPerSecSummary = "";
+
+          if (fileCount > 0)
+          {
+            trackPerSecSummary = string.Format(" ({0} seconds per track)", fSecsPerTrack);
+          }
+          ServiceScope.Get<ILogger>().Info("MusicImport: Music database reorganization done.  Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", fileCount, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
+          _lastImport = DateTime.Now;
+        }
       }
-
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("MusicImport: Error");
+        ServiceScope.Get<ILogger>().Info("musicimporter:error importing folder:{0}", folder);
         ServiceScope.Get<ILogger>().Error(ex);
-      }
-
-      finally
-      {
-        DateTime stopTime = DateTime.Now;
-        TimeSpan ts = stopTime - startTime;
-        float fSecsPerTrack = ((float)ts.TotalSeconds / fileCount);
-        string trackPerSecSummary = "";
-
-        if (fileCount > 0)
-        {
-          trackPerSecSummary = string.Format(" ({0} seconds per track)", fSecsPerTrack);
-        }
-        ServiceScope.Get<ILogger>().Info("MusicImport: Music database reorganization done.  Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", fileCount, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
-        _lastImport = DateTime.Now;
       }
     }
 
@@ -487,31 +530,40 @@ namespace MusicImporter
     /// <returns></returns>
     private void DeleteNonExistingSongs()
     {
-      List<IDbItem> result;
       try
       {
-        Query tracks = new Query();
-        result = _musicDatabase.Query(tracks);
+        List<IDbItem> result;
+        try
+        {
+          Query tracks = new Query();
+          result = _musicDatabase.Query(tracks);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("MusicImporter: Unable to retrieve songs from database in DeleteNonExistingSongs()", ex);
+          return;
+        }
+
+        int removed = 0;
+        ServiceScope.Get<ILogger>().Info("MusicImporter: starting song cleanup for {0} songs", result.Count);
+        for (int i = 0; i < result.Count; ++i)
+        {
+          string strFileName = (string)result[i].Attributes["contenturi"].Value;
+          if (!File.Exists(strFileName))
+          {
+            /// song doesn't exist anymore, delete it
+            removed++;
+            DeleteSong(strFileName);
+          }
+        }
+        ServiceScope.Get<ILogger>().Info("MusicImporter: DeleteNonExistingSongs completed. Removed {0} non-existing songs", removed);
+
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("MusicImporter: Unable to retrieve songs from database in DeleteNonExistingSongs()", ex);
-        return;
+        ServiceScope.Get<ILogger>().Info("musicimporter:error deleting non existing songs");
+        ServiceScope.Get<ILogger>().Error(ex);
       }
-
-      int removed = 0;
-      ServiceScope.Get<ILogger>().Info("MusicImporter: starting song cleanup for {0} songs", result.Count);
-      for (int i = 0; i < result.Count; ++i)
-      {
-        string strFileName = (string)result[i].Attributes["contenturi"].Value;
-        if (!File.Exists(strFileName))
-        {
-          /// song doesn't exist anymore, delete it
-          removed++;
-          DeleteSong(strFileName);
-        }
-      }
-      ServiceScope.Get<ILogger>().Info("MusicImporter: DeleteNonExistingSongs completed. Removed {0} non-existing songs", removed);
     }
 
     /// <summary>
@@ -520,20 +572,28 @@ namespace MusicImporter
     /// <param name="strFileName"></param>
     private void DeleteSong(string strFileName)
     {
-      List<IDbItem> result = new List<IDbItem>();
       try
       {
-        Query tracks = new Query("contenturi", Operator.Same, strFileName);
-        result = _musicDatabase.Query(tracks);
+        List<IDbItem> result = new List<IDbItem>();
+        try
+        {
+          Query tracks = new Query("contenturi", Operator.Same, strFileName);
+          result = _musicDatabase.Query(tracks);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("MusicImporter: Unable to delete song.", ex);
+        }
+        if (result.Count > 0)
+        {
+          IDbItem track = result[0];
+          track.Delete();
+        }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("MusicImporter: Unable to delete song.", ex);
-      }
-      if (result.Count > 0)
-      {
-        IDbItem track = result[0];
-        track.Delete();
+        ServiceScope.Get<ILogger>().Info("musicimporter:error DeleteSong:{0}", strFileName);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
       return;
     }
@@ -547,82 +607,90 @@ namespace MusicImporter
     /// <returns></returns>
     private int GetFiles(string folder, ref int fileCount, DateTime lastImport)
     {
-
-      int totalFiles = 0;
-
-      int SongCounter = 0;
-      int AddedCounter = 0;
-      int TotalSongs;
-      List<string> availableFiles = new List<string>();
-
-      // Get all the files for the given Share / Path
-      CountFilesInPath(folder, ref totalFiles, ref availableFiles, lastImport);
-
-      // Now get the files from the root directory, which we missed in the above search
       try
       {
-        foreach (string file in Directory.GetFiles(folder, "*.*"))
-        {
-          CheckFileForInclusion(file, ref totalFiles, ref availableFiles, lastImport);
-        }
-      }
-      catch
-      {
-        // ignore exception that we get on CD / DVD shares
-      }
+        int totalFiles = 0;
 
-      TotalSongs = totalFiles;
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Found {0} files.", totalFiles);
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Now check for new / updated files.");
+        int SongCounter = 0;
+        int AddedCounter = 0;
+        int TotalSongs;
+        List<string> availableFiles = new List<string>();
 
-      // Contains a list of Items to be inserted to the DB.
-      // Do Mass insertion at the end of processing the files
-      List<IDbItem> tracks = new List<IDbItem>();
+        // Get all the files for the given Share / Path
+        CountFilesInPath(folder, ref totalFiles, ref availableFiles, lastImport);
 
-
-      foreach (string MusicFile in availableFiles)
-      {
-        SongCounter++;
-
-        List<IDbItem> result;
+        // Now get the files from the root directory, which we missed in the above search
         try
         {
-          Query trackByFilename = new Query("contenturi", Operator.Same, MusicFile);
-          result = _musicDatabase.Query(trackByFilename);
+          foreach (string file in Directory.GetFiles(folder, "*.*"))
+          {
+            CheckFileForInclusion(file, ref totalFiles, ref availableFiles, lastImport);
+          }
         }
-        catch (Exception)
+        catch
         {
-          ServiceScope.Get<ILogger>().Error("MusicImporter: AddMissingFiles finished with error (exception for select)");
-          return (int)Errors.ERROR_REORG_SONGS;
+          // ignore exception that we get on CD / DVD shares
         }
 
-        IDbItem track;
-        if (result.Count == 0)
+        TotalSongs = totalFiles;
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Found {0} files.", totalFiles);
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Now check for new / updated files.");
+
+        // Contains a list of Items to be inserted to the DB.
+        // Do Mass insertion at the end of processing the files
+        List<IDbItem> tracks = new List<IDbItem>();
+
+
+        foreach (string MusicFile in availableFiles)
         {
-          //The song does not exist, we will add it.
-          track = AddSong(MusicFile);
-        }
-        else
-        {
-          track = UpdateSong(MusicFile);
+          SongCounter++;
+
+          List<IDbItem> result;
+          try
+          {
+            Query trackByFilename = new Query("contenturi", Operator.Same, MusicFile);
+            result = _musicDatabase.Query(trackByFilename);
+          }
+          catch (Exception)
+          {
+            ServiceScope.Get<ILogger>().Error("MusicImporter: AddMissingFiles finished with error (exception for select)");
+            return (int)Errors.ERROR_REORG_SONGS;
+          }
+
+          IDbItem track;
+          if (result.Count == 0)
+          {
+            //The song does not exist, we will add it.
+            track = AddSong(MusicFile);
+          }
+          else
+          {
+            track = UpdateSong(MusicFile);
+          }
+
+          if (track != null)
+          {
+            tracks.Add(track);
+          }
+
+          AddedCounter++;
         }
 
-        if (track != null)
-        {
-          tracks.Add(track);
-        }
+        // now save all the items added / updated
+        _musicDatabase.Save(tracks);
 
-        AddedCounter++;
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Checked {0} files.", totalFiles);
+        ServiceScope.Get<ILogger>().Info("MusicImporter: {0} skipped because of creation before the last import", totalFiles - AddedCounter);
+
+        fileCount = TotalSongs;
+        return SongCounter;
       }
-
-      // now save all the items added / updated
-      _musicDatabase.Save(tracks);
-
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Checked {0} files.", totalFiles);
-      ServiceScope.Get<ILogger>().Info("MusicImporter: {0} skipped because of creation before the last import", totalFiles - AddedCounter);
-
-      fileCount = TotalSongs;
-      return SongCounter;
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error GetFiles:{0}", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
+        return 0;
+      }
     }
 
     /// <summary>
@@ -652,7 +720,7 @@ namespace MusicImporter
           CountFilesInPath(dir, ref totalFiles, ref availableFiles, lastImport);
         }
       }
-      catch
+      catch (Exception)
       {
         // Ignore
       }
@@ -701,7 +769,7 @@ namespace MusicImporter
           availableFiles.Add(file);
         }
       }
-      catch
+      catch (Exception)
       {
         //File.GetAttributes may fail if [file] is 0 bytes long
       }
@@ -715,25 +783,33 @@ namespace MusicImporter
     /// <returns></returns>
     private MusicTag GetTag(string strFileName)
     {
-      TagReader tagreader = new TagReader();
-      MusicTag tag = tagreader.ReadTag(strFileName);
-      if (tag != null)
+      try
       {
-        // When we got Multiple Entries of either Artist, Genre, Albumartist in WMP notation, separated by ";",
-        // we will store them separeted by "|"
-        tag.Artist = tag.Artist.Replace(';', '|');
-        tag.AlbumArtist = tag.AlbumArtist.Replace(';', '|');
-        tag.Genre = tag.Genre.Replace(';', '|');
-
-        if (tag.AlbumArtist == "unknown" || tag.AlbumArtist == String.Empty)
+        TagReader tagreader = new TagReader();
+        MusicTag tag = tagreader.ReadTag(strFileName);
+        if (tag != null)
         {
-          tag.AlbumArtist = tag.Artist;
+          // When we got Multiple Entries of either Artist, Genre, Albumartist in WMP notation, separated by ";",
+          // we will store them separeted by "|"
+          tag.Artist = tag.Artist.Replace(';', '|');
+          tag.AlbumArtist = tag.AlbumArtist.Replace(';', '|');
+          tag.Genre = tag.Genre.Replace(';', '|');
+
+          if (tag.AlbumArtist == "unknown" || tag.AlbumArtist == String.Empty)
+          {
+            tag.AlbumArtist = tag.Artist;
+          }
+
+          // Extract the Coverart
+          //ExtractCoverArt(tag);
+
+          return tag;
         }
-
-        // Extract the Coverart
-        //ExtractCoverArt(tag);
-
-        return tag;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error GetTag:{0}", strFileName);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
       return null;
     }
@@ -745,41 +821,49 @@ namespace MusicImporter
     /// <returns></returns>
     private IDbItem AddSong(string strFileName)
     {
-      // Get the Tags from the file
-      MusicTag tag = GetTag(strFileName);
-      if (tag != null)
+      try
       {
-        FileInfo info = new FileInfo(strFileName);
+        // Get the Tags from the file
+        MusicTag tag = GetTag(strFileName);
+        if (tag != null)
+        {
+          FileInfo info = new FileInfo(strFileName);
 
-        // Todo: Handle Artist Prefix based on Settings
-        //string sortableArtist = tag.Artist;
-        //StripArtistNamePrefix(ref sortableArtist, true);
+          // Todo: Handle Artist Prefix based on Settings
+          //string sortableArtist = tag.Artist;
+          //StripArtistNamePrefix(ref sortableArtist, true);
 
-        IDbItem track = _musicDatabase.CreateNew();
-        track["contenturi"] = strFileName;
-        track["path"] = Path.GetDirectoryName(strFileName);
-        track["artist"] = tag.Artist;
-        track["albumArtist"] = tag.AlbumArtist;
-        track["album"] = tag.Album;
-        track["genre"] = tag.Genre;
-        track["title"] = tag.Title;
-        track["track"] = tag.Track;
-        track["trackCount"] = tag.TrackTotal;
-        track["disc"] = tag.DiscID;
-        track["discCount"] = tag.DiscTotal;
-        track["duration"] = tag.Duration;
-        track["year"] = tag.Year;
-        track["timesPlayed"] = 0;
-        track["rating"] = tag.Rating;
-        track["favorite"] = 0;
-        track["resumeAt"] = 0;
-        track["gainTrack"] = 0;
-        track["peakTrack"] = 0;
-        track["lyrics"] = tag.Lyrics;
-        track["musicBrainzID"] = String.Empty;
-        track["dateLastPlayed"] = DateTime.MinValue;
-        track["dateAdded"] = info.CreationTime;
-        return track;
+          IDbItem track = _musicDatabase.CreateNew();
+          track["contenturi"] = strFileName;
+          track["path"] = Path.GetDirectoryName(strFileName);
+          track["artist"] = tag.Artist;
+          track["albumArtist"] = tag.AlbumArtist;
+          track["album"] = tag.Album;
+          track["genre"] = tag.Genre;
+          track["title"] = tag.Title;
+          track["track"] = tag.Track;
+          track["trackCount"] = tag.TrackTotal;
+          track["disc"] = tag.DiscID;
+          track["discCount"] = tag.DiscTotal;
+          track["duration"] = tag.Duration;
+          track["year"] = tag.Year;
+          track["timesPlayed"] = 0;
+          track["rating"] = tag.Rating;
+          track["favorite"] = 0;
+          track["resumeAt"] = 0;
+          track["gainTrack"] = 0;
+          track["peakTrack"] = 0;
+          track["lyrics"] = tag.Lyrics;
+          track["musicBrainzID"] = String.Empty;
+          track["dateLastPlayed"] = DateTime.MinValue;
+          track["dateAdded"] = info.CreationTime;
+          return track;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error AddSong:{0}", strFileName);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
       return null;
     }
@@ -791,45 +875,53 @@ namespace MusicImporter
     /// <returns></returns>
     private IDbItem UpdateSong(string strFileName)
     {
-      // Get the Tags from the file
-      MusicTag tag = GetTag(strFileName);
-      if (tag != null)
+      try
       {
-        List<IDbItem> result;
-
-        try
+        // Get the Tags from the file
+        MusicTag tag = GetTag(strFileName);
+        if (tag != null)
         {
-          Query trackByFilename = new Query("contenturi", Operator.Same, strFileName);
-          result = _musicDatabase.Query(trackByFilename);
-        }
-        catch (Exception)
-        {
-          ServiceScope.Get<ILogger>().Error(
-            "MusicImporter: Error in Update finished with error (exception for select)");
-          return null;
-        }
+          List<IDbItem> result;
 
-        if (result.Count > 0)
-        {
-          // Todo: Handle Artist Prefix based on Settings
-          //string sortableArtist = tag.Artist;
-          //StripArtistNamePrefix(ref sortableArtist, true);
+          try
+          {
+            Query trackByFilename = new Query("contenturi", Operator.Same, strFileName);
+            result = _musicDatabase.Query(trackByFilename);
+          }
+          catch (Exception)
+          {
+            ServiceScope.Get<ILogger>().Error(
+              "MusicImporter: Error in Update finished with error (exception for select)");
+            return null;
+          }
 
-          IDbItem track = result[0];
-          track["artist"] = tag.Artist;
-          track["albumArtist"] = tag.AlbumArtist;
-          track["album"] = tag.Album;
-          track["genre"] = tag.Genre;
-          track["title"] = tag.Title;
-          track["track"] = tag.Track;
-          track["trackCount"] = tag.TrackTotal;
-          track["disc"] = tag.DiscID;
-          track["discCount"] = tag.DiscTotal;
-          track["year"] = tag.Year;
-          track["rating"] = tag.Rating;
-          track["lyrics"] = tag.Lyrics;
-          return track;
+          if (result.Count > 0)
+          {
+            // Todo: Handle Artist Prefix based on Settings
+            //string sortableArtist = tag.Artist;
+            //StripArtistNamePrefix(ref sortableArtist, true);
+
+            IDbItem track = result[0];
+            track["artist"] = tag.Artist;
+            track["albumArtist"] = tag.AlbumArtist;
+            track["album"] = tag.Album;
+            track["genre"] = tag.Genre;
+            track["title"] = tag.Title;
+            track["track"] = tag.Track;
+            track["trackCount"] = tag.TrackTotal;
+            track["disc"] = tag.DiscID;
+            track["discCount"] = tag.DiscTotal;
+            track["year"] = tag.Year;
+            track["rating"] = tag.Rating;
+            track["lyrics"] = tag.Lyrics;
+            return track;
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("musicimporter:error UpdateSong:{0}", strFileName);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
       return null;
     }

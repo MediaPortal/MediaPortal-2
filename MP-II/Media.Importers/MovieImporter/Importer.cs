@@ -260,17 +260,26 @@ namespace MovieImporter
     public void ImportFolder(string folder, DateTime since)
     {
       since = _lastImport;
-      ServiceScope.Get<ILogger>().Info("movie importer:import {0} since {1}", folder, since.ToShortDateString());
-      DeleteNonExistingMovies();
-      List<string> availableFiles = new List<string>();
-      Import(folder, ref availableFiles, since);
-      ServiceScope.Get<ILogger>().Info("movieimporter:found {0} new/changed movies", availableFiles.Count);
-      foreach (string fileName in availableFiles)
+
+      try
       {
-        ImportFile(fileName);
+        ServiceScope.Get<ILogger>().Info("movie importer:import {0} since {1}", folder, since.ToShortDateString());
+        DeleteNonExistingMovies();
+        List<string> availableFiles = new List<string>();
+        Import(folder, ref availableFiles, since);
+        ServiceScope.Get<ILogger>().Info("movieimporter:found {0} new/changed movies", availableFiles.Count);
+        foreach (string fileName in availableFiles)
+        {
+          ImportFile(fileName);
+        }
+        ServiceScope.Get<ILogger>().Info("movieimporter:imported {0} movies", availableFiles.Count);
+        _lastImport = DateTime.Now;
       }
-      ServiceScope.Get<ILogger>().Info("movieimporter:imported {0} movies", availableFiles.Count);
-      _lastImport = DateTime.Now;
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error importing {0} ", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
 
     /// <summary>
@@ -330,24 +339,32 @@ namespace MovieImporter
         ServiceScope.Get<ILogger>().Error("movieimporter: Unable to retrieve movies from database in DeleteNonExistingMovies()", ex);
         return;
       }
-
-      int removed = 0;
-      ServiceScope.Get<ILogger>().Info("movieimporter: starting cleanup for {0} movies", result.Count);
-      for (int i = 0; i < result.Count; ++i)
+      try
       {
-        string strFileName = (string)result[i].Attributes["contentURI"].Value;
-        if (!File.Exists(strFileName) && !String.IsNullOrEmpty(strFileName))
+        int removed = 0;
+        ServiceScope.Get<ILogger>().Info("movieimporter: starting cleanup for {0} movies", result.Count);
+        for (int i = 0; i < result.Count; ++i)
         {
-          /// song doesn't exist anymore, delete it
-          removed++;
-          FileDeleted(strFileName);
-        }
-      } //for (int i=0; i < results.Rows.Count;++i)
-      ServiceScope.Get<ILogger>().Info("movieimporter: DeleteNonExistingMovies completed. Removed {0} non-existing movies", removed);
+          string strFileName = (string)result[i].Attributes["contentURI"].Value;
+          if (!File.Exists(strFileName) && !String.IsNullOrEmpty(strFileName))
+          {
+            /// song doesn't exist anymore, delete it
+            removed++;
+            FileDeleted(strFileName);
+          }
+        } //for (int i=0; i < results.Rows.Count;++i)
+        ServiceScope.Get<ILogger>().Info("movieimporter: DeleteNonExistingMovies completed. Removed {0} non-existing movies", removed);
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error cleanup non existing movies");
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
 
     void Import(string folder, ref List<string> availableFiles, DateTime since)
     {
+
       ServiceScope.Get<ILogger>().Info("movieimporter   {0}", folder);
       try
       {
@@ -369,8 +386,10 @@ namespace MovieImporter
           }
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error importing folder:{0}", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
@@ -393,67 +412,76 @@ namespace MovieImporter
     /// <param name="folder">The file.</param>
     int ImportFile(string file)
     {
-      string ext = System.IO.Path.GetExtension(file).ToLower();
-      bool isDvd = (ext == ".ifo");
-      if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return 0;
       try
       {
-        Query movieByFilename = new Query("contentURI", Operator.Same, file);
-        List<IDbItem> result = _movieDatabase.Query(movieByFilename);
-        if (result.Count > 0) return 0;
-      }
-      catch (Exception)
-      {
-        return 0;
-      }
-      FileInfo info = new FileInfo(file);
-      MediaInfo mediaInfo = new MediaInfo();
-      try
-      {
-        mediaInfo.Open(file);
-      }
-      catch (Exception)
-      {
-        mediaInfo = null;
-      }
-      IDbItem movie = _movieDatabase.CreateNew(); ;
-      movie["contentURI"] = file;
-      movie["CoverArt"] = file;
-      movie["size"] = info.Length;
-      if (!isDvd)
-      {
-        movie["title"] = Path.GetFileNameWithoutExtension(file);
-      }
-      else
-      {
-        string videoTsdir = System.IO.Path.GetDirectoryName(file);
-        DirectoryInfo dirInfo = System.IO.Directory.GetParent(videoTsdir);
-        movie["title"] = dirInfo.Name;
-      }
-      movie["date"] = info.CreationTime;
-      movie["path"] = Path.GetDirectoryName(file);
-      movie["isDVD"] = isDvd;
-      movie["dateAdded"] = info.CreationTime;
-      if (mediaInfo != null)
-      {
-        movie["VideoCodec"] = mediaInfo.getVidCodec();
-        movie["VideoBitRate"] = mediaInfo.getVidBitrate();
-        movie["Width"] = mediaInfo.getWidth();
-        movie["Height"] = mediaInfo.getHeight();
-        movie["FPS"] = mediaInfo.getFPS();
-        movie["AudioStreams"] = mediaInfo.getAudioCount();
-        movie["AudioCodec"] = mediaInfo.getAudioCodec();
-        movie["AspectRatio"] = mediaInfo.getAR();
-        movie["AudioBitRate"] = mediaInfo.getAudioBitrate();
-        string playtime = mediaInfo.getPlaytime();
-        int playtimeSecs = 0;
-        Int32.TryParse(playtime, out playtimeSecs);
-        movie["duration"] = playtimeSecs;
-        mediaInfo.Close();
-      }
-      movie.Save();
+        string ext = System.IO.Path.GetExtension(file).ToLower();
+        bool isDvd = (ext == ".ifo");
+        if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return 0;
+        try
+        {
+          Query movieByFilename = new Query("contentURI", Operator.Same, file);
+          List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+          if (result.Count > 0) return 0;
+        }
+        catch (Exception)
+        {
+          return 0;
+        }
+        FileInfo info = new FileInfo(file);
+        MediaInfo mediaInfo = new MediaInfo();
+        try
+        {
+          mediaInfo.Open(file);
+        }
+        catch (Exception)
+        {
+          mediaInfo = null;
+        }
+        IDbItem movie = _movieDatabase.CreateNew(); ;
+        movie["contentURI"] = file;
+        movie["CoverArt"] = file;
+        movie["size"] = info.Length;
+        if (!isDvd)
+        {
+          movie["title"] = Path.GetFileNameWithoutExtension(file);
+        }
+        else
+        {
+          string videoTsdir = System.IO.Path.GetDirectoryName(file);
+          DirectoryInfo dirInfo = System.IO.Directory.GetParent(videoTsdir);
+          movie["title"] = dirInfo.Name;
+        }
+        movie["date"] = info.CreationTime;
+        movie["path"] = Path.GetDirectoryName(file);
+        movie["isDVD"] = isDvd;
+        movie["dateAdded"] = info.CreationTime;
+        if (mediaInfo != null)
+        {
+          movie["VideoCodec"] = mediaInfo.getVidCodec();
+          movie["VideoBitRate"] = mediaInfo.getVidBitrate();
+          movie["Width"] = mediaInfo.getWidth();
+          movie["Height"] = mediaInfo.getHeight();
+          movie["FPS"] = mediaInfo.getFPS();
+          movie["AudioStreams"] = mediaInfo.getAudioCount();
+          movie["AudioCodec"] = mediaInfo.getAudioCodec();
+          movie["AspectRatio"] = mediaInfo.getAR();
+          movie["AudioBitRate"] = mediaInfo.getAudioBitrate();
+          string playtime = mediaInfo.getPlaytime();
+          int playtimeSecs = 0;
+          Int32.TryParse(playtime, out playtimeSecs);
+          movie["duration"] = playtimeSecs;
+          mediaInfo.Close();
+        }
+        movie.Save();
 
-      return 1;
+        return 1;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error importing file:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
+      return 0;
     }
 
     /// <summary>
@@ -461,48 +489,57 @@ namespace MovieImporter
     /// </summary>
     void CreateMovieDatabase()
     {
-      IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-      IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\movies3.db3");
+      try
+      {
+        IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
+        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\movies3.db3");
 
 
-      _movieDatabase = factory.Open("Movies");
+        _movieDatabase = factory.Open("Movies");
 
-      _movieDatabase.Add("title", typeof(string), 1024);
-      _movieDatabase.Add("genre", typeof(List<string>), 40);
-      _movieDatabase.Add("director", typeof(string), 40);
-      _movieDatabase.Add("contentURI", typeof(string), 1024);
-      _movieDatabase.Add("CoverArt", typeof(string), 1024);
-      _movieDatabase.Add("VideoCodec", typeof(string), 100);
-      _movieDatabase.Add("VideoBitRate", typeof(string), 100);
-      _movieDatabase.Add("Width", typeof(string), 100);
-      _movieDatabase.Add("Height", typeof(string), 100);
-      _movieDatabase.Add("AspectRatio", typeof(string), 100);
-      _movieDatabase.Add("FPS", typeof(string), 100);
-      _movieDatabase.Add("AudioStreams", typeof(string), 100);
-      _movieDatabase.Add("AudioCodec", typeof(string), 100);
-      _movieDatabase.Add("AudioBitRate", typeof(string), 100);
-      _movieDatabase.Add("date", typeof(DateTime));
-      _movieDatabase.Add("rating", typeof(int));
-      _movieDatabase.Add("duration", typeof(int));
-      _movieDatabase.Add("tagline", typeof(string), 60);
-      _movieDatabase.Add("plot", typeof(string), 1024);
-      _movieDatabase.Add("actors", typeof(List<string>), 1024);
-      _movieDatabase.Add("path", typeof(string), 1024);
-      _movieDatabase.Add("lastplayed", typeof(DateTime));
-      _movieDatabase.Add("size", typeof(int));
-      _movieDatabase.Add("dateAdded", typeof(DateTime));
-      _movieDatabase.Add("isDVD", typeof(int));
+        _movieDatabase.Add("title", typeof(string), 1024);
+        _movieDatabase.Add("genre", typeof(List<string>), 40);
+        _movieDatabase.Add("director", typeof(string), 40);
+        _movieDatabase.Add("contentURI", typeof(string), 1024);
+        _movieDatabase.Add("CoverArt", typeof(string), 1024);
+        _movieDatabase.Add("VideoCodec", typeof(string), 100);
+        _movieDatabase.Add("VideoBitRate", typeof(string), 100);
+        _movieDatabase.Add("Width", typeof(string), 100);
+        _movieDatabase.Add("Height", typeof(string), 100);
+        _movieDatabase.Add("AspectRatio", typeof(string), 100);
+        _movieDatabase.Add("FPS", typeof(string), 100);
+        _movieDatabase.Add("AudioStreams", typeof(string), 100);
+        _movieDatabase.Add("AudioCodec", typeof(string), 100);
+        _movieDatabase.Add("AudioBitRate", typeof(string), 100);
+        _movieDatabase.Add("date", typeof(DateTime));
+        _movieDatabase.Add("rating", typeof(int));
+        _movieDatabase.Add("duration", typeof(int));
+        _movieDatabase.Add("tagline", typeof(string), 60);
+        _movieDatabase.Add("plot", typeof(string), 1024);
+        _movieDatabase.Add("actors", typeof(List<string>), 1024);
+        _movieDatabase.Add("path", typeof(string), 1024);
+        _movieDatabase.Add("lastplayed", typeof(DateTime));
+        _movieDatabase.Add("size", typeof(int));
+        _movieDatabase.Add("dateAdded", typeof(DateTime));
+        _movieDatabase.Add("isDVD", typeof(int));
 
-      //get date/time of last import done....
-      Query lastDateQuery = new Query();
-      lastDateQuery.Sort = SortOrder.Descending;
-      lastDateQuery.SortFields.Add("dateAdded");
-      lastDateQuery.Limit = 1;
-      List<IDbItem> lastItems = _movieDatabase.Query(lastDateQuery);
-      if (lastItems.Count == 0)
-        _lastImport = DateTime.MinValue;
-      else
-        _lastImport = (DateTime)lastItems[0]["dateAdded"];
+        //get date/time of last import done....
+        Query lastDateQuery = new Query();
+        lastDateQuery.Sort = SortOrder.Descending;
+        lastDateQuery.SortFields.Add("dateAdded");
+        lastDateQuery.Limit = 1;
+        List<IDbItem> lastItems = _movieDatabase.Query(lastDateQuery);
+        if (lastItems.Count == 0)
+          _lastImport = DateTime.MinValue;
+        else
+          _lastImport = (DateTime)lastItems[0]["dateAdded"];
+
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error creating database");
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
     #endregion
   }

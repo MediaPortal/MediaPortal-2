@@ -111,10 +111,10 @@ namespace PictureImporter
     /// <param name="file">The filename of the deleted file.</param>
     public void FileDeleted(string file)
     {
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
+      try
       {
-        try
+        string ext = Path.GetExtension(file).ToLower();
+        if (Extensions.Contains(ext))
         {
           Query imageByFilename = new Query("contentURI", Operator.Same, file);
           List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
@@ -126,10 +126,10 @@ namespace PictureImporter
             }
           }
         }
-        catch (Exception)
-        {
-          return;
-        }
+      }
+      catch (Exception)
+      {
+        return;
       }
     }
 
@@ -171,50 +171,23 @@ namespace PictureImporter
     /// <param name="olfdFile">The previous filename of the renamed file / folder.</param>
     public void FileRenamed(string file, string oldFile)
     {
-      // The rename may have been on a directory or a file
-      FileInfo fi = new FileInfo(file);
-      if (fi.Exists)
+      try
       {
-        List<IDbItem> result;
-        try
-        {
-          Query imageByFilename = new Query("contenturi", Operator.Same, oldFile);
-          result = _pictureDatabase.Query(imageByFilename);
-          if (result.Count > 0)
-          {
-
-            IDbItem picture = result[0];
-            picture["contenturi"] = file;
-            picture.Save();
-          }
-        }
-        catch (Exception)
-        {
-          return;
-        }
-      }
-      else
-      {
-        // Must be a directory, so let's change the path entries, containing the old
-        // name with the new name
-        DirectoryInfo di = new DirectoryInfo(file);
-        if (di.Exists)
+        // The rename may have been on a directory or a file
+        FileInfo fi = new FileInfo(file);
+        if (fi.Exists)
         {
           List<IDbItem> result;
           try
           {
-            Query imageByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+            Query imageByFilename = new Query("contenturi", Operator.Same, oldFile);
             result = _pictureDatabase.Query(imageByFilename);
             if (result.Count > 0)
             {
-              // We might have changed a Top directory, so we get a lot of path entries returned
-              for (int i = 0; i < result.Count; i++)
-              {
-                IDbItem picture = result[i];
-                string strPath = picture["contenturi"].ToString().Replace(oldFile, file);
-                picture["contenturi"] = strPath;
-                picture.Save();
-              }
+
+              IDbItem picture = result[0];
+              picture["contenturi"] = file;
+              picture.Save();
             }
           }
           catch (Exception)
@@ -222,6 +195,41 @@ namespace PictureImporter
             return;
           }
         }
+        else
+        {
+          // Must be a directory, so let's change the path entries, containing the old
+          // name with the new name
+          DirectoryInfo di = new DirectoryInfo(file);
+          if (di.Exists)
+          {
+            List<IDbItem> result;
+            try
+            {
+              Query imageByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+              result = _pictureDatabase.Query(imageByFilename);
+              if (result.Count > 0)
+              {
+                // We might have changed a Top directory, so we get a lot of path entries returned
+                for (int i = 0; i < result.Count; i++)
+                {
+                  IDbItem picture = result[i];
+                  string strPath = picture["contenturi"].ToString().Replace(oldFile, file);
+                  picture["contenturi"] = strPath;
+                  picture.Save();
+                }
+              }
+            }
+            catch (Exception)
+            {
+              return;
+            }
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error FileRenamed:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
@@ -257,16 +265,24 @@ namespace PictureImporter
     /// <param name="since"></param>
     public void ImportFolder(string folder, DateTime since)
     {
-      ServiceScope.Get<ILogger>().Info("picture importer:import {0} since {1}", folder, since.ToShortDateString());
-      DeleteNonExistingPictures();
-      List<string> availableFiles = new List<string>();
-      Import(folder, ref availableFiles, since);
-      ServiceScope.Get<ILogger>().Info("pictureimporter:found {0} new/changed pictures", availableFiles.Count);
-      foreach (string fileName in availableFiles)
+      try
       {
-        ImportFile(fileName);
+        ServiceScope.Get<ILogger>().Info("picture importer:import {0} since {1}", folder, since.ToShortDateString());
+        DeleteNonExistingPictures();
+        List<string> availableFiles = new List<string>();
+        Import(folder, ref availableFiles, since);
+        ServiceScope.Get<ILogger>().Info("pictureimporter:found {0} new/changed pictures", availableFiles.Count);
+        foreach (string fileName in availableFiles)
+        {
+          ImportFile(fileName);
+        }
+        ServiceScope.Get<ILogger>().Info("pictureimporter:imported {0} pictures", availableFiles.Count);
       }
-      ServiceScope.Get<ILogger>().Info("pictureimporter:imported {0} pictures", availableFiles.Count);
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFolder:{0}", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
 
     /// <summary>
@@ -343,31 +359,39 @@ namespace PictureImporter
     /// <returns></returns>
     private void DeleteNonExistingPictures()
     {
-      List<IDbItem> result;
       try
       {
-        Query pictures = new Query();
-        result = _pictureDatabase.Query(pictures);
+        List<IDbItem> result;
+        try
+        {
+          Query pictures = new Query();
+          result = _pictureDatabase.Query(pictures);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("PictureImporter: Unable to retrieve pictures from database in DeleteNonExistingPictures()", ex);
+          return;
+        }
+
+        int removed = 0;
+        ServiceScope.Get<ILogger>().Info("PictureImporter: starting cleanup for {0} pictures", result.Count);
+        for (int i = 0; i < result.Count; ++i)
+        {
+          string strFileName = (string)result[i].Attributes["contentURI"].Value;
+          if (!File.Exists(strFileName))
+          {
+            /// song doesn't exist anymore, delete it
+            removed++;
+            FileDeleted(strFileName);
+          }
+        } //for (int i=0; i < results.Rows.Count;++i)
+        ServiceScope.Get<ILogger>().Info("PictureImporter: DeleteNonExistingPictures completed. Removed {0} non-existing pictures", removed);
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("PictureImporter: Unable to retrieve pictures from database in DeleteNonExistingPictures()", ex);
-        return;
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error DeleteNonExistingPictures");
+        ServiceScope.Get<ILogger>().Error(ex);
       }
-
-      int removed = 0;
-      ServiceScope.Get<ILogger>().Info("PictureImporter: starting cleanup for {0} pictures", result.Count);
-      for (int i = 0; i < result.Count; ++i)
-      {
-        string strFileName = (string)result[i].Attributes["contentURI"].Value;
-        if (!File.Exists(strFileName))
-        {
-          /// song doesn't exist anymore, delete it
-          removed++;
-          FileDeleted(strFileName);
-        }
-      } //for (int i=0; i < results.Rows.Count;++i)
-      ServiceScope.Get<ILogger>().Info("PictureImporter: DeleteNonExistingPictures completed. Removed {0} non-existing pictures", removed);
     }
 
     void Import(string folder, ref List<string> availableFiles, DateTime since)
@@ -394,9 +418,12 @@ namespace PictureImporter
           }
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error Import:{0}", folder);
+        ServiceScope.Get<ILogger>().Error(ex);
       }
+
       _lastImport = DateTime.Now;
     }
 
@@ -419,26 +446,35 @@ namespace PictureImporter
     /// <param name="folder">The file.</param>
     int ImportFile(string file)
     {
-      if (String.IsNullOrEmpty(file)) return 0;
-      if (file.ToLower().IndexOf("folder.jpg") >= 0) return 0;
-      string fName = System.IO.Path.GetFileName(file);
-      if (fName.ToLower().StartsWith("albumart")) return 0;
       try
       {
-        Query imageByFilename = new Query("contentURI", Operator.Same, file);
-        List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
-        if (result.Count > 0) return 0;
-      }
-      catch (Exception)
-      {
-        return 0;
-      }
-      IDbItem picture = GetExifFor(file);
-      if (picture == null)
-        return 0;
+        if (String.IsNullOrEmpty(file)) return 0;
+        if (file.ToLower().IndexOf("folder.jpg") >= 0) return 0;
+        string fName = System.IO.Path.GetFileName(file);
+        if (fName.ToLower().StartsWith("albumart")) return 0;
+        try
+        {
+          Query imageByFilename = new Query("contentURI", Operator.Same, file);
+          List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+          if (result.Count > 0) return 0;
+        }
+        catch (Exception)
+        {
+          return 0;
+        }
+        IDbItem picture = GetExifFor(file);
+        if (picture == null)
+          return 0;
 
-      picture.Save();
-      return 1;
+        picture.Save();
+        return 1;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFile:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
+        return 0;
+      }
     }
 
     IDbItem GetExifFor(string file)
@@ -492,43 +528,51 @@ namespace PictureImporter
     /// </summary>
     void CreatePictureDatabase()
     {
-      IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-      IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\Picturesv3.db3");
+      try
+      {
+        IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
+        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\Picturesv3.db3");
 
-      _pictureDatabase = factory.Open("Pictures");
+        _pictureDatabase = factory.Open("Pictures");
 
-      _pictureDatabase.Add("CameraModel", typeof(string), 40);
-      _pictureDatabase.Add("EquipmentMake", typeof(string), 40);
-      _pictureDatabase.Add("ExposureCompensation", typeof(string), 1024);
-      _pictureDatabase.Add("ExposureTime", typeof(string), 1024);
-      _pictureDatabase.Add("Flash", typeof(string), 40);
-      _pictureDatabase.Add("Fstop", typeof(string), 40);
-      _pictureDatabase.Add("ImgDimensions", typeof(string), 40);
-      _pictureDatabase.Add("title", typeof(string), 60);
-      _pictureDatabase.Add("MeteringMod", typeof(string), 1024);
-      _pictureDatabase.Add("Resolutions", typeof(string), 1024);
-      _pictureDatabase.Add("ShutterSpeed", typeof(string), 1024);
-      _pictureDatabase.Add("ViewComment", typeof(string), 1024);
-      _pictureDatabase.Add("ISOSpeed", typeof(string), 1024);
-      _pictureDatabase.Add("Orientation", typeof(int));
-      _pictureDatabase.Add("PictureTags", typeof(List<string>), 1024);
-      _pictureDatabase.Add("Date", typeof(DateTime), 1024);
-      _pictureDatabase.Add("contentURI", typeof(string), 1024);
-      _pictureDatabase.Add("CoverArt", typeof(string), 1024);
-      _pictureDatabase.Add("Updated", typeof(string), 1);
-      _pictureDatabase.Add("path", typeof(string), 1024);
-      _pictureDatabase.Add("dateAdded", typeof(DateTime));
+        _pictureDatabase.Add("CameraModel", typeof(string), 40);
+        _pictureDatabase.Add("EquipmentMake", typeof(string), 40);
+        _pictureDatabase.Add("ExposureCompensation", typeof(string), 1024);
+        _pictureDatabase.Add("ExposureTime", typeof(string), 1024);
+        _pictureDatabase.Add("Flash", typeof(string), 40);
+        _pictureDatabase.Add("Fstop", typeof(string), 40);
+        _pictureDatabase.Add("ImgDimensions", typeof(string), 40);
+        _pictureDatabase.Add("title", typeof(string), 60);
+        _pictureDatabase.Add("MeteringMod", typeof(string), 1024);
+        _pictureDatabase.Add("Resolutions", typeof(string), 1024);
+        _pictureDatabase.Add("ShutterSpeed", typeof(string), 1024);
+        _pictureDatabase.Add("ViewComment", typeof(string), 1024);
+        _pictureDatabase.Add("ISOSpeed", typeof(string), 1024);
+        _pictureDatabase.Add("Orientation", typeof(int));
+        _pictureDatabase.Add("PictureTags", typeof(List<string>), 1024);
+        _pictureDatabase.Add("Date", typeof(DateTime), 1024);
+        _pictureDatabase.Add("contentURI", typeof(string), 1024);
+        _pictureDatabase.Add("CoverArt", typeof(string), 1024);
+        _pictureDatabase.Add("Updated", typeof(string), 1);
+        _pictureDatabase.Add("path", typeof(string), 1024);
+        _pictureDatabase.Add("dateAdded", typeof(DateTime));
 
-      //get date/time of last import done....
-      Query lastDateQuery = new Query();
-      lastDateQuery.Sort = SortOrder.Descending;
-      lastDateQuery.SortFields.Add("dateAdded");
-      lastDateQuery.Limit = 1;
-      List<IDbItem> lastItems = _pictureDatabase.Query(lastDateQuery);
-      if (lastItems.Count == 0)
-        _lastImport = DateTime.MinValue;
-      else
-        _lastImport = (DateTime)lastItems[0]["dateAdded"];
+        //get date/time of last import done....
+        Query lastDateQuery = new Query();
+        lastDateQuery.Sort = SortOrder.Descending;
+        lastDateQuery.SortFields.Add("dateAdded");
+        lastDateQuery.Limit = 1;
+        List<IDbItem> lastItems = _pictureDatabase.Query(lastDateQuery);
+        if (lastItems.Count == 0)
+          _lastImport = DateTime.MinValue;
+        else
+          _lastImport = (DateTime)lastItems[0]["dateAdded"];
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error CreatePictureDatabase");
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
     }
     #endregion
   }
