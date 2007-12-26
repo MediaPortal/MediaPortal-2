@@ -115,6 +115,13 @@
     <Compile Include="ContentManagement\FontBufferAsset.cs" />
     <Compile Include="ContentManagement\VertextBufferAsset.cs" />
     <Compile Include="Controls\AlphaMask.cs" />
+    <Compile Include="Controls\Animations\ColorAnimation.cs" />
+    <Compile Include="Controls\Animations\DoubleAnimation.cs" />
+    <Compile Include="Controls\Animations\ParallelTimeline.cs" />
+    <Compile Include="Controls\Animations\Storyboard.cs" />
+    <Compile Include="Controls\Animations\Timeline.cs" />
+    <Compile Include="Controls\Animations\TimelineCollection.cs" />
+    <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />
     <Compile Include="Controls\Brushes\GradientStop.cs" />

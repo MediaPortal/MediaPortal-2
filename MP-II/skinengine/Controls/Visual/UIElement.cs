@@ -39,7 +39,7 @@ namespace SkinEngine.Controls.Visuals
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
-    bool _layoutValid;
+    bool _isArrangeValid;
 
     public UIElement()
     {
@@ -163,15 +163,15 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public bool LayoutValid
+    public bool IsArrangeValid
     {
       get
       {
-        return _layoutValid;
+        return _isArrangeValid;
       }
       set
       {
-        _layoutValid = value;
+        _isArrangeValid = value;
       }
     }
 
@@ -209,12 +209,12 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public virtual void Arrange(Rectangle finalRect)
     {
-      LayoutValid = true;
+      IsArrangeValid = true;
     }
 
     public virtual void Invalidate()
     {
-      if (!LayoutValid) return;
+      if (!IsArrangeValid) return;
       System.Drawing.Size sizeOld = _desiredSize;
       Measure(sizeOld);
       if (_desiredSize == sizeOld)

@@ -408,7 +408,7 @@ namespace SkinEngine.Controls.Visuals
           path.AddEllipse(baseRect);
         }
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         path.AddEllipse(baseRect);
       }
