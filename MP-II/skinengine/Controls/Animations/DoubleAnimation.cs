@@ -37,7 +37,6 @@ namespace SkinEngine.Controls.Animations
 
     public DoubleAnimation()
     {
-      _targetProperty = new Property(null);
       _fromProperty = new Property(0.0);
       _toProperty = new Property(1.0);
       _byProperty = new Property(0.1);
@@ -129,16 +128,12 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-    public UIElement Target
+    protected override void AnimateProperty(uint timepassed)
     {
-      get
-      {
-        return _targetProperty.GetValue() as UIElement;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
+      double dist = (To - From) / Duration.TotalMilliseconds;
+      dist *= timepassed;
+      dist += From;
+      TargetProperty.SetValue( (double) dist);
     }
 
   }

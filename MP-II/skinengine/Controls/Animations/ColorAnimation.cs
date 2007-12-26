@@ -39,7 +39,7 @@ namespace SkinEngine.Controls.Animations
 
     public ColorAnimation()
     {
-      _targetProperty = new Property(null);
+      _targetProperty = null;
       _fromProperty = new Property(Color.Black);
       _toProperty = new Property(Color.White);
       _byProperty = new Property(Color.Beige);
@@ -130,16 +130,28 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-    public UIElement Target
+    protected override void AnimateProperty(uint timepassed)
     {
-      get
-      {
-        return _targetProperty.GetValue() as UIElement;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
+      Color c;
+      double distA = ((double)(To.A - From.A)) / Duration.TotalMilliseconds;
+      distA *= timepassed;
+      distA += From.A;
+
+      double distR = ((double)(To.R - From.R)) / Duration.TotalMilliseconds;
+      distR *= timepassed;
+      distR += From.R;
+
+      double distG = ((double)(To.G - From.G)) / Duration.TotalMilliseconds;
+      distG *= timepassed;
+      distG += From.G;
+
+      double distB = ((double)(To.B - From.B)) / Duration.TotalMilliseconds;
+      distB *= timepassed;
+      distB += From.B;
+
+      c = Color.FromArgb((int)distA, (int)distR, (int)distG, (int)distB);
+
+      TargetProperty.SetValue(c);
     }
 
   }

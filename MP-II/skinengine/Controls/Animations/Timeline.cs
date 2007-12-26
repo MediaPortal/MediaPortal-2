@@ -31,12 +31,22 @@ namespace SkinEngine.Controls.Animations
 
   public class Timeline
   {
+    protected enum State
+    {
+      Idle,
+      WaitBegin,
+      Running,
+      Reverse
+    };
     Property _beginTimeProperty;
     Property _accellerationProperty;
     Property _autoReverseProperty;
     Property _decelerationRatioProperty;
     Property _durationProperty;
     Property _repeatBehaviourProperty;
+
+    protected uint _timeStarted;
+    protected State _state = State.Idle;
 
     public Timeline()
     {
@@ -191,17 +201,84 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    protected virtual void AnimateProperty(uint timepassed)
+    {
+    }
 
     public virtual void Animate(uint timePassed)
     {
+      uint passed = (timePassed - _timeStarted);
+
+      switch (_state)
+      {
+        case State.WaitBegin:
+          if (passed >= BeginTime.TotalMilliseconds)
+          {
+            passed = 0;
+            _timeStarted = timePassed;
+            _state = State.Running;
+            goto case State.Running;
+          }
+          break;
+
+        case State.Running:
+          if (passed >= Duration.TotalMilliseconds)
+          {
+            if (AutoReverse)
+            {
+              _state = State.Reverse;
+              _timeStarted = timePassed;
+              passed = 0;
+              goto case State.Reverse;
+            }
+            else if (RepeatBehaviour == RepeatBehaviour.Forever)
+            {
+              _timeStarted = timePassed;
+              AnimateProperty(timePassed - _timeStarted);
+            }
+            else
+            {
+              _state = State.Idle;
+            }
+          }
+          else
+          {
+            AnimateProperty(passed);
+          }
+          break;
+
+        case State.Reverse:
+
+          if (passed >= Duration.TotalMilliseconds)
+          {
+            if (RepeatBehaviour == RepeatBehaviour.Forever)
+            {
+              _state = State.Running;
+              _timeStarted = timePassed;
+              AnimateProperty(timePassed - _timeStarted);
+            }
+            else
+            {
+              _state = State.Idle;
+            }
+          }
+          else
+          {
+            AnimateProperty((uint)(Duration.TotalMilliseconds - (passed)));
+          }
+          break;
+      }
     }
 
     public virtual void Start(uint timePassed)
     {
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
     }
 
     public virtual void Stop()
     {
+      _state = State.Idle;
     }
   }
 }

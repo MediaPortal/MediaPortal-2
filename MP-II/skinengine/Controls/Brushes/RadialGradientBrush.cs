@@ -171,7 +171,7 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
-      if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
+      //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
         base.SetupBrush(element, ref verts);
 
