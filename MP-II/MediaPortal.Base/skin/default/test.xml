@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <DockPanel>
-    <Border Width="321" Height="123">
+  <StackPanel>
+    <Background>
+      <SolidColorBrush Color="Black" Opacity="0.6"/>
+    </Background>
+    <Border Width="100" Height="60" >
       <Background>
         <SolidColorBrush Color="Yellow"/>
       </Background>
     </Border>
-    <Border Width="111" Height="222" BorderThickness="6" CornerRadius="10">
+    <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
       <Background>
         <LinearGradientBrush>
           <GradientStop Offset="0.0" Color="Red"/>
-          <GradientStop Offset="0.5" Color="Yellow"/>
-          <GradientStop Offset="1.0" Color="Orange"/>
+          <GradientStop Offset="0.5" Color="Green"/>
+          <GradientStop Offset="1.0" Color="Blue"/>
         </LinearGradientBrush>
       </Background>
       <BorderBrush>
-        <LinearGradientBrush>
-          <GradientStop Offset="0.0" Color="Red"/>
-          <GradientStop Offset="0.5" Color="Yellow"/>
-          <GradientStop Offset="1.0" Color="Orange"/>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
+          <GradientStop Offset="0.0" Color="Black"/>
+          <GradientStop Offset="1.0" Color="White"/>
         </LinearGradientBrush>
       </BorderBrush>
     </Border>
-  </DockPanel>
+    <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
+      <Background>
+        <RadialGradientBrush>
+          <GradientStop Offset="0.0" Color="Red"/>
+          <GradientStop Offset="0.5" Color="Green"/>
+          <GradientStop Offset="1.0" Color="Blue"/>
+        </RadialGradientBrush>
+      </Background>
+    </Border>
+  </StackPanel>
 </MyXaml>

@@ -49,6 +49,7 @@ namespace MyXaml.Core
 
     public delegate void CustomPropertyHandlerDlgt(object parser, CustomPropertyEventArgs e);
 
+    public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
     /// an ICollection implementer.
@@ -73,6 +74,8 @@ namespace MyXaml.Core
     public event InstantiateClassDlgt InstantiateFromQName;
 
     public event CustomPropertyHandlerDlgt CustomPropertyHandler;
+
+    public event CustomTypeConverterDlgt CustomTypeConvertor;
 
     protected string currentFile;
 
@@ -1528,8 +1531,7 @@ namespace MyXaml.Core
         }
 
         //CodePath.Executing(133);									// read-writable.
-        TypeConverter tc =
-          TypeDescriptor.GetConverter(pi.PropertyType);				// Get the type converter for the property.
+        TypeConverter tc = TypeDescriptor.GetConverter(pi.PropertyType);				// Get the type converter for the property.
         if (val is String)												// If assigning a string...
         {
           //CodePath.Executing(134);
@@ -1558,7 +1560,25 @@ namespace MyXaml.Core
           }
           else if (pi.PropertyType is System.Object)
           {
-            pi.SetValue(obj, val, null);
+            if (CustomTypeConvertor != null)
+            {
+              CustomTypeEventArgs args = new CustomTypeEventArgs();
+              args.PropertyType = pi.PropertyType;
+              args.Value = val;
+              CustomTypeConvertor(this, args);
+              if (args.Result != null)
+              {
+                pi.SetValue(obj, args.Result, null);
+              }
+              else
+              {
+                pi.SetValue(obj, val, null);
+              }
+            }
+            else
+            {
+              pi.SetValue(obj, val, null);
+            }
           }
         }
         else															// Assigning an non-string to the property.

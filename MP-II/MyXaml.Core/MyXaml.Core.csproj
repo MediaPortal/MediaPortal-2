@@ -116,6 +116,7 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
@@ -130,6 +131,7 @@
     <Compile Include="Break.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CustomTypeEventArgs.cs" />
     <Compile Include="EventArgs.cs">
       <SubType>Code</SubType>
     </Compile>

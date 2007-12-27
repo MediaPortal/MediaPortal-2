@@ -237,7 +237,7 @@ namespace SkinEngine.Controls.Visuals
     public void PerformLayout()
     {
       Free();
-
+      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       //background brush
       if (BorderBrush == null || BorderThickness <= 0)
       {
@@ -270,6 +270,8 @@ namespace SkinEngine.Controls.Visuals
       _verticesCountBackground = (verts.Length - 2);
 
       //border brush
+
+      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (BorderBrush != null && BorderThickness > 0)
       {
         ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
@@ -296,6 +298,7 @@ namespace SkinEngine.Controls.Visuals
         _verticesCountBorder = (verts.Length - 2);
       }
 
+      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
     }
 
 
