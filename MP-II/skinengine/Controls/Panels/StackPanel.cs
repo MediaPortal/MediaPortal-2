@@ -87,7 +87,10 @@ namespace SkinEngine.Controls.Panels
             totalHeight = child.DesiredSize.Height;
         }
       }
+      if (Width > 0) totalWidth = (float)Width;
+      if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
+      base.Measure(availableSize);
     }
 
     public override void Arrange(Rectangle finalRect)

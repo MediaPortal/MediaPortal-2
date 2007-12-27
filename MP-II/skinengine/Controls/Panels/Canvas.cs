@@ -39,7 +39,10 @@ namespace SkinEngine.Controls.Panels
         child.Measure(availableSize);
         rect = Rectangle.Union(rect, new Rectangle(new Point((int)child.Position.X, (int)child.Position.Y), new Size((int)child.DesiredSize.Width, (int)child.DesiredSize.Height)));
       }
+      if (Width > 0) rect.Width = (int)Width;
+      if (Height > 0) rect.Height = (int)Height;
       _desiredSize = rect.Size;
+      base.Measure(availableSize);
     }
 
     public override void Arrange(Rectangle finalRect)

@@ -38,7 +38,10 @@ namespace SkinEngine.Controls.Panels
       {
         child.Measure(availableSize);
       }
+      if (Width > 0) availableSize.Width = (int)Width;
+      if (Height > 0) availableSize.Height = (int)Height;
       _desiredSize = availableSize;
+      base.Measure(availableSize);
     }
 
     public override void Arrange(Rectangle finalRect)

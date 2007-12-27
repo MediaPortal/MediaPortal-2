@@ -68,6 +68,8 @@ namespace SkinEngine.Skin
       //visuals
       else if (name == "Border")
         return true;
+      else if (name == "Image")
+        return true;
 
 
       //brushes
@@ -99,6 +101,8 @@ namespace SkinEngine.Skin
       //visuals
       else if (name == "Border")
         return new Border();
+      else if (name == "Image")
+        return new Image();
 
 
       //brushes

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <StackPanel>
+  <StackPanel Width="200">
     <Background>
       <SolidColorBrush Color="Black" Opacity="0.6"/>
     </Background>
@@ -33,5 +33,6 @@
         </RadialGradientBrush>
       </Background>
     </Border>
+    <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Uniform"/>
   </StackPanel>
 </MyXaml>

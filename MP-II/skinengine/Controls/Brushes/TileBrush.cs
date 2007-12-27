@@ -47,22 +47,6 @@ namespace SkinEngine.Controls.Brushes
     FlipY
   };
 
-  public enum Stretch
-  {
-    //The content preserves its original size.
-    None,
-
-    //The content is resized to fill the destination dimensions. The aspect ratio is not preserved.
-    Fill,
-
-    //The content is resized to fit in the destination dimensions while it preserves its native aspect ratio.
-    Uniform,
-
-    //The content is resized to fill the destination dimensions while it preserves its native aspect ratio. 
-    //If the aspect ratio of the destination rectangle differs from the source, the source content is 
-    //clipped to fit in the destination dimensions (zoom-in)
-    UniformToFill
-  };
 
   public class TileBrush : Brush
   {

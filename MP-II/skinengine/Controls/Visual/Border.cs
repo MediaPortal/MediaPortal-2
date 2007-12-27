@@ -470,6 +470,7 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      base.Measure(availableSize);
     }
 
 

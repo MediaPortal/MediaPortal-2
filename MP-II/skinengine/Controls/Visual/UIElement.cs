@@ -36,6 +36,7 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _visibleProperty;
     protected Size _desiredSize;
+    protected Size _availableSize;
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
@@ -200,7 +201,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns>The size that this element determines it needs during layout, based on its calculations of child element sizes.</returns>
     public virtual void Measure(Size availableSize)
     {
-      _desiredSize = new Size(0, 0);
+      _availableSize = availableSize;
     }
 
     /// <summary>
@@ -215,20 +216,39 @@ namespace SkinEngine.Controls.Visuals
     public virtual void Invalidate()
     {
       if (!IsArrangeValid) return;
-      System.Drawing.Size sizeOld = _desiredSize;
-      Measure(sizeOld);
-      if (_desiredSize == sizeOld)
+      if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
-        Arrange(new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
+        System.Drawing.Size sizeOld = _desiredSize;
+        System.Drawing.Size availsizeOld = _availableSize;
+        Measure(_availableSize);
+        _availableSize = availsizeOld;
+        if (_desiredSize == sizeOld)
+        {
+          Arrange(new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
+          return;
+        }
       }
-      else if (VisualParent != null)
+      if (VisualParent != null)
       {
         VisualParent.Invalidate();
       }
       else
       {
-        Measure(new Size((int)SkinContext.Width, (int)SkinContext.Height));
-        Arrange(new Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
+        FrameworkElement element = this as FrameworkElement;
+        if (element == null)
+        {
+          Measure(new Size((int)SkinContext.Width, (int)SkinContext.Height));
+          Arrange(new Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
+        }
+        else
+        {
+          int w = (int)element.Width;
+          int h = (int)element.Height;
+          if (w == 0) w = (int)SkinContext.Width;
+          if (h == 0) h = (int)SkinContext.Height;
+          Measure(new Size(w, h));
+          Arrange(new Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
+        }
       }
     }
   }
