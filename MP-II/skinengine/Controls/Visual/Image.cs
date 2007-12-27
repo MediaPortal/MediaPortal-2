@@ -32,6 +32,7 @@ namespace SkinEngine.Controls.Visuals
     Property _imageSourceProperty;
     Property _stretchDirectionProperty;
     Property _stretchProperty;
+    Property _opacityProperty;
     private VertextBufferAsset _image;
     bool _performLayout = false;
     float _u, _v, _uoff, _voff, _w, _h;
@@ -42,6 +43,7 @@ namespace SkinEngine.Controls.Visuals
       _imageSourceProperty = new Property(null);
       _stretchDirectionProperty = new Property(StretchDirection.Both);
       _stretchProperty = new Property(Stretch.Fill);
+      _opacityProperty = new Property((double)1.0f);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnImageChanged));
       _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -79,6 +81,38 @@ namespace SkinEngine.Controls.Visuals
         _imageSourceProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Gets or sets the opacity property.
+    /// </summary>
+    /// <value>The opacity property.</value>
+    public Property OpacityProperty
+    {
+      get
+      {
+        return _opacityProperty;
+      }
+      set
+      {
+        _opacityProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the opacity.
+    /// </summary>
+    /// <value>The opacity.</value>
+    public double Opacity
+    {
+      get
+      {
+        return (double)_opacityProperty.GetValue();
+      }
+      set
+      {
+        _opacityProperty.SetValue(value);
+      }
+    }
+
 
 
     public Property StretchDirectionProperty
@@ -191,7 +225,9 @@ namespace SkinEngine.Controls.Visuals
           PerformLayout();
         }
       }
-      _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, 1.0f,1.0f,1.0f,1.0f);
+
+      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
     }
 
     void PerformLayout()
