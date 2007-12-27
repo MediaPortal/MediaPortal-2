@@ -59,6 +59,9 @@ namespace SkinEngine.Controls.Brushes
     Property _mappingModeProperty;
 
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GradientBrush"/> class.
+    /// </summary>
     public GradientBrush()
     {
       _gradientStopsProperty = new Property(new GradientStopCollection(this));
@@ -72,11 +75,18 @@ namespace SkinEngine.Controls.Brushes
       _mappingModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Called when one of the gradients changed.
+    /// </summary>
     public void OnGradientsChanged()
     {
       OnPropertyChanged(GradientStopsProperty);
     }
 
+    /// <summary>
+    /// Gets or sets the color interpolation mode property.
+    /// </summary>
+    /// <value>The color interpolation mode property.</value>
     public Property ColorInterpolationModeProperty
     {
       get
@@ -89,6 +99,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the color interpolation mode.
+    /// </summary>
+    /// <value>The color interpolation mode.</value>
     public ColorInterpolationMode ColorInterpolationMode
     {
       get
@@ -101,6 +115,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the gradient stops property.
+    /// </summary>
+    /// <value>The gradient stops property.</value>
     public Property GradientStopsProperty
     {
       get
@@ -113,6 +131,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the gradient stops.
+    /// </summary>
+    /// <value>The gradient stops.</value>
     public GradientStopCollection GradientStops
     {
       get
@@ -125,6 +147,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the mapping mode property.
+    /// </summary>
+    /// <value>The mapping mode property.</value>
     public Property MappingModeProperty
     {
       get
@@ -137,6 +163,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the mapping mode.
+    /// </summary>
+    /// <value>The mapping mode.</value>
     public BrushMappingMode MappingMode
     {
       get
@@ -149,6 +179,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the spread method property.
+    /// </summary>
+    /// <value>The spread method property.</value>
     public Property SpreadMethodProperty
     {
       get
@@ -161,6 +195,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the spread method.
+    /// </summary>
+    /// <value>The spread method.</value>
     public GradientSpreadMethod SpreadMethod
     {
       get

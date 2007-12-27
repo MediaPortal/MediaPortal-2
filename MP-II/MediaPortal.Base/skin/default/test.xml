@@ -11,14 +11,14 @@
     </Border>
     <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
       <Background>
-        <LinearGradientBrush>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
           <GradientStop Offset="0.0" Color="Red"/>
           <GradientStop Offset="0.5" Color="Green"/>
           <GradientStop Offset="1.0" Color="Blue"/>
         </LinearGradientBrush>
       </Background>
       <BorderBrush>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
           <GradientStop Offset="0.0" Color="Black"/>
           <GradientStop Offset="1.0" Color="White"/>
         </LinearGradientBrush>
@@ -26,10 +26,10 @@
     </Border>
     <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
       <Background>
-        <RadialGradientBrush>
-          <GradientStop Offset="0.0" Color="Red"/>
-          <GradientStop Offset="0.5" Color="Green"/>
-          <GradientStop Offset="1.0" Color="Blue"/>
+        <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5" Opacity="1.0">
+          <GradientStop Offset="0.0" Color="#FFFF0000"/>
+          <GradientStop Offset="0.5" Color="#FF00FF00"/>
+          <GradientStop Offset="1.0" Color="#FF0000FF"/>
         </RadialGradientBrush>
       </Background>
     </Border>

@@ -44,6 +44,9 @@ namespace SkinEngine.Controls.Panels
     VertexBuffer _vertexBufferBackground;
     DateTime _lastTimeUsed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Panel"/> class.
+    /// </summary>
     public Panel()
     {
       _childrenProperty = new Property(new UIElementCollection(this));
@@ -57,10 +60,20 @@ namespace SkinEngine.Controls.Panels
       _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Called when a layout property has changed
+    /// we're simply calling Invalidate() here to invalidate the layout
+    /// </summary>
+    /// <param name="property">The property.</param>
     protected void OnPropertyInvalidate(Property property)
     {
       Invalidate();
     }
+    /// <summary>
+    /// Called when a non layout property value has been changed
+    /// we're simply calling Free() which will do a performlayout
+    /// </summary>
+    /// <param name="property">The property.</param>
     protected void OnPropertyChanged(Property property)
     {
       Free();
@@ -98,6 +111,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the children property.
+    /// </summary>
+    /// <value>The children property.</value>
     public Property ChildrenProperty
     {
       get
@@ -110,6 +127,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the children.
+    /// </summary>
+    /// <value>The children.</value>
     public UIElementCollection Children
     {
       get
@@ -122,6 +143,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment X property.
+    /// </summary>
+    /// <value>The alignment X property.</value>
     public Property AlignmentXProperty
     {
       get
@@ -134,6 +159,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment X.
+    /// </summary>
+    /// <value>The alignment X.</value>
     public AlignmentX AlignmentX
     {
       get
@@ -146,6 +175,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment Y property.
+    /// </summary>
+    /// <value>The alignment Y property.</value>
     public Property AlignmentYProperty
     {
       get
@@ -158,6 +191,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment Y.
+    /// </summary>
+    /// <value>The alignment Y.</value>
     public AlignmentY AlignmentY
     {
       get
@@ -170,6 +207,9 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
     public override void DoRender()
     {
 
@@ -199,6 +239,9 @@ namespace SkinEngine.Controls.Panels
       _lastTimeUsed = SkinContext.Now;
     }
 
+    /// <summary>
+    /// Performs the layout.
+    /// </summary>
     public void PerformLayout()
     {
       Free();
@@ -220,6 +263,9 @@ namespace SkinEngine.Controls.Panels
     }
 
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_vertexBufferBackground != null)
@@ -231,6 +277,10 @@ namespace SkinEngine.Controls.Panels
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -239,6 +289,12 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public bool CanBeDeleted
     {
       get

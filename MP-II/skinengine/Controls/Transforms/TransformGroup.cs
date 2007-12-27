@@ -32,11 +32,18 @@ namespace SkinEngine.Controls.Transforms
   public class TransformGroup : Transform
   {
     Property _childrenProperty;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TransformGroup"/> class.
+    /// </summary>
     public TransformGroup()
     {
       _childrenProperty = new Property(new TransformCollection());
     }
 
+    /// <summary>
+    /// Gets or sets the children property.
+    /// </summary>
+    /// <value>The children property.</value>
     public Property ChildrenProperty
     {
       get
@@ -49,6 +56,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the children.
+    /// </summary>
+    /// <value>The children.</value>
     public TransformCollection Children
     {
       get
@@ -62,6 +73,9 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public override void UpdateTransform()
     {
       _matrix = Matrix.Identity;

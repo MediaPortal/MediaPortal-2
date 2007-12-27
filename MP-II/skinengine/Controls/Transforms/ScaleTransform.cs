@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-
+using Microsoft.DirectX;
 namespace SkinEngine.Controls.Transforms
 {
   public class ScaleTransform : Transform
@@ -42,6 +42,10 @@ namespace SkinEngine.Controls.Transforms
       _scaleYProperty = new Property((double)0.0);
     }
 
+    /// <summary>
+    /// Gets or sets the center X property.
+    /// </summary>
+    /// <value>The center X property.</value>
     public Property CenterXProperty
     {
       get
@@ -55,6 +59,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center X.
+    /// </summary>
+    /// <value>The center X.</value>
     public double CenterX
     {
       get
@@ -67,6 +75,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y property.
+    /// </summary>
+    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
       get
@@ -79,6 +91,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y.
+    /// </summary>
+    /// <value>The center Y.</value>
     public double CenterY
     {
       get
@@ -95,6 +111,10 @@ namespace SkinEngine.Controls.Transforms
 
 
 
+    /// <summary>
+    /// Gets or sets the scale X property.
+    /// </summary>
+    /// <value>The scale X property.</value>
     public Property ScaleXProperty
     {
       get
@@ -107,6 +127,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the scale X.
+    /// </summary>
+    /// <value>The scale X.</value>
     public double ScaleX
     {
       get
@@ -120,6 +144,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the scale Y property.
+    /// </summary>
+    /// <value>The scale Y property.</value>
     public Property ScaleYProperty
     {
       get
@@ -132,6 +160,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the scale Y.
+    /// </summary>
+    /// <value>The scale Y.</value>
     public double ScaleY
     {
       get
@@ -145,6 +177,9 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public override void UpdateTransform()
     {
       double sx = ScaleX;
@@ -162,9 +197,9 @@ namespace SkinEngine.Controls.Transforms
       }
       else
       {
-        _matrix.Translate((float)cx, (float)cy, 0);
-        _matrix.Scale((float)sx, (float)sy, 1.0f);
         _matrix.Translate((float)-cx, (float)-cy, 0);
+        _matrix *= Matrix.Scaling((float)sx, (float)sy, 1.0f);
+        _matrix *= Matrix.Translation((float)cx, (float)cy, 0);
       }
     }
 

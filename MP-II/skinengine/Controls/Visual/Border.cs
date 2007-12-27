@@ -51,6 +51,9 @@ namespace SkinEngine.Controls.Visuals
     DateTime _lastTimeUsed;
 
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Border"/> class.
+    /// </summary>
     public Border()
     {
       _borderProperty = new Property(null);
@@ -200,6 +203,9 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -234,6 +240,9 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
+    /// <summary>
+    /// Performs the layout.
+    /// </summary>
     public void PerformLayout()
     {
       Free();
@@ -302,6 +311,9 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_vertexBufferBackground != null)
@@ -423,6 +435,13 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    /// <summary>
+    /// Converts the graphicspath to an array of vertices using trianglefan.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="cx">The cx.</param>
+    /// <param name="cy">The cy.</param>
+    /// <returns></returns>
     PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
     {
       PointF[] points = path.PathPoints;
@@ -439,6 +458,14 @@ namespace SkinEngine.Controls.Visuals
       return vertices;
     }
 
+    /// <summary>
+    /// Converts the graphics path to an array of vertices using trianglestrip.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="cx">The cx.</param>
+    /// <param name="cy">The cy.</param>
+    /// <param name="thickNess">The thick ness.</param>
+    /// <returns></returns>
     PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
     {
       PointF[] points = path.PathPoints;
@@ -458,6 +485,11 @@ namespace SkinEngine.Controls.Visuals
       return vertices;
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
@@ -467,6 +499,10 @@ namespace SkinEngine.Controls.Visuals
       base.Arrange(finalRect);
     }
 
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);

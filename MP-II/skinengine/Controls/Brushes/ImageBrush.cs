@@ -40,6 +40,9 @@ namespace SkinEngine.Controls.Brushes
     Property _downloadProgressProperty;
     TextureAsset _tex;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ImageBrush"/> class.
+    /// </summary>
     public ImageBrush()
     {
       _imageSourceProperty = new Property(null);
@@ -47,6 +50,10 @@ namespace SkinEngine.Controls.Brushes
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Gets or sets the image source property.
+    /// </summary>
+    /// <value>The image source property.</value>
     public Property ImageSourceProperty
     {
       get
@@ -59,6 +66,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the image source.
+    /// </summary>
+    /// <value>The image source.</value>
     public string ImageSource
     {
       get
@@ -71,6 +82,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the download progress property.
+    /// </summary>
+    /// <value>The download progress property.</value>
     public Property DownloadProgressProperty
     {
       get
@@ -83,6 +98,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the download progress.
+    /// </summary>
+    /// <value>The download progress.</value>
     public double DownloadProgress
     {
       get
@@ -95,16 +114,26 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
       Free();
     }
 
+    /// <summary>
+    /// Frees this instance.
+    /// </summary>
     public void Free()
     {
       _tex = null;
     }
 
+    /// <summary>
+    /// Allocates this instance.
+    /// </summary>
     public void Allocate()
     {
       bool thumb = true;
@@ -112,6 +141,11 @@ namespace SkinEngine.Controls.Brushes
       _tex.Allocate();
     }
 
+    /// <summary>
+    /// Setups the brush.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="verts">The verts.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_tex == null)
@@ -121,6 +155,9 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
     public override void BeginRender()
     {
       if (_tex == null)
@@ -130,11 +167,19 @@ namespace SkinEngine.Controls.Brushes
       _tex.Set(0);
     }
 
+    /// <summary>
+    /// Ends the render.
+    /// </summary>
     public override void EndRender()
     {
       GraphicsDevice.Device.SetTexture(0, null);
     }
 
+    /// <summary>
+    /// Scales the specified u.
+    /// </summary>
+    /// <param name="u">The u.</param>
+    /// <param name="v">The v.</param>
     protected override void Scale(ref float u, ref float v)
     {
       if (_tex == null) return;
@@ -142,6 +187,10 @@ namespace SkinEngine.Controls.Brushes
       v *= _tex.MaxV;
     }
 
+    /// <summary>
+    /// Gets the brush dimensions.
+    /// </summary>
+    /// <value>The brush dimensions.</value>
     protected override Vector2 BrushDimensions
     {
       get

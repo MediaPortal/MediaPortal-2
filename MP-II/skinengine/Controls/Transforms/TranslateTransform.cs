@@ -32,12 +32,19 @@ namespace SkinEngine.Controls.Transforms
   {
     Property _XProperty;
     Property _YProperty;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TranslateTransform"/> class.
+    /// </summary>
     public TranslateTransform()
     {
       _YProperty = new Property((double)0.0);
       _XProperty = new Property((double)0.0);
     }
 
+    /// <summary>
+    /// Gets or sets the X property.
+    /// </summary>
+    /// <value>The X property.</value>
     public Property XProperty
     {
       get
@@ -50,6 +57,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the X.
+    /// </summary>
+    /// <value>The X.</value>
     public double X
     {
       get
@@ -63,6 +74,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the Y property.
+    /// </summary>
+    /// <value>The Y property.</value>
     public Property YProperty
     {
       get
@@ -75,6 +90,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the Y.
+    /// </summary>
+    /// <value>The Y.</value>
     public double Y
     {
       get
@@ -88,6 +107,9 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public override void UpdateTransform()
     {
       _matrix.Translate((float)X, (float)Y, 0);

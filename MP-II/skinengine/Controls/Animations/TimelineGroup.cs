@@ -32,11 +32,18 @@ namespace SkinEngine.Controls.Animations
   {
     Property _childrenProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TimelineGroup"/> class.
+    /// </summary>
     public TimelineGroup()
     {
       _childrenProperty = new Property(new TimelineCollection());
     }
 
+    /// <summary>
+    /// Gets or sets the children property.
+    /// </summary>
+    /// <value>The children property.</value>
     public Property ChildrenProperty
     {
       get
@@ -49,6 +56,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the children.
+    /// </summary>
+    /// <value>The children.</value>
     public TimelineCollection Children
     {
       get
@@ -61,6 +72,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Animate
+    /// </summary>
+    /// <param name="timePassed">The time passed.</param>
     public override void Animate(uint timePassed)
     {
       foreach (Timeline child in Children)
@@ -69,6 +84,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Starts the animation
+    /// </summary>
+    /// <param name="timePassed">The time passed.</param>
     public override void Start(uint timePassed)
     {
       foreach (Timeline child in Children)
@@ -77,6 +96,9 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Stops the animation.
+    /// </summary>
     public override void Stop()
     {
       foreach (Timeline child in Children)

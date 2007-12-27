@@ -124,6 +124,9 @@ namespace SkinEngine.Controls.Visuals
       return false;
     }
 
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
     public virtual void DoRender()
     {
     }

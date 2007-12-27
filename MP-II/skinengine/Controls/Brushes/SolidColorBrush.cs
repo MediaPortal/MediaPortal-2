@@ -81,6 +81,10 @@ namespace SkinEngine.Controls.Brushes
         _colorProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
       Free();
@@ -105,6 +109,9 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
     public override void BeginRender()
     {
       if (_texture == null) return;
@@ -116,6 +123,9 @@ namespace SkinEngine.Controls.Brushes
       _lastTimeUsed = SkinContext.Now;
     }
 
+    /// <summary>
+    /// Ends the render.
+    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)
@@ -127,6 +137,10 @@ namespace SkinEngine.Controls.Brushes
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -135,6 +149,12 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -153,6 +173,9 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_texture != null)

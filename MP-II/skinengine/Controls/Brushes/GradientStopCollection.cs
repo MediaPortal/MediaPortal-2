@@ -76,6 +76,10 @@ namespace SkinEngine.Controls.Brushes
     List<GradientStop> _elements;
     PropertyChangedHandler _handler;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GradientStopCollection"/> class.
+    /// </summary>
+    /// <param name="parent">The parent.</param>
     public GradientStopCollection(GradientBrush parent)
     {
       _parent = parent;
@@ -83,11 +87,19 @@ namespace SkinEngine.Controls.Brushes
       _handler = new PropertyChangedHandler(OnStopChanged);
     }
 
+    /// <summary>
+    /// Called when [stop changed].
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     void OnStopChanged(Property prop)
     {
       _parent.OnGradientsChanged();
     }
 
+    /// <summary>
+    /// Adds the specified element.
+    /// </summary>
+    /// <param name="element">The element.</param>
     public void Add(GradientStop element)
     {
       element.Attach(_handler);
@@ -95,6 +107,10 @@ namespace SkinEngine.Controls.Brushes
       _parent.OnGradientsChanged();
     }
 
+    /// <summary>
+    /// Removes the specified element.
+    /// </summary>
+    /// <param name="element">The element.</param>
     public void Remove(GradientStop element)
     {
       if (_elements.Contains(element))
@@ -105,6 +121,9 @@ namespace SkinEngine.Controls.Brushes
       _parent.OnGradientsChanged();
     }
 
+    /// <summary>
+    /// Clears this instance.
+    /// </summary>
     public void Clear()
     {
       foreach (GradientStop stop in _elements)
@@ -115,6 +134,10 @@ namespace SkinEngine.Controls.Brushes
       _parent.OnGradientsChanged();
     }
 
+    /// <summary>
+    /// Gets the count.
+    /// </summary>
+    /// <value>The count.</value>
     public int Count
     {
       get
@@ -123,6 +146,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="SkinEngine.Controls.Brushes.GradientStop"/> at the specified index.
+    /// </summary>
+    /// <value></value>
     public GradientStop this[int index]
     {
       get
@@ -144,6 +171,12 @@ namespace SkinEngine.Controls.Brushes
 
     #region IEnumerable<GradientStop> Members
 
+    /// <summary>
+    /// Returns an enumerator that iterates through the collection.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
+    /// </returns>
     public IEnumerator<GradientStop> GetEnumerator()
     {
       return new GradientStopEnumerator(_elements);
@@ -153,6 +186,12 @@ namespace SkinEngine.Controls.Brushes
 
     #region IEnumerable Members
 
+    /// <summary>
+    /// Returns an enumerator that iterates through a collection.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="T:System.Collections.IEnumerator"></see> object that can be used to iterate through the collection.
+    /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return new GradientStopEnumerator(_elements);

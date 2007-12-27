@@ -48,6 +48,9 @@ namespace SkinEngine.Controls.Animations
     protected uint _timeStarted;
     protected State _state = State.Idle;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Timeline"/> class.
+    /// </summary>
     public Timeline()
     {
       _beginTimeProperty = new Property(new TimeSpan(0, 0, 0));
@@ -58,6 +61,10 @@ namespace SkinEngine.Controls.Animations
       _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
     }
 
+    /// <summary>
+    /// Gets or sets the begin time property.
+    /// </summary>
+    /// <value>The begin time property.</value>
     public Property BeginTimeProperty
     {
       get
@@ -70,6 +77,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the begin time.
+    /// </summary>
+    /// <value>The begin time.</value>
     public TimeSpan BeginTime
     {
       get
@@ -81,6 +92,10 @@ namespace SkinEngine.Controls.Animations
         _beginTimeProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Gets or sets the accelleration property.
+    /// </summary>
+    /// <value>The accelleration property.</value>
     public Property AccellerationProperty
     {
       get
@@ -93,6 +108,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the accelleration.
+    /// </summary>
+    /// <value>The accelleration.</value>
     public double Accelleration
     {
       get
@@ -105,6 +124,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the auto reverse property.
+    /// </summary>
+    /// <value>The auto reverse property.</value>
     public Property AutoReverseProperty
     {
       get
@@ -117,6 +140,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether [auto reverse].
+    /// </summary>
+    /// <value><c>true</c> if [auto reverse]; otherwise, <c>false</c>.</value>
     public bool AutoReverse
     {
       get
@@ -129,6 +156,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the deceleration ratio property.
+    /// </summary>
+    /// <value>The deceleration ratio property.</value>
     public Property DecelerationRatioProperty
     {
       get
@@ -141,6 +172,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the deceleration ratio.
+    /// </summary>
+    /// <value>The deceleration ratio.</value>
     public double DecelerationRatio
     {
       get
@@ -153,6 +188,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the duration property.
+    /// </summary>
+    /// <value>The duration property.</value>
     public Property DurationProperty
     {
       get
@@ -165,6 +204,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the duration.
+    /// </summary>
+    /// <value>The duration.</value>
     public TimeSpan Duration
     {
       get
@@ -177,6 +220,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the repeat behaviour property.
+    /// </summary>
+    /// <value>The repeat behaviour property.</value>
     public Property RepeatBehaviourProperty
     {
       get
@@ -189,6 +236,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the repeat behaviour.
+    /// </summary>
+    /// <value>The repeat behaviour.</value>
     public RepeatBehaviour RepeatBehaviour
     {
       get
@@ -201,10 +252,18 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Animates the property.
+    /// </summary>
+    /// <param name="timepassed">The timepassed.</param>
     protected virtual void AnimateProperty(uint timepassed)
     {
     }
 
+    /// <summary>
+    /// Animate
+    /// </summary>
+    /// <param name="timePassed">The time passed.</param>
     public virtual void Animate(uint timePassed)
     {
       uint passed = (timePassed - _timeStarted);
@@ -270,12 +329,19 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Starts the animation
+    /// </summary>
+    /// <param name="timePassed">The time passed.</param>
     public virtual void Start(uint timePassed)
     {
       _timeStarted = timePassed;
       _state = State.WaitBegin;
     }
 
+    /// <summary>
+    /// Stops the animation.
+    /// </summary>
     public virtual void Stop()
     {
       _state = State.Idle;

@@ -51,6 +51,9 @@ namespace SkinEngine.Controls.Brushes
     float[] _offsets = new float[12];
     ColorValue[] _colors = new ColorValue[12];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
+    /// </summary>
     public RadialGradientBrush()
     {
       _centerProperty = new Property(new Vector2(0.5f, 0.5f));
@@ -64,6 +67,10 @@ namespace SkinEngine.Controls.Brushes
       _radiusYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Gets or sets the center property.
+    /// </summary>
+    /// <value>The center property.</value>
     public Property CenterProperty
     {
       get
@@ -76,6 +83,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center.
+    /// </summary>
+    /// <value>The center.</value>
     public Vector2 Center
     {
       get
@@ -88,6 +99,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the gradient origin property.
+    /// </summary>
+    /// <value>The gradient origin property.</value>
     public Property GradientOriginProperty
     {
       get
@@ -100,6 +115,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the gradient origin.
+    /// </summary>
+    /// <value>The gradient origin.</value>
     public Vector2 GradientOrigin
     {
       get
@@ -113,6 +132,10 @@ namespace SkinEngine.Controls.Brushes
     }
 
 
+    /// <summary>
+    /// Gets or sets the radius X property.
+    /// </summary>
+    /// <value>The radius X property.</value>
     public Property RadiusXProperty
     {
       get
@@ -125,6 +148,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the radius X.
+    /// </summary>
+    /// <value>The radius X.</value>
     public double RadiusX
     {
       get
@@ -137,6 +164,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the radius Y property.
+    /// </summary>
+    /// <value>The radius Y property.</value>
     public Property RadiusYProperty
     {
       get
@@ -149,6 +180,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the radius Y.
+    /// </summary>
+    /// <value>The radius Y.</value>
     public double RadiusY
     {
       get
@@ -161,6 +196,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
       Free();
@@ -193,6 +232,9 @@ namespace SkinEngine.Controls.Brushes
         }
       }
     }
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
     public override void BeginRender()
     {
       if (_texture == null) return;
@@ -211,6 +253,9 @@ namespace SkinEngine.Controls.Brushes
       _lastTimeUsed = SkinContext.Now;
     }
 
+    /// <summary>
+    /// Ends the render.
+    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)
@@ -223,6 +268,10 @@ namespace SkinEngine.Controls.Brushes
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -231,6 +280,12 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -249,6 +304,9 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_texture != null)

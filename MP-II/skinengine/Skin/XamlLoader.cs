@@ -14,6 +14,12 @@ namespace SkinEngine.Skin
   public class XamlLoader
   {
 
+    /// <summary>
+    /// Loads the specified skin file using MyXaml
+    /// and returns the root UIElement
+    /// </summary>
+    /// <param name="skinFile">The skin file.</param>
+    /// <returns></returns>
     public UIElement Load(string skinFile)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
@@ -27,6 +33,11 @@ namespace SkinEngine.Skin
       }
     }
 
+    /// <summary>
+    /// Handles the CustomTypeConvertor event of the parser control.
+    /// </summary>
+    /// <param name="parser">The source of the event.</param>
+    /// <param name="e">The <see cref="MyXaml.Core.CustomTypeEventArgs"/> instance containing the event data.</param>
     void parser_CustomTypeConvertor(object parser, CustomTypeEventArgs e)
     {
       if (e.PropertyType == typeof(Vector2))
@@ -39,22 +50,44 @@ namespace SkinEngine.Skin
       }
     }
 
+    /// <summary>
+    /// Handles the PropertyDeclarationTest event of the parser control.
+    /// </summary>
+    /// <param name="parser">The source of the event.</param>
+    /// <param name="e">The <see cref="MyXaml.Core.PropertyDeclarationTestEventArgs"/> instance containing the event data.</param>
     void parser_PropertyDeclarationTest(object parser, PropertyDeclarationTestEventArgs e)
     {
       e.Result = IsKnownObject(e.ChildQualifiedName);
     }
 
+    /// <summary>
+    /// Handles the InstantiatePropertyDeclaration event of the parser control.
+    /// </summary>
+    /// <param name="parser">The source of the event.</param>
+    /// <param name="e">The <see cref="MyXaml.Core.InstantiatePropertyDeclarationEventArgs"/> instance containing the event data.</param>
     void parser_InstantiatePropertyDeclaration(object parser, InstantiatePropertyDeclarationEventArgs e)
     {
       e.Result = GetObject(e.ChildQualifiedName);
     }
 
 
+    /// <summary>
+    /// Handles the InstantiateFromQName event of the parser control.
+    /// </summary>
+    /// <param name="parser">The source of the event.</param>
+    /// <param name="e">The <see cref="MyXaml.Core.InstantiateClassEventArgs"/> instance containing the event data.</param>
     void parser_InstantiateFromQName(object parser, InstantiateClassEventArgs e)
     {
       e.Result = GetObject(e.AssemblyQualifiedName);
     }
 
+    /// <summary>
+    /// Determines whether name is a known class name or not
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>
+    /// 	<c>true</c> if name is known classname; otherwise, <c>false</c>.
+    /// </returns>
     bool IsKnownObject(string name)
     {
       //panels
@@ -88,6 +121,11 @@ namespace SkinEngine.Skin
 
       return false;
     }
+    /// <summary>
+    /// Gets a new object which classname=name.
+    /// </summary>
+    /// <param name="name">The class name.</param>
+    /// <returns>object</returns>
     object GetObject(string name)
     {
       //panels
@@ -122,6 +160,11 @@ namespace SkinEngine.Skin
       return null;
     }
 
+    /// <summary>
+    /// converts a string to a vector2
+    /// </summary>
+    /// <param name="position">The position in '0.2,0.4' format.</param>
+    /// <returns></returns>
     protected Vector2 GetVector2(string position)
     {
       if (position == null)
@@ -140,6 +183,11 @@ namespace SkinEngine.Skin
       }
       return vec;
     }
+    /// <summary>
+    /// converts a string into a vector3 format
+    /// </summary>
+    /// <param name="position">The position in '0.2,0.3,0.4' format</param>
+    /// <returns></returns>
     protected Vector3 GetVector3(string position)
     {
       if (position == null)
@@ -163,6 +211,11 @@ namespace SkinEngine.Skin
       return vec;
     }
 
+    /// <summary>
+    /// converts a string into a float.
+    /// </summary>
+    /// <param name="floatString">The  string.</param>
+    /// <returns>float</returns>
     protected float GetFloat(string floatString)
     {
       float test = 12.03f;

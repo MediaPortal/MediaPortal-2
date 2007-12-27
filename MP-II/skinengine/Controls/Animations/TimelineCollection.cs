@@ -72,12 +72,19 @@ namespace SkinEngine.Controls.Animations
     //Timeline _parent;
     List<Timeline> _elements;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TimelineCollection"/> class.
+    /// </summary>
     public TimelineCollection(/*Timeline parent*/)
     {
       //_parent = parent;
       _elements = new List<Timeline>();
     }
 
+    /// <summary>
+    /// Adds the specified element.
+    /// </summary>
+    /// <param name="element">The element.</param>
     public void Add(Timeline element)
     {
       //element.VisualParent = _parent;
@@ -85,18 +92,29 @@ namespace SkinEngine.Controls.Animations
       //_parent.Invalidate();
     }
 
+    /// <summary>
+    /// Removes the specified element.
+    /// </summary>
+    /// <param name="element">The element.</param>
     public void Remove(Timeline element)
     {
       _elements.Remove(element);
       //_parent.Invalidate();
     }
 
+    /// <summary>
+    /// Clears this instance.
+    /// </summary>
     public void Clear()
     {
       _elements.Clear();
       //_parent.Invalidate();
     }
 
+    /// <summary>
+    /// Gets the count.
+    /// </summary>
+    /// <value>The count.</value>
     public int Count
     {
       get
@@ -105,6 +123,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="SkinEngine.Controls.Animations.Timeline"/> at the specified index.
+    /// </summary>
+    /// <value></value>
     public Timeline this[int index]
     {
       get
@@ -125,6 +147,12 @@ namespace SkinEngine.Controls.Animations
 
     #region IEnumerable<Timeline> Members
 
+    /// <summary>
+    /// Returns an enumerator that iterates through the collection.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
+    /// </returns>
     public IEnumerator<Timeline> GetEnumerator()
     {
       return new TimelineEnumerator(_elements);
@@ -134,6 +162,12 @@ namespace SkinEngine.Controls.Animations
 
     #region IEnumerable Members
 
+    /// <summary>
+    /// Returns an enumerator that iterates through a collection.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="T:System.Collections.IEnumerator"></see> object that can be used to iterate through the collection.
+    /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return new TimelineEnumerator(_elements);

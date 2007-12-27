@@ -35,6 +35,9 @@ namespace SkinEngine.Controls.Animations
     Property _byProperty;
     Property _targetProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
+    /// </summary>
     public DoubleAnimation()
     {
       _fromProperty = new Property(0.0);
@@ -42,6 +45,10 @@ namespace SkinEngine.Controls.Animations
       _byProperty = new Property(0.1);
     }
 
+    /// <summary>
+    /// Gets or sets from property.
+    /// </summary>
+    /// <value>From property.</value>
     public Property FromProperty
     {
       get
@@ -54,6 +61,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets from.
+    /// </summary>
+    /// <value>From.</value>
     public double From
     {
       get
@@ -67,6 +78,10 @@ namespace SkinEngine.Controls.Animations
     }
 
 
+    /// <summary>
+    /// Gets or sets to property.
+    /// </summary>
+    /// <value>To property.</value>
     public Property ToProperty
     {
       get
@@ -79,6 +94,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets to.
+    /// </summary>
+    /// <value>To.</value>
     public double To
     {
       get
@@ -91,6 +110,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the by property.
+    /// </summary>
+    /// <value>The by property.</value>
     public Property ByProperty
     {
       get
@@ -103,6 +126,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the by.
+    /// </summary>
+    /// <value>The by.</value>
     public double By
     {
       get
@@ -116,6 +143,10 @@ namespace SkinEngine.Controls.Animations
     }
 
 
+    /// <summary>
+    /// Gets or sets the target property.
+    /// </summary>
+    /// <value>The target property.</value>
     public Property TargetProperty
     {
       get

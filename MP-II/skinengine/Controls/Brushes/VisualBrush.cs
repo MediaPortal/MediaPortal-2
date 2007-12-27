@@ -32,11 +32,18 @@ namespace SkinEngine.Controls.Brushes
   public class VisualBrush : TileBrush
   {
     Property _visualProperty;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VisualBrush"/> class.
+    /// </summary>
     public VisualBrush()
     {
       _visualProperty = new Property(null);
     }
 
+    /// <summary>
+    /// Gets or sets the visual property.
+    /// </summary>
+    /// <value>The visual property.</value>
     public Property VisualProperty
     {
       get
@@ -49,6 +56,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the visual.
+    /// </summary>
+    /// <value>The visual.</value>
     public Visual Visual
     {
       get

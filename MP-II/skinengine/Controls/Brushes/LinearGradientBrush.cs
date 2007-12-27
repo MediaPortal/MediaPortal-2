@@ -48,6 +48,9 @@ namespace SkinEngine.Controls.Brushes
     float[] _offsets = new float[12];
     ColorValue[] _colors = new ColorValue[12];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LinearGradientBrush"/> class.
+    /// </summary>
     public LinearGradientBrush()
     {
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
@@ -57,6 +60,10 @@ namespace SkinEngine.Controls.Brushes
       _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Gets or sets the start point property.
+    /// </summary>
+    /// <value>The start point property.</value>
     public Property StartPointProperty
     {
       get
@@ -69,6 +76,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the start point.
+    /// </summary>
+    /// <value>The start point.</value>
     public Vector2 StartPoint
     {
       get
@@ -80,6 +91,10 @@ namespace SkinEngine.Controls.Brushes
         _startPointProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Gets or sets the end point property.
+    /// </summary>
+    /// <value>The end point property.</value>
     public Property EndPointProperty
     {
       get
@@ -92,6 +107,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the end point.
+    /// </summary>
+    /// <value>The end point.</value>
     public Vector2 EndPoint
     {
       get
@@ -104,6 +123,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
       Free();
@@ -136,6 +159,9 @@ namespace SkinEngine.Controls.Brushes
         }
       }
     }
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
     public override void BeginRender()
     {
       if (_texture == null)
@@ -156,6 +182,9 @@ namespace SkinEngine.Controls.Brushes
       _lastTimeUsed = SkinContext.Now;
     }
 
+    /// <summary>
+    /// Ends the render.
+    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)
@@ -168,6 +197,10 @@ namespace SkinEngine.Controls.Brushes
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -176,6 +209,12 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -194,6 +233,9 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_texture != null)

@@ -42,6 +42,9 @@ namespace SkinEngine.Controls.Visuals
     Property _dockProperty;
     bool _isArrangeValid;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UIElement"/> class.
+    /// </summary>
     public UIElement()
     {
       _visibleProperty = new Property((bool)true);
@@ -55,11 +58,21 @@ namespace SkinEngine.Controls.Visuals
 
     }
 
+    /// <summary>
+    /// Called when a property value has been changed
+    /// Since all UIElement properties are layout properties
+    /// we're simply calling Invalidate() here to invalidate the layout
+    /// </summary>
+    /// <param name="property">The property.</param>
     void OnPropertyChanged(Property property)
     {
       Invalidate();
     }
 
+    /// <summary>
+    /// Gets or sets the actual position property.
+    /// </summary>
+    /// <value>The actual position property.</value>
     public Property ActualPositionProperty
     {
       get
@@ -72,6 +85,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the actual position.
+    /// </summary>
+    /// <value>The actual position.</value>
     public Vector3 ActualPosition
     {
       get
@@ -84,6 +101,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the position property.
+    /// </summary>
+    /// <value>The position property.</value>
     public Property PositionProperty
     {
       get
@@ -96,6 +117,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the position.
+    /// </summary>
+    /// <value>The position.</value>
     public Vector3 Position
     {
       get
@@ -107,6 +132,10 @@ namespace SkinEngine.Controls.Visuals
         _positionProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Gets or sets the dock property.
+    /// </summary>
+    /// <value>The dock property.</value>
     public Property DockProperty
     {
       get
@@ -119,6 +148,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the dock.
+    /// </summary>
+    /// <value>The dock.</value>
     public Dock Dock
     {
       get
@@ -164,6 +197,12 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this UIElement has been layout
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this UIElement is arrange valid; otherwise, <c>false</c>.
+    /// </value>
     public bool IsArrangeValid
     {
       get
@@ -176,6 +215,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets desired size
+    /// </summary>
+    /// <value>The desired size.</value>
     public Size DesiredSize
     {
       get
@@ -205,7 +248,8 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// 
+    /// Arranges the UI element 
+    /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public virtual void Arrange(Rectangle finalRect)
@@ -213,6 +257,11 @@ namespace SkinEngine.Controls.Visuals
       IsArrangeValid = true;
     }
 
+    /// <summary>
+    /// Invalidates the layout of this uielement.
+    /// If dimensions change, it will invalidate the parent visual so 
+    /// the parent will re-layout itself and its children
+    /// </summary>
     public virtual void Invalidate()
     {
       if (!IsArrangeValid) return;

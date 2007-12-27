@@ -49,15 +49,30 @@ namespace SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Called when a property changed. 
+    /// Simply sets a variable to indicate a layout needs to be performed
+    /// </summary>
+    /// <param name="property">The property.</param>
     void OnPropertyChanged(Property property)
     {
       _performLayout = true;
     }
+    /// <summary>
+    /// Called when the imagesource has been changed
+    /// Simply invalidates the image, the renderer will automaticly create a new one
+    /// with the new imagesource
+    /// </summary>
+    /// <param name="property">The property.</param>
     void OnImageChanged(Property property)
     {
       _image = null;
     }
 
+    /// <summary>
+    /// Gets or sets the image source property.
+    /// </summary>
+    /// <value>The image source property.</value>
     public Property ImageSourceProperty
     {
       get
@@ -70,6 +85,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the image source.
+    /// </summary>
+    /// <value>The image source.</value>
     public string ImageSource
     {
       get
@@ -115,6 +134,10 @@ namespace SkinEngine.Controls.Visuals
 
 
 
+    /// <summary>
+    /// Gets or sets the stretch direction property.
+    /// </summary>
+    /// <value>The stretch direction property.</value>
     public Property StretchDirectionProperty
     {
       get
@@ -127,6 +150,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the stretch direction.
+    /// </summary>
+    /// <value>The stretch direction.</value>
     public StretchDirection StretchDirection
     {
       get
@@ -140,6 +167,10 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
+    /// <summary>
+    /// Gets or sets the stretch property.
+    /// </summary>
+    /// <value>The stretch property.</value>
     public Property StretchProperty
     {
       get
@@ -152,6 +183,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the stretch.
+    /// </summary>
+    /// <value>The stretch.</value>
     public Stretch Stretch
     {
       get
@@ -164,6 +199,11 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
@@ -174,6 +214,10 @@ namespace SkinEngine.Controls.Visuals
       base.Arrange(finalRect);
     }
 
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
       base.Measure(availableSize);
@@ -204,6 +248,9 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
     public override void DoRender()
     {
       if (_image == null && ImageSource != null)
@@ -230,6 +277,9 @@ namespace SkinEngine.Controls.Visuals
       _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
     }
 
+    /// <summary>
+    /// Performs the layout.
+    /// </summary>
     void PerformLayout()
     {
       if (_image == null) return;

@@ -33,12 +33,19 @@ namespace SkinEngine.Controls.Panels
   public class StackPanel : Panel
   {
     Property _orientationProperty;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StackPanel"/> class.
+    /// </summary>
     public StackPanel()
     {
       _orientationProperty = new Property(Orientation.Vertical);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
     }
 
+    /// <summary>
+    /// Gets or sets the orientation property.
+    /// </summary>
+    /// <value>The orientation property.</value>
     public Property OrientationProperty
     {
       get
@@ -51,6 +58,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Gets or sets the orientation.
+    /// </summary>
+    /// <value>The orientation.</value>
     public Orientation Orientation
     {
       get
@@ -63,6 +74,10 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
       float totalHeight = 0.0f;
@@ -93,6 +108,11 @@ namespace SkinEngine.Controls.Panels
       base.Measure(availableSize);
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
       this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);

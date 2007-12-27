@@ -34,6 +34,9 @@ namespace SkinEngine.Controls.Transforms
     Property _centerYProperty;
     Property _angleXProperty;
     Property _angleYProperty;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SkewTransform"/> class.
+    /// </summary>
     public SkewTransform()
     {
       _centerYProperty = new Property((double)0.0);
@@ -42,6 +45,10 @@ namespace SkinEngine.Controls.Transforms
       _angleYProperty = new Property((double)0.0);
     }
 
+    /// <summary>
+    /// Gets or sets the center X property.
+    /// </summary>
+    /// <value>The center X property.</value>
     public Property CenterXProperty
     {
       get
@@ -54,6 +61,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center X.
+    /// </summary>
+    /// <value>The center X.</value>
     public double CenterX
     {
       get
@@ -67,6 +78,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y property.
+    /// </summary>
+    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
       get
@@ -79,6 +94,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y.
+    /// </summary>
+    /// <value>The center Y.</value>
     public double CenterY
     {
       get
@@ -95,6 +114,10 @@ namespace SkinEngine.Controls.Transforms
 
 
 
+    /// <summary>
+    /// Gets or sets the angle X property.
+    /// </summary>
+    /// <value>The angle X property.</value>
     public Property AngleXProperty
     {
       get
@@ -107,6 +130,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the angle X.
+    /// </summary>
+    /// <value>The angle X.</value>
     public double AngleX
     {
       get
@@ -120,6 +147,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the angle Y property.
+    /// </summary>
+    /// <value>The angle Y property.</value>
     public Property AngleYProperty
     {
       get
@@ -132,6 +163,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the angle Y.
+    /// </summary>
+    /// <value>The angle Y.</value>
     public double AngleY
     {
       get
@@ -145,6 +180,9 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public override void UpdateTransform()
     {
       ///@todo: fix skew transform

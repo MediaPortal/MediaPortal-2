@@ -53,6 +53,9 @@ namespace SkinEngine.Controls.Brushes
     Property _relativeTransformProperty;
     Property _transformProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Brush"/> class.
+    /// </summary>
     public Brush()
     {
       _opacityProperty = new Property((double)1.0f);
@@ -61,10 +64,20 @@ namespace SkinEngine.Controls.Brushes
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     protected virtual void OnPropertyChanged(Property prop)
     {
     }
 
+    /// <summary>
+    /// Scales the specified u/v coordinates.
+    /// </summary>
+    /// <param name="u">The u.</param>
+    /// <param name="v">The v.</param>
+    /// <param name="color">The color.</param>
     public virtual void Scale(ref float u, ref float v, ref ColorValue color)
     {
     }
@@ -201,10 +214,16 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
     public virtual void BeginRender()
     {
     }
 
+    /// <summary>
+    /// Ends the render.
+    /// </summary>
     public virtual void EndRender()
     {
     }

@@ -32,6 +32,10 @@ namespace SkinEngine.Controls.Panels
 {
   public class DockPanel : Panel
   {
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
       foreach (UIElement child in Children)
@@ -44,6 +48,11 @@ namespace SkinEngine.Controls.Panels
       base.Measure(availableSize);
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
       this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);

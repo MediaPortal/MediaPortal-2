@@ -55,6 +55,12 @@ namespace SkinEngine.Controls.Visuals
       _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Called when a property value has been changed
+    /// Since all UIElement properties are layout properties
+    /// we're simply calling Invalidate() here to invalidate the layout
+    /// </summary>
+    /// <param name="property">The property.</param>
     void OnPropertyChanged(Property property)
     {
       Invalidate();

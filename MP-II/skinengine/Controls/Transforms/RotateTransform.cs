@@ -36,6 +36,9 @@ namespace SkinEngine.Controls.Transforms
     Property _centerYProperty;
     Property _angleProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RotateTransform"/> class.
+    /// </summary>
     public RotateTransform()
     {
       _centerYProperty = new Property((double)0.0);
@@ -43,6 +46,10 @@ namespace SkinEngine.Controls.Transforms
       _angleProperty = new Property((double)0.0);
     }
 
+    /// <summary>
+    /// Gets or sets the center X property.
+    /// </summary>
+    /// <value>The center X property.</value>
     public Property CenterXProperty
     {
       get
@@ -55,6 +62,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center X.
+    /// </summary>
+    /// <value>The center X.</value>
     public double CenterX
     {
       get
@@ -68,6 +79,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y property.
+    /// </summary>
+    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
       get
@@ -80,6 +95,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the center Y.
+    /// </summary>
+    /// <value>The center Y.</value>
     public double CenterY
     {
       get
@@ -96,6 +115,10 @@ namespace SkinEngine.Controls.Transforms
 
 
 
+    /// <summary>
+    /// Gets or sets the angle property.
+    /// </summary>
+    /// <value>The angle property.</value>
     public Property AngleProperty
     {
       get
@@ -108,6 +131,10 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    /// <summary>
+    /// Gets or sets the angle.
+    /// </summary>
+    /// <value>The angle.</value>
     public double Angle
     {
       get
@@ -122,6 +149,9 @@ namespace SkinEngine.Controls.Transforms
     }
 
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public override void UpdateTransform()
     {
       double radians = Angle / 180.0 * Math.PI;

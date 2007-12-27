@@ -34,6 +34,9 @@ namespace SkinEngine.Controls.Brushes
     Property _colorProperty;
     Property _offsetProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GradientStop"/> class.
+    /// </summary>
     public GradientStop()
     {
       _colorProperty = new Property(Color.White);
@@ -42,17 +45,30 @@ namespace SkinEngine.Controls.Brushes
       _offsetProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GradientStop"/> class.
+    /// </summary>
+    /// <param name="offset">The offset.</param>
+    /// <param name="color">The color.</param>
     public GradientStop(float offset, Color color)
     {
       _colorProperty = new Property(color);
       _offsetProperty = new Property((double)offset);
     }
 
+    /// <summary>
+    /// Called when [property changed].
+    /// </summary>
+    /// <param name="prop">The prop.</param>
     public void OnPropertyChanged(Property prop)
     {
       Fire();
     }
 
+    /// <summary>
+    /// Gets or sets the color property.
+    /// </summary>
+    /// <value>The color property.</value>
     public Property ColorProperty
     {
       get
@@ -65,6 +81,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the color.
+    /// </summary>
+    /// <value>The color.</value>
     public Color Color
     {
       get
@@ -77,6 +97,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the offset property.
+    /// </summary>
+    /// <value>The offset property.</value>
     public Property OffsetProperty
     {
       get
@@ -89,6 +113,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the offset.
+    /// </summary>
+    /// <value>The offset.</value>
     public double Offset
     {
       get

@@ -34,6 +34,9 @@ namespace SkinEngine.Controls.Transforms
     protected bool _needUpdate = true;
     protected Matrix _matrix = Matrix.Identity;
 
+    /// <summary>
+    /// Called when [property changed].
+    /// </summary>
     public virtual void OnPropertyChanged()
     {
       _needUpdate = true;
@@ -41,6 +44,10 @@ namespace SkinEngine.Controls.Transforms
       Fire();
     }
 
+    /// <summary>
+    /// Gets the transform.
+    /// </summary>
+    /// <param name="m">The matrix</param>
     public virtual void GetTransform(out Matrix m)
     {
       if (_needUpdate)
@@ -51,6 +58,9 @@ namespace SkinEngine.Controls.Transforms
       m = _matrix;
     }
 
+    /// <summary>
+    /// Updates the transform.
+    /// </summary>
     public virtual void UpdateTransform()
     {
     }

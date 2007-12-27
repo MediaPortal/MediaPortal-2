@@ -48,6 +48,9 @@ namespace SkinEngine.Controls.Brushes
   };
 
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class TileBrush : Brush
   {
     Property _alignmentXProperty;
@@ -71,6 +74,10 @@ namespace SkinEngine.Controls.Brushes
       _viewPortProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Gets or sets the alignment X property.
+    /// </summary>
+    /// <value>The alignment X property.</value>
     public Property AlignmentXProperty
     {
       get
@@ -83,6 +90,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment X.
+    /// </summary>
+    /// <value>The alignment X.</value>
     public AlignmentX AlignmentX
     {
       get
@@ -95,6 +106,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment Y property.
+    /// </summary>
+    /// <value>The alignment Y property.</value>
     public Property AlignmentYProperty
     {
       get
@@ -107,6 +122,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the alignment Y.
+    /// </summary>
+    /// <value>The alignment Y.</value>
     public AlignmentY AlignmentY
     {
       get
@@ -119,6 +138,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the stretch property.
+    /// </summary>
+    /// <value>The stretch property.</value>
     public Property StretchProperty
     {
       get
@@ -131,6 +154,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the stretch.
+    /// </summary>
+    /// <value>The stretch.</value>
     public Stretch Stretch
     {
       get
@@ -143,6 +170,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the view port property.
+    /// </summary>
+    /// <value>The view port property.</value>
     public Property ViewPortProperty
     {
       get
@@ -155,6 +186,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the view port.
+    /// </summary>
+    /// <value>The view port.</value>
     public Vector4 ViewPort
     {
       get
@@ -168,6 +203,10 @@ namespace SkinEngine.Controls.Brushes
     }
 
 
+    /// <summary>
+    /// Gets or sets the tile property.
+    /// </summary>
+    /// <value>The tile property.</value>
     public Property TileProperty
     {
       get
@@ -180,6 +219,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets or sets the tile.
+    /// </summary>
+    /// <value>The tile.</value>
     public TileMode Tile
     {
       get
@@ -192,6 +235,11 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Setups the brush.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="verts"></param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       // todo here:
@@ -245,10 +293,19 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Scales the specified u.
+    /// </summary>
+    /// <param name="u">The u.</param>
+    /// <param name="v">The v.</param>
     protected virtual void Scale(ref float u, ref float v)
     {
     }
 
+    /// <summary>
+    /// Gets the brush dimensions.
+    /// </summary>
+    /// <value>The brush dimensions.</value>
     protected virtual Vector2 BrushDimensions
     {
       get

@@ -37,6 +37,9 @@ namespace SkinEngine.Controls.Animations
     Property _byProperty;
     Property _targetProperty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
+    /// </summary>
     public ColorAnimation()
     {
       _targetProperty = null;
@@ -45,6 +48,10 @@ namespace SkinEngine.Controls.Animations
       _byProperty = new Property(Color.Beige);
     }
 
+    /// <summary>
+    /// Gets or sets from property.
+    /// </summary>
+    /// <value>From property.</value>
     public Property FromProperty
     {
       get
@@ -57,6 +64,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets from.
+    /// </summary>
+    /// <value>From.</value>
     public Color From
     {
       get
@@ -70,6 +81,10 @@ namespace SkinEngine.Controls.Animations
     }
 
 
+    /// <summary>
+    /// Gets or sets to property.
+    /// </summary>
+    /// <value>To property.</value>
     public Property ToProperty
     {
       get
@@ -82,6 +97,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets to.
+    /// </summary>
+    /// <value>To.</value>
     public Color To
     {
       get
@@ -94,6 +113,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the by property.
+    /// </summary>
+    /// <value>The by property.</value>
     public Property ByProperty
     {
       get
@@ -106,6 +129,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the by.
+    /// </summary>
+    /// <value>The by.</value>
     public Color By
     {
       get
@@ -118,6 +145,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the target property.
+    /// </summary>
+    /// <value>The target property.</value>
     public Property TargetProperty
     {
       get
@@ -130,6 +161,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Animates the property.
+    /// </summary>
+    /// <param name="timepassed">The timepassed.</param>
     protected override void AnimateProperty(uint timepassed)
     {
       Color c;
