@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
@@ -50,7 +51,7 @@ namespace SkinEngine.Controls.Brushes
   };
 
 
-  public class GradientBrush : Brush
+  public class GradientBrush : Brush, IList
   {
     Property _colorInterpolationModeProperty;
     Property _gradientStopsProperty;
@@ -172,5 +173,100 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+
+    #region IList Members
+
+    public int Add(object value)
+    {
+      GradientStops.Add((GradientStop)value);
+      return GradientStops.Count;
+    }
+
+    public void Clear()
+    {
+      GradientStops.Clear();
+    }
+
+    public bool Contains(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int IndexOf(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void Insert(int index, object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public bool IsFixedSize
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsReadOnly
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public void Remove(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void RemoveAt(int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public object this[int index]
+    {
+      get
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+      set
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+    }
+
+    #endregion
+
+    #region ICollection Members
+
+    public void CopyTo(Array array, int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int Count
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsSynchronized
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public object SyncRoot
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    public IEnumerator GetEnumerator()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }

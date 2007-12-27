@@ -1,0 +1,62 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyXaml.WinForms", "..\MyXaml.WinForms\MyXaml.WinForms.csproj", "{9056C70D-6772-4DB3-BCC3-130EE39B50EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyXaml.Core", "MyXaml.Core.csproj", "{FC6CCC7F-3080-419B-B72A-157A00959DA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyXaml.MxFlowPanel", "..\MyXaml.MxFlowPanel\MyXaml.MxFlowPanel.csproj", "{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyXaml.MxMenu", "..\MyXaml.MxMenu\MyXaml.MxMenu.csproj", "{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyXaml.MxWorkflow", "..\MyXaml.MxWorkflow\MyXaml.MxWorkflow.csproj", "{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "..\UnitTest\UnitTest.csproj", "{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Xml Documentation|Any CPU = Xml Documentation|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{9056C70D-6772-4DB3-BCC3-130EE39B50EA}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{FC6CCC7F-3080-419B-B72A-157A00959DA2}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Xml Documentation|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF80DC1-EAB6-4F5C-8B55-6F44B2E0FF43}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Xml Documentation|Any CPU.ActiveCfg = Release|Any CPU
+		{F19C4E57-7AA8-4B76-BCE1-BE593CD1531D}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Xml Documentation|Any CPU.ActiveCfg = Release|Any CPU
+		{CEFC8F75-62C6-454B-82AB-60643BD4C3E1}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{F30EB2A1-7BE1-43F7-BF95-88D46C0F2FC2}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

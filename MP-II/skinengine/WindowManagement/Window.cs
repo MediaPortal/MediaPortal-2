@@ -36,6 +36,7 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Animations;
+using SkinEngine.Skin;
 namespace SkinEngine
 {
   public class Window : IWindow
@@ -107,7 +108,7 @@ namespace SkinEngine
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
 
-
+      /*
       Border border1 = new Border();
       border1.BorderThickness = 0;
       border1.CornerRadius = 0;
@@ -171,13 +172,6 @@ namespace SkinEngine
 
       sub.Children.Add(b1);
       sub.Children.Add(b2);
-      /*
-      _stackPanel = new StackPanel();
-      _stackPanel.Children.Add(border1);
-      _stackPanel.Children.Add(border2);
-      _stackPanel.Children.Add(sub);
-      _stackPanel.Children.Add(border3);
-       */
       _stackPanel = new DockPanel();
       border1.Dock = Dock.Top;
       border2.Dock = Dock.Top;
@@ -214,7 +208,10 @@ namespace SkinEngine
       animColor.TargetProperty = backgroundBrush3.GradientStops[0].ColorProperty;
       _storyBoard.Children.Add(animColor);
       _storyBoard.Start(0);
-
+      
+      XamlLoader loader = new XamlLoader();
+      loader.Load("test.xml");
+       */
     }
 
     public Control FocusedControl
