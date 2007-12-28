@@ -145,7 +145,14 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
-      Free();
+      int index = 0;
+      foreach (GradientStop stop in GradientStops)
+      {
+        _offsets[index] = (float)stop.Offset;
+        _colors[index] = ColorValue.FromColor(stop.Color);
+        _colors[index].Alpha *= (float)Opacity;
+        index++;
+      }
     }
     /// <summary>
     /// Setups the brush.

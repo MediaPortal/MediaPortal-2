@@ -51,6 +51,7 @@ namespace SkinEngine.Controls.Animations
     public ColorAnimation(ColorAnimation a)
       : base(a)
     {
+      Init();
       From = a.From;
       To = a.To;
       By = a.By;
@@ -271,7 +272,7 @@ namespace SkinEngine.Controls.Animations
 
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      UIElement element = VisualTreeHelper.Instance.FindElement(TargetName);
+      object element = VisualTreeHelper.Instance.FindElement(TargetName);
       if (element == null) return;
       Type t = element.GetType();
       PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");

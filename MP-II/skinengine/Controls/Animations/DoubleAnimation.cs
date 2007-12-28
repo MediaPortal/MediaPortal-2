@@ -248,7 +248,7 @@ namespace SkinEngine.Controls.Animations
       //find property
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      UIElement element = VisualTreeHelper.Instance.FindElement(TargetName);
+      object element = VisualTreeHelper.Instance.FindElement(TargetName);
       if (element == null) return;
       Type t = element.GetType();
       PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");

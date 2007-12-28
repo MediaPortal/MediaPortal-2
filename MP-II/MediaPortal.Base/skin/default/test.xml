@@ -9,6 +9,7 @@
       </LinearGradientBrush>
       <Storyboard Key="animateWidth">
         <DoubleAnimation From="100" To="50" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
+        <ColorAnimation From="Red" To="Yellow" Duration="0:0:1"  TargetName="borderRadius.Background.GradientStops[0]" TargetProperty="Color"/>
       </Storyboard>
       <Storyboard Key="animateWidthReverse">
         <DoubleAnimation From="50" To="100" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
@@ -30,7 +31,7 @@
         </LinearGradientBrush>
       </BorderBrush>
     </Border>
-    <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
+    <Border Name="borderRadius" Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
       <Background>
         <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5" Opacity="1.0">
           <GradientStop Offset="0.0" Color="#FFFF0000"/>
