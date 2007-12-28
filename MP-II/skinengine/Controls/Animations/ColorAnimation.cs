@@ -36,6 +36,8 @@ namespace SkinEngine.Controls.Animations
     Property _toProperty;
     Property _byProperty;
     Property _targetProperty;
+    Property _targetNameProperty;
+    Property _property;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
@@ -44,24 +46,33 @@ namespace SkinEngine.Controls.Animations
     {
       Init();
     }
+
     public ColorAnimation(ColorAnimation a)
-      :base(a)
+      : base(a)
     {
       From = a.From;
       To = a.To;
       By = a.By;
       TargetProperty = a.TargetProperty;
+      TargetName = a.TargetName;
     }
+
     public override object Clone()
     {
       return new ColorAnimation(this);
     }
     void Init()
     {
-      _targetProperty = null;
+      _targetProperty = new Property("");
+      _targetNameProperty = new Property("");
       _fromProperty = new Property(Color.Black);
       _toProperty = new Property(Color.White);
       _byProperty = new Property(Color.Beige);
+      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
+      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
+    }
+    void OnTargetChanged(Property prop)
+    {
     }
 
     /// <summary>
@@ -165,7 +176,7 @@ namespace SkinEngine.Controls.Animations
     /// Gets or sets the target property.
     /// </summary>
     /// <value>The target property.</value>
-    public Property TargetProperty
+    public Property TargetPropertyProperty
     {
       get
       {
@@ -176,6 +187,52 @@ namespace SkinEngine.Controls.Animations
         _targetProperty = value;
       }
     }
+    /// <summary>
+    /// Gets or sets the target property.
+    /// </summary>
+    /// <value>The target property.</value>
+    public string TargetProperty
+    {
+      get
+      {
+        return _targetProperty.GetValue() as string;
+      }
+      set
+      {
+        _targetProperty.SetValue(value);
+      }
+    }
+    /// <summary>
+    /// Gets or sets the target name property.
+    /// </summary>
+    /// <value>The target name property.</value>
+    public Property TargetNameProperty
+    {
+      get
+      {
+        return _targetNameProperty;
+      }
+      set
+      {
+        _targetNameProperty = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the name of the target.
+    /// </summary>
+    /// <value>The name of the target.</value>
+    public string TargetName
+    {
+      get
+      {
+        return _targetNameProperty.GetValue() as string;
+      }
+      set
+      {
+        _targetNameProperty.SetValue(value);
+      }
+    }
+
 
     /// <summary>
     /// Animates the property.
@@ -183,6 +240,7 @@ namespace SkinEngine.Controls.Animations
     /// <param name="timepassed">The timepassed.</param>
     protected override void AnimateProperty(uint timepassed)
     {
+      if (_property == null) return;
       Color c;
       double distA = ((double)(To.A - From.A)) / Duration.TotalMilliseconds;
       distA *= timepassed;
@@ -202,9 +260,14 @@ namespace SkinEngine.Controls.Animations
 
       c = Color.FromArgb((int)distA, (int)distR, (int)distG, (int)distB);
 
-      TargetProperty.SetValue(c);
+      _property.SetValue(c);
     }
 
+    public override void Start(uint timePassed)
+    {
+      base.Start(timePassed);
+      //find _property...
+    }
   }
 }
 

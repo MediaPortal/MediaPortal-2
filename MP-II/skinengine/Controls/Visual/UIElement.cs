@@ -29,7 +29,7 @@ using System.Drawing;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core.Properties;
-
+using SkinEngine.Controls.Visuals.Triggers;
 namespace SkinEngine.Controls.Visuals
 {
   public class UIElement : Visual
@@ -42,6 +42,7 @@ namespace SkinEngine.Controls.Visuals
     Property _positionProperty;
     Property _dockProperty;
     Property _marginProperty;
+    Property _triggerProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     bool _isArrangeValid;
@@ -68,6 +69,10 @@ namespace SkinEngine.Controls.Visuals
       Dock = el.Dock;
       Margin = el.Margin;
       _resources = el.Resources;
+      foreach (Trigger t in el.Triggers)
+      {
+        Triggers.Add((Trigger)t.Clone());
+      }
     }
     void Init()
     {
@@ -80,6 +85,7 @@ namespace SkinEngine.Controls.Visuals
       _dockProperty = new Property(Dock.Top);
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
+      _triggerProperty = new Property(new TriggerCollection());
 
       _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -110,6 +116,35 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+
+
+    /// <summary>
+    /// Gets or sets the triggers property.
+    /// </summary>
+    /// <value>The triggers property.</value>
+    public Property TriggersProperty
+    {
+      get
+      {
+        return _triggerProperty;
+      }
+      set
+      {
+        _triggerProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the triggers.
+    /// </summary>
+    /// <value>The triggers.</value>
+    public TriggerCollection Triggers
+    {
+      get
+      {
+        return (TriggerCollection)_triggerProperty.GetValue();
+      }
+    }
     /// <summary>
     /// Gets or sets the actual position property.
     /// </summary>

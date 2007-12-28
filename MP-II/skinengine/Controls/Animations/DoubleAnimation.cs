@@ -34,6 +34,8 @@ namespace SkinEngine.Controls.Animations
     Property _toProperty;
     Property _byProperty;
     Property _targetProperty;
+    Property _targetNameProperty;
+    Property _property;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
@@ -49,6 +51,7 @@ namespace SkinEngine.Controls.Animations
       To = a.To;
       By = a.By;
       TargetProperty = a.TargetProperty;
+      TargetName = a.TargetName;
     }
     public override object Clone()
     {
@@ -56,9 +59,17 @@ namespace SkinEngine.Controls.Animations
     }
     void Init()
     {
+      _targetNameProperty = new Property("");
+      _targetProperty = new Property("");
       _fromProperty = new Property(0.0);
       _toProperty = new Property(1.0);
       _byProperty = new Property(0.1);
+
+      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
+      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
+    }
+    void OnTargetChanged(Property prop)
+    {
     }
 
     /// <summary>
@@ -163,7 +174,7 @@ namespace SkinEngine.Controls.Animations
     /// Gets or sets the target property.
     /// </summary>
     /// <value>The target property.</value>
-    public Property TargetProperty
+    public Property TargetPropertyProperty
     {
       get
       {
@@ -174,14 +185,65 @@ namespace SkinEngine.Controls.Animations
         _targetProperty = value;
       }
     }
-
+    /// <summary>
+    /// Gets or sets the target property.
+    /// </summary>
+    /// <value>The target property.</value>
+    public string TargetProperty
+    {
+      get
+      {
+        return _targetProperty.GetValue() as string;
+      }
+      set
+      {
+        _targetProperty.SetValue(value);
+      }
+    }
+    /// <summary>
+    /// Gets or sets the target name property.
+    /// </summary>
+    /// <value>The target name property.</value>
+    public Property TargetNameProperty
+    {
+      get
+      {
+        return _targetNameProperty;
+      }
+      set
+      {
+        _targetNameProperty = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the name of the target.
+    /// </summary>
+    /// <value>The name of the target.</value>
+    public string TargetName
+    {
+      get
+      {
+        return _targetNameProperty.GetValue() as string;
+      }
+      set
+      {
+        _targetNameProperty.SetValue(value);
+      }
+    }
     protected override void AnimateProperty(uint timepassed)
     {
+      if (_property == null) return;
       double dist = (To - From) / Duration.TotalMilliseconds;
       dist *= timepassed;
       dist += From;
-      TargetProperty.SetValue((double)dist);
+
+      _property.SetValue((double)dist);
     }
 
+    public override void Start(uint timePassed)
+    {
+      base.Start(timePassed);
+      //find property
+    }
   }
 }

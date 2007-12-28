@@ -8,13 +8,14 @@ using SkinEngine.Controls.Brushes;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Controls.Visuals.Triggers;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 namespace SkinEngine.Skin
 {
   public class XamlLoader
   {
-
+    UIElement _lastElement;
     /// <summary>
     /// Loads the specified skin file using MyXaml
     /// and returns the root UIElement
@@ -56,7 +57,16 @@ namespace SkinEngine.Skin
       if (obj as UIElement != null)
       {
         UIElement elm = (UIElement)obj;
-        object result=elm.FindResource(resourceName);
+        object result = elm.FindResource(resourceName);
+        ICloneable clone = result as ICloneable;
+        if (clone != null)
+        {
+          return clone.Clone();
+        }
+      }
+      else if (_lastElement != null)
+      {
+        object result = _lastElement.FindResource(resourceName);
         ICloneable clone = result as ICloneable;
         if (clone != null)
         {
@@ -180,6 +190,10 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Storyboard")
         return true;
+
+      //triggers
+      else if (name == "EventTrigger")
+        return true;
       return false;
     }
     /// <summary>
@@ -191,21 +205,42 @@ namespace SkinEngine.Skin
     {
       //panels
       if (name == "DockPanel")
-        return new DockPanel();
+      {
+        _lastElement = new DockPanel();
+        return _lastElement;
+      }
       else if (name == "StackPanel")
-        return new StackPanel();
+      {
+        _lastElement = new StackPanel();
+        return _lastElement;
+      }
       else if (name == "Canvas")
-        return new Canvas();
+      {
+        _lastElement = new Canvas();
+        return _lastElement;
+      }
 
       //visuals
       else if (name == "Border")
-        return new Border();
+      {
+        _lastElement = new Border();
+        return _lastElement;
+      }
       else if (name == "Image")
-        return new Image();
+      {
+        _lastElement = new Image();
+        return _lastElement;
+      }
       else if (name == "Button")
-        return new Button();
+      {
+        _lastElement = new Button();
+        return _lastElement;
+      }
       else if (name == "Label")
-        return new Label();
+      {
+        _lastElement = new Label();
+        return _lastElement;
+      }
       else if (name == "Resources")
         return new ResourceDictionary();
 
@@ -230,6 +265,10 @@ namespace SkinEngine.Skin
         return new DoubleAnimation();
       else if (name == "Storyboard")
         return new Storyboard();
+
+      //triggers
+      else if (name == "EventTrigger")
+        return new EventTrigger();
       return null;
     }
 

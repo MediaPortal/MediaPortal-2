@@ -8,7 +8,7 @@
         <GradientStop Offset="1.0" Color="Blue"/>
       </LinearGradientBrush>
       <Storyboard Key="animateWidth">
-        <DoubleAnimation From="100" To="50" Duration="00:00:02"/>
+        <DoubleAnimation From="100" To="50" Duration="0:0:2" RepeatBehaviour="Forever" TargetName="myButton" TargetProperty="Width"/>
       </Storyboard>
     </Resources>
     <Background>
@@ -37,6 +37,10 @@
       </Background>
     </Border>
     <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
-    <Button Name="myButton" Width="100" Height="32" ControlTemplate="{StaticResource TemplateNormalButton}"/>
+    <Button Name="myButton" Width="100" Height="32" ControlTemplate="{StaticResource TemplateNormalButton}">
+      <Triggers>
+        <EventTrigger RoutedEvent="OnMouseOver" Storyboard="{StaticResource animateWidth}"/>
+      </Triggers>
+    </Button>
   </StackPanel>
 </MyXaml>
