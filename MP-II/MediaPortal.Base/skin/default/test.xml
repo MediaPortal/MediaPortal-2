@@ -8,7 +8,10 @@
         <GradientStop Offset="1.0" Color="Blue"/>
       </LinearGradientBrush>
       <Storyboard Key="animateWidth">
-        <DoubleAnimation From="100" To="50" Duration="0:0:2" RepeatBehaviour="Forever" TargetName="myButton" TargetProperty="Width"/>
+        <DoubleAnimation From="100" To="50" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
+      </Storyboard>
+      <Storyboard Key="animateWidthReverse">
+        <DoubleAnimation From="50" To="100" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
       </Storyboard>
     </Resources>
     <Background>
@@ -39,7 +42,8 @@
     <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
     <Button Name="myButton" Width="100" Height="32" ControlTemplate="{StaticResource TemplateNormalButton}">
       <Triggers>
-        <EventTrigger RoutedEvent="OnMouseOver" Storyboard="{StaticResource animateWidth}"/>
+        <EventTrigger RoutedEvent="OnMouseEnter" Storyboard="{StaticResource animateWidth}"/>
+        <EventTrigger RoutedEvent="OnMouseLeave" Storyboard="{StaticResource animateWidthReverse}"/>
       </Triggers>
     </Button>
   </StackPanel>

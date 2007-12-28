@@ -538,7 +538,10 @@ namespace SkinEngine.Controls.Visuals
           if (trigger.Storyboard != null)
           {
             trigger.Storyboard.Start(SkinContext.TimePassed);
-            _runningAnimations.Add(trigger.Storyboard);
+            lock (_runningAnimations)
+            {
+              _runningAnimations.Add(trigger.Storyboard);
+            }
           }
         }
       }
@@ -551,16 +554,19 @@ namespace SkinEngine.Controls.Visuals
     {
       if (_runningAnimations.Count == 0) return;
       List<Timeline> stoppedAnimations = new List<Timeline>();
-      foreach (Timeline line in _runningAnimations)
+      lock (_runningAnimations)
       {
-        line.Animate(SkinContext.TimePassed);
-        if (line.IsStopped)
-          stoppedAnimations.Add(line);
-      }
-      foreach (Timeline line in stoppedAnimations)
-      {
-        line.Stop();
-        _runningAnimations.Remove(line);
+        foreach (Timeline line in _runningAnimations)
+        {
+          line.Animate(SkinContext.TimePassed);
+          if (line.IsStopped)
+            stoppedAnimations.Add(line);
+        }
+        foreach (Timeline line in stoppedAnimations)
+        {
+          line.Stop();
+          _runningAnimations.Remove(line);
+        }
       }
     }
     /// <summary>

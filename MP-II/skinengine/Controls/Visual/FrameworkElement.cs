@@ -225,7 +225,11 @@ namespace SkinEngine.Controls.Visuals
           return;
         }
       }
-      _mouseOver = false;
+      if (_mouseOver)
+      {
+        _mouseOver = false;
+        FireEvent("OnMouseLeave");
+      }
     }
   }
 }
