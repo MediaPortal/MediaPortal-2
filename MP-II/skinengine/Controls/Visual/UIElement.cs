@@ -35,34 +35,56 @@ namespace SkinEngine.Controls.Visuals
   public class UIElement : Visual
   {
     Property _nameProperty;
+    Property _keyProperty;
     Property _isFocusableProperty;
     Property _visibleProperty;
-    protected Size _desiredSize;
-    protected Size _availableSize;
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
     Property _marginProperty;
+    protected Size _desiredSize;
+    protected Size _availableSize;
     bool _isArrangeValid;
+    ResourceDictionary _resources;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
     /// </summary>
     public UIElement()
     {
+      Init();
+
+    }
+    public UIElement(UIElement el)
+      : base((Visual)el)
+    {
+      Init();
+      Name = el.Name;
+      Key = el.Key;
+      IsFocusable = el.IsFocusable;
+      IsVisible = el.IsVisible;
+      ActualPosition = el.ActualPosition;
+      Position = el.Position;
+      Dock = el.Dock;
+      Margin = el.Margin;
+      _resources = el.Resources;
+    }
+    void Init()
+    {
       _nameProperty = new Property("");
+      _keyProperty = new Property("");
       _isFocusableProperty = new Property(false);
       _visibleProperty = new Property((bool)true);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
       _dockProperty = new Property(Dock.Top);
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
+      _resources = new ResourceDictionary();
 
       _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-
     }
 
     /// <summary>
@@ -74,6 +96,18 @@ namespace SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       Invalidate();
+    }
+
+    /// <summary>
+    /// Gets or sets the resources.
+    /// </summary>
+    /// <value>The resources.</value>
+    public ResourceDictionary Resources
+    {
+      get
+      {
+        return _resources;
+      }
     }
 
     /// <summary>
@@ -140,7 +174,37 @@ namespace SkinEngine.Controls.Visuals
         _nameProperty.SetValue(value);
       }
     }
+    /// <summary>
+    /// Gets or sets the key property.
+    /// </summary>
+    /// <value>The key property.</value>
+    public Property KeyProperty
+    {
+      get
+      {
+        return _keyProperty;
+      }
+      set
+      {
+        _keyProperty = value;
+      }
+    }
 
+    /// <summary>
+    /// Gets or sets the key.
+    /// </summary>
+    /// <value>The key.</value>
+    public string Key
+    {
+      get
+      {
+        return _keyProperty.GetValue() as string;
+      }
+      set
+      {
+        _keyProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the is focusable property.
     /// </summary>
@@ -165,7 +229,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (bool)_isFocusableProperty.GetValue() ;
+        return (bool)_isFocusableProperty.GetValue();
       }
       set
       {
@@ -403,6 +467,23 @@ namespace SkinEngine.Controls.Visuals
           Arrange(new Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
         }
       }
+    }
+    /// <summary>
+    /// Finds the resource with the given keyname
+    /// </summary>
+    /// <param name="resourceKey">The key name.</param>
+    /// <returns>resource, or null if not found.</returns>
+    public object FindResource(string resourceKey)
+    {
+      if (Resources.Contains(resourceKey))
+      {
+        return Resources[resourceKey];
+      }
+      if (VisualParent != null)
+      {
+        return VisualParent.FindResource(resourceKey);
+      }
+      return null;
     }
   }
 }

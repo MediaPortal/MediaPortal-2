@@ -37,8 +37,23 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public TranslateTransform()
     {
+      Init();
+    }
+    public TranslateTransform(TranslateTransform g)
+      : base(g)
+    {
+      Init();
+      X = g.X;
+      Y = g.Y;
+    }
+    void Init()
+    {
       _YProperty = new Property((double)0.0);
       _XProperty = new Property((double)0.0);
+    }
+    public override object Clone()
+    {
+      return new TranslateTransform(this);
     }
 
     /// <summary>

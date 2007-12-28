@@ -29,7 +29,7 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IEnumerable<GradientStop>
+  public class GradientStopCollection : IEnumerable<GradientStop>, ICloneable
   {
     public class GradientStopEnumerator : IEnumerator<GradientStop>
     {
@@ -83,8 +83,26 @@ namespace SkinEngine.Controls.Brushes
     public GradientStopCollection(GradientBrush parent)
     {
       _parent = parent;
+      Init();
+    }
+
+    public GradientStopCollection(GradientStopCollection b)
+    {
+      Init();
+      _parent = b._parent;
+      foreach (GradientStop stop in b._elements)
+      {
+        Add((GradientStop)stop.Clone());
+      }
+    }
+    void Init()
+    {
       _elements = new List<GradientStop>();
       _handler = new PropertyChangedHandler(OnStopChanged);
+    }
+    public virtual object Clone()
+    {
+      return new GradientStopCollection(this);
     }
 
     /// <summary>

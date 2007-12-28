@@ -45,11 +45,30 @@ namespace SkinEngine.Controls.Visuals
 
     public Label()
     {
+      Init();
+    }
+
+    public Label(Label lbl)
+      : base((FrameworkElement)lbl)
+    {
+      Init();
+      Text = lbl.Text;
+      Color = lbl.Color;
+      Scroll = lbl.Scroll;
+      Font = lbl.Font;
+    }
+    void Init()
+    {
       _textProperty = new Property("");
       _colorProperty = new Property(Color.White);
       _scrollProperty = new Property(false);
       _fontProperty = new Property("");
       _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
+    }
+
+    public override object Clone()
+    {
+      return new Label(this);
     }
 
     void OnFontChanged(Property prop)

@@ -48,9 +48,26 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public SolidColorBrush()
     {
+      Init();
+    }
+
+    public SolidColorBrush(SolidColorBrush b)
+      : base(b)
+    {
+      Init();
+      Color = b.Color;
+    }
+
+    void Init()
+    {
       _colorProperty = new Property(Color.White);
       ContentManager.Add(this);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    public override  object Clone()
+    {
+      return new SolidColorBrush(this);
     }
 
     /// <summary>

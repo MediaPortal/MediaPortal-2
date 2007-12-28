@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MyXaml.Core;
@@ -30,9 +31,11 @@ namespace SkinEngine.Skin
         parser.PropertyDeclarationTest += new Parser.PropertyDeclarationTestDlgt(parser_PropertyDeclarationTest);
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
+        parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         return (UIElement)parser.Instantiate(fullFileName, "*");
       }
     }
+
     public UIElement Load(string skinFile, string tagName)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
@@ -43,16 +46,37 @@ namespace SkinEngine.Skin
         parser.PropertyDeclarationTest += new Parser.PropertyDeclarationTestDlgt(parser_PropertyDeclarationTest);
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
+        parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         return (UIElement)parser.Instantiate(fullFileName, tagName);
       }
     }
 
-    object parser_OnGetResource(object parser, string resourceName)
+    object parser_OnGetResource(object parser, object obj, string resourceName)
     {
+      if (obj as UIElement != null)
+      {
+        UIElement elm = (UIElement)obj;
+        object result=elm.FindResource(resourceName);
+        ICloneable clone = result as ICloneable;
+        if (clone != null)
+        {
+          return clone.Clone();
+        }
+      }
       XamlLoader loader = new XamlLoader();
       return loader.Load("XamlStyle.xml", resourceName);
     }
 
+    void parser_AddToCollection(object parser, AddToCollectionEventArgs e)
+    {
+      if (e.Container as ResourceDictionary != null)
+      {
+        string key = e.Node.Attributes["Key"].Value;
+        ResourceDictionary dict = (ResourceDictionary)e.Container;
+        dict[key] = e.Instance;
+        e.Result = true;
+      }
+    }
     /// <summary>
     /// Handles the CustomTypeConvertor event of the parser control.
     /// </summary>
@@ -131,6 +155,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Label")
         return true;
+      else if (name == "Resources")
+        return true;
 
 
       //brushes
@@ -173,7 +199,8 @@ namespace SkinEngine.Skin
         return new Button();
       else if (name == "Label")
         return new Label();
-
+      else if (name == "Resources")
+        return new ResourceDictionary();
 
       //brushes
       else if (name == "SolidColorBrush")

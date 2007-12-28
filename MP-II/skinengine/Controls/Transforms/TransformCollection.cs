@@ -27,7 +27,22 @@ using System.Text;
 
 namespace SkinEngine.Controls.Transforms
 {
-  public class TransformCollection : List<Transform>
+  public class TransformCollection : List<Transform>, ICloneable
   {
+    public TransformCollection()
+    {
+    }
+    public TransformCollection(TransformCollection collection)
+    {
+      foreach (Transform t in collection)
+      {
+        Add((Transform)t.Clone());
+      }
+    }
+
+    public virtual object Clone()
+    {
+      return new TransformCollection(this);
+    }
   }
 }

@@ -61,6 +61,22 @@ namespace SkinEngine.Controls.Brushes
 
     public TileBrush()
     {
+      Init();
+    }
+
+    public TileBrush(TileBrush b)
+      : base(b)
+    {
+      Init();
+      AlignmentX = b.AlignmentX;
+      AlignmentY = b.AlignmentY;
+      Stretch = b.Stretch;
+      Tile = b.Tile;
+      ViewPort = b.ViewPort;
+    }
+
+    void Init()
+    {
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Center);
       _stretchProperty = new Property(Stretch.Fill);

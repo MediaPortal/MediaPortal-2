@@ -34,6 +34,22 @@ namespace SkinEngine.Controls.Visuals
 
     public Button()
     {
+      Init();
+    }
+    
+    public Button(Button b)
+      : base(b)
+    {
+      Init();
+      ControlTemplate = (UIElement)b.ControlTemplate.Clone();
+    }
+    public override object Clone()
+    {
+      return new Button(this);
+    }
+
+    void Init()
+    {
       _controlTemplateProperty = new Property(null);
       IsFocusable = true;
       _controlTemplateProperty.Attach(new PropertyChangedHandler(OnControlTemplateChanged));

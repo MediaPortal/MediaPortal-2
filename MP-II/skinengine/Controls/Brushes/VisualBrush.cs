@@ -37,7 +37,22 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public VisualBrush()
     {
+      Init();
+    }
+
+    public VisualBrush(VisualBrush b)
+      : base(b)
+    {
+      Init();
+      Visual = b.Visual;
+    }
+    void Init()
+    {
       _visualProperty = new Property(null);
+    }
+    public override object Clone()
+    {
+      return new VisualBrush(this);
     }
 
     /// <summary>

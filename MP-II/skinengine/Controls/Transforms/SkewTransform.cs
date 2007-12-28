@@ -39,10 +39,27 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public SkewTransform()
     {
+      Init();
+    }
+    public SkewTransform(SkewTransform r)
+      : base(r)
+    {
+      Init();
+      CenterX = r.CenterX;
+      CenterY = r.CenterY;
+      AngleX = r.AngleX;
+      AngleY = r.AngleY;
+    }
+    void Init()
+    {
       _centerYProperty = new Property((double)0.0);
       _centerXProperty = new Property((double)0.0);
       _angleXProperty = new Property((double)0.0);
       _angleYProperty = new Property((double)0.0);
+    }
+    public override object Clone()
+    {
+      return new SkewTransform(this);
     }
 
     /// <summary>

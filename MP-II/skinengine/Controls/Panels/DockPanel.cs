@@ -32,6 +32,17 @@ namespace SkinEngine.Controls.Panels
 {
   public class DockPanel : Panel
   {
+    public DockPanel()
+    {
+    }
+    public DockPanel(DockPanel v)
+      : base(v)
+    {
+    }
+    public override object Clone()
+    {
+      return new DockPanel(this);
+    }
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -40,6 +51,7 @@ namespace SkinEngine.Controls.Panels
     {
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         child.Measure(availableSize);
       }
       if (Width > 0) availableSize.Width = (int)Width;
@@ -55,14 +67,15 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);
-      this.ActualWidth = finalRect.Width;
-      this.ActualHeight = finalRect.Height;
+      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
+      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
+      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
 
       float offsetTop = 0.0f;
       float offsetBottom = 0.0f;
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         if (child.Dock == Dock.Top)
         {
           Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + offsetTop));
@@ -81,6 +94,7 @@ namespace SkinEngine.Controls.Panels
       float offsetRight = 0.0f;
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         if (child.Dock == Dock.Left)
         {
           Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
@@ -97,6 +111,7 @@ namespace SkinEngine.Controls.Panels
 
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         if (child.Dock == Dock.Center)
         {
           float width = (float)(ActualWidth - (offsetLeft + offsetRight));

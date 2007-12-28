@@ -64,6 +64,20 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public GradientBrush()
     {
+      Init();
+    }
+
+    public GradientBrush(GradientBrush b)
+      : base(b)
+    {
+      Init();
+      GradientStops = (GradientStopCollection)b.GradientStops.Clone();
+      ColorInterpolationMode = b.ColorInterpolationMode;
+      SpreadMethod = b.SpreadMethod;
+      MappingMode = b.MappingMode;
+    }
+    void Init()
+    {
       _gradientStopsProperty = new Property(new GradientStopCollection(this));
       _colorInterpolationModeProperty = new Property(ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new Property(GradientSpreadMethod.GradientSpreadMethodPad);

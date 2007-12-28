@@ -34,7 +34,7 @@ namespace SkinEngine.Controls.Visuals
   public enum Orientation { Vertical, Horizontal };
   public enum Dock { Left, Right, Top, Bottom, Center };
 
-  public class Visual
+  public class Visual : ICloneable
   {
     Property _visualParentProperty;
 
@@ -43,9 +43,17 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public Visual()
     {
+      Init();
+    }
+    public Visual(Visual v)
+    {
+      Init();
+      VisualParent = v.VisualParent;
+    }
+    void Init()
+    {
       _visualParentProperty = new Property(null);
     }
-
 
     /// <summary>
     /// Gets or sets the visual parent property.
@@ -96,6 +104,15 @@ namespace SkinEngine.Controls.Visuals
     public virtual void DoRender()
     {
     }
+
+    #region ICloneable Members
+
+    public virtual object Clone()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }
 

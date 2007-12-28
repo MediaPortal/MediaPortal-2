@@ -47,21 +47,41 @@ namespace SkinEngine.Controls.Brushes
   ///   - viewbox
   ///   - resource cleanup (textures & vertexbuffers)
   /// </summary>
-  public class Brush : Property
+  public class Brush : Property, ICloneable
   {
     Property _opacityProperty;
     Property _relativeTransformProperty;
     Property _transformProperty;
+    Property _keyProperty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
     /// </summary>
     public Brush()
     {
+      Init();
+    }
+
+    public Brush(Brush b)
+    {
+      Init();
+      Key = b.Key;
+      Opacity = b.Opacity;
+      RelativeTransform = (TransformGroup)b.RelativeTransform.Clone();
+      Transform = (TransformGroup)b.Transform.Clone();
+    }
+    void Init()
+    {
+      _keyProperty = new Property("");
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
       _transformProperty = new Property(new TransformGroup());
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    public virtual object Clone()
+    {
+      return new Brush(this);
     }
 
     /// <summary>
@@ -82,6 +102,37 @@ namespace SkinEngine.Controls.Brushes
     {
     }
 
+    /// <summary>
+    /// Gets or sets the key property.
+    /// </summary>
+    /// <value>The key property.</value>
+    public Property KeyProperty
+    {
+      get
+      {
+        return _keyProperty;
+      }
+      set
+      {
+        _keyProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the key.
+    /// </summary>
+    /// <value>The key.</value>
+    public string Key
+    {
+      get
+      {
+        return _keyProperty.GetValue() as string;
+      }
+      set
+      {
+        _keyProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the opacity property.
     /// </summary>

@@ -37,7 +37,21 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public TransformGroup()
     {
+      Init();
+    }
+    public TransformGroup(TransformGroup g)
+      : base(g)
+    {
+      Init();
+      Children = (TransformCollection)g.Children.Clone();
+    }
+    void Init()
+    {
       _childrenProperty = new Property(new TransformCollection());
+    }
+    public override object Clone()
+    {
+      return new TransformGroup(this);
     }
 
     /// <summary>

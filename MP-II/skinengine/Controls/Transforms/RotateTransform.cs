@@ -41,9 +41,26 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public RotateTransform()
     {
+      Init();
+    }
+
+    public RotateTransform(RotateTransform r)
+      : base(r)
+    {
+      Init();
+      CenterX = r.CenterX;
+      CenterY = r.CenterY;
+      Angle = r.Angle;
+    }
+    void Init()
+    {
       _centerYProperty = new Property((double)0.0);
       _centerXProperty = new Property((double)0.0);
       _angleProperty = new Property((double)0.0);
+    }
+    public override object Clone()
+    {
+      return new RotateTransform(this);
     }
 
     /// <summary>

@@ -31,6 +31,17 @@ namespace SkinEngine.Controls.Panels
 {
   public class Canvas : Panel
   {
+    public Canvas()
+    {
+    }
+    public Canvas(Canvas v)
+      : base(v)
+    {
+    }
+    public override object Clone()
+    {
+      return new Canvas(this);
+    }
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -40,6 +51,7 @@ namespace SkinEngine.Controls.Panels
       Rectangle rect = new Rectangle(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         child.Measure(availableSize);
         rect = Rectangle.Union(rect, new Rectangle(new Point((int)child.Position.X, (int)child.Position.Y), new Size((int)child.DesiredSize.Width, (int)child.DesiredSize.Height)));
       }
@@ -56,11 +68,12 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);
-      this.ActualWidth = finalRect.Width;
-      this.ActualHeight = finalRect.Height;
+      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
+      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
+      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         child.Arrange(new Rectangle(new Point((int)(child.Position.X + this.ActualPosition.X),
                                                (int)(child.Position.Y + this.ActualPosition.Y)),
                                                child.DesiredSize));

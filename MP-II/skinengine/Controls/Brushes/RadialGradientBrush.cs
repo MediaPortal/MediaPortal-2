@@ -56,6 +56,20 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public RadialGradientBrush()
     {
+      Init();
+    }
+
+    public RadialGradientBrush(RadialGradientBrush b)
+      : base(b)
+    {
+      Init();
+      Center = b.Center;
+      GradientOrigin = b.GradientOrigin;
+      RadiusX = b.RadiusX;
+      RadiusY = b.RadiusY;
+    }
+    void Init()
+    {
       _centerProperty = new Property(new Vector2(0.5f, 0.5f));
       _gradientOriginProperty = new Property(new Vector2(0.5f, 0.5f));
       _radiusXProperty = new Property((double)0.5f);
@@ -67,6 +81,10 @@ namespace SkinEngine.Controls.Brushes
       _radiusYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    public override  object Clone()
+    {
+      return new RadialGradientBrush(this);
+    }
     /// <summary>
     /// Gets or sets the center property.
     /// </summary>

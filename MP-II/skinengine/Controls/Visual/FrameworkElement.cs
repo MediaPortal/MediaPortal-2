@@ -43,6 +43,20 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public FrameworkElement()
     {
+      Init();
+    }
+
+    public FrameworkElement(FrameworkElement el)
+      : base((UIElement)el)
+    {
+      Init();
+      Width = el.Width;
+      Height = el.Height;
+      ActualWidth = el.ActualWidth;
+      ActualHeight = el.ActualHeight;
+    }
+    void Init()
+    {
       _widthProperty = new Property((double)0.0f);
       _heightProperty = new Property((double)0.0f);
 
@@ -54,7 +68,6 @@ namespace SkinEngine.Controls.Visuals
       _widthProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
-
     /// <summary>
     /// Called when a property value has been changed
     /// Since all UIElement properties are layout properties

@@ -45,9 +45,23 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public ImageBrush()
     {
+      Init();
+    }
+    public ImageBrush(ImageBrush b)
+      : base(b)
+    {
+      Init();
+      ImageSource = b.ImageSource;
+    }
+    void Init()
+    {
       _imageSourceProperty = new Property(null);
       _downloadProgressProperty = new Property((double)0.0f);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+    public override object Clone()
+    {
+      return new ImageBrush(this);
     }
 
     /// <summary>

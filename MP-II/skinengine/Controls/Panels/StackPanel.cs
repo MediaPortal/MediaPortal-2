@@ -33,13 +33,27 @@ namespace SkinEngine.Controls.Panels
   public class StackPanel : Panel
   {
     Property _orientationProperty;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="StackPanel"/> class.
     /// </summary>
     public StackPanel()
     {
+      Init();
+    }
+    public StackPanel(StackPanel v)
+      : base(v)
+    {
+      Init();
+    }
+    void Init()
+    {
       _orientationProperty = new Property(Orientation.Vertical);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
+    }
+    public override object Clone()
+    {
+      return new StackPanel(this);
     }
 
     /// <summary>
@@ -85,6 +99,7 @@ namespace SkinEngine.Controls.Panels
       Size childSize = availableSize;
       foreach (UIElement child in Children)
       {
+        if (!child.IsVisible) continue;
         child.Measure(childSize);
         if (Orientation == Orientation.Vertical)
         {
@@ -115,9 +130,9 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      this.ActualPosition = new Microsoft.DirectX.Vector3(finalRect.X, finalRect.Y, 1.0f);
-      this.ActualWidth = finalRect.Width;
-      this.ActualHeight = finalRect.Height;
+      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
+      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
+      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
       switch (Orientation)
       {
         case Orientation.Vertical:
@@ -125,6 +140,7 @@ namespace SkinEngine.Controls.Panels
             float totalHeight = 0;
             foreach (UIElement child in Children)
             {
+              if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + totalHeight));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -159,6 +175,7 @@ namespace SkinEngine.Controls.Panels
             float totalWidth = 0;
             foreach (UIElement child in Children)
             {
+              if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 

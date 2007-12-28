@@ -51,7 +51,7 @@ namespace MyXaml.Core
 
     public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
 
-    public delegate object GetResourceDlgt(object parser, string resourceName);
+    public delegate object GetResourceDlgt(object parser,object obj, string resourceName);
 
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
@@ -1142,7 +1142,7 @@ namespace MyXaml.Core
             if (OnGetResource != null)
             {
               int pos = refVal.IndexOf(' ');
-              object objValue = OnGetResource(this, refVal.Substring(pos + 1));
+              object objValue = OnGetResource(this,obj, refVal.Substring(pos + 1));
               Type t = obj.GetType();
               PropertyInfo prop = t.GetProperty(propertyName);
               MethodInfo setInfo = prop.GetSetMethod();
@@ -1698,6 +1698,7 @@ namespace MyXaml.Core
         }
         try
         {
+          
           pi.SetValue(obj, classInstance, null);						// Assign the instance to the parent's property.
         }
         catch
@@ -1838,11 +1839,11 @@ namespace MyXaml.Core
     protected bool TestForCollection(object obj, object classInstance, XmlNode node)
     {
       bool ret = false;
-
       if (obj is IList)													// If the parent implements IList...
       {
         // MTC - 06/28/06 : Changed in the root caller.
         // MTC - 03/04/06 : Need to process attributes before adding a node to a collection.
+        ((IList)obj).Add(classInstance);								// Attempt to add the instance.
         ProcessAttributes(classInstance, node);							// Process attributes before adding instance to collection!
 
         // Finish initialization before adding to collection.
@@ -1855,7 +1856,6 @@ namespace MyXaml.Core
         //    ((ISupportInitialize)classInstance).EndInit();
         //}
 
-        ((IList)obj).Add(classInstance);								// Attempt to add the instance.
         // Commenting out the next line causes events in IList objects to be wired up twice.
         ret = true;
       }

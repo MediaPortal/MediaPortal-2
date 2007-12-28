@@ -49,6 +49,22 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public Panel()
     {
+      Init();
+    }
+    public Panel(Panel p)
+    {
+      Init();
+      AlignmentX = p.AlignmentX;
+      AlignmentY = p.AlignmentY;
+      Background = (Brush)Background.Clone();
+      foreach (UIElement el in Children)
+      {
+        Children.Add((UIElement)el.Clone());
+      }
+    }
+
+    void Init()
+    {
       _childrenProperty = new Property(new UIElementCollection(this));
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Top);
@@ -136,10 +152,6 @@ namespace SkinEngine.Controls.Panels
       get
       {
         return _childrenProperty.GetValue() as UIElementCollection;
-      }
-      set
-      {
-        _childrenProperty.SetValue(value);
       }
     }
 
@@ -389,7 +401,7 @@ namespace SkinEngine.Controls.Panels
 
     public int Count
     {
-      get 
+      get
       {
         return Children.Count;
       }
@@ -397,7 +409,7 @@ namespace SkinEngine.Controls.Panels
 
     public bool IsSynchronized
     {
-      get 
+      get
       {
         return true;
       }
@@ -405,8 +417,8 @@ namespace SkinEngine.Controls.Panels
 
     public object SyncRoot
     {
-      get 
-      { 
+      get
+      {
         throw new Exception("The method or operation is not implemented.");
       }
     }

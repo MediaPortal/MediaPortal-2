@@ -29,11 +29,21 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Transforms
 {
-  public class Transform : Property
+  public class Transform : Property, ICloneable
   {
     protected bool _needUpdate = true;
     protected Matrix _matrix = Matrix.Identity;
 
+    public Transform()
+    {
+    }
+    public Transform(Transform r)
+    {
+    }
+    public virtual object Clone()
+    {
+      return new Transform(this);
+    }
     /// <summary>
     /// Called when [property changed].
     /// </summary>

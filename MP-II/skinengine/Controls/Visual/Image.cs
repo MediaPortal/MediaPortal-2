@@ -40,6 +40,19 @@ namespace SkinEngine.Controls.Visuals
 
     public Image()
     {
+      Init();
+    }
+    public Image(Image img)
+      : base((FrameworkElement)img)
+    {
+      Init();
+      ImageSource = img.ImageSource;
+      Stretch = img.Stretch;
+      StretchDirection = img.StretchDirection;
+      Opacity = img.Opacity;
+    }
+    void Init()
+    {
       _imageSourceProperty = new Property(null);
       _stretchDirectionProperty = new Property(StretchDirection.Both);
       _stretchProperty = new Property(Stretch.Fill);
@@ -48,7 +61,10 @@ namespace SkinEngine.Controls.Visuals
       _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
-
+    public override object Clone()
+    {
+      return new Image(this);
+    }
     /// <summary>
     /// Called when a property changed. 
     /// Simply sets a variable to indicate a layout needs to be performed
@@ -206,9 +222,9 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
+      ActualPosition = new Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
+      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
+      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
 
       PerformLayout();
       base.Arrange(finalRect);

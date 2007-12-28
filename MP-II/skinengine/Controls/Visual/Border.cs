@@ -56,6 +56,22 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public Border()
     {
+      Init();
+    }
+
+    public Border(Border b)
+      : base((FrameworkElement)b)
+    {
+      Init();
+      if (b.BorderBrush != null)
+        this.BorderBrush = (Brush)b.BorderBrush.Clone();
+      if (b.Background != null)
+        this.Background = (Brush)b.Background.Clone();
+      BorderThickness = b.BorderThickness;
+      CornerRadius = b.CornerRadius;
+    }
+    void Init()
+    {
       _borderProperty = new Property(null);
       _backgroundProperty = new Property(null);
       _borderThicknessProperty = new Property((double)1.0);
@@ -66,6 +82,11 @@ namespace SkinEngine.Controls.Visuals
       _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    public override object Clone()
+    {
+      return new Border(this);
     }
 
     void OnPropertyChanged(Property property)
@@ -496,9 +517,9 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
+      ActualPosition = new Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
+      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
+      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
       PerformLayout();
       base.Arrange(finalRect);
     }

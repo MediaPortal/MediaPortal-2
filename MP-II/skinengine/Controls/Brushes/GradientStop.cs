@@ -29,7 +29,7 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public class GradientStop : Property
+  public class GradientStop : Property,ICloneable
   {
     Property _colorProperty;
     Property _offsetProperty;
@@ -39,10 +39,25 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public GradientStop()
     {
+      Init();
+    }
+
+    public GradientStop(GradientStop b)
+    {
+      Init();
+      Color = b.Color;
+      Offset = b.Offset;
+    }
+    void Init()
+    {
       _colorProperty = new Property(Color.White);
       _offsetProperty = new Property((double)0.0f);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _offsetProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+    public virtual object Clone()
+    {
+      return new GradientStop(this);
     }
 
     /// <summary>

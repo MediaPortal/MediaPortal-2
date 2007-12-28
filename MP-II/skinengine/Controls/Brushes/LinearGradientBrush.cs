@@ -53,11 +53,27 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public LinearGradientBrush()
     {
+      Init();
+    }
+    public LinearGradientBrush(LinearGradientBrush b)
+      : base(b)
+    {
+      Init();
+      StartPoint = b.StartPoint;
+      EndPoint = b.EndPoint;
+    }
+    void Init()
+    {
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
       ContentManager.Add(this);
       _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    public override  object Clone()
+    {
+      return new LinearGradientBrush(this);
     }
 
     /// <summary>

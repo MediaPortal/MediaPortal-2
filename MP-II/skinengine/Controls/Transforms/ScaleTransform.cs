@@ -36,12 +36,30 @@ namespace SkinEngine.Controls.Transforms
     Property _scaleYProperty;
     public ScaleTransform()
     {
+      Init();
+    }
+
+    public ScaleTransform(ScaleTransform r)
+      : base(r)
+    {
+      Init();
+      CenterX = r.CenterX;
+      CenterY = r.CenterY;
+      ScaleX = r.ScaleX;
+      ScaleY = r.ScaleY;
+    }
+    void Init()
+    {
       _centerYProperty = new Property((double)0.0);
       _centerXProperty = new Property((double)0.0);
       _scaleXProperty = new Property((double)0.0);
       _scaleYProperty = new Property((double)0.0);
     }
 
+    public override object Clone()
+    {
+      return new ScaleTransform(this);
+    }
     /// <summary>
     /// Gets or sets the center X property.
     /// </summary>
