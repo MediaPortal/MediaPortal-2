@@ -38,6 +38,8 @@ namespace SkinEngine.Controls.Visuals
     Property _acutalWidthProperty;
     Property _actualHeightProperty;
 
+    bool _mouseOver = false;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
     /// </summary>
@@ -209,5 +211,21 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
 
+    public override void OnMouseMove(float x, float y)
+    {
+      if (x >= ActualPosition.X && x <= ActualPosition.X + ActualWidth)
+      {
+        if (y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight)
+        {
+          if (!_mouseOver)
+          {
+            _mouseOver = true;
+            FireEvent("OnMouseEnter");
+          }
+          return;
+        }
+      }
+      _mouseOver = false;
+    }
   }
 }

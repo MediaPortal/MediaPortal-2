@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
 
@@ -47,6 +48,7 @@ namespace SkinEngine.Controls.Animations
     public DoubleAnimation(DoubleAnimation a)
       : base(a)
     {
+      Init();
       From = a.From;
       To = a.To;
       By = a.By;
@@ -244,6 +246,14 @@ namespace SkinEngine.Controls.Animations
     {
       base.Start(timePassed);
       //find property
+      _property = null;
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      UIElement element = VisualTreeHelper.Instance.FindElement(TargetName);
+      if (element == null) return;
+      Type t = element.GetType();
+      PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
+      MethodInfo minfo = pinfo.GetGetMethod();
+      _property = minfo.Invoke(element, null) as Property;
     }
   }
 }

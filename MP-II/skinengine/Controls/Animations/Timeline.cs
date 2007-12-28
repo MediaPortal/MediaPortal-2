@@ -27,7 +27,8 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Animations
 {
-  public enum RepeatBehaviour { None, Forever }
+  public enum RepeatBehaviour { None, Forever };
+  public enum FillBehaviour { HoldEnd, Stop };
 
   public class Timeline : ICloneable
   {
@@ -45,6 +46,7 @@ namespace SkinEngine.Controls.Animations
     Property _decelerationRatioProperty;
     Property _durationProperty;
     Property _repeatBehaviourProperty;
+    Property _fillBehaviourProperty;
 
     protected uint _timeStarted;
     protected State _state = State.Idle;
@@ -66,6 +68,7 @@ namespace SkinEngine.Controls.Animations
       DecelerationRatio = a.DecelerationRatio;
       Duration = a.Duration;
       Key = a.Key;
+      FillBehaviour = a.FillBehaviour;
     }
     public virtual object Clone()
     {
@@ -80,6 +83,7 @@ namespace SkinEngine.Controls.Animations
       _decelerationRatioProperty = new Property(1.0);
       _durationProperty = new Property(new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
+      _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
     }
 
     /// <summary>
@@ -304,6 +308,33 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public Property FillBehaviourProperty
+    {
+      get
+      {
+        return _fillBehaviourProperty;
+      }
+      set
+      {
+        _fillBehaviourProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the fill behaviour.
+    /// </summary>
+    /// <value>The fill behaviour.</value>
+    public FillBehaviour FillBehaviour
+    {
+      get
+      {
+        return (FillBehaviour)_fillBehaviourProperty.GetValue();
+      }
+      set
+      {
+        _fillBehaviourProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -396,7 +427,25 @@ namespace SkinEngine.Controls.Animations
     /// </summary>
     public virtual void Stop()
     {
+      if (FillBehaviour == FillBehaviour.Stop)
+      {
+        AnimateProperty(0);
+      }
       _state = State.Idle;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this timeline is stopped.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
+    /// </value>
+    public virtual bool IsStopped
+    {
+      get
+      {
+        return (_state == State.Idle);
+      }
     }
   }
 }

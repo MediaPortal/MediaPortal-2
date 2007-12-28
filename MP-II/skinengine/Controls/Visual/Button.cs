@@ -36,7 +36,7 @@ namespace SkinEngine.Controls.Visuals
     {
       Init();
     }
-    
+
     public Button(Button b)
       : base(b)
     {
@@ -120,6 +120,9 @@ namespace SkinEngine.Controls.Visuals
       if (ControlTemplate != null)
       {
         ControlTemplate.Arrange(finalRect);
+        ActualPosition = ControlTemplate.ActualPosition;
+        ActualHeight = ((FrameworkElement)ControlTemplate).ActualHeight;
+        ActualWidth = ((FrameworkElement)ControlTemplate).ActualWidth;
       }
       base.Arrange(finalRect);
     }

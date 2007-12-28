@@ -328,7 +328,43 @@ namespace SkinEngine.Controls.Panels
 
     #endregion
 
+    /// <summary>
+    /// Called when the mouse moves
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public override void OnMouseMove(float x, float y)
+    {
+      foreach (UIElement element in Children)
+      {
+        if (false == element.IsVisible) continue;
+        element.OnMouseMove(x, y);
+      }
+    }
 
+    public override void Animate()
+    {
+      foreach (UIElement element in Children)
+      {
+        if (false == element.IsVisible) continue;
+        element.Animate();
+      }
+    }
+
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public override UIElement FindElement(string name)
+    {
+      foreach (UIElement element in Children)
+      {
+        UIElement found = element.FindElement(name);
+        if (found != null) return found;
+      }
+      return null;
+    }
 
     #region IList Members
 

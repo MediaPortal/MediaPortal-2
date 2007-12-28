@@ -62,6 +62,7 @@ namespace SkinEngine
     private static Property _timeProperty = new Property(DateTime.Now);
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
+    public static uint TimePassed;
     #endregion
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]

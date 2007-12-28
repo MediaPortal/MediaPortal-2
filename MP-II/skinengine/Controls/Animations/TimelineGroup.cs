@@ -40,11 +40,11 @@ namespace SkinEngine.Controls.Animations
       Init();
     }
 
-    public TimelineGroup(TimelineGroup a)
-      : base(a)
+    public TimelineGroup(TimelineGroup grp)
+      : base(grp)
     {
       Init();
-      foreach (Timeline t in Children)
+      foreach (Timeline t in grp.Children)
       {
         Children.Add((Timeline)t.Clone());
       }
@@ -53,6 +53,7 @@ namespace SkinEngine.Controls.Animations
     {
       return new TimelineGroup(this);
     }
+
     void Init()
     {
       _childrenProperty = new Property(new TimelineCollection());
@@ -118,6 +119,24 @@ namespace SkinEngine.Controls.Animations
       foreach (Timeline child in Children)
       {
         child.Stop();
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this timeline is stopped.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
+    /// </value>
+    public override bool IsStopped
+    {
+      get
+      {
+        foreach (Timeline child in Children)
+        {
+          if (!child.IsStopped) return false;
+        }
+        return true;
       }
     }
 

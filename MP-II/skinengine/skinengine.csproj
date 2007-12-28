@@ -165,6 +165,7 @@
     <Compile Include="Controls\Visual\UIElement.cs" />
     <Compile Include="Controls\Visual\UIElementCollection.cs" />
     <Compile Include="Controls\Visual\Visual.cs" />
+    <Compile Include="Controls\Visual\VisualTreeHelper.cs" />
     <Compile Include="Controls\WaitCursor.cs" />
     <Compile Include="Animations\Animations\IAnimation.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />

@@ -30,6 +30,8 @@ using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Triggers;
+using SkinEngine.Controls.Animations;
+
 namespace SkinEngine.Controls.Visuals
 {
   public class UIElement : Visual
@@ -47,6 +49,7 @@ namespace SkinEngine.Controls.Visuals
     protected Size _availableSize;
     bool _isArrangeValid;
     ResourceDictionary _resources;
+    List<Timeline> _runningAnimations;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -76,6 +79,7 @@ namespace SkinEngine.Controls.Visuals
     }
     void Init()
     {
+      _runningAnimations = new List<Timeline>();
       _nameProperty = new Property("");
       _keyProperty = new Property("");
       _isFocusableProperty = new Property(false);
@@ -518,6 +522,65 @@ namespace SkinEngine.Controls.Visuals
       {
         return VisualParent.FindResource(resourceKey);
       }
+      return null;
+    }
+
+    /// <summary>
+    /// Fires an event.
+    /// </summary>
+    /// <param name="eventName">Name of the event.</param>
+    public virtual void FireEvent(string eventName)
+    {
+      foreach (EventTrigger trigger in Triggers)
+      {
+        if (trigger.RoutedEvent == eventName)
+        {
+          if (trigger.Storyboard != null)
+          {
+            trigger.Storyboard.Start(SkinContext.TimePassed);
+            _runningAnimations.Add(trigger.Storyboard);
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
+    public virtual void Animate()
+    {
+      if (_runningAnimations.Count == 0) return;
+      List<Timeline> stoppedAnimations = new List<Timeline>();
+      foreach (Timeline line in _runningAnimations)
+      {
+        line.Animate(SkinContext.TimePassed);
+        if (line.IsStopped)
+          stoppedAnimations.Add(line);
+      }
+      foreach (Timeline line in stoppedAnimations)
+      {
+        line.Stop();
+        _runningAnimations.Remove(line);
+      }
+    }
+    /// <summary>
+    /// Called when the mouse moves
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public virtual void OnMouseMove(float x, float y)
+    {
+    }
+
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public virtual UIElement FindElement(string name)
+    {
+      if (Name == name)
+        return this;
       return null;
     }
   }
