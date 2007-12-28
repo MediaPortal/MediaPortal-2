@@ -36,7 +36,6 @@ namespace SkinEngine.Controls.Visuals
 
   public class Visual
   {
-    Property _surfaceProperty;
     Property _visualParentProperty;
 
     /// <summary>
@@ -44,42 +43,9 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public Visual()
     {
-      _surfaceProperty = new Property(null);
       _visualParentProperty = new Property(null);
     }
 
-    /// <summary>
-    /// Gets or sets the surface property.
-    /// </summary>
-    /// <value>The surface property.</value>
-    public Property SurfaceProperty
-    {
-      get
-      {
-        return _surfaceProperty;
-      }
-      set
-      {
-        _surfaceProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the surface.
-    /// </summary>
-    /// <value>The surface.</value>
-    /// @todo: surface returns a surface,not an uri
-    public Uri Surface
-    {
-      get
-      {
-        return (Uri)_surfaceProperty.GetValue();
-      }
-      set
-      {
-        _surfaceProperty.SetValue(value);
-      }
-    }
 
     /// <summary>
     /// Gets or sets the visual parent property.
