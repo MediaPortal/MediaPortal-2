@@ -188,6 +188,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "DoubleAnimation")
         return true;
+      else if (name == "PointAnimation")
+        return true;
       else if (name == "Storyboard")
         return true;
 
@@ -263,6 +265,8 @@ namespace SkinEngine.Skin
         return new ColorAnimation();
       else if (name == "DoubleAnimation")
         return new DoubleAnimation();
+      else if (name == "PointAnimation")
+        return new PointAnimation();
       else if (name == "Storyboard")
         return new Storyboard();
 

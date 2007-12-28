@@ -118,6 +118,7 @@
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\ParallelTimeline.cs" />
+    <Compile Include="Controls\Animations\PointAnimation.cs" />
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineCollection.cs" />

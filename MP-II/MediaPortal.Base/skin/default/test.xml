@@ -10,9 +10,12 @@
       <Storyboard Key="animateWidth">
         <DoubleAnimation From="100" To="50" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
         <ColorAnimation From="Red" To="Yellow" Duration="0:0:1"  TargetName="borderRadius.Background.GradientStops[0]" TargetProperty="Color"/>
+        <PointAnimation From="0.5,0.5" To="0.3,0.3" Duration="0:0:1"  TargetName="borderRadius.Background" TargetProperty="Center"/>
       </Storyboard>
       <Storyboard Key="animateWidthReverse">
         <DoubleAnimation From="50" To="100" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
+        <ColorAnimation From="Yellow" To="Red" Duration="0:0:1"  TargetName="borderRadius.Background.GradientStops[0]" TargetProperty="Color"/>
+        <PointAnimation From="0.3,0.3" To="0.5,0.5" Duration="0:0:1"  TargetName="borderRadius.Background" TargetProperty="Center"/>
       </Storyboard>
     </Resources>
     <Background>
