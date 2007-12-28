@@ -42,6 +42,7 @@ namespace SkinEngine.Controls.Visuals
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
+    Property _marginProperty;
     bool _isArrangeValid;
 
     /// <summary>
@@ -55,10 +56,12 @@ namespace SkinEngine.Controls.Visuals
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
       _dockProperty = new Property(Dock.Top);
+      _marginProperty = new Property(new Vector4(0, 0, 0, 0));
 
       _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
 
     }
 
@@ -262,6 +265,39 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _visibleProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the margin property.
+    /// </summary>
+    /// <value>The margin property.</value>
+    public Property MarginProperty
+    {
+      get
+      {
+        return _marginProperty;
+      }
+      set
+      {
+        _marginProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the margin.
+    /// </summary>
+    /// <value>The margin.</value>
+    public Vector4 Margin
+    {
+      get
+      {
+        return (Vector4)_marginProperty.GetValue();
+      }
+      set
+      {
+        _marginProperty.SetValue(value);
       }
     }
 

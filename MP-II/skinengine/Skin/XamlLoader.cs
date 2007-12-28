@@ -68,6 +68,10 @@ namespace SkinEngine.Skin
       {
         e.Result = GetVector3(e.Value.ToString());
       }
+      else if (e.PropertyType == typeof(Vector4))
+      {
+        e.Result = GetVector4(e.Value.ToString());
+      }
     }
 
     /// <summary>
@@ -125,6 +129,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Button")
         return true;
+      else if (name == "Label")
+        return true;
 
 
       //brushes
@@ -165,6 +171,8 @@ namespace SkinEngine.Skin
         return new Image();
       else if (name == "Button")
         return new Button();
+      else if (name == "Label")
+        return new Label();
 
 
       //brushes
@@ -231,6 +239,37 @@ namespace SkinEngine.Skin
       if (coords.Length > 2)
       {
         vec.Z = GetFloat(coords[2]);
+      }
+      return vec;
+    }
+    /// <summary>
+    /// converts a string into a vector4 format
+    /// </summary>
+    /// <param name="position">The position in '0.2,0.3,0.4,0.5' format</param>
+    /// <returns></returns>
+    protected Vector4 GetVector4(string position)
+    {
+      if (position == null)
+      {
+        return new Vector4(0, 0, 0, 0);
+      }
+      Vector4 vec = new Vector4();
+      string[] coords = position.Split(new char[] { ',' });
+      if (coords.Length > 0)
+      {
+        vec.X = GetFloat(coords[0]);
+      }
+      if (coords.Length > 1)
+      {
+        vec.Y = GetFloat(coords[1]);
+      }
+      if (coords.Length > 2)
+      {
+        vec.W = GetFloat(coords[2]);
+      }
+      if (coords.Length > 3)
+      {
+        vec.Z = GetFloat(coords[3]);
       }
       return vec;
     }

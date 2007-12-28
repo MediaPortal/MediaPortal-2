@@ -17,5 +17,6 @@
         </LinearGradientBrush>
       </Background>
     </Border>
+    <Label Text="hallo" Font="font13"/>
   </Canvas>
 </MyXaml>
