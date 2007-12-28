@@ -29,7 +29,7 @@ namespace SkinEngine.Controls.Animations
 {
   public enum RepeatBehaviour { None, Forever }
 
-  public class Timeline
+  public class Timeline : ICloneable
   {
     protected enum State
     {
@@ -38,6 +38,7 @@ namespace SkinEngine.Controls.Animations
       Running,
       Reverse
     };
+    Property _keyProperty;
     Property _beginTimeProperty;
     Property _accellerationProperty;
     Property _autoReverseProperty;
@@ -53,6 +54,26 @@ namespace SkinEngine.Controls.Animations
     /// </summary>
     public Timeline()
     {
+      Init();
+    }
+
+    public Timeline(Timeline a)
+    {
+      Init();
+      BeginTime = a.BeginTime;
+      Accelleration = a.Accelleration;
+      AutoReverse = a.AutoReverse;
+      DecelerationRatio = a.DecelerationRatio;
+      Duration = a.Duration;
+      Key = a.Key;
+    }
+    public virtual object Clone()
+    {
+      return new Timeline(this);
+    }
+    void Init()
+    {
+      _keyProperty = new Property("");
       _beginTimeProperty = new Property(new TimeSpan(0, 0, 0));
       _accellerationProperty = new Property(1.0);
       _autoReverseProperty = new Property(false);
@@ -61,6 +82,37 @@ namespace SkinEngine.Controls.Animations
       _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
     }
 
+    /// <summary>
+    /// Gets or sets the key property.
+    /// </summary>
+    /// <value>The key property.</value>
+    public Property KeyProperty
+    {
+      get
+      {
+        return _keyProperty;
+      }
+      set
+      {
+        _keyProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the key.
+    /// </summary>
+    /// <value>The key.</value>
+    public string Key
+    {
+      get
+      {
+        return _keyProperty.GetValue() as string;
+      }
+      set
+      {
+        _keyProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the begin time property.
     /// </summary>

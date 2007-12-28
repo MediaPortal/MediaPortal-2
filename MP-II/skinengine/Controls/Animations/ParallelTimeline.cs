@@ -28,5 +28,17 @@ namespace SkinEngine.Controls.Animations
 {
   public class ParallelTimeline : TimelineGroup
   {
+    public ParallelTimeline()
+    {
+    }
+    public ParallelTimeline(ParallelTimeline a)
+      : base(a)
+    {
+    }
+    public override object Clone()
+    {
+      return new ParallelTimeline(this);
+    }
+
   }
 }

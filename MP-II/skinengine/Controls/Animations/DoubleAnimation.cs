@@ -40,6 +40,22 @@ namespace SkinEngine.Controls.Animations
     /// </summary>
     public DoubleAnimation()
     {
+      Init();
+    }
+    public DoubleAnimation(DoubleAnimation a)
+      : base(a)
+    {
+      From = a.From;
+      To = a.To;
+      By = a.By;
+      TargetProperty = a.TargetProperty;
+    }
+    public override object Clone()
+    {
+      return new DoubleAnimation(this);
+    }
+    void Init()
+    {
       _fromProperty = new Property(0.0);
       _toProperty = new Property(1.0);
       _byProperty = new Property(0.1);
@@ -164,7 +180,7 @@ namespace SkinEngine.Controls.Animations
       double dist = (To - From) / Duration.TotalMilliseconds;
       dist *= timepassed;
       dist += From;
-      TargetProperty.SetValue( (double) dist);
+      TargetProperty.SetValue((double)dist);
     }
 
   }

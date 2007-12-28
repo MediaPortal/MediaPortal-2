@@ -28,7 +28,17 @@ namespace SkinEngine.Controls.Animations
 {
   public class Storyboard : ParallelTimeline
   {
-
+    public Storyboard()
+    {
+    }
+    public Storyboard(Storyboard a)
+      : base(a)
+    {
+    }
+    public override object Clone()
+    {
+      return new Storyboard(this);
+    }
 
   }
 }

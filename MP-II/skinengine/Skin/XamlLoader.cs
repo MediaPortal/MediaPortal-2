@@ -173,6 +173,13 @@ namespace SkinEngine.Skin
       else if (name == "GradientStop")
         return true;
 
+      //animations
+      else if (name == "ColorAnimation")
+        return true;
+      else if (name == "DoubleAnimation")
+        return true;
+      else if (name == "Storyboard")
+        return true;
       return false;
     }
     /// <summary>
@@ -216,6 +223,13 @@ namespace SkinEngine.Skin
       else if (name == "GradientStop")
         return new GradientStop();
 
+      //animations
+      else if (name == "ColorAnimation")
+        return new ColorAnimation();
+      else if (name == "DoubleAnimation")
+        return new DoubleAnimation();
+      else if (name == "Storyboard")
+        return new Storyboard();
       return null;
     }
 

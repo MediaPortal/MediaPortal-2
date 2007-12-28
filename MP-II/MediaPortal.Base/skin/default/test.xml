@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
   <StackPanel Width="200">
+    <Resources>
+      <LinearGradientBrush Key="linearBrushRedGreenBlue" StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
+        <GradientStop Offset="0.0" Color="Red"/>
+        <GradientStop Offset="0.5" Color="Green"/>
+        <GradientStop Offset="1.0" Color="Blue"/>
+      </LinearGradientBrush>
+      <Storyboard Key="animateWidth">
+        <DoubleAnimation From="100" To="50" Duration="00:00:02"/>
+      </Storyboard>
+    </Resources>
     <Background>
       <SolidColorBrush Color="Black" Opacity="0.6"/>
     </Background>
@@ -9,14 +19,7 @@
         <SolidColorBrush Color="Yellow"/>
       </Background>
     </Border>
-    <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" >
-      <Background>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
-          <GradientStop Offset="0.0" Color="Red"/>
-          <GradientStop Offset="0.5" Color="Green"/>
-          <GradientStop Offset="1.0" Color="Blue"/>
-        </LinearGradientBrush>
-      </Background>
+    <Border Width="100" Height="60" BorderThickness="6" CornerRadius="10" Background="{StaticResource linearBrushRedGreenBlue}">
       <BorderBrush>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
           <GradientStop Offset="0.0" Color="Black"/>

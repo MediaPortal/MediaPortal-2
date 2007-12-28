@@ -28,7 +28,7 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Animations
 {
-  public class TimelineGroup : Timeline
+  public class TimelineGroup : Timeline, IList
   {
     Property _childrenProperty;
 
@@ -36,6 +36,24 @@ namespace SkinEngine.Controls.Animations
     /// Initializes a new instance of the <see cref="TimelineGroup"/> class.
     /// </summary>
     public TimelineGroup()
+    {
+      Init();
+    }
+
+    public TimelineGroup(TimelineGroup a)
+      : base(a)
+    {
+      Init();
+      foreach (Timeline t in Children)
+      {
+        Children.Add((Timeline)t.Clone());
+      }
+    }
+    public override object Clone()
+    {
+      return new TimelineGroup(this);
+    }
+    void Init()
     {
       _childrenProperty = new Property(new TimelineCollection());
     }
@@ -65,10 +83,6 @@ namespace SkinEngine.Controls.Animations
       get
       {
         return (TimelineCollection)_childrenProperty.GetValue();
-      }
-      set
-      {
-        _childrenProperty.SetValue(value);
       }
     }
 
@@ -106,5 +120,100 @@ namespace SkinEngine.Controls.Animations
         child.Stop();
       }
     }
+
+    #region IList Members
+
+    public int Add(object value)
+    {
+      Children.Add((Timeline)value);
+      return Children.Count;
+    }
+
+    public void Clear()
+    {
+      Children.Clear();
+    }
+
+    public bool Contains(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int IndexOf(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void Insert(int index, object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public bool IsFixedSize
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsReadOnly
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public void Remove(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void RemoveAt(int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public object this[int index]
+    {
+      get
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+      set
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+    }
+
+    #endregion
+
+    #region ICollection Members
+
+    public void CopyTo(Array array, int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int Count
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsSynchronized
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public object SyncRoot
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    public IEnumerator GetEnumerator()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }

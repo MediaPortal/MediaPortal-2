@@ -42,6 +42,22 @@ namespace SkinEngine.Controls.Animations
     /// </summary>
     public ColorAnimation()
     {
+      Init();
+    }
+    public ColorAnimation(ColorAnimation a)
+      :base(a)
+    {
+      From = a.From;
+      To = a.To;
+      By = a.By;
+      TargetProperty = a.TargetProperty;
+    }
+    public override object Clone()
+    {
+      return new ColorAnimation(this);
+    }
+    void Init()
+    {
       _targetProperty = null;
       _fromProperty = new Property(Color.Black);
       _toProperty = new Property(Color.White);
