@@ -246,19 +246,21 @@ namespace SkinEngine.Controls.Visuals
     public void PerformLayout()
     {
       Free();
+      double w = Width; if (w == 0) w = ActualWidth;
+      double h = Height; if (h == 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       //background brush
       if (BorderBrush == null || BorderThickness <= 0)
       {
         ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = Width;
-        ActualHeight = Height;
+        ActualWidth = w;
+        ActualHeight = h;
       }
       else
       {
         ActualPosition = new Vector3((float)(ActualPosition.X + BorderThickness), (float)(ActualPosition.Y + BorderThickness), 1);
-        ActualWidth = Width - 2 * +BorderThickness;
-        ActualHeight = Height - 2 * +BorderThickness;
+        ActualWidth = w - 2 * +BorderThickness;
+        ActualHeight = h - 2 * +BorderThickness;
       }
       GraphicsPath path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
       PointF[] vertices = ConvertPathToTriangleFan(path, (int)+(ActualPosition.X + ActualWidth / 2), (int)(ActualPosition.Y + ActualHeight / 2));
@@ -284,8 +286,8 @@ namespace SkinEngine.Controls.Visuals
       if (BorderBrush != null && BorderThickness > 0)
       {
         ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = Width;
-        ActualHeight = Height;
+        ActualWidth = w;
+        ActualHeight = h;
         float centerX = (float)(ActualPosition.X + ActualWidth / 2);
         float centerY = (float)(ActualPosition.Y + ActualHeight / 2);
         path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
@@ -308,6 +310,8 @@ namespace SkinEngine.Controls.Visuals
       }
 
       ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
+      ActualWidth = w;
+      ActualHeight = h;
     }
 
 
@@ -506,6 +510,10 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      if (Width == 0)
+        _desiredSize.Width = (int)availableSize.Width;
+      if (Height == 0)
+        _desiredSize.Height = (int)availableSize.Height;
       base.Measure(availableSize);
     }
 

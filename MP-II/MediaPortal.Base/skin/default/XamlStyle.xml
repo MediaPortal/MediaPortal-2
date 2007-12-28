@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyXaml >
+  <Canvas Name="TemplateNormalButton">
+    <Border BorderThickness="0" CornerRadius="10" >
+      <Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <GradientStop Offset="0" Color="#006700"/>
+          <GradientStop Offset="1" Color="#00ef00"/>
+        </LinearGradientBrush>
+      </Background>
+    </Border>
+    <Border CornerRadius="10">
+      <Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="1" Color="#00000000"/>
+        </LinearGradientBrush>
+      </Background>
+    </Border>
+  </Canvas>
+</MyXaml>

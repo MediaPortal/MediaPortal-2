@@ -50,6 +50,9 @@ namespace MyXaml.Core
     public delegate void CustomPropertyHandlerDlgt(object parser, CustomPropertyEventArgs e);
 
     public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
+
+    public delegate object GetResourceDlgt(object parser, string resourceName);
+
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
     /// an ICollection implementer.
@@ -76,6 +79,8 @@ namespace MyXaml.Core
     public event CustomPropertyHandlerDlgt CustomPropertyHandler;
 
     public event CustomTypeConverterDlgt CustomTypeConvertor;
+
+    public event GetResourceDlgt OnGetResource;
 
     protected string currentFile;
 
@@ -1130,14 +1135,32 @@ namespace MyXaml.Core
         {
           string refVal = StringHelpers.Between(						// Get the reference value.
             propertyValue, '{', '}');
-          MxBinding binding = new MxBinding(							// Create a binding entry.
-            obj,
-            propertyName,
-            refVal,
-            attr);
-          if (!binding.Bind(this))									// Attempt to resolve and assign the reference now.
+
+          /*** special case for resources ***/
+          if (refVal.StartsWith("StaticResource"))
           {
-            lateBindings.Add(binding);								// Didn't succeed.  Add to the late binding collection.
+            if (OnGetResource != null)
+            {
+              int pos = refVal.IndexOf(' ');
+              object objValue = OnGetResource(this, refVal.Substring(pos + 1));
+              Type t = obj.GetType();
+              PropertyInfo prop = t.GetProperty(propertyName);
+              MethodInfo setInfo = prop.GetSetMethod();
+              setInfo.Invoke(obj, new object[] { objValue });
+            }
+          }
+          else
+          {
+            /*** special case for resources ***/
+            MxBinding binding = new MxBinding(							// Create a binding entry.
+              obj,
+              propertyName,
+              refVal,
+              attr);
+            if (!binding.Bind(this))									// Attempt to resolve and assign the reference now.
+            {
+              lateBindings.Add(binding);								// Didn't succeed.  Add to the late binding collection.
+            }
           }
         }
         else

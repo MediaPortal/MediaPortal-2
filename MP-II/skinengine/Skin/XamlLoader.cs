@@ -29,8 +29,28 @@ namespace SkinEngine.Skin
         parser.InstantiateFromQName += new Parser.InstantiateClassDlgt(parser_InstantiateFromQName);
         parser.PropertyDeclarationTest += new Parser.PropertyDeclarationTestDlgt(parser_PropertyDeclarationTest);
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
+        parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         return (UIElement)parser.Instantiate(fullFileName, "*");
       }
+    }
+    public UIElement Load(string skinFile, string tagName)
+    {
+      string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
+      using (Parser parser = new Parser())
+      {
+        parser.InstantiatePropertyDeclaration += new Parser.InstantiatePropertyDeclarationDlgt(parser_InstantiatePropertyDeclaration);
+        parser.InstantiateFromQName += new Parser.InstantiateClassDlgt(parser_InstantiateFromQName);
+        parser.PropertyDeclarationTest += new Parser.PropertyDeclarationTestDlgt(parser_PropertyDeclarationTest);
+        parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
+        parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
+        return (UIElement)parser.Instantiate(fullFileName, tagName);
+      }
+    }
+
+    object parser_OnGetResource(object parser, string resourceName)
+    {
+      XamlLoader loader = new XamlLoader();
+      return loader.Load("XamlStyle.xml", resourceName);
     }
 
     /// <summary>
@@ -103,6 +123,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Image")
         return true;
+      else if (name == "Button")
+        return true;
 
 
       //brushes
@@ -141,6 +163,8 @@ namespace SkinEngine.Skin
         return new Border();
       else if (name == "Image")
         return new Image();
+      else if (name == "Button")
+        return new Button();
 
 
       //brushes

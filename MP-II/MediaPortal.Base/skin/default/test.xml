@@ -34,6 +34,6 @@
       </Background>
     </Border>
     <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
-    <Image ImageSource="key.png" Width="100"  Height="80" Stretch="UniformToFill"/>
+    <Button Name="myButton" Width="100" Height="32" ControlTemplate="{StaticResource TemplateNormalButton}"/>
   </StackPanel>
 </MyXaml>

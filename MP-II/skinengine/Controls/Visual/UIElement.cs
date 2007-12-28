@@ -34,6 +34,8 @@ namespace SkinEngine.Controls.Visuals
 {
   public class UIElement : Visual
   {
+    Property _nameProperty;
+    Property _isFocusableProperty;
     Property _visibleProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
@@ -47,6 +49,8 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public UIElement()
     {
+      _nameProperty = new Property("");
+      _isFocusableProperty = new Property(false);
       _visibleProperty = new Property((bool)true);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
@@ -101,6 +105,70 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+
+    /// <summary>
+    /// Gets or sets the name property.
+    /// </summary>
+    /// <value>The name property.</value>
+    public Property NameProperty
+    {
+      get
+      {
+        return _nameProperty;
+      }
+      set
+      {
+        _nameProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    public string Name
+    {
+      get
+      {
+        return _nameProperty.GetValue() as string;
+      }
+      set
+      {
+        _nameProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the is focusable property.
+    /// </summary>
+    /// <value>The is focusable property.</value>
+    public Property IsFocusableProperty
+    {
+      get
+      {
+        return _isFocusableProperty;
+      }
+      set
+      {
+        _isFocusableProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the is focusable.
+    /// </summary>
+    /// <value>The is focusable.</value>
+    public bool IsFocusable
+    {
+      get
+      {
+        return (bool)_isFocusableProperty.GetValue() ;
+      }
+      set
+      {
+        _isFocusableProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the position property.
     /// </summary>
