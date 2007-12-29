@@ -2,15 +2,55 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Visuals
 {
   public class ResourceDictionary : IDictionary
   {
+    Property _sourceProperty;
     Dictionary<string, object> _dictionary;
     public ResourceDictionary()
     {
+      _sourceProperty = new Property("");
       _dictionary = new Dictionary<string, object>();
+    }
+
+    public string Source
+    {
+      get
+      {
+        return _sourceProperty.GetValue() as string;
+      }
+      set
+      {
+        _sourceProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the source property.
+    /// </summary>
+    /// <value>The source property.</value>
+    public Property SourceProperty
+    {
+      get
+      {
+        return _sourceProperty;
+      }
+      set
+      {
+        _sourceProperty = value;
+      }
+    }
+
+    public void Merge(ResourceDictionary dict)
+    {
+      IDictionaryEnumerator enumer= dict.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        _dictionary[(string)enumer.Key] = enumer.Value;
+      }
     }
 
     #region IDictionary Members
@@ -83,7 +123,8 @@ namespace SkinEngine.Controls.Visuals
 
     public int Count
     {
-      get {
+      get
+      {
         return _dictionary.Count;
       }
     }

@@ -22,7 +22,7 @@ namespace SkinEngine.Skin
     /// </summary>
     /// <param name="skinFile">The skin file.</param>
     /// <returns></returns>
-    public UIElement Load(string skinFile)
+    public object Load(string skinFile)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
       using (Parser parser = new Parser())
@@ -33,11 +33,11 @@ namespace SkinEngine.Skin
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
-        return (UIElement)parser.Instantiate(fullFileName, "*");
+        return parser.Instantiate(fullFileName, "*");
       }
     }
 
-    public UIElement Load(string skinFile, string tagName)
+    public object Load(string skinFile, string tagName)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
       using (Parser parser = new Parser())
@@ -75,18 +75,32 @@ namespace SkinEngine.Skin
           return clone.Clone();
         }
       }
-      XamlLoader loader = new XamlLoader();
-      return loader.Load("XamlStyle.xml", resourceName);
+      return null;
     }
 
     void parser_AddToCollection(object parser, AddToCollectionEventArgs e)
     {
       if (e.Container as ResourceDictionary != null)
       {
-        string key = e.Node.Attributes["Key"].Value;
-        ResourceDictionary dict = (ResourceDictionary)e.Container;
-        dict[key] = e.Instance;
-        e.Result = true;
+        if ((e.Instance as ResourceDictionary) != null)
+        {
+          ResourceDictionary dictNew = (ResourceDictionary)e.Instance;
+          XamlLoader loader = new XamlLoader();
+          object o = loader.Load(dictNew.Source);
+
+          ResourceDictionary dict = (ResourceDictionary)e.Container;
+          dict.Merge((ResourceDictionary)o);
+          e.Result = true;
+          return;
+        }
+        else
+        {
+
+          string key = e.Node.Attributes["Key"].Value;
+          ResourceDictionary dict = (ResourceDictionary)e.Container;
+          dict[key] = e.Instance;
+          e.Result = true;
+        }
       }
     }
     /// <summary>
@@ -168,6 +182,8 @@ namespace SkinEngine.Skin
       else if (name == "Label")
         return true;
       else if (name == "Resources")
+        return true;
+      else if (name == "ResourceDictionary")
         return true;
 
 
@@ -266,6 +282,8 @@ namespace SkinEngine.Skin
         return _lastElement;
       }
       else if (name == "Resources")
+        return new ResourceDictionary();
+      else if (name == "ResourceDictionary")
         return new ResourceDictionary();
 
       //brushes

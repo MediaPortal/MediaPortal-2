@@ -110,7 +110,7 @@ namespace SkinEngine
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
 #if TESTXAML
       XamlLoader loader = new XamlLoader();
-      _visual = loader.Load("test.xml");
+      _visual = (UIElement)loader.Load("test.xml");
       _visual.IsArrangeValid = true;
       _visual.Invalidate();
       VisualTreeHelper.Instance.SetRootElement(_visual);
@@ -444,6 +444,9 @@ namespace SkinEngine
       {
         return;
       }
+#if TESTXAML
+      _visual.OnKeyPressed(ref key);
+#endif
       for (int i = 0; i < _controls.Count; ++i)
       {
         _controls[i].OnKeyPressed(ref key);
