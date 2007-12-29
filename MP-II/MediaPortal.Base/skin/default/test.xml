@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <StackPanel Width="200">
+  <StackPanel Width="200" Background="Yellow">
     <Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Resources>
+    <!--
     <Background>
       <SolidColorBrush Color="Black" Opacity="0.6"/>
     </Background>
-    <!--
     <Border Width="100" Height="60" >
       <Background>
         <SolidColorBrush Color="Yellow"/>

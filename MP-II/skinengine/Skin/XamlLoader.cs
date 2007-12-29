@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -121,6 +122,12 @@ namespace SkinEngine.Skin
       else if (e.PropertyType == typeof(Vector4))
       {
         e.Result = GetVector4(e.Value.ToString());
+      }
+      else if (e.PropertyType == typeof(Brush))
+      {
+        SolidColorBrush b = new SolidColorBrush();
+        b.Color=(System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(e.Value.ToString());
+        e.Result = b;
       }
     }
 
