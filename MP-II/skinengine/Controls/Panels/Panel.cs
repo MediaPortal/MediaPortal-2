@@ -53,6 +53,7 @@ namespace SkinEngine.Controls.Panels
       Init();
     }
     public Panel(Panel p)
+      :base(p)
     {
       Init();
       AlignmentX = p.AlignmentX;
@@ -367,6 +368,7 @@ namespace SkinEngine.Controls.Panels
         if (false == element.IsVisible) continue;
         element.Animate();
       }
+      base.Animate();
     }
 
     /// <summary>

@@ -7,6 +7,7 @@
     <Background>
       <SolidColorBrush Color="Black" Opacity="0.6"/>
     </Background>
+    <!--
     <Border Width="100" Height="60" >
       <Background>
         <SolidColorBrush Color="Yellow"/>
@@ -30,10 +31,8 @@
       </Background>
     </Border>
     <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
-    <Button Name="myButton" Width="100" Height="32" Style="{StaticResource styleButton}">
-      <Triggers>
-        <EventTrigger RoutedEvent="OnGotFocus" Storyboard="{StaticResource animateBtnFocus}"/>
-      </Triggers>
-    </Button>
+-->
+    <Button Width="100" Height="32" Style="{StaticResource styleButton}"/>
+    <Button Width="100" Height="32" Style="{StaticResource styleButton}"/>
   </StackPanel>
 </MyXaml>

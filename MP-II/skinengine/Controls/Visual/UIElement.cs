@@ -578,6 +578,7 @@ namespace SkinEngine.Controls.Visuals
               if (!_runningAnimations.Contains(trigger.Storyboard))
               {
                 _runningAnimations.Add(trigger.Storyboard);
+                trigger.Storyboard.VisualParent = this;
                 trigger.Storyboard.Start(SkinContext.TimePassed);
               }
             }

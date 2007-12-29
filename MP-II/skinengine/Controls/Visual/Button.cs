@@ -178,5 +178,57 @@ namespace SkinEngine.Controls.Visuals
       base.DoRender();
     }
 
+    /// <summary>
+    /// Fires an event.
+    /// </summary>
+    /// <param name="eventName">Name of the event.</param>
+    public override void FireEvent(string eventName)
+    {
+      if (Template != null)
+      {
+        Template.FireEvent(eventName);
+      }
+      base.FireEvent(eventName);
+    }
+
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public override UIElement FindElement(string name)
+    {
+      if (Template != null)
+      {
+        UIElement o=Template.FindElement(name);
+        if (o != null) return o;
+      }
+      return base.FindElement(name);
+    }
+    /// <summary>
+    /// Called when [mouse move].
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public override void OnMouseMove(float x, float y)
+    {
+      if (Template != null)
+      {
+        Template.OnMouseMove(x, y);
+      }
+      base.OnMouseMove(x, y);
+    }
+
+    /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
+    public override void Animate()
+    {
+      if (Template != null)
+      {
+        Template.Animate();
+      }
+      base.Animate();
+    }
   }
 }

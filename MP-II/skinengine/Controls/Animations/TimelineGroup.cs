@@ -107,6 +107,7 @@ namespace SkinEngine.Controls.Animations
     {
       foreach (Timeline child in Children)
       {
+        child.VisualParent = VisualParent;
         child.Start(timePassed);
       }
     }
@@ -139,6 +140,7 @@ namespace SkinEngine.Controls.Animations
         return true;
       }
     }
+    
 
     #region IList Members
 

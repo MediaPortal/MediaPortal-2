@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Animations
 {
@@ -47,6 +48,7 @@ namespace SkinEngine.Controls.Animations
     Property _durationProperty;
     Property _repeatBehaviourProperty;
     Property _fillBehaviourProperty;
+    Property _visualParentProperty;
 
     protected uint _timeStarted;
     protected State _state = State.Idle;
@@ -69,6 +71,7 @@ namespace SkinEngine.Controls.Animations
       Duration = a.Duration;
       Key = a.Key;
       FillBehaviour = a.FillBehaviour;
+      VisualParent = a.VisualParent;
     }
     public virtual object Clone()
     {
@@ -84,6 +87,7 @@ namespace SkinEngine.Controls.Animations
       _durationProperty = new Property(new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
       _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
+      _visualParentProperty = new Property(null);
     }
 
     /// <summary>
@@ -308,6 +312,10 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    /// <summary>
+    /// Gets or sets the fill behaviour property.
+    /// </summary>
+    /// <value>The fill behaviour property.</value>
     public Property FillBehaviourProperty
     {
       get
@@ -333,6 +341,39 @@ namespace SkinEngine.Controls.Animations
       set
       {
         _fillBehaviourProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the visual parent property.
+    /// </summary>
+    /// <value>The visual parent property.</value>
+    public Property VisualParentProperty
+    {
+      get
+      {
+        return _visualParentProperty;
+      }
+      set
+      {
+        _visualParentProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the visual parent.
+    /// </summary>
+    /// <value>The visual parent.</value>
+    public UIElement VisualParent
+    {
+      get
+      {
+        return (UIElement)_visualParentProperty.GetValue();
+      }
+      set
+      {
+        _visualParentProperty.SetValue(value);
       }
     }
     /// <summary>

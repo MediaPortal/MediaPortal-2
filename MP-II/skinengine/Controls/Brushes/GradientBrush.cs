@@ -71,10 +71,16 @@ namespace SkinEngine.Controls.Brushes
       : base(b)
     {
       Init();
-      GradientStops = (GradientStopCollection)b.GradientStops.Clone();
       ColorInterpolationMode = b.ColorInterpolationMode;
       SpreadMethod = b.SpreadMethod;
       MappingMode = b.MappingMode;
+      foreach (GradientStop stop in b.GradientStops)
+      {
+        GradientStop s = new GradientStop();
+        s.Color = stop.Color;
+        s.Offset = stop.Offset;
+        GradientStops.Add(s);
+      }
     }
     void Init()
     {
