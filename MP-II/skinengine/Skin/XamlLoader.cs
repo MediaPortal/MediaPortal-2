@@ -63,6 +63,8 @@ namespace SkinEngine.Skin
         {
           return clone.Clone();
         }
+        if (result!=null)
+          return result;
       }
       else if (_lastElement != null)
       {
@@ -196,6 +198,24 @@ namespace SkinEngine.Skin
       //triggers
       else if (name == "EventTrigger")
         return true;
+
+      //Transforms
+      else if (name == "TransformGroup")
+        return true;
+      else if (name == "ScaleTransform")
+        return true;
+      else if (name == "SkewTransform")
+        return true;
+      else if (name == "RotateTransform")
+        return true;
+      else if (name == "TranslateTransform")
+        return true;
+
+      //Styles
+      else if (name == "Style")
+        return true;
+      else if (name == "Setter")
+        return true;
       return false;
     }
     /// <summary>
@@ -273,6 +293,24 @@ namespace SkinEngine.Skin
       //triggers
       else if (name == "EventTrigger")
         return new EventTrigger();
+
+      //Transforms
+      else if (name == "TransformGroup")
+        return new TransformGroup();
+      else if (name == "ScaleTransform")
+        return new ScaleTransform();
+      else if (name == "SkewTransform")
+        return new SkewTransform();
+      else if (name == "RotateTransform")
+        return new RotateTransform();
+      else if (name == "TranslateTransform")
+        return new TranslateTransform();
+
+      //Styles
+      else if (name == "Style")
+        return new SkinEngine.Controls.Visuals.Styles.Style();
+      else if (name == "Setter")
+        return new SkinEngine.Controls.Visuals.Styles.Setter();
       return null;
     }
 

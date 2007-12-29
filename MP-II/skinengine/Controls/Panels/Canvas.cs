@@ -38,6 +38,7 @@ namespace SkinEngine.Controls.Panels
       : base(v)
     {
     }
+
     public override object Clone()
     {
       return new Canvas(this);

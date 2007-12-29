@@ -7,16 +7,38 @@
         <GradientStop Offset="0.5" Color="Green"/>
         <GradientStop Offset="1.0" Color="Blue"/>
       </LinearGradientBrush>
-      <Storyboard Key="animateWidth">
-        <DoubleAnimation From="100" To="50" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
-        <ColorAnimation From="Red" To="Yellow" Duration="0:0:1"  TargetName="borderRadius.Background.GradientStops[0]" TargetProperty="Color"/>
-        <PointAnimation From="0.5,0.5" To="0.3,0.3" Duration="0:0:1"  TargetName="borderRadius.Background" TargetProperty="Center"/>
+      <Storyboard Key="animateBtnFocus">
+        <ColorAnimation From="#006700" To="#00ef00" Duration="0:0:1"  TargetName="myButton.Template.Children[0].Background.GradientStops[0]" TargetProperty="Color"/>
+        <ColorAnimation From="#00ef00" To="#006700" Duration="0:0:1"  TargetName="myButton.Template.Children[0].Background.GradientStops[1]" TargetProperty="Color"/>
       </Storyboard>
-      <Storyboard Key="animateWidthReverse">
-        <DoubleAnimation From="50" To="100" Duration="0:0:1"  TargetName="myButton" TargetProperty="Width"/>
-        <ColorAnimation From="Yellow" To="Red" Duration="0:0:1"  TargetName="borderRadius.Background.GradientStops[0]" TargetProperty="Color"/>
-        <PointAnimation From="0.3,0.3" To="0.5,0.5" Duration="0:0:1"  TargetName="borderRadius.Background" TargetProperty="Center"/>
-      </Storyboard>
+      <Style Key="styleButton">
+        <Setter Property="Template">
+          <Value>
+            <Canvas>
+              <Border BorderThickness="4" CornerRadius="4" >
+                <Background>
+                  <RadialGradientBrush GradientOrigin="0.85,0.82">
+                    <RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="0.027" Y="-0.006"/>
+                      </TransformGroup>
+                    </RelativeTransform>
+                    <GradientStop Color="#FF2A5EB4" Offset="0"/>
+                    <GradientStop Color="#FF2A5EB4" Offset="1"/>
+                  </RadialGradientBrush>
+                </Background>
+                <BorderBrush>
+                  <SolidColorBrush Color="#FF2866BD"/>
+                </BorderBrush>
+              </Border>
+              <Label Text="hallo" Margin="10,0,10,0" Font="font13"/>
+            </Canvas>
+          </Value>
+        </Setter>
+      </Style>
     </Resources>
     <Background>
       <SolidColorBrush Color="Black" Opacity="0.6"/>
@@ -44,10 +66,9 @@
       </Background>
     </Border>
     <Image ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
-    <Button Name="myButton" Width="100" Height="32" ControlTemplate="{StaticResource TemplateNormalButton}">
+    <Button Name="myButton" Width="100" Height="32" Style="{StaticResource styleButton}">
       <Triggers>
-        <EventTrigger RoutedEvent="OnMouseEnter" Storyboard="{StaticResource animateWidth}"/>
-        <EventTrigger RoutedEvent="OnMouseLeave" Storyboard="{StaticResource animateWidthReverse}"/>
+        <EventTrigger RoutedEvent="OnGotFocus" Storyboard="{StaticResource animateBtnFocus}"/>
       </Triggers>
     </Button>
   </StackPanel>

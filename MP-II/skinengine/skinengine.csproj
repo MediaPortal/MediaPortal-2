@@ -160,6 +160,9 @@
     <Compile Include="Controls\Visual\Image.cs" />
     <Compile Include="Controls\Visual\Label.cs" />
     <Compile Include="Controls\Visual\ResourceDictionary.cs" />
+    <Compile Include="Controls\Visual\Styles\Setter.cs" />
+    <Compile Include="Controls\Visual\Styles\Style.cs" />
+    <Compile Include="Controls\Visual\Styles\SetterCollection.cs" />
     <Compile Include="Controls\Visual\Triggers\EventTrigger.cs" />
     <Compile Include="Controls\Visual\Triggers\Trigger.cs" />
     <Compile Include="Controls\Visual\Triggers\TriggerCollection.cs" />

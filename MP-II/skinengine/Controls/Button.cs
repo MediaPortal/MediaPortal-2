@@ -108,7 +108,7 @@ namespace SkinEngine.Controls
       get
       {
         if (_width != 0) return _width;
-        return _style.Width; 
+        return _style.Width;
       }
       set { _width = value; }
     }
@@ -122,7 +122,7 @@ namespace SkinEngine.Controls
       get
       {
         if (_height != 0) return _height;
-        return _style.Height; 
+        return _style.Height;
       }
       set { _height = value; }
     }
@@ -143,7 +143,7 @@ namespace SkinEngine.Controls
     }
     public override void Invalidate()
     {
-    //  Trace.WriteLine("btn.invalidate");
+      //  Trace.WriteLine("btn.invalidate");
       base.Invalidate();
       _style.Invalidate();
     }
@@ -240,6 +240,7 @@ namespace SkinEngine.Controls
         _container.Execute();
       }
     }
+
     /// <summary>
     /// handles any keypresses
     /// </summary>

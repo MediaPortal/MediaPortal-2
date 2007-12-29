@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
   <Canvas Name="TemplateNormalButton">
-    <Border BorderThickness="0" CornerRadius="10" >
+    <Border BorderThickness="4" CornerRadius="4" >
       <Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-          <GradientStop Offset="0" Color="#006700"/>
-          <GradientStop Offset="1" Color="#00ef00"/>
-        </LinearGradientBrush>
+        <RadialGradientBrush GradientOrigin="0.85,0.82">
+          <RelativeTransform>
+            <TransformGroup>
+              <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+              <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+              <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+              <TranslateTransform X="0.027" Y="-0.006"/>
+            </TransformGroup>
+          </RelativeTransform>
+          <GradientStop Color="#FF2A5EB4" Offset="0"/>
+          <GradientStop Color="#FF2A5EB4" Offset="1"/>
+        </RadialGradientBrush>
       </Background>
+      <BorderBrush>
+        <SolidColorBrush Color="#FF2866BD"/>
+      </BorderBrush>
     </Border>
-    <Border CornerRadius="10">
-      <Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-          <GradientStop Offset="0" Color="#FFFFFFFF"/>
-          <GradientStop Offset="1" Color="#00000000"/>
-        </LinearGradientBrush>
-      </Background>
-    </Border>
-    <Label Text="hallo" Font="font13"/>
+    <Label Text="hallo" Margin="10,0,10,0" Font="font13"/>
   </Canvas>
 </MyXaml>

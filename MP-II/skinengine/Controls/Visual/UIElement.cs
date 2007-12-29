@@ -29,6 +29,7 @@ using System.Drawing;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.InputManager;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Animations;
 
@@ -39,6 +40,7 @@ namespace SkinEngine.Controls.Visuals
     Property _nameProperty;
     Property _keyProperty;
     Property _isFocusableProperty;
+    Property _hasFocusProperty;
     Property _visibleProperty;
     Property _acutalPositionProperty;
     Property _positionProperty;
@@ -66,6 +68,7 @@ namespace SkinEngine.Controls.Visuals
       Name = el.Name;
       Key = el.Key;
       IsFocusable = el.IsFocusable;
+      HasFocus = el.HasFocus;
       IsVisible = el.IsVisible;
       ActualPosition = el.ActualPosition;
       Position = el.Position;
@@ -83,6 +86,7 @@ namespace SkinEngine.Controls.Visuals
       _nameProperty = new Property("");
       _keyProperty = new Property("");
       _isFocusableProperty = new Property(false);
+      _hasFocusProperty = new Property(false);
       _visibleProperty = new Property((bool)true);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
@@ -242,6 +246,38 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _keyProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the element has focus property.
+    /// </summary>
+    /// <value>The has focus property.</value>
+    public Property HasFocusProperty
+    {
+      get
+      {
+        return _hasFocusProperty;
+      }
+      set
+      {
+        _hasFocusProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this uielement has focus.
+    /// </summary>
+    /// <value><c>true</c> if this uielement has focus; otherwise, <c>false</c>.</value>
+    public bool HasFocus
+    {
+      get
+      {
+        return (bool)_hasFocusProperty.GetValue();
+      }
+      set
+      {
+        _hasFocusProperty.SetValue(value);
       }
     }
     /// <summary>
@@ -537,10 +573,13 @@ namespace SkinEngine.Controls.Visuals
         {
           if (trigger.Storyboard != null)
           {
-            trigger.Storyboard.Start(SkinContext.TimePassed);
             lock (_runningAnimations)
             {
-              _runningAnimations.Add(trigger.Storyboard);
+              if (!_runningAnimations.Contains(trigger.Storyboard))
+              {
+                _runningAnimations.Add(trigger.Storyboard);
+                trigger.Storyboard.Start(SkinContext.TimePassed);
+              }
             }
           }
         }
@@ -575,6 +614,14 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     public virtual void OnMouseMove(float x, float y)
+    {
+    }
+
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
+    public virtual void OnKeyPressed(ref Key key)
     {
     }
 

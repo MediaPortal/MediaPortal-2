@@ -25,12 +25,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals.Styles;
 
 namespace SkinEngine.Controls.Visuals
 {
   public class Button : FrameworkElement
   {
-    Property _controlTemplateProperty;
+    Property _templateProperty;
+    Property _styleProperty;
 
     public Button()
     {
@@ -41,8 +43,10 @@ namespace SkinEngine.Controls.Visuals
       : base(b)
     {
       Init();
-      ControlTemplate = (UIElement)b.ControlTemplate.Clone();
+      Template = (UIElement)b.Template.Clone();
+      Style = b.Style;
     }
+
     public override object Clone()
     {
       return new Button(this);
@@ -50,13 +54,15 @@ namespace SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _controlTemplateProperty = new Property(null);
+      _templateProperty = new Property(null);
+      _styleProperty = new Property(null);
       IsFocusable = true;
-      _controlTemplateProperty.Attach(new PropertyChangedHandler(OnControlTemplateChanged));
+      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
     }
 
-    void OnControlTemplateChanged(Property property)
+    void OnStyleChanged(Property property)
     {
+      Style.Set(this);
       Invalidate();
     }
 
@@ -64,15 +70,15 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the control template property.
     /// </summary>
     /// <value>The control template property.</value>
-    public Property ControlTemplateProperty
+    public Property TemplateProperty
     {
       get
       {
-        return _controlTemplateProperty;
+        return _templateProperty;
       }
       set
       {
-        _controlTemplateProperty = value;
+        _templateProperty = value;
       }
     }
 
@@ -80,15 +86,48 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the control template.
     /// </summary>
     /// <value>The control template.</value>
-    public UIElement ControlTemplate
+    public UIElement Template
     {
       get
       {
-        return _controlTemplateProperty.GetValue() as UIElement;
+        return _templateProperty.GetValue() as UIElement;
       }
       set
       {
-        _controlTemplateProperty.SetValue(value);
+        _templateProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the control style property.
+    /// </summary>
+    /// <value>The control style property.</value>
+    public Property StyleProperty
+    {
+      get
+      {
+        return _styleProperty;
+      }
+      set
+      {
+        _styleProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the control style.
+    /// </summary>
+    /// <value>The control style.</value>
+    public Style Style
+    {
+      get
+      {
+        return _styleProperty.GetValue() as Style;
+      }
+      set
+      {
+        _styleProperty.SetValue(value);
       }
     }
 
@@ -103,10 +142,10 @@ namespace SkinEngine.Controls.Visuals
       if (Width == 0) _desiredSize.Width = (int)availableSize.Width;
       if (Height == 0) _desiredSize.Height = (int)availableSize.Height;
 
-      if (ControlTemplate != null)
+      if (Template != null)
       {
-        ControlTemplate.Measure(_desiredSize);
-        _desiredSize = ControlTemplate.DesiredSize;
+        Template.Measure(_desiredSize);
+        _desiredSize = Template.DesiredSize;
       }
     }
 
@@ -117,12 +156,12 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      if (ControlTemplate != null)
+      if (Template != null)
       {
-        ControlTemplate.Arrange(finalRect);
-        ActualPosition = ControlTemplate.ActualPosition;
-        ActualHeight = ((FrameworkElement)ControlTemplate).ActualHeight;
-        ActualWidth = ((FrameworkElement)ControlTemplate).ActualWidth;
+        Template.Arrange(finalRect);
+        ActualPosition = Template.ActualPosition;
+        ActualHeight = ((FrameworkElement)Template).ActualHeight;
+        ActualWidth = ((FrameworkElement)Template).ActualWidth;
       }
       base.Arrange(finalRect);
     }
@@ -132,11 +171,12 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
-      if (ControlTemplate != null)
+      if (Template != null)
       {
-        ControlTemplate.DoRender();
+        Template.DoRender();
       }
       base.DoRender();
     }
+
   }
 }

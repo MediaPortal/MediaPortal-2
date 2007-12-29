@@ -222,6 +222,11 @@ namespace SkinEngine.Controls.Visuals
             _mouseOver = true;
             FireEvent("OnMouseEnter");
           }
+          if (IsFocusable && !HasFocus)
+          {
+            HasFocus = true;
+            FireEvent("OnGotFocus");
+          }
           return;
         }
       }
@@ -229,6 +234,14 @@ namespace SkinEngine.Controls.Visuals
       {
         _mouseOver = false;
         FireEvent("OnMouseLeave");
+      }
+      if (IsFocusable)
+      {
+        if (HasFocus)
+        {
+          HasFocus = false;
+          FireEvent("OnLostFocus");
+        }
       }
     }
   }

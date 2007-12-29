@@ -32,6 +32,7 @@ using Microsoft.DirectX.Direct3D;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Brushes;
 using SkinEngine;
+using MediaPortal.Core.InputManager;
 
 namespace SkinEngine.Controls.Panels
 {
@@ -56,8 +57,9 @@ namespace SkinEngine.Controls.Panels
       Init();
       AlignmentX = p.AlignmentX;
       AlignmentY = p.AlignmentY;
-      Background = (Brush)Background.Clone();
-      foreach (UIElement el in Children)
+      if (Background != null)
+        Background = (Brush)Background.Clone();
+      foreach (UIElement el in p.Children)
       {
         Children.Add((UIElement)el.Clone());
       }
@@ -342,6 +344,22 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
+    public override void OnKeyPressed(ref Key key)
+    {
+      foreach (UIElement element in Children)
+      {
+        if (false == element.IsVisible) continue;
+        element.OnKeyPressed(ref key);
+      }
+    }
+
+    /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
     public override void Animate()
     {
       foreach (UIElement element in Children)
