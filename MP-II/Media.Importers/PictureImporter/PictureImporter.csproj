@@ -83,8 +83,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)pictureimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)pictureimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

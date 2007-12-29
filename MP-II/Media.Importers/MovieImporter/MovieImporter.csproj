@@ -73,8 +73,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\*.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

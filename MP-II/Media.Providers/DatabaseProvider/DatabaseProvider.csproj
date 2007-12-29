@@ -74,6 +74,7 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Providers.$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Providers.$(ProjectName)\"</PostBuildEvent>
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Providers.$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\*.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Providers.$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
