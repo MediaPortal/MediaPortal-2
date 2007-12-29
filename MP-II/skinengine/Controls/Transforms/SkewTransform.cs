@@ -56,10 +56,21 @@ namespace SkinEngine.Controls.Transforms
       _centerXProperty = new Property((double)0.0);
       _angleXProperty = new Property((double)0.0);
       _angleYProperty = new Property((double)0.0);
+
+      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _angleXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _angleYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
     public override object Clone()
     {
       return new SkewTransform(this);
+    }
+
+    protected void OnPropertyChanged(Property property)
+    {
+      _needUpdate = true;
+      Fire();
     }
 
     /// <summary>
@@ -91,7 +102,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -124,7 +134,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -160,7 +169,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _angleXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -193,7 +201,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _angleYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -202,6 +209,8 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      _matrix = Matrix.Identity;
+      return;
       ///@todo: fix skew transform
       double cx = CenterX;
       double cy = CenterY;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
   <ResourceDictionary>
-    
+
     <LinearGradientBrush Key="linearBrushRedGreenBlue" StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
       <GradientStop Offset="0.0" Color="Red"/>
       <GradientStop Offset="0.5" Color="Green"/>
@@ -15,11 +15,18 @@
           <ControlTemplate>
             <Resources>
               <Storyboard Key="animateBtnFocus">
-                <ColorAnimation From="#006700" To="#00ef00" Duration="0:0:1"  TargetName="border.Background.GradientStops[0]" TargetProperty="Color"/>
-                <ColorAnimation From="#00ef00" To="#006700" Duration="0:0:1"  TargetName="border.Background.GradientStops[1]" TargetProperty="Color"/>
+                <PointAnimation From="0.85,0.82" To="0.5,1.709" Duration="00:00:04" AutoReverse="True" TargetName="border.Background" TargetProperty="GradientOrigin"/>
+                <ColorAnimation From="#FF05814D" To="#FF05814D" Duration="00:00:04" AutoReverse="True"  TargetName="border.Background.GradientStops[1]" TargetProperty="Color"/>
+                <ColorAnimation From="#FF49D5B4" To="#FF52E5C2" Duration="00:00:04" AutoReverse="True"  TargetName="border.Background.GradientStops[0]" TargetProperty="Color"/>
+                <ColorAnimation From="#FF19A05D" To="#FF19A05D" Duration="00:00:04" AutoReverse="True"  TargetName="border.BorderBrush" TargetProperty="Color"/>
+                
+                <DoubleAnimation From="1.264" To="1.335" Duration="00:00:04" AutoReverse="True"  TargetName="border.Background.RelativeTransform[0]" TargetProperty="ScaleX"/>
+                <DoubleAnimation From="-0.009" To="0.027" Duration="00:00:04" AutoReverse="True"  TargetName="border.Background.RelativeTransform[3]" TargetProperty="X"/>
+                <DoubleAnimation From="0.119" To="-0.006" Duration="00:00:04" AutoReverse="True"  TargetName="border.Background.RelativeTransform[3]" TargetProperty="Y"/>
+                
               </Storyboard>
             </Resources>
-            <Border Name="border" BorderThickness="4" CornerRadius="4" >
+            <Border Name="border" BorderThickness="2" CornerRadius="4" >
               <Background>
                 <RadialGradientBrush GradientOrigin="0.85,0.82">
                   <RelativeTransform>

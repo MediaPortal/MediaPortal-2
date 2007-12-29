@@ -50,12 +50,20 @@ namespace SkinEngine.Controls.Transforms
     {
       _YProperty = new Property((double)0.0);
       _XProperty = new Property((double)0.0);
+      _YProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _XProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     public override object Clone()
     {
       return new TranslateTransform(this);
     }
 
+    protected void OnPropertyChanged(Property property)
+    {
+      _needUpdate = true;
+      Fire();
+    }
     /// <summary>
     /// Gets or sets the X property.
     /// </summary>
@@ -85,7 +93,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _XProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -118,7 +125,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _YProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 

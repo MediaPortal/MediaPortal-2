@@ -194,11 +194,10 @@ namespace SkinEngine.Controls.Animations
     {
       get
       {
-        throw new Exception("The method or operation is not implemented.");
+        return Children[index];
       }
       set
       {
-        throw new Exception("The method or operation is not implemented.");
       }
     }
 
@@ -236,5 +235,6 @@ namespace SkinEngine.Controls.Animations
     }
 
     #endregion
+
   }
 }

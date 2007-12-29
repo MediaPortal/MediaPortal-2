@@ -246,10 +246,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (Background != null)
       {
-        Matrix mrel, mt;
-        Background.RelativeTransform.GetTransform(out mrel);
-        Background.Transform.GetTransform(out mt);
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix * mrel * mt;
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix ;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         Background.BeginRender();

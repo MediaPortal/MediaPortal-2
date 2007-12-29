@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
@@ -29,9 +30,10 @@ using Microsoft.DirectX;
 
 namespace SkinEngine.Controls.Transforms
 {
-  public class TransformGroup : Transform
+  public class TransformGroup : Transform, IList
   {
     Property _childrenProperty;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TransformGroup"/> class.
     /// </summary>
@@ -43,15 +45,27 @@ namespace SkinEngine.Controls.Transforms
       : base(g)
     {
       Init();
-      Children = (TransformCollection)g.Children.Clone();
+      foreach (Transform t in g.Children)
+      {
+        Children.Add((Transform)t.Clone());
+      }
     }
     void Init()
     {
       _childrenProperty = new Property(new TransformCollection());
+      _childrenProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      Children.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     public override object Clone()
     {
       return new TransformGroup(this);
+    }
+
+    protected void OnPropertyChanged(Property property)
+    {
+      _needUpdate = true;
+      Fire();
     }
 
     /// <summary>
@@ -80,11 +94,6 @@ namespace SkinEngine.Controls.Transforms
       {
         return (TransformCollection)_childrenProperty.GetValue();
       }
-      set
-      {
-        _childrenProperty.SetValue(value);
-        OnPropertyChanged();
-      }
     }
 
     /// <summary>
@@ -100,5 +109,101 @@ namespace SkinEngine.Controls.Transforms
         _matrix.Multiply(m);
       }
     }
+
+
+    #region IList Members
+
+    public int Add(object value)
+    {
+      Children.Add((Transform)value);
+      return Children.Count;
+    }
+
+    public void Clear()
+    {
+      Children.Clear();
+    }
+
+    public bool Contains(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int IndexOf(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void Insert(int index, object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public bool IsFixedSize
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsReadOnly
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public void Remove(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void RemoveAt(int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public object this[int index]
+    {
+      get
+      {
+        return Children[index];
+      }
+      set
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+    }
+
+    #endregion
+
+    #region ICollection Members
+
+    public void CopyTo(Array array, int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int Count
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsSynchronized
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public object SyncRoot
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    public IEnumerator GetEnumerator()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }

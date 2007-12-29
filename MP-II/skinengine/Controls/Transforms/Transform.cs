@@ -44,15 +44,7 @@ namespace SkinEngine.Controls.Transforms
     {
       return new Transform(this);
     }
-    /// <summary>
-    /// Called when [property changed].
-    /// </summary>
-    public virtual void OnPropertyChanged()
-    {
-      _needUpdate = true;
-      base.SetValue(this);
-      Fire();
-    }
+
 
     /// <summary>
     /// Gets the transform.

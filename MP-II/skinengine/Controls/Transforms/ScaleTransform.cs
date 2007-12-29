@@ -54,12 +54,23 @@ namespace SkinEngine.Controls.Transforms
       _centerXProperty = new Property((double)0.0);
       _scaleXProperty = new Property((double)0.0);
       _scaleYProperty = new Property((double)0.0);
+      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _scaleXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _scaleYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public override object Clone()
     {
       return new ScaleTransform(this);
     }
+
+    protected void OnPropertyChanged(Property property)
+    {
+      _needUpdate = true;
+      Fire();
+    }
+
     /// <summary>
     /// Gets or sets the center X property.
     /// </summary>
@@ -73,7 +84,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerXProperty = value;
-        OnPropertyChanged();
       }
     }
 
@@ -122,7 +132,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -158,7 +167,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _scaleXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -191,7 +199,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _scaleYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 

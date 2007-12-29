@@ -273,7 +273,7 @@ namespace SkinEngine.Controls.Brushes
       Matrix m = Matrix.Identity;
       RelativeTransform.GetTransform(out m);
       _effect.Parameters["RelativeTransform"] = m;
-
+      
       _effect.StartRender(_texture);
       _lastTimeUsed = SkinContext.Now;
     }

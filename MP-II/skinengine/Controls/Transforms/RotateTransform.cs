@@ -57,11 +57,22 @@ namespace SkinEngine.Controls.Transforms
       _centerYProperty = new Property((double)0.0);
       _centerXProperty = new Property((double)0.0);
       _angleProperty = new Property((double)0.0);
+      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _angleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     public override object Clone()
     {
       return new RotateTransform(this);
     }
+
+    protected void OnPropertyChanged(Property property)
+    {
+      _needUpdate = true;
+      Fire();
+    }
+
 
     /// <summary>
     /// Gets or sets the center X property.
@@ -92,7 +103,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerXProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -125,7 +135,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _centerYProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
@@ -161,7 +170,6 @@ namespace SkinEngine.Controls.Transforms
       set
       {
         _angleProperty.SetValue(value);
-        OnPropertyChanged();
       }
     }
 
