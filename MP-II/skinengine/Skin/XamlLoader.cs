@@ -217,6 +217,18 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Storyboard")
         return true;
+      else if (name == "ColorAnimationUsingKeyFrames")
+        return true;
+      else if (name == "DoubleAnimationUsingKeyFrames")
+        return true;
+      else if (name == "PointAnimationUsingKeyFrames")
+        return true;
+      else if (name == "SplineColorKeyFrame")
+        return true;
+      else if (name == "SplineDoubleKeyFrame")
+        return true;
+      else if (name == "SplinePointKeyFrame")
+        return true;
 
       //triggers
       else if (name == "EventTrigger")
@@ -316,6 +328,18 @@ namespace SkinEngine.Skin
         return new PointAnimation();
       else if (name == "Storyboard")
         return new Storyboard();
+      else if (name == "ColorAnimationUsingKeyFrames")
+        return new ColorAnimationUsingKeyFrames();
+      else if (name == "DoubleAnimationUsingKeyFrames")
+        return new DoubleAnimationUsingKeyFrames();
+      else if (name == "PointAnimationUsingKeyFrames")
+        return new PointAnimationUsingKeyFrames();
+      else if (name == "SplineColorKeyFrame")
+        return new SplineColorKeyFrame();
+      else if (name == "SplineDoubleKeyFrame")
+        return new SplineDoubleKeyFrame();
+      else if (name == "SplinePointKeyFrame")
+        return new SplinePointKeyFrame();
 
       //triggers
       else if (name == "EventTrigger")
