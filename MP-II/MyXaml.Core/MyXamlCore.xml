@@ -4,28 +4,6 @@
         <name>MyXaml.Core</name>
     </assembly>
     <members>
-        <member name="T:MyXaml.Core.MxBinding">
-            <summary>
-            Assists with property and event assignment for values that contain a reference.
-            Also supports binding on objects that implement IExtenderProvider.
-            </summary>
-        </member>
-        <member name="M:MyXaml.Core.MxBinding.#ctor(System.Object,System.String,System.String,System.Xml.XmlNode)">
-            <summary>
-            Constructor.
-            </summary>
-            <param name="obj">The target instance.</param>
-            <param name="propertyName">The property name to assign.</param>
-            <param name="refVal">The reference, as a string.</param>
-            <param name="node">The xml node while element is the object instance.</param>
-        </member>
-        <member name="M:MyXaml.Core.MxBinding.Bind(MyXaml.Core.Parser)">
-            <summary>
-            Attempt to bind the referenced value to the property of the object.
-            </summary>
-            <param name="parser">The calling parser instance.</param>
-            <returns>True if assignment is successful.</returns>
-        </member>
         <member name="T:MyXaml.Core.Exceptions.MyXamlException">
             <summary>
             Base class for all MyXaml exceptions.
@@ -338,6 +316,164 @@
             </summary>
             <param name="msg">The error message.</param>
         </member>
+        <member name="T:MyXaml.Core.Break">
+            <summary>
+            Diagnostic class that can be inserted in the markup to force the debugger
+            to break.
+            </summary>
+        </member>
+        <member name="M:MyXaml.Core.Break.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="T:MyXaml.Core.InstantiateEventArgs">
+            <summary>
+            Defines the event args for the InstantiateBegin and InstantiateEnd events.
+            </summary>
+        </member>
+        <member name="F:MyXaml.Core.InstantiateEventArgs.instance">
+            <summary>
+            The instance being instantiated.
+            </summary>
+        </member>
+        <member name="M:MyXaml.Core.InstantiateEventArgs.#ctor(System.Object)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="instance">The instance being instantiated.</param>
+        </member>
+        <member name="P:MyXaml.Core.InstantiateEventArgs.Instance">
+            <summary>
+            Gets the instance being instantiated.
+            </summary>
+        </member>
+        <member name="T:MyXaml.Core.AddToCollectionEventArgs">
+            <summary>
+            Defines the event args for the AddToCollection event.
+            </summary>
+        </member>
+        <member name="F:MyXaml.Core.AddToCollectionEventArgs.container">
+            <summary>
+            The container object implementing ICollection.
+            </summary>
+        </member>
+        <member name="F:MyXaml.Core.AddToCollectionEventArgs.instance">
+            <summary>
+            The instance being added to the collection.
+            </summary>
+        </member>
+        <member name="F:MyXaml.Core.AddToCollectionEventArgs.result">
+            <summary>
+            The result of the operation.
+            </summary>
+        </member>
+        <member name="M:MyXaml.Core.AddToCollectionEventArgs.#ctor(System.Object,System.Object,System.Xml.XmlNode)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="container">The ICollection implementer.</param>
+            <param name="instance">The instance to add to the collection.</param>
+        </member>
+        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Container">
+            <summary>
+            Gets the container object implementing ICollection.
+            </summary>
+        </member>
+        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Instance">
+            <summary>
+            Get the instance to be added to the collection.
+            </summary>
+        </member>
+        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Result">
+            <summary>
+            Get/set the result.  True if adding to the collection succeeded.
+            </summary>
+        </member>
+        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Node">
+            <summary>
+            Gets/sets Node
+            </summary>
+        </member>
+        <member name="T:Clifton.Tools.Strings.StringHelpers">
+            <summary>
+            Helpers for string manipulation.
+            </summary>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOf(System.String,System.Char)">
+            <summary>
+            Left of the first occurance of c
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">Return everything to the left of this character.</param>
+            <returns>String to the left of c, or the entire string.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOf(System.String,System.Char,System.Int32)">
+            <summary>
+            Left of the n'th occurance of c.
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">Return everything to the left n'th occurance of this character.</param>
+            <param name="n">The occurance.</param>
+            <returns>String to the left of c, or the entire string if not found or n is 0.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOf(System.String,System.Char)">
+            <summary>
+            Right of the first occurance of c
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">The search char.</param>
+            <returns>Returns everything to the right of c, or an empty string if c is not found.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOf(System.String,System.Char,System.Int32)">
+            <summary>
+            Right of the n'th occurance of c
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">The search char.</param>
+            <param name="n">The occurance.</param>
+            <returns>Returns everything to the right of c, or an empty string if c is not found.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOfRightmostOf(System.String,System.Char)">
+            <summary>
+            Returns everything to the left of the righmost char c.
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">The search char.</param>
+            <returns>Everything to the left of the rightmost char c, or the entire string.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOfRightmostOf(System.String,System.Char)">
+            <summary>
+            Returns everything to the right of the rightmost char c.
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="c">The seach char.</param>
+            <returns>Returns everything to the right of the rightmost search char, or an empty string.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.Between(System.String,System.Char,System.Char)">
+            <summary>
+            Returns everything between the start and end chars, exclusive.
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="start">The first char to find.</param>
+            <param name="end">The end char to find.</param>
+            <returns>The string between the start and stop chars, or an empty string if not found.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.Count(System.String,System.Char)">
+            <summary>
+            Returns the number of occurances of "find".
+            </summary>
+            <param name="src">The source string.</param>
+            <param name="find">The search char.</param>
+            <returns>The # of times the char occurs in the search string.</returns>
+        </member>
+        <member name="M:Clifton.Tools.Strings.StringHelpers.Rightmost(System.String)">
+            <summary>
+            Returns the rightmost char in src.
+            </summary>
+            <param name="src">The source string.</param>
+            <returns>The rightmost char, or '\0' if the source has zero length.</returns>
+        </member>
         <member name="T:MyXaml.Core.ObjectInfo">
             <summary>
             Container for instance information.  Used while processing the object.
@@ -417,6 +553,28 @@
             Instead of using the field name, an optional alias can be used that
             matches the name of the object instantiated during markup processing.
             </summary>
+        </member>
+        <member name="T:MyXaml.Core.MxBinding">
+            <summary>
+            Assists with property and event assignment for values that contain a reference.
+            Also supports binding on objects that implement IExtenderProvider.
+            </summary>
+        </member>
+        <member name="M:MyXaml.Core.MxBinding.#ctor(System.Object,System.String,System.String,System.Xml.XmlNode)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="obj">The target instance.</param>
+            <param name="propertyName">The property name to assign.</param>
+            <param name="refVal">The reference, as a string.</param>
+            <param name="node">The xml node while element is the object instance.</param>
+        </member>
+        <member name="M:MyXaml.Core.MxBinding.Bind(MyXaml.Core.Parser)">
+            <summary>
+            Attempt to bind the referenced value to the property of the object.
+            </summary>
+            <param name="parser">The calling parser instance.</param>
+            <returns>True if assignment is successful.</returns>
         </member>
         <member name="T:MyXaml.Core.Parser">
             <summary>
@@ -850,85 +1008,6 @@
             Delegate for InstantiateBegin and InstantiateEnd events.
             </summary>
         </member>
-        <member name="T:Clifton.Tools.Strings.StringHelpers">
-            <summary>
-            Helpers for string manipulation.
-            </summary>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOf(System.String,System.Char)">
-            <summary>
-            Left of the first occurance of c
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">Return everything to the left of this character.</param>
-            <returns>String to the left of c, or the entire string.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOf(System.String,System.Char,System.Int32)">
-            <summary>
-            Left of the n'th occurance of c.
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">Return everything to the left n'th occurance of this character.</param>
-            <param name="n">The occurance.</param>
-            <returns>String to the left of c, or the entire string if not found or n is 0.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOf(System.String,System.Char)">
-            <summary>
-            Right of the first occurance of c
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">The search char.</param>
-            <returns>Returns everything to the right of c, or an empty string if c is not found.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOf(System.String,System.Char,System.Int32)">
-            <summary>
-            Right of the n'th occurance of c
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">The search char.</param>
-            <param name="n">The occurance.</param>
-            <returns>Returns everything to the right of c, or an empty string if c is not found.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.LeftOfRightmostOf(System.String,System.Char)">
-            <summary>
-            Returns everything to the left of the righmost char c.
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">The search char.</param>
-            <returns>Everything to the left of the rightmost char c, or the entire string.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.RightOfRightmostOf(System.String,System.Char)">
-            <summary>
-            Returns everything to the right of the rightmost char c.
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="c">The seach char.</param>
-            <returns>Returns everything to the right of the rightmost search char, or an empty string.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.Between(System.String,System.Char,System.Char)">
-            <summary>
-            Returns everything between the start and end chars, exclusive.
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="start">The first char to find.</param>
-            <param name="end">The end char to find.</param>
-            <returns>The string between the start and stop chars, or an empty string if not found.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.Count(System.String,System.Char)">
-            <summary>
-            Returns the number of occurances of "find".
-            </summary>
-            <param name="src">The source string.</param>
-            <param name="find">The search char.</param>
-            <returns>The # of times the char occurs in the search string.</returns>
-        </member>
-        <member name="M:Clifton.Tools.Strings.StringHelpers.Rightmost(System.String)">
-            <summary>
-            Returns the rightmost char in src.
-            </summary>
-            <param name="src">The source string.</param>
-            <returns>The rightmost char, or '\0' if the source has zero length.</returns>
-        </member>
         <member name="T:MyXaml.Core.MxComponentContainer">
             <summary>
             A helper class to manage a component container for IContainer objects. The .NET
@@ -964,85 +1043,6 @@
         <member name="P:MyXaml.Core.MxComponentContainer.Tag">
             <summary>
             The tag of this instance. Necessary for MyXaml
-            </summary>
-        </member>
-        <member name="T:MyXaml.Core.InstantiateEventArgs">
-            <summary>
-            Defines the event args for the InstantiateBegin and InstantiateEnd events.
-            </summary>
-        </member>
-        <member name="F:MyXaml.Core.InstantiateEventArgs.instance">
-            <summary>
-            The instance being instantiated.
-            </summary>
-        </member>
-        <member name="M:MyXaml.Core.InstantiateEventArgs.#ctor(System.Object)">
-            <summary>
-            Constructor.
-            </summary>
-            <param name="instance">The instance being instantiated.</param>
-        </member>
-        <member name="P:MyXaml.Core.InstantiateEventArgs.Instance">
-            <summary>
-            Gets the instance being instantiated.
-            </summary>
-        </member>
-        <member name="T:MyXaml.Core.AddToCollectionEventArgs">
-            <summary>
-            Defines the event args for the AddToCollection event.
-            </summary>
-        </member>
-        <member name="F:MyXaml.Core.AddToCollectionEventArgs.container">
-            <summary>
-            The container object implementing ICollection.
-            </summary>
-        </member>
-        <member name="F:MyXaml.Core.AddToCollectionEventArgs.instance">
-            <summary>
-            The instance being added to the collection.
-            </summary>
-        </member>
-        <member name="F:MyXaml.Core.AddToCollectionEventArgs.result">
-            <summary>
-            The result of the operation.
-            </summary>
-        </member>
-        <member name="M:MyXaml.Core.AddToCollectionEventArgs.#ctor(System.Object,System.Object,System.Xml.XmlNode)">
-            <summary>
-            Constructor.
-            </summary>
-            <param name="container">The ICollection implementer.</param>
-            <param name="instance">The instance to add to the collection.</param>
-        </member>
-        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Container">
-            <summary>
-            Gets the container object implementing ICollection.
-            </summary>
-        </member>
-        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Instance">
-            <summary>
-            Get the instance to be added to the collection.
-            </summary>
-        </member>
-        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Result">
-            <summary>
-            Get/set the result.  True if adding to the collection succeeded.
-            </summary>
-        </member>
-        <member name="P:MyXaml.Core.AddToCollectionEventArgs.Node">
-            <summary>
-            Gets/sets Node
-            </summary>
-        </member>
-        <member name="T:MyXaml.Core.Break">
-            <summary>
-            Diagnostic class that can be inserted in the markup to force the debugger
-            to break.
-            </summary>
-        </member>
-        <member name="M:MyXaml.Core.Break.#ctor">
-            <summary>
-            Constructor.
             </summary>
         </member>
     </members>
