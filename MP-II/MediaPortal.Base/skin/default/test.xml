@@ -14,7 +14,7 @@
       <Style Key="styleButton">
         <Setter Property="Template">
           <Value>
-            <Canvas>
+            <ControlTemplate>
               <Border BorderThickness="4" CornerRadius="4" >
                 <Background>
                   <RadialGradientBrush GradientOrigin="0.85,0.82">
@@ -35,7 +35,7 @@
                 </BorderBrush>
               </Border>
               <Label Text="hallo" Margin="10,0,10,0" Font="font13"/>
-            </Canvas>
+            </ControlTemplate>
           </Value>
         </Setter>
       </Style>

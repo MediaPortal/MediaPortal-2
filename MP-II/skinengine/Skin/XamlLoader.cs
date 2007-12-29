@@ -63,7 +63,7 @@ namespace SkinEngine.Skin
         {
           return clone.Clone();
         }
-        if (result!=null)
+        if (result != null)
           return result;
       }
       else if (_lastElement != null)
@@ -216,6 +216,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Setter")
         return true;
+      else if (name == "ControlTemplate")
+        return true;
       return false;
     }
     /// <summary>
@@ -311,6 +313,8 @@ namespace SkinEngine.Skin
         return new SkinEngine.Controls.Visuals.Styles.Style();
       else if (name == "Setter")
         return new SkinEngine.Controls.Visuals.Styles.Setter();
+      else if (name == "ControlTemplate")
+        return new SkinEngine.Controls.Visuals.Styles.ControlTemplate();
       return null;
     }
 
