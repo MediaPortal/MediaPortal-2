@@ -133,6 +133,8 @@ namespace SkinEngine.Controls.Brushes
       if (_texture == null) return;
       ColorValue color = ColorValue.FromArgb(Color.ToArgb());
       color.Alpha *= (float)Opacity;
+
+      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       _effect = ContentManager.GetEffect("solidbrush");
       _effect.Parameters["g_solidColor"] = color;
       _effect.StartRender(_texture);

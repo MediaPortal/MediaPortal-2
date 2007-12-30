@@ -123,6 +123,14 @@ namespace SkinEngine
       set { _focusedControl = value; }
     }
 
+    public FrameworkElement RootElement
+    {
+      get
+      {
+        return _visual as FrameworkElement;
+      }
+    }
+
     public Control FocusedMouseControl
     {
       get { return _focusedMouseControl; }
@@ -378,7 +386,7 @@ namespace SkinEngine
       }
 
 #if TESTXAML
-      _visual.DoRender();
+      _visual.Render();
       _visual.Animate();
 #endif
     }

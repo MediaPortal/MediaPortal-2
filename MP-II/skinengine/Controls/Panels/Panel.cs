@@ -248,7 +248,7 @@ namespace SkinEngine.Controls.Panels
       {
         if (element.IsVisible)
         {
-          element.DoRender();
+          element.Render();
         }
       }
       _lastTimeUsed = SkinContext.Now;

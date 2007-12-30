@@ -270,6 +270,8 @@ namespace SkinEngine.Controls.Brushes
           index++;
         }
       }
+
+      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       _effect = ContentManager.GetEffect("radialgradient");
       _effect.Parameters["g_offset"] = _offsets;
       _effect.Parameters["g_color"] = _colors;

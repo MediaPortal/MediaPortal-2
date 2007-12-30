@@ -182,7 +182,7 @@ namespace SkinEngine.Controls.Transforms
 
     public int Count
     {
-      get { throw new Exception("The method or operation is not implemented."); }
+      get { return Children.Count; }
     }
 
     public bool IsSynchronized
@@ -201,7 +201,7 @@ namespace SkinEngine.Controls.Transforms
 
     public IEnumerator GetEnumerator()
     {
-      throw new Exception("The method or operation is not implemented.");
+      return Children.GetEnumerator();
     }
 
     #endregion

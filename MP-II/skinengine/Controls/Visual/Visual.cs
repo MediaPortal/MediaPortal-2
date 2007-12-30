@@ -104,6 +104,10 @@ namespace SkinEngine.Controls.Visuals
     public virtual void DoRender()
     {
     }
+    public virtual void Render()
+    {
+      DoRender();
+    }
 
     #region ICloneable Members
 

@@ -174,6 +174,7 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void BeginRender()
     {
+      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (_tex == null)
       {
         Allocate();

@@ -32,6 +32,7 @@ using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Animations;
+using SkinEngine.Controls.Transforms;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -47,6 +48,8 @@ namespace SkinEngine.Controls.Visuals
     Property _dockProperty;
     Property _marginProperty;
     Property _triggerProperty;
+    Property _renderTransformProperty;
+    Property _renderTransformOriginProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     bool _isArrangeValid;
@@ -74,6 +77,11 @@ namespace SkinEngine.Controls.Visuals
       Position = el.Position;
       Dock = el.Dock;
       Margin = el.Margin;
+      foreach (Transform t in el.RenderTransform)
+      {
+        RenderTransform.Add((Transform)t.Clone());
+      }
+      RenderTransformOrigin = el.RenderTransformOrigin;
       _resources = el.Resources;
       foreach (Trigger t in el.Triggers)
       {
@@ -94,6 +102,8 @@ namespace SkinEngine.Controls.Visuals
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
+      _renderTransformProperty = new Property(new TransformGroup());
+      _renderTransformOriginProperty = new Property(new Vector2(0, 0));
 
       _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -437,6 +447,65 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _marginProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the render transform property.
+    /// </summary>
+    /// <value>The render transform property.</value>
+    public Property RenderTransformProperty
+    {
+      get
+      {
+        return _renderTransformProperty;
+      }
+      set
+      {
+        _renderTransformProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the render transform.
+    /// </summary>
+    /// <value>The render transform.</value>
+    public TransformGroup RenderTransform
+    {
+      get
+      {
+        return _renderTransformProperty.GetValue() as TransformGroup;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the render transform origin property.
+    /// </summary>
+    /// <value>The render transform origin property.</value>
+    public Property RenderTransformOriginProperty
+    {
+      get
+      {
+        return _renderTransformOriginProperty;
+      }
+      set
+      {
+        _renderTransformOriginProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the render transform origin.
+    /// </summary>
+    /// <value>The render transform origin.</value>
+    public Vector2 RenderTransformOrigin
+    {
+      get
+      {
+        return (Vector2)_renderTransformOriginProperty.GetValue();
+      }
+      set
+      {
+        _renderTransformOriginProperty.SetValue(value);
       }
     }
 

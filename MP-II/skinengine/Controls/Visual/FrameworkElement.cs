@@ -382,5 +382,29 @@ namespace SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+
+    public override void Render()
+    {
+      if (RenderTransform.Count != 0)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        m.Matrix *= SkinContext.FinalMatrix.Matrix;
+        Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+        m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
+        Matrix mNew;
+        RenderTransform.GetTransform(out mNew);
+        m.Matrix *= mNew;
+        m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+        SkinContext.AddTransform(m);
+
+        DoRender();
+        SkinContext.RemoveTransform();
+      }
+      else
+      {
+        DoRender();
+      }
+    }
   }
 }

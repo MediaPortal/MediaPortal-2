@@ -218,6 +218,7 @@ namespace SkinEngine.Controls.Visuals
       if (_asset == null) return;
       ColorValue color = ColorValue.FromColor(this.Color);
 
+      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
       Rectangle rect = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
