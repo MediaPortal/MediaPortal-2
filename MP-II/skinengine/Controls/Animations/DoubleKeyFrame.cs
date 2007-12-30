@@ -41,6 +41,8 @@ namespace SkinEngine.Controls.Animations
     public DoubleKeyFrame(DoubleKeyFrame k)
     {
       Init();
+      KeyTime = k.KeyTime;
+      Value = k.Value;
     }
 
     void Init()
@@ -50,7 +52,7 @@ namespace SkinEngine.Controls.Animations
     }
 
 
-    public object Clone()
+    public virtual object Clone()
     {
       return new DoubleKeyFrame(this);
     }
@@ -114,6 +116,12 @@ namespace SkinEngine.Controls.Animations
         this.Value = (double)value;
       }
     }
+
+    public virtual double Interpolate(double start, double keyframe)
+    {
+      return 0;
+    }
+
 
   }
 }

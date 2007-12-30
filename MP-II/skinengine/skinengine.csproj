@@ -124,6 +124,7 @@
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\IKeyFrame.cs" />
+    <Compile Include="Controls\Animations\KeySpline.cs" />
     <Compile Include="Controls\Animations\ParallelTimeline.cs" />
     <Compile Include="Controls\Animations\PointAnimation.cs" />
     <Compile Include="Controls\Animations\PointAnimationUsingKeyFrames.cs" />

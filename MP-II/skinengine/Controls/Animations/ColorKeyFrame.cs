@@ -41,6 +41,8 @@ namespace SkinEngine.Controls.Animations
     public ColorKeyFrame(ColorKeyFrame k)
     {
       Init();
+      KeyTime = k.KeyTime;
+      Value = k.Value;
     }
 
     void Init()
@@ -50,7 +52,7 @@ namespace SkinEngine.Controls.Animations
     }
 
 
-    public object Clone()
+    public virtual object Clone()
     {
       return new ColorKeyFrame(this);
     }
@@ -114,5 +116,9 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public virtual Color Interpolate(Color start, double keyframe)
+    {
+      return start;
+    }
   }
 }

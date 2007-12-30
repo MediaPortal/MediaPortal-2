@@ -50,6 +50,7 @@ namespace SkinEngine.Controls.Brushes
     Property _radiusYProperty;
     float[] _offsets = new float[12];
     ColorValue[] _colors = new ColorValue[12];
+    bool _refresh = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
@@ -220,15 +221,9 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
-      int index = 0;
-      foreach (GradientStop stop in GradientStops)
-      {
-        _offsets[index] = (float)stop.Offset;
-        _colors[index] = ColorValue.FromColor(stop.Color);
-        _colors[index].Alpha *= (float)Opacity;
-        index++;
-      }
+      _refresh = true;
     }
+
     /// <summary>
     /// Setups the brush.
     /// </summary>
@@ -263,6 +258,18 @@ namespace SkinEngine.Controls.Brushes
     public override void BeginRender()
     {
       if (_texture == null) return;
+      if (_refresh)
+      {
+        _refresh = false;
+        int index = 0;
+        foreach (GradientStop stop in GradientStops)
+        {
+          _offsets[index] = (float)stop.Offset;
+          _colors[index] = ColorValue.FromColor(stop.Color);
+          _colors[index].Alpha *= (float)Opacity;
+          index++;
+        }
+      }
       _effect = ContentManager.GetEffect("radialgradient");
       _effect.Parameters["g_offset"] = _offsets;
       _effect.Parameters["g_color"] = _colors;

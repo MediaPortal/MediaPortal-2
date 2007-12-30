@@ -71,6 +71,7 @@ namespace SkinEngine.Controls.Animations
       Duration = a.Duration;
       Key = a.Key;
       FillBehaviour = a.FillBehaviour;
+      RepeatBehaviour = a.RepeatBehaviour;
       VisualParent = a.VisualParent;
     }
     public virtual object Clone()

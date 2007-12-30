@@ -23,10 +23,89 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Drawing;
+using MediaPortal.Core.Properties;
+using Microsoft.DirectX;
 namespace SkinEngine.Controls.Animations
 {
   public class SplineColorKeyFrame : ColorKeyFrame
   {
+    KeySpline _spline;
+    Property _keySplineProperty;
+
+    public SplineColorKeyFrame()
+    {
+      Init();
+    }
+
+    public SplineColorKeyFrame(SplineColorKeyFrame k)
+      : base(k)
+    {
+      Init();
+      this.KeySpline = k.KeySpline;
+      OnSplineChanged(null);
+    }
+
+    void Init()
+    {
+      _spline = new KeySpline();
+      _keySplineProperty = new Property(new Vector4());
+      _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
+    }
+
+
+    void OnSplineChanged(Property prop)
+    {
+      if (this.KeySpline.X != 0 && this.KeySpline.Y != 0 && this.KeySpline.Z != 0 && this.KeySpline.W != 0)
+      {
+        _spline = new KeySpline(this.KeySpline.X, this.KeySpline.Y, this.KeySpline.Z, this.KeySpline.W);
+      }
+    }
+
+
+    public override object Clone()
+    {
+      return new SplineColorKeyFrame(this);
+    }
+
+    public Property KeySplineProperty
+    {
+      get
+      {
+        return _keySplineProperty;
+      }
+      set
+      {
+        _keySplineProperty = value;
+      }
+    }
+
+    public Vector4 KeySpline
+    {
+      get
+      {
+        return (Vector4)_keySplineProperty.GetValue();
+      }
+      set
+      {
+        _keySplineProperty.SetValue(value);
+      }
+    }
+
+
+    public override Color Interpolate(Color start, double keyframe)
+    {
+      if (keyframe <= 0.0) return start;
+      if (keyframe >= 1.0) return Value;
+      if (double.IsNaN(keyframe)) return start;
+      double v = _spline.GetSplineProgress(keyframe);
+
+      double a = start.A + ((Value.A - start.A) * v);
+      double r = start.R + ((Value.R - start.R) * v);
+      double g = start.G + ((Value.G - start.G) * v);
+      double b = start.B + ((Value.B - start.B) * v);
+      return Color.FromArgb((int)a, (int)r, (int)g, (int)b);
+    }
   }
 }
+

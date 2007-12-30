@@ -21,10 +21,13 @@
 */
 #endregion
 using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Animations
 {
@@ -254,5 +257,58 @@ namespace SkinEngine.Controls.Animations
 
     #endregion
 
+
+    /// <summary>
+    /// Animates the property.
+    /// </summary>
+    /// <param name="timepassed">The timepassed.</param>
+    protected override void AnimateProperty(uint timepassed)
+    {
+      if (_property == null) return;
+      double time = 0;
+      Color start = Color.Black;
+      for (int i = 0; i < KeyFrames.Count; ++i)
+      {
+        ColorKeyFrame key = KeyFrames[i];
+        if (key.KeyTime.TotalMilliseconds >= timepassed)
+        {
+          double progress = (timepassed - time);
+          progress /= (key.KeyTime.TotalMilliseconds - time);
+          Color result = key.Interpolate(start, progress);
+          _property.SetValue(result);
+          return;
+        }
+        else
+        {
+          time = key.KeyTime.TotalMilliseconds;
+          start = key.Value;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Starts the animation
+    /// </summary>
+    /// <param name="timePassed">The time passed.</param>
+    public override void Start(uint timePassed)
+    {
+      if (KeyFrames.Count > 0)
+      {
+        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
+      }
+      base.Start(timePassed);
+      //find _property...
+
+      _property = null;
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      object element = VisualTreeHelper.Instance.FindElement(VisualParent, TargetName);
+      if (element == null)
+        element = VisualTreeHelper.Instance.FindElement(TargetName);
+      if (element == null) return;
+      Type t = element.GetType();
+      PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
+      MethodInfo minfo = pinfo.GetGetMethod();
+      _property = minfo.Invoke(element, null) as Property;
+    }
   }
 }

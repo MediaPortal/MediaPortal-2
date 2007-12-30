@@ -41,6 +41,8 @@ namespace SkinEngine.Controls.Animations
     public PointKeyFrame(PointKeyFrame k)
     {
       Init();
+      KeyTime = k.KeyTime;
+      Value = k.Value;
     }
 
     void Init()
@@ -50,7 +52,7 @@ namespace SkinEngine.Controls.Animations
     }
 
 
-    public object Clone()
+    public virtual object Clone()
     {
       return new PointKeyFrame(this);
     }
@@ -115,5 +117,9 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public virtual Vector2 Interpolate(Vector2 start, double keyframe)
+    {
+      return start;
+    }
   }
 }

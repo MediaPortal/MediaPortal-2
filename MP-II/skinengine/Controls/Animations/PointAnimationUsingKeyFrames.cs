@@ -21,10 +21,13 @@
 */
 #endregion
 using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals;
+using Microsoft.DirectX;
 
 namespace SkinEngine.Controls.Animations
 {
@@ -159,6 +162,51 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+
+    /// <summary>
+    /// Animates the property.
+    /// </summary>
+    /// <param name="timepassed">The timepassed.</param>
+    protected override void AnimateProperty(uint timepassed)
+    {
+      if (_property == null) return;
+      double time = 0;
+      Vector2 start = new Vector2();
+      for (int i = 0; i < KeyFrames.Count; ++i)
+      {
+        PointKeyFrame key = KeyFrames[i];
+        if (key.KeyTime.TotalMilliseconds >= timepassed)
+        {
+          double progress = (timepassed - time);
+          progress /= (key.KeyTime.TotalMilliseconds - time);
+          Vector2 result = key.Interpolate(start, progress);
+          _property.SetValue(result);
+          return;
+        }
+        else
+        {
+          time = key.KeyTime.TotalMilliseconds;
+          start = key.Value;
+        }
+      }
+    }
+
+    public override void Start(uint timePassed)
+    {
+      base.Start(timePassed);
+      //find _property...
+
+      _property = null;
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      object element = VisualTreeHelper.Instance.FindElement(VisualParent, TargetName);
+      if (element == null)
+        element = VisualTreeHelper.Instance.FindElement(TargetName);
+      if (element == null) return;
+      Type t = element.GetType();
+      PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
+      MethodInfo minfo = pinfo.GetGetMethod();
+      _property = minfo.Invoke(element, null) as Property;
+    }
 
     #region IList Members
 
