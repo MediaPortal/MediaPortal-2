@@ -3,13 +3,6 @@
   <StackPanel Width="200" Background="Yellow">
     <Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
-      <Storyboard Key="animateTest">
-        <DoubleAnimationUsingKeyFrames TargetName="myimage" TargetProperty="Width">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="100"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:04" Value="60"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:08" Value="120"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
     </Resources>
     <!--
     <Background>
@@ -41,10 +34,7 @@
 -->
     <Image Name="myimage" ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
     <Button Width="100" Height="32" Style="{StaticResource styleButton}"/>
-    <Button Width="100" Height="32" Style="{StaticResource styleButton}">
-      <Triggers>
-        <EventTrigger RoutedEvent="OnGotFocus" Storyboard="{StaticResource animateTest}"/>
-      </Triggers>
-    </Button>
+    <Button Width="100" Height="32" Style="{StaticResource styleButton}"/>
+    <Button Width="100" Height="32" Style="{StaticResource styleButton}"/>
   </StackPanel>
 </MyXaml>

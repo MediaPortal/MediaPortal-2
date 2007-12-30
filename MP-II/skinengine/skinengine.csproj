@@ -199,6 +199,7 @@
     <Compile Include="DirectX\Vertex.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="ExtendedMatrix.cs" />
+    <Compile Include="InputManager\FocusManager.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
     <Compile Include="Players\CropSettings.cs" />

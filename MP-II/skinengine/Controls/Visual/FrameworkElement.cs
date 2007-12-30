@@ -27,6 +27,8 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using MediaPortal.Core.InputManager;
+using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -244,5 +246,141 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
+
+
+    #region focus & control predicition
+
+    /// <summary>
+    /// Predicts the next control which is position above this control
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused control.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public virtual FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (!IsVisible)
+      {
+        return null;
+      }
+      if (IsFocusable)
+      {
+        if (ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
+        {
+          if (!strict)
+          {
+            return this;
+          }
+          //           |-------------------------------|  
+          //   |----------------------------------------------|
+          //   |----------------------|
+          //                          |-----|
+          //                          |-----------------------|
+          if ((ActualPosition.X >= focusedFrameworkElement.ActualPosition.X && Position.X <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
+              (ActualPosition.X <= focusedFrameworkElement.ActualPosition.X &&
+               ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
+              (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
+               ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
+          {
+            return this;
+          }
+        }
+      }
+      return null;
+    }
+
+
+    /// <summary>
+    /// Predicts the next control which is position below this control
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused control.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public virtual FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (!IsVisible)
+      {
+        return null;
+      }
+      if (IsFocusable)
+      {
+        if (ActualPosition.Y > focusedFrameworkElement.ActualPosition.Y)
+        {
+          if (!strict)
+          {
+            return this;
+          }
+          if ((ActualPosition.X >= focusedFrameworkElement.ActualPosition.X && Position.X <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
+              (ActualPosition.X <= focusedFrameworkElement.ActualPosition.X &&
+               ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
+              (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
+               ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
+          {
+            return this;
+          }
+        }
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Predicts the next control which is position left of this control
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused control.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public virtual FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (!IsVisible)
+      {
+        return null;
+      }
+      if (IsFocusable)
+      {
+        if (ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
+        {
+          return this;
+        }
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Predicts the next control which is position right of this control
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused control.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public virtual FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (!IsVisible)
+      {
+        return null;
+      }
+      if (IsFocusable)
+      {
+        if (ActualPosition.X > focusedFrameworkElement.ActualPosition.X)
+        {
+          return this;
+        }
+      }
+      return null;
+    }
+
+
+    /// <summary>
+    /// Calculates the distance between 2 controls
+    /// </summary>
+    /// <param name="c1">The c1.</param>
+    /// <param name="c2">The c2.</param>
+    /// <returns></returns>
+    public float Distance(FrameworkElement c1, FrameworkElement c2)
+    {
+      float y = Math.Abs(c1.ActualPosition.Y - c2.ActualPosition.Y);
+      float x = Math.Abs(c1.ActualPosition.X - c2.ActualPosition.X);
+      float distance = (float)Math.Sqrt(y * y + x * x);
+      return distance;
+    }
+
+    #endregion
   }
 }

@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.Core.InputManager;
+
+using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -200,7 +203,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (Template != null)
       {
-        UIElement o=Template.FindElement(name);
+        UIElement o = Template.FindElement(name);
         if (o != null) return o;
       }
       return base.FindElement(name);
@@ -242,6 +245,18 @@ namespace SkinEngine.Controls.Visuals
         base.HasFocus = value;
         if (Template != null)
           Template.HasFocus = value;
+      }
+    }
+    public override void OnKeyPressed(ref Key key)
+    {
+      if (!HasFocus) return;
+
+      UIElement cntl = FocusManager.PredictFocus(this, ref key);
+      if (cntl != null)
+      {
+        HasFocus = false;
+        cntl.HasFocus = true;
+        key = MediaPortal.Core.InputManager.Key.None;
       }
     }
   }

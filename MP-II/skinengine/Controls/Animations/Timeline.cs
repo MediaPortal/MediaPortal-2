@@ -87,7 +87,7 @@ namespace SkinEngine.Controls.Animations
       _decelerationRatioProperty = new Property(1.0);
       _durationProperty = new Property(new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
-      _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
+      _fillBehaviourProperty = new Property(FillBehaviour.Stop);
       _visualParentProperty = new Property(null);
     }
 

@@ -36,6 +36,7 @@ namespace SkinEngine.Controls.Animations
     Property _targetProperty;
     Property _targetNameProperty;
     Property _property;
+    double _originalValue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
@@ -212,8 +213,21 @@ namespace SkinEngine.Controls.Animations
       PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
       MethodInfo minfo = pinfo.GetGetMethod();
       _property = minfo.Invoke(element, null) as Property;
+      _originalValue = (double)_property.GetValue();
     }
 
+
+    public override void Stop()
+    {
+      base.Stop();
+      if (_property != null)
+      {
+        if (FillBehaviour != FillBehaviour.HoldEnd)
+        {
+          _property.SetValue(_originalValue);
+        }
+      }
+    }
 
     #region IList Members
 

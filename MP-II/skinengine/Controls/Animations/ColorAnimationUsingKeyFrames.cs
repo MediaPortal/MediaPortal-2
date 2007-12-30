@@ -37,6 +37,7 @@ namespace SkinEngine.Controls.Animations
     Property _targetProperty;
     Property _targetNameProperty;
     Property _property;
+    Color _originalValue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
@@ -286,6 +287,18 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public override void Stop()
+    {
+      base.Stop();
+      if (_property != null)
+      {
+        if (FillBehaviour != FillBehaviour.HoldEnd)
+        {
+          _property.SetValue(_originalValue);
+        }
+      }
+    }
+
     /// <summary>
     /// Starts the animation
     /// </summary>
@@ -309,6 +322,7 @@ namespace SkinEngine.Controls.Animations
       PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
       MethodInfo minfo = pinfo.GetGetMethod();
       _property = minfo.Invoke(element, null) as Property;
+      _originalValue = (Color)_property.GetValue();
     }
   }
 }
