@@ -17,7 +17,8 @@ float4 g_color[12]={ {0.0f,0.0f,0.0f,0.0f},  //red
 float g_offset[12]={0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f};
 
 float4x4 worldViewProj     : WORLDVIEWPROJ; //our world view projection matrix
-float4x4 RelativeTransform ;//: WORLDVIEWPROJ; 
+float4x4 RelativeTransform : WORLDVIEWPROJ; 
+
 float2   g_radius={0.5f,0.5f};
 float2   g_center={0.5f,0.5f};
 float2   g_focus={0.5f,0.5f};
@@ -67,7 +68,6 @@ float4 GetColor(float2 pos):COLOR
    else
     dist2=vr1.x+xmax;
   float dist=dist1/dist2;
-  
   int index=0;
   while (dist >= g_offset[index] && index+1<g_stops)
   {
@@ -96,8 +96,9 @@ void renderVertexShader( in a2v IN, out v2p OUT )
 
 void renderPixelShader( in v2p IN, out p2f OUT) 
 { 
-  float2 pos=mul(IN.Texcoord, RelativeTransform);
-  float4 color=GetColor(pos);
+  float4 pos=float4(IN.Texcoord.x,IN.Texcoord.y,0,1);
+  pos=mul(pos, RelativeTransform);
+  float4 color=GetColor( float2(pos.x,pos.y));
   OUT.Color=color;
 }
 

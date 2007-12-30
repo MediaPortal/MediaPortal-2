@@ -106,7 +106,7 @@ namespace SkinEngine.Controls.Transforms
       {
         Matrix m;
         t.GetTransform(out m);
-        _matrix.Multiply(m);
+        _matrix *= m;
       }
     }
 

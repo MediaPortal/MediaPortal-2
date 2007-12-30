@@ -281,6 +281,7 @@ namespace SkinEngine.Controls.Brushes
       _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
       Matrix m = Matrix.Identity;
       RelativeTransform.GetTransform(out m);
+      m=Matrix.Invert(m);
       _effect.Parameters["RelativeTransform"] = m;
       
       _effect.StartRender(_texture);

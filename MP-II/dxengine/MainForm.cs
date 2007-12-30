@@ -142,7 +142,7 @@ namespace dxEngine
 
       Rectangle screen = Screen.PrimaryScreen.Bounds;
       float ar = screen.Width / ((float)screen.Height);
-      if (ar >= 1.6)
+      if (false&&ar >= 1.6)
       {
         float height = screen.Height;
         height *= 0.7f;

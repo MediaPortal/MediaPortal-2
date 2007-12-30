@@ -82,8 +82,9 @@ void renderVertexShader( in a2v IN, out v2p OUT )
 
 void renderPixelShader( in v2p IN, out p2f OUT) 
 { 
-  float2 pos=mul(IN.Texcoord, RelativeTransform);
-  float4 color=GetColor(pos);
+  float4 pos=float4(IN.Texcoord.x,IN.Texcoord.y,0,1);
+  pos=mul(pos, RelativeTransform);
+  float4 color=GetColor( float2(pos.x,pos.y));
   OUT.Color=color;
 }
 

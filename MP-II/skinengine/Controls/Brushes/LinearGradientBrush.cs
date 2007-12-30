@@ -207,6 +207,7 @@ namespace SkinEngine.Controls.Brushes
       _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
       Matrix m = Matrix.Identity;
       RelativeTransform.GetTransform(out m);
+      m = Matrix.Invert(m);
       _effect.Parameters["RelativeTransform"] = m;
 
       _effect.StartRender(_texture);
