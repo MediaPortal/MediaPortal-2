@@ -269,7 +269,7 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets a value indicating whether this uielement has focus.
     /// </summary>
     /// <value><c>true</c> if this uielement has focus; otherwise, <c>false</c>.</value>
-    public bool HasFocus
+    public virtual bool HasFocus
     {
       get
       {
@@ -497,7 +497,11 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public virtual void Arrange(Rectangle finalRect)
     {
-      IsArrangeValid = true;
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeTriggers();
+      }
     }
 
     /// <summary>
@@ -561,29 +565,54 @@ namespace SkinEngine.Controls.Visuals
       return null;
     }
 
+    void InitializeTriggers()
+    {
+      foreach (Trigger trigger in Triggers)
+      {
+        trigger.Setup(this);
+      }
+    }
     /// <summary>
     /// Fires an event.
     /// </summary>
     /// <param name="eventName">Name of the event.</param>
     public virtual void FireEvent(string eventName)
     {
-      foreach (EventTrigger trigger in Triggers)
+      foreach (Trigger trigger in Triggers)
       {
-        if (trigger.RoutedEvent == eventName)
+        EventTrigger eventTrig = trigger as EventTrigger;
+        if (eventTrig != null)
         {
-          if (trigger.Storyboard != null)
+          if (eventTrig.RoutedEvent == eventName)
           {
-            lock (_runningAnimations)
+            if (eventTrig.Storyboard != null)
             {
-              if (!_runningAnimations.Contains(trigger.Storyboard))
-              {
-                _runningAnimations.Add(trigger.Storyboard);
-                trigger.Storyboard.VisualParent = this;
-                trigger.Storyboard.Start(SkinContext.TimePassed);
-              }
+              StartStoryboard(eventTrig.Storyboard);
             }
           }
         }
+      }
+    }
+
+    public void StartStoryboard(Timeline board)
+    {
+      lock (_runningAnimations)
+      {
+        if (!_runningAnimations.Contains(board))
+        {
+          _runningAnimations.Add(board);
+          board.VisualParent = this;
+          board.Start(SkinContext.TimePassed);
+        }
+      }
+    }
+
+    public void StopStoryboard(Timeline board)
+    {
+      lock (_runningAnimations)
+      {
+        board.Stop();
+        _runningAnimations.Remove(board);
       }
     }
 

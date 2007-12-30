@@ -70,7 +70,14 @@
             </Border>
             <Label Text="hallo" Margin="10,0,10,0" Font="font13"/>
             <Triggers>
-              <EventTrigger RoutedEvent="OnGotFocus" Storyboard="{StaticResource focusedStoryBoard}"/>
+              <Trigger Property="HasFocus" Value="True">
+                <EnterActions>
+                  <BeginStoryboard Name="focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </EnterActions>
+                <ExitActions>
+                  <StopStoryboard BeginStoryboardName="focused_BeginStoryboard"/>
+                </ExitActions>
+              </Trigger>
             </Triggers>
           </ControlTemplate>
         </Value>

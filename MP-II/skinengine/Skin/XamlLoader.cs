@@ -233,6 +233,12 @@ namespace SkinEngine.Skin
       //triggers
       else if (name == "EventTrigger")
         return true;
+      else if (name == "Trigger")
+        return true;
+      else if (name == "BeginStoryboard")
+        return true;
+      else if (name == "StopStoryboard")
+        return true;
 
       //Transforms
       else if (name == "TransformGroup")
@@ -344,6 +350,12 @@ namespace SkinEngine.Skin
       //triggers
       else if (name == "EventTrigger")
         return new EventTrigger();
+      else if (name == "Trigger")
+        return new Trigger();
+      else if (name == "BeginStoryboard")
+        return new BeginStoryboard();
+      else if (name == "StopStoryboard")
+        return new StopStoryboard();
 
       //Transforms
       else if (name == "TransformGroup")

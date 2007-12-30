@@ -230,5 +230,19 @@ namespace SkinEngine.Controls.Visuals
       }
       base.Animate();
     }
+
+    public override bool HasFocus
+    {
+      get
+      {
+        return base.HasFocus;
+      }
+      set
+      {
+        base.HasFocus = value;
+        if (Template != null)
+          Template.HasFocus = value;
+      }
+    }
   }
 }
