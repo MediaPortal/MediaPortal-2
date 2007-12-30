@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
@@ -20,7 +21,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       : base(action)
     {
       Init();
-      Storyboard = action.Storyboard;
+      Storyboard = (Storyboard)action.Storyboard.Clone();
       Name = action.Name;
     }
 
@@ -103,7 +104,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
     {
       if (Storyboard != null)
       {
-        element.StartStoryboard(Storyboard);
+        Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element.VisualParent).Name, this.Storyboard.Key));
+        element.StartStoryboard(this.Storyboard);
         return;
       }
     }

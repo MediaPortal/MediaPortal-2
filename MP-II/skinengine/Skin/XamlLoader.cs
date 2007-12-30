@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
@@ -55,6 +56,7 @@ namespace SkinEngine.Skin
 
     object parser_OnGetResource(object parser, object obj, string resourceName)
     {
+      Trace.WriteLine(String.Format("Get resource:{0}", resourceName));
       if (obj as UIElement != null)
       {
         UIElement elm = (UIElement)obj;
@@ -65,7 +67,10 @@ namespace SkinEngine.Skin
           return clone.Clone();
         }
         if (result != null)
+        {
+          Trace.WriteLine(String.Format("type:{0} is not clonable", result));
           return result;
+        }
       }
       else if (_lastElement != null)
       {
@@ -126,7 +131,7 @@ namespace SkinEngine.Skin
       else if (e.PropertyType == typeof(Brush))
       {
         SolidColorBrush b = new SolidColorBrush();
-        b.Color=(System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(e.Value.ToString());
+        b.Color = (System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(e.Value.ToString());
         e.Result = b;
       }
     }

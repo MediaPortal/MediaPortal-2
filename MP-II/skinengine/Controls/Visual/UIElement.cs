@@ -23,6 +23,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -82,7 +83,21 @@ namespace SkinEngine.Controls.Visuals
         RenderTransform.Add((Transform)t.Clone());
       }
       RenderTransformOrigin = el.RenderTransformOrigin;
-      _resources = el.Resources;
+      IDictionaryEnumerator enumer = el.Resources.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        ICloneable clone = enumer.Value as ICloneable;
+        if (clone != null)
+        {
+          Resources[enumer.Key] = clone.Clone();
+        }
+        else
+        {
+          Resources[enumer.Key] = enumer.Value;
+          Trace.WriteLine(String.Format("type:{0} is not clonable", enumer.Value));
+        }
+      }
+      
       foreach (Trigger t in el.Triggers)
       {
         Triggers.Add((Trigger)t.Clone());

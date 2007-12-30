@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
@@ -66,6 +67,7 @@ namespace SkinEngine.Controls.Visuals
     void OnStyleChanged(Property property)
     {
       Style.Set(this);
+      this.Template.VisualParent = this;
       Invalidate();
     }
 
@@ -238,13 +240,16 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
+        if (Template != null)
+          return Template.HasFocus;
         return base.HasFocus;
       }
       set
       {
-        base.HasFocus = value;
         if (Template != null)
           Template.HasFocus = value;
+        base.HasFocus = value;
+        Trace.WriteLine(String.Format("{0} focus:{1}", Name, value));
       }
     }
     public override void OnKeyPressed(ref Key key)

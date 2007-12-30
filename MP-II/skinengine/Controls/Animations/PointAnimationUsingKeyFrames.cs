@@ -194,6 +194,10 @@ namespace SkinEngine.Controls.Animations
 
     public override void Start(uint timePassed)
     {
+      if (KeyFrames.Count > 0)
+      {
+        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
+      }
       base.Start(timePassed);
       //find _property...
 
@@ -212,6 +216,7 @@ namespace SkinEngine.Controls.Animations
 
     public override void Stop()
     {
+      if (IsStopped) return;
       base.Stop();
       if (_property != null)
       {

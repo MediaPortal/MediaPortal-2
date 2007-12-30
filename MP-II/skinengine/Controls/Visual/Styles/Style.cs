@@ -7,12 +7,31 @@ using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Visuals.Styles
 {
-  public class Style : IList
+  public class Style : ICloneable, IList
   {
     SetterCollection _setters;
     Property _keyProperty;
 
     public Style()
+    {
+      Init();
+    }
+
+    public Style(Style s)
+    {
+      Init();
+      Key = s.Key;
+      foreach (Setter set in s._setters)
+      {
+        _setters.Add((Setter)set.Clone());
+      }
+    }
+
+    public object Clone()
+    {
+      return new Style(this);
+    }
+    void Init()
     {
       _setters = new SetterCollection();
       _keyProperty = new Property("");

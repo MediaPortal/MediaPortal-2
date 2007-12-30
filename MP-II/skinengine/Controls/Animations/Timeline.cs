@@ -460,6 +460,7 @@ namespace SkinEngine.Controls.Animations
     /// <param name="timePassed">The time passed.</param>
     public virtual void Start(uint timePassed)
     {
+      Stop();
       _timeStarted = timePassed;
       _state = State.WaitBegin;
     }
@@ -469,6 +470,7 @@ namespace SkinEngine.Controls.Animations
     /// </summary>
     public virtual void Stop()
     {
+      if (IsStopped) return;
       if (FillBehaviour == FillBehaviour.Stop)
       {
         AnimateProperty(0);

@@ -1,16 +1,42 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Visuals.Styles
 {
-  public class Setter
+  public class Setter : ICloneable
   {
     Property _propertyProperty;
     Property _valueProperty;
 
     public Setter()
+    {
+      Init();
+    }
+
+    public Setter(Setter s)
+    {
+      Init();
+      Property = s.Property;
+      ICloneable clone=s.Value as ICloneable;
+      if (clone != null)
+      {
+        Value = clone.Clone();
+      }
+      else
+      {
+        Value = s.Value;
+        Trace.WriteLine(String.Format("type:{0} is not clonable", s.Value));
+      }
+    }
+
+    public object Clone()
+    {
+      return new Setter(this);
+    }
+    void Init()
     {
       _propertyProperty = new Property("");
       _valueProperty = new Property(null);

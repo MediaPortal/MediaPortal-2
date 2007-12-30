@@ -219,6 +219,7 @@ namespace SkinEngine.Controls.Animations
 
     public override void Stop()
     {
+      if (IsStopped) return;
       base.Stop();
       if (_property != null)
       {
