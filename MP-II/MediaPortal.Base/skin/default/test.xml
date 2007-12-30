@@ -34,7 +34,7 @@
 -->
     <Image Name="myimage" ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
     <Button Name="btn1" Width="100" Height="32" Style="{StaticResource styleButton}"/>
-    <Button Name="btn2" Width="100" Height="32" Style="{StaticResource styleButton}"/>
+    <Button Name="btn2" Width="100" Height="32" Margin="0,10,0,20" Style="{StaticResource styleButton}"/>
     <Button Name="btn3" Width="100" Height="32" Style="{StaticResource styleButton}"/>
   </StackPanel>
 </MyXaml>

@@ -120,6 +120,8 @@ namespace SkinEngine.Controls.Panels
       if (Width > 0) totalWidth = (float)Width;
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
       base.Measure(availableSize);
     }
 
@@ -130,9 +132,13 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
-      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
-      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
+      finalRect.X += (int)(Margin.X);
+      finalRect.Y += (int)(Margin.Y);
+      finalRect.Width -= (int)(Margin.X);
+      finalRect.Height -= (int)(Margin.Y);
+      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
       switch (Orientation)
       {
         case Orientation.Vertical:

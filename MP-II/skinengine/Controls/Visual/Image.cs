@@ -222,9 +222,13 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      ActualPosition = new Vector3(finalRect.Location.X + Margin.X, finalRect.Location.Y + Margin.Y, 1.0f); ;
-      ActualWidth = finalRect.Width - (Margin.X + Margin.W);
-      ActualHeight = finalRect.Height - (Margin.Y + Margin.Z);
+      finalRect.X += (int)(Margin.X);
+      finalRect.Y += (int)(Margin.Y);
+      finalRect.Width -= (int)(Margin.X);
+      finalRect.Height -= (int)(Margin.Y);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       PerformLayout();
       base.Arrange(finalRect);
@@ -262,6 +266,8 @@ namespace SkinEngine.Controls.Visuals
       {
         _desiredSize = new Size((int)Width, (int)Height);
       }
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
     }
 
     /// <summary>

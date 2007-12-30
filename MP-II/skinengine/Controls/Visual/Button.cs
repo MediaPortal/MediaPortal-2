@@ -142,7 +142,6 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
-      base.Measure(availableSize);
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0) _desiredSize.Width = (int)availableSize.Width;
       if (Height == 0) _desiredSize.Height = (int)availableSize.Height;
@@ -152,6 +151,9 @@ namespace SkinEngine.Controls.Visuals
         Template.Measure(_desiredSize);
         _desiredSize = Template.DesiredSize;
       }
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      base.Measure(availableSize);
     }
 
     /// <summary>
@@ -161,6 +163,10 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
+      finalRect.X += (int)(Margin.X);
+      finalRect.Y += (int)(Margin.Y);
+      finalRect.Width -= (int)(Margin.X);
+      finalRect.Height -= (int)(Margin.Y);
       if (Template != null)
       {
         Template.Arrange(finalRect);
