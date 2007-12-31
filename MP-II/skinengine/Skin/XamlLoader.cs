@@ -197,6 +197,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Ellipse")
         return true;
+      else if (name == "Line")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -323,6 +325,11 @@ namespace SkinEngine.Skin
       else if (name == "Ellipse")
       {
         _lastElement = new Ellipse();
+        return _lastElement;
+      }
+      else if (name == "Line")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.Line();
         return _lastElement;
       }
       else if (name == "Resources")
