@@ -176,6 +176,8 @@
     <Compile Include="Controls\Visual\ResourceDictionary.cs" />
     <Compile Include="Controls\Visual\Shapes\Ellipse.cs" />
     <Compile Include="Controls\Visual\Shapes\Line.cs" />
+    <Compile Include="Controls\Visual\Shapes\PointCollection.cs" />
+    <Compile Include="Controls\Visual\Shapes\Polygon.cs" />
     <Compile Include="Controls\Visual\Shapes\Rectangle.cs" />
     <Compile Include="Controls\Visual\Shapes\Shape.cs" />
     <Compile Include="Controls\Visual\Styles\ControlTemplate.cs" />

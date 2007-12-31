@@ -78,7 +78,7 @@ namespace SkinEngine.Controls.Visuals
     {
       _fillProperty = new Property(null);
       _strokeProperty = new Property(null);
-      _strokeThicknessProperty = new Property(1);
+      _strokeThicknessProperty = new Property(1.0);
       ContentManager.Add(this);
     }
 

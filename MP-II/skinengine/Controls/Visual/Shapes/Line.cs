@@ -207,11 +207,12 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
+      base.Measure(availableSize);
       _desiredSize = new System.Drawing.Size((int)Math.Abs(X2 - X1), (int)Math.Abs(Y2 - Y1));
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      base.Measure(availableSize);
     }
+
 
     /// <summary>
     /// Performs the layout.

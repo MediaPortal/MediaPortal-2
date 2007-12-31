@@ -134,6 +134,18 @@ namespace SkinEngine.Skin
         b.Color = (System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(e.Value.ToString());
         e.Result = b;
       }
+      else if (e.PropertyType == typeof(PointCollection))
+      {
+        PointCollection coll = new PointCollection();
+        string text = e.Value.ToString();
+        string[] parts = text.Split(new char[] { ',',' ' });
+        for (int i = 0; i < parts.Length; i += 2)
+        {
+          System.Drawing.Point p = new System.Drawing.Point(Int32.Parse(parts[i]), Int32.Parse(parts[i+1]));
+          coll.Add(p);
+        }
+        e.Result = coll;
+      }
     }
 
     /// <summary>
@@ -198,6 +210,8 @@ namespace SkinEngine.Skin
       else if (name == "Ellipse")
         return true;
       else if (name == "Line")
+        return true;
+      else if (name == "Polygon")
         return true;
       else if (name == "Resources")
         return true;
@@ -330,6 +344,11 @@ namespace SkinEngine.Skin
       else if (name == "Line")
       {
         _lastElement = new SkinEngine.Controls.Visuals.Line();
+        return _lastElement;
+      }
+      else if (name == "Polygon")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.Polygon();
         return _lastElement;
       }
       else if (name == "Resources")

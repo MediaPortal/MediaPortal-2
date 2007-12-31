@@ -43,13 +43,13 @@
 
     <Image Name="myimage" ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
         -->
-    <Button Name="btn1" Width="200" Height="64" Style="{StaticResource styleButton}"/>
-    <Button Name="btn2" Width="200" Height="64" Margin="0,10,0,20" Style="{StaticResource styleButton}"/>
-    <Button Name="btn3" Width="200" Height="64" Style="{StaticResource styleButton}"/>
-    <Rectangle Width="200" Height="64" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
-    <Ellipse Width="200" Height="64" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
+    <Button Name="btn1" Width="200" Height="32" Style="{StaticResource styleButton}"/>
+    <Button Name="btn2" Width="200" Height="32" Margin="0,10,0,20" Style="{StaticResource styleButton}"/>
+    <Button Name="btn3" Width="200" Height="32" Style="{StaticResource styleButton}"/>
+    <Polygon  Fill="Blue" Points="0,0 30,0 60,30 60,60 30,60 0,30"/>
+    <Rectangle Width="200" Height="32" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
+    <Ellipse Width="200" Height="32" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
     <Line X1="10" Y1="10" X2="100" Y2="90"  Fill="Blue"  />
-
 
   </StackPanel>
 </MyXaml>
