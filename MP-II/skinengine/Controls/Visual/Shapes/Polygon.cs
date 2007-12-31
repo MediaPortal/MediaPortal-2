@@ -112,23 +112,13 @@ namespace SkinEngine.Controls.Visuals
       double h = Height; if (h == 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       //Fill brush
-      if (Stroke == null || StrokeThickness <= 0)
-      {
-        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = w;
-        ActualHeight = h;
-      }
-      else
-      {
-        ActualPosition = new Vector3((float)(ActualPosition.X + StrokeThickness), (float)(ActualPosition.Y + StrokeThickness), 1);
-        ActualWidth = w - 2 * +StrokeThickness;
-        ActualHeight = h - 2 * +StrokeThickness;
-      }
       PositionColored2Textured[] verts;
-      GraphicsPath path = GetPolygon(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), out cx, out cy);
-      PointF[] vertices = ConvertPathToTriangleFan(path, (int)+(cx), (int)(cy));
+      GraphicsPath path;
+      PointF[] vertices;
       if (Fill != null)
       {
+        path = GetPolygon(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), out cx, out cy);
+        vertices = ConvertPathToTriangleFan(path, (int)+(cx), (int)(cy));
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
         unchecked
@@ -143,15 +133,12 @@ namespace SkinEngine.Controls.Visuals
         Fill.SetupBrush(this, ref verts);
         _vertexBufferFill.Unlock();
         _verticesCountFill = (verts.Length - 2);
+
       }
       //border brush
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (Stroke != null && StrokeThickness > 0)
       {
-        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = w;
-        ActualHeight = h;
         path = GetPolygon(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), out cx, out cy);
         vertices = ConvertPathToTriangleStrip(path, (int)(cx), (int)(cy), (float)StrokeThickness);
 
@@ -168,12 +155,9 @@ namespace SkinEngine.Controls.Visuals
         }
         Stroke.SetupBrush(this, ref verts);
         _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length - 2);
+        _verticesCountBorder = (verts.Length /3);
       }
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
-      ActualWidth = w;
-      ActualHeight = h;
     }
     public override void Measure(Size availableSize)
     {
@@ -195,12 +179,12 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Height = (int)height;
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      
+
     }
     #region Get the desired Rounded Rectangle path.
     private GraphicsPath GetPolygon(RectangleF baseRect, out float cx, out float cy)
     {
-      Point[] points = new Point[Points.Count];
+      Point[] points = new Point[Points.Count ];
       for (int i = 0; i < Points.Count; ++i)
       {
         points[i] = (Point)Points[i];
@@ -226,7 +210,7 @@ namespace SkinEngine.Controls.Visuals
       Vector2 centroid = new Vector2();
       double temp;
       double area = 0;
-      Point v1 = (Point)Points[points.Length - 1];
+      Point v1 = (Point)points[points.Length - 1];
       Point v2;
       for (int index = 0; index < points.Length; ++index, v1 = v2)
       {

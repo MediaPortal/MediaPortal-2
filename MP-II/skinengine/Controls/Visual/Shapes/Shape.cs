@@ -195,15 +195,6 @@ namespace SkinEngine.Controls.Visuals
         PerformLayout();
       }
 
-      if (Stroke != null && StrokeThickness > 0)
-      {
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        Stroke.BeginRender();
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
-        Stroke.EndRender();
-      }
-
       if (Fill != null)
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
@@ -213,6 +204,15 @@ namespace SkinEngine.Controls.Visuals
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Fill.EndRender();
       }
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        Stroke.BeginRender();
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+        Stroke.EndRender();
+      }
+
       base.DoRender();
       _lastTimeUsed = SkinContext.Now;
     }
@@ -256,6 +256,20 @@ namespace SkinEngine.Controls.Visuals
       return vertices;
     }
 
+    void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNess)
+    {
+      double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
+      ang += (float)(Math.PI / 2.0);
+      x = (float)(Math.Cos(ang) * thickNess + point.X); //radians
+      y = (float)(Math.Sin(ang) * thickNess + point.Y);
+    }
+
+    PointF GetNextPoint(PointF[] points, int i)
+    {
+      i++;
+      while (i >= points.Length) i -= points.Length;
+      return points[i];
+    }
     /// <summary>
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
@@ -267,19 +281,21 @@ namespace SkinEngine.Controls.Visuals
     protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
     {
       PointF[] points = path.PathPoints;
-      int verticeCount = points.Length * 2 + 2;
+      int verticeCount = points.Length * 2 * 3;
       PointF[] vertices = new PointF[verticeCount];
+      float x, y;
       for (int i = 0; i < points.Length; ++i)
       {
-        float diffx = thickNess;
-        float diffy = thickNess;
-        if (points[i].X > cx) diffx = -thickNess;
-        if (points[i].Y > cy) diffy = -thickNess;
-        vertices[i * 2] = points[i];
-        vertices[i * 2 + 1] = new PointF(points[i].X + diffx, points[i].Y + diffy);
+        PointF nextpoint = GetNextPoint(points, i);
+        GetInset(nextpoint, points[i], out x, out y, (double)thickNess);
+        vertices[i * 6] = points[i];
+        vertices[i * 6 + 1] = nextpoint;
+        vertices[i * 6 + 2] = new PointF(x, y);
+
+        vertices[i * 6 + 3] = nextpoint;
+        vertices[i * 6 + 4] = new PointF(x, y);
+        vertices[i * 6 + 5] = new PointF(nextpoint.X + (x-points[i].X ), nextpoint.Y + (y-points[i].Y ));
       }
-      vertices[verticeCount - 2] = points[0];
-      vertices[verticeCount - 1] = new PointF(points[0].X + thickNess, points[0].Y + thickNess);
       return vertices;
     }
 
