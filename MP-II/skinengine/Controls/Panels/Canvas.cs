@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using SkinEngine.Controls.Visuals;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SkinEngine.Controls.Panels
 {

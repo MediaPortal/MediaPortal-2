@@ -122,12 +122,15 @@ namespace SkinEngine
       get { return _focusedControl; }
       set { _focusedControl = value; }
     }
-
     public FrameworkElement RootElement
     {
       get
       {
+#if TESTXAML
         return _visual as FrameworkElement;
+#else
+        return null;
+#endif
       }
     }
 

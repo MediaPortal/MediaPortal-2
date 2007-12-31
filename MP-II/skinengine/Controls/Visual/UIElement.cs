@@ -579,7 +579,7 @@ namespace SkinEngine.Controls.Visuals
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public virtual void Arrange(Rectangle finalRect)
+    public virtual void Arrange(System.Drawing.Rectangle finalRect)
     {
       if (!IsArrangeValid)
       {
@@ -604,7 +604,7 @@ namespace SkinEngine.Controls.Visuals
         _availableSize = availsizeOld;
         if (_desiredSize == sizeOld)
         {
-          Arrange(new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
+          Arrange(new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
           return;
         }
       }
@@ -618,7 +618,7 @@ namespace SkinEngine.Controls.Visuals
         if (element == null)
         {
           Measure(new Size((int)SkinContext.Width, (int)SkinContext.Height));
-          Arrange(new Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
+          Arrange(new System.Drawing.Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
         }
         else
         {
@@ -627,7 +627,7 @@ namespace SkinEngine.Controls.Visuals
           if (w == 0) w = (int)SkinContext.Width;
           if (h == 0) h = (int)SkinContext.Height;
           Measure(new Size(w, h));
-          Arrange(new Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
+          Arrange(new System.Drawing.Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
         }
       }
     }

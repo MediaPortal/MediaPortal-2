@@ -1,0 +1,352 @@
+#region Copyright (C) 2007 Team MediaPortal
+
+/*
+    Copyright (C) 2007 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
+using MediaPortal.Core.Properties;
+using MediaPortal.Core.InputManager;
+using SkinEngine;
+using SkinEngine.DirectX;
+using SkinEngine.Controls.Brushes;
+
+using RectangleF = System.Drawing.RectangleF;
+using PointF = System.Drawing.PointF;
+using SizeF = System.Drawing.SizeF;
+using Matrix = Microsoft.DirectX.Matrix;
+using Brush = SkinEngine.Controls.Brushes.Brush;
+
+using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
+
+namespace SkinEngine.Controls.Visuals
+{
+  public class Shape : FrameworkElement, IAsset
+  {
+    Property _fillProperty;
+    Property _strokeProperty;
+    Property _strokeThicknessProperty;
+    protected VertexBuffer _vertexBufferFill;
+    protected int _verticesCountFill;
+    protected VertexBuffer _vertexBufferBorder;
+    protected int _verticesCountBorder;
+    DateTime _lastTimeUsed;
+
+    public Shape()
+    {
+      Init();
+    }
+
+    public Shape(Shape s)
+      : base(s)
+    {
+      Init();
+      Fill = (Brush)s.Fill.Clone();
+      Stroke = (Brush)s.Stroke.Clone();
+      StrokeThickness = s.StrokeThickness;
+    }
+
+    public override object Clone()
+    {
+      return new Shape(this);
+    }
+
+    void Init()
+    {
+      _fillProperty = new Property(null);
+      _strokeProperty = new Property(null);
+      _strokeThicknessProperty = new Property(1);
+      ContentManager.Add(this);
+    }
+
+
+    /// <summary>
+    /// Gets or sets the fill property.
+    /// </summary>
+    /// <value>The fill property.</value>
+    public Property FillProperty
+    {
+      get
+      {
+        return _fillProperty;
+      }
+      set
+      {
+        _fillProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the fill.
+    /// </summary>
+    /// <value>The fill.</value>
+    public Brush Fill
+    {
+      get
+      {
+        return _fillProperty.GetValue() as Brush;
+      }
+      set
+      {
+        _fillProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the stroke property.
+    /// </summary>
+    /// <value>The stroke property.</value>
+    public Property StrokeProperty
+    {
+      get
+      {
+        return _strokeProperty;
+      }
+      set
+      {
+        _strokeProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the stroke.
+    /// </summary>
+    /// <value>The stroke.</value>
+    public Brush Stroke
+    {
+      get
+      {
+        return _strokeProperty.GetValue() as Brush;
+      }
+      set
+      {
+        _strokeProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the stroke thickness property.
+    /// </summary>
+    /// <value>The stroke thickness property.</value>
+    public Property StrokeThicknessProperty
+    {
+      get
+      {
+        return _strokeThicknessProperty;
+      }
+      set
+      {
+        _strokeThicknessProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the stroke thickness.
+    /// </summary>
+    /// <value>The stroke thickness.</value>
+    public double StrokeThickness
+    {
+      get
+      {
+        return (double)_strokeThicknessProperty.GetValue();
+      }
+      set
+      {
+        _strokeThicknessProperty.SetValue(value);
+      }
+    }
+
+    protected virtual void PerformLayout()
+    {
+    }
+
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
+    public override void DoRender()
+    {
+      if (!IsVisible) return;
+      if (_vertexBufferFill == null)
+      {
+        PerformLayout();
+      }
+
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        Stroke.BeginRender();
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
+        Stroke.EndRender();
+      }
+
+      if (Fill != null)
+      {
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        Fill.BeginRender();
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
+        Fill.EndRender();
+      }
+      base.DoRender();
+      _lastTimeUsed = SkinContext.Now;
+    }
+
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
+    public void Free()
+    {
+      if (_vertexBufferFill != null)
+      {
+        _vertexBufferFill.Dispose();
+        _vertexBufferFill = null;
+      }
+      if (_vertexBufferBorder != null)
+      {
+        _vertexBufferBorder.Dispose();
+        _vertexBufferBorder = null;
+      }
+    }
+    /// <summary>
+    /// Converts the graphicspath to an array of vertices using trianglefan.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="cx">The cx.</param>
+    /// <param name="cy">The cy.</param>
+    /// <returns></returns>
+    protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
+    {
+      PointF[] points = path.PathPoints;
+      int verticeCount = points.Length + 2;
+      PointF[] vertices = new PointF[verticeCount];
+      vertices[0] = new PointF(cx, cy);
+      vertices[1] = points[0];
+      vertices[2] = points[1];
+      for (int i = 2; i < points.Length; ++i)
+      {
+        vertices[i + 1] = points[i];
+      }
+      vertices[verticeCount - 1] = points[0];
+      return vertices;
+    }
+
+    /// <summary>
+    /// Converts the graphics path to an array of vertices using trianglestrip.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="cx">The cx.</param>
+    /// <param name="cy">The cy.</param>
+    /// <param name="thickNess">The thick ness.</param>
+    /// <returns></returns>
+    protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
+    {
+      PointF[] points = path.PathPoints;
+      int verticeCount = points.Length * 2 + 2;
+      PointF[] vertices = new PointF[verticeCount];
+      for (int i = 0; i < points.Length; ++i)
+      {
+        float diffx = thickNess;
+        float diffy = thickNess;
+        if (points[i].X > cx) diffx = -thickNess;
+        if (points[i].Y > cy) diffy = -thickNess;
+        vertices[i * 2] = points[i];
+        vertices[i * 2 + 1] = new PointF(points[i].X + diffx, points[i].Y + diffy);
+      }
+      vertices[verticeCount - 2] = points[0];
+      vertices[verticeCount - 1] = new PointF(points[0].X + thickNess, points[0].Y + thickNess);
+      return vertices;
+    }
+
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+    public override void Arrange(System.Drawing.Rectangle finalRect)
+    {
+      finalRect.X += (int)(Margin.X);
+      finalRect.Y += (int)(Margin.Y);
+      finalRect.Width -= (int)(Margin.X);
+      finalRect.Height -= (int)(Margin.Y);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+      PerformLayout();
+      base.Arrange(finalRect);
+    }
+
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
+    public override void Measure(System.Drawing.Size availableSize)
+    {
+      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      if (Width == 0)
+        _desiredSize.Width = (int)availableSize.Width;
+      if (Height == 0)
+        _desiredSize.Height = (int)availableSize.Height;
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      base.Measure(availableSize);
+    }
+
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get
+      {
+        return (_vertexBufferFill != null || _vertexBufferBorder != null);
+      }
+    }
+
+    public bool CanBeDeleted
+    {
+      get
+      {
+        if (!IsAllocated)
+        {
+          return false;
+        }
+        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        if (ts.TotalSeconds >= 1)
+        {
+          return true;
+        }
+
+        return false;
+      }
+    }
+
+
+    #endregion
+  }
+}

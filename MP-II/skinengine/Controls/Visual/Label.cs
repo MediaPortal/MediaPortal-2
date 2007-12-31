@@ -227,7 +227,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
-      Rectangle rect = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
+      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
       _asset.Draw(Text, rect, _align, size, color, Scroll, out totalWidth);
       base.DoRender();
     }

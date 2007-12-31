@@ -193,6 +193,10 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Label")
         return true;
+      else if (name == "Rectangle")
+        return true;
+      else if (name == "Ellipse")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -309,6 +313,16 @@ namespace SkinEngine.Skin
       else if (name == "Label")
       {
         _lastElement = new Label();
+        return _lastElement;
+      }
+      else if (name == "Rectangle")
+      {
+        _lastElement = new Rectangle();
+        return _lastElement;
+      }
+      else if (name == "Ellipse")
+      {
+        _lastElement = new Ellipse();
         return _lastElement;
       }
       else if (name == "Resources")

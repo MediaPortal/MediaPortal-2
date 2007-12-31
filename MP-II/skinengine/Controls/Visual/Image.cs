@@ -220,7 +220,7 @@ namespace SkinEngine.Controls.Visuals
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(Rectangle finalRect)
+    public override void Arrange(System.Drawing.Rectangle finalRect)
     {
       finalRect.X += (int)(Margin.X);
       finalRect.Y += (int)(Margin.Y);

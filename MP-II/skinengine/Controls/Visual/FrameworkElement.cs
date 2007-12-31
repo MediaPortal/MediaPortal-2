@@ -29,6 +29,7 @@ using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SkinEngine.Controls.Visuals
 {

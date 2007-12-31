@@ -70,6 +70,7 @@ namespace SkinEngine.Controls.Visuals
       BorderThickness = b.BorderThickness;
       CornerRadius = b.CornerRadius;
     }
+
     void Init()
     {
       _borderProperty = new Property(null);

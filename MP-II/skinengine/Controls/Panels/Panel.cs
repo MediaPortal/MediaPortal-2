@@ -33,6 +33,7 @@ using SkinEngine.DirectX;
 using SkinEngine.Controls.Brushes;
 using SkinEngine;
 using MediaPortal.Core.InputManager;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SkinEngine.Controls.Panels
 {

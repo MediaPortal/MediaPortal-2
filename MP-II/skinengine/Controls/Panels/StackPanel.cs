@@ -27,6 +27,7 @@ using System.Text;
 using SkinEngine.Controls.Visuals;
 using System.Drawing;
 using MediaPortal.Core.Properties;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SkinEngine.Controls.Panels
 {

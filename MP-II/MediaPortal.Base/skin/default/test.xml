@@ -36,5 +36,7 @@
     <Button Name="btn1" Width="200" Height="64" Style="{StaticResource styleButton}"/>
     <Button Name="btn2" Width="200" Height="64" Margin="0,10,0,20" Style="{StaticResource styleButton}"/>
     <Button Name="btn3" Width="200" Height="64" Style="{StaticResource styleButton}"/>
+    <Rectangle Width="200" Height="64" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
+    <Ellipse Width="200" Height="64" Stroke="Red" Fill="Blue" StrokeThickness="2"/>
   </StackPanel>
 </MyXaml>

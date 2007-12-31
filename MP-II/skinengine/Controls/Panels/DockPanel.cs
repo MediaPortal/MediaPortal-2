@@ -27,7 +27,7 @@ using System.Text;
 using System.Drawing;
 using SkinEngine.Controls.Visuals;
 using MediaPortal.Core.Properties;
-
+using Rectangle = System.Drawing.Rectangle;
 namespace SkinEngine.Controls.Panels
 {
   public class DockPanel : Panel
