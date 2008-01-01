@@ -226,8 +226,8 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X);
-      layoutRect.Height -= (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -259,8 +259,10 @@ namespace SkinEngine.Controls.Visuals
         }
         else
         {
-          if (w == 0) w = availableSize.Width;
-          if (h == 0) h = availableSize.Height;
+          if (w == 0)
+            _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+          if (w == 0)
+            _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
         }
         _desiredSize = new Size(w, h);
       }

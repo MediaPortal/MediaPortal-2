@@ -301,9 +301,9 @@ namespace SkinEngine.Controls.Visuals
 
     public override void OnMouseMove(float x, float y)
     {
-      if (x >= ActualPosition.X && x < ActualPosition.X + ActualWidth - (int)Margin.W)
+      if (x >= ActualPosition.X && x < ActualPosition.X + ActualWidth)
       {
-        if (y >= ActualPosition.Y && y < ActualPosition.Y + ActualHeight - (int)Margin.Z)
+        if (y >= ActualPosition.Y && y < ActualPosition.Y + ActualHeight )
         {
           if (!_mouseOver)
           {

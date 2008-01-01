@@ -73,8 +73,8 @@ namespace SkinEngine.Controls.Panels
       Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X);
-      layoutRect.Height -= (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z); ;
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;

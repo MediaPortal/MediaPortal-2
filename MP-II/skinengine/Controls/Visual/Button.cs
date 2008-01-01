@@ -180,8 +180,10 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0) _desiredSize.Width = (int)availableSize.Width;
-      if (Height == 0) _desiredSize.Height = (int)availableSize.Height;
+      if (Width == 0)
+        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+      if (Height == 0)
+        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
 
       if (Template != null)
       {
@@ -204,14 +206,17 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X);
-      layoutRect.Height -= (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
       if (Template != null)
       {
         Template.Arrange(layoutRect);
         ActualPosition = Template.ActualPosition;
-        ActualHeight = ((FrameworkElement)Template).ActualHeight;
         ActualWidth = ((FrameworkElement)Template).ActualWidth;
+        ActualHeight = ((FrameworkElement)Template).ActualHeight;
       }
       base.Arrange(layoutRect);
     }

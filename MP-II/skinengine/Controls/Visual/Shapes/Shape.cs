@@ -46,6 +46,7 @@ namespace SkinEngine.Controls.Visuals
 {
   public class Shape : FrameworkElement, IAsset
   {
+    Property _stretchProperty;
     Property _fillProperty;
     Property _strokeProperty;
     Property _strokeThicknessProperty;
@@ -69,6 +70,7 @@ namespace SkinEngine.Controls.Visuals
       if (s.Stroke != null)
         Stroke = (Brush)s.Stroke.Clone();
       StrokeThickness = s.StrokeThickness;
+      Stretch = s.Stretch;
     }
 
     public override object Clone()
@@ -81,9 +83,42 @@ namespace SkinEngine.Controls.Visuals
       _fillProperty = new Property(null);
       _strokeProperty = new Property(null);
       _strokeThicknessProperty = new Property(1.0);
+      _stretchProperty = new Property(Stretch.None);
       ContentManager.Add(this);
     }
 
+
+    /// <summary>
+    /// Gets or sets the stretch property.
+    /// </summary>
+    /// <value>The stretch property.</value>
+    public Property StretchProperty
+    {
+      get
+      {
+        return _stretchProperty;
+      }
+      set
+      {
+        _stretchProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the stretch.
+    /// </summary>
+    /// <value>The stretch.</value>
+    public Stretch Stretch
+    {
+      get
+      {
+        return (Stretch)_stretchProperty.GetValue();
+      }
+      set
+      {
+        _stretchProperty.SetValue(value);
+      }
+    }
 
     /// <summary>
     /// Gets or sets the fill property.
@@ -316,8 +351,8 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X);
-      layoutRect.Height -= (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -333,9 +368,9 @@ namespace SkinEngine.Controls.Visuals
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0)
-        _desiredSize.Width = (int)availableSize.Width;
+        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
       if (Height == 0)
-        _desiredSize.Height = (int)availableSize.Height;
+        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
       base.Measure(availableSize);

@@ -161,29 +161,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    public override void Measure(Size availableSize)
-    {
-      base.Measure(availableSize);
-      int width = 0;
-      int height = 0;
-      float cx, cy;
-      GetPath(new RectangleF(0, 0, 0, 0), out cx, out cy);
-      for (int i = 0; i < _points.Count; ++i)
-      {
-        PointF p = (PointF)_points[i];
-        if (p.X > width) width = (int)p.X;
-        if (p.Y > height) height = (int)p.Y;
-      }
-
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
-        _desiredSize.Width = (int)width;
-      if (Height == 0)
-        _desiredSize.Height = (int)height;
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-
-    }
     private GraphicsPath GetPath(RectangleF baseRect, out float cx, out float cy)
     {
       GraphicsPath mPath = new GraphicsPath();
@@ -239,24 +216,27 @@ namespace SkinEngine.Controls.Visuals
           ++i;
         }
       }
+
+      RectangleF bounds = mPath.GetBounds();
+      float w = bounds.Width;
+      float h = bounds.Height;
+      float scaleX = 1;
+      if (baseRect.Width > 0 && Stretch != Stretch.None)
+        scaleX = ((float)baseRect.Width) / w;
+      float scaleY = 1;
+      if (baseRect.Height > 0 && Stretch != Stretch.None)
+        scaleY = ((float)baseRect.Height) / h;
+
+      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+
+      m.Scale(scaleX, scaleY, MatrixOrder.Append);
+      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      mPath.Transform(m);
       mPath.Flatten();
 
       _points.Clear();
       PointF[] points = new PointF[mPath.PathPoints.Length];
-      float minx = float.MaxValue;
-      float miny = float.MaxValue;
-      for (int x = 0; x < mPath.PathPoints.Length; ++x)
-      {
-        if (mPath.PathPoints[x].X < minx)
-          minx = mPath.PathPoints[x].X;
-        if (mPath.PathPoints[x].Y < miny)
-          miny = mPath.PathPoints[x].Y;
-      }
-      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      m.Translate(-minx, -miny);
-      m.Translate(baseRect.X, baseRect.Y);
-      mPath.Transform(m);
-
       for (int x = 0; x < mPath.PathPoints.Length; ++x)
       {
         PointF f = new PointF(mPath.PathPoints[x].X, mPath.PathPoints[x].Y);

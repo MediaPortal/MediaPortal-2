@@ -155,47 +155,48 @@ namespace SkinEngine.Controls.Visuals
         }
         Stroke.SetupBrush(this, ref verts);
         _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length /3);
+        _verticesCountBorder = (verts.Length / 3);
       }
-
-    }
-    public override void Measure(Size availableSize)
-    {
-      base.Measure(availableSize);
-      int width = 0;
-      int height = 0;
-
-      for (int i = 0; i < Points.Count; ++i)
-      {
-        Point p = (Point)Points[i];
-        if (p.X > width) width = p.X;
-        if (p.Y > height) height = p.Y;
-      }
-
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
-        _desiredSize.Width = (int)width;
-      if (Height == 0)
-        _desiredSize.Height = (int)height;
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
 
     }
     #region Get the desired Rounded Rectangle path.
     private GraphicsPath GetPolygon(RectangleF baseRect, out float cx, out float cy)
     {
-      Point[] points = new Point[Points.Count ];
+      Point[] points = new Point[Points.Count];
       for (int i = 0; i < Points.Count; ++i)
       {
         points[i] = (Point)Points[i];
-        points[i].X += (int)baseRect.X;
-        points[i].Y += (int)baseRect.Y;
       }
-      CalcCentroid(points, out cx, out cy);
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddPolygon(points);
       mPath.CloseFigure();
+
+      RectangleF bounds = mPath.GetBounds();
+      float w = bounds.Width;
+      float h = bounds.Height;
+      float scaleX = 1;
+      if (baseRect.Width > 0 && Stretch != Stretch.None)
+        scaleX = ((float)baseRect.Width) / w;
+      float scaleY = 1;
+      if (baseRect.Height > 0 && Stretch != Stretch.None)
+        scaleY = ((float)baseRect.Height) / h;
+
+      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+
+      m.Scale(scaleX, scaleY, MatrixOrder.Append);
+      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      mPath.Transform(m);
       mPath.Flatten();
+
+      points = new Point[mPath.PathPoints.Length];
+      for (int x = 0; x < mPath.PathPoints.Length; ++x)
+      {
+        Point f = new Point((int)mPath.PathPoints[x].X, (int)mPath.PathPoints[x].Y);
+        points[x] = f;
+      }
+      CalcCentroid(points, out cx, out cy);
+
       return mPath;
     }
     #endregion
