@@ -287,16 +287,25 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-    public override void Stop()
+    public override void Ended()
     {
       if (IsStopped) return;
-      base.Stop();
       if (_property != null)
       {
         if (FillBehaviour != FillBehaviour.HoldEnd)
         {
           _property.SetValue(_originalValue);
         }
+      }
+    }
+    public override void Stop()
+    {
+      if (IsStopped) return;
+      _state = State.Idle;
+      if (_property != null)
+      {
+        _property.SetValue(_originalValue);
+
       }
     }
 
@@ -306,17 +315,22 @@ namespace SkinEngine.Controls.Animations
     /// <param name="timePassed">The time passed.</param>
     public override void Start(uint timePassed)
     {
+      if (!IsStopped)
+        Stop();
+
+      _state = State.Starting;
       if (KeyFrames.Count > 0)
       {
         Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
       }
-      base.Start(timePassed);
-      //find _property...
 
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (Color)_property.GetValue();
+
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
     }
   }
 }

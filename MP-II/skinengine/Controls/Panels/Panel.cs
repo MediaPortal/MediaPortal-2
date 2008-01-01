@@ -78,7 +78,6 @@ namespace SkinEngine.Controls.Panels
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-
     }
 
     /// <summary>

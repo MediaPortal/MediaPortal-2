@@ -290,14 +290,10 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        if (Template != null)
-          return Template.HasFocus;
         return base.HasFocus;
       }
       set
       {
-        if (Template != null)
-          Template.HasFocus = value;
         base.HasFocus = value;
         if (value == false)
           IsPressed = false;

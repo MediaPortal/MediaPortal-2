@@ -192,31 +192,46 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-    public override void Start(uint timePassed)
-    {
-      if (KeyFrames.Count > 0)
-      {
-        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
-      }
-      base.Start(timePassed);
-      //find _property...
-
-      _property = null;
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      _property = GetProperty(TargetName, TargetProperty);
-      _originalValue = (Vector2)_property.GetValue();
-    }
-
-    public override void Stop()
+    public override void Ended()
     {
       if (IsStopped) return;
-      base.Stop();
       if (_property != null)
       {
         if (FillBehaviour != FillBehaviour.HoldEnd)
         {
           _property.SetValue(_originalValue);
         }
+      }
+    }
+
+    public override void Start(uint timePassed)
+    {
+      if (!IsStopped)
+        Stop();
+
+      _state = State.Starting;
+      if (KeyFrames.Count > 0)
+      {
+        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
+      }
+      //find _property...
+
+      _property = null;
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      _property = GetProperty(TargetName, TargetProperty);
+      _originalValue = (Vector2)_property.GetValue();
+
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
+    }
+
+    public override void Stop()
+    {
+      if (IsStopped) return;
+      _state = State.Idle;
+      if (_property != null)
+      {
+        _property.SetValue(_originalValue);
       }
     }
 

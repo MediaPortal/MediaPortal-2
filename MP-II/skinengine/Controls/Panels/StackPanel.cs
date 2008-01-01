@@ -188,19 +188,20 @@ namespace SkinEngine.Controls.Panels
               if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
-
+              /*
               //align horizontally 
-              if (DesiredSize.Width < layoutRect.Width)
+              if (child.DesiredSize.Width < layoutRect.Width)
               {
                 if (AlignmentX == AlignmentX.Center)
                 {
-                  location.X += (int)((layoutRect.Width - DesiredSize.Width) / 2);
+                  location.X += (int)((layoutRect.Width - child.DesiredSize.Width) / 2);
                 }
                 else if (AlignmentX == AlignmentX.Right)
                 {
-                  location.X += layoutRect.Right - DesiredSize.Width;
+                  location.X += layoutRect.Right - child.DesiredSize.Width;
                 }
               }
+              */
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
@@ -211,7 +212,7 @@ namespace SkinEngine.Controls.Panels
                 location.Y += (int)(layoutRect.Height - child.DesiredSize.Height);
               }
 
-              ArrangeChild(child, ref location);
+              //ArrangeChild(child, ref location);
               child.Arrange(new Rectangle(location, size));
               totalWidth += child.DesiredSize.Width;
             }

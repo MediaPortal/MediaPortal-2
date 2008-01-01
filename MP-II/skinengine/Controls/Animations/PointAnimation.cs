@@ -38,6 +38,7 @@ namespace SkinEngine.Controls.Animations
     Property _targetProperty;
     Property _targetNameProperty;
     Property _property;
+    Vector2 _originalValue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PointAnimation"/> class.
@@ -247,13 +248,42 @@ namespace SkinEngine.Controls.Animations
       _property.SetValue(new Vector2((float)distx, (float)disty));
     }
 
+    public override void Ended()
+    {
+      if (IsStopped) return;
+      if (_property != null)
+      {
+        if (FillBehaviour != FillBehaviour.HoldEnd)
+        {
+          _property.SetValue(_originalValue);
+        }
+      }
+    }
+
     public override void Start(uint timePassed)
     {
-      base.Start(timePassed);
-      //find property
+      if (!IsStopped)
+        Stop();
+
+      _state = State.Starting;
+
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
+      _originalValue = (Vector2)_property.GetValue();
+
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
+    }
+
+    public override void Stop()
+    {
+      if (IsStopped) return;
+      _state = State.Idle;
+      if (_property != null)
+      {
+        _property.SetValue(_originalValue);
+      }
     }
   }
 }

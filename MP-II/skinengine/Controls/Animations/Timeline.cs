@@ -38,9 +38,11 @@ namespace SkinEngine.Controls.Animations
     protected enum State
     {
       Idle,
+      Starting,
       WaitBegin,
       Running,
-      Reverse
+      Reverse,
+      Ended
     };
     Property _keyProperty;
     Property _beginTimeProperty;
@@ -89,7 +91,7 @@ namespace SkinEngine.Controls.Animations
       _decelerationRatioProperty = new Property(1.0);
       _durationProperty = new Property(new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(RepeatBehavior.None);
-      _fillBehaviourProperty = new Property(FillBehaviour.Stop);
+      _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
       _visualParentProperty = new Property(null);
     }
 
@@ -393,6 +395,7 @@ namespace SkinEngine.Controls.Animations
     /// <param name="timePassed">The time passed.</param>
     public virtual void Animate(uint timePassed)
     {
+      if (_state == State.Starting) return;
       uint passed = (timePassed - _timeStarted);
 
       switch (_state)
@@ -424,7 +427,8 @@ namespace SkinEngine.Controls.Animations
             }
             else
             {
-              _state = State.Idle;
+              Ended();
+              _state = State.Ended;
             }
           }
           else
@@ -445,7 +449,8 @@ namespace SkinEngine.Controls.Animations
             }
             else
             {
-              _state = State.Idle;
+              Ended();
+              _state = State.Ended;
             }
           }
           else
@@ -456,13 +461,17 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public virtual void Ended()
+    {
+    }
     /// <summary>
     /// Starts the animation
     /// </summary>
     /// <param name="timePassed">The time passed.</param>
     public virtual void Start(uint timePassed)
     {
-      Stop();
+      if (!IsStopped)
+        Stop();
       _timeStarted = timePassed;
       _state = State.WaitBegin;
     }
@@ -533,7 +542,7 @@ namespace SkinEngine.Controls.Animations
       if (pinfo == null)
         return null;
       MethodInfo minfo = pinfo.GetGetMethod();
-      return  minfo.Invoke(element, null) as Property;
+      return minfo.Invoke(element, null) as Property;
     }
   }
 }
