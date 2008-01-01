@@ -67,11 +67,6 @@
     <Compile Include="Burning\MediaInfo.cs" />
     <Compile Include="Burning\MediaTypeSupport.cs" />
     <Compile Include="Exif\ExifReader.cs" />
-    <Compile Include="Importers\DelayedFileSystemWatcher.cs" />
-    <Compile Include="Importers\FileChangeEvent.cs" />
-    <Compile Include="Importers\ImporterManager.cs" />
-    <Compile Include="Importers\ImporterManagerSettings.cs" />
-    <Compile Include="Importers\WatchedFolder.cs" />
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\StringManager.cs" />
     <Compile Include="Logging\FileLogger.cs" />
@@ -105,6 +100,8 @@
     <Compile Include="MPIManager\MPIQueue.cs" />
     <Compile Include="MPIManager\MPIQueueObject.cs" />
     <Compile Include="PathManager\nUnit\TestPathManager.cs" />
+    <Compile Include="PathManager\PathDefinition.cs" />
+    <Compile Include="PathManager\PathListFile.cs" />
     <Compile Include="PathManager\PathManager.cs" />
     <Compile Include="PluginManager\PluginException.cs" />
     <Compile Include="PluginManager\PluginManager.cs" />

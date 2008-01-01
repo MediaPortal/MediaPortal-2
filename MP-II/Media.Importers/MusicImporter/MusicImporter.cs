@@ -39,13 +39,13 @@ using MediaPortal.Core.MediaManager;
 
 namespace MusicImporter
 {
-  public class MusicImporter : IPlugin, IAutoStart, IImporter
+  public class MusicImporter : IPlugin, IImporter
   {
     #region Variables
     DateTime _lastImport = DateTime.MinValue;
-    List<string> _extensions;
+    //List<string> _extensions;
     private IDatabase _musicDatabase = null;
-    private readonly string _supportedExtensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc";
+    //private readonly string _supportedExtensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc";
     private readonly string[] ArtistNamePrefixes = new string[]
       {
         "the",
@@ -75,14 +75,15 @@ namespace MusicImporter
 
     public MusicImporter()
     {
-      _extensions = new List<string>();
-      string[] exts = _supportedExtensions.Split(new char[] { ',' });
-      for (int i = 0; i < exts.Length; ++i)
-        _extensions.Add(exts[i]);
+      //_extensions = new List<string>();
+      //string[] exts = _supportedExtensions.Split(new char[] { ',' });
+      //for (int i = 0; i < exts.Length; ++i)
+      //  _extensions.Add(exts[i]);
     }
 
     public void Initialize(string id)
     {
+      CreateMusicDatabase();
     }
 
     #endregion
@@ -96,43 +97,57 @@ namespace MusicImporter
 
     #endregion
 
-    #region IAutoStart Members
+    //#region IAutoStart Members
 
-    public void Startup()
-    {
-      CreateMusicDatabase();
-      ServiceScope.Get<IImporterManager>().Register(this);
+    //public void Startup()
+    //{
 
-    }
+    //  ServiceScope.Get<IImporterManager>().Register(this);
 
-    #endregion
+    //}
+
+    //#endregion
 
     #region IImporter Members
 
-    /// <summary>
-    /// Gets the importer name.
-    /// </summary>
-    /// <value>The importer name.</value>
-    public string Name
-    {
-      get
-      {
-        return "MusicImporter";
-      }
-    }
+    ///// <summary>
+    ///// Gets the importer name.
+    ///// </summary>
+    ///// <value>The importer name.</value>
+    //public string Name
+    //{
+    //  get
+    //  {
+    //    return "MusicImporter";
+    //  }
+    //}
+
+    ///// <summary>
+    ///// Gets the file-extensions the importer supports
+    ///// </summary>
+    ///// <value>The file-extensions.</value>
+    //public List<string> Extensions
+    //{
+    //  get
+    //  {
+    //    return _extensions;
+    //  }
+    //}
 
     /// <summary>
-    /// Gets the file-extensions the importer supports
+    /// Imports the file.
     /// </summary>
-    /// <value>The file-extensions.</value>
-    public List<string> Extensions
+    /// <param name="folder">The file.</param>
+    public bool FileImport(string file)
     {
-      get
+      IDbItem track = AddSong(file);
+      if (track != null)
       {
-        return _extensions;
+        track.Save();
+        return true;
       }
+      return false;
     }
-
 
     /// <summary>
     /// Imports the folder.
@@ -151,11 +166,8 @@ namespace MusicImporter
     public void FileDeleted(string file)
     {
       ServiceScope.Get<ILogger>().Info("MusicImporter: Song Deleted {0}", file);
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
-      {
-        DeleteSong(file);
-      }
+
+      DeleteSong(file);
     }
 
     /// <summary>
@@ -168,9 +180,9 @@ namespace MusicImporter
       try
       {
         ServiceScope.Get<ILogger>().Info("MusicImporter: Song Created {0}", file);
-        string ext = Path.GetExtension(file).ToLower();
-        if (Extensions.Contains(ext))
-        {
+        //string ext = Path.GetExtension(file).ToLower();
+        //if (Extensions.Contains(ext))
+        //{
           // Has the song already be added? 
           // This happens when a full directory is copied into the share.
           if (SongExists(file))
@@ -193,7 +205,7 @@ namespace MusicImporter
           }
           IDbItem track = AddSong(file);
           if (track != null) track.Save();
-        }
+        //}
 
       }
       catch (Exception ex)
@@ -214,9 +226,9 @@ namespace MusicImporter
       try
       {
         ServiceScope.Get<ILogger>().Info("MusicImporter: Song Changed {0}", file);
-        string ext = Path.GetExtension(file).ToLower();
-        if (Extensions.Contains(ext))
-        {
+        //string ext = Path.GetExtension(file).ToLower();
+        //if (Extensions.Contains(ext))
+        //{
           if (SongExists(file))
           {
             IDbItem track = UpdateSong(file);
@@ -227,7 +239,7 @@ namespace MusicImporter
             IDbItem track = AddSong(file);
             if (track != null) track.Save();
           }
-        }
+        //}
 
       }
       catch (Exception ex)
@@ -351,9 +363,9 @@ namespace MusicImporter
           if (item.ContentUri == null) continue;
           if (item.ContentUri.IsFile == false) continue;
           if (item.ContentUri.LocalPath.ToLower().IndexOf("folder.jpg") >= 0) continue;
-          string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
-          if (Extensions.Contains(ext))
-          {
+          //string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
+          //if (Extensions.Contains(ext))
+          //{
             bool found = false;
             IMediaItem mediaItem = item as IMediaItem;
             if (mediaItem != null)
@@ -387,7 +399,7 @@ namespace MusicImporter
                 }
               }
             }
-          }
+          //}
         }
       }
       catch (Exception)
@@ -710,7 +722,6 @@ namespace MusicImporter
             {
               CheckFileForInclusion(file, ref totalFiles, ref availableFiles, lastImport);
             }
-
           }
           catch (Exception ex)
           {
@@ -757,11 +768,12 @@ namespace MusicImporter
           return;
         }
 
-        // Only get files with the required extension
-        if (_supportedExtensions.IndexOf(ext) == -1)
-        {
-          return;
-        }
+        // checked by ImporterBuilder
+        //// Only get files with the required extension
+        //if (_supportedExtensions.IndexOf(ext) == -1)
+        //{
+        //  return;
+        //}
 
         // Only Add files to the list, if they have been Created / Updated after the Last Import date
         if (File.GetCreationTime(file) > lastImport || File.GetLastWriteTime(file) > lastImport)
@@ -857,7 +869,7 @@ namespace MusicImporter
           track["musicBrainzID"] = String.Empty;
           track["dateLastPlayed"] = DateTime.MinValue;
           track["dateAdded"] = info.CreationTime;
-          return track;
+          track.Save();
         }
       }
       catch (Exception ex)

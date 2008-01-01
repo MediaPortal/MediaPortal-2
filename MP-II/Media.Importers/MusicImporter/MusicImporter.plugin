@@ -11,7 +11,7 @@
     <Import assembly = "MusicImporter.dll"/>
   </Runtime>
 
-  <Register location = "/AutoStart">
-    <Class id = "MusicImporter" class = "MusicImporter.MusicImporter" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  <Register location = "/Media/Importers">
+    <Importer id = "MusicImporter" class = "MusicImporter.MusicImporter" extensions=".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc"/>
   </Register>
 </Plugin>

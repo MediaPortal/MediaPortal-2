@@ -37,24 +37,25 @@ using MediaPortal.Core.MediaManager.Views;
 
 namespace PictureImporter
 {
-  public class Importer : IPlugin, IAutoStart, IImporter
+  public class Importer : IPlugin, IImporter
   {
     #region IPlugin Members
-    List<string> _extensions;
+    //List<string> _extensions;
     IDatabase _pictureDatabase;
     DateTime _lastImport = DateTime.MinValue;
 
     public Importer()
     {
-      _extensions = new List<string>();
-      _extensions.Add(".jpg");
-      _extensions.Add(".png");
-      _extensions.Add(".gif");
-      _extensions.Add(".tga");
+      //_extensions = new List<string>();
+      //_extensions.Add(".jpg");
+      //_extensions.Add(".png");
+      //_extensions.Add(".gif");
+      //_extensions.Add(".tga");
     }
 
     public void Initialize(string id)
     {
+      CreatePictureDatabase();
     }
 
     #endregion
@@ -68,39 +69,75 @@ namespace PictureImporter
 
     #endregion
 
-    #region IAutoStart Members
+    //#region IAutoStart Members
 
-    public void Startup()
-    {
-      CreatePictureDatabase();
-      ServiceScope.Get<IImporterManager>().Register(this);
-    }
+    //public void Startup()
+    //{
+    //  ServiceScope.Get<IImporterManager>().Register(this);
+    //}
 
-    #endregion
+    //#endregion
 
     #region IImporter Members
 
-    /// <summary>
-    /// Gets the importer name.
-    /// </summary>
-    /// <value>The importer name.</value>
-    public string Name
-    {
-      get
-      {
-        return "PictureImporter";
-      }
-    }
+    ///// <summary>
+    ///// Gets the importer name.
+    ///// </summary>
+    ///// <value>The importer name.</value>
+    //public string Name
+    //{
+    //  get
+    //  {
+    //    return "PictureImporter";
+    //  }
+    //}
+
+    ///// <summary>
+    ///// Gets the file-extensions the importer supports
+    ///// </summary>
+    ///// <value>The file-extensions.</value>
+    //public List<string> Extensions
+    //{
+    //  get
+    //  {
+    //    return _extensions;
+    //  }
+    //}
 
     /// <summary>
-    /// Gets the file-extensions the importer supports
+    /// Imports the file.
     /// </summary>
-    /// <value>The file-extensions.</value>
-    public List<string> Extensions
+    /// <param name="folder">The file.</param>
+    public bool FileImport(string file)
     {
-      get
+      try
       {
-        return _extensions;
+        if (String.IsNullOrEmpty(file)) return false;
+        if (file.ToLower().IndexOf("folder.jpg") >= 0) return false;
+        string fName = System.IO.Path.GetFileName(file);
+        if (fName.ToLower().StartsWith("albumart")) return false;
+        try
+        {
+          Query imageByFilename = new Query("contentURI", Operator.Same, file);
+          List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+          if (result.Count > 0) return false;
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+        IDbItem picture = GetExifFor(file);
+        if (picture == null)
+          return false;
+
+        picture.Save();
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFile:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
+        return false;
       }
     }
 
@@ -113,17 +150,13 @@ namespace PictureImporter
     {
       try
       {
-        string ext = Path.GetExtension(file).ToLower();
-        if (Extensions.Contains(ext))
+        Query imageByFilename = new Query("contentURI", Operator.Same, file);
+        List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+        if (result.Count > 0)
         {
-          Query imageByFilename = new Query("contentURI", Operator.Same, file);
-          List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
-          if (result.Count > 0)
+          foreach (IDbItem item in result)
           {
-            foreach (IDbItem item in result)
-            {
-              item.Delete();
-            }
+            item.Delete();
           }
         }
       }
@@ -140,11 +173,7 @@ namespace PictureImporter
     /// <param name="file">The filename of the new file.</param>
     public void FileCreated(string file)
     {
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
-      {
-        ImportFile(file);
-      }
+      FileImport(file);
     }
 
     /// <summary>
@@ -156,11 +185,7 @@ namespace PictureImporter
     {
       FileDeleted(file);
 
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
-      {
-        ImportFile(file);
-      }
+      FileImport(file);
     }
 
     /// <summary>
@@ -258,32 +283,32 @@ namespace PictureImporter
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager when a full-import needs to be done from the folder
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    /// <param name="since"></param>
-    public void ImportFolder(string folder, DateTime since)
-    {
-      try
-      {
-        ServiceScope.Get<ILogger>().Info("picture importer:import {0} since {1}", folder, since.ToShortDateString());
-        DeleteNonExistingPictures();
-        List<string> availableFiles = new List<string>();
-        Import(folder, ref availableFiles, since);
-        ServiceScope.Get<ILogger>().Info("pictureimporter:found {0} new/changed pictures", availableFiles.Count);
-        foreach (string fileName in availableFiles)
-        {
-          ImportFile(fileName);
-        }
-        ServiceScope.Get<ILogger>().Info("pictureimporter:imported {0} pictures", availableFiles.Count);
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFolder:{0}", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-    }
+    ///// <summary>
+    ///// Called by the importer manager when a full-import needs to be done from the folder
+    ///// </summary>
+    ///// <param name="folder">The folder.</param>
+    ///// <param name="since"></param>
+    //public void ImportFolder(string folder, DateTime since)
+    //{
+    //  try
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("picture importer:import {0} since {1}", folder, since.ToShortDateString());
+    //    DeleteNonExistingPictures();
+    //    List<string> availableFiles = new List<string>();
+    //    Import(folder, ref availableFiles, since);
+    //    ServiceScope.Get<ILogger>().Info("pictureimporter:found {0} new/changed pictures", availableFiles.Count);
+    //    foreach (string fileName in availableFiles)
+    //    {
+    //      ImportFile(fileName);
+    //    }
+    //    ServiceScope.Get<ILogger>().Info("pictureimporter:imported {0} pictures", availableFiles.Count);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFolder:{0}", folder);
+    //    ServiceScope.Get<ILogger>().Error(ex);
+    //  }
+    //}
 
     /// <summary>
     /// Gets the meta data for.
@@ -303,9 +328,9 @@ namespace PictureImporter
           if (item.ContentUri.LocalPath.ToLower().IndexOf("folder.jpg") >= 0) continue;
           string fName = System.IO.Path.GetFileName(item.ContentUri.LocalPath);
           if (fName.ToLower().StartsWith("albumart")) continue;
-          string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
-          if (Extensions.Contains(ext))
-          {
+          //string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
+          //if (Extensions.Contains(ext))
+          //{
             bool found = false;
             IMediaItem mediaItem = item as IMediaItem;
             if (mediaItem != null)
@@ -343,7 +368,7 @@ namespace PictureImporter
                 }
               }
             }
-          }
+          //}
         }
       }
       catch (Exception)
@@ -394,88 +419,51 @@ namespace PictureImporter
       }
     }
 
-    void Import(string folder, ref List<string> availableFiles, DateTime since)
-    {
-      since = _lastImport;
-      ServiceScope.Get<ILogger>().Info("pictureimporter {0}", folder);
-      try
-      {
-        string[] subFolders = Directory.GetDirectories(folder);
-        for (int i = 0; i < subFolders.Length; ++i)
-        {
-          Import(subFolders[i], ref availableFiles, since);
-        }
-        string[] files = Directory.GetFiles(folder);
-        for (int i = 0; i < files.Length; ++i)
-        {
-          string ext = Path.GetExtension(files[i]).ToLower();
-          if (Extensions.Contains(ext))
-          {
-            if (CheckFile(files[i], since))
-            {
-              availableFiles.Add(files[i]);
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("pictureimporter:error Import:{0}", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
+    //void Import(string folder, ref List<string> availableFiles, DateTime since)
+    //{
+    //  since = _lastImport;
+    //  ServiceScope.Get<ILogger>().Info("pictureimporter {0}", folder);
+    //  try
+    //  {
+    //    string[] subFolders = Directory.GetDirectories(folder);
+    //    for (int i = 0; i < subFolders.Length; ++i)
+    //    {
+    //      Import(subFolders[i], ref availableFiles, since);
+    //    }
+    //    string[] files = Directory.GetFiles(folder);
+    //    for (int i = 0; i < files.Length; ++i)
+    //    {
+    //      string ext = Path.GetExtension(files[i]).ToLower();
+    //      if (Extensions.Contains(ext))
+    //      {
+    //        if (CheckFile(files[i], since))
+    //        {
+    //          availableFiles.Add(files[i]);
+    //        }
+    //      }
+    //    }
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("pictureimporter:error Import:{0}", folder);
+    //    ServiceScope.Get<ILogger>().Error(ex);
+    //  }
 
-      _lastImport = DateTime.Now;
-    }
+    //  _lastImport = DateTime.Now;
+    //}
 
-    bool CheckFile(string fileName, DateTime lastImport)
-    {
-      if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
-      {
-        return false;
-      }
-      if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
-      {
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Imports the file.
-    /// </summary>
-    /// <param name="folder">The file.</param>
-    int ImportFile(string file)
-    {
-      try
-      {
-        if (String.IsNullOrEmpty(file)) return 0;
-        if (file.ToLower().IndexOf("folder.jpg") >= 0) return 0;
-        string fName = System.IO.Path.GetFileName(file);
-        if (fName.ToLower().StartsWith("albumart")) return 0;
-        try
-        {
-          Query imageByFilename = new Query("contentURI", Operator.Same, file);
-          List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
-          if (result.Count > 0) return 0;
-        }
-        catch (Exception)
-        {
-          return 0;
-        }
-        IDbItem picture = GetExifFor(file);
-        if (picture == null)
-          return 0;
-
-        picture.Save();
-        return 1;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFile:{0}", file);
-        ServiceScope.Get<ILogger>().Error(ex);
-        return 0;
-      }
-    }
+    //bool CheckFile(string fileName, DateTime lastImport)
+    //{
+    //  if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
+    //  {
+    //    return false;
+    //  }
+    //  if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
+    //  {
+    //    return true;
+    //  }
+    //  return false;
+    //}
 
     IDbItem GetExifFor(string file)
     {

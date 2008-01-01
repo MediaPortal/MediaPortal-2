@@ -38,26 +38,27 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.MediaManager;
 namespace MovieImporter
 {
-  public class Importer : IPlugin, IAutoStart, IImporter
+  public class Importer : IPlugin, IImporter
   {
     #region IPlugin Members
-    List<string> _extensions;
+    //List<string> _extensions;
     IDatabase _movieDatabase;
     DateTime _lastImport = DateTime.MinValue;
 
     public Importer()
     {
-      _extensions = new List<string>();
-      _extensions.Add(".wmv");
-      _extensions.Add(".mpg");
-      _extensions.Add(".avi");
-      _extensions.Add(".mkv");
-      _extensions.Add(".ts");
-      _extensions.Add(".ifo");
+      //_extensions = new List<string>();
+      //_extensions.Add(".wmv");
+      //_extensions.Add(".mpg");
+      //_extensions.Add(".avi");
+      //_extensions.Add(".mkv");
+      //_extensions.Add(".ts");
+      //_extensions.Add(".ifo");
     }
 
     public void Initialize(string id)
     {
+      CreateMovieDatabase();
     }
 
     #endregion
@@ -71,40 +72,118 @@ namespace MovieImporter
 
     #endregion
 
-    #region IAutoStart Members
+    //#region IAutoStart Members
 
-    public void Startup()
-    {
-      CreateMovieDatabase();
-      ServiceScope.Get<IImporterManager>().Register(this);
-    }
+    //public void Startup()
+    //{
+      
+    //  ServiceScope.Get<IImporterManager>().Register(this);
+    //}
 
-    #endregion
+    //#endregion
 
     #region IImporter Members
 
-    /// <summary>
-    /// Gets the importer name.
-    /// </summary>
-    /// <value>The importer name.</value>
-    public string Name
-    {
-      get
-      {
-        return "MovieImporter";
-      }
-    }
+    ///// <summary>
+    ///// Gets the importer name.
+    ///// </summary>
+    ///// <value>The importer name.</value>
+    //public string Name
+    //{
+    //  get
+    //  {
+    //    return "MovieImporter";
+    //  }
+    //}
+
+    ///// <summary>
+    ///// Gets the file-extensions the importer supports
+    ///// </summary>
+    ///// <value>The file-extensions.</value>
+    //public List<string> Extensions
+    //{
+    //  get
+    //  {
+    //    return _extensions;
+    //  }
+    //}
 
     /// <summary>
-    /// Gets the file-extensions the importer supports
+    /// Imports the file.
     /// </summary>
-    /// <value>The file-extensions.</value>
-    public List<string> Extensions
+    /// <param name="folder">The file.</param>
+    public bool FileImport(string file)
     {
-      get
+      try
       {
-        return _extensions;
+        string ext = System.IO.Path.GetExtension(file).ToLower();
+        bool isDvd = (ext == ".ifo");
+        if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return false;
+        try
+        {
+          Query movieByFilename = new Query("contentURI", Operator.Same, file);
+          List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+          if (result.Count > 0) return false;
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+        FileInfo info = new FileInfo(file);
+        MediaInfo mediaInfo = new MediaInfo();
+        try
+        {
+          mediaInfo.Open(file);
+        }
+        catch (Exception)
+        {
+          mediaInfo = null;
+        }
+        IDbItem movie = _movieDatabase.CreateNew(); ;
+        movie["contentURI"] = file;
+        movie["CoverArt"] = file;
+        movie["size"] = info.Length;
+        if (!isDvd)
+        {
+          movie["title"] = Path.GetFileNameWithoutExtension(file);
+        }
+        else
+        {
+          string videoTsdir = System.IO.Path.GetDirectoryName(file);
+          DirectoryInfo dirInfo = System.IO.Directory.GetParent(videoTsdir);
+          movie["title"] = dirInfo.Name;
+        }
+        movie["date"] = info.CreationTime;
+        movie["path"] = Path.GetDirectoryName(file);
+        movie["isDVD"] = isDvd;
+        movie["dateAdded"] = info.CreationTime;
+        if (mediaInfo != null)
+        {
+          movie["VideoCodec"] = mediaInfo.getVidCodec();
+          movie["VideoBitRate"] = mediaInfo.getVidBitrate();
+          movie["Width"] = mediaInfo.getWidth();
+          movie["Height"] = mediaInfo.getHeight();
+          movie["FPS"] = mediaInfo.getFPS();
+          movie["AudioStreams"] = mediaInfo.getAudioCount();
+          movie["AudioCodec"] = mediaInfo.getAudioCodec();
+          movie["AspectRatio"] = mediaInfo.getAR();
+          movie["AudioBitRate"] = mediaInfo.getAudioBitrate();
+          string playtime = mediaInfo.getPlaytime();
+          int playtimeSecs = 0;
+          Int32.TryParse(playtime, out playtimeSecs);
+          movie["duration"] = playtimeSecs;
+          mediaInfo.Close();
+        }
+        movie.Save();
+
+        return true;
       }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Info("movieimporter:error importing file:{0}", file);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
+      return false;
     }
 
     /// <summary>
@@ -114,25 +193,21 @@ namespace MovieImporter
     /// <param name="file">The filename of the deleted file.</param>
     public void FileDeleted(string file)
     {
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
+      try
       {
-        try
+        Query movieByFilename = new Query("contentURI", Operator.Same, file);
+        List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+        if (result.Count > 0)
         {
-          Query movieByFilename = new Query("contentURI", Operator.Same, file);
-          List<IDbItem> result = _movieDatabase.Query(movieByFilename);
-          if (result.Count > 0)
+          foreach (IDbItem item in result)
           {
-            foreach (IDbItem item in result)
-            {
-              item.Delete();
-            }
+            item.Delete();
           }
         }
-        catch (Exception)
-        {
-          return;
-        }
+      }
+      catch (Exception)
+      {
+        return;
       }
     }
 
@@ -143,11 +218,7 @@ namespace MovieImporter
     /// <param name="file">The filename of the new file.</param>
     public void FileCreated(string file)
     {
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
-      {
-        ImportFile(file);
-      }
+      FileImport(file);
     }
 
     /// <summary>
@@ -159,11 +230,7 @@ namespace MovieImporter
     {
       FileDeleted(file);
 
-      string ext = Path.GetExtension(file).ToLower();
-      if (Extensions.Contains(ext))
-      {
-        ImportFile(file);
-      }
+      FileImport(file);
     }
 
     /// <summary>
@@ -252,35 +319,35 @@ namespace MovieImporter
         return;
       }
     }
-    /// <summary>
-    /// Called by the importer manager when a full-import needs to be done from the folder
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    /// <param name="since"></param>
-    public void ImportFolder(string folder, DateTime since)
-    {
-      since = _lastImport;
+    ///// <summary>
+    ///// Called by the importer manager when a full-import needs to be done from the folder
+    ///// </summary>
+    ///// <param name="folder">The folder.</param>
+    ///// <param name="since"></param>
+    //public void ImportFolder(string folder, DateTime since)
+    //{
+    //  since = _lastImport;
 
-      try
-      {
-        ServiceScope.Get<ILogger>().Info("movie importer:import {0} since {1}", folder, since.ToShortDateString());
-        DeleteNonExistingMovies();
-        List<string> availableFiles = new List<string>();
-        Import(folder, ref availableFiles, since);
-        ServiceScope.Get<ILogger>().Info("movieimporter:found {0} new/changed movies", availableFiles.Count);
-        foreach (string fileName in availableFiles)
-        {
-          ImportFile(fileName);
-        }
-        ServiceScope.Get<ILogger>().Info("movieimporter:imported {0} movies", availableFiles.Count);
-        _lastImport = DateTime.Now;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error importing {0} ", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-    }
+    //  try
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("movie importer:import {0} since {1}", folder, since.ToShortDateString());
+    //    DeleteNonExistingMovies();
+    //    List<string> availableFiles = new List<string>();
+    //    Import(folder, ref availableFiles, since);
+    //    ServiceScope.Get<ILogger>().Info("movieimporter:found {0} new/changed movies", availableFiles.Count);
+    //    foreach (string fileName in availableFiles)
+    //    {
+    //      ImportFile(fileName);
+    //    }
+    //    ServiceScope.Get<ILogger>().Info("movieimporter:imported {0} movies", availableFiles.Count);
+    //    _lastImport = DateTime.Now;
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("movieimporter:error importing {0} ", folder);
+    //    ServiceScope.Get<ILogger>().Error(ex);
+    //  }
+    //}
 
     /// <summary>
     /// Gets the meta data for.
@@ -362,127 +429,49 @@ namespace MovieImporter
       }
     }
 
-    void Import(string folder, ref List<string> availableFiles, DateTime since)
-    {
+    //void Import(string folder, ref List<string> availableFiles, DateTime since)
+    //{
 
-      ServiceScope.Get<ILogger>().Info("movieimporter   {0}", folder);
-      try
-      {
-        string[] subFolders = Directory.GetDirectories(folder);
-        for (int i = 0; i < subFolders.Length; ++i)
-        {
-          Import(subFolders[i], ref availableFiles, since);
-        }
-        string[] files = Directory.GetFiles(folder);
-        for (int i = 0; i < files.Length; ++i)
-        {
-          string ext = Path.GetExtension(files[i]).ToLower();
-          if (Extensions.Contains(ext))
-          {
-            if (CheckFile(files[i], since))
-            {
-              availableFiles.Add(files[i]);
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error importing folder:{0}", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-    }
+    //  ServiceScope.Get<ILogger>().Info("movieimporter   {0}", folder);
+    //  try
+    //  {
+    //    string[] subFolders = Directory.GetDirectories(folder);
+    //    for (int i = 0; i < subFolders.Length; ++i)
+    //    {
+    //      Import(subFolders[i], ref availableFiles, since);
+    //    }
+    //    string[] files = Directory.GetFiles(folder);
+    //    for (int i = 0; i < files.Length; ++i)
+    //    {
+    //      string ext = Path.GetExtension(files[i]).ToLower();
+    //      if (Extensions.Contains(ext))
+    //      {
+    //        if (CheckFile(files[i], since))
+    //        {
+    //          availableFiles.Add(files[i]);
+    //        }
+    //      }
+    //    }
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    ServiceScope.Get<ILogger>().Info("movieimporter:error importing folder:{0}", folder);
+    //    ServiceScope.Get<ILogger>().Error(ex);
+    //  }
+    //}
 
-    bool CheckFile(string fileName, DateTime lastImport)
-    {
-      if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
-      {
-        return false;
-      }
-      if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
-      {
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Imports the file.
-    /// </summary>
-    /// <param name="folder">The file.</param>
-    int ImportFile(string file)
-    {
-      try
-      {
-        string ext = System.IO.Path.GetExtension(file).ToLower();
-        bool isDvd = (ext == ".ifo");
-        if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return 0;
-        try
-        {
-          Query movieByFilename = new Query("contentURI", Operator.Same, file);
-          List<IDbItem> result = _movieDatabase.Query(movieByFilename);
-          if (result.Count > 0) return 0;
-        }
-        catch (Exception)
-        {
-          return 0;
-        }
-        FileInfo info = new FileInfo(file);
-        MediaInfo mediaInfo = new MediaInfo();
-        try
-        {
-          mediaInfo.Open(file);
-        }
-        catch (Exception)
-        {
-          mediaInfo = null;
-        }
-        IDbItem movie = _movieDatabase.CreateNew(); ;
-        movie["contentURI"] = file;
-        movie["CoverArt"] = file;
-        movie["size"] = info.Length;
-        if (!isDvd)
-        {
-          movie["title"] = Path.GetFileNameWithoutExtension(file);
-        }
-        else
-        {
-          string videoTsdir = System.IO.Path.GetDirectoryName(file);
-          DirectoryInfo dirInfo = System.IO.Directory.GetParent(videoTsdir);
-          movie["title"] = dirInfo.Name;
-        }
-        movie["date"] = info.CreationTime;
-        movie["path"] = Path.GetDirectoryName(file);
-        movie["isDVD"] = isDvd;
-        movie["dateAdded"] = info.CreationTime;
-        if (mediaInfo != null)
-        {
-          movie["VideoCodec"] = mediaInfo.getVidCodec();
-          movie["VideoBitRate"] = mediaInfo.getVidBitrate();
-          movie["Width"] = mediaInfo.getWidth();
-          movie["Height"] = mediaInfo.getHeight();
-          movie["FPS"] = mediaInfo.getFPS();
-          movie["AudioStreams"] = mediaInfo.getAudioCount();
-          movie["AudioCodec"] = mediaInfo.getAudioCodec();
-          movie["AspectRatio"] = mediaInfo.getAR();
-          movie["AudioBitRate"] = mediaInfo.getAudioBitrate();
-          string playtime = mediaInfo.getPlaytime();
-          int playtimeSecs = 0;
-          Int32.TryParse(playtime, out playtimeSecs);
-          movie["duration"] = playtimeSecs;
-          mediaInfo.Close();
-        }
-        movie.Save();
-
-        return 1;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error importing file:{0}", file);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-      return 0;
-    }
+    //bool CheckFile(string fileName, DateTime lastImport)
+    //{
+    //  if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
+    //  {
+    //    return false;
+    //  }
+    //  if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
+    //  {
+    //    return true;
+    //  }
+    //  return false;
+    //}
 
     /// <summary>
     /// Creates the movie database.

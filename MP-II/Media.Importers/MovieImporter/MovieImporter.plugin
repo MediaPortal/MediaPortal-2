@@ -11,7 +11,7 @@
     <Import assembly = "MovieImporter.dll"/>
   </Runtime>
 
-  <Register location = "/AutoStart">
-    <Class id = "MovieImporter" class = "MovieImporter.Importer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  <Register location = "/Media/Importers">
+    <Importer id = "MovieImporter" class = "MovieImporter.Importer" extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
   </Register>
 </Plugin>

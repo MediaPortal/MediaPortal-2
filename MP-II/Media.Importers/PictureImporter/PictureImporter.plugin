@@ -11,7 +11,7 @@
     <Import assembly = "PictureImporter.dll"/>
   </Runtime>
 
-  <Register location = "/AutoStart">
-    <Class id = "PictureImporter" class = "PictureImporter.Importer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+  <Register location = "/Media/Importers">
+    <Importer id = "PictureImporter" class = "PictureImporter.Importer" extensions=".jpg,.png,.gif,.tga"/>
   </Register>
 </Plugin>

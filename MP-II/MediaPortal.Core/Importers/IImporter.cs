@@ -31,23 +31,23 @@ namespace MediaPortal.Core.Importers
 {
   public interface IImporter
   {
-    /// <summary>
-    /// Gets the importer name.
-    /// </summary>
-    /// <value>The importer name.</value>
-    string Name { get;}
+    ///// <summary>
+    ///// Gets the importer name.
+    ///// </summary>
+    ///// <value>The importer name.</value>
+    //string Name { get;}
+
+    ///// <summary>
+    ///// Gets the file-extensions the importer supports
+    ///// </summary>
+    ///// <value>The file-extensions.</value>
+    //string Extensions { get;}
 
     /// <summary>
-    /// Gets the file-extensions the importer supports
+    /// Called by the importer manager when a full-import needs to be done
     /// </summary>
-    /// <value>The file-extensions.</value>
-    List<string> Extensions { get;}
-
-    /// <summary>
-    /// Called by the importer manager when a full-import needs to be done from the folder
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    void ImportFolder(string folder, DateTime since);
+    /// <param name="folder">the file.</param>
+    bool FileImport(string filename);
 
     /// <summary>
     /// Called by the importer manager after it detected that a file was deleted

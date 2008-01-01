@@ -35,12 +35,14 @@ namespace MediaPortal.Core.Importers
     /// Registers a new importer with the importer manager
     /// </summary>
     /// <param name="importer">The importer.</param>
+    [Obsolete("Importers should be registered via the Plugin space /Media/Importers")]
     void Register(IImporter importer);
 
     /// <summary>
     /// Unregisters an importer with the importer manager
     /// </summary>
     /// <param name="importer">The importer.</param>
+    [Obsolete("Importers should be registered via the Plugin space /Media/Importers")]
     void UnRegister(IImporter importer);
 
     /// <summary>
