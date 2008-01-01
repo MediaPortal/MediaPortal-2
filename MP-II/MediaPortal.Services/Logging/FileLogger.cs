@@ -61,6 +61,10 @@ namespace MediaPortal.Services.Logging
       _FileName = fileName;
       _Level = level;
       _LogMethodNames = logMethodNames;
+      FileInfo logFile = new FileInfo(fileName);
+      if (!logFile.Directory.Exists)
+        logFile.Directory.Create();
+
       if (level > LogLevel.None)
       {
         using (new StreamWriter(fileName, false)) {}
