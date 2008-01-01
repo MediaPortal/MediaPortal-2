@@ -45,7 +45,6 @@ using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.ExifReader;
-using MediaPortal.Services.Importers;
 using MediaPortal.Services.Burning;
 using MediaPortal.Services.Messaging;
 using MediaPortal.Services.MPIManager;
@@ -83,7 +82,6 @@ public class MPApplication : MarshalByRefObject
 
 
       //register core service implementations
-
       logger.Debug("MPApplication: Registering ThreadPool");
       MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
       pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
@@ -119,11 +117,8 @@ public class MPApplication : MarshalByRefObject
       ServiceScope.Add<IBurnManager>(burnManager);
       EventHelper.Init(); // only for quick test simulating a plugin (trying to stay clean before the preview)...
 
-      logger.Debug("MPApplication: Registering ImporterManager");
-      ServiceScope.Add<IImporterManager>(new ImporterManager());
-
-      // moved to plugin PlayerManager
-      //ServiceScope.Add<IPlayerFactory>(new PlayerFactory());
+      //logger.Debug("MPApplication: Registering ImporterManager");
+      //ServiceScope.Add<IImporterManager>(new ImporterManager());
 
       // Start the core
       logger.Debug("MPApplication: Starting core");
