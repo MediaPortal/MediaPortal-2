@@ -48,7 +48,6 @@ using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 
 using MediaPortal.Services.UserManagement;
-using MediaPortal.Services.Importers;
 
 using SkinEngine;
 using SkinEngine.Commands;
