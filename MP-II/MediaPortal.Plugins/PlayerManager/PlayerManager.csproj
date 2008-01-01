@@ -74,7 +74,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

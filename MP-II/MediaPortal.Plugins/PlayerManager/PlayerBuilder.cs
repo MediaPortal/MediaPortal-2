@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.PlayerManager
     }
     #endregion
 
-    #region IPluginBuilder methods
+    #region IPlayerBuilder methods
     public bool CanPlay(IMediaItem mediaItem, Uri uri)
     {
       string ext = System.IO.Path.GetExtension(uri.AbsolutePath);
@@ -96,7 +96,9 @@ namespace MediaPortal.Plugins.PlayerManager
 
       return false;
     }
+    #endregion
 
+    #region IPluginBuilder methods
     public object BuildItem(object caller, INodeItem item, ArrayList subItems)
     {
       PlayerBuilder builder = new PlayerBuilder();
