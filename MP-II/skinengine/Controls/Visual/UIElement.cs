@@ -57,8 +57,10 @@ namespace SkinEngine.Controls.Visuals
     Property _renderTransformProperty;
     Property _renderTransformOriginProperty;
     Property _visibilityProperty;
+    Property _isEnabledProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
+    protected Point _availablePoint;
     bool _isArrangeValid;
     ResourceDictionary _resources;
     List<Timeline> _runningAnimations;
@@ -84,6 +86,7 @@ namespace SkinEngine.Controls.Visuals
       Dock = el.Dock;
       Margin = el.Margin;
       Visibility = el.Visibility;
+      IsEnabled = el.IsEnabled;
       foreach (Transform t in el.RenderTransform)
       {
         RenderTransform.Add((Transform)t.Clone());
@@ -125,6 +128,7 @@ namespace SkinEngine.Controls.Visuals
       _renderTransformProperty = new Property(new TransformGroup());
       _renderTransformOriginProperty = new Property(new Vector2(0, 0));
       _visibilityProperty = new Property(VisibilityEnum.Visible);
+      _isEnabledProperty = new Property(true);
 
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -163,6 +167,39 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the is enabled property.
+    /// </summary>
+    /// <value>The is enabled property.</value>
+    public Property IsEnabledProperty
+    {
+      get
+      {
+        return _isEnabledProperty;
+      }
+      set
+      {
+        _isEnabledProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is enabled.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsEnabled
+    {
+      get
+      {
+        return (bool)_isEnabledProperty.GetValue();
+      }
+      set
+      {
+        _isEnabledProperty.SetValue(value);
+      }
+    }
 
     /// <summary>
     /// Gets or sets the visibility property.
@@ -454,7 +491,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (this.Visibility==VisibilityEnum.Visible);
+        return (this.Visibility == VisibilityEnum.Visible);
       }
     }
 
@@ -597,7 +634,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns>The size that this element determines it needs during layout, based on its calculations of child element sizes.</returns>
     public virtual void Measure(Size availableSize)
     {
-      _availableSize = availableSize;
+      _availableSize = new Size(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -624,13 +661,13 @@ namespace SkinEngine.Controls.Visuals
       if (!IsArrangeValid) return;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
-        System.Drawing.Size sizeOld = _desiredSize;
-        System.Drawing.Size availsizeOld = _availableSize;
+        System.Drawing.Size sizeOld = new Size(_desiredSize.Width, _desiredSize.Height);
+        System.Drawing.Size availsizeOld = new Size(_availableSize.Width, _availableSize.Height);
         Measure(_availableSize);
         _availableSize = availsizeOld;
         if (_desiredSize == sizeOld)
         {
-          Arrange(new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, _desiredSize.Width, _desiredSize.Height));
+          Arrange(new System.Drawing.Rectangle((int)_availablePoint.X, (int)_availablePoint.Y, _availableSize.Width, _availableSize.Height));
           return;
         }
       }

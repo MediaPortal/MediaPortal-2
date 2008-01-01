@@ -69,13 +69,15 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      finalRect.X += (int)(Margin.X);
-      finalRect.Y += (int)(Margin.Y);
-      finalRect.Width -= (int)(Margin.X);
-      finalRect.Height -= (int)(Margin.Y);
-      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
+      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
+      Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (int)(Margin.X);
+      layoutRect.Y += (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X);
+      layoutRect.Height -= (int)(Margin.Y);
+      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
 
       float offsetTop = 0.0f;
       float offsetBottom = 0.0f;
@@ -132,7 +134,7 @@ namespace SkinEngine.Controls.Panels
         }
       }
       base.PerformLayout();
-      base.Arrange(finalRect);
+      base.Arrange(layoutRect);
     }
 
   }

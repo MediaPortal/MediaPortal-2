@@ -188,6 +188,14 @@ namespace SkinEngine.Controls.Visuals.Triggers
         {
           action.Execute(_element, this);
         }
+        foreach (TriggerAction action in EnterActions)
+        {
+          Setter s = action as Setter;
+          if (s != null)
+          {
+            s.Restore(_element, this);
+          }
+        }
       }
     }
 
@@ -195,7 +203,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
 
     public int Add(object value)
     {
-      EnterActions.Add((TriggerAction)value);
+      EnterActions.Add(value);
+
       return EnterActions.Count;
     }
 

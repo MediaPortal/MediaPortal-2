@@ -19,8 +19,14 @@ namespace SkinEngine.Controls.Visuals.Triggers
       return new TriggerAction(this);
     }
 
+  
     public virtual void Execute(UIElement element, Trigger trigger)
     {
+    }
+
+    public virtual object GetOriginalValue(UIElement element)
+    {
+      return null;
     }
   }
 }

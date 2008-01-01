@@ -37,6 +37,7 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _templateProperty;
     Property _styleProperty;
+    Property _isPressedProperty;
 
     public Button()
     {
@@ -47,6 +48,7 @@ namespace SkinEngine.Controls.Visuals
       : base(b)
     {
       Init();
+      IsPressed = b.IsPressed;
       Template = (UIElement)b.Template.Clone();
       Style = b.Style;
     }
@@ -60,6 +62,7 @@ namespace SkinEngine.Controls.Visuals
     {
       _templateProperty = new Property(null);
       _styleProperty = new Property(null);
+      _isPressedProperty = new Property(false);
       IsFocusable = true;
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
     }
@@ -69,6 +72,40 @@ namespace SkinEngine.Controls.Visuals
       Style.Set(this);
       this.Template.VisualParent = this;
       Invalidate();
+    }
+
+    /// <summary>
+    /// Gets or sets the is pressed.
+    /// </summary>
+    /// <value>The is pressed.</value>
+    public Property IsPressedProperty
+    {
+      get
+      {
+        return _isPressedProperty;
+      }
+      set
+      {
+        _isPressedProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is pressed.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is pressed; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsPressed
+    {
+      get
+      {
+        return (bool)_isPressedProperty.GetValue();
+      }
+      set
+      {
+        _isPressedProperty.SetValue(value);
+      }
     }
 
     /// <summary>
@@ -163,18 +200,20 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      finalRect.X += (int)(Margin.X);
-      finalRect.Y += (int)(Margin.Y);
-      finalRect.Width -= (int)(Margin.X);
-      finalRect.Height -= (int)(Margin.Y);
+      _availablePoint = new System.Drawing.Point(finalRect.Location.X, finalRect.Location.Y);
+      System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (int)(Margin.X);
+      layoutRect.Y += (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X);
+      layoutRect.Height -= (int)(Margin.Y);
       if (Template != null)
       {
-        Template.Arrange(finalRect);
+        Template.Arrange(layoutRect);
         ActualPosition = Template.ActualPosition;
         ActualHeight = ((FrameworkElement)Template).ActualHeight;
         ActualWidth = ((FrameworkElement)Template).ActualWidth;
       }
-      base.Arrange(finalRect);
+      base.Arrange(layoutRect);
     }
 
     /// <summary>
@@ -255,12 +294,19 @@ namespace SkinEngine.Controls.Visuals
         if (Template != null)
           Template.HasFocus = value;
         base.HasFocus = value;
+        if (value == false)
+          IsPressed = false;
         Trace.WriteLine(String.Format("{0} focus:{1}", Name, value));
       }
     }
+
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
+      if (key == MediaPortal.Core.InputManager.Key.Enter)
+      {
+        IsPressed = true;
+      }
 
       UIElement cntl = FocusManager.PredictFocus(this, ref key);
       if (cntl != null)

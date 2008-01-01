@@ -92,13 +92,13 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!HasFocus) return;
 
+      base.OnKeyPressed(ref key);
       if (key == MediaPortal.Core.InputManager.Key.Enter)
       {
         IsChecked = !IsChecked;
         key = MediaPortal.Core.InputManager.Key.None;
         return;
       }
-      base.OnKeyPressed(ref key);
     }
 
   }

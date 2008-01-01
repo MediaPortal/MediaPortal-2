@@ -133,13 +133,15 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      finalRect.X += (int)(Margin.X);
-      finalRect.Y += (int)(Margin.Y);
-      finalRect.Width -= (int)(Margin.X);
-      finalRect.Height -= (int)(Margin.Y);
-      ActualPosition = new Microsoft.DirectX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
+      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
+      Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (int)(Margin.X);
+      layoutRect.Y += (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X);
+      layoutRect.Height -= (int)(Margin.Y);
+      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
       switch (Orientation)
       {
         case Orientation.Vertical:
@@ -154,21 +156,21 @@ namespace SkinEngine.Controls.Panels
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += (int)((finalRect.Width - child.DesiredSize.Width) / 2);
+                location.X += (int)((layoutRect.Width - child.DesiredSize.Width) / 2);
               }
               else if (AlignmentX == AlignmentX.Right)
               {
-                location.X = finalRect.Right - child.DesiredSize.Width;
+                location.X = layoutRect.Right - child.DesiredSize.Width;
               }
 
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (int)((finalRect.Height - DesiredSize.Height) / 2);
+                location.Y += (int)((layoutRect.Height - DesiredSize.Height) / 2);
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += (int)(finalRect.Height - DesiredSize.Height);
+                location.Y += (int)(layoutRect.Height - DesiredSize.Height);
               }
 
               ArrangeChild(child, ref location);
@@ -188,25 +190,25 @@ namespace SkinEngine.Controls.Panels
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
               //align horizontally 
-              if (DesiredSize.Width < finalRect.Width)
+              if (DesiredSize.Width < layoutRect.Width)
               {
                 if (AlignmentX == AlignmentX.Center)
                 {
-                  location.X += (int)((finalRect.Width - DesiredSize.Width) / 2);
+                  location.X += (int)((layoutRect.Width - DesiredSize.Width) / 2);
                 }
                 else if (AlignmentX == AlignmentX.Right)
                 {
-                  location.X += finalRect.Right - DesiredSize.Width;
+                  location.X += layoutRect.Right - DesiredSize.Width;
                 }
               }
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (int)((finalRect.Height - child.DesiredSize.Height) / 2);
+                location.Y += (int)((layoutRect.Height - child.DesiredSize.Height) / 2);
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += (int)(finalRect.Height - child.DesiredSize.Height);
+                location.Y += (int)(layoutRect.Height - child.DesiredSize.Height);
               }
 
               ArrangeChild(child, ref location);
@@ -217,7 +219,7 @@ namespace SkinEngine.Controls.Panels
           break;
       }
       base.PerformLayout();
-      base.Arrange(finalRect);
+      base.Arrange(layoutRect);
     }
   }
 }

@@ -14,6 +14,7 @@ namespace SkinEngine.Controls.Visuals.Styles
     Property _propertyProperty;
     Property _valueProperty;
     Property _targetNameProperty;
+    Object _originalValue = null;
 
     public Setter()
     {
@@ -150,6 +151,31 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
     }
 
+    public void Restore(UIElement element, Trigger trigger)
+    {
+      object uiElement = VisualTreeHelper.Instance.FindElement(element, TargetName);
+      if (uiElement == null)
+        uiElement = VisualTreeHelper.Instance.FindElement(TargetName);
+      if (uiElement == null) return;
+      Type t = uiElement.GetType();
+      PropertyInfo pinfo = t.GetProperty(this.Property + "Property");
+      if (pinfo == null) return;
+      PropertyInfo pinfo2 = t.GetProperty(Property);
+      if (pinfo2 == null) return;
+      MethodInfo minfo = pinfo.GetGetMethod();
+      Property property = minfo.Invoke(uiElement, null) as Property;
+
+      ICloneable clone = _originalValue as ICloneable;
+      if (clone != null)
+      {
+        property.SetValue(clone.Clone());
+      }
+      else
+      {
+        property.SetValue(_originalValue);
+      }
+    }
+
     public override void Execute(UIElement element, Trigger trigger)
     {
       object uiElement = VisualTreeHelper.Instance.FindElement(element, TargetName);
@@ -163,6 +189,9 @@ namespace SkinEngine.Controls.Visuals.Styles
       if (pinfo2 == null) return;
       MethodInfo minfo = pinfo.GetGetMethod();
       Property property = minfo.Invoke(uiElement, null) as Property;
+
+      if (_originalValue == null)
+        _originalValue = property.GetValue();
 
       object obj = Value;
       if (obj as String != null)
@@ -179,5 +208,6 @@ namespace SkinEngine.Controls.Visuals.Styles
         property.SetValue(obj);
       }
     }
+
   }
 }
