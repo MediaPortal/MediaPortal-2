@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Animations;
-
+using SkinEngine.Controls.Visuals.Styles;
 namespace SkinEngine.Controls.Visuals.Triggers
 {
   public class EventTrigger : Trigger
@@ -98,6 +98,18 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         _storyBoardProperty.SetValue(value);
       }
+    }
+    public override void Setup(UIElement element)
+    {
+      if (element as ControlTemplate != null)
+      {
+        element = element.VisualParent;
+      }
+      if (Storyboard != null)
+      {
+        Storyboard.Setup(element);
+      }
+      base.Setup(element);
     }
   }
 }

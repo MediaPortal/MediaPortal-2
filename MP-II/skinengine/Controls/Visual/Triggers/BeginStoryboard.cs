@@ -110,5 +110,12 @@ namespace SkinEngine.Controls.Visuals.Triggers
         return;
       }
     }
+    public override void Setup(UIElement element)
+    {
+      if (Storyboard != null)
+      {
+        Storyboard.Setup(element);
+      }
+    }
   }
 }

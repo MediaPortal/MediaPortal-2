@@ -28,5 +28,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
     {
       return null;
     }
+    public virtual void Setup(UIElement element)
+    {
+    }
   }
 }

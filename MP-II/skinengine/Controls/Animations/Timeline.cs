@@ -544,5 +544,9 @@ namespace SkinEngine.Controls.Animations
       MethodInfo minfo = pinfo.GetGetMethod();
       return minfo.Invoke(element, null) as Property;
     }
+
+    public virtual void Setup(UIElement element)
+    {
+    }
   }
 }

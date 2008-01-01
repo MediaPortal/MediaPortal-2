@@ -270,12 +270,15 @@ namespace SkinEngine.Controls.Animations
 
       _state = State.Starting;
       //find property
-      _property = null;
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
+    }
+    public override void Setup(UIElement element)
+    {
+      VisualParent = element;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (double)_property.GetValue();
-      _timeStarted = timePassed;
-      _state = State.WaitBegin;
     }
   }
 }

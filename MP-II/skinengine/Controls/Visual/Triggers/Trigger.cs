@@ -143,7 +143,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       }
     }
 
-    public void Setup(UIElement element)
+    public virtual void Setup(UIElement element)
     {
       if (_property != null)
       {
@@ -169,6 +169,15 @@ namespace SkinEngine.Controls.Visuals.Triggers
       MethodInfo minfo = pinfo.GetGetMethod();
       _property = minfo.Invoke(element, null) as Property;
       _property.Attach(_handler);
+
+      foreach (TriggerAction action in EnterActions)
+      {
+        action.Setup(element);
+      }
+      foreach (TriggerAction action in ExitActions)
+      {
+        action.Setup(element);
+      }
     }
 
     void OnPropertyChanged(Property p)

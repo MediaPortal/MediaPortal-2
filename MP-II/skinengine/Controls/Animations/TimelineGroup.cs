@@ -25,7 +25,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-
+using SkinEngine.Controls.Visuals;
 namespace SkinEngine.Controls.Animations
 {
   public class TimelineGroup : Timeline, IList
@@ -99,6 +99,13 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    public override void Setup(UIElement element)
+    {
+      foreach (Timeline child in Children)
+      {
+        child.Setup(element);
+      }
+    }
     /// <summary>
     /// Starts the animation
     /// </summary>

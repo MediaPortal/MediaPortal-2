@@ -324,13 +324,18 @@ namespace SkinEngine.Controls.Animations
         Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
       }
 
+      _timeStarted = timePassed;
+      _state = State.WaitBegin;
+    }
+
+    public override void Setup(UIElement element)
+    {
       _property = null;
+      VisualParent = element;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (Color)_property.GetValue();
 
-      _timeStarted = timePassed;
-      _state = State.WaitBegin;
     }
   }
 }
