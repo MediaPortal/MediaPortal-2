@@ -80,12 +80,13 @@ namespace SkinEngine.Controls.Panels
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        child.Arrange(new Rectangle(new Point((int)(child.Position.X + this.ActualPosition.X),
-                                               (int)(child.Position.Y + this.ActualPosition.Y)),
-                                               child.DesiredSize));
+        Point p = new Point((int)(child.Position.X + this.ActualPosition.X), (int)(child.Position.Y + this.ActualPosition.Y));
+        ArrangeChild(child, ref p);
+
+        child.Arrange(new Rectangle(p, child.DesiredSize));
       }
       base.PerformLayout();
       base.Arrange(finalRect);

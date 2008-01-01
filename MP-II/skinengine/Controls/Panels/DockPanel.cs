@@ -79,18 +79,20 @@ namespace SkinEngine.Controls.Panels
 
       float offsetTop = 0.0f;
       float offsetBottom = 0.0f;
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
         if (child.Dock == Dock.Top)
         {
           Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + offsetTop));
+          ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, new Size((int)this.ActualWidth, (int)child.DesiredSize.Height)));
           offsetTop += child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Bottom)
         {
           Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + ActualHeight - offsetBottom - child.DesiredSize.Height));
+          ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, new Size((int)this.ActualWidth, (int)child.DesiredSize.Height)));
           offsetBottom += child.DesiredSize.Height;
         }
@@ -98,30 +100,33 @@ namespace SkinEngine.Controls.Panels
       float height = (float)(ActualHeight - (offsetBottom + offsetTop));
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
         if (child.Dock == Dock.Left)
         {
           Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, new Size((int)child.DesiredSize.Width, (int)height)));
           offsetLeft += child.DesiredSize.Width;
         }
         else if (child.Dock == Dock.Right)
         {
           Point location = new Point((int)(this.ActualPosition.X + ActualWidth - offsetRight - child.DesiredSize.Width), (int)(this.ActualPosition.Y + offsetTop));
+          ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, new Size((int)child.DesiredSize.Width, (int)height)));
           offsetRight += child.DesiredSize.Width;
         }
       }
 
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
         if (child.Dock == Dock.Center)
         {
           float width = (float)(ActualWidth - (offsetLeft + offsetRight));
           Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, new Size((int)width, (int)height)));
           offsetLeft += child.DesiredSize.Width;
         }
@@ -129,5 +134,6 @@ namespace SkinEngine.Controls.Panels
       base.PerformLayout();
       base.Arrange(finalRect);
     }
+
   }
 }

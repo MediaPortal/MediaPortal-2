@@ -21,7 +21,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
       : base(action)
     {
       Init();
-      Storyboard = (Storyboard)action.Storyboard.Clone();
+      if (action.Storyboard != null)
+        Storyboard = (Storyboard)action.Storyboard.Clone();
       Name = action.Name;
     }
 

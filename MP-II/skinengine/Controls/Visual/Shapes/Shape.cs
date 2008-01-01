@@ -64,8 +64,10 @@ namespace SkinEngine.Controls.Visuals
       : base(s)
     {
       Init();
-      Fill = (Brush)s.Fill.Clone();
-      Stroke = (Brush)s.Stroke.Clone();
+      if (s.Fill != null)
+        Fill = (Brush)s.Fill.Clone();
+      if (s.Stroke != null)
+        Stroke = (Brush)s.Stroke.Clone();
       StrokeThickness = s.StrokeThickness;
     }
 
@@ -294,7 +296,7 @@ namespace SkinEngine.Controls.Visuals
 
         vertices[i * 6 + 3] = nextpoint;
         vertices[i * 6 + 4] = new PointF(x, y);
-        vertices[i * 6 + 5] = new PointF(nextpoint.X + (x-points[i].X ), nextpoint.Y + (y-points[i].Y ));
+        vertices[i * 6 + 5] = new PointF(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y));
       }
       return vertices;
     }

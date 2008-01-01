@@ -157,7 +157,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath path;
       if (Fill != null)
       {
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)RadiusX, (float)RadiusY);
+        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), (float)RadiusX, (float)RadiusY);
         vertices = ConvertPathToTriangleFan(path, (int)+(centerX), (int)(centerY));
 
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
@@ -180,7 +180,7 @@ namespace SkinEngine.Controls.Visuals
       ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)RadiusX, (float)RadiusY);
+        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), (float)RadiusX, (float)RadiusY);
         vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)StrokeThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);

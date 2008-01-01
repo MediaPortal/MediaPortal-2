@@ -145,7 +145,7 @@ namespace SkinEngine.Controls.Panels
         case Orientation.Vertical:
           {
             float totalHeight = 0;
-            foreach (UIElement child in Children)
+            foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + totalHeight));
@@ -171,6 +171,7 @@ namespace SkinEngine.Controls.Panels
                 location.Y += (int)(finalRect.Height - DesiredSize.Height);
               }
 
+              ArrangeChild(child, ref location);
               child.Arrange(new Rectangle(location, size));
               totalHeight += child.DesiredSize.Height;
             }
@@ -180,7 +181,7 @@ namespace SkinEngine.Controls.Panels
         case Orientation.Horizontal:
           {
             float totalWidth = 0;
-            foreach (UIElement child in Children)
+            foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
@@ -208,6 +209,7 @@ namespace SkinEngine.Controls.Panels
                 location.Y += (int)(finalRect.Height - child.DesiredSize.Height);
               }
 
+              ArrangeChild(child, ref location);
               child.Arrange(new Rectangle(location, size));
               totalWidth += child.DesiredSize.Width;
             }

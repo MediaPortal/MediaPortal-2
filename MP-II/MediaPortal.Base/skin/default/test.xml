@@ -43,9 +43,10 @@
 
     <Image Name="myimage" ImageSource="key.png" Width="100"  Height="80" Stretch="Fill" Opacity="0.5"/>
         -->
-    <Button Name="btn1" Width="200" Height="32" Style="{StaticResource styleButton}"/>
-    <Button Name="btn2" Width="200" Height="32" Margin="0,10,0,20" Style="{StaticResource styleButton}"/>
-    <Button Name="btn3" Width="200" Height="32" Style="{StaticResource styleButton}"/>
+    <Button Name="btn1" Width="200" Height="32" Style="{StaticResource MpButton}"/>
+    <Button Name="btn2" Width="200" Height="32" Margin="0,10,0,20" Style="{StaticResource MpButton}"/>
+    <Button Name="btn3" Width="200" Height="32" Style="{StaticResource MpButton}"/>
+    <CheckBox Name="btn3" Width="200" Height="32" Style="{StaticResource MpRadioButton}"/>
 
     <Rectangle Width="200" Height="32" Margin="0,10,0,10" StrokeThickness="2" Stroke="Red" Fill="Blue"/>
     <Ellipse Width="200" Height="32" Margin="0,10,0,10"  StrokeThickness="2" Stroke="Red" Fill="Blue" />

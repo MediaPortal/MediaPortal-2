@@ -205,14 +205,7 @@ namespace SkinEngine.Controls.Animations
 
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      object element = VisualTreeHelper.Instance.FindElement(VisualParent, TargetName);
-      if (element == null)
-        element = VisualTreeHelper.Instance.FindElement(TargetName);
-      if (element == null) return;
-      Type t = element.GetType();
-      PropertyInfo pinfo = t.GetProperty(TargetProperty + "Property");
-      MethodInfo minfo = pinfo.GetGetMethod();
-      _property = minfo.Invoke(element, null) as Property;
+      _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (double)_property.GetValue();
     }
 

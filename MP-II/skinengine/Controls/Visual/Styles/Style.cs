@@ -185,6 +185,7 @@ namespace SkinEngine.Controls.Visuals.Styles
     {
       Type t = element.GetType();
       PropertyInfo pinfo = t.GetProperty(setter.Property + "Property");
+      if (pinfo == null) return;
       MethodInfo minfo = pinfo.GetGetMethod();
       Property property = minfo.Invoke(element, null) as Property;
       ICloneable clone = setter.Value as ICloneable;

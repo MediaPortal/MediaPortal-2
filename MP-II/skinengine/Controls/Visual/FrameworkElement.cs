@@ -35,11 +35,28 @@ namespace SkinEngine.Controls.Visuals
 {
   public class FrameworkElement : UIElement
   {
+    public enum VerticalAlignmentEnum
+    {
+      Top = 0,
+      Center = 1,
+      Bottom = 2,
+      Stretch = 3,
+    };
+
+    public enum HorizontalAlignmentEnum
+    {
+      Left = 0,
+      Center = 1,
+      Right = 2,
+      Stretch = 3,
+    };
     Property _widthProperty;
     Property _heightProperty;
 
     Property _acutalWidthProperty;
     Property _actualHeightProperty;
+    Property _horizontalAlignmentProperty;
+    Property _verticalAlignmentProperty;
 
     bool _mouseOver = false;
 
@@ -59,6 +76,8 @@ namespace SkinEngine.Controls.Visuals
       Height = el.Height;
       ActualWidth = el.ActualWidth;
       ActualHeight = el.ActualHeight;
+      this.HorizontalAlignment = el.HorizontalAlignment;
+      this.VerticalAlignment = el.VerticalAlignment;
     }
     void Init()
     {
@@ -68,6 +87,8 @@ namespace SkinEngine.Controls.Visuals
 
       _acutalWidthProperty = new Property((double)0.0f);
       _actualHeightProperty = new Property((double)0.0f);
+      _horizontalAlignmentProperty = new Property(HorizontalAlignmentEnum.Center);
+      _verticalAlignmentProperty = new Property(VerticalAlignmentEnum.Center);
 
 
       _widthProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -209,6 +230,70 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _actualHeightProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the horizontal alignment property.
+    /// </summary>
+    /// <value>The horizontal alignment property.</value>
+    public Property HorizontalAlignmentProperty
+    {
+      get
+      {
+        return _horizontalAlignmentProperty;
+      }
+      set
+      {
+        _horizontalAlignmentProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the horizontal alignment.
+    /// </summary>
+    /// <value>The horizontal alignment.</value>
+    public HorizontalAlignmentEnum HorizontalAlignment
+    {
+      get
+      {
+        return (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue();
+      }
+      set
+      {
+        _horizontalAlignmentProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the vertical alignment property.
+    /// </summary>
+    /// <value>The vertical alignment property.</value>
+    public Property VerticalAlignmentProperty
+    {
+      get
+      {
+        return _verticalAlignmentProperty;
+      }
+      set
+      {
+        _verticalAlignmentProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the vertical alignment.
+    /// </summary>
+    /// <value>The vertical alignment.</value>
+    public VerticalAlignmentEnum VerticalAlignment
+    {
+      get
+      {
+        return (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue();
+      }
+      set
+      {
+        _verticalAlignmentProperty.SetValue(value);
       }
     }
     #endregion

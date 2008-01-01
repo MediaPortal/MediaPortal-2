@@ -21,14 +21,16 @@
 */
 #endregion
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Animations
 {
-  public enum RepeatBehaviour { None, Forever };
+  public enum RepeatBehavior { None, Forever };
   public enum FillBehaviour { HoldEnd, Stop };
 
   public class Timeline : ICloneable
@@ -71,7 +73,7 @@ namespace SkinEngine.Controls.Animations
       Duration = a.Duration;
       Key = a.Key;
       FillBehaviour = a.FillBehaviour;
-      RepeatBehaviour = a.RepeatBehaviour;
+      RepeatBehavior = a.RepeatBehavior;
       VisualParent = a.VisualParent;
     }
     public virtual object Clone()
@@ -86,7 +88,7 @@ namespace SkinEngine.Controls.Animations
       _autoReverseProperty = new Property(false);
       _decelerationRatioProperty = new Property(1.0);
       _durationProperty = new Property(new TimeSpan(0, 0, 1));
-      _repeatBehaviourProperty = new Property(RepeatBehaviour.None);
+      _repeatBehaviourProperty = new Property(RepeatBehavior.None);
       _fillBehaviourProperty = new Property(FillBehaviour.Stop);
       _visualParentProperty = new Property(null);
     }
@@ -285,7 +287,7 @@ namespace SkinEngine.Controls.Animations
     /// Gets or sets the repeat behaviour property.
     /// </summary>
     /// <value>The repeat behaviour property.</value>
-    public Property RepeatBehaviourProperty
+    public Property RepeatBehaviorProperty
     {
       get
       {
@@ -301,11 +303,11 @@ namespace SkinEngine.Controls.Animations
     /// Gets or sets the repeat behaviour.
     /// </summary>
     /// <value>The repeat behaviour.</value>
-    public RepeatBehaviour RepeatBehaviour
+    public RepeatBehavior RepeatBehavior
     {
       get
       {
-        return (RepeatBehaviour)_repeatBehaviourProperty.GetValue();
+        return (RepeatBehavior)_repeatBehaviourProperty.GetValue();
       }
       set
       {
@@ -415,7 +417,7 @@ namespace SkinEngine.Controls.Animations
               passed = 0;
               goto case State.Reverse;
             }
-            else if (RepeatBehaviour == RepeatBehaviour.Forever)
+            else if (RepeatBehavior == RepeatBehavior.Forever)
             {
               _timeStarted = timePassed;
               AnimateProperty(timePassed - _timeStarted);
@@ -435,7 +437,7 @@ namespace SkinEngine.Controls.Animations
 
           if (passed >= Duration.TotalMilliseconds)
           {
-            if (RepeatBehaviour == RepeatBehaviour.Forever)
+            if (RepeatBehavior == RepeatBehavior.Forever)
             {
               _state = State.Running;
               _timeStarted = timePassed;
@@ -490,6 +492,48 @@ namespace SkinEngine.Controls.Animations
       {
         return (_state == State.Idle);
       }
+    }
+
+    protected Property GetProperty(string targetName, string targetProperty)
+    {
+      string propertyname = "";
+      Regex regex = new Regex(@"\([^\.]+\.[^\.]+");
+      MatchCollection matches = regex.Matches(targetProperty);
+      for (int i = 0; i < matches.Count; ++i)
+      {
+        string part = matches[i].Value;
+        string part1 = part;
+        int p1 = part.IndexOf("(");
+        if (p1 >= 0)
+        {
+          part1 = part.Substring(p1 + 1);
+          p1 = part1.IndexOf(")");
+          part1 = (part1.Substring(0, p1) + part1.Substring(p1 + 1));
+        }
+        int pos = part1.IndexOf(".");
+        if (pos > 0)
+        {
+          part1 = part1.Substring(pos + 1);
+        }
+        if (propertyname.Length > 0) propertyname += ".";
+        propertyname += part1;
+      }
+
+      string propertyName = String.Format("{0}.{1}", targetName, propertyname);
+      int posPoint = propertyName.LastIndexOf('.');
+      string left = propertyName.Substring(0, posPoint);
+      string right = propertyName.Substring(posPoint + 1);
+
+      object element = VisualTreeHelper.Instance.FindElement(VisualParent, left);
+      if (element == null)
+        element = VisualTreeHelper.Instance.FindElement(left);
+      if (element == null) return null;
+      Type t = element.GetType();
+      PropertyInfo pinfo = t.GetProperty(right + "Property");
+      if (pinfo == null)
+        return null;
+      MethodInfo minfo = pinfo.GetGetMethod();
+      return  minfo.Invoke(element, null) as Property;
     }
   }
 }

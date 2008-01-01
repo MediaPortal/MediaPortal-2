@@ -1,11 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals.Styles;
 namespace SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger : ICloneable
+  public class Trigger : ICloneable, IList
   {
     Property _propertyProperty;
     Property _valueProperty;
@@ -151,9 +154,18 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         return;
       }
+      if (element as ControlTemplate != null)
+      {
+        element = element.VisualParent;
+      }
       _element = element;
       Type t = element.GetType();
       PropertyInfo pinfo = t.GetProperty(Property + "Property");
+      if (pinfo == null)
+      {
+        Trace.WriteLine(String.Format("trigger property {0} not found on {1}", this.Property, element));
+        return;
+      }
       MethodInfo minfo = pinfo.GetGetMethod();
       _property = minfo.Invoke(element, null) as Property;
       _property.Attach(_handler);
@@ -178,5 +190,100 @@ namespace SkinEngine.Controls.Visuals.Triggers
         }
       }
     }
+
+    #region IList Members
+
+    public int Add(object value)
+    {
+      EnterActions.Add((TriggerAction)value);
+      return EnterActions.Count;
+    }
+
+    public void Clear()
+    {
+      EnterActions.Clear();
+    }
+
+    public bool Contains(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int IndexOf(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void Insert(int index, object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public bool IsFixedSize
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsReadOnly
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public void Remove(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void RemoveAt(int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public object this[int index]
+    {
+      get
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+      set
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+    }
+
+    #endregion
+
+    #region ICollection Members
+
+    public void CopyTo(Array array, int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int Count
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsSynchronized
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public object SyncRoot
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    public IEnumerator GetEnumerator()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }

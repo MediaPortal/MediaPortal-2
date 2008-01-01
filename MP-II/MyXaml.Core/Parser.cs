@@ -51,7 +51,7 @@ namespace MyXaml.Core
 
     public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
 
-    public delegate object GetResourceDlgt(object parser,object obj, string resourceName);
+    public delegate object GetResourceDlgt(object parser, object obj, string resourceName);
 
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
@@ -922,6 +922,11 @@ namespace MyXaml.Core
       string propertyName = String.Empty;									// Assume no property name.
       object propertyObject = null;											// Assume no property object.
       XmlAttribute returnType = null;
+      int pos = elementName.IndexOf(".");
+      if (pos > 0)
+      {
+        elementName = elementName.Substring(pos + 1);
+      }
 
       ObjectInfo oi = (ObjectInfo)objectStack.Peek();
       bool isPropertyDeclaration = oi.HasPropertyDeclaration;				// Get the flag indicating that the element is a property declaration.
@@ -1113,6 +1118,11 @@ namespace MyXaml.Core
       foreach (XmlAttribute attr in attributes)							// For each attribute...
       {
         string propertyName = attr.LocalName;
+        int pospoint = propertyName.IndexOf(".");
+        if (pospoint > 0)
+        {
+          propertyName = propertyName.Substring(pospoint + 1);
+        }
         string propertyValue = attr.Value;
 
         if (attr.Prefix.ToLower().IndexOf("ref") != -1)					// Ignore ref: attributes
@@ -1142,7 +1152,7 @@ namespace MyXaml.Core
             if (OnGetResource != null)
             {
               int pos = refVal.IndexOf(' ');
-              object objValue = OnGetResource(this,obj, refVal.Substring(pos + 1));
+              object objValue = OnGetResource(this, obj, refVal.Substring(pos + 1));
               Type t = obj.GetType();
               PropertyInfo prop = t.GetProperty(propertyName);
               MethodInfo setInfo = prop.GetSetMethod();
@@ -1564,7 +1574,14 @@ namespace MyXaml.Core
             object objConv = null;									// do the conversion.
             try
             {
-              objConv = tc.ConvertFromInvariantString((string)val);
+              if ((string)val == "Auto" && pi.PropertyType == typeof(double))
+              {
+                objConv = (double)0.0;
+              }
+              else
+              {
+                objConv = tc.ConvertFromInvariantString((string)val);
+              }
             }
             catch
             {
@@ -1698,7 +1715,7 @@ namespace MyXaml.Core
         }
         try
         {
-          
+
           pi.SetValue(obj, classInstance, null);						// Assign the instance to the parent's property.
         }
         catch

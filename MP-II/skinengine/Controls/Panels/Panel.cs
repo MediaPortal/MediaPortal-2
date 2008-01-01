@@ -78,6 +78,7 @@ namespace SkinEngine.Controls.Panels
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+
     }
 
     /// <summary>
@@ -689,5 +690,27 @@ namespace SkinEngine.Controls.Panels
 
     #endregion
 
+
+    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p)
+    {
+      if (VisualParent == null) return;
+
+      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      {
+        p.X += ((DesiredSize.Width - child.DesiredSize.Width) / 2);
+      }
+      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      {
+        p.X += (DesiredSize.Width - child.DesiredSize.Width);
+      }
+      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        p.Y += ((DesiredSize.Height - child.DesiredSize.Height) / 2);
+      }
+      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+      {
+        p.Y += (DesiredSize.Height - child.DesiredSize.Height);
+      }
+    }
   }
 }

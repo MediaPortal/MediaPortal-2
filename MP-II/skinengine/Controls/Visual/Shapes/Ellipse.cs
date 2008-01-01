@@ -83,7 +83,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath path;
       if (Fill != null)
       {
-        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight));
+        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h));
         vertices = ConvertPathToTriangleFan(path, (int)+(centerX), (int)(centerY));
 
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
@@ -105,7 +105,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight));
+        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h));
         vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)StrokeThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);

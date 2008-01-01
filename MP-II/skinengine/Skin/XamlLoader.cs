@@ -68,7 +68,7 @@ namespace SkinEngine.Skin
         }
         if (result != null)
         {
-          Trace.WriteLine(String.Format("type:{0} is not clonable", result));
+          Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
           return result;
         }
       }
@@ -213,6 +213,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Polygon")
         return true;
+      else if (name == "CheckBox")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -324,6 +326,11 @@ namespace SkinEngine.Skin
       else if (name == "Button")
       {
         _lastElement = new Button();
+        return _lastElement;
+      }
+      else if (name == "CheckBox")
+      {
+        _lastElement = new CheckBox();
         return _lastElement;
       }
       else if (name == "Label")

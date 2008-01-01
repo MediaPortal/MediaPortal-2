@@ -37,13 +37,18 @@ using SkinEngine.Controls.Transforms;
 
 namespace SkinEngine.Controls.Visuals
 {
+  public enum VisibilityEnum
+  {
+    Visible = 0,
+    Hidden = 1,
+    Collapsed = 2,
+  }
   public class UIElement : Visual
   {
     Property _nameProperty;
     Property _keyProperty;
     Property _isFocusableProperty;
     Property _hasFocusProperty;
-    Property _visibleProperty;
     Property _acutalPositionProperty;
     Property _positionProperty;
     Property _dockProperty;
@@ -51,6 +56,7 @@ namespace SkinEngine.Controls.Visuals
     Property _triggerProperty;
     Property _renderTransformProperty;
     Property _renderTransformOriginProperty;
+    Property _visibilityProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     bool _isArrangeValid;
@@ -73,11 +79,11 @@ namespace SkinEngine.Controls.Visuals
       Key = el.Key;
       IsFocusable = el.IsFocusable;
       HasFocus = el.HasFocus;
-      IsVisible = el.IsVisible;
       ActualPosition = el.ActualPosition;
       Position = el.Position;
       Dock = el.Dock;
       Margin = el.Margin;
+      Visibility = el.Visibility;
       foreach (Transform t in el.RenderTransform)
       {
         RenderTransform.Add((Transform)t.Clone());
@@ -94,10 +100,10 @@ namespace SkinEngine.Controls.Visuals
         else
         {
           Resources[enumer.Key] = enumer.Value;
-          Trace.WriteLine(String.Format("type:{0} is not clonable", enumer.Value));
+          Trace.WriteLine(String.Format("resource type:{0} is not clonable", enumer.Value));
         }
       }
-      
+
       foreach (Trigger t in el.Triggers)
       {
         Triggers.Add((Trigger)t.Clone());
@@ -110,7 +116,6 @@ namespace SkinEngine.Controls.Visuals
       _keyProperty = new Property("");
       _isFocusableProperty = new Property(false);
       _hasFocusProperty = new Property(false);
-      _visibleProperty = new Property((bool)true);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
       _dockProperty = new Property(Dock.Top);
@@ -119,11 +124,20 @@ namespace SkinEngine.Controls.Visuals
       _triggerProperty = new Property(new TriggerCollection());
       _renderTransformProperty = new Property(new TransformGroup());
       _renderTransformOriginProperty = new Property(new Vector2(0, 0));
+      _visibilityProperty = new Property(VisibilityEnum.Visible);
 
-      _visibleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _visibilityProperty.Attach(new PropertyChangedHandler(OnVisibilityPropertyChanged));
+    }
+
+    void OnVisibilityPropertyChanged(Property property)
+    {
+      if (VisualParent != null)
+      {
+        VisualParent.Invalidate();
+      }
     }
 
     /// <summary>
@@ -149,6 +163,38 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+
+    /// <summary>
+    /// Gets or sets the visibility property.
+    /// </summary>
+    /// <value>The visibility property.</value>
+    public Property VisibilityProperty
+    {
+      get
+      {
+        return _visibilityProperty;
+      }
+      set
+      {
+        _visibilityProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the visibility.
+    /// </summary>
+    /// <value>The visibility.</value>
+    public VisibilityEnum Visibility
+    {
+      get
+      {
+        return (VisibilityEnum)_visibilityProperty.GetValue();
+      }
+      set
+      {
+        _visibilityProperty.SetValue(value);
+      }
+    }
 
 
     /// <summary>
@@ -399,22 +445,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
     /// <summary>
-    /// Gets or sets the is visible property.
-    /// </summary>
-    /// <value>The is visible property.</value>
-    public Property IsVisibleProperty
-    {
-      get
-      {
-        return _visibleProperty;
-      }
-      set
-      {
-        _visibleProperty = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets a value indicating whether this instance is visible.
     /// </summary>
     /// <value>
@@ -424,11 +454,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (bool)_visibleProperty.GetValue();
-      }
-      set
-      {
-        _visibleProperty.SetValue(value);
+        return (this.Visibility==VisibilityEnum.Visible);
       }
     }
 
