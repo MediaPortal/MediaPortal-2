@@ -179,9 +179,16 @@ namespace SkinEngine.Controls.Animations
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
           double progress = (timepassed - time);
-          progress /= (key.KeyTime.TotalMilliseconds - time);
-          Vector2 result = key.Interpolate(start, progress);
-          _property.SetValue(result);
+          if (progress == 0)
+          {
+            _property.SetValue(key.Value);
+          }
+          else
+          {
+            progress /= (key.KeyTime.TotalMilliseconds - time);
+            Vector2 result = key.Interpolate(start, progress);
+            _property.SetValue(result);
+          }
           return;
         }
         else

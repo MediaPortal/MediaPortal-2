@@ -178,6 +178,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         action.Setup(element);
       }
+      OnPropertyChanged(_property);
     }
 
     void OnPropertyChanged(Property p)

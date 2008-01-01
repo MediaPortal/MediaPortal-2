@@ -310,7 +310,7 @@ namespace SkinEngine.Controls.Visuals
             _mouseOver = true;
             FireEvent("OnMouseEnter");
           }
-          if (IsFocusable && !HasFocus)
+          if (IsEnabled && IsFocusable && !HasFocus)
           {
             HasFocus = true;
             FireEvent("OnGotFocus");
@@ -323,7 +323,7 @@ namespace SkinEngine.Controls.Visuals
         _mouseOver = false;
         FireEvent("OnMouseLeave");
       }
-      if (IsFocusable)
+      if (IsEnabled && IsFocusable)
       {
         if (HasFocus)
         {
@@ -348,7 +348,7 @@ namespace SkinEngine.Controls.Visuals
       {
         return null;
       }
-      if (IsFocusable)
+      if (IsEnabled && IsFocusable)
       {
         if (ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
         {
@@ -387,7 +387,7 @@ namespace SkinEngine.Controls.Visuals
       {
         return null;
       }
-      if (IsFocusable)
+      if (IsEnabled && IsFocusable)
       {
         if (ActualPosition.Y > focusedFrameworkElement.ActualPosition.Y)
         {
@@ -420,7 +420,7 @@ namespace SkinEngine.Controls.Visuals
       {
         return null;
       }
-      if (IsFocusable)
+      if (IsEnabled && IsFocusable)
       {
         if (ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
         {
@@ -442,7 +442,7 @@ namespace SkinEngine.Controls.Visuals
       {
         return null;
       }
-      if (IsFocusable)
+      if (IsEnabled && IsFocusable)
       {
         if (ActualPosition.X > focusedFrameworkElement.ActualPosition.X)
         {

@@ -172,7 +172,10 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
       else
       {
-        property.SetValue(_originalValue);
+        if (_originalValue != null)
+        {
+          property.SetValue(_originalValue);
+        }
       }
     }
 

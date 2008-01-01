@@ -427,6 +427,7 @@ namespace SkinEngine.Controls.Animations
             }
             else
             {
+              AnimateProperty((uint)Duration.TotalMilliseconds);
               Ended();
               _state = State.Ended;
             }
@@ -449,6 +450,7 @@ namespace SkinEngine.Controls.Animations
             }
             else
             {
+              AnimateProperty((uint)Duration.TotalMilliseconds);
               Ended();
               _state = State.Ended;
             }

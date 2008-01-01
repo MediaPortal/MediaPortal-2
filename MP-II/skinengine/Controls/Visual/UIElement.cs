@@ -716,7 +716,7 @@ namespace SkinEngine.Controls.Visuals
       return null;
     }
 
-    void InitializeTriggers()
+    public void InitializeTriggers()
     {
       foreach (Trigger trigger in Triggers)
       {
