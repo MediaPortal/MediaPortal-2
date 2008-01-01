@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Serialization;
 using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.Services.PathManager
@@ -48,6 +50,8 @@ namespace MediaPortal.Services.PathManager
       SetPath("LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
       SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
       SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+      SetPath("DEFAULTS", @"<APPLICATION_ROOT>\Defaults");
+      LoadDefaults();
     }
     #endregion
 
@@ -122,6 +126,33 @@ namespace MediaPortal.Services.PathManager
     public DirectoryInfo GetDirectoryInfo(string path)
     {
       return new DirectoryInfo(GetPath(path));
+    }
+    #endregion
+
+    #region private
+    private void LoadDefaults()
+    {
+      try
+      {
+        XmlSerializer s = new XmlSerializer(typeof(PathListFile));
+        TextReader r = new StreamReader(GetPath(@"<DEFAULTS>\Paths.xml"));
+        PathListFile defaults = (PathListFile)s.Deserialize(r);
+
+        foreach (PathDefinition path in defaults.Paths)
+        {
+          SetPath(path.Name, path.Value);
+        }
+      }
+      catch (Exception)
+      {
+        // If something is wrong with the defaults file use the following defaults
+        if (!Exists("USER_DATA"))
+          SetPath("USER_DATA", @"<COMMON_APPLICATION_DATA>\MediaPortal");
+        if (!Exists("CONFIG"))
+          SetPath("CONFIG", @"<USER_DATA>\Config");
+        if (!Exists("LOG"))
+          SetPath("LOG", @"<USER_DATA>\Log");
+      }
     }
     #endregion
   }
