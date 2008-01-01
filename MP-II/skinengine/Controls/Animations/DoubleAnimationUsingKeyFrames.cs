@@ -21,6 +21,7 @@
 */
 #endregion
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
@@ -206,6 +207,11 @@ namespace SkinEngine.Controls.Animations
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
+      if (_property == null)
+      {
+        Trace.WriteLine(String.Format("Property:{0}.{1} not found", TargetName, TargetProperty));
+        return;
+      }
       _originalValue = (double)_property.GetValue();
     }
 

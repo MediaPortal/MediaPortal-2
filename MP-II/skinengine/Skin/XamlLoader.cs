@@ -213,6 +213,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "Polygon")
         return true;
+      else if (name == "Path")
+        return true;
       else if (name == "CheckBox")
         return true;
       else if (name == "Resources")
@@ -356,6 +358,11 @@ namespace SkinEngine.Skin
       else if (name == "Polygon")
       {
         _lastElement = new SkinEngine.Controls.Visuals.Polygon();
+        return _lastElement;
+      }
+      else if (name == "Path")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.Path();
         return _lastElement;
       }
       else if (name == "Resources")

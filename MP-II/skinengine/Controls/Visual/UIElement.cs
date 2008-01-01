@@ -87,10 +87,10 @@ namespace SkinEngine.Controls.Visuals
       Margin = el.Margin;
       Visibility = el.Visibility;
       IsEnabled = el.IsEnabled;
-      foreach (Transform t in el.RenderTransform)
-      {
-        RenderTransform.Add((Transform)t.Clone());
-      }
+
+      if (el.RenderTransform != null)
+        RenderTransform = (Transform)el.RenderTransform.Clone();
+
       RenderTransformOrigin = el.RenderTransformOrigin;
       IDictionaryEnumerator enumer = el.Resources.GetEnumerator();
       while (enumer.MoveNext())
@@ -125,7 +125,7 @@ namespace SkinEngine.Controls.Visuals
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
-      _renderTransformProperty = new Property(new TransformGroup());
+      _renderTransformProperty = new Property(null);
       _renderTransformOriginProperty = new Property(new Vector2(0, 0));
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
@@ -548,11 +548,15 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the render transform.
     /// </summary>
     /// <value>The render transform.</value>
-    public TransformGroup RenderTransform
+    public Transform RenderTransform
     {
       get
       {
-        return _renderTransformProperty.GetValue() as TransformGroup;
+        return _renderTransformProperty.GetValue() as Transform;
+      }
+      set
+      {
+        _renderTransformProperty.SetValue(value);
       }
     }
     /// <summary>

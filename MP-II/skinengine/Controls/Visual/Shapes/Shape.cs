@@ -244,6 +244,10 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
     {
+      if (path.PathPoints.Length == 3)
+      {
+        return path.PathPoints;
+      }
       PointF[] points = path.PathPoints;
       int verticeCount = points.Length + 2;
       PointF[] vertices = new PointF[verticeCount];

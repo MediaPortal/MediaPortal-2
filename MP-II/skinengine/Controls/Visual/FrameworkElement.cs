@@ -472,7 +472,7 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Render()
     {
-      if (RenderTransform.Count != 0)
+      if (RenderTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix *= SkinContext.FinalMatrix.Matrix;
