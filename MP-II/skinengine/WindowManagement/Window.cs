@@ -457,7 +457,7 @@ namespace SkinEngine
       }
 #if TESTXAML
       _visual.OnKeyPressed(ref key);
-#endif
+#else
       for (int i = 0; i < _controls.Count; ++i)
       {
         _controls[i].OnKeyPressed(ref key);
@@ -473,6 +473,7 @@ namespace SkinEngine
           }
         }
       }
+#endif
     }
 
     /// <summary>
@@ -486,6 +487,9 @@ namespace SkinEngine
       {
         return;
       }
+#if TESTXAML
+      _visual.OnMouseMove(x, y);
+#else
       for (int i = 0; i < _controls.Count; ++i)
       {
         _controls[i].OnMouseMove(x, y);
@@ -501,8 +505,6 @@ namespace SkinEngine
           }
         }
       }
-#if TESTXAML
-      _visual.OnMouseMove(x, y);
 #endif
     }
 
