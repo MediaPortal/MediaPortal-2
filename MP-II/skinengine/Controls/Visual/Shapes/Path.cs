@@ -184,32 +184,107 @@ namespace SkinEngine.Controls.Visuals
         else if (ch == 'L')
         {
           //absolute Line
-          PointF point1 = GetPoint(ref i);
-          PointF point2 = GetPoint(ref i);
-          mPath.AddLine(lastPoint, point1);
-          mPath.AddLine(point1, point2);
-          lastPoint = new PointF(point2.X, point2.Y);
+          ++i;
           while (true)
           {
             if (Data[i] == ' ') i++;
             if (Data[i] < '0' || Data[i] > '9') break;
             i--;
-            point1 = GetPoint(ref i);
+            PointF point1 = GetPoint(ref i);
             mPath.AddLine(lastPoint, point1);
             lastPoint = new PointF(point1.X, point1.Y);
+            if (i >= Data.Length) break;
           }
         }
         else if (ch == 'l')
         {
           //relative Line
+          ++i;
           while (true)
           {
-            PointF point1 = GetPoint(ref i);
-            mPath.AddLine(lastPoint, point1);
-            lastPoint = new PointF(point1.X, point1.Y);
             if (Data[i] == ' ') i++;
             if (Data[i] < '0' || Data[i] > '9') break;
             i--;
+            PointF point1 = GetPoint(ref i);
+            point1.X += lastPoint.X;
+            point1.Y += lastPoint.Y;
+            mPath.AddLine(lastPoint, point1);
+            lastPoint = new PointF(point1.X, point1.Y);
+            if (i >= Data.Length) break;
+          }
+        }
+        else if (ch == 'H')
+        {
+          //Horizontal line to absolute X
+          float x = GetDecimal(ref i);
+          PointF point1 = new PointF(x, lastPoint.Y);
+          mPath.AddLine(lastPoint, point1);
+          lastPoint = new PointF(point1.X, point1.Y);
+        }
+        else if (ch == 'h')
+        {
+          //Horizontal line to relative X
+          float x = GetDecimal(ref i);
+          PointF point1 = new PointF(lastPoint.X + x, lastPoint.Y);
+          mPath.AddLine(lastPoint, point1);
+          lastPoint = new PointF(point1.X, point1.Y);
+        }
+        else if (ch == 'V')
+        {
+          //Vertical line to absolute y
+          float y = GetDecimal(ref i);
+          PointF point1 = new PointF(lastPoint.X, y);
+          mPath.AddLine(lastPoint, point1);
+          lastPoint = new PointF(point1.X, point1.Y);
+        }
+        else if (ch == 'v')
+        {
+          //Vertical line to relative y
+          float y = GetDecimal(ref i);
+          PointF point1 = new PointF(lastPoint.X, lastPoint.Y + y);
+          mPath.AddLine(lastPoint, point1);
+          lastPoint = new PointF(point1.X, point1.Y);
+        }
+        else if (ch == 'C')
+        {
+          //Quadratic Bezier Curve Command
+          ++i;
+          while (true)
+          {
+            if (Data[i] == ' ') i++;
+            if (Data[i] < '0' || Data[i] > '9') break;
+            i--;
+            PointF controlPoint1 = GetPoint(ref i);
+            PointF controlPoint2 = GetPoint(ref i);
+            PointF endpoint = GetPoint(ref i);
+            mPath.AddBezier(lastPoint, controlPoint1, controlPoint2, endpoint);
+            lastPoint = new PointF(endpoint.X, endpoint.Y);
+            if (i >= Data.Length) break;
+          }
+        }
+        else if (ch == 'c')
+        {
+          //Quadratic Bezier Curve Command
+          ++i;
+          while (true)
+          {
+            if (Data[i] == ' ') i++;
+            if (Data[i] < '0' || Data[i] > '9') break;
+            i--;
+            PointF controlPoint1 = GetPoint(ref i);
+            PointF controlPoint2 = GetPoint(ref i);
+            PointF endpoint = GetPoint(ref i);
+            controlPoint1.X += lastPoint.X;
+            controlPoint1.Y += lastPoint.Y;
+
+            controlPoint2.X += lastPoint.X;
+            controlPoint2.Y += lastPoint.Y;
+
+            endpoint.X += lastPoint.X;
+            endpoint.Y += lastPoint.Y;
+            mPath.AddBezier(lastPoint, controlPoint1, controlPoint2, endpoint);
+            lastPoint = new PointF(endpoint.X, endpoint.Y);
+            if (i >= Data.Length) break;
           }
         }
         else if (ch == 'z')
@@ -223,7 +298,6 @@ namespace SkinEngine.Controls.Visuals
           ++i;
         }
       }
-
       RectangleF bounds = mPath.GetBounds();
       float w = bounds.Width;
       float h = bounds.Height;
@@ -254,6 +328,20 @@ namespace SkinEngine.Controls.Visuals
       return mPath;
     }
 
+    float GetDecimal(ref int i)
+    {
+      i++;
+      string pointTxt = "";
+      while ((Data[i] >= '0' && Data[i] <= '9') || (Data[i] == '.'))
+      {
+        pointTxt += Data[i];
+        ++i;
+        if (i >= Data.Length) break;
+      }
+      pointTxt = pointTxt.Trim();
+      float x = GetFloat(pointTxt);
+      return x;
+    }
     PointF GetPoint(ref int i)
     {
       i++;
@@ -262,6 +350,7 @@ namespace SkinEngine.Controls.Visuals
       {
         pointTxt += Data[i];
         ++i;
+        if (i >= Data.Length) break;
       }
       pointTxt = pointTxt.Trim();
       string[] parts = pointTxt.Split(new char[] { ',' });

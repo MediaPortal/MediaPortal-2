@@ -429,6 +429,114 @@
     </Style>
 
 
+    <!-- style for a close button (used on dialog windows -->
+    <Style Key="MpCloseButton" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="Focused">
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFECF2F8"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFFFFFF"/>
+                </ColorAnimationUsingKeyFrames>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Canvas Name="grid" Width="48" Height="48">
+              <Ellipse  Stroke="{Null}" StrokeThickness="4" HorizontalAlignment="Stretch" Margin="0.022,-0.026,-0.022,0.026" Name="ButtonBackground" Width="48" Height="48">
+                <Ellipse.Fill>
+                  <RadialGradientBrush>
+                    <GradientStop Color="#FF051E3C" Offset="0"/>
+                    <GradientStop Color="#FF173D6D" Offset="0.827"/>
+                    <GradientStop Color="#FF1A5196" Offset="0.909"/>
+                    <GradientStop Color="#E5105EB9" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Fill>
+              </Ellipse>
+              <Ellipse StrokeThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="41" Height="41" Name="ButtonShape" RenderTransformOrigin="0.5,0.5" Stroke="{Null}" Margin="3.513,3.53,3.487,0">
+                <Ellipse.Fill>
+                  <RadialGradientBrush GradientOrigin="0.499,0.915">
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="0.993"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="0.001" Y="0.001"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                    <GradientStop Color="#FFECF2F8" Offset="0.332"/>
+                    <GradientStop Color="#FF5F8FC9" Offset="0.798"/>
+                    <GradientStop Color="#FF0F529F" Offset="1"/>
+                  </RadialGradientBrush>
+                </Ellipse.Fill>
+                <Ellipse.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="0" Y="0"/>
+                  </TransformGroup>
+                </Ellipse.RenderTransform>
+              </Ellipse>
+              <Path Stretch="Fill" Stroke="#FF17488B" StrokeThickness="4" HorizontalAlignment="Left" Margin="15.025,15.056,0,0" VerticalAlignment="Top" Width="18" Height="18" Data="M530,102.75 L550,83" RenderTransformOrigin="0.5,0.5" Name="Part1Of_X">
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="0" Y="0"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path Fill="#FFFFFFFF" Stretch="Fill" Stroke="#FF17488B" StrokeThickness="4" HorizontalAlignment="Left" Margin="15.025,15.056,0,0" VerticalAlignment="Top" Width="18" Height="18" Data="M532.875,87 L545.34523,99.52806" RenderTransformOrigin="0.5,0.5" Name="Part2Of_X">
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="0" Y="0"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path Stretch="Fill" Stroke="{Null}" StrokeThickness="2" HorizontalAlignment="Left" Margin="3.513,3.53,0,19.47" Name="Highlight" VerticalAlignment="Stretch" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
+                <Path.Fill>
+                  <RadialGradientBrush GradientOrigin="0.502,1.296">
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.97" ScaleY="1.257"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="0.01" Y="0.334"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#59FFFFFF" Offset="0"/>
+                    <GradientStop Color="#66E5EFF2" Offset="0.74"/>
+                    <GradientStop Color="#19FFFFFF" Offset="0.99"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+              </Path>
+            </Canvas>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard" Storyboard="{StaticResource Focused}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
     <Style Key="MpArrowButtonLeft" BasedOn="{Null}" TargetType="{Type Button}">
       <Setter Property="Template">
         <Setter.Value>

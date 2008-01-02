@@ -22,12 +22,15 @@
     </Grid>
     <Button Name="btn1" Width="200" Height="32" Style="{StaticResource MpButton}"/>
     <CheckBox Name="btn3" Width="200" Height="32" Style="{StaticResource MpCheckBox}"/>
-    
     <CheckBox Name="btn2" Width="200" Height="32" Style="{StaticResource MpRadioButton}"/>
+    <Button Name="btn2" Width="200" Height="32" Style="{StaticResource MpCloseButton}"/>
+
     <Rectangle Width="200" Height="32" Margin="0,10,0,10" StrokeThickness="2" Stroke="Red" Fill="Blue"/>
     <Ellipse Width="200" Height="32" Margin="0,10,0,10"  StrokeThickness="2" Stroke="Red" Fill="Blue" />
     <Polygon  Stroke="Red" Fill="Blue" Margin="0,10,0,10" StrokeThickness="2" Points="0,0 30,0 60,30 60,60 30,60 0,30"/>
-    <Line X1="0" Y1="50" X2="100" Y2="50"   Fill="Blue"  />
     
+    <Path Stroke="Red" Stretch="Fill"  Fill="Blue" StrokeThickness="2" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z"/>
+
+    <!--<Line X1="0" Y1="50" X2="100" Y2="50"  StrokeThickness="2" Stroke="Blue"  />-->
   </StackPanel>
 </MyXaml>
