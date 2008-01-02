@@ -103,6 +103,8 @@ namespace SkinEngine
                                                       Format.A8R8G8B8);
       int vertexShaderVersion = Device.DeviceCaps.VertexShaderVersion.Major;
       int pixelShaderVersion = Device.DeviceCaps.PixelShaderVersion.Major;
+      ServiceScope.Get<ILogger>().Info("Pixel shader support:{0}.{1}", Device.DeviceCaps.PixelShaderVersion.Major, Device.DeviceCaps.PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("Vertex shader support:{0}.{1}", Device.DeviceCaps.VertexShaderVersion.Major, Device.DeviceCaps.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;
