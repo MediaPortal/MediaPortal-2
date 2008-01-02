@@ -38,6 +38,7 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Skin;
+using Control = SkinEngine.Controls.Control;
 namespace SkinEngine
 {
   public class Window : IWindow

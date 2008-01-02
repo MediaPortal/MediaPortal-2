@@ -302,10 +302,10 @@ namespace SkinEngine.Controls.Visuals
       float w = bounds.Width;
       float h = bounds.Height;
       float scaleX = 1;
-      if (baseRect.Width > 0 && Stretch != Stretch.None)
-        scaleX = ((float)baseRect.Width) / w;
       float scaleY = 1;
-      if (baseRect.Height > 0 && Stretch != Stretch.None)
+      if (w > 0 && baseRect.Width > 0 && Stretch != Stretch.None)
+        scaleX = ((float)baseRect.Width) / w;
+      if (h > 0 && baseRect.Height > 0 && Stretch != Stretch.None)
         scaleY = ((float)baseRect.Height) / h;
 
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();

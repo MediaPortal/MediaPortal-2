@@ -245,6 +245,14 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "CheckBox")
         return true;
+      else if (name == "ListView")
+        return true;
+      else if (name == "DataTemplate")
+        return true;
+      else if (name == "StyleSelector")
+        return true;
+      else if (name == "DataTemplateSelector")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -405,6 +413,17 @@ namespace SkinEngine.Skin
         _lastElement = new SkinEngine.Controls.Visuals.Path();
         return _lastElement;
       }
+      else if (name == "ListView")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.ListView();
+        return _lastElement;
+      }
+      else if (name == "DataTemplate")
+        return new SkinEngine.Controls.Visuals.DataTemplate();
+      else if (name == "StyleSelector")
+        return new SkinEngine.Controls.Visuals.StyleSelector();
+      else if (name == "DataTemplateSelector")
+        return new SkinEngine.Controls.Visuals.DataTemplateSelector();
       else if (name == "Resources")
         return new ResourceDictionary();
       else if (name == "ResourceDictionary")

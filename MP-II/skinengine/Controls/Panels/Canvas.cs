@@ -72,7 +72,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      _availablePoint = new Point(finalRect.Location.X,finalRect.Location.Y);
+      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
       Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);
@@ -86,12 +86,36 @@ namespace SkinEngine.Controls.Panels
       {
         if (!child.IsVisible) continue;
         Point p = new Point((int)(child.Position.X + this.ActualPosition.X), (int)(child.Position.Y + this.ActualPosition.Y));
-        //ArrangeChild(child, ref p);
+        double widthPerCell = ActualWidth - (child.Position.X - this.ActualPosition.X);
+        double heightPerCell = ActualHeight - (child.Position.Y - this.ActualPosition.Y);
+        ArrangeChild(child, ref p);
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }
       base.PerformLayout();
       base.Arrange(layoutRect);
+    }
+
+    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p, double widthPerCell, double heightPerCell)
+    {
+      if (VisualParent == null) return;
+
+      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      {
+        p.X += (int)((widthPerCell - child.DesiredSize.Width) / 2);
+      }
+      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      {
+        p.X += (int)(widthPerCell - child.DesiredSize.Width);
+      }
+      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        p.Y += (int)((heightPerCell - child.DesiredSize.Height) / 2);
+      }
+      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+      {
+        p.Y += (int)(heightPerCell - child.DesiredSize.Height);
+      }
     }
   }
 }

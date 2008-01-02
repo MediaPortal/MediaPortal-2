@@ -177,9 +177,15 @@
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\Button.cs" />
     <Compile Include="Controls\Visual\CheckBox.cs" />
+    <Compile Include="Controls\Visual\Control.cs" />
+    <Compile Include="Controls\Visual\DataTemplate.cs" />
+    <Compile Include="Controls\Visual\DataTemplateSelector.cs" />
     <Compile Include="Controls\Visual\FrameworkElement.cs" />
     <Compile Include="Controls\Visual\Image.cs" />
+    <Compile Include="Controls\Visual\ItemCollection.cs" />
+    <Compile Include="Controls\Visual\ItemsControl.cs" />
     <Compile Include="Controls\Visual\Label.cs" />
+    <Compile Include="Controls\Visual\ListView.cs" />
     <Compile Include="Controls\Visual\ResourceDictionary.cs" />
     <Compile Include="Controls\Visual\Shapes\Ellipse.cs" />
     <Compile Include="Controls\Visual\Shapes\Line.cs" />
@@ -188,6 +194,7 @@
     <Compile Include="Controls\Visual\Shapes\Polygon.cs" />
     <Compile Include="Controls\Visual\Shapes\Rectangle.cs" />
     <Compile Include="Controls\Visual\Shapes\Shape.cs" />
+    <Compile Include="Controls\Visual\StyleSelector.cs" />
     <Compile Include="Controls\Visual\Styles\ControlTemplate.cs" />
     <Compile Include="Controls\Visual\Styles\Setter.cs" />
     <Compile Include="Controls\Visual\Styles\Style.cs" />
