@@ -276,6 +276,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "DataTemplateSelector")
         return true;
+      else if (name == "ContentPresenter")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -439,6 +441,11 @@ namespace SkinEngine.Skin
       else if (name == "ListView")
       {
         _lastElement = new SkinEngine.Controls.Visuals.ListView();
+        return _lastElement;
+      }
+      else if (name == "ContentPresenter")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.ContentPresenter();
         return _lastElement;
       }
       else if (name == "DataTemplate")

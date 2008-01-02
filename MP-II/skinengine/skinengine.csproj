@@ -177,6 +177,7 @@
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\Button.cs" />
     <Compile Include="Controls\Visual\CheckBox.cs" />
+    <Compile Include="Controls\Visual\ContentPresenter.cs" />
     <Compile Include="Controls\Visual\Control.cs" />
     <Compile Include="Controls\Visual\DataTemplate.cs" />
     <Compile Include="Controls\Visual\DataTemplateSelector.cs" />

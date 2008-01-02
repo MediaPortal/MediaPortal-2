@@ -41,6 +41,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     public DataTemplate(DataTemplate template)
+      : base(template)
     {
     }
 
