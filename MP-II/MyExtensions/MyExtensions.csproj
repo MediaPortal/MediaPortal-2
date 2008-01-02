@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionUpdate.cs" />
     <Compile Include="FileUtil.cs" />
     <Compile Include="FolderItem.cs" />
     <Compile Include="Helper Classes\PackageProperty.cs" />

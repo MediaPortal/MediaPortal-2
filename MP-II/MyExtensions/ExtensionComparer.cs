@@ -31,7 +31,8 @@ namespace MyExtensions
   {
     Name,
     Downloads,
-    Size
+    Size,
+    Date
   } ;
 
   internal class ExtensionComparer : IComparer<ListItem>
@@ -100,7 +101,13 @@ namespace MyExtensions
           {
             ExtensionItem m1 = (ExtensionItem) x;
             ExtensionItem m2 = (ExtensionItem) y;
-            return m1.Size.CompareTo(m2.Size);
+            return m1.Item.Size.CompareTo(m2.Item.Size);
+          }
+        case SortOption.Date:
+          {
+            ExtensionItem m1 = (ExtensionItem)x;
+            ExtensionItem m2 = (ExtensionItem)y;
+            return m1.Item.Date.CompareTo(m2.Item.Date);
           }
       }
       return 0;

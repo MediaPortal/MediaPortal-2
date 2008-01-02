@@ -301,9 +301,19 @@ namespace MediaPortal.Services.MPIManager
           obj.DownloadUrl = nodeext.Attributes["url"].Value;
           obj.Author = nodeext.Attributes["author"].Value;
           obj.Description = nodeext.Attributes["desc"].Value;
+
+          DateTime d = obj.Date;
+          DateTime.TryParse(nodeext.Attributes["date"].Value, out d);
+          obj.Date = d;
+
           int i = 0;
           int.TryParse(nodeext.Attributes["desc"].Value, out i);
           obj.Downloads = i;
+
+          i = 0;
+          int.TryParse(nodeext.Attributes["size"].Value, out i);
+          obj.Size = i;
+
           Add(obj);
         }
       }
@@ -339,9 +349,19 @@ namespace MediaPortal.Services.MPIManager
             obj.Author = nodepak.Attributes["Author"].Value;
             obj.Description = nodepak.Attributes["Description"].Value;
             obj.DownloadUrl = nodepak.Attributes["DownloadUrl"].Value;
+            
+            DateTime d = obj.Date;
+            DateTime.TryParse(nodepak.Attributes["Date"].Value,out d);
+            obj.Date = d;
+
             int i = 0;
             int.TryParse(nodepak.Attributes["Downloads"].Value,out i);
             obj.Downloads = i;
+            
+            i = 0;
+            int.TryParse(nodepak.Attributes["Size"].Value, out i);
+            obj.Size = i;
+
             switch (nodepak.Attributes["State"].Value)
             {
               case "Local":
@@ -426,6 +446,8 @@ namespace MediaPortal.Services.MPIManager
               writer.WriteAttributeString("Description", ob.Description);
               writer.WriteAttributeString("DownloadUrl", ob.DownloadUrl);
               writer.WriteAttributeString("Downloads", ob.Downloads.ToString());
+              writer.WriteAttributeString("Date", ob.Date.ToString());
+              writer.WriteAttributeString("Size", ob.Size.ToString());
               writer.WriteStartElement("Dependencies");
               foreach (MPIDependency dep in ob.Dependencies)
               {

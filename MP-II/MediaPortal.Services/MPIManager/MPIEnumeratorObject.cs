@@ -35,19 +35,10 @@ namespace MediaPortal.Services.MPIManager
       :base(package)
     {
       this.State = state;
-      //this.PackageId = package.PackageId;
-      //this.ExtensionId = package.ExtensionId;
-      //this.Name = package.Name;
-      //this.FileName = package.FileName;
-      //this.Version = package.Version;
-      //this.VersionType = package.VersionType;
-      //this.Author = package.Author;
-      //this.ExtensionType = package.ExtensionType;
-      //this.Description = package.Description;
-      //this.Items = package.Items;
-      //this.Dependencies = package.Dependencies;
-      //this.DownloadUrl = string.Empty;
-      //this.Downloads = 0;
+      this.DownloadUrl = string.Empty;
+      this.Downloads = 0;
+      this.Date = DateTime.MinValue;
+      this.Size = 0;
     }
 
     public MPIEnumeratorObject()
@@ -56,6 +47,8 @@ namespace MediaPortal.Services.MPIManager
       this.State =MPIPackageState.Unknown;
       this.DownloadUrl = string.Empty;
       this.Downloads = 0;
+      this.Date = DateTime.MinValue;
+      this.Size = 0;
     }
 
     public MPIEnumeratorObject(MPIDependency dep)
@@ -71,6 +64,8 @@ namespace MediaPortal.Services.MPIManager
       this.Description = string.Empty;
       this.DownloadUrl = string.Empty;
       this.Downloads = 0;
+      this.Date = DateTime.MinValue;
+      this.Size = 0;
     }
 
     public MPIEnumeratorObject(MPIEnumeratorObject obj)
@@ -80,6 +75,8 @@ namespace MediaPortal.Services.MPIManager
       this.Description = obj.Description;
       this.DownloadUrl = obj.DownloadUrl;
       this.Downloads = obj.Downloads;
+      this.Date = obj.Date;
+      this.Size = obj.Size;
     }
 
     MPIPackageState _state = MPIPackageState.Unknown;
@@ -126,6 +123,40 @@ namespace MediaPortal.Services.MPIManager
       set
       {
         _downloads = value;
+      }
+    }
+
+    DateTime _date;
+    /// <summary>
+    /// Gets or sets the creation date.
+    /// </summary>
+    /// <value>The date.</value>
+    public DateTime Date
+    {
+      get
+      {
+        return _date;
+      }
+      set
+      {
+        _date = value;
+      }
+    }
+
+    int _size;
+    /// <summary>
+    /// Gets or sets the size of mpi file.
+    /// </summary>
+    /// <value>The size.</value>
+    public int Size
+    {
+      get
+      {
+        return _size;
+      }
+      set
+      {
+        _size = value;
       }
     }
 

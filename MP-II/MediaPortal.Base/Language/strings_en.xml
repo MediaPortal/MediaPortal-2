@@ -272,6 +272,8 @@
     <String name="cancelupdate" text="Cancel update"/>
     <String name="name" text="Name"/>
     <String name="downloads" text="Downloads"/>
+	<String name="size" text="Size"/>
+	<String name="date" text="Date"/>
     <String name="reinstall" text="Reinstall"/>
     <String name="installinfo" text="This action will be executed in next restart of MediaPortal"/>
     <String name="dependecyinfo" text="This extension depend one ore more extension this will be installed to. Continue ?"/>
