@@ -69,7 +69,7 @@ address
 	background-color: #a6f178;
 	color: black;
 }
-.failure 
+.error 
 {
 	background-color: #f18888;
 	color: black;
@@ -77,6 +77,11 @@ address
 .warning
 {
 	background-color: #f1de78;
+	color: black;
+}
+.question
+{
+	background-color: #bed6f1;
 	color: black;
 }
 .buildreport 

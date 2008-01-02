@@ -48,18 +48,18 @@ namespace MediaPortal.Tools.BuildReport
       if (solution.Failed > 0 || solution.TotalErrors > 0)
       {
         failed = true;
-        report.WriteLine("<tr align=\"left\" class=\"failure\">");
-        report.WriteLine("  <td width=\"4%\">");
+        report.WriteLine("<tr align=\"left\" class=\"error\">");
+        report.WriteLine("  <td width=\"2%\">");
         report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_error_sml.gif\" alt=\"error\">");
       }
       else
       {
         report.WriteLine("<tr align=\"left\" class=\"success\">");
-        report.WriteLine("  <td width=\"4%\">");
+        report.WriteLine("  <td width=\"2%\">");
         report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_success_sml.gif\" alt=\"success\">");
       }
       report.WriteLine("   </td> ");
-      report.WriteLine("  <td>{0}</td>", solution.Name);
+      report.WriteLine("  <td>&nbsp;{0}</td>", solution.Name);
       report.WriteLine("  <td>{0}</td>", solution.Succeeded.ToString());
       report.WriteLine("  <td>{0}</td>", solution.Failed.ToString());
       report.WriteLine("  <td>{0}</td>", solution.Skipped.ToString());
@@ -88,36 +88,17 @@ namespace MediaPortal.Tools.BuildReport
       report.WriteLine("<th width=\"10%\" align=\"left\">Warnings</th>");
       report.WriteLine("</tr>");
 
-      foreach(Project project in solution.Projects)
+      foreach (Project project in solution.Projects)
         WriteProject(project);
     }
 
     public void WriteProject(Project project)
     {
-      if (project.errors > 0)
-      {
-        report.WriteLine("<tr align=\"left\" class=\"failure\">");
-        report.WriteLine("  <td width=\"4%\">");
-        report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_error_sml.gif\" alt=\"error\">");
-      }
-      else
-      {
-        if (project.warnings > 0)
-        {
-          report.WriteLine("<tr align=\"left\" class=\"warning\">");
-          report.WriteLine("  <td width=\"4%\">");
-          report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_warning_sml.gif\" alt=\"warning\">");
-
-        }
-        else
-        {
-          report.WriteLine("<tr align=\"left\" class=\"success\">");
-          report.WriteLine("  <td width=\"4%\">");
-          report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_success_sml.gif\" alt=\"success\">");
-        }
-      }
-      report.WriteLine("   </td> ");
-      report.WriteLine("  <td>{0}</td>", project.name);
+      report.WriteLine(" <tr align=\"left\" class=\"{0}\">", project.Type.ToString());
+      report.WriteLine("  <td width=\"2%\">");
+      report.WriteLine("   <img width=\"15\" height=\"15\" src=\"./images/icon_{0}_sml.gif\" alt=\"{0}\">", project.Type.ToString());
+      report.WriteLine("  </td> ");
+      report.WriteLine("  <td>&nbsp;{0}</td>", project.name);
       report.WriteLine("  <td>{0}</td>", project.build.ToString());
       report.WriteLine("  <td>{0}</td>", project.errors.ToString());
       report.WriteLine("  <td>{0}</td>", project.warnings.ToString());
