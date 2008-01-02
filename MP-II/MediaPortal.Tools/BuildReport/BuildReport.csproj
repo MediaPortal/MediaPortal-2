@@ -35,10 +35,17 @@
   <ItemGroup>
     <Compile Include="BuildReport.cs" />
     <Compile Include="AnalyseInput.cs" />
+    <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Solution.cs" />
     <Compile Include="WriteReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

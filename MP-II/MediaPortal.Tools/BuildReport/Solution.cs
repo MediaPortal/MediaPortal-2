@@ -3,13 +3,72 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace BuildReport
+namespace MediaPortal.Tootls.BuildReport
 {
   class Solution
   {
-    public string name;
-    public int succeeded = 0;
-    public int failed = 0;
-    public int skipped = 0;
+    string _name;
+    int _succeeded = 0;
+    int _failed = 0;
+    int _skipped = 0;
+    int _totalWarnings = 0;
+    int _totalErrors = 0;
+    List<Project> _projects;
+
+    public Solution()
+    {
+      _succeeded = 0;
+      _failed = 0;
+      _skipped = 0;
+      _totalWarnings = 0;
+      _totalErrors = 0;
+      _projects = new List<Project>();
+    }
+
+    public String Name
+    {
+      get { return _name; }
+      set { _name = value; }
+    }
+
+    public int Succeeded
+    {
+      get { return _succeeded; }
+      set { _succeeded = value; }
+    }
+
+    public int Failed
+    {
+      get { return _failed; }
+      set { _failed = value; }
+    }
+
+    public int Skipped
+    {
+      get { return _skipped; }
+      set { _skipped = value; }
+    }
+
+    public int TotalWarnings
+    {
+      get { return _totalWarnings; }
+    }
+
+    public int TotalErrors
+    {
+      get { return _totalErrors; }
+    }
+
+    public List<Project> Projects
+    {
+      get { return _projects; }
+    }
+
+    public void AddProject(Project newProject)
+    {
+      _totalErrors += newProject.errors;
+      _totalWarnings += newProject.warnings;
+      _projects.Add(newProject);
+    }
   }
 }

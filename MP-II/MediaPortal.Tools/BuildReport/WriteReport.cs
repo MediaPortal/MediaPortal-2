@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace BuildReport
+namespace MediaPortal.Tootls.BuildReport
 {
   class WriteReport
   {
     StreamWriter report;
 
-    public WriteReport(string filename, string svn)
+    public WriteReport(string filename, string title)
     {
       report = File.CreateText(filename);
 
@@ -17,11 +17,11 @@ namespace BuildReport
       report.WriteLine("<html>");
       report.WriteLine("<head>");
       report.WriteLine("<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">");
-      report.WriteLine("<title>MediaPortal - Build Results {0}</title>", svn);
+      report.WriteLine("<title>{0}</title>", title);
       report.WriteLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"./css/BuildReport.css\" title=\"Style\">");
       report.WriteLine("</head>");
       report.WriteLine("<body>");
-      report.WriteLine("<h2>MediaPortal Build Results {0}</h2>", svn);
+      report.WriteLine("<h2>{0}</h2>", title);
       report.WriteLine("<hr>");
       report.WriteLine("<h2>");
       report.WriteLine("<a name=\"Solution\">Solution</a>");
@@ -33,17 +33,21 @@ namespace BuildReport
       report.WriteLine("</p>");
       report.WriteLine("<table border=\"0\" rules=\"none\" width=\"100%\">");
       report.WriteLine("<tr align=\"left\" class=\"title\">");
-      report.WriteLine("<th width=\"70%\" align=\"left\" colspan=\"2\">Name</th>");
+      report.WriteLine("<th width=\"50%\" align=\"left\" colspan=\"2\">Name</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Succeeded</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Failed</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Skipped</th>");
+      report.WriteLine("<td width=\"10%\" align=\"left\">Total Errors</th>");
+      report.WriteLine("<td width=\"10%\" align=\"left\">Total Warnings</th>");
       report.WriteLine("</tr>");
     }
 
     public void WriteSolution(Solution solution)
     {
-      if (solution.failed > 0)
+      bool failed = false;
+      if (solution.Failed > 0 || solution.TotalErrors > 0)
       {
+        failed = true;
         report.WriteLine("<tr align=\"left\" class=\"failure\">");
         report.WriteLine("  <td width=\"4%\">");
         report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_error_sml.gif\" alt=\"error\">");
@@ -55,10 +59,16 @@ namespace BuildReport
         report.WriteLine("    <img width=\"15\" height=\"15\" src=\"./images/icon_success_sml.gif\" alt=\"success\">");
       }
       report.WriteLine("   </td> ");
-      report.WriteLine("  <td>{0}</td>", solution.name);
-      report.WriteLine("  <td>{0}</td>", solution.succeeded.ToString());
-      report.WriteLine("  <td>{0}</td>", solution.failed.ToString());
-      report.WriteLine("  <td>{0}</td>", solution.skipped.ToString());
+      report.WriteLine("  <td>{0}</td>", solution.Name);
+      report.WriteLine("  <td>{0}</td>", solution.Succeeded.ToString());
+      report.WriteLine("  <td>{0}</td>", solution.Failed.ToString());
+      report.WriteLine("  <td>{0}</td>", solution.Skipped.ToString());
+      report.WriteLine("  <td>{0}</td>", solution.TotalErrors.ToString());
+      if (!failed && solution.TotalWarnings > 0)
+        report.WriteLine("  <td class=\"warning\">");
+      else
+        report.WriteLine("  <td>");
+      report.WriteLine("  {0}</td>", solution.TotalWarnings.ToString());
       report.WriteLine(" </tr>");
       report.WriteLine(" </table>");
       report.WriteLine("<hr>");
@@ -77,6 +87,9 @@ namespace BuildReport
       report.WriteLine("<th width=\"10%\" align=\"left\">Errors</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Warnings</th>");
       report.WriteLine("</tr>");
+
+      foreach(Project project in solution.Projects)
+        WriteProject(project);
     }
 
     public void WriteProject(Project project)
