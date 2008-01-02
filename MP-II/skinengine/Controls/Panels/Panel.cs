@@ -386,6 +386,15 @@ namespace SkinEngine.Controls.Panels
       }
       return null;
     }
+    public override UIElement FindElementType(Type t)
+    {
+      foreach (UIElement element in Children)
+      {
+        UIElement found = element.FindElementType(t);
+        if (found != null) return found;
+      }
+      return null;
+    }
 
     #region IList Members
 

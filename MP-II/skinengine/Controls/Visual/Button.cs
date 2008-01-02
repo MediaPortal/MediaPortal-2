@@ -260,6 +260,17 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindElement(name);
     }
+
+    public override UIElement FindElementType(Type t)
+    {
+      if (Template != null)
+      {
+        UIElement o = Template.FindElementType(t);
+        if (o != null) return o;
+      }
+      return base.FindElementType(t);
+    }
+
     /// <summary>
     /// Called when [mouse move].
     /// </summary>

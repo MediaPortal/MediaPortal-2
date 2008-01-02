@@ -53,6 +53,7 @@ namespace MyXaml.Core
     public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
 
     public delegate object GetResourceDlgt(object parser, object obj, string resourceName);
+    public delegate void SetContentDlg(object parser, object obj, object content);
 
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
@@ -82,6 +83,7 @@ namespace MyXaml.Core
     public event CustomTypeConverterDlgt CustomTypeConvertor;
 
     public event GetResourceDlgt OnGetResource;
+    public event SetContentDlg OnSetContent;
 
     protected string currentFile;
 
@@ -902,6 +904,18 @@ namespace MyXaml.Core
           if (!specialPrefixes.Contains(collectionElement.Prefix))
           {
             bool ret = ProcessElement(classInstance, collectionElement);	// Process the element
+          }
+        }
+        else if (collectionElement is XmlComment)
+        {
+          //skip comments
+        }
+        else if (collectionElement is XmlText)
+        {
+          //content...
+          if (OnSetContent != null)
+          {
+            OnSetContent(this, classInstance, collectionElement.Value);
           }
         }
       }
@@ -1907,6 +1921,15 @@ namespace MyXaml.Core
         //}
 
         ret = OnAddToCollection(obj, classInstance, node);				// let an extender manage adding the instance.
+      }
+      else
+      {
+        if (OnSetContent != null)
+        {
+          ProcessAttributes(classInstance, node);							// process attributes before adding instance to collection!
+          OnSetContent(this, obj, classInstance);
+          ret = true;
+        }
       }
       return ret;
     }

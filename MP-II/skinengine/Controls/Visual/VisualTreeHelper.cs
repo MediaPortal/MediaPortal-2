@@ -96,6 +96,11 @@ namespace SkinEngine.Controls.Visuals
       }
       return obj;
     }
+
+    public object FindElementType(UIElement element, Type t)
+    {
+      return element.FindElementType(t);
+    }
     /// <summary>
     /// Finds the element with the name
     /// </summary>

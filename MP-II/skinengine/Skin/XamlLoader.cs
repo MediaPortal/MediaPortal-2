@@ -36,9 +36,11 @@ namespace SkinEngine.Skin
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
+        parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         return parser.Instantiate(fullFileName, "*");
       }
     }
+
 
     public object Load(string skinFile, string tagName)
     {
@@ -51,7 +53,35 @@ namespace SkinEngine.Skin
         parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
+        parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         return (UIElement)parser.Instantiate(fullFileName, tagName);
+      }
+    }
+    void parser_OnSetContent(object parser, object obj, object content)
+    {
+      if (obj is UIElement)
+      {
+        if (content is FrameworkElement)
+        {
+          UIElement element = (UIElement)obj;
+          ContentPresenter contentPresenter = VisualTreeHelper.Instance.FindElementType(element, typeof(ContentPresenter)) as ContentPresenter;
+          if (contentPresenter != null)
+          {
+            contentPresenter.Content = (FrameworkElement)content;
+          }
+        }
+        else if (content is String)
+        {
+          UIElement element = (UIElement)obj;
+          ContentPresenter contentPresenter = VisualTreeHelper.Instance.FindElementType(element, typeof(ContentPresenter)) as ContentPresenter;
+          if (contentPresenter != null)
+          {
+            Label l = new Label();
+            l.Text = (string)content;
+            l.Font = "font12";
+            contentPresenter.Content = l;
+          }
+        }
       }
     }
 

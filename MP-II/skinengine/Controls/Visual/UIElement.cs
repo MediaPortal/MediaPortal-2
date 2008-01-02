@@ -555,7 +555,7 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         Vector3 pos = Position;
-        pos.Y = (float) value;
+        pos.Y = (float)value;
         Position = pos;
       }
     }
@@ -925,6 +925,11 @@ namespace SkinEngine.Controls.Visuals
     {
       if (Name == name)
         return this;
+      return null;
+    }
+    public virtual UIElement FindElementType(Type t)
+    {
+      if (this.GetType() == t) return this;
       return null;
     }
 

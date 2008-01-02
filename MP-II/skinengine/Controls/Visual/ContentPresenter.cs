@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Diagnostics;
 using MediaPortal.Core.Properties;
 
@@ -45,7 +46,10 @@ namespace SkinEngine.Controls.Visuals
     {
       Init();
       if (c.Content != null)
+      {
         Content = (FrameworkElement)c.Content.Clone();
+        Content.VisualParent = this;
+      }
       if (c.ContentTemplate != null)
         ContentTemplate = (DataTemplate)c.ContentTemplate.Clone();
       if (c.ContentTemplateSelector != null)
@@ -62,6 +66,11 @@ namespace SkinEngine.Controls.Visuals
       _contentProperty = new Property(null);
       _contentTemplateProperty = new Property(null);
       _contentTemplateSelectorProperty = new Property(null);
+      _contentProperty.Attach(new PropertyChangedHandler(OnContentChanged));
+    }
+    void OnContentChanged(Property property)
+    {
+      Content.VisualParent = this;
     }
 
     public Property ContentProperty
@@ -137,5 +146,49 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    public override void Measure(Size availableSize)
+    {
+      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      if (Width == 0)
+        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+      if (Height == 0)
+        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
+
+      if (Content != null)
+      {
+        Content.Measure(_desiredSize);
+        _desiredSize = Content.DesiredSize;
+      }
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+    }
+    public override void Arrange(System.Drawing.Rectangle finalRect)
+    {
+      _availablePoint = new System.Drawing.Point(finalRect.Location.X, finalRect.Location.Y);
+      System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (int)(Margin.X);
+      layoutRect.Y += (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
+      if (Content != null)
+      {
+        Content.Arrange(layoutRect);
+        ActualPosition = Content.ActualPosition;
+        ActualWidth = ((FrameworkElement)Content).ActualWidth;
+        ActualHeight = ((FrameworkElement)Content).ActualHeight;
+      }
+      base.Arrange(layoutRect);
+    }
+    public override void DoRender()
+    {
+      if (Content != null)
+      {
+        Content.DoRender();
+      }
+      base.DoRender();
+    }
   }
 }

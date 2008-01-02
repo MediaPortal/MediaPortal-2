@@ -4,6 +4,8 @@
     <StackPanel.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </StackPanel.Resources>
+
+    <Button Name="btn1" Width="200" Height="32" Style="{StaticResource MpButton}">hallo</Button>
     <Grid Width="128" Height="128">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -20,7 +22,6 @@
       <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MpArrowButtonUp}"/>
 
     </Grid>
-    <Button Name="btn1" Width="200" Height="32" Style="{StaticResource MpButton}"/>
     <CheckBox Name="btn3" Width="200" Height="32" Style="{StaticResource MpCheckBox}"/>
     <CheckBox Name="btn2" Width="200" Height="32" Style="{StaticResource MpRadioButton}"/>
     <Button Width="200" Height="32" Style="{StaticResource MpCloseButton}"/>
