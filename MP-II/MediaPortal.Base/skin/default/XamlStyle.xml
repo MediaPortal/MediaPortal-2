@@ -543,7 +543,7 @@
                   <BeginStoryboard Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
@@ -551,7 +551,7 @@
                   <BeginStoryboard Name="disabledStoryBoard_BeginStoryboard" Storyboard="{StaticResource disabledStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -673,7 +673,7 @@
                   <BeginStoryboard Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard1" />
+                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard" />
                 </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
@@ -681,7 +681,7 @@
                   <BeginStoryboard Name="disabledStoryBoard_BeginStoryboard" Storyboard="{StaticResource disabledStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -803,7 +803,7 @@
                   <BeginStoryboard Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
@@ -811,7 +811,7 @@
                   <BeginStoryboard Name="disabledStoryBoard_BeginStoryboard" Storyboard="{StaticResource disabledStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -933,7 +933,7 @@
                   <BeginStoryboard Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
@@ -941,7 +941,7 @@
                   <BeginStoryboard Name="disabledStoryBoard_BeginStoryboard" Storyboard="{StaticResource disabledStoryBoard}"/>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard1"/>
+                  <StopStoryboard BeginStoryboardName="disabledStoryBoard_BeginStoryboard"/>
                 </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
