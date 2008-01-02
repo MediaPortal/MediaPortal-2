@@ -33,8 +33,8 @@ namespace SkinEngine.Controls.Brushes
 
   public enum BrushMappingMode
   {
-    BrushMappingModeAbsolute,
-    BrushMappingModeRelativeToBoundingBox
+    Absolute,
+    RelativeToBoundingBox
   };
 
   public enum ColorInterpolationMode
@@ -45,9 +45,9 @@ namespace SkinEngine.Controls.Brushes
 
   public enum GradientSpreadMethod
   {
-    GradientSpreadMethodPad,
-    GradientSpreadMethodReflect,
-    GradientSpreadMethodRepeat
+    Pad,
+    Reflect,
+    Repeat
   };
 
 
@@ -86,8 +86,8 @@ namespace SkinEngine.Controls.Brushes
     {
       _gradientStopsProperty = new Property(new GradientStopCollection(this));
       _colorInterpolationModeProperty = new Property(ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
-      _spreadMethodProperty = new Property(GradientSpreadMethod.GradientSpreadMethodPad);
-      _mappingModeProperty = new Property(BrushMappingMode.BrushMappingModeRelativeToBoundingBox);
+      _spreadMethodProperty = new Property(GradientSpreadMethod.Pad);
+      _mappingModeProperty = new Property(BrushMappingMode.Absolute);
 
       _gradientStopsProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _colorInterpolationModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));

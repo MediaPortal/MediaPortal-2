@@ -321,6 +321,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
     {
+      thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
       int verticeCount = points.Length * 2 * 3;
       PointF[] vertices = new PointF[verticeCount];

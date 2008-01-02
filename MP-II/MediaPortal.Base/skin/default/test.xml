@@ -7,34 +7,27 @@
     <Grid Width="128" Height="128">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition  Width="20*"/>
-        <ColumnDefinition Width="50*"/>
+        <ColumnDefinition  Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition/>
         <RowDefinition/>
-        <RowDefinition/>
       </Grid.RowDefinitions>
-      <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource MpButton}"/>
+      <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource MpArrowButtonLeft}"/>
+      <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource MpArrowButtonRight}"/>
 
-      <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource MpButton}"/>
+      <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource MpArrowButtonDown}"/>
+      <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MpArrowButtonUp}"/>
 
-      <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource MpButton}"/>
-      <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource MpButton}"/>
     </Grid>
     <Button Name="btn1" Width="200" Height="32" Style="{StaticResource MpButton}"/>
-    <Button Name="btn2" Width="200" Height="32" Margin="0,10,0,20" Style="{StaticResource MpButton}"/>
-    <Button Name="btn3" Width="200" Height="32" Style="{StaticResource MpButton}"/>
-    <CheckBox Name="btn3" Width="200" Height="32" Style="{StaticResource MpRadioButton}"/>
-
+    <CheckBox Name="btn3" Width="200" Height="32" Style="{StaticResource MpCheckBox}"/>
+    
+    <CheckBox Name="btn2" Width="200" Height="32" Style="{StaticResource MpRadioButton}"/>
     <Rectangle Width="200" Height="32" Margin="0,10,0,10" StrokeThickness="2" Stroke="Red" Fill="Blue"/>
     <Ellipse Width="200" Height="32" Margin="0,10,0,10"  StrokeThickness="2" Stroke="Red" Fill="Blue" />
     <Polygon  Stroke="Red" Fill="Blue" Margin="0,10,0,10" StrokeThickness="2" Points="0,0 30,0 60,30 60,60 30,60 0,30"/>
     <Line X1="0" Y1="50" X2="100" Y2="50"   Fill="Blue"  />
+    
   </StackPanel>
 </MyXaml>

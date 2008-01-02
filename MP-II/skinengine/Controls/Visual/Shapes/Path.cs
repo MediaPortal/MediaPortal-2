@@ -189,21 +189,28 @@ namespace SkinEngine.Controls.Visuals
           mPath.AddLine(lastPoint, point1);
           mPath.AddLine(point1, point2);
           lastPoint = new PointF(point2.X, point2.Y);
+          while (true)
+          {
+            if (Data[i] == ' ') i++;
+            if (Data[i] < '0' || Data[i] > '9') break;
+            i--;
+            point1 = GetPoint(ref i);
+            mPath.AddLine(lastPoint, point1);
+            lastPoint = new PointF(point1.X, point1.Y);
+          }
         }
         else if (ch == 'l')
         {
           //relative Line
-          PointF point1 = GetPoint(ref i);
-          PointF point2 = GetPoint(ref i);
-
-          point1.X += lastPoint.X;
-          point1.Y += lastPoint.Y;
-          point2.X += lastPoint.X;
-          point2.Y += lastPoint.Y;
-
-          mPath.AddLine(lastPoint, point1);
-          mPath.AddLine(point1, point2);
-          lastPoint = new PointF(point2.X, point2.Y);
+          while (true)
+          {
+            PointF point1 = GetPoint(ref i);
+            mPath.AddLine(lastPoint, point1);
+            lastPoint = new PointF(point1.X, point1.Y);
+            if (Data[i] == ' ') i++;
+            if (Data[i] < '0' || Data[i] > '9') break;
+            i--;
+          }
         }
         else if (ch == 'z')
         {
@@ -258,11 +265,27 @@ namespace SkinEngine.Controls.Visuals
       }
       pointTxt = pointTxt.Trim();
       string[] parts = pointTxt.Split(new char[] { ',' });
-      float x = float.Parse(parts[0]);
-      float y = float.Parse(parts[1]);
+      float x = GetFloat(parts[0]);
+      float y = GetFloat(parts[1]);
       return new PointF(x, y);
     }
-
+    protected float GetFloat(string floatString)
+    {
+      float test = 12.03f;
+      string comma = test.ToString();
+      bool replaceCommas = (comma.IndexOf(",") >= 0);
+      if (replaceCommas)
+      {
+        floatString = floatString.Replace(".", ",");
+      }
+      else
+      {
+        floatString = floatString.Replace(",", ".");
+      }
+      float f;
+      float.TryParse(floatString, out f);
+      return f;
+    }
     void ZCross(ref PointF left, ref PointF right, out double result)
     {
       result = left.X * right.Y - left.Y * right.X;

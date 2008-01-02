@@ -69,6 +69,36 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
     }
 
+    /// <summary>
+    /// Gets or sets the based on property (we dont use it in our xaml engine, but real xaml requires it)
+    /// </summary>
+    /// <value>The based on.</value>
+    public string BasedOn
+    {
+      get
+      {
+        return "";
+      }
+      set
+      {
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the type of the target (we dont use it in our xaml engine, but real xaml requires it)
+    /// </summary>
+    /// <value>The type of the target.</value>
+    public string TargetType
+    {
+      get
+      {
+        return "";
+      }
+      set
+      {
+      }
+    }
+
     #region IList Members
 
     public int Add(object value)

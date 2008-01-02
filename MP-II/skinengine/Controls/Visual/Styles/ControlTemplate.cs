@@ -19,5 +19,20 @@ namespace SkinEngine.Controls.Visuals.Styles
     {
       return new ControlTemplate(this);
     }
+
+    /// <summary>
+    /// Gets or sets the type of the target (not used here, but required for real xaml)
+    /// </summary>
+    /// <value>The type of the target.</value>
+    public string TargetType
+    {
+      get
+      {
+        return "";
+      }
+      set
+      {
+      }
+    }
   }
 }
