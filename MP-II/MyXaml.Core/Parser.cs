@@ -1095,7 +1095,8 @@ namespace MyXaml.Core
       Type t = Type.GetType(qualifiedName);
       if (t == null)
       {
-        throw (new UnknownTypeException("Unknown type " + qualifiedName));
+        ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Unknown type :" + qualifiedName);
+        return null;
       }
       try
       {
@@ -1156,6 +1157,16 @@ namespace MyXaml.Core
               object objValue = OnGetResource(this, obj, refVal.Substring(pos + 1));
               Type t = obj.GetType();
               PropertyInfo prop = t.GetProperty(propertyName);
+              if (prop == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
+                return;
+              }
+              if (objValue == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Resource :" + refVal + " not found");
+                return;
+              }
               MethodInfo setInfo = prop.GetSetMethod();
               setInfo.Invoke(obj, new object[] { objValue });
             }
@@ -1830,6 +1841,7 @@ namespace MyXaml.Core
         {
           classInstance = InstantiateClass(qualifiedName);					// then instantiate it as a stand-alone class.
         }
+        if (classInstance == null) return false;
         propertyObject = classInstance;
 
         if (classInstance.GetType().IsValueType)						// If it's a struct, process it's children and attributes now.

@@ -2,6 +2,20 @@
 <MyXaml >
   <ResourceDictionary>
 
+    <!-- default brush for a submenu button -->
+    <RadialGradientBrush Key="MpSubMenuButtonBrush" GradientOrigin="0.85,0.82">
+      <RadialGradientBrush.RelativeTransform>
+        <TransformGroup>
+          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          <TranslateTransform X="0.027" Y="-0.006"/>
+        </TransformGroup>
+      </RadialGradientBrush.RelativeTransform>
+      <GradientStop Color="#702A5EB4" Offset="0"/>
+      <GradientStop Color="#702A5EB4" Offset="1"/>
+    </RadialGradientBrush>
+
     <LinearGradientBrush Key="linearBrushRedGreenBlue" StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
       <GradientStop Offset="0.0" Color="Red"/>
       <GradientStop Offset="0.5" Color="Green"/>
@@ -115,6 +129,8 @@
                   </RadialGradientBrush>
                 </Rectangle.Fill>
               </Rectangle>
+              <ContentPresenter  Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
+              </ContentPresenter>
             </Canvas>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
@@ -261,6 +277,8 @@
               <Ellipse Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right"  Width="12" Height="12"  Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF" />
               <Ellipse Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10"  Height="10" Fill="#AAFFFFFF" Visibility="Hidden" />
 
+              <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
+              </ContentPresenter>
             </Canvas>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
@@ -1678,5 +1696,236 @@
         </Setter.Value>
       </Setter>
     </Style>
+
+
+    <!-- style for a list box which is orientated vertically-->
+    <Style Key="MpListView" TargetType="ListBox">
+      <Setter Property="SnapsToDevicePixels" Value="true"/>
+      <Setter Property="OverridesDefaultStyle" Value="true"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+      <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
+      <Setter Property="MinWidth" Value="120"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBox">
+            <ScrollViewer FocusManager.IsFocusScope="False"
+              Margin="0"
+              Focusable="False">
+              <VirtualizingStackPanel IsItemsHost="True" FocusManager.IsFocusScope="False"  />
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- style for a list box which is orientated horizontally-->
+
+    <Style Key="MpListViewHorizontal" TargetType="ListBox">
+      <Setter Property="SnapsToDevicePixels" Value="true"/>
+      <Setter Property="OverridesDefaultStyle" Value="true"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+      <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
+      <Setter Property="MinWidth" Value="120"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBox">
+            <ScrollViewer FocusManager.IsFocusScope="False"
+              Margin="0"
+              Focusable="False">
+              <VirtualizingStackPanel IsItemsHost="True" FocusManager.IsFocusScope="False" Orientation="Horizontal" />
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- style for the menu-listbox item container. transparent background which turns green when focused -->
+    <Style Key="MpMenuListViewItem" TargetType="ListBoxItem">
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="Control.Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBoxItem">
+            <ControlTemplate.Resources>
+
+              <!-- storyboard which shows the animation when a button has focus -->
+              <Storyboard Key="focusedStoryBoard" >
+                <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(RadialGradientBrush.GradientOrigin)">
+                  <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
+                  <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
+                  <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
+                </PointAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
+                  <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
+                  <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Stroke).(SolidColorBrush.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
+                </ColorAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(Brush.RelativeTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(Brush.RelativeTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true"  BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(Brush.RelativeTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+
+              <!-- storyboard which shows the animation when pressing a button  -->
+              <Storyboard Key="pressedStoryBoard" >
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Stroke).(SolidColorBrush.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
+                </ColorAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(Brush.RelativeTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(Brush.RelativeTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
+                </DoubleAnimationUsingKeyFrames>
+                <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(RadialGradientBrush.GradientOrigin)">
+                  <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
+                  <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
+                  <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
+                </PointAnimationUsingKeyFrames>
+              </Storyboard>
+
+              <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
+              <Storyboard Key="disableStoryBoard" >
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
+                </ColorAnimationUsingKeyFrames>
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
+                </ColorAnimationUsingKeyFrames>
+              </Storyboard>
+            </ControlTemplate.Resources>
+
+            <Grid Name="grid" Margin="0,2,0,2" >
+              <Rectangle Fill="{StaticResource MpSubMenuButtonBrush}" Stroke="Transparent" RadiusX="4" RadiusY="4" HorizontalAlignment="Stretch" Margin="0,0,0,0" Name="shine" Width="Auto"/>
+              <ContentPresenter SnapsToDevicePixels="False" FocusManager.IsFocusScope="False" HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" Content="{TemplateBinding ContentControl.Content}" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard  Name="onFocused" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="onFocused"/>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="#40FFFFFF" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- data template for a dialog menu item in icon mode-->
+    <DataTemplate Key="itemIconTemplate"  DataType="{Type local:DialogMenuItem}">
+      <Grid Width="450">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition/>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Height="32" Width="32"  Source="{Binding Logo}" />
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="10" Style="{StaticResource LabelNormalStyleWhite}" Content="{Binding Label1}"/>
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="6" Style="{StaticResource LabelSmallStyleWhite}" Content="{Binding Label2}"/>
+        <Label Grid.Row="1" Grid.Column="7" Grid.ColumnSpan="4" Style="{StaticResource LabelSmallStyleWhite}" HorizontalAlignment="Right" Content="{Binding Label3}"/>
+        <Image Grid.Row="0" Grid.Column="8" Grid.RowSpan="2"  Height="32" Width="32"  Source="{Binding RecordingLogo}" />
+      </Grid>
+    </DataTemplate>
+
+    <!-- data template for a dialog menu item in list mode-->
+    <DataTemplate Key="itemListTemplate" DataType="{Type local:DialogMenuItem}">
+      <Grid Width="450">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Height="32" Width="32"  Source="{Binding Logo}" />
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Style="{StaticResource LabelNormalStyleWhite}" Content="{Binding Label1}"/>
+        <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" Style="{StaticResource LabelSmallStyleWhite}" HorizontalAlignment="Right" Content="{Binding Label3}"/>
+        <Image Grid.Row="0" Grid.Column="8"  Height="32" Width="32"  Source="{Binding RecordingLogo}" />
+      </Grid>
+    </DataTemplate>
   </ResourceDictionary>
 </MyXaml>

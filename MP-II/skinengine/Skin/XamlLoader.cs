@@ -18,6 +18,7 @@ namespace SkinEngine.Skin
   public class XamlLoader
   {
     UIElement _lastElement;
+    ResourceDictionary _lastDictionary;
     /// <summary>
     /// Loads the specified skin file using MyXaml
     /// and returns the root UIElement
@@ -72,13 +73,35 @@ namespace SkinEngine.Skin
           return result;
         }
       }
-      else if (_lastElement != null)
+      if (_lastElement != null)
       {
         object result = _lastElement.FindResource(resourceName);
         ICloneable clone = result as ICloneable;
         if (clone != null)
         {
           return clone.Clone();
+        }
+        if (result != null)
+        {
+          Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
+          return result;
+        }
+      }
+      if (_lastDictionary != null)
+      {
+        if (_lastDictionary.Contains(resourceName))
+        {
+          object result = _lastDictionary[resourceName];
+          ICloneable clone = result as ICloneable;
+          if (clone != null)
+          {
+            return clone.Clone();
+          }
+          if (result != null)
+          {
+            Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
+            return result;
+          }
         }
       }
       return null;
@@ -427,7 +450,10 @@ namespace SkinEngine.Skin
       else if (name == "Resources")
         return new ResourceDictionary();
       else if (name == "ResourceDictionary")
-        return new ResourceDictionary();
+      {
+        _lastDictionary = new ResourceDictionary();
+        return _lastDictionary;
+      }
 
       //brushes
       else if (name == "SolidColorBrush")

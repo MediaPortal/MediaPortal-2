@@ -34,7 +34,34 @@ using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class DataTemplate
+  public class DataTemplate : FrameworkElement
   {
+    public DataTemplate()
+    {
+    }
+
+    public DataTemplate(DataTemplate template)
+    {
+    }
+
+    public override object Clone()
+    {
+      return new DataTemplate(this);
+    }
+
+    /// <summary>
+    /// Gets or sets the type of the data. (not used in our xaml engine)
+    /// </summary>
+    /// <value>The type of the data.</value>
+    public string DataType
+    {
+      get
+      {
+        return "";
+      }
+      set
+      {
+      }
+    }
   }
 }
