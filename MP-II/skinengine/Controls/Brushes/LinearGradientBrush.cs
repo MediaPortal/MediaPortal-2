@@ -45,8 +45,8 @@ namespace SkinEngine.Controls.Brushes
 
     Property _startPointProperty;
     Property _endPointProperty;
-    float[] _offsets = new float[12];
-    ColorValue[] _colors = new ColorValue[12];
+    float[] _offsets = new float[6];
+    ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
 
     /// <summary>

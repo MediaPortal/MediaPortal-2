@@ -48,8 +48,8 @@ namespace SkinEngine.Controls.Brushes
     Property _gradientOriginProperty;
     Property _radiusXProperty;
     Property _radiusYProperty;
-    float[] _offsets = new float[12];
-    ColorValue[] _colors = new ColorValue[12];
+    float[] _offsets = new float[6];
+    ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
 
     /// <summary>

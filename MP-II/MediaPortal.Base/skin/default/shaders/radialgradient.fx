@@ -1,20 +1,13 @@
 
-float4 g_color[12]={ {0.0f,0.0f,0.0f,0.0f},  //red
-                    {0.0f,0.0f,0.0f,0.0f},  //green
-                    {0.0f,0.0f,0.0f,0.0f},  // blue
+float4 g_color[6]={ {1.0f,0.0f,0.0f,1.0f},  //red
+                    {0.0f,1.0f,0.0f,1.0f},  //green
+                    {0.0f,0.0f,1.0f,1.0f},  // blue
                     {0.0f,0.0f,0.0f,0.0f}, // end
                     
                     {0.0f,0.0f,0.0f,0.0f},  //red
-                    {0.0f,0.0f,0.0f,0.0f},  //green
-                    {0.0f,0.0f,0.0f,0.0f},  // blue
-                    {0.0f,0.0f,0.0f,0.0f}, // end
-                    
-                    {0.0f,0.0f,0.0f,0.0f},  //red
-                    {0.0f,0.0f,0.0f,0.0f},  //green
-                    {0.0f,0.0f,0.0f,0.0f},  // blue
                     {0.0f,0.0f,0.0f,0.0f}}; // end
                     
-float g_offset[12]={0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f ,0.0f,0.0f,0.0f,0.0f};
+float g_offset[6]={0.0f,0.5f,1.0f, 0.0f,0.0f,0.0f};
 
 float4x4 worldViewProj     : WORLDVIEWPROJ; //our world view projection matrix
 float4x4 RelativeTransform : WORLDVIEWPROJ; 
@@ -101,7 +94,7 @@ void renderPixelShader( in v2p IN, out p2f OUT)
 
 technique simple {
 	pass p0 {
-		VertexShader = compile vs_3_0 renderVertexShader();
-		PixelShader = compile ps_3_0 renderPixelShader();
+		VertexShader = compile vs_2_0 renderVertexShader();
+		PixelShader = compile ps_2_b renderPixelShader();
 	}
 }
