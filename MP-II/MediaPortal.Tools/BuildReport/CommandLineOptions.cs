@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Utilities.Screens;
 
-namespace MediaPortal.Tootls.BuildReport
+namespace MediaPortal.Tools.BuildReport
 {
   [Serializable]
   public class CommandLineOptions : ICommandLineOptions

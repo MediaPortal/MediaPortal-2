@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MediaPortal.Tootls.BuildReport
+namespace MediaPortal.Tools.BuildReport
 {
   class AnalyseInput
   {
@@ -57,17 +57,17 @@ namespace MediaPortal.Tootls.BuildReport
 
         if (skipped)
         {
-          proj.build = "Skipped";
+          proj.build = Solution.Compile.Skipped;
           proj.errors = 0;
           proj.warnings = 0;
         }
         else
         {
-          proj.build = "Completed";
+          proj.build = Solution.Compile.Success;
           proj.errors = Int32.Parse(projComplete[c].Groups["errors"].Value);
           proj.warnings = Int32.Parse(projComplete[c].Groups["warnings"].Value);
           if (proj.errors > 0)
-            proj.build = "Failed";
+            proj.build = Solution.Compile.Failed;
         }
 
         if (c + 1 < projComplete.Count)

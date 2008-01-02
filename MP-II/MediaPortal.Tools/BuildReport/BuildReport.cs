@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using MediaPortal.Utilities.CommandLine;
 
-namespace MediaPortal.Tootls.BuildReport
+namespace MediaPortal.Tools.BuildReport
 {
   class BuildReport
   {

@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace MediaPortal.Tootls.BuildReport
+namespace MediaPortal.Tools.BuildReport
 {
   class Solution
   {
+    public enum Compile
+    {
+      Success,
+      Failed,
+      Skipped
+    }
+
     string _name;
     int _succeeded = 0;
     int _failed = 0;

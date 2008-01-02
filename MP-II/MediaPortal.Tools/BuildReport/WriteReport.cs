@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace MediaPortal.Tootls.BuildReport
+namespace MediaPortal.Tools.BuildReport
 {
   class WriteReport
   {
@@ -33,10 +33,10 @@ namespace MediaPortal.Tootls.BuildReport
       report.WriteLine("</p>");
       report.WriteLine("<table border=\"0\" rules=\"none\" width=\"100%\">");
       report.WriteLine("<tr align=\"left\" class=\"title\">");
-      report.WriteLine("<th width=\"50%\" align=\"left\" colspan=\"2\">Name</th>");
-      report.WriteLine("<th width=\"10%\" align=\"left\">Succeeded</th>");
-      report.WriteLine("<th width=\"10%\" align=\"left\">Failed</th>");
-      report.WriteLine("<th width=\"10%\" align=\"left\">Skipped</th>");
+      report.WriteLine("<th width=\"65%\" align=\"left\" colspan=\"2\">Name</th>");
+      report.WriteLine("<th width=\"5%\" align=\"left\">Success</th>");
+      report.WriteLine("<th width=\"5%\" align=\"left\">Failed</th>");
+      report.WriteLine("<th width=\"5%\" align=\"left\">Skipped</th>");
       report.WriteLine("<td width=\"10%\" align=\"left\">Total Errors</th>");
       report.WriteLine("<td width=\"10%\" align=\"left\">Total Warnings</th>");
       report.WriteLine("</tr>");
@@ -82,8 +82,8 @@ namespace MediaPortal.Tootls.BuildReport
       report.WriteLine("</p>");
       report.WriteLine("<table border=\"0\" rules=\"none\" width=\"100%\">");
       report.WriteLine("<tr align=\"left\" class=\"title\">");
-      report.WriteLine("<th width=\"70%\" align=\"left\" colspan=\"2\">Name</th>");
-      report.WriteLine("<th width=\"10%\" align=\"left\">Compile</th>");
+      report.WriteLine("<th width=\"65%\" align=\"left\" colspan=\"2\">Name</th>");
+      report.WriteLine("<th width=\"15%\" align=\"left\">Compile</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Errors</th>");
       report.WriteLine("<th width=\"10%\" align=\"left\">Warnings</th>");
       report.WriteLine("</tr>");
@@ -118,7 +118,7 @@ namespace MediaPortal.Tootls.BuildReport
       }
       report.WriteLine("   </td> ");
       report.WriteLine("  <td>{0}</td>", project.name);
-      report.WriteLine("  <td>{0}</td>", project.build);
+      report.WriteLine("  <td>{0}</td>", project.build.ToString());
       report.WriteLine("  <td>{0}</td>", project.errors.ToString());
       report.WriteLine("  <td>{0}</td>", project.warnings.ToString());
       report.WriteLine(" </tr>");
