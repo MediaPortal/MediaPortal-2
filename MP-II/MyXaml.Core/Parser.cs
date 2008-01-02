@@ -21,7 +21,8 @@ using System.Xml;
 
 using Clifton.Tools.Strings;
 //using Vts.UnitTest;
-
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MyXaml.Core.Exceptions;
 
 namespace MyXaml.Core
@@ -1181,7 +1182,8 @@ namespace MyXaml.Core
               StringHelpers.Between(propertyValue, '{', '}');
             if (!ContainsReference(refName))						// Verify that it already exists.  Embedded references must be immediately resolvable.
             {
-              throw (new ForwardReferenceException(refName + " not allowed as a forward reference."));
+              ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Cannot make a forward reference to :" + propertyValue + " on:" + obj.GetType().ToString());
+              return;
             }
 
             object propObj = GetReference(refName);					// Get the reference.
@@ -1211,7 +1213,7 @@ namespace MyXaml.Core
               {
                 if (!OnCustomProperty(obj, propertyName, propertyValue))
                 {
-                  throw (new UnknownPropertyException("The property " + propertyName + " does not exist."));
+                  ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " The property " + propertyName + " does not exist. on:" + obj.GetType().ToString());
                 }
               }
             }

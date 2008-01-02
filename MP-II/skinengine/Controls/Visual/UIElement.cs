@@ -522,6 +522,44 @@ namespace SkinEngine.Controls.Visuals
         _positionProperty.SetValue(value);
       }
     }
+
+    /// <summary>
+    /// Gets or sets the left position.
+    /// </summary>
+    /// <value>The left position.</value>
+    public double Left
+    {
+      get
+      {
+        Vector3 v = (Vector3)_positionProperty.GetValue();
+        return v.X;
+      }
+      set
+      {
+        Vector3 pos = Position;
+        pos.X = (float)value;
+        Position = pos;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the top position.
+    /// </summary>
+    /// <value>The top position.</value>
+    public double Top
+    {
+      get
+      {
+        Vector3 v = (Vector3)_positionProperty.GetValue();
+        return v.Y;
+      }
+      set
+      {
+        Vector3 pos = Position;
+        pos.Y = (float) value;
+        Position = pos;
+      }
+    }
+
     /// <summary>
     /// Gets or sets the dock property.
     /// </summary>
