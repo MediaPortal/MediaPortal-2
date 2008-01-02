@@ -254,7 +254,7 @@ namespace MediaPortal.Services.Burning
             CdrProc.BeginOutputReadLine();
             try
             {
-              CdrProc.PriorityClass = ProcessPriorityClass.BelowNormal;            // Execute all processes in the background so movies, etc stay fluent
+              //CdrProc.PriorityClass = ProcessPriorityClass.BelowNormal;            // Execute all processes in the background so movies, etc stay fluent
             }
             catch (Exception ex2)
             {

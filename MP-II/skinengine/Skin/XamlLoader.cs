@@ -138,13 +138,33 @@ namespace SkinEngine.Skin
       {
         PointCollection coll = new PointCollection();
         string text = e.Value.ToString();
-        string[] parts = text.Split(new char[] { ',',' ' });
+        string[] parts = text.Split(new char[] { ',', ' ' });
         for (int i = 0; i < parts.Length; i += 2)
         {
-          System.Drawing.Point p = new System.Drawing.Point(Int32.Parse(parts[i]), Int32.Parse(parts[i+1]));
+          System.Drawing.Point p = new System.Drawing.Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
           coll.Add(p);
         }
         e.Result = coll;
+      }
+      else if (e.PropertyType == typeof(GridLength))
+      {
+        string text = e.Value.ToString();
+        if (text == "Auto")
+        {
+          e.Result = new GridLength();
+        }
+        else if (text.IndexOf('*') < 0)
+        {
+          double v = double.Parse(text);
+          e.Result = new GridLength(GridUnitType.Pixel, v);
+        }
+        else
+        {
+          int pos = text.IndexOf('*');
+          text = text.Substring(0, pos);
+          double percent = double.Parse(text);
+          e.Result = new GridLength(GridUnitType.Star, percent);
+        }
       }
     }
 
@@ -194,6 +214,14 @@ namespace SkinEngine.Skin
       else if (name == "StackPanel")
         return true;
       else if (name == "Canvas")
+        return true;
+      else if (name == "Grid")
+        return true;
+      else if (name == "RowDefinition")
+        return true;
+      else if (name == "ColumnDefinition")
+        return true;
+      else if (name == "GridLength")
         return true;
 
       //visuals
@@ -313,6 +341,18 @@ namespace SkinEngine.Skin
         _lastElement = new Canvas();
         return _lastElement;
       }
+      else if (name == "Grid")
+      {
+        _lastElement = new Grid();
+        return _lastElement;
+      }
+      else if (name == "RowDefinition")
+        return new RowDefinition();
+      else if (name == "ColumnDefinition")
+        return new ColumnDefinition();
+      else if (name == "GridLength")
+        return new GridLength();
+
 
       //visuals
       else if (name == "Border")

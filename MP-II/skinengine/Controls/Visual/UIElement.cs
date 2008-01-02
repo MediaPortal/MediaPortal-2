@@ -58,6 +58,8 @@ namespace SkinEngine.Controls.Visuals
     Property _renderTransformOriginProperty;
     Property _visibilityProperty;
     Property _isEnabledProperty;
+    Property _rowProperty;
+    Property _columnProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     protected Point _availablePoint;
@@ -87,6 +89,8 @@ namespace SkinEngine.Controls.Visuals
       Margin = el.Margin;
       Visibility = el.Visibility;
       IsEnabled = el.IsEnabled;
+      Row = el.Row;
+      Column = el.Column;
 
       if (el.RenderTransform != null)
         RenderTransform = (Transform)el.RenderTransform.Clone();
@@ -130,6 +134,9 @@ namespace SkinEngine.Controls.Visuals
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
 
+      _rowProperty = new Property(1);
+      _columnProperty = new Property(1);
+
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -164,6 +171,71 @@ namespace SkinEngine.Controls.Visuals
       get
       {
         return _resources;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the row property.
+    /// </summary>
+    /// <value>The row property.</value>
+    public Property RowProperty
+    {
+      get
+      {
+        return _rowProperty;
+      }
+      set
+      {
+        _rowProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the row.
+    /// </summary>
+    /// <value>The row.</value>
+    public int Row
+    {
+      get
+      {
+        return (int)_rowProperty.GetValue();
+      }
+      set
+      {
+        _rowProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the column property.
+    /// </summary>
+    /// <value>The column property.</value>
+    public Property ColumnProperty
+    {
+      get
+      {
+        return _columnProperty;
+      }
+      set
+      {
+        _columnProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the column.
+    /// </summary>
+    /// <value>The column.</value>
+    public int Column
+    {
+      get
+      {
+        return (int)_columnProperty.GetValue();
+      }
+      set
+      {
+        _columnProperty.SetValue(value);
       }
     }
 
