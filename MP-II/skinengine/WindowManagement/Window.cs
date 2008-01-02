@@ -1,4 +1,4 @@
-﻿#define TESTXAML
+﻿//#define TESTXAML
 #region Copyright (C) 2007 Team MediaPortal
 
 /*
