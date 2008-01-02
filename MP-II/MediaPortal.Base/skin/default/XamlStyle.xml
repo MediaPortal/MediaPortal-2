@@ -259,7 +259,7 @@
                 </Rectangle.Fill>
               </Rectangle>
               <Ellipse Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right"  Width="12" Height="12"  Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF" />
-              <Ellipse Name="InnerCircle" Margin="0,0,11,2" HorizontalAlignment="Right" Width="10"  Height="10" Fill="#AAFFFFFF" Visibility="Hidden" />
+              <Ellipse Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10"  Height="10" Fill="#AAFFFFFF" Visibility="Hidden" />
 
             </Canvas>
             <ControlTemplate.Triggers>
