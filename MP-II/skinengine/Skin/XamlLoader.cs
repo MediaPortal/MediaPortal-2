@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections;
@@ -13,6 +14,8 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Visuals.Triggers;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 namespace SkinEngine.Skin
 {
   public class XamlLoader
@@ -37,6 +40,7 @@ namespace SkinEngine.Skin
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
+        parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
         return parser.Instantiate(fullFileName, "*");
       }
     }
@@ -54,6 +58,7 @@ namespace SkinEngine.Skin
         parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
+        parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
         return (UIElement)parser.Instantiate(fullFileName, tagName);
       }
     }
@@ -84,6 +89,12 @@ namespace SkinEngine.Skin
         }
       }
     }
+    object parser_OnGetBinding(object parser, object obj, string resourceName, PropertyInfo info)
+    {
+      ServiceScope.Get<ILogger>().Info("XamlParser: Get binding '{0}' for {1} property {2} type:{3}", resourceName, obj, info.Name, info.PropertyType);
+      return null;
+    }
+
 
     object parser_OnGetResource(object parser, object obj, string resourceName)
     {

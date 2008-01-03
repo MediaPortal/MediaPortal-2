@@ -53,6 +53,7 @@ namespace MyXaml.Core
     public delegate void CustomTypeConverterDlgt(object parser, CustomTypeEventArgs e);
 
     public delegate object GetResourceDlgt(object parser, object obj, string resourceName);
+    public delegate object GetBindingDlgt(object parser, object obj, string resourceName, PropertyInfo info);
     public delegate void SetContentDlg(object parser, object obj, object content);
 
     /// <summary>
@@ -83,6 +84,7 @@ namespace MyXaml.Core
     public event CustomTypeConverterDlgt CustomTypeConvertor;
 
     public event GetResourceDlgt OnGetResource;
+    public event GetBindingDlgt OnGetBinding;
     public event SetContentDlg OnSetContent;
 
     protected string currentFile;
@@ -1179,6 +1181,34 @@ namespace MyXaml.Core
               if (objValue == null)
               {
                 ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Resource :" + refVal + " not found");
+                return;
+              }
+              MethodInfo setInfo = prop.GetSetMethod();
+              setInfo.Invoke(obj, new object[] { objValue });
+            }
+          }
+          else if (refVal.StartsWith("Binding"))
+          {
+            if (OnGetBinding != null)
+            {
+              Type t = obj.GetType();
+              PropertyInfo prop = t.GetProperty(propertyName);
+              if (prop == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
+                return;
+              }
+              int pos = refVal.IndexOf(' ');
+              object objValue = OnGetBinding(this, obj, refVal.Substring(pos + 1), prop);
+              prop = t.GetProperty(propertyName + "Property");
+              if (prop == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
+                return;
+              }
+              if (objValue == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Binding :" + refVal + " not found");
                 return;
               }
               MethodInfo setInfo = prop.GetSetMethod();
