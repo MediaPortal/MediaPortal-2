@@ -63,6 +63,11 @@
       <HintPath>references\Microsoft.DirectX.Direct3DX.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.DirectX.DirectDraw, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>references\Microsoft.DirectX.DirectDraw.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -139,6 +144,7 @@ xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)$(SolutionName)\$(
 xcopy /Y "$(TargetDir)Microsoft.DirectX.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)Microsoft.DirectX.Direct3DX.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)Microsoft.DirectX.Direct3D.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)Microsoft.DirectX.DirectDraw.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)ThumbnailGenerator.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

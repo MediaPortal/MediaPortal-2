@@ -49,11 +49,11 @@ namespace SkinEngine.Controls.Visuals
     public ListView(ListView c)
       : base(c)
     {
+      Init();
       if (c.Style != null)
         Style = c.Style;
       if (c.Template != null)
         Template = (UIElement)c.Template.Clone();
-      Init();
     }
 
     public override object Clone()
@@ -249,5 +249,53 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    #region focus prediction
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position above this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Template).PredictFocusUp(focusedFrameworkElement,ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position below this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Template).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Template).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Template).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+    }
+
+
+    #endregion
   }
 }

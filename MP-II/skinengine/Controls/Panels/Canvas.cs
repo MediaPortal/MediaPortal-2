@@ -94,7 +94,6 @@ namespace SkinEngine.Controls.Panels
         Point p = new Point((int)(child.Position.X + this.ActualPosition.X), (int)(child.Position.Y + this.ActualPosition.Y));
         double widthPerCell = ActualWidth - (child.Position.X - this.ActualPosition.X);
         double heightPerCell = ActualHeight - (child.Position.Y - this.ActualPosition.Y);
-        ArrangeChild(child, ref p);
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }
@@ -102,26 +101,5 @@ namespace SkinEngine.Controls.Panels
       base.Arrange(layoutRect);
     }
 
-    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p, double widthPerCell, double heightPerCell)
-    {
-      if (VisualParent == null) return;
-
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-        p.X += (int)((widthPerCell - child.DesiredSize.Width) / 2);
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        p.X += (int)(widthPerCell - child.DesiredSize.Width);
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        p.Y += (int)((heightPerCell - child.DesiredSize.Height) / 2);
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        p.Y += (int)(heightPerCell - child.DesiredSize.Height);
-      }
-    }
   }
 }

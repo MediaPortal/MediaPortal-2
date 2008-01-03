@@ -60,7 +60,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     public Border(Border b)
-      : base((FrameworkElement)b)
+      : base(b)
     {
       Init();
       if (b.BorderBrush != null)

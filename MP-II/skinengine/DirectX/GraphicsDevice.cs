@@ -52,6 +52,8 @@ namespace SkinEngine
     private static bool _supportsFiltering;
     private static bool _supportsAlphaBlend;
     private static bool _supportsShaders = false;
+    private static bool _firstTimeInitialisation = true;
+    private static bool _firstTimeInitialisationMemory = true;
 
     #endregion
 
@@ -61,6 +63,22 @@ namespace SkinEngine
     /// <param name="window">The window.</param>
     public GraphicsDevice(Form window, bool maximize)
     {
+      if (_firstTimeInitialisationMemory)
+      {
+        _firstTimeInitialisationMemory=false;
+        Microsoft.DirectX.DirectDraw.Device tmpDev= new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
+        Microsoft.DirectX.DirectDraw.GetCapsStruct caps=tmpDev.GetCaps();
+        tmpDev.Dispose();
+        tmpDev=null;
+
+        int videoMemory = caps.HardwareCaps.VideoMemoryTotal / (1000 * 1000);
+        ServiceScope.Get<ILogger>().Info("Directx: Total Video Memory:{0}", videoMemory);
+        if (videoMemory < 128)
+        {
+          string text = String.Format("MediaPortal-II needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal-II will continue but migh run slow", videoMemory);
+          MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+      }
       try
       {
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize directx");
@@ -103,8 +121,8 @@ namespace SkinEngine
                                                       Format.A8R8G8B8);
       int vertexShaderVersion = Device.DeviceCaps.VertexShaderVersion.Major;
       int pixelShaderVersion = Device.DeviceCaps.PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("Pixel shader support:{0}.{1}", Device.DeviceCaps.PixelShaderVersion.Major, Device.DeviceCaps.PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("Vertex shader support:{0}.{1}", Device.DeviceCaps.VertexShaderVersion.Major, Device.DeviceCaps.VertexShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("Directx: Pixel shader support:{0}.{1}", Device.DeviceCaps.PixelShaderVersion.Major, Device.DeviceCaps.PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("Directx: Vertex shader support:{0}.{1}", Device.DeviceCaps.VertexShaderVersion.Major, Device.DeviceCaps.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;
@@ -112,6 +130,15 @@ namespace SkinEngine
       else
       {
         _supportsShaders = false;
+      }
+      if (_firstTimeInitialisation)
+      {
+        _firstTimeInitialisation = false;
+        if (pixelShaderVersion < 2 || vertexShaderVersion < 2)
+        {
+          string text = String.Format("MediaPortal-II needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal-II will continue but migh run slow");
+          MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
       }
     }
 
@@ -144,7 +171,7 @@ namespace SkinEngine
         }
         else
         {
-          ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}",ContentManager.TextureReferences,ContentManager.VertexReferences);
+          ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
         }
         return true;
       }
@@ -378,7 +405,7 @@ namespace SkinEngine
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
           //Dont remove this, MP-II uses the Z-buffer for some styles
           //rendering goes wrong when zbuffer is not cleared
-          _device.Clear(ClearFlags.Target|ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+          _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
           SetRenderState();
 
