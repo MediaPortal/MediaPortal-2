@@ -61,6 +61,10 @@ namespace SkinEngine.Controls.Visuals
     Property _isEnabledProperty;
     Property _rowProperty;
     Property _columnProperty;
+    Property _rowSpanProperty;
+    Property _columnSpanProperty;
+    Property _isItemsHostProperty;
+    Property _contextProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     protected Point _availablePoint;
@@ -84,7 +88,7 @@ namespace SkinEngine.Controls.Visuals
       Key = el.Key;
       Focusable = el.Focusable;
       IsFocusScope = el.IsFocusScope;
-      HasFocus = el.HasFocus;
+      HasFocusProperty.SetValue(el.HasFocus);
       ActualPosition = el.ActualPosition;
       Position = el.Position;
       Dock = el.Dock;
@@ -93,6 +97,10 @@ namespace SkinEngine.Controls.Visuals
       IsEnabled = el.IsEnabled;
       Row = el.Row;
       Column = el.Column;
+      RowSpan = el.RowSpan;
+      ColumnSpan = el.ColumnSpan;
+      IsItemsHost = el.IsItemsHost;
+      Context = el.Context;
 
       if (el.RenderTransform != null)
         RenderTransform = (Transform)el.RenderTransform.Clone();
@@ -136,9 +144,14 @@ namespace SkinEngine.Controls.Visuals
       _renderTransformOriginProperty = new Property(new Vector2(0, 0));
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
+      _isItemsHostProperty = new Property(false);
+      _contextProperty = new Property(null);
 
       _rowProperty = new Property(1);
       _columnProperty = new Property(1);
+      _rowSpanProperty = new Property(1);
+      _columnSpanProperty = new Property(1);
+
 
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -176,6 +189,71 @@ namespace SkinEngine.Controls.Visuals
         return _resources;
       }
     }
+    /// <summary>
+    /// Gets or sets the context property.
+    /// </summary>
+    /// <value>The context property.</value>
+    public Property ContextProperty
+    {
+      get
+      {
+        return _contextProperty;
+      }
+      set
+      {
+        _contextProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context.
+    /// </summary>
+    /// <value>The context.</value>
+    public object Context
+    {
+      get
+      {
+        return _contextProperty.GetValue();
+      }
+      set
+      {
+        _contextProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the is items host property.
+    /// </summary>
+    /// <value>The is items host property.</value>
+    public Property IsItemsHostProperty
+    {
+      get
+      {
+        return _isItemsHostProperty;
+      }
+      set
+      {
+        _isItemsHostProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this element hosts items or not
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is items host; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsItemsHost
+    {
+      get
+      {
+        return (bool)_isItemsHostProperty.GetValue();
+      }
+      set
+      {
+        _isItemsHostProperty.SetValue(value);
+      }
+    }
 
     /// <summary>
     /// Gets or sets the row property.
@@ -209,6 +287,38 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the row property.
+    /// </summary>
+    /// <value>The row property.</value>
+    public Property RowSpanProperty
+    {
+      get
+      {
+        return _rowSpanProperty;
+      }
+      set
+      {
+        _rowSpanProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the row.
+    /// </summary>
+    /// <value>The row.</value>
+    public int RowSpan
+    {
+      get
+      {
+        return (int)_rowSpanProperty.GetValue();
+      }
+      set
+      {
+        _rowSpanProperty.SetValue(value);
+      }
+    }
+
 
     /// <summary>
     /// Gets or sets the column property.
@@ -239,6 +349,38 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _columnProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the column span property.
+    /// </summary>
+    /// <value>The column span property.</value>
+    public Property ColumnSpanProperty
+    {
+      get
+      {
+        return _columnSpanProperty;
+      }
+      set
+      {
+        _columnSpanProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the column span.
+    /// </summary>
+    /// <value>The column span.</value>
+    public int ColumnSpan
+    {
+      get
+      {
+        return (int)_columnSpanProperty.GetValue();
+      }
+      set
+      {
+        _columnSpanProperty.SetValue(value);
       }
     }
 
@@ -963,9 +1105,23 @@ namespace SkinEngine.Controls.Visuals
         return this;
       return null;
     }
+    /// <summary>
+    /// Finds the element of type t.
+    /// </summary>
+    /// <param name="t">The t.</param>
+    /// <returns></returns>
     public virtual UIElement FindElementType(Type t)
     {
       if (this.GetType() == t) return this;
+      return null;
+    }
+    /// <summary>
+    /// Finds the the element which is a ItemsHost
+    /// </summary>
+    /// <returns></returns>
+    public virtual UIElement FindItemsHost()
+    {
+      if (IsItemsHost) return this;
       return null;
     }
 

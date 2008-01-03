@@ -31,7 +31,7 @@ using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
 
 using SkinEngine;
-
+using SkinEngine.Controls.Panels;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -42,6 +42,7 @@ namespace SkinEngine.Controls.Visuals
     Property _itemTemplateSelectorProperty;
     Property _itemContainerStyleProperty;
     Property _itemContainerStyleSelectorProperty;
+    Property _itemsPanelProperty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemsControl"/> class.
@@ -63,11 +64,12 @@ namespace SkinEngine.Controls.Visuals
       ItemTemplateSelector = c.ItemTemplateSelector;
       ItemContainerStyle = c.ItemContainerStyle;
       ItemContainerStyleSelector = c.ItemContainerStyleSelector;
+      ItemsPanel = c.ItemsPanel;
     }
 
     public override object Clone()
     {
-      return new ItemsControl();
+      return new ItemsControl(this);
     }
 
     void Init()
@@ -77,6 +79,48 @@ namespace SkinEngine.Controls.Visuals
       _itemTemplateSelectorProperty = new Property(null);
       _itemContainerStyleProperty = new Property(null);
       _itemContainerStyleSelectorProperty = new Property(null);
+      _itemsPanelProperty = new Property(null);
+      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _itemTemplateProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _itemsPanelProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+    }
+
+    void OnPropertyChanged(Property property)
+    {
+      Prepare();
+    }
+
+    /// <summary>
+    /// Gets or sets the items panel property.
+    /// </summary>
+    /// <value>The items panel property.</value>
+    public Property ItemsPanelProperty
+    {
+      get
+      {
+        return _itemsPanelProperty;
+      }
+      set
+      {
+        _itemsPanelProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the items panel.
+    /// </summary>
+    /// <value>The items panel.</value>
+    public Panel ItemsPanel
+    {
+      get
+      {
+        return _itemsPanelProperty.GetValue() as Panel;
+      }
+      set
+      {
+        _itemsPanelProperty.SetValue(value);
+      }
     }
 
     /// <summary>
@@ -233,6 +277,34 @@ namespace SkinEngine.Controls.Visuals
       {
         _itemTemplateSelectorProperty.SetValue(value);
       }
+    }
+
+    void Prepare()
+    {
+      if (ItemsSource == null) return;
+      if (ItemsPanel == null) return;
+      if (ItemContainerStyle == null) return;
+      if (ItemTemplate == null) return;
+      if (ItemTemplate.VisualTree == null) return;
+
+      ItemsPanel.Children.Clear();
+      IEnumerator enumer = ItemsSource.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        FrameworkElement container = ItemContainerStyle.Get();
+        container.VisualParent = ItemsPanel;
+        FrameworkElement newItem = (FrameworkElement)ItemTemplate.VisualTree.Clone();
+        newItem.VisualParent = container;
+        newItem.Context = enumer.Current;
+        container.Context = enumer.Current;
+        ContentPresenter presenter=container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+        if (presenter != null)
+        {
+          presenter.Content = newItem;
+        }
+        ItemsPanel.Children.Add(container);
+      }
+      ItemsPanel.Invalidate();
     }
   }
 }

@@ -49,14 +49,19 @@ namespace SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
+      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      if (Width == 0)
+        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+      if (Height == 0)
+        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
-        child.Measure(availableSize);
+        child.Measure(_desiredSize);
       }
-      if (Width > 0) availableSize.Width = (int)Width;
-      if (Height > 0) availableSize.Height = (int)Height;
-      _desiredSize = availableSize;
+      if (Width > 0) _desiredSize.Width = (int)Width;
+      if (Height > 0) _desiredSize.Height = (int)Height;
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
       base.Measure(availableSize);

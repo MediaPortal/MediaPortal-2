@@ -34,22 +34,22 @@ using FontManager = SkinEngine.Fonts.FontManager;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Label : FrameworkElement
+  public class Label : Control
   {
     Property _textProperty;
     Property _colorProperty;
     Property _scrollProperty;
     Property _fontProperty;
     FontBufferAsset _asset;
-    SkinEngine.Fonts.Font.Align _align = SkinEngine.Fonts.Font.Align.Left;
 
     public Label()
     {
       Init();
+      HorizontalAlignment = HorizontalAlignmentEnum.Left;
     }
 
     public Label(Label lbl)
-      : base((FrameworkElement)lbl)
+      : base(lbl)
     {
       Init();
       Text = lbl.Text;
@@ -191,14 +191,20 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
-      base.Measure(availableSize);
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      System.Drawing.Size size = new System.Drawing.Size(32, 32);
+      if (_asset != null)
+      {
+        size = new Size((int)availableSize.Width, (int)_asset.Font.Size);
+      }
       if (Width == 0)
-        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = ((int)size.Width) - (int)(Margin.X + Margin.W);
       if (Height == 0)
-        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = ((int)size.Height) - (int)(Margin.Y + Margin.Z);
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+
+      _availableSize = new Size(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -218,7 +224,12 @@ namespace SkinEngine.Controls.Visuals
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
-      base.Arrange(layoutRect);
+
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeTriggers();
+      }
     }
 
     /// <summary>
@@ -229,12 +240,17 @@ namespace SkinEngine.Controls.Visuals
       if (_asset == null) return;
       ColorValue color = ColorValue.FromColor(this.Color);
 
+      base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
       System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
-      _asset.Draw(Text, rect, _align, size, color, Scroll, out totalWidth);
-      base.DoRender();
+      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        align = SkinEngine.Fonts.Font.Align.Right;
+      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        align = SkinEngine.Fonts.Font.Align.Center;
+      _asset.Draw(Text, rect, align, size, color, Scroll, out totalWidth);
     }
   }
 }

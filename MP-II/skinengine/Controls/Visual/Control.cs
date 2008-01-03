@@ -48,7 +48,7 @@ namespace SkinEngine.Controls.Visuals
 
     public override object Clone()
     {
-      return new Control();
+      return new Control(this);
     }
 
     void Init()

@@ -155,15 +155,17 @@ namespace SkinEngine.Controls.Visuals
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0)
-        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
       if (Height == 0)
-        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
       if (Content != null)
       {
         Content.Measure(_desiredSize);
         _desiredSize = Content.DesiredSize;
       }
+      if (Width > 0) _desiredSize.Width = (int)Width;
+      if (Height > 0) _desiredSize.Height = (int)Height;
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
 

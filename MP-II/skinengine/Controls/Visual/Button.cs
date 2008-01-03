@@ -179,17 +179,34 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
+      if (Template == null)
+      {
+        _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+        if (Width == 0)
+          _desiredSize.Width = ((int)100) - (int)(Margin.X + Margin.W);
+        if (Height == 0)
+          _desiredSize.Height = ((int)32) - (int)(Margin.Y + Margin.Z);
+
+        _desiredSize.Width += (int)(Margin.X + Margin.W);
+        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+        _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
+        return;
+      }
+
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0)
-        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
       if (Height == 0)
-        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
-      if (Template != null)
-      {
-        Template.Measure(_desiredSize);
-        _desiredSize = Template.DesiredSize;
-      }
+      Template.Measure(_desiredSize);
+
+      if (Width == 0)
+        _desiredSize.Width = Template.DesiredSize.Width;
+
+      if (Height == 0)
+        _desiredSize.Height = Template.DesiredSize.Height;
+
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
       _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
@@ -276,6 +293,15 @@ namespace SkinEngine.Controls.Visuals
       return base.FindElementType(t);
     }
 
+    public override UIElement FindItemsHost()
+    {
+      if (Template != null)
+      {
+        UIElement o = Template.FindItemsHost();
+        if (o != null) return o;
+      }
+      return base.FindItemsHost(); ;
+    }
     /// <summary>
     /// Called when [mouse move].
     /// </summary>

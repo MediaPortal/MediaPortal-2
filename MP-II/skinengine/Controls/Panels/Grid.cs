@@ -136,14 +136,12 @@ namespace SkinEngine.Controls.Panels
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0)
-        _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
       if (Height == 0)
-        _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
-      double w = (_desiredSize.Width - (int)(Margin.X + Margin.W));
-      double h = (_desiredSize.Height - (int)(Margin.Y + Margin.Z));
+      double w = _desiredSize.Width;
+      double h = _desiredSize.Height;
 
 
       if (ColumnDefinitions.Count == 0)
@@ -164,11 +162,24 @@ namespace SkinEngine.Controls.Panels
         if (row < 0) row = 0;
         double widthPerCell = ((ColumnDefinition)(ColumnDefinitions[col])).Width.GetLength(w, ColumnDefinitions.Count);
         double heightPerCell = ((RowDefinition)(RowDefinitions[row])).Height.GetLength(h, RowDefinitions.Count);
+        widthPerCell *= child.ColumnSpan;
+        heightPerCell *= child.RowSpan;
+
         child.Measure(new Size((int)widthPerCell, (int)heightPerCell));
+        float cw = child.DesiredSize.Width;
+        cw /= ((float)child.ColumnSpan);
+        float ch = child.DesiredSize.Width;
+        ch /= ((float)child.RowSpan);
         if (child.DesiredSize.Width > _colWidth[col])
-          _colWidth[col] = child.DesiredSize.Width;
+        {
+          for (int i = 0; i < child.ColumnSpan; ++i)
+            _colWidth[col + i] = cw;
+        }
         if (child.DesiredSize.Height > _rowHeight[row])
-          _rowHeight[row] = child.DesiredSize.Height;
+        {
+          for (int i = 0; i < child.RowSpan; ++i)
+            _rowHeight[col + i] = ch;
+        }
       }
       double totalWidth = 0;
       double totalHeight = 0;
@@ -190,8 +201,15 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        child.Measure(new Size((int)_colWidth[col], (int)_rowHeight[row]));
+        child.Measure(new Size((int)(_colWidth[col] * child.ColumnSpan), (int)(_rowHeight[row] * child.RowSpan)));
       }
+      _desiredSize.Width = (int)totalWidth;
+      _desiredSize.Height = (int)totalHeight;
+
+      if (Width > 0) _desiredSize.Width = (int)Width;
+      if (Height > 0) _desiredSize.Height = (int)Height;
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
       base.Measure(availableSize);
     }
 
@@ -222,7 +240,7 @@ namespace SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
         Point p = new Point((int)(this.ActualPosition.X + _colOffset[col]), (int)(this.ActualPosition.Y + _rowOffset[row]));
-        ArrangeChild(child, ref p, _colWidth[col], _rowHeight[row]);
+        ArrangeChild(child, ref p, (_colWidth[col] * child.ColumnSpan), (_rowHeight[row] * child.RowSpan));
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }

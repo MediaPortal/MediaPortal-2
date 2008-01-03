@@ -59,8 +59,8 @@ namespace SkinEngine.Controls.Panels
       Init();
       AlignmentX = p.AlignmentX;
       AlignmentY = p.AlignmentY;
-      if (Background != null)
-        Background = (Brush)Background.Clone();
+      if (p.Background != null)
+        Background = (Brush)p.Background.Clone();
       foreach (UIElement el in p.Children)
       {
         Children.Add((UIElement)el.Clone());
@@ -384,8 +384,9 @@ namespace SkinEngine.Controls.Panels
         UIElement found = element.FindElement(name);
         if (found != null) return found;
       }
-      return null;
+      return base.FindElement(name);
     }
+
     public override UIElement FindElementType(Type t)
     {
       foreach (UIElement element in Children)
@@ -393,7 +394,17 @@ namespace SkinEngine.Controls.Panels
         UIElement found = element.FindElementType(t);
         if (found != null) return found;
       }
-      return null;
+      return base.FindElementType(t);
+    }
+
+    public override  UIElement FindItemsHost()
+    {
+      foreach (UIElement element in Children)
+      {
+        UIElement found = element.FindItemsHost();
+        if (found != null) return found;
+      }
+      return base.FindItemsHost();
     }
 
     #region IList Members

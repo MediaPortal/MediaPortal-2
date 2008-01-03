@@ -27,7 +27,7 @@ namespace SkinEngine.Controls.Visuals
     UniformToFill
   };
 
-  public class Image : FrameworkElement
+  public class Image : Control
   {
     Property _imageSourceProperty;
     Property _stretchDirectionProperty;
@@ -43,7 +43,7 @@ namespace SkinEngine.Controls.Visuals
       Init();
     }
     public Image(Image img)
-      : base((FrameworkElement)img)
+      : base(img)
     {
       Init();
       ImageSource = img.ImageSource;
@@ -233,7 +233,12 @@ namespace SkinEngine.Controls.Visuals
       ActualHeight = layoutRect.Height;
 
       PerformLayout();
-      base.Arrange(layoutRect);
+
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeTriggers();
+      }
     }
 
     /// <summary>
@@ -242,7 +247,6 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
-      base.Measure(availableSize);
       if (ImageSource == null)
       {
         _desiredSize = new Size((int)Width, (int)Height);
@@ -272,6 +276,7 @@ namespace SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _availableSize = new Size(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -299,6 +304,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
+      base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
     }

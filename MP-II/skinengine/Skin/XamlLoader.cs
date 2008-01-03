@@ -150,15 +150,19 @@ namespace SkinEngine.Skin
           ResourceDictionary dict = (ResourceDictionary)e.Container;
           dict.Merge((ResourceDictionary)o);
           e.Result = true;
+
+          if (_lastDictionary == null)
+            _lastDictionary = dict;
           return;
         }
         else
         {
-
           string key = e.Node.Attributes["Key"].Value;
           ResourceDictionary dict = (ResourceDictionary)e.Container;
           dict[key] = e.Instance;
           e.Result = true;
+          if (_lastDictionary == null)
+            _lastDictionary = dict;
         }
       }
     }

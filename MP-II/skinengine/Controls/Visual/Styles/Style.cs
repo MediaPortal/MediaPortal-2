@@ -203,6 +203,26 @@ namespace SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
+    public FrameworkElement Get()
+    {
+      foreach (Setter setter in _setters)
+      {
+        if (setter.Property == "Template")
+        {
+          FrameworkElement source = (FrameworkElement)setter.Value;
+          FrameworkElement element = (FrameworkElement)source.Clone();
+
+          foreach (Setter setter2 in _setters)
+          {
+            if (setter2.Property != "Template")
+              Set(element, setter2);
+          }
+          return element;
+        }
+      }
+      return null;
+    }
+
     public void Set(UIElement element)
     {
       foreach (Setter setter in _setters)
