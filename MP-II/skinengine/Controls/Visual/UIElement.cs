@@ -34,6 +34,7 @@ using MediaPortal.Core.InputManager;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Controls.Transforms;
+using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -43,7 +44,7 @@ namespace SkinEngine.Controls.Visuals
     Hidden = 1,
     Collapsed = 2,
   }
-  public class UIElement : Visual
+  public class UIElement : Visual, IBindingCollection
   {
     Property _nameProperty;
     Property _keyProperty;
@@ -71,6 +72,7 @@ namespace SkinEngine.Controls.Visuals
     bool _isArrangeValid;
     ResourceDictionary _resources;
     List<Timeline> _runningAnimations;
+    BindingCollection _bindings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -102,6 +104,11 @@ namespace SkinEngine.Controls.Visuals
       IsItemsHost = el.IsItemsHost;
       Context = el.Context;
 
+      foreach (Binding binding in _bindings)
+      {
+        _bindings.Add((Binding)binding.Clone());
+      }
+
       if (el.RenderTransform != null)
         RenderTransform = (Transform)el.RenderTransform.Clone();
 
@@ -128,6 +135,7 @@ namespace SkinEngine.Controls.Visuals
     }
     void Init()
     {
+      _bindings = new BindingCollection();
       _runningAnimations = new List<Timeline>();
       _nameProperty = new Property("");
       _keyProperty = new Property("");
@@ -939,6 +947,7 @@ namespace SkinEngine.Controls.Visuals
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
+        InitializeBindings();
         InitializeTriggers();
       }
     }
@@ -1125,5 +1134,18 @@ namespace SkinEngine.Controls.Visuals
       return null;
     }
 
+
+    #region IBindingCollection Members
+
+    public void Add(Binding binding)
+    {
+      _bindings.Add(binding);
+    }
+
+    #endregion
+
+    protected virtual void InitializeBindings()
+    {
+    }
   }
 }

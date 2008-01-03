@@ -190,6 +190,7 @@ namespace SkinEngine.Controls.Visuals
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
+        InitializeBindings();
         InitializeTriggers();
       }
     }

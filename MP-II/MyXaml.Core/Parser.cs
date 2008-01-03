@@ -1199,20 +1199,7 @@ namespace MyXaml.Core
                 return;
               }
               int pos = refVal.IndexOf(' ');
-              object objValue = OnGetBinding(this, obj, refVal.Substring(pos + 1), prop);
-              prop = t.GetProperty(propertyName + "Property");
-              if (prop == null)
-              {
-                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
-                return;
-              }
-              if (objValue == null)
-              {
-                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Binding :" + refVal + " not found");
-                return;
-              }
-              MethodInfo setInfo = prop.GetSetMethod();
-              setInfo.Invoke(obj, new object[] { objValue });
+              OnGetBinding(this, obj, refVal.Substring(pos + 1), prop);
             }
           }
           else

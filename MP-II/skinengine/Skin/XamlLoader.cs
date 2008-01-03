@@ -12,6 +12,7 @@ using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Visuals.Triggers;
+using SkinEngine.Controls.Bindings;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core;
@@ -89,9 +90,21 @@ namespace SkinEngine.Skin
         }
       }
     }
-    object parser_OnGetBinding(object parser, object obj, string resourceName, PropertyInfo info)
+    object parser_OnGetBinding(object parser, object obj, string bindingExpression, PropertyInfo info)
     {
-      ServiceScope.Get<ILogger>().Info("XamlParser: Get binding '{0}' for {1} property {2} type:{3}", resourceName, obj, info.Name, info.PropertyType);
+      if (obj is IBindingCollection)
+      {
+        Binding b = new Binding();
+        b.Expression = bindingExpression;
+        b.PropertyInfo = info;
+
+        IBindingCollection collection = (IBindingCollection)obj;
+        collection.Add(b);
+      }
+      else
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: class {0} does not implement IBindingCollection", obj);
+      }
       return null;
     }
 

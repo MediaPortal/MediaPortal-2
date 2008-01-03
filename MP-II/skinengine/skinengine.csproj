@@ -141,6 +141,9 @@
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineCollection.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Bindings\Binding.cs" />
+    <Compile Include="Controls\Bindings\BindingCollection.cs" />
+    <Compile Include="Controls\Bindings\IBindingCollection.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />
     <Compile Include="Controls\Brushes\GradientStop.cs" />

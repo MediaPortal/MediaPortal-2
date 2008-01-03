@@ -87,6 +87,7 @@ namespace SkinEngine.Controls.Visuals.Styles
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
+        InitializeBindings();
         InitializeTriggers();
       }
     }
