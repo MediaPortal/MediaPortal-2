@@ -1,0 +1,1 @@
+@"%WINDIR%\Microsoft.NET\Framework\v2.0.50727\MSBUILD.exe" ..\MediaPortal.sln /target:Rebuild  /property:Configuration=Release;Platform=x86
