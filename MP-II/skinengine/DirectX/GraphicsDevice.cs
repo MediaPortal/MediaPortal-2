@@ -72,7 +72,7 @@ namespace SkinEngine
         tmpDev=null;
 
         int videoMemory = caps.HardwareCaps.VideoMemoryTotal / (1000 * 1000);
-        ServiceScope.Get<ILogger>().Info("Directx: Total Video Memory:{0}", videoMemory);
+        ServiceScope.Get<ILogger>().Info("Directx: Total Video Memory:{0} MB", videoMemory);
         if (videoMemory < 128)
         {
           string text = String.Format("MediaPortal-II needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal-II will continue but migh run slow", videoMemory);
