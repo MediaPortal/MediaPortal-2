@@ -38,9 +38,9 @@ namespace SkinEngine.Controls.Visuals.Styles
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
       System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, 0, 0);

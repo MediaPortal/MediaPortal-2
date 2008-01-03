@@ -96,9 +96,9 @@ namespace SkinEngine.Controls.Panels
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
       float totalHeight = 0.0f;
@@ -107,25 +107,22 @@ namespace SkinEngine.Controls.Panels
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
-        if (childSize.Width < 0 || childSize.Height < 0)
-        {
-        }
-        child.Measure(childSize);
-        if (child.DesiredSize.Width < 0 || child.DesiredSize.Height < 0)
-        {
-        }
         if (Orientation == Orientation.Vertical)
         {
+          child.Measure(new Size(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
           totalHeight += child.DesiredSize.Height;
+          child.Measure(new Size(childSize.Width, child.DesiredSize.Height));
           if (child.DesiredSize.Width > totalWidth)
             totalWidth = child.DesiredSize.Width;
         }
         else
         {
+          child.Measure(new Size(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
           totalWidth += child.DesiredSize.Width;
 
+          child.Measure(new Size(child.DesiredSize.Width, childSize.Height));
           if (child.DesiredSize.Height > totalHeight)
             totalHeight = child.DesiredSize.Height;
         }
@@ -189,7 +186,7 @@ namespace SkinEngine.Controls.Panels
               if (!child.IsVisible) continue;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
-              
+
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {

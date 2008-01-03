@@ -146,8 +146,8 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       Free();
-      double w = Width; if (w == 0) w = ActualWidth;
-      double h = Height; if (h == 0) h = ActualHeight;
+      double w = Width; if (w <= 0) w = ActualWidth;
+      double h = Height; if (h <= 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
 
       float centerX = (float)(ActualPosition.X + ActualWidth / 2);

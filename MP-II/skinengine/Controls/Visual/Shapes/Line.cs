@@ -210,8 +210,8 @@ namespace SkinEngine.Controls.Visuals
       Free();
       float cx;
       float cy;
-      double w = Width; if (w == 0) w = ActualWidth;
-      double h = Height; if (h == 0) h = ActualHeight;
+      double w = Width; if (w <= 0) w = ActualWidth;
+      double h = Height; if (h <= 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       //Fill brush
       GraphicsPath path;

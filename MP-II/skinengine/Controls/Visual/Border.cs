@@ -49,7 +49,7 @@ namespace SkinEngine.Controls.Visuals
     VertexBuffer _vertexBufferBorder;
     int _verticesCountBorder;
     DateTime _lastTimeUsed;
-
+    bool _performLayout;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Border"/> class.
@@ -231,7 +231,7 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if (_vertexBufferBackground == null)
+      if (_vertexBufferBackground == null || _performLayout)
       {
         PerformLayout();
       }
@@ -264,9 +264,10 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public void PerformLayout()
     {
+      _performLayout = false;
       Free();
-      double w = Width; if (w == 0) w = ActualWidth;
-      double h = Height; if (h == 0) h = ActualHeight;
+      double w = Width; if (w <= 0) w = ActualWidth;
+      double h = Height; if (h <= 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       GraphicsPath path;
       PointF[] vertices;
@@ -530,7 +531,7 @@ namespace SkinEngine.Controls.Visuals
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
-      PerformLayout();
+      _performLayout = true;
       base.Arrange(layoutRect);
     }
 
@@ -541,9 +542,9 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);

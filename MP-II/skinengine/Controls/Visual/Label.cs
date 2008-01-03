@@ -197,9 +197,9 @@ namespace SkinEngine.Controls.Visuals
       {
         size = new Size((int)availableSize.Width, (int)_asset.Font.Size);
       }
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = ((int)size.Width) - (int)(Margin.X + Margin.W);
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = ((int)size.Height) - (int)(Margin.Y + Margin.Z);
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);

@@ -108,8 +108,8 @@ namespace SkinEngine.Controls.Visuals
     {
       float cx, cy;
       Free();
-      double w = Width; if (w == 0) w = ActualWidth;
-      double h = Height; if (h == 0) h = ActualHeight;
+      double w = Width; if (w <= 0) w = ActualWidth;
+      double h = Height; if (h <= 0) h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       //Fill brush
       PositionColored2Textured[] verts;

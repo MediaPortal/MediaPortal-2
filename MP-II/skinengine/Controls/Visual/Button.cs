@@ -182,9 +182,9 @@ namespace SkinEngine.Controls.Visuals
       if (Template == null)
       {
         _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-        if (Width == 0)
+        if (Width <= 0)
           _desiredSize.Width = ((int)100) - (int)(Margin.X + Margin.W);
-        if (Height == 0)
+        if (Height <= 0)
           _desiredSize.Height = ((int)32) - (int)(Margin.Y + Margin.Z);
 
         _desiredSize.Width += (int)(Margin.X + Margin.W);
@@ -194,17 +194,17 @@ namespace SkinEngine.Controls.Visuals
       }
 
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
 
       Template.Measure(_desiredSize);
 
-      if (Width == 0)
+      if (Width <= 0)
         _desiredSize.Width = Template.DesiredSize.Width;
 
-      if (Height == 0)
+      if (Height <= 0)
         _desiredSize.Height = Template.DesiredSize.Height;
 
       _desiredSize.Width += (int)(Margin.X + Margin.W);

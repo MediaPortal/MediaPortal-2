@@ -232,7 +232,7 @@ namespace SkinEngine.Controls.Visuals
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 
-      PerformLayout();
+      _performLayout = true;
 
       if (!IsArrangeValid)
       {
@@ -258,14 +258,14 @@ namespace SkinEngine.Controls.Visuals
         int h = (int)Height;
         if (Stretch == Stretch.Uniform)
         {
-          if (w == 0) w = _image.Texture.Width;
-          if (h == 0) h = _image.Texture.Height;
+          if (w <= 0) w = _image.Texture.Width;
+          if (h <= 0) h = _image.Texture.Height;
         }
         else
         {
-          if (w == 0)
+          if (w <= 0)
             _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
-          if (w == 0)
+          if (w <= 0)
             _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
         }
         _desiredSize = new Size(w, h);
