@@ -95,6 +95,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)postbuild.bat" "$(SolutionDir)" "$(ConfigurationName)"</PostBuildEvent>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(ConfigurationName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
