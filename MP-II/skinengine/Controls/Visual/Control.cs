@@ -34,7 +34,7 @@ using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Control : FrameworkElement
+  public class Control : Border
   {
     public Control()
     {

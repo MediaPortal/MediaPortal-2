@@ -33,7 +33,7 @@ using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Button : FrameworkElement
+  public class Button : Border
   {
     Property _templateProperty;
     Property _styleProperty;
@@ -192,7 +192,7 @@ namespace SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      base.Measure(availableSize);
+      _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -218,7 +218,12 @@ namespace SkinEngine.Controls.Visuals
         ActualWidth = ((FrameworkElement)Template).ActualWidth;
         ActualHeight = ((FrameworkElement)Template).ActualHeight;
       }
-      base.Arrange(layoutRect);
+
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeTriggers();
+      }
     }
 
     /// <summary>
@@ -226,11 +231,11 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
+      base.DoRender();
       if (Template != null)
       {
         Template.DoRender();
       }
-      base.DoRender();
     }
 
     /// <summary>
