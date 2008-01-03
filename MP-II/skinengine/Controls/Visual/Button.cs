@@ -63,7 +63,7 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty = new Property(null);
       _styleProperty = new Property(null);
       _isPressedProperty = new Property(false);
-      IsFocusable = true;
+      Focusable = true;
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
     }
 

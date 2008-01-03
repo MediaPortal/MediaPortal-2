@@ -198,5 +198,38 @@ namespace SkinEngine.Controls.Visuals
       }
       base.DoRender();
     }
+
+    /// <summary>
+    /// Called when [mouse move].
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public override void OnMouseMove(float x, float y)
+    {
+      if (!IsFocusScope) return;
+      if (Content != null)
+      {
+        Content.OnMouseMove(x, y);
+      }
+      base.OnMouseMove(x, y);
+    }
+
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
+    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
+    {
+      if (!HasFocus) return;
+      if (!IsFocusScope) return;
+
+      UIElement cntl = FocusManager.PredictFocus(this, ref key);
+      if (cntl != null)
+      {
+        HasFocus = false;
+        cntl.HasFocus = true;
+        key = MediaPortal.Core.InputManager.Key.None;
+      }
+    }
   }
 }

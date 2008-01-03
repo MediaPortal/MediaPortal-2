@@ -515,6 +515,7 @@ namespace SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
         {
@@ -522,7 +523,7 @@ namespace SkinEngine.Controls.Panels
         }
         if (match != null)
         {
-          if (match.IsFocusable)
+          if (match.Focusable)
           {
             if (match == focusedFrameworkElement)
             {
@@ -563,6 +564,7 @@ namespace SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
         {
@@ -574,7 +576,7 @@ namespace SkinEngine.Controls.Panels
           {
             continue;
           }
-          if (match.IsFocusable)
+          if (match.Focusable)
           {
             if (bestMatch == null)
             {
@@ -611,6 +613,7 @@ namespace SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
         {
@@ -622,7 +625,7 @@ namespace SkinEngine.Controls.Panels
           {
             continue;
           }
-          if (match.IsFocusable)
+          if (match.Focusable)
           {
             if (bestMatch == null)
             {
@@ -659,6 +662,7 @@ namespace SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
         {
@@ -670,7 +674,7 @@ namespace SkinEngine.Controls.Panels
           {
             continue;
           }
-          if (match.IsFocusable)
+          if (match.Focusable)
           {
             if (bestMatch == null)
             {

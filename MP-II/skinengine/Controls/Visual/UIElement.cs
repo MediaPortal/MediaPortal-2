@@ -47,7 +47,8 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _nameProperty;
     Property _keyProperty;
-    Property _isFocusableProperty;
+    Property _focusableProperty;
+    Property _isFocusScopeProperty;
     Property _hasFocusProperty;
     Property _acutalPositionProperty;
     Property _positionProperty;
@@ -81,7 +82,8 @@ namespace SkinEngine.Controls.Visuals
       Init();
       Name = el.Name;
       Key = el.Key;
-      IsFocusable = el.IsFocusable;
+      Focusable = el.Focusable;
+      IsFocusScope = el.IsFocusScope;
       HasFocus = el.HasFocus;
       ActualPosition = el.ActualPosition;
       Position = el.Position;
@@ -121,7 +123,8 @@ namespace SkinEngine.Controls.Visuals
       _runningAnimations = new List<Timeline>();
       _nameProperty = new Property("");
       _keyProperty = new Property("");
-      _isFocusableProperty = new Property(false);
+      _focusableProperty = new Property(false);
+      _isFocusScopeProperty = new Property(true);
       _hasFocusProperty = new Property(false);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
@@ -464,15 +467,15 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the is focusable property.
     /// </summary>
     /// <value>The is focusable property.</value>
-    public Property IsFocusableProperty
+    public Property FocusableProperty
     {
       get
       {
-        return _isFocusableProperty;
+        return _focusableProperty;
       }
       set
       {
-        _isFocusableProperty = value;
+        _focusableProperty = value;
       }
     }
 
@@ -480,15 +483,48 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the is focusable.
     /// </summary>
     /// <value>The is focusable.</value>
-    public bool IsFocusable
+    public bool Focusable
     {
       get
       {
-        return (bool)_isFocusableProperty.GetValue();
+        return (bool)_focusableProperty.GetValue();
       }
       set
       {
-        _isFocusableProperty.SetValue(value);
+        _focusableProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the is focus scope property.
+    /// </summary>
+    /// <value>The is focus scope property.</value>
+    public Property IsFocusScopeProperty
+    {
+      get
+      {
+        return _isFocusScopeProperty;
+      }
+      set
+      {
+        _isFocusScopeProperty = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is focus scope.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is focus scope; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsFocusScope
+    {
+      get
+      {
+        return (bool)_isFocusScopeProperty.GetValue();
+      }
+      set
+      {
+        _isFocusScopeProperty.SetValue(value);
       }
     }
     /// <summary>
