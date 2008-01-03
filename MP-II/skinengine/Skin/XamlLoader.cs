@@ -308,6 +308,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ContentPresenter")
         return true;
+      else if (name == "ScrollViewer")
+        return true;
       else if (name == "Resources")
         return true;
       else if (name == "ResourceDictionary")
@@ -484,6 +486,8 @@ namespace SkinEngine.Skin
         return new SkinEngine.Controls.Visuals.StyleSelector();
       else if (name == "DataTemplateSelector")
         return new SkinEngine.Controls.Visuals.DataTemplateSelector();
+      else if (name == "ScrollViewer")
+        return new SkinEngine.Controls.Visuals.ScrollViewer();
       else if (name == "Resources")
         return new ResourceDictionary();
       else if (name == "ResourceDictionary")

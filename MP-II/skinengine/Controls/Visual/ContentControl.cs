@@ -21,28 +21,31 @@
 */
 
 #endregion
-
 using System;
-using System.Drawing;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.Core.InputManager;
+
+using SkinEngine;
 
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class ContentPresenter : FrameworkElement
+  public class ContentControl : Control
   {
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
-
-    public ContentPresenter()
+    public ContentControl()
     {
       Init();
     }
 
-    public ContentPresenter(ContentPresenter c)
-      : base(c)
+    public ContentControl(ContentControl c)
+      :base(c)
     {
       Init();
       if (c.Content != null)
@@ -58,8 +61,9 @@ namespace SkinEngine.Controls.Visuals
 
     public override object Clone()
     {
-      return new ContentPresenter(this);
+      return new ContentControl(this);
     }
+
 
     void Init()
     {
@@ -68,6 +72,7 @@ namespace SkinEngine.Controls.Visuals
       _contentTemplateSelectorProperty = new Property(null);
       _contentProperty.Attach(new PropertyChangedHandler(OnContentChanged));
     }
+
     void OnContentChanged(Property property)
     {
       Content.VisualParent = this;
@@ -146,7 +151,7 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public override void Measure(Size availableSize)
+    public override void Measure(System.Drawing.Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width == 0)
@@ -162,7 +167,7 @@ namespace SkinEngine.Controls.Visuals
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
 
-      _availableSize = new Size(availableSize.Width, availableSize.Height);
+      _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
     }
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
