@@ -166,20 +166,22 @@ namespace SkinEngine.Controls.Panels
         heightPerCell *= child.RowSpan;
 
         child.Measure(new Size((int)widthPerCell, (int)heightPerCell));
+
         float cw = child.DesiredSize.Width;
         cw /= ((float)child.ColumnSpan);
-        float ch = child.DesiredSize.Width;
-        ch /= ((float)child.RowSpan);
         if (child.DesiredSize.Width > _colWidth[col])
         {
           for (int i = 0; i < child.ColumnSpan; ++i)
             _colWidth[col + i] = cw;
         }
+        float ch = child.DesiredSize.Height;
+        ch /= ((float)child.RowSpan);
         if (child.DesiredSize.Height > _rowHeight[row])
         {
           for (int i = 0; i < child.RowSpan; ++i)
             _rowHeight[col + i] = ch;
         }
+
       }
       double totalWidth = 0;
       double totalHeight = 0;

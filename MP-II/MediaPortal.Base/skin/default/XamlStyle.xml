@@ -257,7 +257,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Name="grid" Margin="0,2,0,2">
+            <Grid Name="grid" Margin="0,2,0,2">
               <Rectangle  Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Stretch" Margin="0,0,0,0" Name="shine" Width="Auto">
                 <Rectangle.Fill>
                   <RadialGradientBrush  GradientOrigin="0.85,0.82">
@@ -279,7 +279,7 @@
 
               <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
               </ContentPresenter>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">

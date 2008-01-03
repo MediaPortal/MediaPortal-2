@@ -45,19 +45,10 @@ struct p2f
 
 float4 GetColor(float2 pos):COLOR
 {
-  float2 newpos = float2((pos.x-g_center.x)/g_radius.x*0.5+g_center.x, (pos.y-g_center.y)/g_radius.y*0.5+g_center.y);
-  float R=0.5f;
-  float2 v1=g_focus-g_center;
-  float2 v2=newpos-g_center;
-  float Theta=atan2(v2.y-v1.y,v2.x-v1.x);
-  matrix <float, 2, 2> rotMatrix={cos(Theta),sin(Theta),-sin(Theta),cos(Theta)};
-  float2 vr1=mul(rotMatrix, v1);
-  float2 vr2=mul(rotMatrix, v2);
-  float dist1=abs(vr2.x-vr1.x);
-  float xmax=sqrt( (R*R) - (vr1.y*vr1.y));
-  
-  float dist2=xmax-vr1.x;
-  float dist=dist1/dist2;
+  float2 v1=(g_center-g_focus)/g_radius;
+  float2 v2=(pos-g_focus)/g_radius;
+  float v2s=dot(v2,v2);
+  float dist= v2s / ( dot(v1,v2) + sqrt( v2s-pow( dot( float2(v1.y,-v1.x),v2),2 ) ) );
   int index=0;
   while (dist >= g_offset[index] && index+1<g_stops)
   {
@@ -95,6 +86,6 @@ void renderPixelShader( in v2p IN, out p2f OUT)
 technique simple {
 	pass p0 {
 		VertexShader = compile vs_2_0 renderVertexShader();
-		PixelShader = compile ps_2_b renderPixelShader();
+		PixelShader = compile ps_2_a renderPixelShader();
 	}
 }

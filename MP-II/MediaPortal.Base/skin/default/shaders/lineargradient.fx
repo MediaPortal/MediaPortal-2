@@ -84,6 +84,6 @@ void renderPixelShader( in v2p IN, out p2f OUT)
 technique simple {
 	pass p0 {
 		VertexShader = compile vs_2_0 renderVertexShader();
-		PixelShader = compile ps_2_b renderPixelShader();
+		PixelShader = compile ps_2_a renderPixelShader();
 	}
 }

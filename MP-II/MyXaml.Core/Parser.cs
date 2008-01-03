@@ -1603,7 +1603,7 @@ namespace MyXaml.Core
             {
               if ((string)val == "Auto" && pi.PropertyType == typeof(double))
               {
-                objConv = (double)0.0;
+                objConv = (double)0.0f;
               }
               else
               {
