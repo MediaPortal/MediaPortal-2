@@ -104,7 +104,7 @@ namespace SkinEngine.Controls.Visuals
       IsItemsHost = el.IsItemsHost;
       Context = el.Context;
 
-      foreach (Binding binding in _bindings)
+      foreach (Binding binding in el._bindings)
       {
         _bindings.Add((Binding)binding.Clone());
       }
@@ -1144,8 +1144,13 @@ namespace SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected virtual void InitializeBindings()
+    public virtual void InitializeBindings()
     {
+      if (_bindings.Count==0) return;
+      foreach (Binding binding in _bindings)
+      {
+        binding.Initialize(this);
+      }
     }
   }
 }

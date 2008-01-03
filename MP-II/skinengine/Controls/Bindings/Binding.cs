@@ -57,7 +57,13 @@ namespace SkinEngine.Controls.Bindings
       }
     }
 
-
+    /// <summary>
+    /// Initializes the binding to the object specified
+    /// </summary>
+    /// <param name="obj">The object.</param>
+    public void Initialize(object obj)
+    {
+    }
 
   }
 }
