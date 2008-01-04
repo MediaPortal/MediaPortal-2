@@ -53,6 +53,19 @@ namespace MediaPortal.Core.PathManager
     string GetPath(string pathPattern);
 
     /// <summary>
+    /// Replaces an existing path.
+    /// </summary>
+    /// <param name="label">The label.</param>
+    /// <param name="pathPattern">The path pattern.</param>
+    void ReplacePath(string label, string pathPattern);
+
+    /// <summary>
+    /// Removes a path.
+    /// </summary>
+    /// <param name="label">The path label.</param>
+    void RemovePath(string label);
+
+    /// <summary>
     /// Gets a path as DirectoryInfo
     /// </summary>
     /// <param name="pathPattern">The path pattern.</param>

@@ -119,6 +119,33 @@ namespace MediaPortal.Services.PathManager
     }
 
     /// <summary>
+    /// Replaces an existing path.
+    /// </summary>
+    /// <param name="label">The label.</param>
+    /// <param name="pathPattern">The path pattern.</param>
+    public void ReplacePath(string label, string pathPattern)
+    {
+      RemovePath(label);
+      SetPath(label, pathPattern);
+    }
+
+    /// <summary>
+    /// Removes a path.
+    /// </summary>
+    /// <param name="label">The path label.</param>
+    public void RemovePath(string label)
+    {
+      label = label.ToUpper();
+      if (!label.StartsWith("<"))
+        label = "<" + label;
+      if (!label.EndsWith(">"))
+        label = label + ">";
+
+      if (_paths.ContainsKey(label))
+        _paths.Remove(label);
+    }
+
+    /// <summary>
     /// Gets a path as DirectoryInfo.
     /// </summary>
     /// <param name="path">The path.</param>
