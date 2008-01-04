@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <StackPanel Width="500" Background="Yellow">
+  <StackPanel Width="500" Background="Yellow" xmlns:local="clr-namespace:Model;assembly=mymovies">
     <StackPanel.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </StackPanel.Resources>
 
-    <ListView Width="400" Style="{StaticResource MpListView}" />
+    <ListView Width="400" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}"/>
     <Grid >
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>

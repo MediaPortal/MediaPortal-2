@@ -55,6 +55,7 @@ namespace MyXaml.Core
     public delegate object GetResourceDlgt(object parser, object obj, string resourceName);
     public delegate object GetBindingDlgt(object parser, object obj, string resourceName, PropertyInfo info);
     public delegate void SetContentDlg(object parser, object obj, object content);
+    public delegate void ImportNamespaceDlgt(object parser, object obj, string nameSpace);
 
     /// <summary>
     /// Event is raised when the object graph implements adding instances to
@@ -86,6 +87,7 @@ namespace MyXaml.Core
     public event GetResourceDlgt OnGetResource;
     public event GetBindingDlgt OnGetBinding;
     public event SetContentDlg OnSetContent;
+    public event ImportNamespaceDlgt OnImportNameSpace;
 
     protected string currentFile;
 
@@ -1155,6 +1157,14 @@ namespace MyXaml.Core
 
         if (propertyName == "_IsProperty")								// Ignore _IsProperty attribute.
         {
+          continue;
+        }
+        if (attr.Prefix == "xmlns")
+        {
+          if (OnImportNameSpace != null)
+          {
+            OnImportNameSpace(this, obj, attr.Value);
+          }
           continue;
         }
 

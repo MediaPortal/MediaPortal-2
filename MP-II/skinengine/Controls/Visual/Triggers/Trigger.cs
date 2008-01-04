@@ -154,6 +154,15 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         return;
       }
+      if (element.VisualParent is ContentPresenter)
+      {
+        element = element.VisualParent;
+        while (element.VisualParent != null)
+        {
+          if (element is ControlTemplate) break;
+          element = element.VisualParent;
+        }
+      }
       if (element as ControlTemplate != null)
       {
         element = element.VisualParent;

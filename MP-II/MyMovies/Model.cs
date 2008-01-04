@@ -297,7 +297,7 @@ namespace MyMovies
         IImporterManager importer = ServiceScope.Get<IImporterManager>();
         if (importer.Shares.Count == 0)
         {
-          ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
+          //ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
           Refresh();
         }
         return _movies;

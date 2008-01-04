@@ -219,21 +219,54 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
+    public override void Animate()
+    {
+      base.Animate();
+      if (Content != null)
+      {
+        Content.Animate();
+      }
+    }
+
+    /// <summary>
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
-      if (!HasFocus) return;
-      if (!IsFocusScope) return;
-
-      UIElement cntl = FocusManager.PredictFocus(this, ref key);
-      if (cntl != null)
+      if (Content != null)
       {
-        HasFocus = false;
-        cntl.HasFocus = true;
-        key = MediaPortal.Core.InputManager.Key.None;
+        Content.OnKeyPressed(ref key);
       }
+    }
+    public override UIElement FindElement(string name)
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindElement(name);
+        if (found != null) return found;
+      }
+      return base.FindElement(name);
+    }
+    public override UIElement FindElementType(Type t)
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindElementType(t);
+        if (found != null) return found;
+      }
+      return base.FindElementType(t);
+    }
+    public override UIElement FindItemsHost()
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindItemsHost();
+        if (found != null) return found;
+      }
+      return base.FindItemsHost();
     }
   }
 }

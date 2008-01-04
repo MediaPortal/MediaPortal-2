@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MyXaml.Core;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Controls.Brushes;
 using SkinEngine.Controls.Panels;
@@ -13,10 +15,9 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Bindings;
+
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 namespace SkinEngine.Skin
 {
   public class XamlLoader
@@ -42,6 +43,7 @@ namespace SkinEngine.Skin
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
+        parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
         return parser.Instantiate(fullFileName, "*");
       }
     }
@@ -60,9 +62,47 @@ namespace SkinEngine.Skin
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
+        parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
         return (UIElement)parser.Instantiate(fullFileName, tagName);
       }
     }
+
+    void parser_OnImportNameSpace(object parser, object obj, string nameSpace)
+    {
+      //clr-namespace:Model;assembly=mymovies
+      string[] parts = nameSpace.Split(new char[] { ';' });
+      if (parts.Length != 2)
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: invalid namespace declaration:{0}", nameSpace);
+        return;
+      }
+      string className = parts[0].Substring(parts[0].IndexOf(":") + 1);
+      string assemblyName = parts[1].Substring(parts[1].IndexOf("=") + 1);
+      if (!SkinEngine.ModelManager.Instance.Contains(assemblyName, className))
+      {
+        SkinEngine.ModelManager.Instance.Load(assemblyName, className);
+      }
+      Model model = SkinEngine.ModelManager.Instance.GetModel(assemblyName, className);
+      if (model == null)
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model :{0}.{1}", assemblyName, className);
+        return;
+      }
+      PropertyInfo info = obj.GetType().GetProperty("Context");
+      if (info == null)
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: object {0} does not have a Context property", obj);
+        return;
+      }
+      MethodInfo methodInfo = info.GetSetMethod();
+      if (methodInfo == null)
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: object {0} does not have a Context set property", obj);
+        return;
+      }
+      methodInfo.Invoke(obj, new object[] { model.Instance });
+    }
+
     void parser_OnSetContent(object parser, object obj, object content)
     {
       if (obj is UIElement)

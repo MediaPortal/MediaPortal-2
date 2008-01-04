@@ -1724,9 +1724,15 @@
         <Grid.RowDefinitions>
           <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Grid.Row="0" Grid.Column="0"  Height="32" Width="32"  ImageSource="{Binding Image}" />
-        <Label Name="lbl123"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6"  Text="{Binding Label1}" Font="font12"/>
-        <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Label2}" Font="font12"/>
+        <Image Grid.Row="0" Grid.Column="0"  Height="32" Width="32"  ImageSource="{Binding defaulticon}" />
+        <Label Name="lbl1"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6"  Text="{Binding Name}" Font="font12"/>
+        <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Size}" Font="font12"/>
+
+        <Grid.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Setter TargetName="lbl1" Property="Scroll" Value="True" />
+          </Trigger>
+        </Grid.Triggers>
       </Grid>
     </DataTemplate>
     <Style Key="MpListView" TargetType="ListBox">
@@ -1749,8 +1755,10 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ListBox">
-            <StackPanel  IsItemsHost="True" >
-            </StackPanel>
+            <ScrollViewer>
+              <StackPanel  IsItemsHost="True" >
+              </StackPanel>
+            </ScrollViewer>
           </ControlTemplate>
         </Setter.Value>
       </Setter>

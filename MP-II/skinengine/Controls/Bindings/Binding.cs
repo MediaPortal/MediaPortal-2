@@ -4,7 +4,10 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using SkinEngine.Controls.Visuals;
+using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.Collections;
 
 namespace SkinEngine.Controls.Bindings
 {
@@ -108,7 +111,12 @@ namespace SkinEngine.Controls.Bindings
       UIElement sourceElement = bindingDestinationObject as UIElement;
       if (sourceElement == null) return;
       object bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
-      if (bindingSourceProperty == null) return;
+      if (bindingSourceProperty == null)
+      {
+        ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
+          Expression, bindingSourcePropertyName, sourceElement);
+        return;
+      }
       if (bindingSourceProperty is Property)
       {
         Property sourceProperty = (Property)bindingSourceProperty;
@@ -160,7 +168,18 @@ namespace SkinEngine.Controls.Bindings
         return GetBindingSourceObject(element.VisualParent, bindingSourcePropertyName);
       }
       PropertyInfo info = GetPropertyOnObject(element.Context, bindingSourcePropertyName, true);
-      if (info == null) return null;
+      if (info == null)
+      {
+        if (element.Context is ListItem)
+        {
+          ListItem listItem = (ListItem)element.Context;
+          if (listItem.Contains(bindingSourcePropertyName))
+          {
+            return listItem.Label(bindingSourcePropertyName).Evaluate(null, null);
+          }
+        }
+        return null;
+      }
       MethodInfo methodInfo = info.GetGetMethod();
       if (methodInfo == null) return null;
       object bindingObject = methodInfo.Invoke(element.Context, null);

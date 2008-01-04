@@ -23,8 +23,9 @@
 #endregion
 using System;
 using System.Diagnostics;
-using System.Collections.Generic;
+using System.Collections;
 using System.Text;
+using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
@@ -34,7 +35,7 @@ using SkinEngine;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class ContentControl : Control
+  public class ContentControl : Control, IList
   {
     private Property _contentProperty;
     private Property _contentTemplateProperty;
@@ -151,7 +152,7 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public override void Measure(System.Drawing.Size availableSize)
+    public override void Measure(Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width <= 0)
@@ -169,8 +170,9 @@ namespace SkinEngine.Controls.Visuals
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
 
-      _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
+      _availableSize = new Size(availableSize.Width, availableSize.Height);
     }
+
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
       _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
@@ -200,11 +202,11 @@ namespace SkinEngine.Controls.Visuals
     }
     public override void DoRender()
     {
+      base.DoRender();
       if (Content != null)
       {
         Content.DoRender();
       }
-      base.DoRender();
     }
 
     /// <summary>
@@ -221,6 +223,18 @@ namespace SkinEngine.Controls.Visuals
       }
       base.OnMouseMove(x, y);
     }
+    /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
+    public override void Animate()
+    {
+      base.Animate();
+      if (Content != null)
+      {
+        Content.Animate();
+      }
+    }
+
 
     /// <summary>
     /// Handles keypresses
@@ -228,16 +242,131 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
-      if (!HasFocus) return;
-      if (!IsFocusScope) return;
-
-      UIElement cntl = FocusManager.PredictFocus(this, ref key);
-      if (cntl != null)
+      if (Content != null)
       {
-        HasFocus = false;
-        cntl.HasFocus = true;
-        key = MediaPortal.Core.InputManager.Key.None;
+        Content.OnKeyPressed(ref key);
       }
     }
+    public override UIElement FindElement(string name)
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindElement(name);
+        if (found != null) return found;
+      }
+      return base.FindElement(name);
+    }
+    public override UIElement FindElementType(Type t)
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindElementType(t);
+        if (found != null) return found;
+      }
+      return base.FindElementType(t);
+    }
+    public override UIElement FindItemsHost()
+    {
+      if (Content != null)
+      {
+        UIElement found = Content.FindItemsHost();
+        if (found != null) return found;
+      }
+      return base.FindItemsHost();
+    }
+
+    #region IList Members
+
+    public int Add(object value)
+    {
+      Content = (FrameworkElement)value;
+      return 1;
+    }
+
+    public void Clear()
+    {
+    }
+
+    public bool Contains(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int IndexOf(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void Insert(int index, object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public bool IsFixedSize
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsReadOnly
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public void Remove(object value)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public void RemoveAt(int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public object this[int index]
+    {
+      get
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+      set
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+    }
+
+    #endregion
+
+    #region ICollection Members
+
+    public void CopyTo(Array array, int index)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    public int Count
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public bool IsSynchronized
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    public object SyncRoot
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    public IEnumerator GetEnumerator()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    #endregion
   }
 }

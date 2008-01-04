@@ -99,6 +99,7 @@ namespace MediaPortal.Core.Collections
       return new SimpleLabelProperty("");
     }
 
+
     /// <summary>
     /// Adds a label to the listitem
     /// </summary>

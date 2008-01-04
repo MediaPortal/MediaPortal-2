@@ -40,22 +40,22 @@ namespace SkinEngine.Controls.Visuals
     Property _styleProperty;
     Property _templateProperty;
     ArrayList _items;
-    public class MyItem
-    {
-      public string _image;
-      public Property _label1;
-      public string _label2;
-      public MyItem(string img, string label1, string label2)
-      {
-        _image = img;
-        _label1 = new Property(label1);
-        _label2 = label2;
-      }
-      public string Label1 { get { return (string)_label1.GetValue(); } }
-      public Property Label1Property { get { return _label1; } }
-      public string Label2 { get { return _label2; } }
-      public string Image { get { return _image; } }
-    }
+    //public class MyItem
+    //{
+    //  public string _image;
+    //  public Property _label1;
+    //  public string _label2;
+    //  public MyItem(string img, string label1, string label2)
+    //  {
+    //    _image = img;
+    //    _label1 = new Property(label1);
+    //    _label2 = label2;
+    //  }
+    //  public string Label1 { get { return (string)_label1.GetValue(); } }
+    //  public Property Label1Property { get { return _label1; } }
+    //  public string Label2 { get { return _label2; } }
+    //  public string Image { get { return _image; } }
+    //}
 
     public ListView()
     {
@@ -83,11 +83,11 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty = new Property(null);
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
 
-      _items = new ArrayList();
-      _items.Add(new MyItem("defaultuser.png", "Item 1", "Item 1.1"));
-      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.2"));
-      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.3"));
-      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.4"));
+      //_items = new ArrayList();
+      //_items.Add(new MyItem("defaultuser.png", "Item 1", "Item 1.1"));
+      //_items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.2"));
+      //_items.Add(new MyItem("defaultuser.png", "Item 3", "Item 1.3"));
+      //_items.Add(new MyItem("defaultuser.png", "Item 4", "Item 1.4"));
 
       ItemsSource = _items;
     }
