@@ -130,7 +130,7 @@ namespace MediaPortal.Core.Localisation
 
     public static bool IsString(string testString)
     {
-      if (testString != null && testString.StartsWith("[") && testString.EndsWith("]"))
+      if (testString != null && testString.StartsWith("[") && testString.EndsWith("]") && testString.Contains("."))
         return true;
 
       return false;
