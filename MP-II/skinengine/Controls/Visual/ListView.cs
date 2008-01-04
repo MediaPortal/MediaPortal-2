@@ -198,9 +198,9 @@ namespace SkinEngine.Controls.Visuals
       }
     }
     /// <summary>
-    /// Gets or sets the control style property.
+    /// Gets or sets the command parameter property.
     /// </summary>
-    /// <value>The control style property.</value>
+    /// <value>The command parameter property.</value>
     public Property CommandParameterProperty
     {
       get

@@ -30,6 +30,7 @@ using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
 
 using SkinEngine;
+using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -38,6 +39,11 @@ namespace SkinEngine.Controls.Visuals
     Property _templateProperty;
     Property _styleProperty;
     Property _isPressedProperty;
+
+    Property _commandParameter;
+    Command _command;
+    Command _contextMenuCommand;
+    Property _contextMenuCommandParameterProperty;
 
     public Button()
     {
@@ -51,6 +57,12 @@ namespace SkinEngine.Controls.Visuals
       IsPressed = b.IsPressed;
       Template = (UIElement)b.Template.Clone();
       Style = b.Style;
+
+      Command = b.Command;
+      CommandParameter = b._commandParameter;
+
+      ContextMenuCommand = b.ContextMenuCommand;
+      ContextMenuCommandParameter = b.ContextMenuCommandParameter;
     }
 
     public override object Clone()
@@ -63,6 +75,10 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty = new Property(null);
       _styleProperty = new Property(null);
       _isPressedProperty = new Property(false);
+      _commandParameter = new Property(null);
+      _command = null;
+      _contextMenuCommandParameterProperty = new Property(null);
+      _contextMenuCommand = null;
       Focusable = true;
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
     }
@@ -172,6 +188,103 @@ namespace SkinEngine.Controls.Visuals
         _styleProperty.SetValue(value);
       }
     }
+
+
+    /// <summary>
+    /// Gets or sets the command.
+    /// </summary>
+    /// <value>The command.</value>
+    public Command Command
+    {
+      get
+      {
+        return _command;
+      }
+      set
+      {
+        _command = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the command parameter property.
+    /// </summary>
+    /// <value>The command parameter property.</value>
+    public Property CommandParameterProperty
+    {
+      get
+      {
+        return _commandParameter;
+      }
+      set
+      {
+        _commandParameter = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the control style.
+    /// </summary>
+    /// <value>The control style.</value>
+    public object CommandParameter
+    {
+      get
+      {
+        return _commandParameter.GetValue();
+      }
+      set
+      {
+        _commandParameter.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command.
+    /// </summary>
+    /// <value>The context menu command.</value>
+    public Command ContextMenuCommand
+    {
+      get
+      {
+        return _contextMenuCommand;
+      }
+      set
+      {
+        _contextMenuCommand = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command parameter property.
+    /// </summary>
+    /// <value>The context menu command parameter property.</value>
+    public Property ContextMenuCommandParameterProperty
+    {
+      get
+      {
+        return _contextMenuCommandParameterProperty;
+      }
+      set
+      {
+        _contextMenuCommandParameterProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command parameter.
+    /// </summary>
+    /// <value>The context menu command parameter.</value>
+    public object ContextMenuCommandParameter
+    {
+      get
+      {
+        return _contextMenuCommandParameterProperty.GetValue();
+      }
+      set
+      {
+        _contextMenuCommandParameterProperty.SetValue(value);
+      }
+    }
+
 
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
@@ -345,6 +458,12 @@ namespace SkinEngine.Controls.Visuals
       base.Animate();
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this uielement has focus.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this uielement has focus; otherwise, <c>false</c>.
+    /// </value>
     public override bool HasFocus
     {
       get
@@ -360,6 +479,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
@@ -367,6 +490,22 @@ namespace SkinEngine.Controls.Visuals
       if (key == MediaPortal.Core.InputManager.Key.Enter)
       {
         IsPressed = true;
+      }
+      if (key == MediaPortal.Core.InputManager.Key.Enter)
+      {
+        if (Command != null)
+        {
+          Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.ContextMenu)
+      {
+        if (ContextMenuCommand != null)
+        {
+          ContextMenuCommand.Method.Invoke(ContextMenuCommand.Object, new object[] { ContextMenuCommandParameter });
+
+        }
       }
 
       UIElement cntl = FocusManager.PredictFocus(this, ref key);
