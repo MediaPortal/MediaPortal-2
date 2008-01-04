@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Panels
     Property _orientationProperty;
     int _startIndex;
     int _endIndex;
+    int _controlCount;
     double _lineHeight;
     double _lineWidth;
 
@@ -63,6 +64,7 @@ namespace SkinEngine.Controls.Panels
       _endIndex = 0;
       _lineWidth = 0.0;
       _lineHeight = 0.0;
+      _controlCount = 0;
     }
 
     public override object Clone()
@@ -118,7 +120,7 @@ namespace SkinEngine.Controls.Panels
       float totalWidth = 0.0f;
       Size childSize = new Size(_desiredSize.Width, _desiredSize.Height);
       int index = 0;
-      int controlCount=0;
+      _controlCount = 0;
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -127,13 +129,12 @@ namespace SkinEngine.Controls.Panels
           index++;
           continue;
         }
-        index++;
-        controlCount++;
         if (Orientation == Orientation.Vertical)
         {
           child.Measure(new Size(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
-          if (totalHeight + child.DesiredSize.Height > availableSize.Height) break;
+          if (totalHeight + child.DesiredSize.Height > availableSize.Height)
+            break;
           totalHeight += child.DesiredSize.Height;
           child.Measure(new Size(childSize.Width, child.DesiredSize.Height));
           if (child.DesiredSize.Width > totalWidth)
@@ -143,17 +144,28 @@ namespace SkinEngine.Controls.Panels
         {
           child.Measure(new Size(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
-          if (totalWidth + child.DesiredSize.Width > availableSize.Width) break;
+          if (totalWidth + child.DesiredSize.Width > availableSize.Width)
+            break;
           totalWidth += child.DesiredSize.Width;
 
           child.Measure(new Size(child.DesiredSize.Width, childSize.Height));
           if (child.DesiredSize.Height > totalHeight)
             totalHeight = child.DesiredSize.Height;
         }
+        index++;
+        _controlCount++;
       }
       _endIndex = index;
-      _lineHeight=totalHeight/((double)controlCount);
-      _lineWidth=totalWidth/((double)controlCount);
+      if (_controlCount > 0)
+      {
+        _lineHeight = totalHeight / ((double)_controlCount);
+        _lineWidth = totalWidth / ((double)_controlCount);
+      }
+      else
+      {
+        _lineHeight = totalHeight;
+        _lineWidth = totalWidth;
+      }
       if (Width > 0) totalWidth = (float)Width;
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
@@ -194,7 +206,7 @@ namespace SkinEngine.Controls.Panels
                 continue;
               }
               index++;
-              if (index >= _endIndex) break;
+              if (index > _endIndex) break;
               Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + totalHeight));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -226,7 +238,7 @@ namespace SkinEngine.Controls.Panels
                 continue;
               }
               index++;
-              if (index >= _endIndex) break;
+              if (index > _endIndex) break;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -284,7 +296,7 @@ namespace SkinEngine.Controls.Panels
             continue;
           }
           index++;
-          if (index >= _endIndex) break;
+          if (index > _endIndex) break;
           element.Render();
         }
         _lastTimeUsed = SkinContext.Now;
@@ -297,7 +309,7 @@ namespace SkinEngine.Controls.Panels
     {
       if (this.Orientation == Orientation.Vertical)
       {
-        if (_startIndex + 1 < Children.Count)
+        if (_startIndex + _controlCount < Children.Count)
         {
           lock (_orientationProperty)
           {
@@ -348,7 +360,7 @@ namespace SkinEngine.Controls.Panels
     {
       if (this.Orientation == Orientation.Horizontal)
       {
-        if (_startIndex + 1 < Children.Count)
+        if (_startIndex + _controlCount < Children.Count)
         {
           lock (_orientationProperty)
           {
@@ -381,8 +393,8 @@ namespace SkinEngine.Controls.Panels
     {
     }
 
-    public double LineHeight 
-    { 
+    public double LineHeight
+    {
       get
       {
         return _lineHeight;
