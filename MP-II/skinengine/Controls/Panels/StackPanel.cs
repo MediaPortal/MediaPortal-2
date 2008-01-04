@@ -142,7 +142,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
       Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);

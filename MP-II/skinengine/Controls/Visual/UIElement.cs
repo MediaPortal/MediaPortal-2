@@ -68,11 +68,12 @@ namespace SkinEngine.Controls.Visuals
     Property _contextProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
-    protected Point _availablePoint;
+    protected System.Drawing.Rectangle _finalRect;
     bool _isArrangeValid;
     ResourceDictionary _resources;
     List<Timeline> _runningAnimations;
     BindingCollection _bindings;
+    bool _isLayoutInvalid = true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -960,6 +961,14 @@ namespace SkinEngine.Controls.Visuals
     public virtual void Invalidate()
     {
       if (!IsArrangeValid) return;
+      _isLayoutInvalid = true;
+    }
+
+    protected void UpdateLayout()
+    {
+      if (false == _isLayoutInvalid) return;
+      Trace.WriteLine("UpdateLayout :"+this.Name+"  "+this.GetType());
+      _isLayoutInvalid = false;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
         System.Drawing.Size sizeOld = new Size(_desiredSize.Width, _desiredSize.Height);
@@ -968,13 +977,14 @@ namespace SkinEngine.Controls.Visuals
         _availableSize = availsizeOld;
         if (_desiredSize == sizeOld)
         {
-          Arrange(new System.Drawing.Rectangle((int)_availablePoint.X, (int)_availablePoint.Y, _availableSize.Width, _availableSize.Height));
+          Arrange(_finalRect);
           return;
         }
       }
       if (VisualParent != null)
       {
         VisualParent.Invalidate();
+        VisualParent.UpdateLayout();
       }
       else
       {
@@ -1146,7 +1156,7 @@ namespace SkinEngine.Controls.Visuals
 
     public virtual void InitializeBindings()
     {
-      if (_bindings.Count==0) return;
+      if (_bindings.Count == 0) return;
       foreach (Binding binding in _bindings)
       {
         binding.Initialize(this);

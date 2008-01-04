@@ -64,6 +64,7 @@ namespace SkinEngine.Controls.Visuals
       _scrollProperty = new Property(false);
       _fontProperty = new Property("");
       _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
+      _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
     }
 
     public override object Clone()
@@ -71,6 +72,10 @@ namespace SkinEngine.Controls.Visuals
       return new Label(this);
     }
 
+    void OnTextChanged(Property prop)
+    {
+      Invalidate();
+    }
     void OnFontChanged(Property prop)
     {
       _asset = null;
@@ -195,7 +200,7 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Size size = new System.Drawing.Size(32, 32);
       if (_asset != null)
       {
-        size = new Size((int)availableSize.Width, (int)_asset.Font.Size);
+        size = new Size((int)availableSize.Width, (int)(_asset.Font.LineHeight*1.5));
       }
       if (Width <= 0)
         _desiredSize.Width = ((int)size.Width) - (int)(Margin.X + Margin.W);
@@ -214,7 +219,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
       layoutRect.X += (int)(Margin.X);
@@ -238,13 +243,17 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
+      if (this.Name == "lbl123")
+      {
+        int x = 123;
+      }
       if (_asset == null) return;
       ColorValue color = ColorValue.FromColor(this.Color);
 
       base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
-      float size = _asset.Font.Size;
+      float size = _asset.Font.LineHeight;
       System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
       SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)

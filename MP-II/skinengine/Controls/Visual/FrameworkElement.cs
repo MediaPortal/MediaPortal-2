@@ -472,6 +472,7 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Render()
     {
+      UpdateLayout();
       if (RenderTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();

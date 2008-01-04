@@ -169,7 +169,7 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      _availablePoint = new System.Drawing.Point(finalRect.Location.X, finalRect.Location.Y);
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);

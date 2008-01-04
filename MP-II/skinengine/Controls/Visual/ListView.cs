@@ -84,10 +84,10 @@ namespace SkinEngine.Controls.Visuals
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
 
       _items = new ArrayList();
-      _items.Add(new MyItem("defaultuser.png", "1", "1.1"));
-      _items.Add(new MyItem("defaultuser.png", "2", "1.2"));
-      _items.Add(new MyItem("defaultuser.png", "2", "1.3"));
-      _items.Add(new MyItem("defaultuser.png", "2", "1.4"));
+      _items.Add(new MyItem("defaultuser.png", "Item 1", "Item 1.1"));
+      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.2"));
+      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.3"));
+      _items.Add(new MyItem("defaultuser.png", "Item 2", "Item 1.4"));
 
       ItemsSource = _items;
     }
@@ -195,7 +195,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
-      _availablePoint = new System.Drawing.Point(finalRect.Location.X, finalRect.Location.Y);
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
       System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);

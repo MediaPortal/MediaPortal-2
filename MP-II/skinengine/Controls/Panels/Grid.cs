@@ -154,6 +154,7 @@ namespace SkinEngine.Controls.Panels
       _rowHeight = new double[RowDefinitions.Count];
       foreach (FrameworkElement child in Children)
       {
+        if (!child.IsVisible) continue;
         int col = child.Column;
         int row = child.Row;
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
@@ -181,7 +182,7 @@ namespace SkinEngine.Controls.Panels
         if (child.DesiredSize.Height > _rowHeight[row])
         {
           for (int i = 0; i < child.RowSpan; ++i)
-            _rowHeight[col + i] = ch;
+            _rowHeight[row + i] = ch;
         }
 
 
@@ -200,6 +201,7 @@ namespace SkinEngine.Controls.Panels
       }
       foreach (FrameworkElement child in Children)
       {
+        if (!child.IsVisible) continue;
         int col = child.Column;
         int row = child.Row;
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
@@ -225,7 +227,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(Rectangle finalRect)
     {
-      _availablePoint = new Point(finalRect.Location.X, finalRect.Location.Y);
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
       Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (int)(Margin.X);
       layoutRect.Y += (int)(Margin.Y);

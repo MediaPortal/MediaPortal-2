@@ -12,6 +12,7 @@ namespace SkinEngine.Controls.Bindings
   {
     public string _expression;
     PropertyInfo _propertyInfo;
+    BindingDependency _dependency;
 
     public Binding()
     {
@@ -115,13 +116,14 @@ namespace SkinEngine.Controls.Bindings
         if (info == null) return;
         if (info.PropertyType == typeof(Property))
         {
-          //create a new dependency..
-          BindingDependency dependency = new BindingDependency(sourceProperty);
-
-          //set the source property to the new dependency
-          MethodInfo methodInfo = info.GetSetMethod();
+          //get the destination property
+          MethodInfo methodInfo = info.GetGetMethod();
           if (methodInfo == null) return;
-          methodInfo.Invoke(bindingDestinationObject, new object[] { dependency });
+          Property destinationProperty = (Property)methodInfo.Invoke(bindingDestinationObject, null);
+
+          //create a new dependency..
+          _dependency = new BindingDependency(sourceProperty, destinationProperty);
+
 
         }
         else
