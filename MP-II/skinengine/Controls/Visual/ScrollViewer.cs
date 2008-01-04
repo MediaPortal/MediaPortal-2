@@ -236,7 +236,7 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      if (y >= Content.ActualPosition.Y + Content.ActualHeight)
+      if (y + (info.LineHeight * 2) >= Content.ActualPosition.Y + Content.ActualHeight)
       {
         info.LineDown();
         OnMouseMove(x, y);
@@ -249,7 +249,7 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      if (y == Content.ActualPosition.Y)
+      if (y - info.LineHeight < Content.ActualPosition.Y)
       {
         info.LineUp();
         OnMouseMove(x, y);

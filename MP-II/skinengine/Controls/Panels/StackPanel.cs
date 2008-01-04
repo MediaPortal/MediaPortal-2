@@ -39,6 +39,8 @@ namespace SkinEngine.Controls.Panels
     Property _orientationProperty;
     int _startIndex;
     int _endIndex;
+    double _lineHeight;
+    double _lineWidth;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StackPanel"/> class.
@@ -59,6 +61,8 @@ namespace SkinEngine.Controls.Panels
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _startIndex = 0;
       _endIndex = 0;
+      _lineWidth = 0.0;
+      _lineHeight = 0.0;
     }
 
     public override object Clone()
@@ -114,6 +118,7 @@ namespace SkinEngine.Controls.Panels
       float totalWidth = 0.0f;
       Size childSize = new Size(_desiredSize.Width, _desiredSize.Height);
       int index = 0;
+      int controlCount=0;
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -123,6 +128,7 @@ namespace SkinEngine.Controls.Panels
           continue;
         }
         index++;
+        controlCount++;
         if (Orientation == Orientation.Vertical)
         {
           child.Measure(new Size(childSize.Width, 0));
@@ -146,6 +152,8 @@ namespace SkinEngine.Controls.Panels
         }
       }
       _endIndex = index;
+      _lineHeight=totalHeight/((double)controlCount);
+      _lineWidth=totalWidth/((double)controlCount);
       if (Width > 0) totalWidth = (float)Width;
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
@@ -373,6 +381,21 @@ namespace SkinEngine.Controls.Panels
     {
     }
 
+    public double LineHeight 
+    { 
+      get
+      {
+        return _lineHeight;
+      }
+    }
+
+    public double LineWidth
+    {
+      get
+      {
+        return _lineWidth;
+      }
+    }
     #endregion
   }
 }
