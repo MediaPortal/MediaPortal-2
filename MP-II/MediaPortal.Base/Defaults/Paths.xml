@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Paths>
- <Path name="USER_DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\MediaPortal" />
- <Path name="CONFIG" value="&lt;USER_DATA&gt;\Config" />
- <Path name="LOG" value="&lt;USER_DATA&gt;\Log" />
+ <Path name="DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\MediaPortal" />
+ <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
+ <Path name="LOG" value="&lt;DATA&gt;\Log" />
 </Paths>

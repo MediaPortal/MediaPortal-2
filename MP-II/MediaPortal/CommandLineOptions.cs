@@ -41,7 +41,7 @@ namespace MediaPortal
     {
       LogLevel,
       LogMethods,
-      UserData,
+      Data,
       // put options here
     }
     #endregion

@@ -82,9 +82,9 @@ namespace MediaPortal
         // Create PathManager
         PathManager pathManager = new PathManager();
 
-        // Check if user wants to override the default UserData location.
-        if (mpArgs.IsOption(CommandLineOptions.Option.UserData))
-          pathManager.ReplacePath("USER_DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.UserData));
+        // Check if user wants to override the default Application Data location.
+        if (mpArgs.IsOption(CommandLineOptions.Option.Data))
+          pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
 
         // Register PathManager
         ServiceScope.Add<IPathManager>(pathManager);
