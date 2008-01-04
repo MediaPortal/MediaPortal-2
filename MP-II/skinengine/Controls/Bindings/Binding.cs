@@ -1,8 +1,10 @@
 using System;
-using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
+using SkinEngine.Controls.Visuals;
+using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Bindings
 {
@@ -38,7 +40,10 @@ namespace SkinEngine.Controls.Bindings
       }
       set
       {
-        _expression = value;
+        if (value.IndexOf("=") < 0)
+          _expression = "Path=" + value;
+        else
+          _expression = value;
       }
     }
 
@@ -62,9 +67,8 @@ namespace SkinEngine.Controls.Bindings
     /// Initializes the binding to the object specified
     /// </summary>
     /// <param name="obj">The object.</param>
-    public void Initialize(object obj)
+    public void Initialize(object bindingDestinationObject)
     {
-      //{Binding LastName}
       //{Binding bindingPropertyName1=value,bindingPropertyName2=value,bindingPropertyNameN=value}
       // binding properties
       //   ElementName=
@@ -85,20 +89,93 @@ namespace SkinEngine.Controls.Bindings
         //setter format is : bindingPropertyName1=value
         string setter = matches[i].Value;
         Regex regex2 = new Regex(@"[a-zA-Z0-9.\[\]\(\)]+");
-        MatchCollection matches2 = regex.Matches(setter);
+        MatchCollection matches2 = regex2.Matches(setter);
         if (matches2.Count == 2)
         {
-          string bindingPropertyName = matches[0].Value;
-          string bindingValue = matches[1].Value;
-
+          string bindingPropertyName = matches2[0].Value;
+          string bindingValue = matches2[1].Value;
+          if (bindingPropertyName == "Path")
+          {
+            SetupDatabinding(bindingDestinationObject, bindingValue);
+          }
         }
-      }
-
-      //handle special case: {Binding LastName}
-      if (matches.Count == 0)
-      {
       }
     }
 
+    void SetupDatabinding(object bindingDestinationObject, string bindingSourcePropertyName)
+    {
+      UIElement sourceElement = bindingDestinationObject as UIElement;
+      if (sourceElement == null) return;
+      object bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
+      if (bindingSourceProperty == null) return;
+      if (bindingSourceProperty is Property)
+      {
+        Property sourceProperty = (Property)bindingSourceProperty;
+        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true);
+        if (info == null) return;
+        if (info.PropertyType == typeof(Property))
+        {
+          //create a new dependency..
+          BindingDependency dependency = new BindingDependency(sourceProperty);
+
+          //set the source property to the new dependency
+          MethodInfo methodInfo = info.GetSetMethod();
+          if (methodInfo == null) return;
+          methodInfo.Invoke(bindingDestinationObject, new object[] { dependency });
+
+        }
+        else
+        {
+          info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false);
+          if (info == null) return;
+          MethodInfo methodInfo = info.GetSetMethod();
+          if (methodInfo == null) return;
+          methodInfo.Invoke(bindingDestinationObject, new object[] { sourceProperty.GetValue() });
+        }
+
+      }
+      else
+      {
+        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false);
+        if (info == null) return;
+        MethodInfo methodInfo = info.GetSetMethod();
+        if (methodInfo == null) return;
+        methodInfo.Invoke(bindingDestinationObject, new object[] { bindingSourceProperty });
+      }
+    }
+
+    /// <summary>
+    /// Gets the binding source object.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="bindingSourcePropertyName">Name of the binding source property.</param>
+    /// <returns></returns>
+    object GetBindingSourceObject(UIElement element, string bindingSourcePropertyName)
+    {
+      if (element.Context == null)
+      {
+        if (element.VisualParent == null) return null;
+        return GetBindingSourceObject(element.VisualParent, bindingSourcePropertyName);
+      }
+      PropertyInfo info = GetPropertyOnObject(element.Context, bindingSourcePropertyName, true);
+      if (info == null) return null;
+      MethodInfo methodInfo = info.GetGetMethod();
+      if (methodInfo == null) return null;
+      object bindingObject = methodInfo.Invoke(element.Context, null);
+      return bindingObject;
+    }
+
+    PropertyInfo GetPropertyOnObject(object obj, string propertyName, bool checkForProperty)
+    {
+      PropertyInfo info;
+      if (checkForProperty)
+      {
+        info = obj.GetType().GetProperty(propertyName + "Property");
+        if (info != null) return info;
+      }
+      info = obj.GetType().GetProperty(propertyName);
+      return info;
+    }
   }
+
 }

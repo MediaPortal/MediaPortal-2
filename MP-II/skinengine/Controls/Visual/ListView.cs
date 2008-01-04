@@ -40,6 +40,22 @@ namespace SkinEngine.Controls.Visuals
     Property _styleProperty;
     Property _templateProperty;
     ArrayList _items;
+    public class MyItem
+    {
+      public string _image;
+      public Property _label1;
+      public string _label2;
+      public MyItem(string img, string label1, string label2)
+      {
+        _image = img;
+        _label1 = new Property(label1);
+        _label2 = label2;
+      }
+      public string Label1 { get { return (string)_label1.GetValue(); } }
+      public Property Label1Property { get { return _label1; } }
+      public string Label2 { get { return _label2; } }
+      public string Image { get { return _image; } }
+    }
 
     public ListView()
     {
@@ -68,11 +84,11 @@ namespace SkinEngine.Controls.Visuals
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
 
       _items = new ArrayList();
-      _items.Add("item1");
-      _items.Add("item2");
-      _items.Add("item3");
-      _items.Add("item4");
-      _items.Add("item5");
+      _items.Add(new MyItem("defaultuser.png", "1", "1.1"));
+      _items.Add(new MyItem("defaultuser.png", "2", "1.2"));
+      _items.Add(new MyItem("defaultuser.png", "2", "1.3"));
+      _items.Add(new MyItem("defaultuser.png", "2", "1.4"));
+
       ItemsSource = _items;
     }
 
@@ -226,7 +242,7 @@ namespace SkinEngine.Controls.Visuals
       base.OnMouseMove(x, y);
       if (Template != null)
       {
-        Template.OnMouseMove(x,y);
+        Template.OnMouseMove(x, y);
       }
     }
     /// <summary>
@@ -260,7 +276,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return ((FrameworkElement)Template).PredictFocusUp(focusedFrameworkElement,ref key, strict);
+      return ((FrameworkElement)Template).PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     /// <summary>

@@ -1724,8 +1724,8 @@
         <Grid.RowDefinitions>
           <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Grid.Row="0" Grid.Column="0"  Height="32" Width="32"  ImageSource="DefaultUser.png" />
-        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6"  Text="label1" Font="font12"/>
+        <Image Grid.Row="0" Grid.Column="0"  Height="32" Width="32"  ImageSource="{Binding Image}" />
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6"  Text="{Binding Label1}" Font="font12"/>
         <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Label2}" Font="font12"/>
       </Grid>
     </DataTemplate>
