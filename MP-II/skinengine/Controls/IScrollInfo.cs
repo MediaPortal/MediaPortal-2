@@ -33,48 +33,48 @@ namespace SkinEngine.Controls.Visuals
     /// Scrolls down within content by one logical unit.
     /// </summary>
     /// 
-    void LineDown();
+    bool LineDown();
 
     /// <summary>
     /// Scrolls left within content by one logical unit.
     /// </summary>
     /// 
-    void LineLeft();
+    bool LineLeft();
 
     /// <summary>
     /// Scrolls right within content by one logical unit.
     /// </summary>
-    void LineRight();
+    bool LineRight();
 
     /// <summary>
     /// Scrolls up within content by one logical unit.
     /// </summary>
-    void LineUp();
+    bool LineUp();
 
     /// <summary>
     /// Forces content to scroll until the coordinate space of a Visual object is visible.
     /// </summary>
-    void MakeVisible();
+    bool MakeVisible();
 
     /// <summary>
     /// Scrolls down within content by one page.
     /// </summary>
-    void PageDown();
+    bool PageDown();
 
     /// <summary>
     /// Scrolls left within content by one page.
     /// </summary>
-    void PageLeft();
+    bool PageLeft();
 
     /// <summary>
     /// Scrolls right within content by one page.
     /// </summary>
-    void PageRight();
+    bool PageRight();
 
     /// <summary>
     /// Scrolls up within content by one page.
     /// </summary>
-    void PageUp();
+    bool PageUp();
 
     double LineHeight {get;}
 

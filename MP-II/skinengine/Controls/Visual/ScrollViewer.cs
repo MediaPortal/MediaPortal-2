@@ -200,8 +200,11 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      info.PageDown();
-      OnMouseMove(x, y);
+      if (info.PageDown())
+      {
+        OnMouseMove(x, y);
+        return true;
+      }
       return false;
     }
 
@@ -209,8 +212,11 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      info.PageUp();
-      OnMouseMove(x, y);
+      if (info.PageUp())
+      {
+        OnMouseMove(x, y);
+        return true;
+      }
       return false;
     }
 
@@ -218,8 +224,14 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      info.LineLeft();
-      OnMouseMove(x, y);
+      if (x - info.LineWidth < Content.ActualPosition.X)
+      {
+        if (info.LineLeft())
+        {
+          OnMouseMove(x, y);
+          return true;
+        }
+      }
       return false;
     }
 
@@ -227,8 +239,14 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      info.LineRight();
-      OnMouseMove(x, y);
+      if (x + (info.LineWidth * 2) >= Content.ActualPosition.X + Content.ActualWidth)
+      {
+        if (info.LineDown())
+        {
+          OnMouseMove(x, y);
+          return true;
+        }
+      }
       return false;
     }
 
@@ -238,9 +256,11 @@ namespace SkinEngine.Controls.Visuals
       if (info == null) return false;
       if (y + (info.LineHeight * 2) >= Content.ActualPosition.Y + Content.ActualHeight)
       {
-        info.LineDown();
-        OnMouseMove(x, y);
-        return true;
+        if (info.LineDown())
+        {
+          OnMouseMove(x, y);
+          return true;
+        }
       }
       return false;
     }
@@ -249,11 +269,13 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      if (y - info.LineHeight < Content.ActualPosition.Y)
+      if (y  <= Content.ActualPosition.Y)
       {
-        info.LineUp();
-        OnMouseMove(x, y);
-        return true;
+        if (info.LineUp())
+        {
+          OnMouseMove(x, y);
+          return true;
+        }
       }
       return false;
     }

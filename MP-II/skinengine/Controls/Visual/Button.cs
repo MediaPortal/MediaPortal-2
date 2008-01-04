@@ -363,6 +363,7 @@ namespace SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
+      if (key == MediaPortal.Core.InputManager.Key.None) return;
       if (key == MediaPortal.Core.InputManager.Key.Enter)
       {
         IsPressed = true;

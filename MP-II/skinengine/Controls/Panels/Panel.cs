@@ -356,6 +356,7 @@ namespace SkinEngine.Controls.Panels
       {
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
+        if (key == MediaPortal.Core.InputManager.Key.None) return;
       }
     }
 

@@ -205,8 +205,6 @@ namespace SkinEngine.Controls.Panels
                 index++;
                 continue;
               }
-              index++;
-              if (index > _endIndex) break;
               Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + totalHeight));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -222,6 +220,8 @@ namespace SkinEngine.Controls.Panels
 
               child.Arrange(new Rectangle(location, size));
               totalHeight += child.DesiredSize.Height;
+              index++;
+              if (index == _endIndex) break;
             }
           }
           break;
@@ -237,8 +237,6 @@ namespace SkinEngine.Controls.Panels
                 index++;
                 continue;
               }
-              index++;
-              if (index > _endIndex) break;
               Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
               Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -255,6 +253,8 @@ namespace SkinEngine.Controls.Panels
               //ArrangeChild(child, ref location);
               child.Arrange(new Rectangle(location, size));
               totalWidth += child.DesiredSize.Width;
+              index++;
+              if (index == _endIndex) break;
             }
           }
           break;
@@ -295,9 +295,9 @@ namespace SkinEngine.Controls.Panels
             index++;
             continue;
           }
-          index++;
-          if (index > _endIndex) break;
           element.Render();
+          index++;
+          if (index >= _endIndex) break;
         }
         _lastTimeUsed = SkinContext.Now;
       }
@@ -305,7 +305,7 @@ namespace SkinEngine.Controls.Panels
 
     #region IScrollInfo Members
 
-    public void LineDown()
+    public bool LineDown()
     {
       if (this.Orientation == Orientation.Vertical)
       {
@@ -316,13 +316,14 @@ namespace SkinEngine.Controls.Panels
             _startIndex++;
             Invalidate();
             UpdateLayout();
-            return;
+            return true;
           }
         }
       }
+      return false;
     }
 
-    public void LineUp()
+    public bool LineUp()
     {
       if (this.Orientation == Orientation.Vertical)
       {
@@ -333,13 +334,14 @@ namespace SkinEngine.Controls.Panels
             _startIndex--;
             Invalidate();
             UpdateLayout();
-            return;
+            return true;
           }
         }
       }
+      return false;
     }
 
-    public void LineLeft()
+    public bool LineLeft()
     {
       if (this.Orientation == Orientation.Horizontal)
       {
@@ -350,13 +352,14 @@ namespace SkinEngine.Controls.Panels
             _startIndex--;
             Invalidate();
             UpdateLayout();
-            return;
+            return true;
           }
         }
       }
+      return false;
     }
 
-    public void LineRight()
+    public bool LineRight()
     {
       if (this.Orientation == Orientation.Horizontal)
       {
@@ -367,30 +370,82 @@ namespace SkinEngine.Controls.Panels
             _startIndex++;
             Invalidate();
             UpdateLayout();
-            return;
+            return true;
           }
         }
       }
+      return false;
     }
 
-    public void MakeVisible()
+    public bool MakeVisible()
     {
+      return false;
     }
 
-    public void PageDown()
+    public bool PageDown()
     {
+      if (this.Orientation == Orientation.Vertical)
+      {
+        if (_startIndex + 2 * _controlCount < Children.Count)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex += _controlCount;
+            Invalidate();
+            UpdateLayout();
+            return true;
+          }
+        }
+        else
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex = Children.Count - _controlCount;
+            Invalidate();
+            UpdateLayout();
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
-    public void PageLeft()
+    public bool PageLeft()
     {
+      return false;
     }
 
-    public void PageRight()
+    public bool PageRight()
     {
+      return false;
     }
 
-    public void PageUp()
+    public bool PageUp()
     {
+      if (this.Orientation == Orientation.Vertical)
+      {
+        if (_startIndex > _controlCount)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex -= _controlCount;
+            Invalidate();
+            UpdateLayout();
+            return true;
+          }
+        }
+        else
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex = 0;
+            Invalidate();
+            UpdateLayout();
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     public double LineHeight
@@ -409,5 +464,244 @@ namespace SkinEngine.Controls.Panels
       }
     }
     #endregion
+
+
+    #region focus prediction
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position above this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    {
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      int index = 0;
+      foreach (FrameworkElement c in Children)
+      {
+        if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
+        if (!c.IsFocusScope) continue;
+        FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+        if (key == MediaPortal.Core.InputManager.Key.None)
+        {
+          return match;
+        }
+        if (match != null)
+        {
+          if (match.Focusable)
+          {
+            if (match == focusedFrameworkElement)
+            {
+              continue;
+            }
+            if (bestMatch == null)
+            {
+              bestMatch = match;
+              bestDistance = Distance(match, focusedFrameworkElement);
+            }
+            else
+            {
+              if (match.ActualPosition.Y + match.ActualHeight >= bestMatch.ActualPosition.Y + bestMatch.ActualHeight)
+              {
+                float distance = Distance(match, focusedFrameworkElement);
+                if (distance < bestDistance)
+                {
+                  bestMatch = match;
+                  bestDistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position below this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    {
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      int index = 0;
+      foreach (FrameworkElement c in Children)
+      {
+        if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
+        if (!c.IsFocusScope) continue;
+        FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+        if (key == MediaPortal.Core.InputManager.Key.None)
+        {
+          return match;
+        }
+        if (match != null)
+        {
+          if (match == focusedFrameworkElement)
+          {
+            continue;
+          }
+          if (match.Focusable)
+          {
+            if (bestMatch == null)
+            {
+              bestMatch = match;
+              bestDistance = Distance(match, focusedFrameworkElement);
+            }
+            else
+            {
+              if (match.ActualPosition.Y <= bestMatch.ActualPosition.Y)
+              {
+                float distance = Distance(match, focusedFrameworkElement);
+                if (distance < bestDistance)
+                {
+                  bestMatch = match;
+                  bestDistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    {
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      int index = 0;
+      foreach (FrameworkElement c in Children)
+      {
+        if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
+        if (!c.IsFocusScope) continue;
+        FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+        if (key == MediaPortal.Core.InputManager.Key.None)
+        {
+          return match;
+        }
+        if (match != null)
+        {
+          if (match == focusedFrameworkElement)
+          {
+            continue;
+          }
+          if (match.Focusable)
+          {
+            if (bestMatch == null)
+            {
+              bestMatch = match;
+              bestDistance = Distance(match, focusedFrameworkElement);
+            }
+            else
+            {
+              if (match.ActualPosition.X >= bestMatch.ActualPosition.X)
+              {
+                float distance = Distance(match, focusedFrameworkElement);
+                if (distance < bestDistance)
+                {
+                  bestMatch = match;
+                  bestDistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    {
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      int index = 0;
+      foreach (FrameworkElement c in Children)
+      {
+        if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
+        if (!c.IsFocusScope) continue;
+        FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+        if (key == MediaPortal.Core.InputManager.Key.None)
+        {
+          return match;
+        }
+        if (match != null)
+        {
+          if (match == focusedFrameworkElement)
+          {
+            continue;
+          }
+          if (match.Focusable)
+          {
+            if (bestMatch == null)
+            {
+              bestMatch = match;
+              bestDistance = Distance(match, focusedFrameworkElement);
+            }
+            else
+            {
+              if (match.ActualPosition.X <= bestMatch.ActualPosition.X)
+              {
+                float distance = Distance(match, focusedFrameworkElement);
+                if (distance < bestDistance)
+                {
+                  bestMatch = match;
+                  bestDistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
+    }
+
+
+    #endregion
+
   }
 }
