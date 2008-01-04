@@ -79,5 +79,7 @@ namespace SkinEngine.Controls.Visuals
     double LineHeight {get;}
 
     double LineWidth {get;}
+
+    void Reset();
   }
 }

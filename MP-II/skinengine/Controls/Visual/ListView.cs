@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Reflection;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ using MediaPortal.Core.InputManager;
 
 using SkinEngine;
 using SkinEngine.Controls.Panels;
+using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -39,7 +41,13 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _styleProperty;
     Property _templateProperty;
-    ArrayList _items;
+    Property _commandParameter;
+    Command _command;
+    Command _contextMenuCommand;
+    Property _contextMenuCommandParameterProperty;
+
+
+    //ArrayList _items;
     //public class MyItem
     //{
     //  public string _image;
@@ -68,8 +76,14 @@ namespace SkinEngine.Controls.Visuals
       Init();
       if (c.Style != null)
         Style = c.Style;
+
       if (c.Template != null)
         Template = (UIElement)c.Template.Clone();
+      Command = c.Command;
+      CommandParameter = c._commandParameter;
+
+      ContextMenuCommand = c.ContextMenuCommand;
+      ContextMenuCommandParameter = c.ContextMenuCommandParameter;
     }
 
     public override object Clone()
@@ -81,6 +95,10 @@ namespace SkinEngine.Controls.Visuals
     {
       _styleProperty = new Property(null);
       _templateProperty = new Property(null);
+      _commandParameter = new Property(null);
+      _command = null;
+      _contextMenuCommandParameterProperty = new Property(null);
+      _contextMenuCommand = null;
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
 
       //_items = new ArrayList();
@@ -89,7 +107,7 @@ namespace SkinEngine.Controls.Visuals
       //_items.Add(new MyItem("defaultuser.png", "Item 3", "Item 1.3"));
       //_items.Add(new MyItem("defaultuser.png", "Item 4", "Item 1.4"));
 
-      ItemsSource = _items;
+      //ItemsSource = _items;
     }
 
     void OnStyleChanged(Property property)
@@ -165,11 +183,110 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Gets or sets the command.
+    /// </summary>
+    /// <value>The command.</value>
+    public Command Command
+    {
+      get
+      {
+        return _command;
+      }
+      set
+      {
+        _command = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the control style property.
+    /// </summary>
+    /// <value>The control style property.</value>
+    public Property CommandParameterProperty
+    {
+      get
+      {
+        return _commandParameter;
+      }
+      set
+      {
+        _commandParameter = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the control style.
+    /// </summary>
+    /// <value>The control style.</value>
+    public object CommandParameter
+    {
+      get
+      {
+        return _commandParameter.GetValue();
+      }
+      set
+      {
+        _commandParameter.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command.
+    /// </summary>
+    /// <value>The context menu command.</value>
+    public Command ContextMenuCommand
+    {
+      get
+      {
+        return _contextMenuCommand;
+      }
+      set
+      {
+        _contextMenuCommand = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command parameter property.
+    /// </summary>
+    /// <value>The context menu command parameter property.</value>
+    public Property ContextMenuCommandParameterProperty
+    {
+      get
+      {
+        return _contextMenuCommandParameterProperty;
+      }
+      set
+      {
+        _contextMenuCommandParameterProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the context menu command parameter.
+    /// </summary>
+    /// <value>The context menu command parameter.</value>
+    public object ContextMenuCommandParameter
+    {
+      get
+      {
+        return _contextMenuCommandParameterProperty.GetValue();
+      }
+      set
+      {
+        _contextMenuCommandParameterProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.Size availableSize)
     {
+      if (DoUpdateItems())
+      {
+      }
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
       if (Width <= 0)
         _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
@@ -233,19 +350,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    public override void OnMouseMove(float x, float y)
-    {
-      base.OnMouseMove(x, y);
-      if (Template != null)
-      {
-        Template.OnMouseMove(x, y);
-      }
-    }
-    /// <summary>
     /// Animates any timelines for this uielement.
     /// </summary>
     public override void Animate()
@@ -257,13 +361,70 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Called when [mouse move].
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public override void OnMouseMove(float x, float y)
+    {
+      base.OnMouseMove(x, y);
+      if (Template != null)
+      {
+        Template.OnMouseMove(x, y);
+      }
+      UpdateCurrentItem();
+    }
+
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
+      bool executeCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.Enter);
+      bool executeContextCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.ContextMenu);
       base.OnKeyPressed(ref key);
       if (Template != null)
       {
         Template.OnKeyPressed(ref key);
       }
+      UpdateCurrentItem();
+      if (executeCmd)
+      {
+        if (Command != null)
+        {
+          Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
+        }
+      }
+      if (executeContextCmd)
+      {
+        if (ContextMenuCommand != null)
+        {
+          ContextMenuCommand.Method.Invoke(ContextMenuCommand.Object, new object[] { ContextMenuCommandParameter });
+
+        }
+      }
+    }
+
+    /// <summary>
+    /// Updates the current item.
+    /// </summary>
+    void UpdateCurrentItem()
+    {
+      if (Template != null)
+      {
+        UIElement element = Template.FindFocusedItem();
+        if (element == null)
+        {
+          CurrentItem = null;
+        }
+        else
+        {
+          CurrentItem = element.Context;
+        }
+      }
+
     }
 
     #region focus prediction

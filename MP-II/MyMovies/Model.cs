@@ -40,7 +40,6 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.Properties;
-
 namespace MyMovies
 {
   /// <summary>

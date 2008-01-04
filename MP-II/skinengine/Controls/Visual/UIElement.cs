@@ -964,7 +964,7 @@ namespace SkinEngine.Controls.Visuals
       _isLayoutInvalid = true;
     }
 
-    protected void UpdateLayout()
+    public void UpdateLayout()
     {
       if (false == _isLayoutInvalid) return;
       Trace.WriteLine("UpdateLayout :"+this.Name+"  "+this.GetType());

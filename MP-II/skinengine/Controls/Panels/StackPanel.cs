@@ -463,6 +463,10 @@ namespace SkinEngine.Controls.Panels
         return _lineWidth;
       }
     }
+    public void Reset()
+    {
+      _startIndex = 0;
+    }
     #endregion
 
 

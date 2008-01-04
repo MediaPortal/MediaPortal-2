@@ -29,7 +29,7 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
-
+using MediaPortal.Core.Collections;
 using SkinEngine;
 using SkinEngine.Controls.Panels;
 
@@ -43,6 +43,8 @@ namespace SkinEngine.Controls.Visuals
     Property _itemContainerStyleProperty;
     Property _itemContainerStyleSelectorProperty;
     Property _itemsPanelProperty;
+    Property _currentItem;
+    bool _prepare;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemsControl"/> class.
@@ -65,6 +67,7 @@ namespace SkinEngine.Controls.Visuals
       ItemContainerStyle = c.ItemContainerStyle;
       ItemContainerStyleSelector = c.ItemContainerStyleSelector;
       ItemsPanel = c.ItemsPanel;
+      _prepare = false;
     }
 
     public override object Clone()
@@ -80,15 +83,37 @@ namespace SkinEngine.Controls.Visuals
       _itemContainerStyleProperty = new Property(null);
       _itemContainerStyleSelectorProperty = new Property(null);
       _itemsPanelProperty = new Property(null);
-      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _currentItem = new Property(null);
+      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnItemsChanged));
       _itemTemplateProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _itemsPanelProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
-    void OnPropertyChanged(Property property)
+    void OnItemsChanged(Property property)
+    {
+      if (ItemsSource is Property)
+      {
+        Property p = (Property)ItemsSource;
+        p.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      }
+      else if (ItemsSource is ItemsCollection)
+      {
+        ItemsCollection coll = (ItemsCollection)ItemsSource;
+        coll.Changed += new ItemsCollection.ItemsChangedHandler(OnCollectionChanged);
+      }
+      _prepare = true;
+      Invalidate();
+    }
+
+    void OnCollectionChanged(bool refreshAll)
     {
       Prepare();
+    }
+    void OnPropertyChanged(Property property)
+    {
+      _prepare = true;
+      Invalidate();
     }
 
     /// <summary>
@@ -279,13 +304,54 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    void Prepare()
+    public Property CurrentItemProperty
     {
-      if (ItemsSource == null) return;
-      if (ItemsPanel == null) return;
-      if (ItemContainerStyle == null) return;
-      if (ItemTemplate == null) return;
-      if (ItemTemplate.VisualTree == null) return;
+      get
+      {
+        return _currentItem;
+      }
+      set
+      {
+        _currentItem = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the item template selector.
+    /// </summary>
+    /// <value>The item template selector.</value>
+    public object CurrentItem
+    {
+      get
+      {
+        return _currentItem.GetValue();
+      }
+      set
+      {
+        _currentItem.SetValue(value);
+      }
+    }
+
+    bool Prepare()
+    {
+      if (ItemsSource == null) return false;
+      if (ItemsPanel == null) return false;
+      if (ItemContainerStyle == null) return false;
+      if (ItemTemplate == null) return false;
+      if (ItemTemplate.VisualTree == null) return false;
+
+      int itemCount = ItemsPanel.Children.Count;
+      int focusedIndex = -1;
+      FrameworkElement focusedItem = null;
+      for (int i = 0; i < ItemsPanel.Children.Count; ++i)
+      {
+        focusedItem = ItemsPanel.Children[i].FindFocusedItem() as FrameworkElement;
+        if (focusedItem != null)
+        {
+          focusedIndex = i;
+          break;
+        }
+      }
 
       ItemsPanel.Children.Clear();
       IEnumerator enumer = ItemsSource.GetEnumerator();
@@ -297,14 +363,50 @@ namespace SkinEngine.Controls.Visuals
         newItem.VisualParent = container;
         newItem.Context = enumer.Current;
         container.Context = enumer.Current;
-        ContentPresenter presenter=container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+        ContentPresenter presenter = container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
         if (presenter != null)
         {
           presenter.Content = newItem;
         }
         ItemsPanel.Children.Add(container);
       }
+      bool result = false;
       ItemsPanel.Invalidate();
+      if (focusedItem != null)
+      {
+        IScrollInfo info = ItemsPanel as IScrollInfo;
+        if (info != null)
+        {
+          info.Reset();
+        }
+        result = true;
+        ItemsPanel.UpdateLayout();
+        focusedItem.HasFocus = false;
+        if (ItemsPanel.Children.Count <= focusedIndex)
+        {
+          float x = (float)ItemsPanel.Children[0].ActualPosition.X;
+          float y = (float)ItemsPanel.Children[0].ActualPosition.Y;
+          ItemsPanel.OnMouseMove(x, y);
+        }
+        else
+        {
+          float x = (float)ItemsPanel.Children[focusedIndex].ActualPosition.X;
+          float y = (float)ItemsPanel.Children[focusedIndex].ActualPosition.Y;
+          ItemsPanel.OnMouseMove(x, y);
+        }
+      }
+      return result;
+    }
+
+
+    public bool DoUpdateItems()
+    {
+      if (_prepare)
+      {
+        _prepare = false;
+        return Prepare();
+      }
+      return false;
     }
   }
 }

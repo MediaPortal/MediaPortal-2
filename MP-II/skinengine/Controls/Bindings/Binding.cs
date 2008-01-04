@@ -1,3 +1,26 @@
+#region Copyright (C) 2007 Team MediaPortal
+
+/*
+    Copyright (C) 2007 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -8,6 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Collections;
+using MediaPortal.Core.WindowManager;
 
 namespace SkinEngine.Controls.Bindings
 {
@@ -109,13 +133,24 @@ namespace SkinEngine.Controls.Bindings
     void SetupDatabinding(object bindingDestinationObject, string bindingSourcePropertyName)
     {
       UIElement sourceElement = bindingDestinationObject as UIElement;
-      if (sourceElement == null) return;
+      if (sourceElement == null)
+      {
+        return;
+      }
       object bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
       if (bindingSourceProperty == null)
       {
-        ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
-          Expression, bindingSourcePropertyName, sourceElement);
-        return;
+        bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName + "Property");
+        if (bindingSourceProperty == null)
+        {
+          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName);
+          if (bindingSourceProperty == null)
+          {
+            ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
+              Expression, bindingSourcePropertyName, sourceElement);
+            return;
+          }
+        }
       }
       if (bindingSourceProperty is Property)
       {
@@ -178,6 +213,20 @@ namespace SkinEngine.Controls.Bindings
             return listItem.Label(bindingSourcePropertyName).Evaluate(null, null);
           }
         }
+        //check if its a method
+        MethodInfo infoM = element.Context.GetType().GetMethod(bindingSourcePropertyName);
+        if (infoM != null)
+        {
+          Command cmd = new Command();
+          cmd.Method = infoM;
+          cmd.Object = element.Context;
+          return cmd;
+        }
+        Command newCmd= GetMethodInfo(bindingSourcePropertyName);
+        if (newCmd != null)
+        {
+          return newCmd;
+        }
         return null;
       }
       MethodInfo methodInfo = info.GetGetMethod();
@@ -185,6 +234,66 @@ namespace SkinEngine.Controls.Bindings
       object bindingObject = methodInfo.Invoke(element.Context, null);
       return bindingObject;
     }
+    Command GetMethodInfo(string command)
+    {
+      IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
+      string[] parts = command.Split(new char[] { '.' });
+      if (parts.Length < 2)
+      {
+        return null;
+      }
+
+      object control = SkinEngine.Commands.ObjectFactory.GetObject(null, window, parts[0]);
+      if (control == null)
+      {
+        return null;
+      }
+
+      Type classType;
+      int partNr = 1;
+      while (partNr < parts.Length - 1)
+      {
+        classType = control.GetType();
+        MethodInfo info =
+          classType.GetProperty(parts[partNr],
+                                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
+                                BindingFlags.InvokeMethod | BindingFlags.ExactBinding).GetGetMethod();
+        if (info == null)
+        {
+          ServiceScope.Get<ILogger>().Error("cannot get object for {0}", command);
+          return null;
+        }
+        object obj = info.Invoke(control, null);
+        partNr++;
+        if (partNr < parts.Length)
+        {
+          control = obj;
+          if (control == null)
+          {
+            break;
+          }
+        }
+      }
+      string memberName = parts[parts.Length - 1];
+
+      if (control != null)
+      {
+        classType = control.GetType();
+        MethodInfo info =
+          classType.GetMethod(memberName,
+                              BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
+                              BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
+        if (info != null)
+        {
+          Command cmd = new Command();
+          cmd.Method = info;
+          cmd.Object = control;
+          return cmd;
+        }
+      }
+      return null;
+    }
+
 
     PropertyInfo GetPropertyOnObject(object obj, string propertyName, bool checkForProperty)
     {

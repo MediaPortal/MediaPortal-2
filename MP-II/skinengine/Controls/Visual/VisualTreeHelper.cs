@@ -36,7 +36,10 @@ namespace SkinEngine.Controls.Visuals
     public object FindElement(UIElement visual, string name)
     {
       string[] parts = name.Split(new char[] { '.' });
-      object obj = visual.FindElement(parts[0]);
+      object obj;
+      if (parts[0] == "this") obj = visual;
+      else
+        obj = visual.FindElement(parts[0]);
       if (obj == null) return null;
       if (parts.Length == 1)
       {
