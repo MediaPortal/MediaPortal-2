@@ -228,8 +228,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public override void DoRender()
     {
-
-      if (_vertexBufferBackground == null)
+      if (  (Background != null && _vertexBufferBackground == null) )
       {
         PerformLayout();
       }

@@ -269,7 +269,7 @@ namespace SkinEngine.Controls.Panels
     {
       lock (_orientationProperty)
       {
-        if (_vertexBufferBackground == null)
+        if (Background != null && _vertexBufferBackground == null)
         {
           PerformLayout();
         }

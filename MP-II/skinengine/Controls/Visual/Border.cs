@@ -231,7 +231,8 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if (_vertexBufferBackground == null || _performLayout)
+      if ((BorderBrush != null && _vertexBufferBorder == null) ||
+           (Background != null && _vertexBufferBackground == null) ||  _performLayout)
       {
         PerformLayout();
       }

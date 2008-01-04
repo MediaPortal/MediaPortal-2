@@ -228,7 +228,8 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if (_vertexBufferFill == null || _performLayout)
+      if ( (Fill != null && _vertexBufferFill == null) || 
+           (Stroke != null && _vertexBufferBorder == null) || _performLayout )
       {
         PerformLayout();
         _performLayout = false;
