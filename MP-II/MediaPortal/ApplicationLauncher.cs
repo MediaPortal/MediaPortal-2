@@ -25,10 +25,29 @@
 using System;
 using System.Reflection;
 using System.Windows.Forms;
+
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Screens;
+
+using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
+using MediaPortal.Core.Threading;
+using MediaPortal.Core.Localisation;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Settings;
+using MediaPortal.Core.DeviceManager;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.MetaData;
+
+using MediaPortal.Services.PathManager;
+using MediaPortal.Services.Threading;
+using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
+using MediaPortal.Services.PluginManager;
+using MediaPortal.Services.Settings;
+using MediaPortal.Services.Messaging;
+using MediaPortal.Services.MetaData;
 
 [assembly: CLSCompliant(true)]
 
@@ -58,51 +77,127 @@ namespace MediaPortal
         return;
       }
 
-          
-      
-      // MP2 is now started in a new AppDomain.
-      // if this AppDomain crashes or stops unexpectedly, a notification is shown to the user
-      // and the user is asked whether he wants to restart MP2
-      AppDomain mpDomain = null;
-      bool restart = true;
-      while (restart) //while restart is wanted
+      using (new ServiceScope(true)) //This is the first servicescope
       {
-        try
-        {
-          //Create the AppDomain
-          mpDomain = AppDomain.CreateDomain("MPApplication");  
-          //Create the MP2 application instance
-          mpDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "MPApplication");
+        // Create PathManager
+        PathManager pathManager = new PathManager();
 
-          //Run the application
-          restart = MPApplication.Run(mpArgs);
-        }
-          // Catch and log all exceptions - optionally restart
-        catch (Exception ex)
+        // Check if user wants to override the default UserData location.
+        if (mpArgs.IsOption(CommandLineOptions.Option.UserData))
+          pathManager.ReplacePath("USER_DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.UserData));
+
+        // Register PathManager
+        ServiceScope.Add<IPathManager>(pathManager);
+
+        //Check whether the user wants to log method names in the logger
+        //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
+        bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
+        LogLevel level = LogLevel.All;
+        if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
         {
-          //TODO: log exception
-          FileLogger logger = new FileLogger(@"log\MediaPortal.log", LogLevel.All, false);
-          logger.Error(ex);
+          level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
         }
-        if (mpDomain != null)
-        {
-          try
-          {
-            AppDomain.Unload(mpDomain);  //unload the AppDomain.  All assemblies that were loaded will be unloaded...
-          }
-          catch {}
-          mpDomain = null;
-          GC.Collect();  //causes the garbage collector to release all unneeded objects
+        ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), level, logMethods);
+        ServiceScope.Add(logger);
+        logger.Info("MPApplication: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+        //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
+        //             "Some code change has caused MP2 to load in the wrong AppDomain.  Crash recovery will fail now...");
+
+        //register core service implementations
+        logger.Debug("MPApplication: Registering ThreadPool");
+        MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
+        pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
+        pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
+        pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);
+        pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
+        ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
+
+        logger.Debug("MPApplication: Registering Message Broker");
+        ServiceScope.Add<IMessageBroker>(new MessageBroker());
+
+        logger.Debug("MPApplication: Registering Plugin Manager");
+        ServiceScope.Add<IPluginManager>(new PluginManager());
+
+        logger.Debug("MPApplication: Registering Settings Manager");
+        ServiceScope.Add<ISettingsManager>(new SettingsManager());
+
+        logger.Debug("MPApplication: Registering Strings Manager");
+        ServiceScope.Add<ILocalisation>(new StringManager());
+
+        //to be removed
+        //meta data mapper services
+        ServiceScope.Add<IMetaDataFormatterCollection>(new MetaDataFormatterCollection());
+        ServiceScope.Add<IMetadataMappingProvider>(new MetadataMappingProvider());
+
+#if !DEBUG
+        // Not in Debug mode (ie Release) then catch all Exceptions
+        // In Debug mode these will be left unhandled.
+      try
+      {
+#endif
+        // Start the core
+        logger.Debug("MPApplication: Starting core");
+        ApplicationCore core = new ApplicationCore();
+        core.Start();
+#if !DEBUG
         }
-        if (restart) //do not ask to restart if the program terminated normally (i.e. restart = false)
+        catch (Exception)
         {
+          //TODO: log exception and all crash information
           Form frm =
             new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
                                   "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
                                   BaseScreen.Image.bug);
           restart = frm.ShowDialog() == DialogResult.Yes;
         }
+#endif
       }
+
+      // Running in a new AppDomain didn't bring any extra protection for catching exceptions
+      // reverting code.
+      //// MP2 is now started in a new AppDomain.
+      //// if this AppDomain crashes or stops unexpectedly, a notification is shown to the user
+      //// and the user is asked whether he wants to restart MP2
+      //AppDomain mpDomain = null;
+      //bool restart = true;
+      //while (restart) //while restart is wanted
+      //{
+      //  try
+      //  {
+      //    //Create the AppDomain
+      //    mpDomain = AppDomain.CreateDomain("MPApplication");  
+      //    //Create the MP2 application instance
+      //    mpDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "MPApplication");
+
+      //    //Run the application
+      //    restart = MPApplication.Run(mpArgs);
+      //  }
+      //    // Catch and log all exceptions - optionally restart
+      //  catch (Exception ex)
+      //  {
+      //    //TODO: log exception
+      //    FileLogger logger = new FileLogger(@"log\MediaPortal.log", LogLevel.All, false);
+      //    logger.Error(ex);
+      //  }
+      //  if (mpDomain != null)
+      //  {
+      //    try
+      //    {
+      //      AppDomain.Unload(mpDomain);  //unload the AppDomain.  All assemblies that were loaded will be unloaded...
+      //    }
+      //    catch {}
+      //    mpDomain = null;
+      //    GC.Collect();  //causes the garbage collector to release all unneeded objects
+      //  }
+      //  if (restart) //do not ask to restart if the program terminated normally (i.e. restart = false)
+      //  {
+      //    Form frm =
+      //      new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
+      //                            "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
+      //                            BaseScreen.Image.bug);
+      //    restart = frm.ShowDialog() == DialogResult.Yes;
+      //  }
+      //}
     }
   }
 }

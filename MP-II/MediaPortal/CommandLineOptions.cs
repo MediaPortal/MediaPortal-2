@@ -40,7 +40,8 @@ namespace MediaPortal
     public enum Option
     {
       LogLevel,
-      LogMethods
+      LogMethods,
+      UserData,
       // put options here
     }
     #endregion

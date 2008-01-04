@@ -56,6 +56,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 
@@ -385,11 +386,9 @@ namespace MediaPortal.Services.Settings
     /// <returns></returns>
     private static string getFullUserFilename(string fileName)
     {
-      string fullUserFileName =
-        String.Format(@"{0}\MediaPortal\Config\{1}\{2}",
-                      Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), Environment.UserName,
-                      fileName);
-      return fullUserFileName;
+      string fullUserFileName = 
+        String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, fileName);     
+      return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
     }
 
     /// <summary>
@@ -399,10 +398,8 @@ namespace MediaPortal.Services.Settings
     /// <returns></returns>
     private static string getFullGlobalFilename(string fileName)
     {
-      string fullFileName =
-        String.Format(@"{0}\MediaPortal\Config\{1}",
-                      Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), fileName);
-      return fullFileName;
+      string fullFileName = String.Format(@"<CONFIG>\{0}", fileName);
+      return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
     }
 
     /// <summary>

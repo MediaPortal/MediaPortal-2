@@ -57,9 +57,9 @@ namespace MediaPortal.Services.Settings
   public class XmlFileHandler
   {
     #region Private variables
-    private XmlDocument document = null;
-    private bool modified = false;
-    private string filename = null;
+    private XmlDocument _document = null;
+    private bool _modified = false;
+    private string _filename = null;
     #endregion
 
     #region Ctor
@@ -70,31 +70,31 @@ namespace MediaPortal.Services.Settings
     /// <param name="xmlfilename">The xml file to write into</param>
     public XmlFileHandler(string xmlfilename)
     {
-      filename = xmlfilename;
-      document = new XmlDocument();
-      if (File.Exists(filename))
+      _filename = xmlfilename;
+      _document = new XmlDocument();
+      if (File.Exists(_filename))
       {
-        XmlTextReader reader = new XmlTextReader(filename);
-        document.Load(reader);
-        if (document.DocumentElement == null)
+        XmlTextReader reader = new XmlTextReader(_filename);
+        _document.Load(reader);
+        if (_document.DocumentElement == null)
         {
-          document = null;
+          _document = null;
         }
         reader.Close();
       }
-      else if (File.Exists(filename + ".bak"))
+      else if (File.Exists(_filename + ".bak"))
       {
-        XmlTextReader reader = new XmlTextReader(filename + ".bak");
-        document.Load(reader);
-        if (document.DocumentElement == null)
+        XmlTextReader reader = new XmlTextReader(_filename + ".bak");
+        _document.Load(reader);
+        if (_document.DocumentElement == null)
         {
-          document = null;
+          _document = null;
         }
         reader.Close();
       }
-      if (document == null)
+      if (_document == null)
       {
-        document = new XmlDocument();
+        _document = new XmlDocument();
       }
     }
 
@@ -107,7 +107,7 @@ namespace MediaPortal.Services.Settings
     /// </summary>
     public string FileName
     {
-      get { return filename; }
+      get { return _filename; }
     }
 
     #endregion
@@ -123,12 +123,12 @@ namespace MediaPortal.Services.Settings
     /// <returns></returns>
     public string GetValue(string section, string entry)
     {
-      if (document == null)
+      if (_document == null)
       {
         return null;
       }
 
-      XmlElement root = document.DocumentElement;
+      XmlElement root = _document.DocumentElement;
       if (root == null)
       {
         return null;
@@ -160,18 +160,18 @@ namespace MediaPortal.Services.Settings
 
       string valueString = value.ToString();
 
-      if (document.DocumentElement == null)
+      if (_document.DocumentElement == null)
       {
-        XmlElement node = document.CreateElement("Configuration");
-        document.AppendChild(node);
+        XmlElement node = _document.CreateElement("Configuration");
+        _document.AppendChild(node);
       }
-      XmlElement root = document.DocumentElement;
+      XmlElement root = _document.DocumentElement;
       // Get the section element and add it if it's not there
       XmlNode sectionNode = root.SelectSingleNode("Section[@name=\"" + section + "\"]");
       if (sectionNode == null)
       {
-        XmlElement element = document.CreateElement("Section");
-        XmlAttribute attribute = document.CreateAttribute("name");
+        XmlElement element = _document.CreateElement("Section");
+        XmlAttribute attribute = _document.CreateAttribute("name");
         attribute.Value = section;
         element.Attributes.Append(attribute);
         sectionNode = root.AppendChild(element);
@@ -182,14 +182,14 @@ namespace MediaPortal.Services.Settings
 
       if (entryNode == null)
       {
-        XmlElement element = document.CreateElement("Setting");
-        XmlAttribute attribute = document.CreateAttribute("name");
+        XmlElement element = _document.CreateElement("Setting");
+        XmlAttribute attribute = _document.CreateAttribute("name");
         attribute.Value = entry;
         element.Attributes.Append(attribute);
         entryNode = sectionNode.AppendChild(element);
       }
       entryNode.InnerText = valueString;
-      modified = true;
+      _modified = true;
     }
 
     /// <summary>
@@ -199,52 +199,53 @@ namespace MediaPortal.Services.Settings
     {
       //      ILogger log = ServiceScope.Get<ILogger>();
       //log.Debug("Saving({0},{1})", filename, modified.ToString());
-      if (!modified)
+      if (!_modified)
       {
         return;
       }
       // creates needed dirs if they don't exist
-      Directory.CreateDirectory( String.Format(@"{0}\MediaPortal\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-      Directory.CreateDirectory( String.Format(@"{0}\MediaPortal\Config\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-      Directory.CreateDirectory( String.Format(@"{0}\MediaPortal\Config\{1}\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),Environment.UserName));
+      FileInfo configFile = new FileInfo(_filename);
+      if (!configFile.Directory.Exists)
+        configFile.Directory.Create();
+
       //log.Debug("Saving {0}", this.FileName);
-      if (document == null)
+      if (_document == null)
       {
         return;
       }
-      if (document.DocumentElement == null)
+      if (_document.DocumentElement == null)
       {
         return;
       }
-      if (document.ChildNodes.Count == 0)
+      if (_document.ChildNodes.Count == 0)
       {
         return;
       }
-      if (document.DocumentElement.ChildNodes == null)
+      if (_document.DocumentElement.ChildNodes == null)
       {
         return;
       }
       try
       {
-        if (File.Exists(this.FileName + ".bak"))
+        if (File.Exists(_filename + ".bak"))
         {
-          File.Delete(this.FileName + ".bak");
+          File.Delete(_filename + ".bak");
         }
-        if (File.Exists(this.FileName))
+        if (File.Exists(_filename))
         {
-          File.Move(this.FileName, this.FileName + ".bak");
+          File.Move(_filename, _filename + ".bak");
         }
       }
 
       catch (Exception) {}
 
-      using (StreamWriter stream = new StreamWriter(this.FileName, false))
+      using (StreamWriter stream = new StreamWriter(_filename, false))
       {
-        document.Save(stream);
+        _document.Save(stream);
         stream.Flush();
         stream.Close();
       }
-      modified = false;
+      _modified = false;
     }
 
     /// <summary>
