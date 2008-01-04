@@ -5,7 +5,7 @@
       <ResourceDictionary Source="XamlStyle.xml"/>
     </StackPanel.Resources>
 
-    <ListView Width="400" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}"/>
+    <ListView Width="400" Height="200" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}"/>
     <Grid >
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>

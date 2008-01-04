@@ -303,6 +303,22 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindItemsHost(); ;
     }
+
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public override UIElement FindFocusedItem()
+    {
+      if (HasFocus) return this;
+      if (Template != null)
+      {
+        UIElement o = Template.FindFocusedItem();
+        if (o != null) return o;
+      }
+      return null;
+    }
+
     /// <summary>
     /// Called when [mouse move].
     /// </summary>

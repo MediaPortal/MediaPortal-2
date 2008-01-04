@@ -26,6 +26,7 @@ using System;
 using System.Drawing;
 using System.Diagnostics;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.InputManager;
 
 
 namespace SkinEngine.Controls.Visuals
@@ -73,6 +74,10 @@ namespace SkinEngine.Controls.Visuals
       Content.VisualParent = this;
     }
 
+    /// <summary>
+    /// Gets or sets the content property.
+    /// </summary>
+    /// <value>The content property.</value>
     public Property ContentProperty
     {
       get
@@ -85,6 +90,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the content.
+    /// </summary>
+    /// <value>The content.</value>
     public FrameworkElement Content
     {
       get
@@ -97,6 +106,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the content template property.
+    /// </summary>
+    /// <value>The content template property.</value>
     public Property ContentTemplateProperty
     {
       get
@@ -109,6 +122,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the content template.
+    /// </summary>
+    /// <value>The content template.</value>
     public DataTemplate ContentTemplate
     {
       get
@@ -122,6 +139,10 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
+    /// <summary>
+    /// Gets or sets the content template selector property.
+    /// </summary>
+    /// <value>The content template selector property.</value>
     public Property ContentTemplateSelectorProperty
     {
       get
@@ -134,6 +155,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the content template selector.
+    /// </summary>
+    /// <value>The content template selector.</value>
     public DataTemplateSelector ContentTemplateSelector
     {
       get
@@ -146,6 +171,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
       _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
@@ -167,6 +196,11 @@ namespace SkinEngine.Controls.Visuals
       _availableSize = new Size(availableSize.Width, availableSize.Height);
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.Rectangle finalRect)
     {
       _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
@@ -194,6 +228,10 @@ namespace SkinEngine.Controls.Visuals
         InitializeTriggers();
       }
     }
+
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
     public override void DoRender()
     {
       base.DoRender();
@@ -241,6 +279,12 @@ namespace SkinEngine.Controls.Visuals
         Content.OnKeyPressed(ref key);
       }
     }
+
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
     public override UIElement FindElement(string name)
     {
       if (Content != null)
@@ -250,6 +294,12 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindElement(name);
     }
+
+    /// <summary>
+    /// Finds the element of type t.
+    /// </summary>
+    /// <param name="t">The t.</param>
+    /// <returns></returns>
     public override UIElement FindElementType(Type t)
     {
       if (Content != null)
@@ -259,6 +309,11 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindElementType(t);
     }
+
+    /// <summary>
+    /// Finds the the element which is a ItemsHost
+    /// </summary>
+    /// <returns></returns>
     public override UIElement FindItemsHost()
     {
       if (Content != null)
@@ -268,5 +323,68 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindItemsHost();
     }
+
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public override UIElement FindFocusedItem()
+    {
+      if (HasFocus) return this;
+      if (Content != null)
+      {
+        UIElement found = Content.FindFocusedItem();
+        return found;
+      }
+      return null;
+    }
+    #region focus prediction
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position above this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position below this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      return ((FrameworkElement)Content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+    }
+
+
+    #endregion
   }
 }

@@ -1144,6 +1144,16 @@ namespace SkinEngine.Controls.Visuals
       return null;
     }
 
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public virtual UIElement FindFocusedItem()
+    {
+      if (HasFocus) return this;
+      return null;
+    }
+
 
     #region IBindingCollection Members
 

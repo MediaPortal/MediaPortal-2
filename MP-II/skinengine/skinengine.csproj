@@ -156,6 +156,7 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\IScrollInfo.cs" />
     <Compile Include="Controls\Panels\Canvas.cs" />
     <Compile Include="Controls\Panels\ColumnDefinition.cs" />
     <Compile Include="Controls\Panels\ColumnDefinitionsCollection.cs" />

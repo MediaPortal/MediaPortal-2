@@ -61,6 +61,10 @@ namespace SkinEngine.Controls.Visuals
       _visualTree = new Property(null);
     }
 
+    /// <summary>
+    /// Gets or sets the visual tree property.
+    /// </summary>
+    /// <value>The visual tree property.</value>
     public Property VisualTreeProperty
     {
       get
@@ -73,6 +77,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the visual tree.
+    /// </summary>
+    /// <value>The visual tree.</value>
     public FrameworkElement VisualTree
     {
       get
@@ -84,6 +92,11 @@ namespace SkinEngine.Controls.Visuals
         _visualTree.SetValue(value);
       }
     }
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
     public override UIElement FindElement(string name)
     {
       if (VisualTree != null)
@@ -94,6 +107,11 @@ namespace SkinEngine.Controls.Visuals
       return base.FindElement(name);
     }
 
+    /// <summary>
+    /// Finds the element of type t.
+    /// </summary>
+    /// <param name="t">The t.</param>
+    /// <returns></returns>
     public override UIElement FindElementType(Type t)
     {
       if (VisualTree != null)
@@ -104,6 +122,10 @@ namespace SkinEngine.Controls.Visuals
       return base.FindElementType(t);
     }
 
+    /// <summary>
+    /// Finds the the element which is a ItemsHost
+    /// </summary>
+    /// <returns></returns>
     public override UIElement FindItemsHost()
     {
       if (VisualTree != null)
@@ -112,6 +134,21 @@ namespace SkinEngine.Controls.Visuals
         if (element != null) return element;
       }
       return base.FindItemsHost();
+    }
+
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public override UIElement FindFocusedItem()
+    {
+      if (HasFocus) return this;
+      if (VisualTree != null)
+      {
+        UIElement element = VisualTree.FindFocusedItem();
+        return element;
+      }
+      return null;
     }
 
     /// <summary>

@@ -36,17 +36,28 @@ namespace SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScrollViewer"/> class.
+    /// </summary>
     public ScrollViewer()
     {
       Init();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScrollViewer"/> class.
+    /// </summary>
+    /// <param name="s">The s.</param>
     public ScrollViewer(ScrollViewer s)
-      :base(s)
+      : base(s)
     {
       Init();
     }
 
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns></returns>
     public override object Clone()
     {
       return new ScrollViewer(this);
@@ -55,5 +66,198 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
     }
+
+    /// <summary>
+    /// Does the render.
+    /// </summary>
+    public override void DoRender()
+    {
+      GraphicsDevice.Device.RenderState.ScissorTestEnable = true;
+      float x = (int)ActualPosition.X;
+      float y = (int)ActualPosition.Y;
+      float w = (int)ActualWidth;
+      float h = (int)ActualHeight;
+      x *= (((float)GraphicsDevice.Width) / ((float)SkinContext.Width));
+      w *= (((float)GraphicsDevice.Width) / ((float)SkinContext.Width));
+
+      y *= (((float)GraphicsDevice.Height) / ((float)SkinContext.Height));
+      h *= (((float)GraphicsDevice.Height) / ((float)SkinContext.Height));
+      if (x + w > (float)GraphicsDevice.Width)
+      {
+        w = (float)GraphicsDevice.Width - x;
+      }
+      if (y + h > (float)GraphicsDevice.Height)
+      {
+        h = (float)GraphicsDevice.Height - y;
+      }
+      GraphicsDevice.Device.ScissorRectangle = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+      if (Content != null)
+      {
+        Content.DoRender();
+      }
+      GraphicsDevice.Device.RenderState.ScissorTestEnable = false;
+    }
+
+    /// <summary>
+    /// Measures the specified available size.
+    /// </summary>
+    /// <param name="availableSize">Size of the available.</param>
+    public override void Measure(System.Drawing.Size availableSize)
+    {
+      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      if (Width <= 0)
+        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+      if (Height <= 0)
+        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+
+      if (Content != null)
+      {
+        Content.Measure(_desiredSize);
+        if (_desiredSize.Width < (availableSize.Width - (Margin.X + Margin.W)))
+          _desiredSize.Width = Content.DesiredSize.Width;
+        if (_desiredSize.Height < (availableSize.Height - (Margin.Y + Margin.Z)))
+          _desiredSize.Height = Content.DesiredSize.Height;
+      }
+      if (Width > 0)
+        _desiredSize.Width = (int)Width;
+      if (Height > 0)
+        _desiredSize.Height = (int)Height;
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+
+      _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
+    }
+
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
+    public override void OnKeyPressed(ref Key key)
+    {
+      if (Content == null) return;
+      UIElement element = (UIElement)Content;
+      FrameworkElement focusedElement = element.FindFocusedItem() as FrameworkElement;
+      if (focusedElement == null) return;
+
+      if (key == MediaPortal.Core.InputManager.Key.PageDown)
+      {
+        if (OnPageDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.PageUp)
+      {
+        if (OnPageUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.Down)
+      {
+        if (OnDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.Up)
+      {
+        if (OnUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.Left)
+      {
+        if (OnLeft(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      if (key == MediaPortal.Core.InputManager.Key.Right)
+      {
+        if (OnRight(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
+        {
+          key = MediaPortal.Core.InputManager.Key.None;
+          return;
+        }
+      }
+
+      Content.OnKeyPressed(ref key);
+    }
+
+    bool OnPageDown(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      info.PageDown();
+      OnMouseMove(x, y);
+      return false;
+    }
+
+    bool OnPageUp(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      info.PageUp();
+      OnMouseMove(x, y);
+      return false;
+    }
+
+    bool OnLeft(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      info.LineLeft();
+      OnMouseMove(x, y);
+      return false;
+    }
+
+    bool OnRight(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      info.LineRight();
+      OnMouseMove(x, y);
+      return false;
+    }
+
+    bool OnDown(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      if (y >= Content.ActualPosition.Y + Content.ActualHeight)
+      {
+        info.LineDown();
+        OnMouseMove(x, y);
+        return true;
+      }
+      return false;
+    }
+
+    bool OnUp(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return false;
+      if (y == Content.ActualPosition.Y)
+      {
+        info.LineUp();
+        OnMouseMove(x, y);
+        return true;
+      }
+      return false;
+    }
+
+
   }
 }

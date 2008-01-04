@@ -39,12 +39,12 @@ namespace SkinEngine.Controls.Panels
 {
   public class Panel : FrameworkElement, IAsset, IList
   {
-    Property _alignmentXProperty;
-    Property _alignmentYProperty;
-    Property _childrenProperty;
-    Property _backgroundProperty;
-    VertexBuffer _vertexBufferBackground;
-    DateTime _lastTimeUsed;
+    protected Property _alignmentXProperty;
+    protected Property _alignmentYProperty;
+    protected Property _childrenProperty;
+    protected Property _backgroundProperty;
+    protected VertexBuffer _vertexBufferBackground;
+    protected DateTime _lastTimeUsed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
@@ -405,6 +405,20 @@ namespace SkinEngine.Controls.Panels
         if (found != null) return found;
       }
       return base.FindItemsHost();
+    }
+
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public override UIElement FindFocusedItem()
+    {
+      foreach (UIElement element in Children)
+      {
+        UIElement found = element.FindFocusedItem();
+        if (found != null) return found;
+      }
+      return null;
     }
 
     #region IList Members
