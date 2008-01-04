@@ -148,7 +148,7 @@ namespace MediaPortal
             new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
                                   "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
                                   BaseScreen.Image.bug);
-          restart = frm.ShowDialog() == DialogResult.Yes;
+          //restart = frm.ShowDialog() == DialogResult.Yes;
         }
 #endif
       }
