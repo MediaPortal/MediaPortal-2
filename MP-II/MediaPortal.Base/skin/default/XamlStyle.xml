@@ -2,6 +2,20 @@
 <MyXaml >
   <ResourceDictionary>
 
+    <!-- default brush used to paint the background of a page/window -->
+    <RadialGradientBrush Key="backGroundBrush" GradientOrigin="0.186,0.311">
+      <RadialGradientBrush.RelativeTransform>
+        <TransformGroup>
+          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
+          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          <TranslateTransform X="-0.036" Y="-0.146"/>
+        </TransformGroup>
+      </RadialGradientBrush.RelativeTransform>
+      <GradientStop Color="#FF5C9AE6" Offset="0"/>
+      <GradientStop Color="#FF1253A3" Offset="1"/>
+    </RadialGradientBrush>
+    
     <!-- default brush for a submenu button -->
     <RadialGradientBrush Key="MpSubMenuButtonBrush" GradientOrigin="0.85,0.82">
       <RadialGradientBrush.RelativeTransform>
@@ -1748,8 +1762,10 @@
       <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
       <Setter Property="MinWidth" Value="120"/>
       <Setter Property="MinHeight" Value="32"/>
+      <!--
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="VerticalAlignment" Value="Stretch"/>
+      -->
       <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
       <Setter Property="Template">

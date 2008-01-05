@@ -203,6 +203,13 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    public override Texture Texture
+    {
+      get
+      {
+        return _texture;
+      }
+    }
     #endregion
   }
 }

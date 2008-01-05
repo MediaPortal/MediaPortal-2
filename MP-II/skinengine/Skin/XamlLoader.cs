@@ -237,6 +237,22 @@ namespace SkinEngine.Skin
     /// <param name="e">The <see cref="MyXaml.Core.CustomTypeEventArgs"/> instance containing the event data.</param>
     void parser_CustomTypeConvertor(object parser, CustomTypeEventArgs e)
     {
+      if (e.PropertyType == typeof(HorizontalAlignmentEnum))
+      {
+        string v = e.Value.ToString();
+        if (v == "Left") e.Result = HorizontalAlignmentEnum.Left;
+        if (v == "Right") e.Result = HorizontalAlignmentEnum.Right;
+        if (v == "Center") e.Result = HorizontalAlignmentEnum.Center;
+        if (v == "Stretch") e.Result = HorizontalAlignmentEnum.Stretch;
+      }
+      if (e.PropertyType == typeof(VerticalAlignmentEnum))
+      {
+        string v = e.Value.ToString();
+        if (v == "Bottom") e.Result = VerticalAlignmentEnum.Bottom;
+        if (v == "Top") e.Result = VerticalAlignmentEnum.Top;
+        if (v == "Center") e.Result = VerticalAlignmentEnum.Center;
+        if (v == "Stretch") e.Result = VerticalAlignmentEnum.Stretch;
+      }
       if (e.PropertyType == typeof(Vector2))
       {
         e.Result = GetVector2(e.Value.ToString());

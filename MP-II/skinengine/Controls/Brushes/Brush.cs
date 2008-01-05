@@ -53,7 +53,7 @@ namespace SkinEngine.Controls.Brushes
     Property _relativeTransformProperty;
     Property _transformProperty;
     Property _keyProperty;
-
+    bool _isOpacity;
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
     /// </summary>
@@ -72,6 +72,7 @@ namespace SkinEngine.Controls.Brushes
     }
     void Init()
     {
+      _isOpacity = false;
       _keyProperty = new Property("");
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
@@ -229,7 +230,6 @@ namespace SkinEngine.Controls.Brushes
         _transformProperty.SetValue(value);
       }
     }
-
     /// <summary>
     /// Setups the brush.
     /// </summary>
@@ -260,8 +260,8 @@ namespace SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Tu2 = 0;
-        verts[i].Tv2 = 0;
+        verts[i].Tu2 = u;
+        verts[i].Tv2 = v;
       }
     }
 
@@ -271,6 +271,9 @@ namespace SkinEngine.Controls.Brushes
     public virtual void BeginRender()
     {
     }
+    public virtual void BeginRender(Texture tex)
+    {
+    }
 
     /// <summary>
     /// Ends the render.
@@ -278,5 +281,26 @@ namespace SkinEngine.Controls.Brushes
     public virtual void EndRender()
     {
     }
+
+    public bool IsOpacityBrush
+    {
+      get
+      {
+        return _isOpacity;
+      }
+      set
+      {
+        _isOpacity = value;
+      }
+    }
+
+    public virtual Texture Texture
+    {
+      get
+      {
+        return null;
+      }
+    }
+
   }
 }

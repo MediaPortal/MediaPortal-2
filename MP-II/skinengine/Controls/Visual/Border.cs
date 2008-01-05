@@ -76,7 +76,7 @@ namespace SkinEngine.Controls.Visuals
       _borderProperty = new Property(null);
       _backgroundProperty = new Property(null);
       _borderThicknessProperty = new Property((double)1.0);
-      _cornerRadiusProperty = new Property((double)10.0);
+      _cornerRadiusProperty = new Property((double)0);
       ContentManager.Add(this);
 
       _borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -232,7 +232,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!IsVisible) return;
       if ((BorderBrush != null && _vertexBufferBorder == null) ||
-           (Background != null && _vertexBufferBackground == null) ||  _performLayout)
+           (Background != null && _vertexBufferBackground == null) || _performLayout)
       {
         PerformLayout();
       }

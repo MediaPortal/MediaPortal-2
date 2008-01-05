@@ -92,8 +92,6 @@ namespace SkinEngine.Controls.Panels
       {
         if (!child.IsVisible) continue;
         Point p = new Point((int)(child.Position.X + this.ActualPosition.X), (int)(child.Position.Y + this.ActualPosition.Y));
-        double widthPerCell = ActualWidth - (child.Position.X - this.ActualPosition.X);
-        double heightPerCell = ActualHeight - (child.Position.Y - this.ActualPosition.Y);
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }

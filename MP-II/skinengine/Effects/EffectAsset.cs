@@ -218,6 +218,43 @@ namespace SkinEngine.Effects
       GraphicsDevice.Device.SetTexture(0, null);
     }
 
+    public void StartRender(Texture tex, int stream)
+    {
+      if (!IsAllocated)
+      {
+        Allocate();
+      }
+      if (!IsAllocated)
+      {
+        //render without effect
+        GraphicsDevice.Device.SetTexture(stream, tex);
+        return;
+      }
+      long time = 0;
+      QueryPerformanceCounter(ref time);
+      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
+      _effect.SetValue("worldViewProj",
+                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
+                       GraphicsDevice.Device.Transform.Projection);
+      _effect.SetValue("g_texture", tex);
+      _effect.SetValue("appTime", (float)elapsedTime);
+      _effect.Technique = "simple";
+      SetEffectParameters();
+      _effect.Begin(0);
+      _effect.BeginPass(0);
+
+      GraphicsDevice.Device.SetTexture(stream, tex);
+    }
+    public void EndRender(int stream)
+    {
+      if (_effect != null)
+      {
+        _effect.EndPass();
+        _effect.End();
+        _lastUsed = SkinContext.Now;
+      }
+      GraphicsDevice.Device.SetTexture(stream, null);
+    }
     public void Render(Texture tex)
     {
       StartRender(tex);

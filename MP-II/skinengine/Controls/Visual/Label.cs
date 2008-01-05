@@ -200,7 +200,9 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Size size = new System.Drawing.Size(32, 32);
       if (_asset != null)
       {
-        size = new Size((int)availableSize.Width, (int)(_asset.Font.LineHeight*1.5));
+        float h = _asset.Font.LineHeight * 1.2f;
+        h -= (_asset.Font.LineHeight - _asset.Font.Base);
+        size = new Size((int)availableSize.Width, (int)(h));
       }
       if (Width <= 0)
         _desiredSize.Width = ((int)size.Width) - (int)(Margin.X + Margin.W);
@@ -243,23 +245,26 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
-      if (this.Name == "lbl123")
-      {
-        int x = 123;
-      }
       if (_asset == null) return;
       ColorValue color = ColorValue.FromColor(this.Color);
 
       base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
-      float size = _asset.Font.LineHeight;
+      float size = _asset.Font.Size;
       System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
       SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
         align = SkinEngine.Fonts.Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
+
+
+      if (rect.Height < _asset.Font.LineHeight * 1.2f)
+      {
+        rect.Height = (int)(_asset.Font.LineHeight * 1.2f);
+      }
+      rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
       _asset.Draw(Text, rect, align, size, color, Scroll, out totalWidth);
     }
   }

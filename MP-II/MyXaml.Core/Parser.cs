@@ -1488,43 +1488,51 @@ namespace MyXaml.Core
 
                 string nameSpace = Namespace(child.Prefix);		// Get the child type.
                 //CodePath.Executing(117);
-                string qualifiedName = StringHelpers.LeftOf(nameSpace, ',') + "." + NameMangler(tagName) + ", " + StringHelpers.RightOf(nameSpace, ',');
-                Type childType = Type.GetType(qualifiedName);
-                if (childType != null)
+                string qualifiedName = tagName;
+                if (nameSpace!=null)
+                  qualifiedName= StringHelpers.LeftOf(nameSpace, ',') + "." + NameMangler(tagName) + ", " + StringHelpers.RightOf(nameSpace, ',');
+                if (OnPropertyDeclarationTest(pi, qualifiedName))
                 {
-                  //CodePath.Executing(118);
-                  if (pi.PropertyType.IsInterface)			// If the property type is an interface...
+                  isPropertyDeclaration = true;
+                }
+                else
+                {
+                  Type childType = Type.GetType(qualifiedName);
+                  if (childType != null)
                   {
-                    //CodePath.Executing(119);
-                    TypeFilter typeFilter = new TypeFilter(InterfaceFilter);
-                    Type[] interfaces = childType.FindInterfaces(typeFilter, pi.PropertyType.FullName);
-                    if (interfaces.Length == 0)				// See if the child type implements the interface.
+                    //CodePath.Executing(118);
+                    if (pi.PropertyType.IsInterface)			// If the property type is an interface...
                     {
-                      throw (new ChildTypeNotPropertyTypeException("The child " + tagName + " is not the same type as the parent's property."));
-                    }
-                    isPropertyDeclaration = true;
-                  }
-                  else
-                  {
-                    //CodePath.Executing(120);			// See if the child is a type of or a subclass of the property.
-                    if ((childType.Equals(pi.PropertyType)) ||
-                      (childType.IsSubclassOf(pi.PropertyType)))
-                    {
-                      //CodePath.Executing(121);		// If so, then the property is a property declaration.
+                      //CodePath.Executing(119);
+                      TypeFilter typeFilter = new TypeFilter(InterfaceFilter);
+                      Type[] interfaces = childType.FindInterfaces(typeFilter, pi.PropertyType.FullName);
+                      if (interfaces.Length == 0)				// See if the child type implements the interface.
+                      {
+                        throw (new ChildTypeNotPropertyTypeException("The child " + tagName + " is not the same type as the parent's property."));
+                      }
                       isPropertyDeclaration = true;
                     }
                     else
                     {
-                      // child does not specify a concrete type!  Get the instance instead.
-                      throw (new ChildTypeNotPropertyTypeException("The child " + tagName + " is not the same type as the parent's property."));
+                      //CodePath.Executing(120);			// See if the child is a type of or a subclass of the property.
+                      if ((childType.Equals(pi.PropertyType)) ||
+                        (childType.IsSubclassOf(pi.PropertyType)))
+                      {
+                        //CodePath.Executing(121);		// If so, then the property is a property declaration.
+                        isPropertyDeclaration = true;
+                      }
+                      else
+                      {
+                        // child does not specify a concrete type!  Get the instance instead.
+                        throw (new ChildTypeNotPropertyTypeException("The child " + tagName + " is not the same type as the parent's property."));
+                      }
                     }
                   }
+                  else
+                  {
+                    throw (new UnknownTypeException("The child " + tagName + " is an unknown type."));
+                  }
                 }
-                else
-                {
-                  throw (new UnknownTypeException("The child " + tagName + " is an unknown type."));
-                }
-
                 //CodePath.Executing(122);
                 propertyObject = obj;								// isPropertyDeclaration is always true at this point.
                 return true;

@@ -66,6 +66,7 @@ namespace SkinEngine.Controls.Visuals
     Property _columnSpanProperty;
     Property _isItemsHostProperty;
     Property _contextProperty;
+    Property _opacityMask;
     protected Size _desiredSize;
     protected Size _availableSize;
     protected System.Drawing.Rectangle _finalRect;
@@ -104,6 +105,8 @@ namespace SkinEngine.Controls.Visuals
       ColumnSpan = el.ColumnSpan;
       IsItemsHost = el.IsItemsHost;
       Context = el.Context;
+      if (OpacityMask != null)
+        OpacityMask = (SkinEngine.Controls.Brushes.Brush)el.OpacityMask.Clone();
 
       foreach (Binding binding in el._bindings)
       {
@@ -145,7 +148,7 @@ namespace SkinEngine.Controls.Visuals
       _hasFocusProperty = new Property(false);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
-      _dockProperty = new Property(Dock.Top);
+      _dockProperty = new Property(Dock.Center);
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
@@ -160,7 +163,7 @@ namespace SkinEngine.Controls.Visuals
       _columnProperty = new Property(1);
       _rowSpanProperty = new Property(1);
       _columnSpanProperty = new Property(1);
-
+      _opacityMask = new Property(null);
 
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -198,6 +201,7 @@ namespace SkinEngine.Controls.Visuals
         return _resources;
       }
     }
+
     /// <summary>
     /// Gets or sets the context property.
     /// </summary>
@@ -227,6 +231,39 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _contextProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the opacity mask property.
+    /// </summary>
+    /// <value>The opacity mask property.</value>
+    public Property OpacityMaskProperty
+    {
+      get
+      {
+        return _opacityMask;
+      }
+      set
+      {
+        _opacityMask = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the opacity mask.
+    /// </summary>
+    /// <value>The opacity mask.</value>
+    public SkinEngine.Controls.Brushes.Brush OpacityMask
+    {
+      get
+      {
+        return _opacityMask.GetValue() as SkinEngine.Controls.Brushes.Brush;
+      }
+      set
+      {
+        _opacityMask.SetValue(value);
       }
     }
 
@@ -967,7 +1004,7 @@ namespace SkinEngine.Controls.Visuals
     public void UpdateLayout()
     {
       if (false == _isLayoutInvalid) return;
-      Trace.WriteLine("UpdateLayout :"+this.Name+"  "+this.GetType());
+      Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
       _isLayoutInvalid = false;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
@@ -1162,7 +1199,6 @@ namespace SkinEngine.Controls.Visuals
       _bindings.Add(binding);
     }
 
-    #endregion
 
     public virtual void InitializeBindings()
     {
@@ -1172,5 +1208,6 @@ namespace SkinEngine.Controls.Visuals
         binding.Initialize(this);
       }
     }
+    #endregion
   }
 }
