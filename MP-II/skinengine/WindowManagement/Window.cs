@@ -373,13 +373,16 @@ namespace SkinEngine
       uint time = (uint)Environment.TickCount;
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
+      
+#if TESTXAML
+#else
       for (int i = 0; i < _controls.Count; ++i)
       {
         //_controls[i].UpdateProperties();
         _controls[i].DoRender(time);
       }
       _waitCursor.Render(time);
-
+#endif
       if (!IsOpened && _thread == null && !IsAnimating)
       {
         //we cannot close the window from the render thread

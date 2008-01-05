@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
@@ -34,13 +35,13 @@ using System.Drawing;
 using Microsoft.DirectX.Direct3D;
 namespace SkinEngine.Controls.Brushes
 {
-  public class SolidColorBrush : Brush, IAsset
+  public class SolidColorBrush : Brush//, IAsset
   {
     Property _colorProperty;
-    Texture _texture;
+    //Texture _texture;
     double _height;
     double _width;
-    EffectAsset _effect;
+    //EffectAsset _effect;
     DateTime _lastTimeUsed;
 
     /// <summary>
@@ -61,7 +62,7 @@ namespace SkinEngine.Controls.Brushes
     void Init()
     {
       _colorProperty = new Property(Color.White);
-      ContentManager.Add(this);
+      //ContentManager.Add(this);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
@@ -112,16 +113,22 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
-      if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
+      Trace.WriteLine("SolidColorBrush.SetupBrush()");
+      //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
         base.SetupBrush(element, ref verts);
-        if (_texture != null)
+        ColorValue color = ColorValue.FromColor(this.Color);
+        color.Alpha *= (float)Opacity;
+        for (int i = 0; i < verts.Length; ++i)
         {
-          _texture.Dispose();
+          verts[i].Color = color.ToArgb();
         }
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        //if (_texture == null)
+        //{
+        //  _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        //}
       }
     }
 
@@ -130,14 +137,15 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void BeginRender()
     {
-      if (_texture == null) return;
+      //if (_texture == null) return;
       ColorValue color = ColorValue.FromArgb(Color.ToArgb());
       color.Alpha *= (float)Opacity;
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      _effect = ContentManager.GetEffect("solidbrush");
-      _effect.Parameters["g_solidColor"] = color;
-      _effect.StartRender(_texture);
+      //_effect = ContentManager.GetEffect("solidbrush");
+      //_effect.Parameters["g_solidColor"] = color;
+      //_effect.StartRender(_texture);
+      GraphicsDevice.Device.SetTexture(0,null);
       _lastTimeUsed = SkinContext.Now;
     }
 
@@ -146,13 +154,14 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void EndRender()
     {
-      if (_effect != null)
-      {
-        _effect.EndRender();
-        _effect = null;
-      }
+     // if (_effect != null)
+     // {
+     //   _effect.EndRender();
+     //   _effect = null;
+      // }
     }
 
+#if NOTUSED
     #region IAsset Members
 
     /// <summary>
@@ -211,5 +220,6 @@ namespace SkinEngine.Controls.Brushes
       }
     }
     #endregion
+#endif
   }
 }

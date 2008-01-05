@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -230,6 +231,7 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
+      Trace.WriteLine("RadialGradientBrush.SetupBrush()");
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
         if (!IsOpacityBrush)
