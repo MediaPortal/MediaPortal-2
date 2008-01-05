@@ -36,9 +36,9 @@ using SkinEngine;
 
 namespace SkinEngine.Controls.Brushes
 {
-  public class LinearGradientBrush : GradientBrush, IAsset
+  public class LinearGradientBrush : GradientBrush//, IAsset
   {
-    Texture _texture;
+    //Texture _texture;
     double _height;
     double _width;
     EffectAsset _effect;
@@ -68,7 +68,7 @@ namespace SkinEngine.Controls.Brushes
     {
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
-      ContentManager.Add(this);
+      //ContentManager.Add(this);
       _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
@@ -161,13 +161,13 @@ namespace SkinEngine.Controls.Brushes
         if (!IsOpacityBrush)
           base.SetupBrush(element, ref verts);
 
-        if (_texture != null)
-        {
-          _texture.Dispose();
-        }
+        //if (_texture != null)
+        //{
+        //  _texture.Dispose();
+        //}
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        //_texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
 
         int index = 0;
         foreach (GradientStop stop in GradientStops)
@@ -185,10 +185,10 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void BeginRender()
     {
-      if (_texture == null)
-      {
-        return;
-      }
+      //if (_texture == null)
+      //{
+      //  return;
+      //}
       if (_refresh)
       {
         _refresh = false;
@@ -221,7 +221,7 @@ namespace SkinEngine.Controls.Brushes
       m = Matrix.Invert(m);
       _effect.Parameters["RelativeTransform"] = m;
 
-      _effect.StartRender(_texture);
+      _effect.StartRender(null);
       _lastTimeUsed = SkinContext.Now;
     }
     public override void BeginRender(Texture tex)
@@ -278,7 +278,7 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-
+#if NOTUSED
     #region IAsset Members
 
     /// <summary>
@@ -338,5 +338,6 @@ namespace SkinEngine.Controls.Brushes
         return _texture;
       }
     }
+#endif
   }
 }
