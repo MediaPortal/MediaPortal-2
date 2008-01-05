@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -259,6 +260,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public void PerformLayout()
     {
+      Trace.WriteLine("Panel.PerformLayout()");
       Free();
       if (Background != null)
       {

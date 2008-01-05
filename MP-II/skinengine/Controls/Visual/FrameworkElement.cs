@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
@@ -59,6 +60,8 @@ namespace SkinEngine.Controls.Visuals
     Property _horizontalAlignmentProperty;
     Property _verticalAlignmentProperty;
     VertexBuffer _vertexOpacityMaskBorder;
+    Texture _textureOpacity;
+    Surface _textureOpacitySurface;
     DateTime _lastTimeUsed;
     bool _updateOpacityMask;
     bool _mouseOver = false;
@@ -497,7 +500,7 @@ namespace SkinEngine.Controls.Visuals
         float h = (float)ActualHeight;
         float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
         float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
-        using (Texture tex = new Texture(GraphicsDevice.Device, (int)w, (int)h, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default))
+        //using (Texture tex = new Texture(GraphicsDevice.Device, (int)w, (int)h, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default))
         {
           m = new ExtendedMatrix();
           m.Matrix *= SkinContext.FinalMatrix.Matrix;
@@ -518,15 +521,15 @@ namespace SkinEngine.Controls.Visuals
           SkinContext.AddTransform(m);
 
           GraphicsDevice.Device.EndScene();
-          using (Surface renderTarget = tex.GetSurfaceLevel(0))
+          //using (Surface renderTarget = _textureOpacity.GetSurfaceLevel(0))
           {
             Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0);
             GraphicsDevice.Device.StretchRectangle(backBuffer,
                                                    new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
-                                                   renderTarget,
+                                                   _textureOpacitySurface,
                                                    new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
                                                    TextureFilter.None);
-            GraphicsDevice.Device.SetRenderTarget(0, renderTarget);
+            GraphicsDevice.Device.SetRenderTarget(0, _textureOpacitySurface);
 
             GraphicsDevice.Device.BeginScene();
 
@@ -551,10 +554,10 @@ namespace SkinEngine.Controls.Visuals
             GraphicsDevice.Device.EndScene();
             if (RenderTransform != null)
             {
-             // SkinContext.RemoveTransform();
+              // SkinContext.RemoveTransform();
             }
             SkinContext.RemoveTransform();
-          //  TextureLoader.Save(@"c:\1\text.png", ImageFileFormat.Png, tex);
+            //  TextureLoader.Save(@"c:\1\text.png", ImageFileFormat.Png, tex);
 
             GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
             GraphicsDevice.Device.BeginScene();
@@ -562,7 +565,7 @@ namespace SkinEngine.Controls.Visuals
             GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
             GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
 
-            OpacityMask.BeginRender(tex);
+            OpacityMask.BeginRender(_textureOpacity);
             GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
             OpacityMask.EndRender();
             _lastTimeUsed = DateTime.Now;
@@ -627,6 +630,16 @@ namespace SkinEngine.Controls.Visuals
         _vertexOpacityMaskBorder.Dispose();
         _vertexOpacityMaskBorder = null;
       }
+      if (_textureOpacitySurface != null)
+      {
+        _textureOpacitySurface.Dispose();
+      }
+
+      if (_textureOpacity != null)
+      {
+        _textureOpacity.Dispose();
+        _textureOpacity = null;
+      }
     }
 
     #endregion
@@ -639,11 +652,28 @@ namespace SkinEngine.Controls.Visuals
         _vertexOpacityMaskBorder = new VertexBuffer(typeof(PositionColored2Textured), 4, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       }
       if (!_updateOpacityMask) return;
+      Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
+      if (_textureOpacitySurface != null)
+      {
+        _textureOpacitySurface.Dispose();
+      }
+      if (_textureOpacity != null)
+      {
+        _textureOpacity.Dispose();
+      }
+
+      float w = (float)ActualWidth;
+      float h = (float)ActualHeight;
+      _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      _textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0);
       PositionColored2Textured[] verts = new PositionColored2Textured[4];
       ColorValue col = ColorValue.FromColor(System.Drawing.Color.White);
       //col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
+      SurfaceDescription desc = _textureOpacity.GetLevelDescription(0);
 
+      float maxU = w / ((float)desc.Width);
+      float maxV = h / ((float)desc.Height);
       //upperleft
       verts[0].X = (float)this.ActualPosition.X;
       verts[0].Y = (float)this.ActualPosition.Y;
@@ -657,28 +687,28 @@ namespace SkinEngine.Controls.Visuals
       verts[1].X = (float)(this.ActualPosition.X + this.ActualWidth);
       verts[1].Y = (float)this.ActualPosition.Y;
       verts[1].Color = color;
-      verts[1].Tu1 = 1;
+      verts[1].Tu1 = maxU;
       verts[1].Tv1 = 0;
-      verts[1].Tu2 = 1;
+      verts[1].Tu2 = maxU;
       verts[1].Tv2 = 0;
 
       //bottomright
       verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth);
       verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
       verts[2].Color = color;
-      verts[2].Tu1 = 1;
-      verts[2].Tv1 = 1;
-      verts[2].Tu2 = 1;
-      verts[2].Tv2 = 1;
+      verts[2].Tu1 = maxU;
+      verts[2].Tv1 = maxU;
+      verts[2].Tu2 = maxV;
+      verts[2].Tv2 = maxV;
 
       //bottomleft
       verts[3].X = (float)this.ActualPosition.X;
       verts[3].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
       verts[3].Color = color;
       verts[3].Tu1 = 0;
-      verts[3].Tv1 = 1;
+      verts[3].Tv1 = maxV;
       verts[3].Tu2 = 0;
-      verts[3].Tv2 = 1;
+      verts[3].Tv2 = maxV;
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;

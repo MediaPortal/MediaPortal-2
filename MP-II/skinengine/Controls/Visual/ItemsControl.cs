@@ -339,6 +339,7 @@ namespace SkinEngine.Controls.Visuals
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
       if (ItemTemplate.VisualTree == null) return false;
+      Trace.WriteLine("ItemsControl.Prepare()");
 
       int itemCount = ItemsPanel.Children.Count;
       int focusedIndex = -1;

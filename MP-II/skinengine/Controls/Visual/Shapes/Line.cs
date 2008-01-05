@@ -207,6 +207,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
+      Trace.WriteLine("Line.PerformLayout()");
       Free();
       float cx;
       float cy;

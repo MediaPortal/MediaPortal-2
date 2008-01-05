@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing.Drawing2D;
@@ -265,6 +266,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public void PerformLayout()
     {
+      Trace.WriteLine("Border.PerformLayout()");
       _performLayout = false;
       Free();
       double w = Width; if (w <= 0) w = ActualWidth;

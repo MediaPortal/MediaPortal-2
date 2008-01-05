@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -315,6 +316,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     void PerformLayout()
     {
+      Trace.WriteLine("Image.PerformLayout()");
       if (_image == null) return;
       if (!_image.Texture.IsAllocated) return;
 

@@ -145,6 +145,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
+      Trace.WriteLine("Rectangle.PerformLayout()");
       Free();
       double w = Width; if (w <= 0) w = ActualWidth;
       double h = Height; if (h <= 0) h = ActualHeight;

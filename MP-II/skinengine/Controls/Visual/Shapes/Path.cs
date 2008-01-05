@@ -106,6 +106,7 @@ namespace SkinEngine.Controls.Visuals
     }
     protected override void PerformLayout()
     {
+      Trace.WriteLine("Path.PerformLayout()");
       float cx, cy;
       Free();
       double w = Width; if (w <= 0) w = ActualWidth;
