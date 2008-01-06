@@ -239,16 +239,16 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Fill.BeginRender(_vertexBufferFill);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
-        Fill.BeginRender();
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Fill.EndRender();
       }
       if (Stroke != null && StrokeThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Stroke.BeginRender(_vertexBufferBorder);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        Stroke.BeginRender();
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
         Stroke.EndRender();
       }

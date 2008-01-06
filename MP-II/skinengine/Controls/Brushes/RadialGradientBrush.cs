@@ -52,6 +52,8 @@ namespace SkinEngine.Controls.Brushes
     float[] _offsets = new float[6];
     ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
+    bool _singleColor = true;
+    PositionColored2Textured[] _verts;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
@@ -232,6 +234,7 @@ namespace SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       Trace.WriteLine("RadialGradientBrush.SetupBrush()");
+      _verts = verts;
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
         if (!IsOpacityBrush)
@@ -246,6 +249,17 @@ namespace SkinEngine.Controls.Brushes
         }
         _refresh = true;
       }
+    }
+
+    void SetColor(VertexBuffer vertexbuffer)
+    {
+      ColorValue color = ColorValue.FromColor(GradientStops[0].Color);
+      color.Alpha *= (float)Opacity;
+      for (int i = 0; i < _verts.Length; ++i)
+      {
+        _verts[i].Color = color.ToArgb();
+      }
+      vertexbuffer.SetData(_verts, 0, LockFlags.None);
     }
 
     void CreateGradient()
@@ -264,8 +278,8 @@ namespace SkinEngine.Controls.Brushes
         float distance = offsetEnd - offsetStart;
         for (int x = offsetStart; x < offsetEnd; ++x)
         {
-          float step = (x - offsetStart) / distance; 
-          float r= step*(colorEnd.Red - colorStart.Red);
+          float step = (x - offsetStart) / distance;
+          float r = step * (colorEnd.Red - colorStart.Red);
           r += colorStart.Red;
 
           float g = step * (colorEnd.Green - colorStart.Green);
@@ -290,7 +304,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender()
+    public override void BeginRender(VertexBuffer vertexBuffer)
     {
       if (_texture == null) return;
       if (_refresh)
@@ -304,31 +318,53 @@ namespace SkinEngine.Controls.Brushes
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
+        _singleColor = true;
+        for (int i = 0; i < GradientStops.Count - 1; ++i)
+        {
+          if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+          {
+            _singleColor = false;
+            break;
+          }
+        }
         CreateGradient();
+        if (_singleColor)
+        {
+          SetColor(vertexBuffer);
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      if (IsOpacityBrush)
+      if (!_singleColor)
       {
-        _effect = ContentManager.GetEffect("radialopacitygradient");
+        if (IsOpacityBrush)
+        {
+          _effect = ContentManager.GetEffect("radialopacitygradient");
+        }
+        else
+        {
+          _effect = ContentManager.GetEffect("radialgradient");
+        }
+        //_effect.Parameters["g_offset"] = _offsets;
+        //_effect.Parameters["g_color"] = _colors;
+        //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
+        _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+        _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
+        _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+        _effect.Parameters["g_opacity"] = (float)Opacity;
+        Matrix m = Matrix.Identity;
+        RelativeTransform.GetTransform(out m);
+        m = Matrix.Invert(m);
+        _effect.Parameters["RelativeTransform"] = m;
+
+        _effect.StartRender(_texture);
+        _lastTimeUsed = SkinContext.Now;
       }
       else
       {
-        _effect = ContentManager.GetEffect("radialgradient");
+        GraphicsDevice.Device.SetTexture(0, null);
+        _lastTimeUsed = SkinContext.Now;
       }
-      //_effect.Parameters["g_offset"] = _offsets;
-      //_effect.Parameters["g_color"] = _colors;
-      //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
-      _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-      _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-      _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
-      Matrix m = Matrix.Identity;
-      RelativeTransform.GetTransform(out m);
-      m = Matrix.Invert(m);
-      _effect.Parameters["RelativeTransform"] = m;
-
-      _effect.StartRender(_texture);
-      _lastTimeUsed = SkinContext.Now;
     }
     public override void BeginRender(Texture tex)
     {

@@ -268,7 +268,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public virtual void BeginRender()
+    public virtual void BeginRender(VertexBuffer vertexBuffer)
     {
     }
     public virtual void BeginRender(Texture tex)

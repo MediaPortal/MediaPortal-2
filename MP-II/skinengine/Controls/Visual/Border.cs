@@ -241,8 +241,8 @@ namespace SkinEngine.Controls.Visuals
       if (BorderBrush != null && BorderThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        BorderBrush.BeginRender(_vertexBufferBorder);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        BorderBrush.BeginRender();
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
         BorderBrush.EndRender();
       }
@@ -251,8 +251,8 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Background.BeginRender(_vertexBufferBackground);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
-        Background.BeginRender();
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBackground);
         Background.EndRender();
       }

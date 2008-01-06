@@ -5,6 +5,7 @@ float4x4 RelativeTransform : WORLDVIEWPROJ;
 float2   g_radius={0.5f,0.5f};
 float2   g_center={0.5f,0.5f};
 float2   g_focus={0.5f,0.5f};
+float    g_opacity;
 texture  g_texture;                      // Color texture 
 float    appTime;                   // App's time in seconds
 
@@ -60,6 +61,7 @@ void renderPixelShader( in v2p IN, out p2f OUT)
   float dist=GetColor( float2(pos.x,pos.y) );
   dist=clamp(dist,0,0.999999);
   OUT.Color = tex1D(textureSampler, dist);
+  OUT.Color[3] *=g_opacity;
   //OUT.Color=color;
 }
 

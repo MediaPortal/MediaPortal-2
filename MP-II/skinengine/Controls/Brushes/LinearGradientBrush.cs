@@ -49,6 +49,8 @@ namespace SkinEngine.Controls.Brushes
     float[] _offsets = new float[6];
     ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
+    bool _singleColor = true;
+    PositionColored2Textured[] _verts;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LinearGradientBrush"/> class.
@@ -156,6 +158,7 @@ namespace SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       Trace.WriteLine("LinearGradientBrush.SetupBrush()");
+      _verts = verts;
       // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
         if (!IsOpacityBrush)
@@ -207,12 +210,23 @@ namespace SkinEngine.Controls.Brushes
 
       _texture.UnlockRectangle(0);
       //TextureLoader.Save(@"c:\1\gradient.png",ImageFileFormat.Png,_texture);
-
     }
+
+    void SetColor(VertexBuffer vertexbuffer)
+    {
+      ColorValue color = ColorValue.FromColor(GradientStops[0].Color);
+      color.Alpha *= (float)Opacity;
+      for (int i = 0; i < _verts.Length; ++i)
+      {
+        _verts[i].Color = color.ToArgb();
+      }
+      vertexbuffer.SetData(_verts, 0, LockFlags.None);
+    }
+
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender()
+    public override void BeginRender(VertexBuffer vertexBuffer)
     {
       if (_texture == null)
       {
@@ -229,31 +243,54 @@ namespace SkinEngine.Controls.Brushes
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
+        _singleColor = true;
+        for (int i = 0; i < GradientStops.Count - 1; ++i)
+        {
+          if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+          {
+            _singleColor = false;
+            break;
+          }
+        }
         CreateGradient();
+        if (_singleColor)
+        {
+          SetColor(vertexBuffer);
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      if (IsOpacityBrush)
+      if (!_singleColor)
       {
-        _effect = ContentManager.GetEffect("linearopacitygradient");
+        if (IsOpacityBrush)
+        {
+          _effect = ContentManager.GetEffect("linearopacitygradient");
+        }
+        else
+        {
+          _effect = ContentManager.GetEffect("lineargradient");
+        }
+        //_effect.Parameters["g_offset"] = _offsets;
+        //_effect.Parameters["g_color"] = _colors;
+        //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
+        _effect.Parameters["g_opacity"] = (float)Opacity;
+        _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
+        _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+        Matrix m = Matrix.Identity;
+        RelativeTransform.GetTransform(out m);
+        m = Matrix.Invert(m);
+        _effect.Parameters["RelativeTransform"] = m;
+
+        _effect.StartRender(_texture);
+        _lastTimeUsed = SkinContext.Now;
       }
       else
       {
-        _effect = ContentManager.GetEffect("lineargradient");
+        GraphicsDevice.Device.SetTexture(0, null);
+        _lastTimeUsed = SkinContext.Now;
       }
-      //_effect.Parameters["g_offset"] = _offsets;
-      //_effect.Parameters["g_color"] = _colors;
-      //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
-      _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-      _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
-      Matrix m = Matrix.Identity;
-      RelativeTransform.GetTransform(out m);
-      m = Matrix.Invert(m);
-      _effect.Parameters["RelativeTransform"] = m;
-
-      _effect.StartRender(_texture);
-      _lastTimeUsed = SkinContext.Now;
     }
+
     public override void BeginRender(Texture tex)
     {
       if (tex == null)
@@ -274,26 +311,34 @@ namespace SkinEngine.Controls.Brushes
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      if (IsOpacityBrush)
+      if (!_singleColor)
       {
-        _effect = ContentManager.GetEffect("linearopacitygradient");
+        if (IsOpacityBrush)
+        {
+          _effect = ContentManager.GetEffect("linearopacitygradient");
+        }
+        else
+        {
+          _effect = ContentManager.GetEffect("lineargradient");
+        }
+        _effect.Parameters["g_offset"] = _offsets;
+        _effect.Parameters["g_color"] = _colors;
+        _effect.Parameters["g_stops"] = (int)GradientStops.Count;
+        _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
+        _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+        Matrix m = Matrix.Identity;
+        RelativeTransform.GetTransform(out m);
+        m = Matrix.Invert(m);
+        _effect.Parameters["RelativeTransform"] = m;
+
+        _effect.StartRender(tex);
+        _lastTimeUsed = SkinContext.Now;
       }
       else
       {
-        _effect = ContentManager.GetEffect("lineargradient");
+        GraphicsDevice.Device.SetTexture(0, null);
+        _lastTimeUsed = SkinContext.Now;
       }
-      _effect.Parameters["g_offset"] = _offsets;
-      _effect.Parameters["g_color"] = _colors;
-      _effect.Parameters["g_stops"] = (int)GradientStops.Count;
-      _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-      _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
-      Matrix m = Matrix.Identity;
-      RelativeTransform.GetTransform(out m);
-      m = Matrix.Invert(m);
-      _effect.Parameters["RelativeTransform"] = m;
-
-      _effect.StartRender(tex);
-      _lastTimeUsed = SkinContext.Now;
     }
 
     /// <summary>

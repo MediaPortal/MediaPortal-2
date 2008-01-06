@@ -172,7 +172,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender()
+    public override void BeginRender(VertexBuffer vertexBuffer)
     {
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (_tex == null)

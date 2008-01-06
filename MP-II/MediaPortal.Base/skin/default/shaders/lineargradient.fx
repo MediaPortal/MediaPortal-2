@@ -3,6 +3,7 @@ float4x4 RelativeTransform ;//: WORLDVIEWPROJ;
 texture  g_texture;                      // Color texture 
 float    appTime;                   // App's time in seconds
 
+float    g_opacity;
 float2   g_StartPoint={0.0f,0.0f};
 float2   g_EndPoint={1.0f,1.0f};
 sampler textureSampler =  
@@ -62,6 +63,7 @@ void renderPixelShader( in v2p IN, out p2f OUT)
   float dist=GetColor( float2(pos.x,pos.y) );
   dist=clamp(dist,0,0.999999);
   OUT.Color = tex1D(textureSampler, dist);
+  OUT.Color[3] *=g_opacity;
   //OUT.Color=color;
 }
 

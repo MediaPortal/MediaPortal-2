@@ -135,11 +135,9 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender()
+    public override void BeginRender(VertexBuffer vertexBuffer)
     {
       //if (_texture == null) return;
-      ColorValue color = ColorValue.FromArgb(Color.ToArgb());
-      color.Alpha *= (float)Opacity;
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       //_effect = ContentManager.GetEffect("solidbrush");
