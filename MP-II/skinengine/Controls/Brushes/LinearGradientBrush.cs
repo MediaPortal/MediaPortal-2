@@ -308,6 +308,15 @@ namespace SkinEngine.Controls.Brushes
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
+        _singleColor = true;
+        for (int i = 0; i < GradientStops.Count - 1; ++i)
+        {
+          if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+          {
+            _singleColor = false;
+            break;
+          }
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
@@ -331,7 +340,8 @@ namespace SkinEngine.Controls.Brushes
         m = Matrix.Invert(m);
         _effect.Parameters["RelativeTransform"] = m;
 
-        _effect.StartRender(tex);
+        _effect.StartRender(_texture);
+        GraphicsDevice.Device.SetTexture(0, tex);
         _lastTimeUsed = SkinContext.Now;
       }
       else

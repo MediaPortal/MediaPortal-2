@@ -6,9 +6,8 @@
     </Canvas.Resources>
     <DockPanel Background="{StaticResource backGroundBrush}">
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="My Movies" Height="50"/>
-      <!--
+<!--
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="My Movies" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-
         <Label.RenderTransform>
           <TransformGroup>
             <ScaleTransform ScaleX="1" ScaleY="-1"/>
@@ -20,13 +19,11 @@
             <GradientStop Offset="1.0" Color="#00000000" />
           </LinearGradientBrush>
         </Label.OpacityMask>
-
       </Label>
-      -->
+-->      
       <ListView Margin="10,0,0,0" Width="200" DockPanel.Dock="Left"  Style="{StaticResource MpListView}" ItemsSource="{Binding MainMenu}" />
 
       <ListView Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"/>
-
 
     </DockPanel>
   </Canvas>
