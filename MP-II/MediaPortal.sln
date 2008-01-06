@@ -1,35 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dxEngine", "dxengine\dxEngine.csproj", "{78ECE671-8399-48E6-9C36-3FF2EFFC4BA5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{48D8E092-16AD-4022-B584-B19E75E4FD38} = {48D8E092-16AD-4022-B584-B19E75E4FD38}
-		{EBD9D1FC-1213-4123-AAA4-AC824FEF1A77} = {EBD9D1FC-1213-4123-AAA4-AC824FEF1A77}
-		{C7345EFE-A592-4E06-B0C2-1DE132B48BA3} = {C7345EFE-A592-4E06-B0C2-1DE132B48BA3}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "skinengine", "skinengine\skinengine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovies", "MyMovies\MyMovies.csproj", "{EBD9D1FC-1213-4123-AAA4-AC824FEF1A77}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menu", "Menu\Menu.csproj", "{C7345EFE-A592-4E06-B0C2-1DE132B48BA3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "thumbnails\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj", "{48D8E092-16AD-4022-B584-B19E75E4FD38}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "MediaPortal.Core\MediaPortal.Core.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWeather", "MyWeather\MyWeather.csproj", "{5A9B4F5E-5BF0-4190-8982-40B6A9D5AFE1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Database", "MediaPortal.Database\MediaPortal.Database.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLogin", "MyLogin\MyLogin.csproj", "{A3779E0D-C079-4742-85F8-722A6A0BF9DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMusic", "MyMusic\MyMusic.csproj", "{EFFEE7FB-B680-4586-AC22-566B68032944}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPictures", "MyPictures\MyPictures.csproj", "{05744AD0-9ACC-437A-A5E3-9FEF7BC62FC6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal", "MediaPortal\MediaPortal.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D} = {681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D}
@@ -60,6 +31,35 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal", "MediaPortal\
 		{B11ADC46-B4CA-4BCD-A995-83E87D9C6DE2} = {B11ADC46-B4CA-4BCD-A995-83E87D9C6DE2}
 		{A3779E0D-C079-4742-85F8-722A6A0BF9DF} = {A3779E0D-C079-4742-85F8-722A6A0BF9DF}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dxEngine", "dxengine\dxEngine.csproj", "{78ECE671-8399-48E6-9C36-3FF2EFFC4BA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48D8E092-16AD-4022-B584-B19E75E4FD38} = {48D8E092-16AD-4022-B584-B19E75E4FD38}
+		{EBD9D1FC-1213-4123-AAA4-AC824FEF1A77} = {EBD9D1FC-1213-4123-AAA4-AC824FEF1A77}
+		{C7345EFE-A592-4E06-B0C2-1DE132B48BA3} = {C7345EFE-A592-4E06-B0C2-1DE132B48BA3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "skinengine", "skinengine\skinengine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovies", "MyMovies\MyMovies.csproj", "{EBD9D1FC-1213-4123-AAA4-AC824FEF1A77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menu", "Menu\Menu.csproj", "{C7345EFE-A592-4E06-B0C2-1DE132B48BA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "thumbnails\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj", "{48D8E092-16AD-4022-B584-B19E75E4FD38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "MediaPortal.Core\MediaPortal.Core.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWeather", "MyWeather\MyWeather.csproj", "{5A9B4F5E-5BF0-4190-8982-40B6A9D5AFE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Database", "MediaPortal.Database\MediaPortal.Database.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLogin", "MyLogin\MyLogin.csproj", "{A3779E0D-C079-4742-85F8-722A6A0BF9DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMusic", "MyMusic\MyMusic.csproj", "{EFFEE7FB-B680-4586-AC22-566B68032944}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPictures", "MyPictures\MyPictures.csproj", "{05744AD0-9ACC-437A-A5E3-9FEF7BC62FC6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
