@@ -125,6 +125,9 @@
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Settings\xml\XmlNoNamespaceWriter.cs" />
     <Compile Include="Settings\xml\XmlFileHandler.cs" />
+    <Compile Include="TaskScheduler\TaskCollection.cs" />
+    <Compile Include="TaskScheduler\TaskScheduler.cs" />
+    <Compile Include="TaskScheduler\TaskSchedulerSettings.cs" />
     <Compile Include="Threading\ThreadPool.cs" />
     <Compile Include="Threading\ThreadPoolStartInfo.cs" />
     <Compile Include="Threading\WorkQueue.cs" />

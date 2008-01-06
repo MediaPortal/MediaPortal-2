@@ -32,6 +32,7 @@ using MediaPortal.Utilities.Screens;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Threading;
+using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
@@ -42,6 +43,7 @@ using MediaPortal.Core.MetaData;
 
 using MediaPortal.Services.PathManager;
 using MediaPortal.Services.Threading;
+using MediaPortal.Services.TaskScheduler;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
@@ -123,6 +125,9 @@ namespace MediaPortal
 
         logger.Debug("MPApplication: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
+
+        logger.Debug("MPApplication: Registering TaskScheduler");
+        ServiceScope.Add<ITaskScheduler>(new TaskScheduler());
 
         //to be removed
         //meta data mapper services

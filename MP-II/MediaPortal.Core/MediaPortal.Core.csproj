@@ -81,6 +81,9 @@
     <Compile Include="DeviceManager\IOpticalDrive.cs" />
     <Compile Include="DeviceManager\MediaType.cs" />
     <Compile Include="DeviceManager\ProjectType.cs" />
+    <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
+    <Compile Include="Core\TaskScheduler\Task.cs" />
+    <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
     <Compile Include="UI\Geometries\ICropSettings.cs" />
     <Compile Include="UI\Geometries\IGeometry.cs" />
     <Compile Include="UI\Geometries\IGeometryHelper.cs" />
