@@ -294,7 +294,7 @@ namespace SkinEngine.Controls.Visuals
           mPath.CloseFigure();
           break;
         }
-        else if (ch == ' ')
+        else 
         {
           ++i;
         }
@@ -347,14 +347,23 @@ namespace SkinEngine.Controls.Visuals
     {
       i++;
       string pointTxt = "";
+      int comma = 0;
       while ((Data[i] >= '0' && Data[i] <= '9') || (Data[i] == '.' || Data[i] == ','))
       {
+        if (Data[i] == ',')
+        {
+          comma++;
+          if (comma == 2)
+            break;
+        }
         pointTxt += Data[i];
         ++i;
         if (i >= Data.Length) break;
       }
       pointTxt = pointTxt.Trim();
       string[] parts = pointTxt.Split(new char[] { ',' });
+      if (parts.Length != 2) 
+        return new PointF(0, 0);
       float x = GetFloat(parts[0]);
       float y = GetFloat(parts[1]);
       return new PointF(x, y);
