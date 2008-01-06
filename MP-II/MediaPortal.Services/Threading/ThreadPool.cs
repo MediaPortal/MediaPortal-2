@@ -344,6 +344,11 @@ namespace MediaPortal.Services.Threading
 
     public void AddIntervalWork(IWorkInterval intervalWork, bool runNow)
     {
+      if (_startInfo.DelayedInit)
+      {
+        _startInfo.DelayedInit = false;
+        Init();
+      }
       if (intervalWork == null)
         throw new ArgumentNullException("intervalWork", "cannot be null");
       lock (_intervalBasedWork)

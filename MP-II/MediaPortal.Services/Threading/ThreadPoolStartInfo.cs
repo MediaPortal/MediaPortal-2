@@ -54,10 +54,10 @@ namespace MediaPortal.Services.Threading
     public int MaximumThreads = 25;
 
     /// <summary>
-    /// Timeout (in miliseconds) for idle threads (default 120 seconds).
+    /// Timeout (in miliseconds) for idle threads (default 20 seconds).
     /// If thread count is above MinimumThreads, threads quit when being idle this long
     /// </summary>
-    public int ThreadIdleTimeout = 120000;
+    public int ThreadIdleTimeout = 20000;
 
     /// <summary>
     /// Indicates whether the pool waits with initialization until first work is being
