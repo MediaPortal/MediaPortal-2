@@ -4,11 +4,21 @@
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
-    
+    <!--
+    <Border Width="200" Height="200">
+      <Border.Background>
+        <RadialGradientBrush Key="backGroundBrush" GradientOrigin="0.5,0.5">
+          <GradientStop Color="Red" Offset="0"/>
+          <GradientStop Color="Green" Offset="0.5"/>
+          <GradientStop Color="Blue" Offset="1"/>
+        </RadialGradientBrush>
+      </Border.Background>
+    </Border>
+    -->
     <DockPanel Background="{StaticResource backGroundBrush}">
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="My Movies" Height="50"/>
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="My Movies" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-        
+
         <Label.RenderTransform>
           <TransformGroup>
             <ScaleTransform ScaleX="1" ScaleY="-1"/>
@@ -20,43 +30,13 @@
             <GradientStop Offset="1.0" Color="#00000000" />
           </LinearGradientBrush>
         </Label.OpacityMask>
-        
-        </Label>
+
+      </Label>
       <ListView Margin="10,0,0,0" Width="200" DockPanel.Dock="Left"  Style="{StaticResource MpListView}" ItemsSource="{Binding MainMenu}" />
 
       <ListView Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"/>
-      
-      <!--
-    <ListView Width="400" Height="200" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"/>
-    <Grid >
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition  Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-      <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource MpArrowButtonLeft}"/>
-      <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource MpArrowButtonRight}"/>
 
-      <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource MpArrowButtonDown}"/>
-      <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MpArrowButtonUp}"/>
 
-    </Grid>
-    <CheckBox Name="btn3" Height="32" Style="{StaticResource MpCheckBox}"/>
-    <CheckBox Name="btn2" Width="200" Height="32"  Style="{StaticResource MpRadioButton}"/>
-    <Button  Style="{StaticResource MpCloseButton}"/>
-    <CheckBox Height="32"  Style="{StaticResource MpPlusMinButton}"/>
-    <Rectangle Width="200" Height="32" Margin="0,10,0,10" StrokeThickness="2" Stroke="Red" Fill="Blue"/>
-    <Ellipse Width="200" Height="32" Margin="0,10,0,10"  StrokeThickness="2" Stroke="Red" Fill="Blue" />
-    <Polygon  Stroke="Red" Fill="Blue" Margin="0,10,0,10" StrokeThickness="2" Points="0,0 30,0 60,30 60,60 30,60 0,30"/>
-
-    <Path Stroke="Red" Stretch="Fill"  Fill="Blue" StrokeThickness="2" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z"/>
-
-    <Line X1="0" Y1="50" X2="100" Y2="50"  StrokeThickness="2" Stroke="Blue"  />
-    <Button Style="{StaticResource MpCursorBusy}"/>
--->
-  </DockPanel>
+    </DockPanel>
   </Canvas>
 </MyXaml>
