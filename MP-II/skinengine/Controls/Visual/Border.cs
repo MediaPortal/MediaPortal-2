@@ -241,7 +241,7 @@ namespace SkinEngine.Controls.Visuals
       if (BorderBrush != null && BorderThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        BorderBrush.BeginRender(_vertexBufferBorder);
+        BorderBrush.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleStrip);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
         BorderBrush.EndRender();
@@ -251,7 +251,7 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Background.BeginRender(_vertexBufferBackground);
+        Background.BeginRender(_vertexBufferBackground, _verticesCountBackground, PrimitiveType.TriangleFan);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBackground);
         Background.EndRender();
@@ -347,7 +347,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public override void Free()
     {
       if (_vertexBufferBackground != null)
       {
@@ -359,6 +359,7 @@ namespace SkinEngine.Controls.Visuals
         _vertexBufferBorder.Dispose();
         _vertexBufferBorder = null;
       }
+      base.Free();
     }
 
     #region Get the desired Rounded Rectangle path.
@@ -557,15 +558,15 @@ namespace SkinEngine.Controls.Visuals
 
     #region IAsset Members
 
-    public bool IsAllocated
+    public override bool IsAllocated
     {
       get
       {
-        return (_vertexBufferBackground != null || _vertexBufferBorder != null);
+        return (_vertexBufferBackground != null || _vertexBufferBorder != null || base.IsAllocated);
       }
     }
 
-    public bool CanBeDeleted
+    public override bool CanBeDeleted
     {
       get
       {

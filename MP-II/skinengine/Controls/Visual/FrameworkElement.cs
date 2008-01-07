@@ -50,6 +50,7 @@ namespace SkinEngine.Controls.Visuals
     Right = 2,
     Stretch = 3,
   };
+
   public class FrameworkElement : UIElement, IAsset
   {
     Property _widthProperty;
@@ -100,6 +101,7 @@ namespace SkinEngine.Controls.Visuals
       _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _actualHeightProperty.Attach(new PropertyChangedHandler(OnActualHeightChanged));
       _acutalWidthProperty.Attach(new PropertyChangedHandler(OnActualWidthChanged));
+      ContentManager.Add(this);
 
     }
     void OnActualHeightChanged(Property property)
@@ -600,6 +602,7 @@ namespace SkinEngine.Controls.Visuals
           m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
           SkinContext.AddTransform(m);
         }
+
         //render the control
         DoRender();
 
@@ -619,11 +622,11 @@ namespace SkinEngine.Controls.Visuals
     /// Gets a value indicating the asset is allocated
     /// </summary>
     /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public bool IsAllocated
+    public virtual bool IsAllocated
     {
       get
       {
-        return (_vertexOpacityMaskBorder != null);
+        return (_vertexOpacityMaskBorder != null || _textureOpacity != null);
       }
     }
 
@@ -633,7 +636,7 @@ namespace SkinEngine.Controls.Visuals
     /// <value>
     /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
     /// </value>
-    public bool CanBeDeleted
+    public virtual bool CanBeDeleted
     {
       get
       {
@@ -654,7 +657,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public virtual void Free()
     {
       if (_vertexOpacityMaskBorder != null)
       {
@@ -688,6 +691,7 @@ namespace SkinEngine.Controls.Visuals
       if (_textureOpacity != null)
       {
         _textureOpacity.Dispose();
+        _textureOpacity = null;
       }
 
       float w = (float)ActualWidth;

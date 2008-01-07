@@ -228,8 +228,8 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if ( (Fill != null && _vertexBufferFill == null) || 
-           (Stroke != null && _vertexBufferBorder == null) || _performLayout )
+      if ((Fill != null && _vertexBufferFill == null) ||
+           (Stroke != null && _vertexBufferBorder == null) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -239,7 +239,7 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Fill.BeginRender(_vertexBufferFill);
+        Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Fill.EndRender();
@@ -247,7 +247,7 @@ namespace SkinEngine.Controls.Visuals
       if (Stroke != null && StrokeThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Stroke.BeginRender(_vertexBufferBorder);
+        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
         Stroke.EndRender();
@@ -260,7 +260,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public override void Free()
     {
       if (_vertexBufferFill != null)
       {
@@ -272,6 +272,7 @@ namespace SkinEngine.Controls.Visuals
         _vertexBufferBorder.Dispose();
         _vertexBufferBorder = null;
       }
+      base.Free();
     }
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglefan.
@@ -383,15 +384,15 @@ namespace SkinEngine.Controls.Visuals
 
     #region IAsset Members
 
-    public bool IsAllocated
+    public override bool IsAllocated
     {
       get
       {
-        return (_vertexBufferFill != null || _vertexBufferBorder != null);
+        return (_vertexBufferFill != null || _vertexBufferBorder != null || base.IsAllocated);
       }
     }
 
-    public bool CanBeDeleted
+    public override bool CanBeDeleted
     {
       get
       {

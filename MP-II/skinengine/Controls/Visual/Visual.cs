@@ -104,6 +104,10 @@ namespace SkinEngine.Controls.Visuals
     public virtual void DoRender()
     {
     }
+
+    /// <summary>
+    /// Renders this instance.
+    /// </summary>
     public virtual void Render()
     {
       DoRender();

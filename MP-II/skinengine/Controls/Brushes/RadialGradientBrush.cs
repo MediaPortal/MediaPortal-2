@@ -39,9 +39,11 @@ namespace SkinEngine.Controls.Brushes
 {
   public class RadialGradientBrush : GradientBrush, IAsset
   {
-    Texture _texture;
+    Texture _gradientTexture;
+    Texture _cacheTexture;
     double _height;
     double _width;
+    Vector3 _position;
     EffectAsset _effect;
     DateTime _lastTimeUsed;
 
@@ -63,6 +65,10 @@ namespace SkinEngine.Controls.Brushes
       Init();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
+    /// </summary>
+    /// <param name="b">The b.</param>
     public RadialGradientBrush(RadialGradientBrush b)
       : base(b)
     {
@@ -72,6 +78,10 @@ namespace SkinEngine.Controls.Brushes
       RadiusX = b.RadiusX;
       RadiusY = b.RadiusY;
     }
+
+    /// <summary>
+    /// Inits this instance.
+    /// </summary>
     void Init()
     {
       _centerProperty = new Property(new Vector2(0.5f, 0.5f));
@@ -85,6 +95,10 @@ namespace SkinEngine.Controls.Brushes
       _radiusYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns></returns>
     public override object Clone()
     {
       return new RadialGradientBrush(this);
@@ -242,15 +256,25 @@ namespace SkinEngine.Controls.Brushes
 
         _height = element.ActualHeight;
         _width = element.ActualWidth;
+        _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
 
-        if (_texture == null)
+        if (_gradientTexture == null)
         {
-          _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
+          _gradientTexture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
+        }
+        if (_cacheTexture != null)
+        {
+          _cacheTexture.Dispose();
+          _cacheTexture = null;
         }
         _refresh = true;
       }
     }
 
+    /// <summary>
+    /// Sets the color.
+    /// </summary>
+    /// <param name="vertexbuffer">The vertexbuffer.</param>
     void SetColor(VertexBuffer vertexbuffer)
     {
       ColorValue color = ColorValue.FromColor(GradientStops[0].Color);
@@ -262,9 +286,12 @@ namespace SkinEngine.Controls.Brushes
       vertexbuffer.SetData(_verts, 0, LockFlags.None);
     }
 
+    /// <summary>
+    /// Creates the gradient.
+    /// </summary>
     void CreateGradient()
     {
-      int[,] buffer = (int[,])_texture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
+      int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
       float width = 256.0f;
       for (int i = 0; i < GradientStops.Count - 1; ++i)
       {
@@ -299,16 +326,17 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
-      _texture.UnlockRectangle(0);
+      _gradientTexture.UnlockRectangle(0);
       //TextureLoader.Save(@"c:\1\gradient.jpg",ImageFileFormat.Jpg,_texture);
 
     }
+
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender(VertexBuffer vertexBuffer)
+    public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      if (_texture == null) return;
+      if (_gradientTexture == null) return;
       if (_refresh)
       {
         _refresh = false;
@@ -334,33 +362,110 @@ namespace SkinEngine.Controls.Brushes
         {
           SetColor(vertexBuffer);
         }
+        if (_cacheTexture != null)
+        {
+          _cacheTexture.Dispose();
+          _cacheTexture = null;
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
-        if (IsOpacityBrush)
+        if (Freezable)
         {
-          _effect = ContentManager.GetEffect("radialopacitygradient");
+          if (_cacheTexture == null)
+          {
+            Trace.WriteLine("RadialGradientBrush:Create cached texture");
+            float w = (float)_width;
+            float h = (float)_height;
+            float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
+            float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+
+            ExtendedMatrix m = new ExtendedMatrix();
+            m.Matrix *= SkinContext.FinalMatrix.Matrix;
+            //next put the control at position (0,0,0)
+            //and scale it correctly since the backbuffer now has the dimensions of the control
+            //instead of the skin width/height dimensions
+            m.Matrix *= Matrix.Translation(new Vector3(-(float)_position.X, -(float)_position.Y, 0));
+            m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
+
+            SkinContext.AddTransform(m);
+
+            GraphicsDevice.Device.EndScene();
+            _cacheTexture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            //get the current backbuffer
+            using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
+            {
+              //get the surface of our opacity texture
+              using (Surface cacheSurface = _cacheTexture.GetSurfaceLevel(0))
+              {
+                //copy the correct rectangle from the backbuffer in the opacitytexture
+                GraphicsDevice.Device.StretchRectangle(backBuffer,
+                                                       new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                                                       cacheSurface,
+                                                       new System.Drawing.Rectangle((int)0, (int)0, (int)(_width), (int)(_height)),
+                                                       TextureFilter.None);
+
+
+                //change the rendertarget to the opacitytexture
+                GraphicsDevice.Device.SetRenderTarget(0, cacheSurface);
+
+                //render the control (will be rendered into the opacitytexture)
+                GraphicsDevice.Device.BeginScene();
+                GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+                GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+
+                _effect = ContentManager.GetEffect("radialgradient");
+
+                _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+                _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
+                _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+                _effect.Parameters["g_opacity"] = (float)Opacity;
+                Matrix mrel = Matrix.Identity;
+                RelativeTransform.GetTransform(out mrel);
+                mrel = Matrix.Invert(mrel);
+                _effect.Parameters["RelativeTransform"] = mrel;
+
+                _effect.StartRender(_gradientTexture);
+
+                GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0);
+                GraphicsDevice.Device.DrawPrimitives(primitiveType, 0, primitiveCount);
+
+                _effect.EndRender();
+
+                GraphicsDevice.Device.EndScene();
+                SkinContext.RemoveTransform();
+
+                //restore the backbuffer
+                GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
+              }
+              _effect = null;
+
+              //  TextureLoader.Save(@"C:\1.png", ImageFileFormat.Png, _cacheTexture);
+            }
+            GraphicsDevice.Device.BeginScene();
+          }
+          GraphicsDevice.Device.SetTexture(0, _cacheTexture);
+          _lastTimeUsed = SkinContext.Now;
+
         }
         else
         {
           _effect = ContentManager.GetEffect("radialgradient");
-        }
-        //_effect.Parameters["g_offset"] = _offsets;
-        //_effect.Parameters["g_color"] = _colors;
-        //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
-        _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-        _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-        _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
-        _effect.Parameters["g_opacity"] = (float)Opacity;
-        Matrix m = Matrix.Identity;
-        RelativeTransform.GetTransform(out m);
-        m = Matrix.Invert(m);
-        _effect.Parameters["RelativeTransform"] = m;
 
-        _effect.StartRender(_texture);
-        _lastTimeUsed = SkinContext.Now;
+          _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+          _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
+          _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+          _effect.Parameters["g_opacity"] = (float)Opacity;
+          Matrix m = Matrix.Identity;
+          RelativeTransform.GetTransform(out m);
+          m = Matrix.Invert(m);
+          _effect.Parameters["RelativeTransform"] = m;
+
+          _effect.StartRender(_gradientTexture);
+          _lastTimeUsed = SkinContext.Now;
+        }
       }
       else
       {
@@ -368,6 +473,11 @@ namespace SkinEngine.Controls.Brushes
         _lastTimeUsed = SkinContext.Now;
       }
     }
+
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
+    /// <param name="tex">The tex.</param>
     public override void BeginRender(Texture tex)
     {
       if (tex == null)
@@ -412,7 +522,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _effect = ContentManager.GetEffect("radialgradient");
         }
-        _effect.Parameters["g_alphatex"] = _texture;
+        _effect.Parameters["g_alphatex"] = _gradientTexture;
         _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
         _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
         _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
@@ -454,7 +564,7 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return (_texture != null);
+        return (_gradientTexture != null || _cacheTexture != null);
       }
     }
 
@@ -487,20 +597,29 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public void Free()
     {
-      if (_texture != null)
+      if (_gradientTexture != null)
       {
-        _texture.Dispose();
-        _texture = null;
+        _gradientTexture.Dispose();
+        _gradientTexture = null;
+      }
+      if (_cacheTexture != null)
+      {
+        _cacheTexture.Dispose();
+        _cacheTexture = null;
       }
     }
 
     #endregion
 
+    /// <summary>
+    /// Gets the texture.
+    /// </summary>
+    /// <value>The texture.</value>
     public override Texture Texture
     {
       get
       {
-        return _texture;
+        return _gradientTexture;
       }
     }
   }

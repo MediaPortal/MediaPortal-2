@@ -53,7 +53,9 @@ namespace SkinEngine.Controls.Brushes
     Property _relativeTransformProperty;
     Property _transformProperty;
     Property _keyProperty;
+    Property _freezableProperty;
     bool _isOpacity;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
     /// </summary>
@@ -69,7 +71,9 @@ namespace SkinEngine.Controls.Brushes
       Opacity = b.Opacity;
       RelativeTransform = (TransformGroup)b.RelativeTransform.Clone();
       Transform = (TransformGroup)b.Transform.Clone();
+      Freezable = b.Freezable;
     }
+
     void Init()
     {
       _isOpacity = false;
@@ -78,6 +82,7 @@ namespace SkinEngine.Controls.Brushes
       _relativeTransformProperty = new Property(new TransformGroup());
       _transformProperty = new Property(new TransformGroup());
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _freezableProperty = new Property(false);
     }
 
     public virtual object Clone()
@@ -101,6 +106,38 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="color">The color.</param>
     public virtual void Scale(ref float u, ref float v, ref ColorValue color)
     {
+    }
+
+    /// <summary>
+    /// Gets or sets the freezable property.
+    /// </summary>
+    /// <value>The freezable property.</value>
+    public Property FreezableProperty
+    {
+      get
+      {
+        return _freezableProperty;
+      }
+      set
+      {
+        _freezableProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this <see cref="Brush"/> is freezable.
+    /// </summary>
+    /// <value><c>true</c> if freezable; otherwise, <c>false</c>.</value>
+    public bool Freezable
+    {
+      get
+      {
+        return (bool)_freezableProperty.GetValue();
+      }
+      set
+      {
+        _freezableProperty.SetValue(value);
+      }
     }
 
     /// <summary>
@@ -230,6 +267,7 @@ namespace SkinEngine.Controls.Brushes
         _transformProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Setups the brush.
     /// </summary>
@@ -268,9 +306,14 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public virtual void BeginRender(VertexBuffer vertexBuffer)
+    /// <param name="vertexBuffer">The vertex buffer.</param>
+    public virtual void BeginRender(VertexBuffer vertexBuffer, int primitiveCount,PrimitiveType primitiveType)
     {
     }
+    /// <summary>
+    /// Begins the render.
+    /// </summary>
+    /// <param name="tex">The tex.</param>
     public virtual void BeginRender(Texture tex)
     {
     }
@@ -282,6 +325,12 @@ namespace SkinEngine.Controls.Brushes
     {
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is an opacity brush.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is an opacity brush; otherwise, <c>false</c>.
+    /// </value>
     public bool IsOpacityBrush
     {
       get
@@ -294,6 +343,10 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Gets the texture.
+    /// </summary>
+    /// <value>The texture.</value>
     public virtual Texture Texture
     {
       get
@@ -301,6 +354,8 @@ namespace SkinEngine.Controls.Brushes
         return null;
       }
     }
+
+
 
   }
 }

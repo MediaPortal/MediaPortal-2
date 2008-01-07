@@ -229,7 +229,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public override void DoRender()
     {
-      if (  (Background != null && _vertexBufferBackground == null) )
+      if ((Background != null && _vertexBufferBackground == null))
       {
         PerformLayout();
       }
@@ -240,7 +240,7 @@ namespace SkinEngine.Controls.Panels
         Background.Transform.GetTransform(out mt);
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Background.BeginRender(_vertexBufferBackground);
+        Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
         Background.EndRender();
@@ -283,13 +283,14 @@ namespace SkinEngine.Controls.Panels
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public override void Free()
     {
       if (_vertexBufferBackground != null)
       {
         _vertexBufferBackground.Dispose();
         _vertexBufferBackground = null;
       }
+      base.Free();
     }
 
     #region IAsset Members
@@ -298,11 +299,11 @@ namespace SkinEngine.Controls.Panels
     /// Gets a value indicating the asset is allocated
     /// </summary>
     /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public bool IsAllocated
+    public override bool IsAllocated
     {
       get
       {
-        return (_vertexBufferBackground != null);
+        return (_vertexBufferBackground != null || base.IsAllocated);
       }
     }
 
@@ -312,7 +313,7 @@ namespace SkinEngine.Controls.Panels
     /// <value>
     /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
     /// </value>
-    public bool CanBeDeleted
+    public override bool CanBeDeleted
     {
       get
       {
@@ -399,7 +400,7 @@ namespace SkinEngine.Controls.Panels
       return base.FindElementType(t);
     }
 
-    public override  UIElement FindItemsHost()
+    public override UIElement FindItemsHost()
     {
       foreach (UIElement element in Children)
       {

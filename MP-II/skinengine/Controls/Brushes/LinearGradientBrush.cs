@@ -228,7 +228,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender(VertexBuffer vertexBuffer)
+    public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (_texture == null)
       {

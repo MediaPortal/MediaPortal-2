@@ -280,7 +280,7 @@ namespace SkinEngine.Controls.Panels
           Background.Transform.GetTransform(out mt);
           GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix * mrel * mt;
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          Background.BeginRender(_vertexBufferBackground);
+          Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
           GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
           Background.EndRender();
