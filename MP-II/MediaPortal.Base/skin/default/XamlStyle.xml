@@ -4,14 +4,6 @@
 
     <!-- default brush used to paint the background of a page/window -->
     <RadialGradientBrush Key="backGroundBrush" GradientOrigin="0.186,0.311" Freezable="True">
-      <RadialGradientBrush.RelativeTransform>
-        <TransformGroup>
-          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
-          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-          <TranslateTransform X="-0.036" Y="-0.146"/>
-        </TransformGroup>
-      </RadialGradientBrush.RelativeTransform>
       <GradientStop Color="#FF5C9AE6" Offset="0"/>
       <GradientStop Color="#FF1253A3" Offset="1"/>
     </RadialGradientBrush>

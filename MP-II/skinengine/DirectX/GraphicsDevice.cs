@@ -421,10 +421,10 @@ namespace SkinEngine
           //End the scene
           _device.EndScene();
           _device.Present();
-          if (calledFromOurRenderThread)
-          {
-            _device.Present();
-          }
+          //if (calledFromOurRenderThread)
+          //{
+          //  _device.Present();
+          //}
         }
         catch (DeviceLostException)
         {

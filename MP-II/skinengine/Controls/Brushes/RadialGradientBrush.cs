@@ -382,32 +382,41 @@ namespace SkinEngine.Controls.Brushes
             float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
             float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
 
+            bool copy = true;
+            if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
+            {
+              copy = false;
+              w /=2;
+              h /=2;
+            }
             ExtendedMatrix m = new ExtendedMatrix();
             m.Matrix *= SkinContext.FinalMatrix.Matrix;
             //next put the control at position (0,0,0)
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
             m.Matrix *= Matrix.Translation(new Vector3(-(float)_position.X, -(float)_position.Y, 0));
-            m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
+            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width)/cx) / w), (float)((((float)SkinContext.Height/cy)) / h), 1);
 
             SkinContext.AddTransform(m);
 
             GraphicsDevice.Device.EndScene();
-            _cacheTexture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            _cacheTexture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             //get the current backbuffer
             using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
             {
               //get the surface of our opacity texture
               using (Surface cacheSurface = _cacheTexture.GetSurfaceLevel(0))
               {
-                //copy the correct rectangle from the backbuffer in the opacitytexture
-                GraphicsDevice.Device.StretchRectangle(backBuffer,
-                                                       new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
-                                                       cacheSurface,
-                                                       new System.Drawing.Rectangle((int)0, (int)0, (int)(_width), (int)(_height)),
-                                                       TextureFilter.None);
+                if (copy)
+                {
+                  //copy the correct rectangle from the backbuffer in the opacitytexture
+                  GraphicsDevice.Device.StretchRectangle(backBuffer,
+                                                         new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                                                         cacheSurface,
+                                                         new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
+                                                         TextureFilter.None);
 
-
+                }
                 //change the rendertarget to the opacitytexture
                 GraphicsDevice.Device.SetRenderTarget(0, cacheSurface);
 
@@ -442,7 +451,7 @@ namespace SkinEngine.Controls.Brushes
               }
               _effect = null;
 
-              //  TextureLoader.Save(@"C:\1.png", ImageFileFormat.Png, _cacheTexture);
+                //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
             }
             GraphicsDevice.Device.BeginScene();
           }
