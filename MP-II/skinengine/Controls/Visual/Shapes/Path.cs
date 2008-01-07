@@ -356,6 +356,7 @@ namespace SkinEngine.Controls.Visuals
       m.Scale(scaleX, scaleY, MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
+
       mPath.Flatten();
 
       _points.Clear();

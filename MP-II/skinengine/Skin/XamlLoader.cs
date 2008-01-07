@@ -237,6 +237,23 @@ namespace SkinEngine.Skin
     /// <param name="e">The <see cref="MyXaml.Core.CustomTypeEventArgs"/> instance containing the event data.</param>
     void parser_CustomTypeConvertor(object parser, CustomTypeEventArgs e)
     {
+      if (e.PropertyType == typeof(Transform))
+      {
+        string v = e.Value.ToString();
+        string[] parts = v.Split(new char[] { ',' });
+        if (parts.Length == 6)
+        {
+          float[] f = new float[parts.Length];
+          for (int i = 0; i < parts.Length; ++i)
+          {
+            f[i] = GetFloat(parts[i]);
+          }
+          System.Drawing.Drawing2D.Matrix matrix2d = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
+          Static2dMatrix matrix = new Static2dMatrix();
+          matrix.Set2DMatrix(matrix2d);
+          e.Result = matrix;
+        }
+      }
       if (e.PropertyType == typeof(HorizontalAlignmentEnum))
       {
         string v = e.Value.ToString();

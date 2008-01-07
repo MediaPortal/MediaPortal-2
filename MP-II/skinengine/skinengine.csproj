@@ -177,6 +177,7 @@
     <Compile Include="Controls\Transforms\RotateTransform.cs" />
     <Compile Include="Controls\Transforms\ScaleTransform.cs" />
     <Compile Include="Controls\Transforms\SkewTransform.cs" />
+    <Compile Include="Controls\Transforms\Static2dMatrix.cs" />
     <Compile Include="Controls\Transforms\Transform.cs" />
     <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />

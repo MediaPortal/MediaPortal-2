@@ -58,6 +58,7 @@ namespace SkinEngine.Controls.Visuals
     Property _triggerProperty;
     Property _renderTransformProperty;
     Property _renderTransformOriginProperty;
+    Property _layoutTransformProperty;
     Property _visibilityProperty;
     Property _isEnabledProperty;
     Property _rowProperty;
@@ -113,6 +114,8 @@ namespace SkinEngine.Controls.Visuals
         _bindings.Add((Binding)binding.Clone());
       }
 
+      if (el.LayoutTransform != null)
+        LayoutTransform = (Transform)el.LayoutTransform.Clone();
       if (el.RenderTransform != null)
         RenderTransform = (Transform)el.RenderTransform.Clone();
 
@@ -153,6 +156,7 @@ namespace SkinEngine.Controls.Visuals
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
       _renderTransformProperty = new Property(null);
+      _layoutTransformProperty = new Property(null);
       _renderTransformOriginProperty = new Property(new Vector2(0, 0));
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
@@ -862,6 +866,37 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the layout transform property.
+    /// </summary>
+    /// <value>The layout transform property.</value>
+    public Property LayoutTransformProperty
+    {
+      get
+      {
+        return _layoutTransformProperty;
+      }
+      set
+      {
+        _layoutTransformProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the layout transform.
+    /// </summary>
+    /// <value>The layout transform.</value>
+    public Transform LayoutTransform
+    {
+      get
+      {
+        return _layoutTransformProperty.GetValue() as Transform;
+      }
+      set
+      {
+        _layoutTransformProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the render transform property.
     /// </summary>
