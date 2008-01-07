@@ -245,7 +245,7 @@ namespace SkinEngine.Controls.Brushes
 
         if (_texture == null)
         {
-          _texture = new Texture(GraphicsDevice.Device, 256, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
+          _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
         }
         _refresh = true;
       }
@@ -292,13 +292,15 @@ namespace SkinEngine.Controls.Brushes
           a += colorStart.Alpha;
 
           ColorValue color = new ColorValue(r, g, b, a);
+          if (IsOpacityBrush)
+            color = new ColorValue(a, a, a, 1);
           buffer[0, x] = color.ToArgb();
           buffer[1, x] = color.ToArgb();
         }
       }
 
       _texture.UnlockRectangle(0);
-      //TextureLoader.Save(@"c:\1\gradient.png",ImageFileFormat.Png,_texture);
+      //TextureLoader.Save(@"c:\1\gradient.jpg",ImageFileFormat.Jpg,_texture);
 
     }
     /// <summary>
@@ -368,7 +370,10 @@ namespace SkinEngine.Controls.Brushes
     }
     public override void BeginRender(Texture tex)
     {
-      //if (_texture == null) return;
+      if (tex == null)
+      {
+        return;
+      }
       if (_refresh)
       {
         _refresh = false;
@@ -380,30 +385,50 @@ namespace SkinEngine.Controls.Brushes
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
+        _singleColor = true;
+        for (int i = 0; i < GradientStops.Count - 1; ++i)
+        {
+          if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+          {
+            _singleColor = false;
+            break;
+          }
+        }
+        CreateGradient();
+        if (_singleColor)
+        {
+          //SetColor(vertexBuffer);
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      if (IsOpacityBrush)
+      if (!_singleColor)
       {
-        _effect = ContentManager.GetEffect("radialopacitygradient");
+        if (IsOpacityBrush)
+        {
+          _effect = ContentManager.GetEffect("radialopacitygradient");
+        }
+        else
+        {
+          _effect = ContentManager.GetEffect("radialgradient");
+        }
+        _effect.Parameters["g_alphatex"] = _texture;
+        _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+        _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
+        _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+        Matrix m = Matrix.Identity;
+        RelativeTransform.GetTransform(out m);
+        m = Matrix.Invert(m);
+        _effect.Parameters["RelativeTransform"] = m;
+
+        _effect.StartRender(tex);
+        _lastTimeUsed = SkinContext.Now;
       }
       else
       {
-        _effect = ContentManager.GetEffect("radialgradient");
+        GraphicsDevice.Device.SetTexture(0, null);
+        _lastTimeUsed = SkinContext.Now;
       }
-      _effect.Parameters["g_offset"] = _offsets;
-      _effect.Parameters["g_color"] = _colors;
-      _effect.Parameters["g_stops"] = (int)GradientStops.Count;
-      _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-      _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-      _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
-      Matrix m = Matrix.Identity;
-      RelativeTransform.GetTransform(out m);
-      m = Matrix.Invert(m);
-      _effect.Parameters["RelativeTransform"] = m;
-
-      _effect.StartRender(tex);
-      _lastTimeUsed = SkinContext.Now;
     }
 
     /// <summary>

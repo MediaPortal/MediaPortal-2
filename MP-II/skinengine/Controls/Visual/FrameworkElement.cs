@@ -501,6 +501,14 @@ namespace SkinEngine.Controls.Visuals
 
       if (OpacityMask != null)
       {
+        // control has an opacity mask
+        // What we do here is that
+        // 1. we create a new opacitytexture which has the same dimensions as the control
+        // 2. we copy the part of the current backbuffer where the control is rendered to the opacitytexture
+        // 3. we set the rendertarget to the opacitytexture
+        // 4. we render the control, since the rendertarget is the opacitytexture we render the control in the opacitytexture
+        // 5. we restore the rendertarget to the backbuffer
+        // 6. we render the opacitytexture using the opacitymask brush
         UpdateOpacityMask();
 
         float w = (float)ActualWidth;
@@ -509,10 +517,10 @@ namespace SkinEngine.Controls.Visuals
         float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
 
 
-        //render the control to a texture
         m = new ExtendedMatrix();
         m.Matrix *= SkinContext.FinalMatrix.Matrix;
 
+        //Apply the rendertransform
         if (RenderTransform != null)
         {
           Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
@@ -523,6 +531,9 @@ namespace SkinEngine.Controls.Visuals
           m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
         }
 
+        //next put the control at position (0,0,0)
+        //and scale it correctly since the backbuffer now has the dimensions of the control
+        //instead of the skin width/height dimensions
         m.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
         m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
 
@@ -530,10 +541,13 @@ namespace SkinEngine.Controls.Visuals
 
         GraphicsDevice.Device.EndScene();
 
+        //get the current backbuffer
         using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
         {
+          //get the surface of our opacity texture
           using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
           {
+            //copy the correct rectangle from the backbuffer in the opacitytexture
             GraphicsDevice.Device.StretchRectangle(backBuffer,
                                                    new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
                                                    textureOpacitySurface,
@@ -541,27 +555,30 @@ namespace SkinEngine.Controls.Visuals
                                                    TextureFilter.None);
 
 
+            //change the rendertarget to the opacitytexture
             GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
 
+            //render the control (will be rendered into the opacitytexture)
             GraphicsDevice.Device.BeginScene();
-
             GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
             GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
             DoRender();
             GraphicsDevice.Device.EndScene();
             SkinContext.RemoveTransform();
+
+            //restore the backbuffer
             GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
           }
 
           //TextureLoader.Save(@"C:\erwin\trunk\MP-II\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
 
         }
-        GraphicsDevice.Device.BeginScene();
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
 
+        //now render the opacitytexture with the opacitymask brush
+        GraphicsDevice.Device.BeginScene();
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         OpacityMask.BeginRender(_textureOpacity);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
         OpacityMask.EndRender();
 
@@ -569,6 +586,8 @@ namespace SkinEngine.Controls.Visuals
       }
       else
       {
+        //no opacity mask
+        //apply rendertransform
         if (RenderTransform != null)
         {
           m = new ExtendedMatrix();
@@ -581,7 +600,10 @@ namespace SkinEngine.Controls.Visuals
           m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
           SkinContext.AddTransform(m);
         }
+        //render the control
         DoRender();
+
+        //remove the rendertransform
         if (RenderTransform != null)
         {
           SkinContext.RemoveTransform();
@@ -593,6 +615,10 @@ namespace SkinEngine.Controls.Visuals
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -601,6 +627,12 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -619,6 +651,9 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Frees this asset.
+    /// </summary>
     public void Free()
     {
       if (_vertexOpacityMaskBorder != null)
@@ -661,7 +696,7 @@ namespace SkinEngine.Controls.Visuals
 
       PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexOpacityMaskBorder.Lock(0, 0);
       ColorValue col = ColorValue.FromColor(System.Drawing.Color.White);
-      //col.Alpha *= (float)Opacity;
+      col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
       SurfaceDescription desc = _textureOpacity.GetLevelDescription(0);
 

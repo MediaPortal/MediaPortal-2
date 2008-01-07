@@ -198,6 +198,7 @@ namespace SkinEngine.Effects
       _effect.SetValue("worldViewProj",
                        SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
                        GraphicsDevice.Device.Transform.Projection);
+
       _effect.SetValue("g_texture", tex);
       _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";
@@ -207,6 +208,7 @@ namespace SkinEngine.Effects
 
       GraphicsDevice.Device.SetTexture(0, tex);
     }
+
     public void EndRender()
     {
       if (_effect != null)
@@ -269,6 +271,8 @@ namespace SkinEngine.Effects
       {
         object v = enumer.Current.Value;
         Type type = v.GetType();
+        if (type == typeof(Texture))
+          _effect.SetValue(enumer.Current.Key, (Texture)v);
         if (type == typeof(ColorValue))
           _effect.SetValue(enumer.Current.Key, (ColorValue)v);
 
