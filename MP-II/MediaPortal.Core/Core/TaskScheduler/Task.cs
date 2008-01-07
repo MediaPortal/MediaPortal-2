@@ -488,7 +488,7 @@ namespace MediaPortal.Core.TaskScheduler
         // run every minute, every hour, every day (same as a TimeSpan of one minute)
         if (_lastRun == DateTime.MinValue)
         {
-          return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute + 1, 0);
+          return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
         }
         else
         {
@@ -526,7 +526,7 @@ namespace MediaPortal.Core.TaskScheduler
             }
             else
             {
-              nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute + 1, 0);
+              nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
             }
           }
           else if (nowDay < day)
@@ -567,7 +567,7 @@ namespace MediaPortal.Core.TaskScheduler
         {
           if (now.Hour == hour && now.Minute < 59)
           {
-            return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute + 1, 0);
+            return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
           }
           else if (now.Hour < hour)
           {
@@ -674,7 +674,7 @@ namespace MediaPortal.Core.TaskScheduler
         {
           if (nowDay == day && now.Hour == hour && now.Minute < 59)
           {
-            return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute + 1, 0);
+            return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
           }
           else
           {
