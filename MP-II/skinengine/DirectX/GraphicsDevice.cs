@@ -65,11 +65,11 @@ namespace SkinEngine
     {
       if (_firstTimeInitialisationMemory)
       {
-        _firstTimeInitialisationMemory=false;
-        Microsoft.DirectX.DirectDraw.Device tmpDev= new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
-        Microsoft.DirectX.DirectDraw.GetCapsStruct caps=tmpDev.GetCaps();
+        _firstTimeInitialisationMemory = false;
+        Microsoft.DirectX.DirectDraw.Device tmpDev = new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
+        Microsoft.DirectX.DirectDraw.GetCapsStruct caps = tmpDev.GetCaps();
         tmpDev.Dispose();
-        tmpDev=null;
+        tmpDev = null;
 
         int videoMemory = caps.HardwareCaps.VideoMemoryTotal / (1000 * 1000);
         ServiceScope.Get<ILogger>().Info("Directx: Total Video Memory:{0} MB", videoMemory);
@@ -421,6 +421,10 @@ namespace SkinEngine
           //End the scene
           _device.EndScene();
           _device.Present();
+          if (calledFromOurRenderThread)
+          {
+            _device.Present();
+          }
         }
         catch (DeviceLostException)
         {
