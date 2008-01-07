@@ -15,7 +15,7 @@
       <GradientStop Color="#FF5C9AE6" Offset="0"/>
       <GradientStop Color="#FF1253A3" Offset="1"/>
     </RadialGradientBrush>
-    
+
     <!-- default brush for a submenu button -->
     <RadialGradientBrush Key="MpSubMenuButtonBrush" GradientOrigin="0.85,0.82">
       <RadialGradientBrush.RelativeTransform>
@@ -1714,6 +1714,13 @@
     <Style Key="itemListContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
+          <Button Height="46"  Style="{StaticResource MpButton}"/>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="itemMenuContainerStyle">
+      <Setter Property="Template">
+        <Setter.Value>
           <Button Height="32"  Style="{StaticResource MpButton}"/>
         </Setter.Value>
       </Setter>
@@ -1721,7 +1728,7 @@
 
     <!-- data template for a dialog menu item in list mode-->
     <DataTemplate Key="itemListTemplate" DataType="{Type local:DialogMenuItem}">
-      <Grid>
+      <Grid Height="46">
         <Grid.ColumnDefinitions>
           <ColumnDefinition/>
           <ColumnDefinition/>
@@ -1738,16 +1745,20 @@
         <Grid.RowDefinitions>
           <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Grid.Row="0" Grid.Column="0"  Height="32" Width="32"  ImageSource="{Binding defaulticon}" />
-        <Label Name="lbl1"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6"  Text="{Binding Name}" Font="font12"/>
+        <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32"  ImageSource="{Binding defaulticon}" />
+        <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="6" Text="{Binding Name}" Font="font13"/>
         <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Size}" Font="font12"/>
-
         <Grid.Triggers>
           <Trigger Property="HasFocus" Value="True">
-            <Setter TargetName="lbl1" Property="Scroll" Value="True" />
+            <Setter TargetName="lbl11" Property="Scroll" Value="True" />
           </Trigger>
         </Grid.Triggers>
       </Grid>
+    </DataTemplate>
+    <DataTemplate Key="itemMenuTemplate" DataType="{Type local:DialogMenuItem}">
+      <Canvas>
+        <Label Name="lbl1" Margin="10,4,0,0" Text="{Binding Name}" Font="font13"/>
+      </Canvas>
     </DataTemplate>
     <Style Key="MpListView" TargetType="ListBox">
       <Setter Property="SnapsToDevicePixels" Value="true"/>
@@ -1768,6 +1779,36 @@
       -->
       <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBox">
+            <ScrollViewer>
+              <StackPanel  IsItemsHost="True" >
+              </StackPanel>
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="MpListViewMenu" TargetType="ListBox">
+      <Setter Property="SnapsToDevicePixels" Value="true"/>
+      <Setter Property="OverridesDefaultStyle" Value="true"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+      <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
+      <Setter Property="MinWidth" Value="120"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <!--
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      -->
+      <Setter Property="ItemTemplate" Value="{StaticResource itemMenuTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource itemMenuContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ListBox">

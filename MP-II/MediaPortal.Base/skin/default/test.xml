@@ -20,7 +20,7 @@
             </LinearGradientBrush>
           </Label.OpacityMask>
       </Label>
-      <ListView Margin="10,0,0,0" Width="200" DockPanel.Dock="Left"  Style="{StaticResource MpListView}" ItemsSource="{Binding MainMenu}" />
+      <ListView Margin="10,0,0,0" Width="200" DockPanel.Dock="Left"  Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
 
       <ListView Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"/>
 

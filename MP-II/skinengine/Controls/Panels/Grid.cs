@@ -237,6 +237,8 @@ namespace SkinEngine.Controls.Panels
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 
+      float h = layoutRect.Height; h /= (float)(_rowHeight.Length);
+      float w = layoutRect.Width; w /= (float)(_colWidth.Length);
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -247,7 +249,14 @@ namespace SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
         Point p = new Point((int)(this.ActualPosition.X + _colOffset[col]), (int)(this.ActualPosition.Y + _rowOffset[row]));
-        ArrangeChild(child, ref p, (_colWidth[col] * child.ColumnSpan), (_rowHeight[row] * child.RowSpan));
+        if (child.Name == "lbl11")
+        {
+        }
+        float ww = (float)_colWidth[col];
+        if (ww < w) ww = w;
+        float hh = (float)_rowHeight[row];
+        if (hh < h) hh = h;
+        ArrangeChild(child, ref p, (ww * child.ColumnSpan), (hh * child.RowSpan));
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }
