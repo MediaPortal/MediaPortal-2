@@ -44,6 +44,7 @@ namespace SkinEngine.Controls.Visuals
     Hidden = 1,
     Collapsed = 2,
   }
+
   public class UIElement : Visual, IBindingCollection
   {
     Property _nameProperty;
@@ -68,6 +69,8 @@ namespace SkinEngine.Controls.Visuals
     Property _isItemsHostProperty;
     Property _contextProperty;
     Property _opacityMask;
+    Property _opacityProperty;
+    Property _freezableProperty;
     protected Size _desiredSize;
     protected Size _availableSize;
     protected System.Drawing.Rectangle _finalRect;
@@ -105,6 +108,8 @@ namespace SkinEngine.Controls.Visuals
       RowSpan = el.RowSpan;
       ColumnSpan = el.ColumnSpan;
       IsItemsHost = el.IsItemsHost;
+      Freezable = el.Freezable;
+      Opacity = el.Opacity;
       Context = el.Context;
       if (OpacityMask != null)
         OpacityMask = (SkinEngine.Controls.Brushes.Brush)el.OpacityMask.Clone();
@@ -116,6 +121,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (el.LayoutTransform != null)
         LayoutTransform = (Transform)el.LayoutTransform.Clone();
+
       if (el.RenderTransform != null)
         RenderTransform = (Transform)el.RenderTransform.Clone();
 
@@ -161,6 +167,8 @@ namespace SkinEngine.Controls.Visuals
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
       _isItemsHostProperty = new Property(false);
+      _freezableProperty = new Property(false);
+      _opacityProperty = new Property(1.0);
       _contextProperty = new Property(null);
 
       _rowProperty = new Property(1);
@@ -206,6 +214,70 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+
+    /// <summary>
+    /// Gets or sets the opacity property.
+    /// </summary>
+    /// <value>The opacity property.</value>
+    public Property OpacityProperty
+    {
+      get
+      {
+        return _opacityProperty;
+      }
+      set
+      {
+        _opacityProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the opacity.
+    /// </summary>
+    /// <value>The opacity.</value>
+    public double Opacity
+    {
+      get
+      {
+        return (double)_opacityProperty.GetValue();
+      }
+      set
+      {
+        _opacityProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the freezable property.
+    /// </summary>
+    /// <value>The freezable property.</value>
+    public Property FreezableProperty
+    {
+      get
+      {
+        return _freezableProperty;
+      }
+      set
+      {
+        _freezableProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this <see cref="UIElement"/> is freezable.
+    /// </summary>
+    /// <value><c>true</c> if freezable; otherwise, <c>false</c>.</value>
+    public bool Freezable
+    {
+      get
+      {
+        return (bool)_freezableProperty.GetValue();
+      }
+      set
+      {
+        _freezableProperty.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the context property.
     /// </summary>
@@ -1036,6 +1108,9 @@ namespace SkinEngine.Controls.Visuals
       _isLayoutInvalid = true;
     }
 
+    /// <summary>
+    /// Updates the layout.
+    /// </summary>
     public void UpdateLayout()
     {
       if (false == _isLayoutInvalid) return;
@@ -1077,6 +1152,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
+
     /// <summary>
     /// Finds the resource with the given keyname
     /// </summary>
@@ -1124,6 +1200,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Starts the storyboard.
+    /// </summary>
+    /// <param name="board">The board.</param>
     public void StartStoryboard(Timeline board)
     {
       lock (_runningAnimations)
@@ -1137,6 +1217,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Stops the storyboard.
+    /// </summary>
+    /// <param name="board">The board.</param>
     public void StopStoryboard(Timeline board)
     {
       lock (_runningAnimations)

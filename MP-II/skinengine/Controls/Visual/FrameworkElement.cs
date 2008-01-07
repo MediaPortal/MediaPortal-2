@@ -61,7 +61,6 @@ namespace SkinEngine.Controls.Visuals
     Property _verticalAlignmentProperty;
     VertexBuffer _vertexOpacityMaskBorder;
     Texture _textureOpacity;
-    Surface _textureOpacitySurface;
     DateTime _lastTimeUsed;
     bool _updateOpacityMask;
     bool _mouseOver = false;
@@ -316,6 +315,11 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
 
+    /// <summary>
+    /// Called when the mouse moves
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       if (x >= ActualPosition.X && x < ActualPosition.X + ActualWidth)
@@ -487,6 +491,9 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
 
+    /// <summary>
+    /// Renders this instance.
+    /// </summary>
     public override void Render()
     {
       UpdateLayout();
@@ -500,77 +507,65 @@ namespace SkinEngine.Controls.Visuals
         float h = (float)ActualHeight;
         float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
         float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
-        //using (Texture tex = new Texture(GraphicsDevice.Device, (int)w, (int)h, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default))
+
+
+        //render the control to a texture
+        m = new ExtendedMatrix();
+        m.Matrix *= SkinContext.FinalMatrix.Matrix;
+
+        if (RenderTransform != null)
         {
-          m = new ExtendedMatrix();
-          m.Matrix *= SkinContext.FinalMatrix.Matrix;
+          Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+          m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
+          Matrix mNew;
+          RenderTransform.GetTransform(out mNew);
+          m.Matrix *= mNew;
+          m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+        }
 
-          if (RenderTransform != null)
+        m.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
+        m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
+
+        SkinContext.AddTransform(m);
+
+        GraphicsDevice.Device.EndScene();
+
+        using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
+        {
+          using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
           {
-            Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
-            m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
-            Matrix mNew;
-            RenderTransform.GetTransform(out mNew);
-            m.Matrix *= mNew;
-            m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-          }
-
-          m.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
-          m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
-
-          SkinContext.AddTransform(m);
-
-          GraphicsDevice.Device.EndScene();
-          //using (Surface renderTarget = _textureOpacity.GetSurfaceLevel(0))
-          {
-            Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0);
             GraphicsDevice.Device.StretchRectangle(backBuffer,
                                                    new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
-                                                   _textureOpacitySurface,
-                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
+                                                   textureOpacitySurface,
+                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
                                                    TextureFilter.None);
-            GraphicsDevice.Device.SetRenderTarget(0, _textureOpacitySurface);
+
+
+            GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
 
             GraphicsDevice.Device.BeginScene();
 
-
-            //if (RenderTransform != null)
-            //{
-            //  w = (float)(ActualWidth / ((float)SkinContext.Width) / w);
-            //  h = (float)(ActualHeight / ((float)SkinContext.Height) / h);
-            //  m = new ExtendedMatrix();
-            //  m.Matrix *= SkinContext.FinalMatrix.Matrix;
-            //  Vector2 center = new Vector2((float)(w * RenderTransformOrigin.X), (float)(h * RenderTransformOrigin.Y));
-            //  m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
-            //  Matrix mNew;
-            //  RenderTransform.GetTransform(out mNew);
-            //  m.Matrix *= mNew;
-            //  m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-            //  SkinContext.AddTransform(m);
-            //}
             GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
             GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
             DoRender();
             GraphicsDevice.Device.EndScene();
-            if (RenderTransform != null)
-            {
-              // SkinContext.RemoveTransform();
-            }
             SkinContext.RemoveTransform();
-            //  TextureLoader.Save(@"c:\1\text.png", ImageFileFormat.Png, tex);
-
             GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
-            GraphicsDevice.Device.BeginScene();
-            GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-            GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-            GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
-
-            OpacityMask.BeginRender(_textureOpacity);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-            OpacityMask.EndRender();
-            _lastTimeUsed = DateTime.Now;
           }
+
+          //TextureLoader.Save(@"C:\erwin\trunk\MP-II\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
+
         }
+        GraphicsDevice.Device.BeginScene();
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
+
+        OpacityMask.BeginRender(_textureOpacity);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+        OpacityMask.EndRender();
+
+        _lastTimeUsed = DateTime.Now;
       }
       else
       {
@@ -595,6 +590,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     #region opacitymask
+
     #region IAsset Members
 
     public bool IsAllocated
@@ -630,10 +626,6 @@ namespace SkinEngine.Controls.Visuals
         _vertexOpacityMaskBorder.Dispose();
         _vertexOpacityMaskBorder = null;
       }
-      if (_textureOpacitySurface != null)
-      {
-        _textureOpacitySurface.Dispose();
-      }
 
       if (_textureOpacity != null)
       {
@@ -643,20 +635,21 @@ namespace SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    /// <summary>
+    /// Updates the opacity mask texture
+    /// </summary>
     void UpdateOpacityMask()
     {
       if (OpacityMask == null) return;
       if (_vertexOpacityMaskBorder == null)
       {
         _updateOpacityMask = true;
+
         _vertexOpacityMaskBorder = new VertexBuffer(typeof(PositionColored2Textured), 4, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       }
       if (!_updateOpacityMask) return;
       Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
-      if (_textureOpacitySurface != null)
-      {
-        _textureOpacitySurface.Dispose();
-      }
       if (_textureOpacity != null)
       {
         _textureOpacity.Dispose();
@@ -664,9 +657,9 @@ namespace SkinEngine.Controls.Visuals
 
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
-      _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
-      _textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0);
-      PositionColored2Textured[] verts = new PositionColored2Textured[4];
+      _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+
+      PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexOpacityMaskBorder.Lock(0, 0);
       ColorValue col = ColorValue.FromColor(System.Drawing.Color.White);
       //col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
@@ -677,43 +670,47 @@ namespace SkinEngine.Controls.Visuals
       //upperleft
       verts[0].X = (float)this.ActualPosition.X;
       verts[0].Y = (float)this.ActualPosition.Y;
+      verts[0].Z = 1.0f;
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
       verts[0].Tu2 = 0;
       verts[0].Tv2 = 0;
 
-      //upperright
-      verts[1].X = (float)(this.ActualPosition.X + this.ActualWidth);
-      verts[1].Y = (float)this.ActualPosition.Y;
+      //bottom left
+      verts[1].X = (float)(this.ActualPosition.X);
+      verts[1].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
+      verts[1].Z = 1.0f;
       verts[1].Color = color;
-      verts[1].Tu1 = maxU;
-      verts[1].Tv1 = 0;
-      verts[1].Tu2 = maxU;
-      verts[1].Tv2 = 0;
+      verts[1].Tu1 = 0;
+      verts[1].Tv1 = maxV;
+      verts[1].Tu2 = 0;
+      verts[1].Tv2 = maxV;
 
       //bottomright
       verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth);
       verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
+      verts[2].Z = 1.0f;
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
-      verts[2].Tv1 = maxU;
-      verts[2].Tu2 = maxV;
+      verts[2].Tv1 = maxV;
+      verts[2].Tu2 = maxU;
       verts[2].Tv2 = maxV;
 
-      //bottomleft
-      verts[3].X = (float)this.ActualPosition.X;
-      verts[3].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
+      //upper right
+      verts[3].X = (float)(this.ActualPosition.X + this.ActualWidth);
+      verts[3].Y = (float)(this.ActualPosition.Y);
+      verts[3].Z = 1.0f;
       verts[3].Color = color;
-      verts[3].Tu1 = 0;
-      verts[3].Tv1 = maxV;
-      verts[3].Tu2 = 0;
-      verts[3].Tv2 = maxV;
+      verts[3].Tu1 = maxU;
+      verts[3].Tv1 = 0;
+      verts[3].Tu2 = maxU;
+      verts[3].Tv2 = 0;
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;
       OpacityMask.SetupBrush(this, ref verts);
-      _vertexOpacityMaskBorder.SetData(verts, 0, LockFlags.None);
+      _vertexOpacityMaskBorder.Unlock();
 
       _updateOpacityMask = false;
     }
