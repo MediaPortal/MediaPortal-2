@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
-
+using MediaPortal.Core.Collections;
 using SkinEngine;
 using SkinEngine.Controls.Bindings;
 
@@ -497,6 +497,14 @@ namespace SkinEngine.Controls.Visuals
         {
           Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
         }
+        if (Context is ListItem)
+        {
+          ListItem listItem = Context as ListItem;
+          if (listItem.Command != null)
+          {
+            listItem.Command.Execute(listItem.CommandParameter);
+          }
+        }
       }
 
       if (key == MediaPortal.Core.InputManager.Key.ContextMenu)
@@ -504,7 +512,6 @@ namespace SkinEngine.Controls.Visuals
         if (ContextMenuCommand != null)
         {
           ContextMenuCommand.Method.Invoke(ContextMenuCommand.Object, new object[] { ContextMenuCommandParameter });
-
         }
       }
 

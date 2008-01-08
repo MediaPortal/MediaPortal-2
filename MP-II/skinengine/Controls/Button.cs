@@ -398,6 +398,13 @@ namespace SkinEngine.Controls
       return base.PredictFocusLeft(focusedControl, ref key, strict);
     }
 
+    /// <summary>
+    /// Predicts the next control which is position right of this control
+    /// </summary>
+    /// <param name="focusedControl">The current  focused control.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="strict"></param>
+    /// <returns></returns>
     public override Control PredictFocusRight(Control focusedControl, ref Key key, bool strict)
     {/*
       Control c = _style.PredictFocusRight(focusedControl, ref key, strict);
@@ -409,6 +416,10 @@ namespace SkinEngine.Controls
       return base.PredictFocusRight(focusedControl, ref key, strict);
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this control has focus.
+    /// </summary>
+    /// <value><c>true</c> if this control has focus; otherwise, <c>false</c>.</value>
     public override bool HasFocus
     {
       get
