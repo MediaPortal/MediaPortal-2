@@ -213,8 +213,34 @@ namespace SkinEngine.Controls.Visuals
           return;
         }
       }
-
+      if (key == MediaPortal.Core.InputManager.Key.Home)
+      {
+        OnHome(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
+        key = MediaPortal.Core.InputManager.Key.None;
+        return;
+      }
+      if (key == MediaPortal.Core.InputManager.Key.End)
+      {
+        OnEnd(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
+        key = MediaPortal.Core.InputManager.Key.None;
+        return;
+      }
       Content.OnKeyPressed(ref key);
+    }
+
+    void OnHome(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return;
+      info.Home();
+      OnMouseMove((float)(Content.ActualPosition.X), (float)(Content.ActualPosition.Y));
+    }
+    void OnEnd(float x, float y)
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info == null) return;
+      info.End();
+      OnMouseMove((float)(Content.ActualPosition.X), (float)(Content.ActualPosition.Y + Content.ActualHeight - info.LineHeight));
     }
 
     bool OnPageDown(float x, float y)
@@ -290,7 +316,7 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info == null) return false;
-      if (y  <= Content.ActualPosition.Y)
+      if (y <= Content.ActualPosition.Y)
       {
         if (info.LineUp())
         {

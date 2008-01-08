@@ -76,6 +76,9 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     bool PageUp();
 
+    void Home();
+    void End();
+
     double LineHeight {get;}
 
     double LineWidth {get;}

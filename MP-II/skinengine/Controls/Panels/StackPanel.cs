@@ -509,6 +509,24 @@ namespace SkinEngine.Controls.Panels
         return _lineWidth;
       }
     }
+    public void Home()
+    {
+      lock (_orientationProperty)
+      {
+        _startIndex = 0;
+        Invalidate();
+        UpdateLayout();
+      }
+    }
+    public void End()
+    {
+      lock (_orientationProperty)
+      {
+        _startIndex = (Children.Count - _controlCount);
+        Invalidate();
+        UpdateLayout();
+      }
+    }
     public void Reset()
     {
       _startIndex = 0;
