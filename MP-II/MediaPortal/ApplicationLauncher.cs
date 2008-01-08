@@ -39,6 +39,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.MPIManager;
 using MediaPortal.Core.MetaData;
 
 using MediaPortal.Services.PathManager;
@@ -49,6 +50,7 @@ using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
+using MediaPortal.Services.MPIManager;
 using MediaPortal.Services.MetaData;
 
 [assembly: CLSCompliant(true)]
@@ -128,6 +130,14 @@ namespace MediaPortal
 
         logger.Debug("MPApplication: Registering TaskScheduler");
         ServiceScope.Add<ITaskScheduler>(new TaskScheduler());
+
+        //MPInstaller - for testing only 
+        logger.Debug("MPApplication: Executing MPInstaller");
+        MPInstaller Installer = new MPInstaller();
+        ServiceScope.Add<IMPInstaller>(Installer);
+        Installer.LoadQueue();
+        Installer.ExecuteQueue(false);
+
 
         //to be removed
         //meta data mapper services
