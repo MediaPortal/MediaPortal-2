@@ -1175,7 +1175,7 @@ namespace MyXaml.Core
             propertyValue, '{', '}');
 
           /*** special case for resources ***/
-          if (refVal.StartsWith("StaticResource"))
+          if (refVal.StartsWith("StaticResource") || refVal.StartsWith("DynamicResource"))
           {
             if (OnGetResource != null)
             {
