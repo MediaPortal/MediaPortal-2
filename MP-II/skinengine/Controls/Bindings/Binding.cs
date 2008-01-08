@@ -110,6 +110,7 @@ namespace SkinEngine.Controls.Bindings
       // ViewMode="{Binding Path=ViewModeType}" 
       // Value="{Binding Path=TopProgressBarRed,Mode=OneWay}"
 
+      string elementName = "";
       Regex regex = new Regex(@"[a-zA-Z0-9.\[\]\(\)]+=[a-zA-Z0-9.\[\]\(\)]+");
       MatchCollection matches = regex.Matches(Expression);
       for (int i = 0; i < matches.Count; ++i)
@@ -122,9 +123,16 @@ namespace SkinEngine.Controls.Bindings
         {
           string bindingPropertyName = matches2[0].Value;
           string bindingValue = matches2[1].Value;
+          if (bindingPropertyName == "ElementName")
+          {
+            elementName = bindingValue;
+          }
           if (bindingPropertyName == "Path")
           {
-            SetupDatabinding(bindingDestinationObject, bindingValue);
+            if (elementName != "")
+              SetupDatabinding(bindingDestinationObject, elementName + "." + bindingValue);
+            else
+              SetupDatabinding(bindingDestinationObject, bindingValue);
           }
         }
       }
@@ -222,7 +230,7 @@ namespace SkinEngine.Controls.Bindings
           cmd.Object = element.Context;
           return cmd;
         }
-        Command newCmd= GetMethodInfo(bindingSourcePropertyName);
+        Command newCmd = GetMethodInfo(bindingSourcePropertyName);
         if (newCmd != null)
         {
           return newCmd;
