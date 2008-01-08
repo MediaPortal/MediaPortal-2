@@ -30,11 +30,13 @@ namespace SkinEngine.Controls.Visuals
 
   public class Image : Control
   {
+    Property _fallbackSourceProperty;
     Property _imageSourceProperty;
     Property _stretchDirectionProperty;
     Property _stretchProperty;
     Property _opacityProperty;
     private VertextBufferAsset _image;
+    private VertextBufferAsset _fallbackImage;
     bool _performLayout = false;
     float _u, _v, _uoff, _voff, _w, _h;
     Vector3 _pos;
@@ -43,18 +45,22 @@ namespace SkinEngine.Controls.Visuals
     {
       Init();
     }
+
     public Image(Image img)
       : base(img)
     {
       Init();
-      ImageSource = img.ImageSource;
+      Source = img.Source;
+      FallbackSource = img.FallbackSource;
       Stretch = img.Stretch;
       StretchDirection = img.StretchDirection;
       Opacity = img.Opacity;
     }
+
     void Init()
     {
       _imageSourceProperty = new Property(null);
+      _fallbackSourceProperty = new Property(null);
       _stretchDirectionProperty = new Property(StretchDirection.Both);
       _stretchProperty = new Property(Stretch.Fill);
       _opacityProperty = new Property((double)1.0f);
@@ -62,10 +68,12 @@ namespace SkinEngine.Controls.Visuals
       _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     public override object Clone()
     {
       return new Image(this);
     }
+
     /// <summary>
     /// Called when a property changed. 
     /// Simply sets a variable to indicate a layout needs to be performed
@@ -90,7 +98,7 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the image source property.
     /// </summary>
     /// <value>The image source property.</value>
-    public Property ImageSourceProperty
+    public Property SourceProperty
     {
       get
       {
@@ -106,7 +114,7 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the image source.
     /// </summary>
     /// <value>The image source.</value>
-    public string ImageSource
+    public string Source
     {
       get
       {
@@ -115,6 +123,34 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _imageSourceProperty.SetValue(value);
+      }
+    }
+
+    public Property FallbackSourceProperty
+    {
+      get
+      {
+        return _fallbackSourceProperty;
+      }
+      set
+      {
+        _fallbackSourceProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the image source.
+    /// </summary>
+    /// <value>The image source.</value>
+    public string FallbackSource
+    {
+      get
+      {
+        return (string)_fallbackSourceProperty.GetValue();
+      }
+      set
+      {
+        _fallbackSourceProperty.SetValue(value);
       }
     }
     /// <summary>
@@ -249,9 +285,12 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(Size availableSize)
     {
-      if (ImageSource == null)
+      if (Source == null)
       {
-        _desiredSize = new Size((int)Width, (int)Height);
+        if (FallbackSource == null)
+        {
+          _desiredSize = new Size((int)Width, (int)Height);
+        }
         return;
       }
       if (_image != null && _image.Texture.IsAllocated)
@@ -271,6 +310,10 @@ namespace SkinEngine.Controls.Visuals
             _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
         }
         _desiredSize = new Size(w, h);
+      }
+      else if (_fallbackImage != null && _fallbackImage.Texture.IsAllocated)
+      {
+        _desiredSize = new Size((int)Width, (int)Height);
       }
       else
       {
@@ -307,164 +350,199 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
-      if (_image == null && ImageSource != null)
+      if (_image == null && Source != null)
       {
-        _image = ContentManager.Load(ImageSource, true);
+        _image = ContentManager.Load(Source, true);
         _performLayout = true;
       }
-      if (_image == null) return;
-
-      if (_performLayout && _image.Texture.IsAllocated)
+      if (_fallbackImage == null && FallbackSource != null)
       {
-        _performLayout = false;
-        if (Width == 0 || Height == 0)
-        {
-          Invalidate();
-        }
-        else
-        {
-          PerformLayout();
-        }
+        _fallbackImage = ContentManager.Load(FallbackSource, true);
+        _performLayout = true;
       }
 
+      if (_performLayout)
+      {
+        if (_image != null)
+        {
+          if (_image.Texture.IsAllocated)
+          {
+            _performLayout = false;
+            if (Width == 0 || Height == 0)
+            {
+              Invalidate();
+            }
+            else
+            {
+              PerformLayout(_image);
+            }
+          }
+        }
+        if (_performLayout)
+        {
+          if (_fallbackImage != null)
+          {
+            if (_fallbackImage.Texture.IsAllocated)
+            {
+              _performLayout = false;
+              if (Width == 0 || Height == 0)
+              {
+                Invalidate();
+              }
+              else
+              {
+                PerformLayout(_fallbackImage);
+              }
+            }
+          }
+        }
+      }
       base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
+      if (_image != null)
+      {
+        _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
+        if (_image.Texture.IsAllocated) return;
+      }
+      if (_fallbackImage != null)
+      {
+        _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
+      }
     }
 
     /// <summary>
     /// Performs the layout.
     /// </summary>
-    void PerformLayout()
+    void PerformLayout(VertextBufferAsset asset)
     {
       Trace.WriteLine("Image.PerformLayout()");
-      if (_image == null) return;
-      if (!_image.Texture.IsAllocated) return;
-
-      Vector3 imgScale = new Vector3(1, 1, 1);
-      if (Width > 0.0f)
+      if (asset != null && asset.Texture.IsAllocated)
       {
-        if (_image.Texture.Width > 0)
+        Vector3 imgScale = new Vector3(1, 1, 1);
+        if (Width > 0.0f)
         {
-          imgScale.X = (float)(ActualWidth / ((float)_image.Texture.Width));
-        }
-      }
-      if (Height > 0.0f)
-      {
-        if (_image.Texture.Height > 0)
-        {
-          imgScale.Y = (float)(ActualHeight / ((float)_image.Texture.Height));
-        }
-      }
-
-      Vector3 pos = ActualPosition;
-      float height = (float)ActualHeight;
-      float width = (float)ActualWidth;
-      float pixelRatio = 1.0f;
-      float fSourceFrameRatio = ((float)_image.Texture.Width) / ((float)_image.Texture.Height);
-      float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-      if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
-      {
-
-        if (Stretch == Stretch.Uniform)
-        {
-          float fNewWidth = (float)width;
-          float fNewHeight = fNewWidth / fOutputFrameRatio;
-
-          // make sure the height is not larger than the maximum
-          if (fNewHeight > ActualHeight)
+          if (asset.Texture.Width > 0)
           {
-            fNewHeight = (float)height;
-            fNewWidth = fNewHeight * fOutputFrameRatio;
+            imgScale.X = (float)(ActualWidth / ((float)asset.Texture.Width));
           }
-
-          // this shouldnt happen, but just make sure that everything still fits onscreen
-          if (fNewWidth > ActualWidth || fNewHeight > ActualHeight)
-          {
-            fNewWidth = (float)ActualWidth;
-            fNewHeight = (float)ActualHeight;
-          }
-
-          width = fNewWidth;
-          height = fNewHeight;
-
         }
-      }
-
-      //center image
-      pos.X += ((((float)ActualWidth) - width) / 2.0f);
-      pos.Y += ((((float)ActualHeight) - height) / 2.0f);
-
-      float iSourceX = 0;
-      float iSourceY = 0;
-      float iSourceWidth = _image.Texture.Width;
-      float iSourceHeight = _image.Texture.Height;
-      if (Stretch == Stretch.UniformToFill)
-      {
-        float imageWidth = (float)_image.Texture.Width;
-        float imageHeight = (float)_image.Texture.Height;
-        // suggested by ziphnor
-        //float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-        float fSourcePixelRatio = fSourceFrameRatio / ((float)imageWidth / (float)imageHeight);
-        float fCroppedOutputFrameRatio = fSourcePixelRatio * ((float)imageWidth / (float)imageHeight) / pixelRatio;
-
-        // calculate AR compensation (see http://www.iki.fi/znark/video/conversion)
-        // assume that the movie is widescreen first, so use full height
-        float fVertBorder = 0;
-        float fNewHeight = (float)(height);
-        float fNewWidth = fNewHeight * fOutputFrameRatio;
-        float fHorzBorder = (fNewWidth - (float)width) / 2.0f;
-        float fFactor = fNewWidth / ((float)imageWidth);
-        fFactor *= pixelRatio;
-        fHorzBorder = fHorzBorder / fFactor;
-
-        if ((int)fNewWidth < width)
+        if (Height > 0.0f)
         {
-          fHorzBorder = 0;
-          fNewWidth = (float)(width);
-          fNewHeight = fNewWidth / fOutputFrameRatio;
-          fVertBorder = (fNewHeight - (float)height) / 2.0f;
-          fFactor = fNewWidth / ((float)imageWidth);
+          if (asset.Texture.Height > 0)
+          {
+            imgScale.Y = (float)(ActualHeight / ((float)asset.Texture.Height));
+          }
+        }
+
+        Vector3 pos = ActualPosition;
+        float height = (float)ActualHeight;
+        float width = (float)ActualWidth;
+        float pixelRatio = 1.0f;
+        float fSourceFrameRatio = ((float)asset.Texture.Width) / ((float)asset.Texture.Height);
+        float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
+        if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
+        {
+
+          if (Stretch == Stretch.Uniform)
+          {
+            float fNewWidth = (float)width;
+            float fNewHeight = fNewWidth / fOutputFrameRatio;
+
+            // make sure the height is not larger than the maximum
+            if (fNewHeight > ActualHeight)
+            {
+              fNewHeight = (float)height;
+              fNewWidth = fNewHeight * fOutputFrameRatio;
+            }
+
+            // this shouldnt happen, but just make sure that everything still fits onscreen
+            if (fNewWidth > ActualWidth || fNewHeight > ActualHeight)
+            {
+              fNewWidth = (float)ActualWidth;
+              fNewHeight = (float)ActualHeight;
+            }
+
+            width = fNewWidth;
+            height = fNewHeight;
+
+          }
+        }
+
+        //center image
+        pos.X += ((((float)ActualWidth) - width) / 2.0f);
+        pos.Y += ((((float)ActualHeight) - height) / 2.0f);
+
+        float iSourceX = 0;
+        float iSourceY = 0;
+        float iSourceWidth = asset.Texture.Width;
+        float iSourceHeight = asset.Texture.Height;
+        if (Stretch == Stretch.UniformToFill)
+        {
+          float imageWidth = (float)asset.Texture.Width;
+          float imageHeight = (float)asset.Texture.Height;
+          // suggested by ziphnor
+          //float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
+          float fSourcePixelRatio = fSourceFrameRatio / ((float)imageWidth / (float)imageHeight);
+          float fCroppedOutputFrameRatio = fSourcePixelRatio * ((float)imageWidth / (float)imageHeight) / pixelRatio;
+
+          // calculate AR compensation (see http://www.iki.fi/znark/video/conversion)
+          // assume that the movie is widescreen first, so use full height
+          float fVertBorder = 0;
+          float fNewHeight = (float)(height);
+          float fNewWidth = fNewHeight * fOutputFrameRatio;
+          float fHorzBorder = (fNewWidth - (float)width) / 2.0f;
+          float fFactor = fNewWidth / ((float)imageWidth);
           fFactor *= pixelRatio;
-          fVertBorder = fVertBorder / fFactor;
+          fHorzBorder = fHorzBorder / fFactor;
+
+          if ((int)fNewWidth < width)
+          {
+            fHorzBorder = 0;
+            fNewWidth = (float)(width);
+            fNewHeight = fNewWidth / fOutputFrameRatio;
+            fVertBorder = (fNewHeight - (float)height) / 2.0f;
+            fFactor = fNewWidth / ((float)imageWidth);
+            fFactor *= pixelRatio;
+            fVertBorder = fVertBorder / fFactor;
+          }
+          iSourceX = fHorzBorder;
+          iSourceY = fVertBorder;
+          iSourceWidth = ((float)imageWidth - 2.0f * fHorzBorder);
+          iSourceHeight = ((float)imageHeight - 2.0f * fVertBorder);
         }
-        iSourceX = fHorzBorder;
-        iSourceY = fVertBorder;
-        iSourceWidth = ((float)imageWidth - 2.0f * fHorzBorder);
-        iSourceHeight = ((float)imageHeight - 2.0f * fVertBorder);
+        // x-offset in texture
+        float uoffs = ((float)(iSourceX)) / ((float)asset.Texture.Width);
+
+        // y-offset in texture
+        float voffs = ((float)iSourceY) / ((float)asset.Texture.Height);
+
+        // width copied from texture
+        float u = ((float)iSourceWidth) / ((float)asset.Texture.Width);
+
+        // height copied from texture
+        float v = ((float)iSourceHeight) / ((float)asset.Texture.Height);
+
+
+        if (uoffs < 0 || uoffs > 1)
+          uoffs = 0;
+        if (u < 0 || u > 1)
+          u = 1;
+        if (v < 0 || v > 1)
+          v = 1;
+        if (u + uoffs > 1)
+        {
+          uoffs = 0;
+          u = 1;
+        }
+
+        _u = u;
+        _v = v;
+        _uoff = uoffs;
+        _voff = voffs;
+        _w = width;
+        _h = height;
+        _pos = pos;
       }
-      // x-offset in texture
-      float uoffs = ((float)(iSourceX)) / ((float)_image.Texture.Width);
-
-      // y-offset in texture
-      float voffs = ((float)iSourceY) / ((float)_image.Texture.Height);
-
-      // width copied from texture
-      float u = ((float)iSourceWidth) / ((float)_image.Texture.Width);
-
-      // height copied from texture
-      float v = ((float)iSourceHeight) / ((float)_image.Texture.Height);
-
-
-      if (uoffs < 0 || uoffs > 1)
-        uoffs = 0;
-      if (u < 0 || u > 1)
-        u = 1;
-      if (v < 0 || v > 1)
-        v = 1;
-      if (u + uoffs > 1)
-      {
-        uoffs = 0;
-        u = 1;
-      }
-
-      _u = u;
-      _v = v;
-      _uoff = uoffs;
-      _voff = voffs;
-      _w = width;
-      _h = height;
-      _pos = pos;
     }
   }
 }
