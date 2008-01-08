@@ -171,7 +171,7 @@ namespace SkinEngine.Controls.Brushes
         _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
         if (_gradientTexture == null)
         {
-          _gradientTexture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
+          _gradientTexture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
         }
         if (_cacheTexture != null)
         {
