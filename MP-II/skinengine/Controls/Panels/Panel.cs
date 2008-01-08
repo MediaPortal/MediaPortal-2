@@ -249,7 +249,30 @@ namespace SkinEngine.Controls.Panels
       {
         if (element.IsVisible)
         {
-          element.Render();
+          if (element.LayoutTransform != null)
+          {
+            FrameworkElement control = (FrameworkElement)element;
+            ExtendedMatrix m = new ExtendedMatrix();
+            m.Matrix *= SkinContext.FinalMatrix.Matrix;
+            //Microsoft.DirectX.Vector2 center = new Microsoft.DirectX.Vector2((float)(control.ActualPosition.X + control.ActualWidth * 0.5), (float)(control.ActualPosition.Y + control.ActualHeight * 0.5));
+            Microsoft.DirectX.Vector2 center = new Microsoft.DirectX.Vector2((float)(control.ActualPosition.X ), (float)(control.ActualPosition.Y ));
+            m.Matrix *= Microsoft.DirectX.Matrix.Translation(new Microsoft.DirectX.Vector3(-center.X, -center.Y, 0));
+            Microsoft.DirectX.Matrix mNew;
+            element.LayoutTransform.GetTransform(out mNew);
+            //disable any translations
+            mNew.M41 = 0;
+            mNew.M42 = 0;
+            m.Matrix *= mNew;
+            m.Matrix *= Microsoft.DirectX.Matrix.Translation(new Microsoft.DirectX.Vector3(center.X, center.Y, 0));
+            SkinContext.AddTransform(m);
+
+            element.Render();
+            SkinContext.RemoveTransform();
+          }
+          else
+          {
+            element.Render();
+          }
         }
       }
       _lastTimeUsed = SkinContext.Now;
@@ -390,6 +413,11 @@ namespace SkinEngine.Controls.Panels
       return base.FindElement(name);
     }
 
+    /// <summary>
+    /// Finds the element of type t.
+    /// </summary>
+    /// <param name="t">The t.</param>
+    /// <returns></returns>
     public override UIElement FindElementType(Type t)
     {
       foreach (UIElement element in Children)
@@ -400,6 +428,10 @@ namespace SkinEngine.Controls.Panels
       return base.FindElementType(t);
     }
 
+    /// <summary>
+    /// Finds the the element which is a ItemsHost
+    /// </summary>
+    /// <returns></returns>
     public override UIElement FindItemsHost()
     {
       foreach (UIElement element in Children)

@@ -58,8 +58,8 @@ namespace SkinEngine.Controls.Transforms
       _matrix.M12 = elements[1];
       _matrix.M21 = elements[2];
       _matrix.M22 = elements[3];
-      _matrix.M14 = elements[4];
-      _matrix.M24 = elements[5];
+      _matrix.M41 = elements[4];
+      _matrix.M42 = elements[5];
     }
   }
 }

@@ -283,6 +283,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
     {
+      if (path.PointCount <= 0) return null;
       if (path.PathPoints.Length == 3)
       {
         return path.PathPoints;
@@ -301,6 +302,14 @@ namespace SkinEngine.Controls.Visuals
       return vertices;
     }
 
+    /// <summary>
+    /// Gets the inset.
+    /// </summary>
+    /// <param name="nextpoint">The nextpoint.</param>
+    /// <param name="point">The point.</param>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <param name="thickNess">The thick ness.</param>
     void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNess)
     {
       double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
@@ -309,6 +318,12 @@ namespace SkinEngine.Controls.Visuals
       y = (float)(Math.Sin(ang) * thickNess + point.Y);
     }
 
+    /// <summary>
+    /// Gets the next point.
+    /// </summary>
+    /// <param name="points">The points.</param>
+    /// <param name="i">The i.</param>
+    /// <returns></returns>
     PointF GetNextPoint(PointF[] points, int i)
     {
       i++;
@@ -325,6 +340,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
     {
+      if (path.PointCount <= 0) return null;
       thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
       int verticeCount = points.Length * 2 * 3;
@@ -384,6 +400,10 @@ namespace SkinEngine.Controls.Visuals
 
     #region IAsset Members
 
+    /// <summary>
+    /// Gets a value indicating the asset is allocated
+    /// </summary>
+    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public override bool IsAllocated
     {
       get
@@ -392,6 +412,12 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this asset can be deleted.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
+    /// </value>
     public override bool CanBeDeleted
     {
       get

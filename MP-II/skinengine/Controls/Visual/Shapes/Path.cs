@@ -104,6 +104,11 @@ namespace SkinEngine.Controls.Visuals
         _dataProperty.SetValue(value);
       }
     }
+    public override void DoRender()
+    {
+      base.DoRender();
+      if (String.IsNullOrEmpty(Data)) return;
+    }
     protected override void PerformLayout()
     {
       Trace.WriteLine("Path.PerformLayout()");
@@ -120,20 +125,23 @@ namespace SkinEngine.Controls.Visuals
       {
         path = GetPath(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), out cx, out cy);
         vertices = ConvertPathToTriangleFan(path, (int)+(cx), (int)(cy));
-        _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
-        unchecked
+        if (vertices != null)
         {
-          for (int i = 0; i < vertices.Length; ++i)
+          _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+          verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
+          unchecked
           {
-            verts[i].X = vertices[i].X;
-            verts[i].Y = vertices[i].Y;
-            verts[i].Z = 1.0f;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+              verts[i].X = vertices[i].X;
+              verts[i].Y = vertices[i].Y;
+              verts[i].Z = 1.0f;
+            }
           }
+          Fill.SetupBrush(this, ref verts);
+          _vertexBufferFill.Unlock();
+          _verticesCountFill = (verts.Length - 2);
         }
-        Fill.SetupBrush(this, ref verts);
-        _vertexBufferFill.Unlock();
-        _verticesCountFill = (verts.Length - 2);
 
       }
       //border brush
@@ -142,21 +150,24 @@ namespace SkinEngine.Controls.Visuals
       {
         path = GetPath(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), out cx, out cy);
         vertices = ConvertPathToTriangleStrip(path, (int)(cx), (int)(cy), (float)StrokeThickness);
-
-        _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-        unchecked
+        if (vertices != null)
         {
-          for (int i = 0; i < vertices.Length; ++i)
+
+          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
+          unchecked
           {
-            verts[i].X = vertices[i].X;
-            verts[i].Y = vertices[i].Y;
-            verts[i].Z = 1.0f;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+              verts[i].X = vertices[i].X;
+              verts[i].Y = vertices[i].Y;
+              verts[i].Z = 1.0f;
+            }
           }
+          Stroke.SetupBrush(this, ref verts);
+          _vertexBufferBorder.Unlock();
+          _verticesCountBorder = (verts.Length / 3);
         }
-        Stroke.SetupBrush(this, ref verts);
-        _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length / 3);
       }
 
     }
@@ -345,6 +356,7 @@ namespace SkinEngine.Controls.Visuals
       float h = bounds.Height;
       float scaleX = 1;
       float scaleY = 1;
+      /*
       if (w > 0 && baseRect.Width > 0 && Stretch != Stretch.None)
         scaleX = ((float)baseRect.Width) / w;
       if (h > 0 && baseRect.Height > 0 && Stretch != Stretch.None)
@@ -355,19 +367,25 @@ namespace SkinEngine.Controls.Visuals
 
       m.Scale(scaleX, scaleY, MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      */
+      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
-
       mPath.Flatten();
 
-      _points.Clear();
-      PointF[] points = new PointF[mPath.PathPoints.Length];
-      for (int x = 0; x < mPath.PathPoints.Length; ++x)
+      cx = cy = 0;
+      if (mPath.PointCount > 0)
       {
-        PointF f = new PointF(mPath.PathPoints[x].X, mPath.PathPoints[x].Y);
-        points[x] = f;
-        _points.Add(f);
+        _points.Clear();
+        PointF[] points = new PointF[mPath.PathPoints.Length];
+        for (int x = 0; x < mPath.PathPoints.Length; ++x)
+        {
+          PointF f = new PointF(mPath.PathPoints[x].X, mPath.PathPoints[x].Y);
+          points[x] = f;
+          _points.Add(f);
+        }
+        CalcCentroid(points, out cx, out cy);
       }
-      CalcCentroid(points, out cx, out cy);
       return mPath;
     }
 
