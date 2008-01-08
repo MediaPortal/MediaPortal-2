@@ -386,16 +386,16 @@ namespace SkinEngine.Controls.Brushes
             if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
             {
               copy = false;
-             // w /=2;
-              // h /=2;
+              w /= 2;
+              h /= 2;
             }
             ExtendedMatrix m = new ExtendedMatrix();
             m.Matrix *= SkinContext.FinalMatrix.Matrix;
             //next put the control at position (0,0,0)
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
-            m.Matrix *= Matrix.Translation(new Vector3(-(float)_position.X, -(float)_position.Y, 0));
-            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width)*cx) / w), (float)((((float)SkinContext.Height*cy)) / h), 1);
+            m.Matrix *= Matrix.Translation(new Vector3(-(float)(_position.X + 1), -(float)(_position.Y + 1), 0));
+            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) * cx) / w), (float)((((float)SkinContext.Height * cy)) / h), 1.0f);
 
             SkinContext.AddTransform(m);
 
@@ -451,7 +451,6 @@ namespace SkinEngine.Controls.Brushes
               }
               _effect = null;
 
-                //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
             }
             GraphicsDevice.Device.BeginScene();
           }
