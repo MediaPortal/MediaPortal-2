@@ -106,8 +106,8 @@ namespace SkinEngine.Controls.Visuals
     }
     public override void DoRender()
     {
-      base.DoRender();
       if (String.IsNullOrEmpty(Data)) return;
+      base.DoRender();
     }
     protected override void PerformLayout()
     {
