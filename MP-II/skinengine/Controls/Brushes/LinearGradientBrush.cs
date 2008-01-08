@@ -38,9 +38,11 @@ namespace SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush, IAsset
   {
-    Texture _texture;
+    Texture _gradientTexture;
+    Texture _cacheTexture;
     double _height;
     double _width;
+    Vector3 _position;
     EffectAsset _effect;
     DateTime _lastTimeUsed;
 
@@ -166,16 +168,22 @@ namespace SkinEngine.Controls.Brushes
 
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        if (_texture == null)
+        _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
+        if (_gradientTexture == null)
         {
-          _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
+          _gradientTexture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.X8R8G8B8, Pool.Managed);
+        }
+        if (_cacheTexture != null)
+        {
+          _cacheTexture.Dispose();
+          _cacheTexture = null;
         }
         _refresh = true;
       }
     }
     void CreateGradient()
     {
-      int[,] buffer = (int[,])_texture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
+      int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
       float width = 256.0f;
       for (int i = 0; i < GradientStops.Count - 1; ++i)
       {
@@ -210,7 +218,7 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
-      _texture.UnlockRectangle(0);
+      _gradientTexture.UnlockRectangle(0);
       //TextureLoader.Save(@"c:\1\gradient.png",ImageFileFormat.Png,_texture);
     }
 
@@ -230,7 +238,7 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      if (_texture == null)
+      if (_gradientTexture == null)
       {
         return;
       }
@@ -259,32 +267,125 @@ namespace SkinEngine.Controls.Brushes
         {
           SetColor(vertexBuffer);
         }
+        if (_cacheTexture != null)
+        {
+          _cacheTexture.Dispose();
+          _cacheTexture = null;
+        }
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
-        if (IsOpacityBrush)
+        if (Freezable)
         {
-          _effect = ContentManager.GetEffect("linearopacitygradient");
+          if (_cacheTexture == null)
+          {
+            Trace.WriteLine("LinearGradientBrush:Create cached texture");
+            float w = (float)_width;
+            float h = (float)_height;
+            float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
+            float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+
+            bool copy = true;
+            if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
+            {
+              copy = false;
+              w /= 2;
+              h /= 2;
+            }
+            ExtendedMatrix m = new ExtendedMatrix();
+            m.Matrix *= SkinContext.FinalMatrix.Matrix;
+            //next put the control at position (0,0,0)
+            //and scale it correctly since the backbuffer now has the dimensions of the control
+            //instead of the skin width/height dimensions
+            m.Matrix *= Matrix.Translation(new Vector3(-(float)_position.X, -(float)_position.Y, 0));
+            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) / cx) / w), (float)((((float)SkinContext.Height / cy)) / h), 1);
+
+            SkinContext.AddTransform(m);
+
+            GraphicsDevice.Device.EndScene();
+            _cacheTexture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            //get the current backbuffer
+            using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
+            {
+              //get the surface of our opacity texture
+              using (Surface cacheSurface = _cacheTexture.GetSurfaceLevel(0))
+              {
+                if (copy)
+                {
+                  //copy the correct rectangle from the backbuffer in the opacitytexture
+                  GraphicsDevice.Device.StretchRectangle(backBuffer,
+                                                         new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                                                         cacheSurface,
+                                                         new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
+                                                         TextureFilter.None);
+
+                }
+                //change the rendertarget to the opacitytexture
+                GraphicsDevice.Device.SetRenderTarget(0, cacheSurface);
+
+                //render the control (will be rendered into the opacitytexture)
+                GraphicsDevice.Device.BeginScene();
+                GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+                GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+
+                _effect = ContentManager.GetEffect("lineargradient");
+
+                _effect.Parameters["g_opacity"] = (float)Opacity;
+                _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
+                _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+                Matrix mrel = Matrix.Identity;
+                RelativeTransform.GetTransform(out mrel);
+                mrel = Matrix.Invert(mrel);
+                _effect.Parameters["RelativeTransform"] = mrel;
+
+                _effect.StartRender(_gradientTexture);
+
+                GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0);
+                GraphicsDevice.Device.DrawPrimitives(primitiveType, 0, primitiveCount);
+
+                _effect.EndRender();
+
+                GraphicsDevice.Device.EndScene();
+                SkinContext.RemoveTransform();
+
+                //restore the backbuffer
+                GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
+              }
+              _effect = null;
+
+              //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
+            }
+            GraphicsDevice.Device.BeginScene();
+          }
+          GraphicsDevice.Device.SetTexture(0, _cacheTexture);
+          _lastTimeUsed = SkinContext.Now;
         }
         else
         {
-          _effect = ContentManager.GetEffect("lineargradient");
-        }
-        //_effect.Parameters["g_offset"] = _offsets;
-        //_effect.Parameters["g_color"] = _colors;
-        //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
-        _effect.Parameters["g_opacity"] = (float)Opacity;
-        _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-        _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
-        Matrix m = Matrix.Identity;
-        RelativeTransform.GetTransform(out m);
-        m = Matrix.Invert(m);
-        _effect.Parameters["RelativeTransform"] = m;
+          if (IsOpacityBrush)
+          {
+            _effect = ContentManager.GetEffect("linearopacitygradient");
+          }
+          else
+          {
+            _effect = ContentManager.GetEffect("lineargradient");
+          }
+          //_effect.Parameters["g_offset"] = _offsets;
+          //_effect.Parameters["g_color"] = _colors;
+          //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
+          _effect.Parameters["g_opacity"] = (float)Opacity;
+          _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
+          _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+          Matrix m = Matrix.Identity;
+          RelativeTransform.GetTransform(out m);
+          m = Matrix.Invert(m);
+          _effect.Parameters["RelativeTransform"] = m;
 
-        _effect.StartRender(_texture);
-        _lastTimeUsed = SkinContext.Now;
+          _effect.StartRender(_gradientTexture);
+          _lastTimeUsed = SkinContext.Now;
+        }
       }
       else
       {
@@ -337,7 +438,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _effect = ContentManager.GetEffect("lineargradient");
         }
-        _effect.Parameters["g_alphatex"] = _texture;
+        _effect.Parameters["g_alphatex"] = _gradientTexture;
         _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
         _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
         Matrix m = Matrix.Identity;
@@ -377,7 +478,7 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return (_texture != null);
+        return (_gradientTexture != null || _cacheTexture != null);
       }
     }
 
@@ -410,10 +511,15 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public void Free()
     {
-      if (_texture != null)
+      if (_gradientTexture != null)
       {
-        _texture.Dispose();
-        _texture = null;
+        _gradientTexture.Dispose();
+        _gradientTexture = null;
+      }
+      if (_cacheTexture != null)
+      {
+        _cacheTexture.Dispose();
+        _cacheTexture = null;
       }
     }
 
@@ -423,7 +529,7 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return _texture;
+        return _gradientTexture;
       }
     }
   }
