@@ -87,7 +87,7 @@ namespace SkinEngine.Controls.Brushes
       _gradientStopsProperty = new Property(new GradientStopCollection(this));
       _colorInterpolationModeProperty = new Property(ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new Property(GradientSpreadMethod.Pad);
-      _mappingModeProperty = new Property(BrushMappingMode.Absolute);
+      _mappingModeProperty = new Property(BrushMappingMode.RelativeToBoundingBox);
 
       _gradientStopsProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _colorInterpolationModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));

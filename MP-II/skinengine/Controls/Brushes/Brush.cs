@@ -55,6 +55,7 @@ namespace SkinEngine.Controls.Brushes
     Property _keyProperty;
     Property _freezableProperty;
     bool _isOpacity;
+    protected System.Drawing.RectangleF _bounds;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
@@ -83,6 +84,7 @@ namespace SkinEngine.Controls.Brushes
       _transformProperty = new Property(new TransformGroup());
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _freezableProperty = new Property(false);
+      _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
     }
 
     public virtual object Clone()
@@ -301,6 +303,23 @@ namespace SkinEngine.Controls.Brushes
         verts[i].Tu2 = u;
         verts[i].Tv2 = v;
       }
+    }
+
+    protected void UpdateBounds(ref PositionColored2Textured[] verts)
+    {
+      float minx = float.MaxValue;
+      float miny = float.MaxValue;
+      float maxx = 0;
+      float maxy = 0;
+      for (int i = 0; i < verts.Length; ++i)
+      {
+        if (verts[i].X < minx) minx = verts[i].X;
+        if (verts[i].Y < miny) miny = verts[i].Y;
+
+        if (verts[i].X > maxx) maxx = verts[i].X;
+        if (verts[i].Y > maxy) maxy = verts[i].Y;
+      }
+      _bounds = new System.Drawing.RectangleF(minx, miny, maxx - minx, maxy - miny);
     }
 
     /// <summary>

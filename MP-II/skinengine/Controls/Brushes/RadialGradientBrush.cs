@@ -251,6 +251,7 @@ namespace SkinEngine.Controls.Brushes
       _verts = verts;
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
+        UpdateBounds(ref verts);
         if (!IsOpacityBrush)
           base.SetupBrush(element, ref verts);
 
@@ -369,6 +370,21 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
+      float[] g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+      float[] g_center = new float[2] { Center.X, Center.Y };
+      float[] g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
+      if (MappingMode == BrushMappingMode.Absolute)
+      {
+        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_center[0] = (float)((Center.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_center[1] = (float)((Center.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_radius[0] = (float)((RadiusX - (_bounds.X - _position.X)) / _bounds.Width);
+        g_radius[1] = (float)((RadiusY - (_bounds.Y - _position.Y)) / _bounds.Height);
+      }
+
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
@@ -427,9 +443,9 @@ namespace SkinEngine.Controls.Brushes
 
                 _effect = ContentManager.GetEffect("radialgradient");
 
-                _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-                _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-                _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+                _effect.Parameters["g_focus"] = g_focus;
+                _effect.Parameters["g_center"] = g_center;
+                _effect.Parameters["g_radius"] = g_radius;
                 _effect.Parameters["g_opacity"] = (float)Opacity;
                 Matrix mrel = Matrix.Identity;
                 RelativeTransform.GetTransform(out mrel);
@@ -462,9 +478,9 @@ namespace SkinEngine.Controls.Brushes
         {
           _effect = ContentManager.GetEffect("radialgradient");
 
-          _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-          _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-          _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+          _effect.Parameters["g_focus"] = g_focus;
+          _effect.Parameters["g_center"] = g_center;
+          _effect.Parameters["g_radius"] = g_radius;
           _effect.Parameters["g_opacity"] = (float)Opacity;
           Matrix m = Matrix.Identity;
           RelativeTransform.GetTransform(out m);
@@ -519,6 +535,21 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
+      float[] g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+      float[] g_center = new float[2] { Center.X, Center.Y };
+      float[] g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
+
+      if (MappingMode == BrushMappingMode.Absolute)
+      {
+        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_center[0] = (float)((Center.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_center[1] = (float)((Center.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_radius[0] = (float)((RadiusX - (_bounds.X - _position.X)) / _bounds.Width);
+        g_radius[1] = (float)((RadiusY - (_bounds.Y - _position.Y)) / _bounds.Height);
+      }
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
@@ -531,9 +562,9 @@ namespace SkinEngine.Controls.Brushes
           _effect = ContentManager.GetEffect("radialgradient");
         }
         _effect.Parameters["g_alphatex"] = _gradientTexture;
-        _effect.Parameters["g_focus"] = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-        _effect.Parameters["g_center"] = new float[2] { Center.X, Center.Y };
-        _effect.Parameters["g_radius"] = new float[2] { (float)RadiusX, (float)RadiusY };
+        _effect.Parameters["g_focus"] = g_focus;
+        _effect.Parameters["g_center"] = g_center;
+        _effect.Parameters["g_radius"] = g_radius;
         Matrix m = Matrix.Identity;
         RelativeTransform.GetTransform(out m);
         m = Matrix.Invert(m);

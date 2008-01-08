@@ -163,6 +163,7 @@ namespace SkinEngine.Controls.Brushes
       _verts = verts;
       // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
+        UpdateBounds(ref verts);
         if (!IsOpacityBrush)
           base.SetupBrush(element, ref verts);
 
@@ -274,6 +275,16 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
+      float[] g_startpoint = new float[2] { StartPoint.X, StartPoint.Y };
+      float[] g_endpoint = new float[2] { EndPoint.X, EndPoint.Y };
+      if (MappingMode == BrushMappingMode.Absolute)
+      {
+        g_startpoint[0] = (float)((StartPoint.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_startpoint[1] = (float)((StartPoint.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_endpoint[0] = (float)((EndPoint.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_endpoint[1] = (float)((EndPoint.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+      }
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
@@ -333,8 +344,8 @@ namespace SkinEngine.Controls.Brushes
                 _effect = ContentManager.GetEffect("lineargradient");
 
                 _effect.Parameters["g_opacity"] = (float)Opacity;
-                _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-                _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+                _effect.Parameters["g_StartPoint"] = g_startpoint;
+                _effect.Parameters["g_EndPoint"] = g_endpoint;
                 Matrix mrel = Matrix.Identity;
                 RelativeTransform.GetTransform(out mrel);
                 mrel = Matrix.Invert(mrel);
@@ -372,12 +383,9 @@ namespace SkinEngine.Controls.Brushes
           {
             _effect = ContentManager.GetEffect("lineargradient");
           }
-          //_effect.Parameters["g_offset"] = _offsets;
-          //_effect.Parameters["g_color"] = _colors;
-          //_effect.Parameters["g_stops"] = (int)GradientStops.Count;
           _effect.Parameters["g_opacity"] = (float)Opacity;
-          _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-          _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+          _effect.Parameters["g_StartPoint"] = g_startpoint;
+          _effect.Parameters["g_EndPoint"] = g_endpoint;
           Matrix m = Matrix.Identity;
           RelativeTransform.GetTransform(out m);
           m = Matrix.Invert(m);
@@ -427,6 +435,17 @@ namespace SkinEngine.Controls.Brushes
         }
       }
 
+      float[] g_startpoint = new float[2] { StartPoint.X, StartPoint.Y };
+      float[] g_endpoint = new float[2] { EndPoint.X, EndPoint.Y };
+      if (MappingMode == BrushMappingMode.Absolute)
+      {
+        g_startpoint[0] = (float)((StartPoint.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_startpoint[1] = (float)((StartPoint.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+
+        g_endpoint[0] = (float)((EndPoint.X - (_bounds.X - _position.X)) / _bounds.Width);
+        g_endpoint[1] = (float)((EndPoint.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+      }
+
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
@@ -439,8 +458,8 @@ namespace SkinEngine.Controls.Brushes
           _effect = ContentManager.GetEffect("lineargradient");
         }
         _effect.Parameters["g_alphatex"] = _gradientTexture;
-        _effect.Parameters["g_StartPoint"] = new float[2] { StartPoint.X, StartPoint.Y };
-        _effect.Parameters["g_EndPoint"] = new float[2] { EndPoint.X, EndPoint.Y };
+        _effect.Parameters["g_StartPoint"] = g_startpoint;
+        _effect.Parameters["g_EndPoint"] = g_endpoint;
         Matrix m = Matrix.Identity;
         RelativeTransform.GetTransform(out m);
         m = Matrix.Invert(m);
