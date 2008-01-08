@@ -72,6 +72,7 @@ namespace SkinEngine.Controls.Visuals
     Property _opacityProperty;
     Property _freezableProperty;
     protected Size _desiredSize;
+    protected Size _transformedSize;
     protected Size _availableSize;
     protected System.Drawing.Rectangle _finalRect;
     bool _isArrangeValid;
@@ -157,7 +158,7 @@ namespace SkinEngine.Controls.Visuals
       _hasFocusProperty = new Property(false);
       _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
       _positionProperty = new Property(new Vector3(0, 0, 1));
-      _dockProperty = new Property(Dock.Center);
+      _dockProperty = new Property(Dock.Left);
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
@@ -1059,6 +1060,18 @@ namespace SkinEngine.Controls.Visuals
       get
       {
         return _desiredSize;
+      }
+    }
+
+    /// <summary>
+    /// Gets the size after aplying the transformlayout.
+    /// </summary>
+    /// <value>size after aplying the tranfsormlayout.</value>
+    public Size TransformedSize
+    {
+      get
+      {
+        return _transformedSize;
       }
     }
     /// <summary>

@@ -291,8 +291,8 @@ namespace SkinEngine.Controls.Brushes
             if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
             {
               copy = false;
-              w /= 2;
-              h /= 2;
+             // w /= 2;
+              // h /= 2;
             }
             ExtendedMatrix m = new ExtendedMatrix();
             m.Matrix *= SkinContext.FinalMatrix.Matrix;
@@ -300,7 +300,7 @@ namespace SkinEngine.Controls.Brushes
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
             m.Matrix *= Matrix.Translation(new Vector3(-(float)_position.X, -(float)_position.Y, 0));
-            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) / cx) / w), (float)((((float)SkinContext.Height / cy)) / h), 1);
+            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) * cx) / w), (float)((((float)SkinContext.Height * cy)) / h), 1);
 
             SkinContext.AddTransform(m);
 

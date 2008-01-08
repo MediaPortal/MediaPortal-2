@@ -132,25 +132,25 @@ namespace SkinEngine.Controls.Panels
         if (Orientation == Orientation.Vertical)
         {
           child.Measure(new Size(childSize.Width, 0));
-          childSize.Height -= child.DesiredSize.Height;
-          if (totalHeight + child.DesiredSize.Height > availableSize.Height)
+          childSize.Height -= child.TransformedSize.Height;
+          if (totalHeight + child.TransformedSize.Height > availableSize.Height)
             break;
-          totalHeight += child.DesiredSize.Height;
-          child.Measure(new Size(childSize.Width, child.DesiredSize.Height));
-          if (child.DesiredSize.Width > totalWidth)
-            totalWidth = child.DesiredSize.Width;
+          totalHeight += child.TransformedSize.Height;
+          child.Measure(new Size(childSize.Width, child.TransformedSize.Height));
+          if (child.TransformedSize.Width > totalWidth)
+            totalWidth = child.TransformedSize.Width;
         }
         else
         {
           child.Measure(new Size(0, childSize.Height));
-          childSize.Width -= child.DesiredSize.Width;
-          if (totalWidth + child.DesiredSize.Width > availableSize.Width)
+          childSize.Width -= child.TransformedSize.Width;
+          if (totalWidth + child.TransformedSize.Width > availableSize.Width)
             break;
-          totalWidth += child.DesiredSize.Width;
+          totalWidth += child.TransformedSize.Width;
 
-          child.Measure(new Size(child.DesiredSize.Width, childSize.Height));
-          if (child.DesiredSize.Height > totalHeight)
-            totalHeight = child.DesiredSize.Height;
+          child.Measure(new Size(child.TransformedSize.Width, childSize.Height));
+          if (child.TransformedSize.Height > totalHeight)
+            totalHeight = child.TransformedSize.Height;
         }
         index++;
         _controlCount++;
@@ -169,8 +169,29 @@ namespace SkinEngine.Controls.Panels
       if (Width > 0) totalWidth = (float)Width;
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+
+      if (LayoutTransform != null)
+      {
+        Microsoft.DirectX.Matrix mNew;
+        LayoutTransform.GetTransform(out mNew);
+        mNew.M41 = 0;
+        mNew.M42 = 0;
+        float w = _desiredSize.Width;
+        float h = _desiredSize.Height;
+        float w1 = w * mNew.M11 + h * mNew.M21;
+        float h1 = w * mNew.M12 + h * mNew.M22;
+        _transformedSize = new Size((int)w1, (int)h1);
+
+        _transformedSize.Width += (int)(Margin.X + Margin.W);
+        _transformedSize.Height += (int)(Margin.Y + Margin.Z);
+      }
+      else
+      {
+        _desiredSize.Width += (int)(Margin.X + Margin.W);
+        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+        _transformedSize = _desiredSize;
+      }
+
       base.Measure(availableSize);
     }
 
@@ -211,15 +232,15 @@ namespace SkinEngine.Controls.Panels
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += (int)((layoutRect.Width - child.DesiredSize.Width) / 2);
+                location.X += (int)((layoutRect.Width - child.TransformedSize.Width) / 2);
               }
               else if (AlignmentX == AlignmentX.Right)
               {
-                location.X = layoutRect.Right - child.DesiredSize.Width;
+                location.X = layoutRect.Right - child.TransformedSize.Width;
               }
 
               child.Arrange(new Rectangle(location, size));
-              totalHeight += child.DesiredSize.Height;
+              totalHeight += child.TransformedSize.Height;
               index++;
               if (index == _endIndex) break;
             }
@@ -243,16 +264,16 @@ namespace SkinEngine.Controls.Panels
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (int)((layoutRect.Height - child.DesiredSize.Height) / 2);
+                location.Y += (int)((layoutRect.Height - child.TransformedSize.Height) / 2);
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += (int)(layoutRect.Height - child.DesiredSize.Height);
+                location.Y += (int)(layoutRect.Height - child.TransformedSize.Height);
               }
 
               //ArrangeChild(child, ref location);
               child.Arrange(new Rectangle(location, size));
-              totalWidth += child.DesiredSize.Width;
+              totalWidth += child.TransformedSize.Width;
               index++;
               if (index == _endIndex) break;
             }

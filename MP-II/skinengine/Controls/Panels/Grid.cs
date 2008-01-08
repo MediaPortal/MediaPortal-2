@@ -215,8 +215,29 @@ namespace SkinEngine.Controls.Panels
 
       if (Width > 0) _desiredSize.Width = (int)Width;
       if (Height > 0) _desiredSize.Height = (int)Height;
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+
+      if (LayoutTransform != null)
+      {
+        Microsoft.DirectX.Matrix mNew;
+        LayoutTransform.GetTransform(out mNew);
+        mNew.M41 = 0;
+        mNew.M42 = 0;
+        float width = _desiredSize.Width;
+        float height = _desiredSize.Height;
+        float w1 = width * mNew.M11 + height * mNew.M21;
+        float h1 = width * mNew.M12 + height * mNew.M22;
+        _transformedSize = new Size((int)w1, (int)h1);
+
+        _transformedSize.Width += (int)(Margin.X + Margin.W);
+        _transformedSize.Height += (int)(Margin.Y + Margin.Z);
+      }
+      else
+      {
+        _desiredSize.Width += (int)(Margin.X + Margin.W);
+        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+        _transformedSize = _desiredSize;
+      }
+
       base.Measure(availableSize);
     }
 
