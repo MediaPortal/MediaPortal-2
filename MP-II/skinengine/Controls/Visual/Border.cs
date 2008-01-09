@@ -39,18 +39,12 @@ using Matrix = Microsoft.DirectX.Matrix;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Border : FrameworkElement, IAsset
+  public class Border : Shape
   {
     Property _backgroundProperty;
     Property _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
-    VertexBuffer _vertexBufferBackground;
-    int _verticesCountBackground;
-    VertexBuffer _vertexBufferBorder;
-    int _verticesCountBorder;
-    DateTime _lastTimeUsed;
-    bool _performLayout;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Border"/> class.
@@ -226,154 +220,129 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if ((BorderBrush != null && _vertexBufferBorder == null) ||
-           (Background != null && _vertexBufferBackground == null) || _performLayout)
+      if ((Background != null && _vertexBufferFill == null) ||
+           (BorderBrush != null && _vertexBufferBorder == null) || _performLayout)
       {
         PerformLayout();
-      }
-
-      if (BorderBrush != null && BorderThickness > 0)
-      {
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        BorderBrush.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleStrip);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
-        BorderBrush.EndRender();
+        _performLayout = false;
       }
 
       if (Background != null)
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Background.BeginRender(_vertexBufferBackground, _verticesCountBackground, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBackground);
+        Background.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Background.EndRender();
       }
-      base.DoRender();
+      if (BorderBrush != null && BorderThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        BorderBrush.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+        BorderBrush.EndRender();
+      }
+
       _lastTimeUsed = SkinContext.Now;
     }
-
 
     /// <summary>
     /// Performs the layout.
     /// </summary>
-    public void PerformLayout()
+    protected override void PerformLayout()
     {
       Trace.WriteLine("Border.PerformLayout()");
-      _performLayout = false;
       Free();
-      double w = Width; if (w <= 0) w = ActualWidth;
-      double h = Height; if (h <= 0) h = ActualHeight;
-      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
-      GraphicsPath path;
-      PointF[] vertices;
-      PositionColored2Textured[] verts;
+      double w = ActualWidth;
+      double h = ActualHeight;
+      float centerX, centerY;
+      SizeF rectSize = new SizeF((float)w, (float)h);
 
-      //background brush
-      if (BorderBrush == null || BorderThickness <= 0)
-      {
-        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = w;
-        ActualHeight = h;
-      }
-      else
-      {
-        ActualPosition = new Vector3((float)(ActualPosition.X + BorderThickness), (float)(ActualPosition.Y + BorderThickness), 1);
-        ActualWidth = w - 2 * +BorderThickness;
-        ActualHeight = h - 2 * +BorderThickness;
-      }
+      _finalLayoutTransform.InvertSize(ref rectSize);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+
+      PositionColored2Textured[] verts;
+      PointF[] vertices;
+      GraphicsPath path;
       if (Background != null)
       {
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
-        vertices = ConvertPathToTriangleFan(path, (int)+(ActualPosition.X + ActualWidth / 2), (int)(ActualPosition.Y + ActualHeight / 2));
-
-        _vertexBufferBackground = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])_vertexBufferBackground.Lock(0, 0);
-        unchecked
+        using (path = GetRoundedRect(rect, (float)CornerRadius))
         {
-          for (int i = 0; i < vertices.Length; ++i)
+          CalcCentroid(path, out centerX, out centerY);
+          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
+
+          _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+          verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
+          unchecked
           {
-            verts[i].X = vertices[i].X;
-            verts[i].Y = vertices[i].Y;
-            verts[i].Z = 1.0f;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+              verts[i].X = vertices[i].X;
+              verts[i].Y = vertices[i].Y;
+              verts[i].Z = 1.0f;
+            }
           }
+          Background.SetupBrush(this, ref verts);
+          _vertexBufferFill.Unlock();
+          _verticesCountFill = (verts.Length - 2);
         }
-        Background.SetupBrush(this, ref verts);
-        _vertexBufferBackground.Unlock();
-        _verticesCountBackground = (verts.Length - 2);
       }
       //border brush
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (BorderBrush != null && BorderThickness > 0)
       {
-        ActualPosition = new Vector3(ActualPosition.X, ActualPosition.Y, 1);
-        ActualWidth = w;
-        ActualHeight = h;
-        float centerX = (float)(ActualPosition.X + ActualWidth / 2);
-        float centerY = (float)(ActualPosition.Y + ActualHeight / 2);
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)ActualWidth, (float)ActualHeight), (float)CornerRadius);
-        vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)BorderThickness);
-
-        _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-        unchecked
+        using (path = GetRoundedRect(rect, (float)CornerRadius))
         {
-          for (int i = 0; i < vertices.Length; ++i)
+          CalcCentroid(path, out centerX, out centerY);
+          vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)BorderThickness);
+
+          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
+          unchecked
           {
-            verts[i].X = vertices[i].X;
-            verts[i].Y = vertices[i].Y;
-            verts[i].Z = 1.0f;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+              verts[i].X = vertices[i].X;
+              verts[i].Y = vertices[i].Y;
+              verts[i].Z = 1.0f;
+            }
           }
+          BorderBrush.SetupBrush(this, ref verts);
+          _vertexBufferBorder.Unlock();
+          _verticesCountBorder = (verts.Length / 3);
         }
-        BorderBrush.SetupBrush(this, ref verts);
-        _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length - 2);
       }
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       ActualWidth = w;
       ActualHeight = h;
     }
 
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
-    public override void Free()
-    {
-      if (_vertexBufferBackground != null)
-      {
-        _vertexBufferBackground.Dispose();
-        _vertexBufferBackground = null;
-      }
-      if (_vertexBufferBorder != null)
-      {
-        _vertexBufferBorder.Dispose();
-        _vertexBufferBorder = null;
-      }
-      base.Free();
-    }
+
 
     #region Get the desired Rounded Rectangle path.
-    private GraphicsPath GetRoundedRect(RectangleF baseRect, float radius)
+    private GraphicsPath GetRoundedRect(RectangleF baseRect, float CornerRadius)
     {
       // if corner radius is less than or equal to zero, 
 
       // return the original rectangle 
 
-      if (radius <= 0.0F)
+      if (CornerRadius <= 0.0f && CornerRadius <= 0.0f)
       {
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
         mPath.CloseFigure();
+        System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+        m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+        m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        mPath.Transform(m);
+        mPath.Flatten();
         return mPath;
       }
 
@@ -383,19 +352,20 @@ namespace SkinEngine.Controls.Visuals
 
       // then return a capsule instead of a lozenge 
 
-      if (radius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
+      if (CornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
         return GetCapsule(baseRect);
 
       // create the arc for the rectangle sides and declare 
 
       // a graphics path object for the drawing 
 
-      float diameter = radius * 2.0F;
+      float diameter = CornerRadius * 2.0F;
       SizeF sizeF = new SizeF(diameter, diameter);
       RectangleF arc = new RectangleF(baseRect.Location, sizeF);
       GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
 
       // top left arc 
+
 
       path.AddArc(arc, 180, 90);
 
@@ -415,6 +385,12 @@ namespace SkinEngine.Controls.Visuals
       path.AddArc(arc, 90, 90);
 
       path.CloseFigure();
+      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      path.Transform(mtx);
+
       path.Flatten();
       return path;
     }
@@ -465,130 +441,15 @@ namespace SkinEngine.Controls.Visuals
       {
         path.CloseFigure();
       }
+      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      path.Transform(mtx);
       return path;
     }
-    #endregion
-
-    /// <summary>
-    /// Converts the graphicspath to an array of vertices using trianglefan.
-    /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="cx">The cx.</param>
-    /// <param name="cy">The cy.</param>
-    /// <returns></returns>
-    PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
-    {
-      PointF[] points = path.PathPoints;
-      int verticeCount = points.Length + 2;
-      PointF[] vertices = new PointF[verticeCount];
-      vertices[0] = new PointF(cx, cy);
-      vertices[1] = points[0];
-      vertices[2] = points[1];
-      for (int i = 2; i < points.Length; ++i)
-      {
-        vertices[i + 1] = points[i];
-      }
-      vertices[verticeCount - 1] = points[0];
-      return vertices;
-    }
-
-    /// <summary>
-    /// Converts the graphics path to an array of vertices using trianglestrip.
-    /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="cx">The cx.</param>
-    /// <param name="cy">The cy.</param>
-    /// <param name="thickNess">The thick ness.</param>
-    /// <returns></returns>
-    PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
-    {
-      PointF[] points = path.PathPoints;
-      int verticeCount = points.Length * 2 + 2;
-      PointF[] vertices = new PointF[verticeCount];
-      for (int i = 0; i < points.Length; ++i)
-      {
-        float diffx = thickNess;
-        float diffy = thickNess;
-        if (points[i].X > cx) diffx = -thickNess;
-        if (points[i].Y > cy) diffy = -thickNess;
-        vertices[i * 2] = points[i];
-        vertices[i * 2 + 1] = new PointF(points[i].X + diffx, points[i].Y + diffy);
-      }
-      vertices[verticeCount - 2] = points[0];
-      vertices[verticeCount - 1] = new PointF(points[0].X + thickNess, points[0].Y + thickNess);
-      return vertices;
-    }
-
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(System.Drawing.RectangleF finalRect)
-    {
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-      _performLayout = true;
-      base.Arrange(layoutRect);
-    }
-
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(System.Drawing.SizeF availableSize)
-    {
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
-      if (Width <= 0)
-        _desiredSize.Width = ((float)availableSize.Width) - (float)(Margin.X + Margin.W);
-      if (Height <= 0)
-        _desiredSize.Height = ((float)availableSize.Height) - (float)(Margin.Y + Margin.Z);
-
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
-      _originalSize = _desiredSize;
-
-
-      base.Measure(availableSize);
-    }
-
-
-    #region IAsset Members
-
-    public override bool IsAllocated
-    {
-      get
-      {
-        return (_vertexBufferBackground != null || _vertexBufferBorder != null || base.IsAllocated);
-      }
-    }
-
-    public override bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-        {
-          return false;
-        }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-        {
-          return true;
-        }
-
-        return false;
-      }
-    }
-
 
     #endregion
+
   }
 }

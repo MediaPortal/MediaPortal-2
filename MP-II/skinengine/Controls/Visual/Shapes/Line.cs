@@ -226,24 +226,26 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetLine(rect);
-        CalcCentroid(path, out centerX, out centerY);
-        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
-
-        _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-        unchecked
+        using (path = GetLine(rect))
         {
-          for (int i = 0; i < vertices.Length; ++i)
+          CalcCentroid(path, out centerX, out centerY);
+          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
+
+          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
+          unchecked
           {
-            verts[i].X = vertices[i].X;
-            verts[i].Y = vertices[i].Y;
-            verts[i].Z = 1.0f;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+              verts[i].X = vertices[i].X;
+              verts[i].Y = vertices[i].Y;
+              verts[i].Z = 1.0f;
+            }
           }
+          Stroke.SetupBrush(this, ref verts);
+          _vertexBufferBorder.Unlock();
+          _verticesCountBorder = (verts.Length / 3);
         }
-        Stroke.SetupBrush(this, ref verts);
-        _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length / 3);
       }
 
     }

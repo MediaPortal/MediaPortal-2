@@ -409,28 +409,6 @@ namespace SkinEngine.Controls.Visuals
     {
       result = left.X * right.Y - left.Y * right.X;
     }
-    protected void CalcCentroid(PointF[] points, out float cx, out float cy)
-    {
-      Vector2 centroid = new Vector2();
-      double temp;
-      double area = 0;
-      PointF v1 = (PointF)points[points.Length - 1];
-      PointF v2;
-      for (int index = 0; index < points.Length; ++index, v1 = v2)
-      {
-        v2 = (PointF)points[index];
-        ZCross(ref v1, ref v2, out temp);
-        area += temp;
-        centroid.X += (float)((v1.X + v2.X) * temp);
-        centroid.Y += (float)((v1.Y + v2.Y) * temp);
-      }
-      temp = 1 / (Math.Abs(area) * 3);
-      centroid.X *= (float)temp;
-      centroid.Y *= (float)temp;
-
-      cx = (float)(Math.Abs(centroid.X));
-      cy = (float)(Math.Abs(centroid.Y));
-    }
     protected void CalcCentroid(GraphicsPath path, out float cx, out float cy)
     {
       Vector2 centroid = new Vector2();
