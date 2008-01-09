@@ -315,7 +315,15 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
+      
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       Template.Measure(_desiredSize);
 
       if (Width <= 0)
@@ -325,6 +333,10 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Height = Template.DesiredSize.Height;
 
 
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
@@ -349,6 +361,12 @@ namespace SkinEngine.Controls.Visuals
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       if (Template != null)
       {
         Template.Arrange(layoutRect);
@@ -357,6 +375,11 @@ namespace SkinEngine.Controls.Visuals
         ActualHeight = ((FrameworkElement)Template).ActualHeight;
       }
 
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;

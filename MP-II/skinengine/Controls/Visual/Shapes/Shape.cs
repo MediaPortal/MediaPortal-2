@@ -381,7 +381,17 @@ namespace SkinEngine.Controls.Visuals
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       _performLayout = true;
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       base.Arrange(layoutRect);
     }
 
@@ -397,10 +407,20 @@ namespace SkinEngine.Controls.Visuals
       if (Height <= 0)
         _desiredSize.Height = ((float)availableSize.Height) - (float)(Margin.Y + Margin.Z);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
 
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       base.Measure(availableSize);
     }
 
