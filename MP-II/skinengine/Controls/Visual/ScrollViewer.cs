@@ -123,27 +123,10 @@ namespace SkinEngine.Controls.Visuals
       if (Height > 0)
         _desiredSize.Height = (int)Height;
 
-      if (LayoutTransform != null)
-      {
-        Microsoft.DirectX.Matrix mNew;
-        LayoutTransform.GetTransform(out mNew);
-        mNew.M41 = 0;
-        mNew.M42 = 0;
-        float w = _desiredSize.Width;
-        float h = _desiredSize.Height;
-        float w1 = w * mNew.M11 + h * mNew.M21;
-        float h1 = w * mNew.M12 + h * mNew.M22;
-        _transformedSize = new System.Drawing.Size((int)w1, (int)h1);
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _transformedSize = _desiredSize;
 
-        _transformedSize.Width += (int)(Margin.X + Margin.W);
-        _transformedSize.Height += (int)(Margin.Y + Margin.Z);
-      }
-      else
-      {
-        _desiredSize.Width += (int)(Margin.X + Margin.W);
-        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-        _transformedSize = _desiredSize;
-      }
 
 
       _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);

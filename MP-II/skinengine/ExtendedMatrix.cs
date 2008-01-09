@@ -53,11 +53,11 @@ namespace SkinEngine
     public ExtendedMatrix Multiply(ExtendedMatrix matrix)
     {
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix*matrix.Matrix;
-      m.Alpha.X = Alpha.X*matrix.Alpha.X;
-      m.Alpha.Y = Alpha.Y*matrix.Alpha.Y;
-      m.Alpha.Z = Alpha.Z*matrix.Alpha.Z;
-      m.Alpha.W = Alpha.W*matrix.Alpha.W;
+      m.Matrix = Matrix * matrix.Matrix;
+      m.Alpha.X = Alpha.X * matrix.Alpha.X;
+      m.Alpha.Y = Alpha.Y * matrix.Alpha.Y;
+      m.Alpha.Z = Alpha.Z * matrix.Alpha.Z;
+      m.Alpha.W = Alpha.W * matrix.Alpha.W;
       return m;
     }
 
@@ -89,9 +89,9 @@ namespace SkinEngine
       vScale.Z = vCols[2].Length();
 
 
-      vTrans.X = mat.M41/(vScale.X == 0 ? 1 : vScale.X);
-      vTrans.Y = mat.M42/(vScale.Y == 0 ? 1 : vScale.Y);
-      vTrans.Z = mat.M43/(vScale.Z == 0 ? 1 : vScale.Z);
+      vTrans.X = mat.M41 / (vScale.X == 0 ? 1 : vScale.X);
+      vTrans.Y = mat.M42 / (vScale.Y == 0 ? 1 : vScale.Y);
+      vTrans.Z = mat.M43 / (vScale.Z == 0 ? 1 : vScale.Z);
 
       if (vScale.X != 0)
       {
@@ -129,5 +129,66 @@ namespace SkinEngine
       mRot.M43 = 0;
       mRot.M44 = 1;
     }
+
+
+    public void TransformPoint(ref System.Drawing.PointF p)
+    {
+      float w = p.X;
+      float h = p.Y;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      p.X = w1;
+      p.Y = h1;
+    }
+
+    public void TransformSize(ref System.Drawing.Size size)
+    {
+      float w = size.Width;
+      float h = size.Height;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      size.Width = (int)w1;
+      size.Height = (int)h1;
+    }
+
+    public void TransformRect(ref System.Drawing.Rectangle rect)
+    {
+      float w = rect.Width;
+      float h = rect.Height;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      rect.Width = (int)w1;
+      rect.Height = (int)h1;
+
+      w = rect.X;
+      h = rect.Y;
+      w1 = w * Matrix.M11 + h * Matrix.M21;
+      h1 = w * Matrix.M12 + h * Matrix.M22;
+      rect.X = (int)w1;
+      rect.Y = (int)h1;
+    }
+    public void TransformRectLocation(ref System.Drawing.Rectangle rect)
+    {
+      float w = rect.X;
+      float h = rect.Y;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      rect.X = (int)w1;
+      rect.Y = (int)h1;
+    }
+    public float TransformX(float w, float h)
+    {
+      return w * Matrix.M11 + h * Matrix.M21;
+    }
+
+    public float TransformY(float w,float h)
+    {
+      return w * Matrix.M12 + h * Matrix.M22;
+    }
+    public System.Drawing.Drawing2D.Matrix Get2dMatrix()
+    {
+      return new System.Drawing.Drawing2D.Matrix(Matrix.M11, Matrix.M12, Matrix.M21, Matrix.M22, 0, 0);
+    }
+
   } ;
 }

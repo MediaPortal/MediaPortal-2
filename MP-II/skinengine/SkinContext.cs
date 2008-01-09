@@ -46,7 +46,9 @@ namespace SkinEngine
     private static float _skinWidth = 720;
     private static float _skinHeight = 576;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
+    private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
     private static ExtendedMatrix _finalTransform = new ExtendedMatrix();
+    private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
     private static ExtendedMatrix _tempTransform = null;
     private static Form _form;
     private static bool _gradientInUse;
@@ -202,6 +204,58 @@ namespace SkinEngine
     {
       get { return _finalTransform; }
       set { _finalTransform = value; }
+    }
+
+
+    public static void AddLayoutTransform(ExtendedMatrix matrix)
+    {
+      if (_layoutTransforms.Count > 0)
+      {
+        _layoutTransforms.Add(matrix.Multiply(_layoutTransforms[_layoutTransforms.Count - 1]));
+      }
+      else
+      {
+        _layoutTransforms.Add(matrix);
+      }
+      UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
+    }
+
+    /// <summary>
+    /// Removes the top transform from the transform stack.
+    /// </summary>
+    public static void RemoveLayoutTransform()
+    {
+      if (_layoutTransforms.Count > 0)
+      {
+        _layoutTransforms.RemoveAt(_layoutTransforms.Count - 1);
+      }
+      if (_layoutTransforms.Count > 0)
+      {
+        UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
+      }
+      else
+      {
+        UpdateFinalLayoutTransform(new ExtendedMatrix());
+      }
+    }
+
+    /// <summary>
+    /// Sets the final transform.
+    /// </summary>
+    /// <param name="matrix">The matrix.</param>
+    public static void UpdateFinalLayoutTransform(ExtendedMatrix matrix)
+    {
+      _finalLayoutTransform = matrix;
+    }
+
+    /// <summary>
+    /// Gets or sets the final matrix.
+    /// </summary>
+    /// <value>The final matrix.</value>
+    public static ExtendedMatrix FinalLayoutTransform
+    {
+      get { return _finalLayoutTransform; }
+      set { _finalLayoutTransform = value; }
     }
 
     /// <summary>

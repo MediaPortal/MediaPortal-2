@@ -170,27 +170,10 @@ namespace SkinEngine.Controls.Panels
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new Size((int)totalWidth, (int)totalHeight);
 
-      if (LayoutTransform != null)
-      {
-        Microsoft.DirectX.Matrix mNew;
-        LayoutTransform.GetTransform(out mNew);
-        mNew.M41 = 0;
-        mNew.M42 = 0;
-        float w = _desiredSize.Width;
-        float h = _desiredSize.Height;
-        float w1 = w * mNew.M11 + h * mNew.M21;
-        float h1 = w * mNew.M12 + h * mNew.M22;
-        _transformedSize = new Size((int)w1, (int)h1);
+      _desiredSize.Width += (int)(Margin.X + Margin.W);
+      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _transformedSize = _desiredSize;
 
-        _transformedSize.Width += (int)(Margin.X + Margin.W);
-        _transformedSize.Height += (int)(Margin.Y + Margin.Z);
-      }
-      else
-      {
-        _desiredSize.Width += (int)(Margin.X + Margin.W);
-        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-        _transformedSize = _desiredSize;
-      }
 
       base.Measure(availableSize);
     }
@@ -317,30 +300,8 @@ namespace SkinEngine.Controls.Panels
             continue;
           }
 
-          if (element.LayoutTransform != null)
-          {
-            FrameworkElement control = (FrameworkElement)element;
-            ExtendedMatrix m = new ExtendedMatrix();
-            m.Matrix *= SkinContext.FinalMatrix.Matrix;
-            //Microsoft.DirectX.Vector2 center = new Microsoft.DirectX.Vector2((float)(control.ActualPosition.X + control.ActualWidth * 0.5), (float)(control.ActualPosition.Y + control.ActualHeight * 0.5));
-            Microsoft.DirectX.Vector2 center = new Microsoft.DirectX.Vector2((float)(control.ActualPosition.X), (float)(control.ActualPosition.Y));
-            m.Matrix *= Microsoft.DirectX.Matrix.Translation(new Microsoft.DirectX.Vector3(-center.X, -center.Y, 0));
-            Microsoft.DirectX.Matrix mNew;
-            element.LayoutTransform.GetTransform(out mNew);
-            //disable any translations
-            mNew.M41 = 0;
-            mNew.M42 = 0;
-            m.Matrix *= mNew;
-            m.Matrix *= Microsoft.DirectX.Matrix.Translation(new Microsoft.DirectX.Vector3(center.X, center.Y, 0));
-            SkinContext.AddTransform(m);
+          element.Render();
 
-            element.Render();
-            SkinContext.RemoveTransform();
-          }
-          else
-          {
-            element.Render();
-          }
 
           index++;
           if (index >= _endIndex) break;

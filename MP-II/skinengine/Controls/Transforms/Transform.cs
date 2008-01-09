@@ -45,7 +45,13 @@ namespace SkinEngine.Controls.Transforms
       return new Transform(this);
     }
 
-
+    public void GetTransform(out ExtendedMatrix m)
+    {
+      Microsoft.DirectX.Matrix matrix;
+      GetTransform(out matrix);
+      m = new ExtendedMatrix();
+      m.Matrix *= matrix;
+    }
     /// <summary>
     /// Gets the transform.
     /// </summary>

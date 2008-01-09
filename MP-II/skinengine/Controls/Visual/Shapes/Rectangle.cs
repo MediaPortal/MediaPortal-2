@@ -147,12 +147,12 @@ namespace SkinEngine.Controls.Visuals
     {
       Trace.WriteLine("Rectangle.PerformLayout()");
       Free();
-      double w = Width; if (w <= 0) w = ActualWidth;
-      double h = Height; if (h <= 0) h = ActualHeight;
+      double w = ActualWidth;
+      double h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
 
-      float centerX = (float)(ActualPosition.X + ActualWidth / 2);
-      float centerY = (float)(ActualPosition.Y + ActualHeight / 2);
+      float centerX = (float)(ActualPosition.X + w / 2);
+      float centerY = (float)(ActualPosition.Y + h / 2);
       PositionColored2Textured[] verts;
       PointF[] vertices;
       GraphicsPath path;
@@ -162,7 +162,7 @@ namespace SkinEngine.Controls.Visuals
         vertices = ConvertPathToTriangleFan(path, (int)+(centerX), (int)(centerY));
 
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-         verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
+        verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
         unchecked
         {
           for (int i = 0; i < vertices.Length; ++i)
@@ -197,7 +197,7 @@ namespace SkinEngine.Controls.Visuals
         }
         Stroke.SetupBrush(this, ref verts);
         _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length /3);
+        _verticesCountBorder = (verts.Length / 3);
       }
 
       ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
@@ -217,6 +217,7 @@ namespace SkinEngine.Controls.Visuals
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
         mPath.CloseFigure();
+        mPath.Flatten();
         return mPath;
       }
 
@@ -259,6 +260,7 @@ namespace SkinEngine.Controls.Visuals
       path.AddArc(arc, 90, 90);
 
       path.CloseFigure();
+
       path.Flatten();
       return path;
     }
