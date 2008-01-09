@@ -141,6 +141,17 @@ namespace SkinEngine
       p.Y = h1;
     }
 
+    public void TransformPoint(ref System.Drawing.Point p)
+    {
+      float w = p.X;
+      float h = p.Y;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      p.X = (int)w1;
+      p.Y = (int)h1;
+    }
+
+
     public void TransformSize(ref System.Drawing.Size size)
     {
       float w = size.Width;
@@ -173,6 +184,14 @@ namespace SkinEngine
       float fy = 1.0f * Matrix.M12 + 1.0f * Matrix.M22;
       size.Width /= fx;
       size.Height /= fy;
+    }
+
+    public void InvertXY(ref float x, ref float y)
+    {
+      float fx = 1.0f * Matrix.M11 + 1.0f * Matrix.M21;
+      float fy = 1.0f * Matrix.M12 + 1.0f * Matrix.M22;
+      x /= fx;
+      y /= fy;
     }
 
     public void TransformRectLocation(ref System.Drawing.Rectangle rect)

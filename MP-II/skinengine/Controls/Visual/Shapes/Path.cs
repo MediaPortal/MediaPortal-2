@@ -127,25 +127,27 @@ namespace SkinEngine.Controls.Visuals
       PointF[] vertices;
       if (Fill != null)
       {
-        path = GetPath(rect);
-        CalcCentroid(path, out centerX, out centerY);
-        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
-        if (vertices != null)
+        using (path = GetPath(rect, _finalLayoutTransform))
         {
-          _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
-          unchecked
+          CalcCentroid(path, out centerX, out centerY);
+          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
+          if (vertices != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
+            _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+            verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
+            unchecked
             {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
+              for (int i = 0; i < vertices.Length; ++i)
+              {
+                verts[i].X = vertices[i].X;
+                verts[i].Y = vertices[i].Y;
+                verts[i].Z = 1.0f;
+              }
             }
+            Fill.SetupBrush(this, ref verts);
+            _vertexBufferFill.Unlock();
+            _verticesCountFill = (verts.Length - 2);
           }
-          Fill.SetupBrush(this, ref verts);
-          _vertexBufferFill.Unlock();
-          _verticesCountFill = (verts.Length - 2);
         }
 
       }
@@ -153,33 +155,75 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetPath(rect);
-        CalcCentroid(path, out centerX, out centerY);
-        vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
-        if (vertices != null)
+        using (path = path = GetPath(rect, _finalLayoutTransform))
         {
-
-          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-          unchecked
+          CalcCentroid(path, out centerX, out centerY);
+          vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
+          if (vertices != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
+
+            _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+            verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
+            unchecked
             {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
+              for (int i = 0; i < vertices.Length; ++i)
+              {
+                verts[i].X = vertices[i].X;
+                verts[i].Y = vertices[i].Y;
+                verts[i].Z = 1.0f;
+              }
             }
+            Stroke.SetupBrush(this, ref verts);
+            _vertexBufferBorder.Unlock();
+            _verticesCountBorder = (verts.Length / 3);
           }
-          Stroke.SetupBrush(this, ref verts);
-          _vertexBufferBorder.Unlock();
-          _verticesCountBorder = (verts.Length / 3);
         }
       }
 
     }
 
 
-    private GraphicsPath GetPath(RectangleF baseRect)
+    /// <summary>
+    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// </summary>
+    /// <param name="availableSize">The available size that this element can give to child elements.</param>
+    public override void Measure(System.Drawing.Size availableSize)
+    {
+      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null))
+      {
+        RectangleF bounds = p.GetBounds();
+
+        _desiredSize = new System.Drawing.Size((int)bounds.Width, (int)bounds.Height);
+
+        if (bounds.Width <= 0)
+          _desiredSize.Width = ((int)availableSize.Width) - (int)(Margin.X + Margin.W);
+        if (bounds.Height <= 0)
+          _desiredSize.Height = ((int)availableSize.Height) - (int)(Margin.Y + Margin.Z);
+
+        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+        _desiredSize.Width += (int)(Margin.X + Margin.W);
+        _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+
+        base.Measure(availableSize);
+      }
+    }
+    public override void Arrange(System.Drawing.Rectangle finalRect)
+    {
+      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
+      System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (int)(Margin.X);
+      layoutRect.Y += (int)(Margin.Y);
+      layoutRect.Width -= (int)(Margin.X + Margin.W);
+      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
+      _performLayout = true;
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+      base.Arrange(layoutRect);
+    }
+
+    private GraphicsPath GetPath(RectangleF baseRect,ExtendedMatrix finalTransform)
     {
       GraphicsPath mPath = new GraphicsPath();
       PointF lastPoint = new PointF();
@@ -363,7 +407,8 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
       //m.Translate(-rectF.X, -rectF.Y, MatrixOrder.Append);
       //m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (finalTransform != null)
+        m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 

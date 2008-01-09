@@ -56,6 +56,7 @@ namespace SkinEngine.Controls.Brushes
     Property _freezableProperty;
     bool _isOpacity;
     protected System.Drawing.RectangleF _bounds;
+    protected System.Drawing.PointF _orginalPosition;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
@@ -85,6 +86,7 @@ namespace SkinEngine.Controls.Brushes
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _freezableProperty = new Property(false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
+      _orginalPosition = new System.Drawing.PointF(0, 0);
     }
 
     public virtual object Clone()
@@ -305,7 +307,7 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    protected void UpdateBounds(ref PositionColored2Textured[] verts)
+    protected void UpdateBounds(FrameworkElement element,ref PositionColored2Textured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
@@ -319,7 +321,19 @@ namespace SkinEngine.Controls.Brushes
         if (verts[i].X > maxx) maxx = verts[i].X;
         if (verts[i].Y > maxy) maxy = verts[i].Y;
       }
+      if (element.FinalLayoutTransform != null)
+      {
+        element.FinalLayoutTransform.InvertXY(ref minx, ref miny);
+        element.FinalLayoutTransform.InvertXY(ref maxx, ref maxy);
+
+        float x = (float)element.ActualPosition.X;
+        float y = (float)element.ActualPosition.Y;
+        element.FinalLayoutTransform.InvertXY(ref x, ref y);
+        _orginalPosition.X = x;
+        _orginalPosition.Y = y;
+      }
       _bounds = new System.Drawing.RectangleF(minx, miny, maxx - minx, maxy - miny);
+
     }
 
     /// <summary>

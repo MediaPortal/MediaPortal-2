@@ -56,7 +56,6 @@ namespace SkinEngine.Controls.Visuals
     protected int _verticesCountBorder;
     protected DateTime _lastTimeUsed;
     protected bool _performLayout;
-    protected ExtendedMatrix _finalLayoutTransform;
 
     public Shape()
     {

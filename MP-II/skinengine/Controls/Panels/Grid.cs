@@ -263,6 +263,7 @@ namespace SkinEngine.Controls.Panels
 
         child.Arrange(new Rectangle(p, child.DesiredSize));
       }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
       base.Arrange(layoutRect);
     }

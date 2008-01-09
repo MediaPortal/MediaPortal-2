@@ -181,6 +181,7 @@ namespace SkinEngine.Controls.Panels
           offsetLeft += child.DesiredSize.Width;
         }
       }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
       base.Arrange(layoutRect);
     }

@@ -251,7 +251,7 @@ namespace SkinEngine.Controls.Brushes
       _verts = verts;
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        UpdateBounds(ref verts);
+        UpdateBounds(element,ref verts);
         if (!IsOpacityBrush)
           base.SetupBrush(element, ref verts);
 
@@ -375,14 +375,14 @@ namespace SkinEngine.Controls.Brushes
       float[] g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
       if (MappingMode == BrushMappingMode.Absolute)
       {
-        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _position.X)) / _bounds.Width);
-        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
 
-        g_center[0] = (float)((Center.X - (_bounds.X - _position.X)) / _bounds.Width);
-        g_center[1] = (float)((Center.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_center[0] = (float)((Center.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_center[1] = (float)((Center.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
 
-        g_radius[0] = (float)((RadiusX - (_bounds.X - _position.X)) / _bounds.Width);
-        g_radius[1] = (float)((RadiusY - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_radius[0] = (float)((RadiusX - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_radius[1] = (float)((RadiusY - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
       }
 
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
@@ -541,14 +541,14 @@ namespace SkinEngine.Controls.Brushes
 
       if (MappingMode == BrushMappingMode.Absolute)
       {
-        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _position.X)) / _bounds.Width);
-        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_focus[0] = (float)((GradientOrigin.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_focus[1] = (float)((GradientOrigin.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
 
-        g_center[0] = (float)((Center.X - (_bounds.X - _position.X)) / _bounds.Width);
-        g_center[1] = (float)((Center.Y - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_center[0] = (float)((Center.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_center[1] = (float)((Center.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
 
-        g_radius[0] = (float)((RadiusX - (_bounds.X - _position.X)) / _bounds.Width);
-        g_radius[1] = (float)((RadiusY - (_bounds.Y - _position.Y)) / _bounds.Height);
+        g_radius[0] = (float)((RadiusX - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
+        g_radius[1] = (float)((RadiusY - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
       }
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)

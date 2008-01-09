@@ -263,6 +263,7 @@ namespace SkinEngine.Controls.Panels
           }
           break;
       }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
       base.Arrange(layoutRect);
     }

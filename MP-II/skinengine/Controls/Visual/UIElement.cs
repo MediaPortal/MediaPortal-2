@@ -80,6 +80,7 @@ namespace SkinEngine.Controls.Visuals
     List<Timeline> _runningAnimations;
     BindingCollection _bindings;
     bool _isLayoutInvalid = true;
+    protected ExtendedMatrix _finalLayoutTransform;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -214,6 +215,15 @@ namespace SkinEngine.Controls.Visuals
         return _resources;
       }
     }
+
+    public ExtendedMatrix FinalLayoutTransform
+    {
+      get
+      {
+        return _finalLayoutTransform;
+      }
+    }
+
 
 
     /// <summary>
@@ -1118,15 +1128,24 @@ namespace SkinEngine.Controls.Visuals
       if (false == _isLayoutInvalid) return;
       Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
       _isLayoutInvalid = false;
+      ExtendedMatrix m = _finalLayoutTransform;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
         System.Drawing.Size sizeOld = new Size(_desiredSize.Width, _desiredSize.Height);
         System.Drawing.Size availsizeOld = new Size(_availableSize.Width, _availableSize.Height);
+        if (m != null)
+          SkinContext.AddLayoutTransform(m);
         Measure(_availableSize);
+        if (m != null)
+          SkinContext.RemoveLayoutTransform();
         _availableSize = availsizeOld;
         if (_desiredSize == sizeOld)
         {
+          if (m != null)
+            SkinContext.AddLayoutTransform(m);
           Arrange(_finalRect);
+          if (m != null)
+            SkinContext.RemoveLayoutTransform();
           return;
         }
       }
@@ -1149,8 +1168,17 @@ namespace SkinEngine.Controls.Visuals
           int h = (int)element.Height;
           if (w == 0) w = (int)SkinContext.Width;
           if (h == 0) h = (int)SkinContext.Height;
+          if (m != null)
+            SkinContext.AddLayoutTransform(m);
           Measure(new Size(w, h));
+          if (m != null)
+            SkinContext.RemoveLayoutTransform();
+
+          if (m != null)
+            SkinContext.AddLayoutTransform(m);
           Arrange(new System.Drawing.Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
+          if (m != null)
+            SkinContext.RemoveLayoutTransform();
         }
       }
     }
