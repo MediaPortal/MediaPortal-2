@@ -223,7 +223,7 @@ namespace SkinEngine.Controls.Visuals
       base.Arrange(layoutRect);
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect,ExtendedMatrix finalTransform)
+    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform)
     {
       GraphicsPath mPath = new GraphicsPath();
       PointF lastPoint = new PointF();
@@ -252,13 +252,13 @@ namespace SkinEngine.Controls.Visuals
           ++i;
           while (true)
           {
-            if (Data[i] == ' ') i++;
-            if (Data[i] < '0' || Data[i] > '9') break;
-            i--;
+            while (Data[i] == ' ') i++;
+            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
+            if (Data[i] != ',') i--;
             PointF point1 = GetPoint(ref i);
             mPath.AddLine(lastPoint, point1);
+            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
             lastPoint = new PointF(point1.X, point1.Y);
-            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", point1.X, point1.Y, lastPoint.X, lastPoint.Y));
             if (i >= Data.Length) break;
           }
         }
@@ -268,14 +268,14 @@ namespace SkinEngine.Controls.Visuals
           ++i;
           while (true)
           {
-            if (Data[i] == ' ') i++;
-            if (Data[i] < '0' || Data[i] > '9') break;
-            i--;
+            while (Data[i] == ' ') i++;
+            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
+            if (Data[i] != ',') i--;
             PointF point1 = GetPoint(ref i);
-            Trace.WriteLine(String.Format("  l({0},{1})", point1.X, point1.Y));
             point1.X += lastPoint.X;
             point1.Y += lastPoint.Y;
             mPath.AddLine(lastPoint, point1);
+            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
             lastPoint = new PointF(point1.X, point1.Y);
             if (i >= Data.Length) break;
           }
@@ -322,9 +322,9 @@ namespace SkinEngine.Controls.Visuals
           ++i;
           while (true)
           {
-            if (Data[i] == ' ') i++;
-            if (Data[i] < '0' || Data[i] > '9') break;
-            i--;
+            while (Data[i] == ' ') i++;
+            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
+            if (Data[i] != ',') i--;
             PointF controlPoint1 = GetPoint(ref i);
             PointF controlPoint2 = GetPoint(ref i);
             PointF endpoint = GetPoint(ref i);
@@ -340,9 +340,9 @@ namespace SkinEngine.Controls.Visuals
           ++i;
           while (true)
           {
-            if (Data[i] == ' ') i++;
-            if (Data[i] < '0' || Data[i] > '9') break;
-            i--;
+            while (Data[i] == ' ') i++;
+            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
+            if (Data[i] != ',') i--;
             PointF controlPoint1 = GetPoint(ref i);
             PointF controlPoint2 = GetPoint(ref i);
             PointF endpoint = GetPoint(ref i);
@@ -402,17 +402,18 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
-      RectangleF rectF = mPath.GetBounds();
 
+      RectangleF rbounds = mPath.GetBounds();
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      //m.Translate(-rectF.X, -rectF.Y, MatrixOrder.Append);
-      //m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 
       mPath.Flatten();
+      //mPath = new GraphicsPath();
+      // mPath.AddRectangle(rbounds);
+     // mPath.Flatten();
 
       return mPath;
     }
