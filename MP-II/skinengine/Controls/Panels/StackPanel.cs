@@ -116,6 +116,12 @@ namespace SkinEngine.Controls.Panels
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
@@ -175,6 +181,10 @@ namespace SkinEngine.Controls.Panels
       _originalSize = _desiredSize;
 
 
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       base.Measure(availableSize);
     }
 
@@ -194,6 +204,13 @@ namespace SkinEngine.Controls.Panels
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       int index = 0;
       switch (Orientation)
       {
@@ -262,6 +279,10 @@ namespace SkinEngine.Controls.Panels
             }
           }
           break;
+      }
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();

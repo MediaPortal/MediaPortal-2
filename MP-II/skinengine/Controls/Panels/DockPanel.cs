@@ -55,6 +55,12 @@ namespace SkinEngine.Controls.Panels
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       System.Drawing.SizeF size = new SizeF(_desiredSize.Width, _desiredSize.Height);
       foreach (UIElement child in Children)
       {
@@ -83,6 +89,10 @@ namespace SkinEngine.Controls.Panels
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       base.Measure(availableSize);
     }
 
@@ -103,6 +113,12 @@ namespace SkinEngine.Controls.Panels
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       float offsetTop = 0.0f;
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
@@ -180,6 +196,10 @@ namespace SkinEngine.Controls.Panels
           child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetLeft += child.DesiredSize.Width;
         }
+      }
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
