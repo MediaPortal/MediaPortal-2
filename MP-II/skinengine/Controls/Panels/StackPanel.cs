@@ -28,7 +28,7 @@ using System.Drawing;
 using MediaPortal.Core.Properties;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
-using Rectangle = System.Drawing.Rectangle;
+using RectangleF = System.Drawing.RectangleF;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
 
@@ -108,17 +108,17 @@ namespace SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(System.Drawing.Size availableSize)
+    public override void Measure(System.Drawing.SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
-        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
-      Size childSize = new Size(_desiredSize.Width, _desiredSize.Height);
+      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       int index = 0;
       _controlCount = 0;
       foreach (UIElement child in Children)
@@ -131,24 +131,24 @@ namespace SkinEngine.Controls.Panels
         }
         if (Orientation == Orientation.Vertical)
         {
-          child.Measure(new Size(childSize.Width, 0));
+          child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
           if (totalHeight + child.DesiredSize.Height > availableSize.Height)
             break;
           totalHeight += child.DesiredSize.Height;
-          child.Measure(new Size(childSize.Width, child.DesiredSize.Height));
+          child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
           if (child.DesiredSize.Width > totalWidth)
             totalWidth = child.DesiredSize.Width;
         }
         else
         {
-          child.Measure(new Size(0, childSize.Height));
+          child.Measure(new SizeF(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
           if (totalWidth + child.DesiredSize.Width > availableSize.Width)
             break;
           totalWidth += child.DesiredSize.Width;
 
-          child.Measure(new Size(child.DesiredSize.Width, childSize.Height));
+          child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
           if (child.DesiredSize.Height > totalHeight)
             totalHeight = child.DesiredSize.Height;
         }
@@ -168,10 +168,10 @@ namespace SkinEngine.Controls.Panels
       }
       if (Width > 0) totalWidth = (float)Width;
       if (Height > 0) totalHeight = (float)Height;
-      _desiredSize = new Size((int)totalWidth, (int)totalHeight);
+      _desiredSize = new SizeF((float)totalWidth, (float)totalHeight);
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
 
@@ -183,14 +183,14 @@ namespace SkinEngine.Controls.Panels
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(Rectangle finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
-      Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (int)(Margin.X);
-      layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X + Margin.W);
-      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -209,20 +209,20 @@ namespace SkinEngine.Controls.Panels
                 index++;
                 continue;
               }
-              Point location = new Point((int)(this.ActualPosition.X), (int)(this.ActualPosition.Y + totalHeight));
-              Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
+              PointF location = new PointF((float)(this.ActualPosition.X), (float)(this.ActualPosition.Y + totalHeight));
+              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += (int)((layoutRect.Width - child.DesiredSize.Width) / 2);
+                location.X += (float)((layoutRect.Width - child.DesiredSize.Width) / 2);
               }
               else if (AlignmentX == AlignmentX.Right)
               {
                 location.X = layoutRect.Right - child.DesiredSize.Width;
               }
 
-              child.Arrange(new Rectangle(location, size));
+              child.Arrange(new RectangleF(location, size));
               totalHeight += child.DesiredSize.Height;
               index++;
               if (index == _endIndex) break;
@@ -241,21 +241,21 @@ namespace SkinEngine.Controls.Panels
                 index++;
                 continue;
               }
-              Point location = new Point((int)(this.ActualPosition.X + totalWidth), (int)(this.ActualPosition.Y));
-              Size size = new Size(child.DesiredSize.Width, child.DesiredSize.Height);
+              PointF location = new PointF((float)(this.ActualPosition.X + totalWidth), (float)(this.ActualPosition.Y));
+              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (int)((layoutRect.Height - child.DesiredSize.Height) / 2);
+                location.Y += (float)((layoutRect.Height - child.DesiredSize.Height) / 2);
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += (int)(layoutRect.Height - child.DesiredSize.Height);
+                location.Y += (float)(layoutRect.Height - child.DesiredSize.Height);
               }
 
               //ArrangeChild(child, ref location);
-              child.Arrange(new Rectangle(location, size));
+              child.Arrange(new RectangleF(location, size));
               totalWidth += child.DesiredSize.Width;
               index++;
               if (index == _endIndex) break;

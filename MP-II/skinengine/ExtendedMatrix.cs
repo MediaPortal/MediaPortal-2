@@ -152,6 +152,15 @@ namespace SkinEngine
     }
 
 
+    public void TransformSize(ref System.Drawing.SizeF size)
+    {
+      float w = size.Width;
+      float h = size.Height;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      size.Width = (float)w1;
+      size.Height = (float)h1;
+    }
     public void TransformSize(ref System.Drawing.Size size)
     {
       float w = size.Width;

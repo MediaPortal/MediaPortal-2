@@ -740,7 +740,7 @@ namespace SkinEngine.Controls.Panels
     #endregion
 
 
-    protected virtual void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p)
+    protected virtual void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p)
     {
       if (VisualParent == null) return;
 

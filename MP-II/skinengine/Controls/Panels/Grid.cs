@@ -132,13 +132,13 @@ namespace SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(Size availableSize)
+    public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
-        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
       double w = _desiredSize.Width;
       double h = _desiredSize.Height;
@@ -166,7 +166,7 @@ namespace SkinEngine.Controls.Panels
         widthPerCell *= child.ColumnSpan;
         heightPerCell *= child.RowSpan;
 
-        child.Measure(new Size((int)widthPerCell, (int)heightPerCell));
+        child.Measure(new SizeF((float)widthPerCell, (float)heightPerCell));
 
         float cw = child.DesiredSize.Width;
         cw /= ((float)child.ColumnSpan);
@@ -208,16 +208,16 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        child.Measure(new Size((int)(_colWidth[col] * child.ColumnSpan), (int)(_rowHeight[row] * child.RowSpan)));
+        child.Measure(new SizeF((float)(_colWidth[col] * child.ColumnSpan), (float)(_rowHeight[row] * child.RowSpan)));
       }
-      _desiredSize.Width = (int)totalWidth;
-      _desiredSize.Height = (int)totalHeight;
+      _desiredSize.Width = (float)totalWidth;
+      _desiredSize.Height = (float)totalHeight;
 
-      if (Width > 0) _desiredSize.Width = (int)Width;
-      if (Height > 0) _desiredSize.Height = (int)Height;
+      if (Width > 0) _desiredSize.Width = (float)Width;
+      if (Height > 0) _desiredSize.Height = (float)Height;
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
       base.Measure(availableSize);
@@ -228,14 +228,14 @@ namespace SkinEngine.Controls.Panels
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(Rectangle finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
-      Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (int)(Margin.X);
-      layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X + Margin.W);
-      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -251,7 +251,7 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        Point p = new Point((int)(this.ActualPosition.X + _colOffset[col]), (int)(this.ActualPosition.Y + _rowOffset[row]));
+        PointF p = new PointF((float)(this.ActualPosition.X + _colOffset[col]), (float)(this.ActualPosition.Y + _rowOffset[row]));
         if (child.Name == "lbl11")
         {
         }
@@ -261,32 +261,32 @@ namespace SkinEngine.Controls.Panels
         if (hh < h) hh = h;
         ArrangeChild(child, ref p, (ww * child.ColumnSpan), (hh * child.RowSpan));
 
-        child.Arrange(new Rectangle(p, child.DesiredSize));
+        child.Arrange(new RectangleF(p, child.DesiredSize));
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
       base.Arrange(layoutRect);
     }
 
-    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p, double widthPerCell, double heightPerCell)
+    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
     {
       if (VisualParent == null) return;
 
       if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
       {
-        p.X += (int)((widthPerCell - child.DesiredSize.Width) / 2);
+        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
       }
       else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
       {
-        p.X += (int)(widthPerCell - child.DesiredSize.Width);
+        p.X += (float)(widthPerCell - child.DesiredSize.Width);
       }
       if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
       {
-        p.Y += (int)((heightPerCell - child.DesiredSize.Height) / 2);
+        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
       }
       else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
       {
-        p.Y += (int)(heightPerCell - child.DesiredSize.Height);
+        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
       }
     }
   }

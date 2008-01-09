@@ -71,10 +71,10 @@ namespace SkinEngine.Controls.Visuals
     Property _opacityMask;
     Property _opacityProperty;
     Property _freezableProperty;
-    protected Size _desiredSize;
-    protected Size _originalSize;
-    protected Size _availableSize;
-    protected System.Drawing.Rectangle _finalRect;
+    protected SizeF _desiredSize;
+    protected SizeF _originalSize;
+    protected SizeF _availableSize;
+    protected System.Drawing.RectangleF _finalRect;
     bool _isArrangeValid;
     ResourceDictionary _resources;
     List<Timeline> _runningAnimations;
@@ -1065,7 +1065,7 @@ namespace SkinEngine.Controls.Visuals
     /// Gets desired size
     /// </summary>
     /// <value>The desired size.</value>
-    public Size DesiredSize
+    public SizeF DesiredSize
     {
       get
       {
@@ -1089,9 +1089,9 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements. </param>
     /// <returns>The size that this element determines it needs during layout, based on its calculations of child element sizes.</returns>
-    public virtual void Measure(Size availableSize)
+    public virtual void Measure(SizeF availableSize)
     {
-      _availableSize = new Size(availableSize.Width, availableSize.Height);
+      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -1099,7 +1099,7 @@ namespace SkinEngine.Controls.Visuals
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public virtual void Arrange(System.Drawing.Rectangle finalRect)
+    public virtual void Arrange(System.Drawing.RectangleF finalRect)
     {
       if (!IsArrangeValid)
       {
@@ -1131,8 +1131,8 @@ namespace SkinEngine.Controls.Visuals
       ExtendedMatrix m = _finalLayoutTransform;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
-        System.Drawing.Size sizeOld = new Size(_desiredSize.Width, _desiredSize.Height);
-        System.Drawing.Size availsizeOld = new Size(_availableSize.Width, _availableSize.Height);
+        System.Drawing.SizeF sizeOld = new SizeF(_desiredSize.Width, _desiredSize.Height);
+        System.Drawing.SizeF availsizeOld = new SizeF(_availableSize.Width, _availableSize.Height);
         if (m != null)
           SkinContext.AddLayoutTransform(m);
         Measure(_availableSize);
@@ -1159,24 +1159,24 @@ namespace SkinEngine.Controls.Visuals
         FrameworkElement element = this as FrameworkElement;
         if (element == null)
         {
-          Measure(new Size((int)SkinContext.Width, (int)SkinContext.Height));
-          Arrange(new System.Drawing.Rectangle(0, 0, (int)SkinContext.Width, (int)SkinContext.Height));
+          Measure(new SizeF((float)SkinContext.Width, (float)SkinContext.Height));
+          Arrange(new System.Drawing.RectangleF(0, 0, (float)SkinContext.Width, (float)SkinContext.Height));
         }
         else
         {
-          int w = (int)element.Width;
-          int h = (int)element.Height;
-          if (w == 0) w = (int)SkinContext.Width;
-          if (h == 0) h = (int)SkinContext.Height;
+          float w = (float)element.Width;
+          float h = (float)element.Height;
+          if (w == 0) w = (float)SkinContext.Width;
+          if (h == 0) h = (float)SkinContext.Height;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Measure(new Size(w, h));
+          Measure(new SizeF(w, h));
           if (m != null)
             SkinContext.RemoveLayoutTransform();
 
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Arrange(new System.Drawing.Rectangle((int)element.Position.X, (int)element.Position.Y, w, h));
+          Arrange(new System.Drawing.RectangleF((float)element.Position.X, (float)element.Position.Y, w, h));
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

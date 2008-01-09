@@ -180,29 +180,29 @@ namespace SkinEngine.Controls.Visuals
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(Size availableSize)
+    public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
-        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
       if (Content != null)
       {
         Content.Measure(_desiredSize);
         _desiredSize = Content.DesiredSize;
       }
-      if (Width > 0) _desiredSize.Width = (int)Width;
-      if (Height > 0) _desiredSize.Height = (int)Height;
+      if (Width > 0) _desiredSize.Width = (float)Width;
+      if (Height > 0) _desiredSize.Height = (float)Height;
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
 
 
-      _availableSize = new Size(availableSize.Width, availableSize.Height);
+      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -210,14 +210,14 @@ namespace SkinEngine.Controls.Visuals
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(System.Drawing.Rectangle finalRect)
+    public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
-      System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (int)(Margin.X);
-      layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X + Margin.W);
-      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;

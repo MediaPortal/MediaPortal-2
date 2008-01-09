@@ -102,13 +102,13 @@ namespace SkinEngine.Controls.Visuals
     /// Measures the specified available size.
     /// </summary>
     /// <param name="availableSize">Size of the available.</param>
-    public override void Measure(System.Drawing.Size availableSize)
+    public override void Measure(System.Drawing.SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
-        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
       if (Content != null)
       {
@@ -119,17 +119,17 @@ namespace SkinEngine.Controls.Visuals
           _desiredSize.Height = Content.DesiredSize.Height;
       }
       if (Width > 0)
-        _desiredSize.Width = (int)Width;
+        _desiredSize.Width = (float)Width;
       if (Height > 0)
-        _desiredSize.Height = (int)Height;
+        _desiredSize.Height = (float)Height;
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
 
 
-      _availableSize = new System.Drawing.Size(availableSize.Width, availableSize.Height);
+      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>

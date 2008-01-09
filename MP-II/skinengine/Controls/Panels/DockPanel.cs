@@ -47,15 +47,15 @@ namespace SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(Size availableSize)
+    public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
-        _desiredSize.Width = (int)availableSize.Width - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = (int)availableSize.Height - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
-      System.Drawing.Size size = new Size(_desiredSize.Width, _desiredSize.Height);
+      System.Drawing.SizeF size = new SizeF(_desiredSize.Width, _desiredSize.Height);
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -76,11 +76,11 @@ namespace SkinEngine.Controls.Panels
           size.Height -= child.DesiredSize.Height;
         }
       }
-      if (Width > 0) _desiredSize.Width = (int)Width;
-      if (Height > 0) _desiredSize.Height = (int)Height;
+      if (Width > 0) _desiredSize.Width = (float)Width;
+      if (Height > 0) _desiredSize.Height = (float)Height;
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
       base.Measure(availableSize);
@@ -91,14 +91,14 @@ namespace SkinEngine.Controls.Panels
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(Rectangle finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
-      Rectangle layoutRect = new Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (int)(Margin.X);
-      layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X + Margin.W);
-      layoutRect.Height -= (int)(Margin.Y + Margin.Z); ;
+      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z); ;
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -107,7 +107,7 @@ namespace SkinEngine.Controls.Panels
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      System.Drawing.Size size = new Size(layoutRect.Width, layoutRect.Height);
+      System.Drawing.SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
       int count = 0;
       foreach (FrameworkElement child in Children)
       {
@@ -115,54 +115,54 @@ namespace SkinEngine.Controls.Panels
         if (!child.IsVisible) continue;
         if (child.Dock == Dock.Top)
         {
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
-            ArrangeChild(child, ref location, new System.Drawing.Size(size.Width, 0));
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+            ArrangeChild(child, ref location, new System.Drawing.SizeF(size.Width, 0));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetTop += child.DesiredSize.Height;
           size.Height -= child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Bottom)
         {
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + layoutRect.Height - (offsetBottom + child.DesiredSize.Height)));
+          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + layoutRect.Height - (offsetBottom + child.DesiredSize.Height)));
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
-            ArrangeChild(child, ref location, new System.Drawing.Size(size.Width, 0));
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+            ArrangeChild(child, ref location, new System.Drawing.SizeF(size.Width, 0));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetBottom += child.DesiredSize.Height;
           size.Height -= child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Left)
         {
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
-            ArrangeChild(child, ref location, new System.Drawing.Size(0, size.Height));
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+            ArrangeChild(child, ref location, new System.Drawing.SizeF(0, size.Height));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetLeft += child.DesiredSize.Width;
           size.Width -= child.DesiredSize.Width;
         }
         else if (child.Dock == Dock.Right)
         {
-          Point location = new Point((int)(this.ActualPosition.X + layoutRect.Width - (offsetRight + child.DesiredSize.Width)), (int)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF((float)(this.ActualPosition.X + layoutRect.Width - (offsetRight + child.DesiredSize.Width)), (float)(this.ActualPosition.Y + offsetTop));
 
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
-            ArrangeChild(child, ref location, new System.Drawing.Size(0, size.Height));
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+            ArrangeChild(child, ref location, new System.Drawing.SizeF(0, size.Height));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetRight += child.DesiredSize.Width;
           size.Width -= child.DesiredSize.Width;
         }
         else
         {
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
           ArrangeChild(child, ref location, size);
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetRight += child.DesiredSize.Width;
           size.Height -= child.DesiredSize.Height;
           size.Width -= child.DesiredSize.Width;
@@ -175,9 +175,9 @@ namespace SkinEngine.Controls.Panels
         if (child.Dock == Dock.Center)
         {
           float width = (float)(ActualWidth - (offsetLeft + offsetRight));
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
           //ArrangeChild(child, ref location);
-          child.Arrange(new Rectangle(location, child.DesiredSize));
+          child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetLeft += child.DesiredSize.Width;
         }
       }
@@ -186,7 +186,7 @@ namespace SkinEngine.Controls.Panels
       base.Arrange(layoutRect);
     }
 
-    protected virtual void ArrangeChild(FrameworkElement child, ref System.Drawing.Point p, Size s)
+    protected virtual void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, SizeF s)
     {
       if (VisualParent == null) return;
 

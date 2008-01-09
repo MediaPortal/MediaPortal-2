@@ -194,27 +194,27 @@ namespace SkinEngine.Controls.Visuals
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(System.Drawing.Size availableSize)
+    public override void Measure(System.Drawing.SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.Size((int)Width, (int)Height);
-      System.Drawing.Size size = new System.Drawing.Size(32, 32);
+      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+      System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
       if (_asset != null)
       {
         float h = _asset.Font.LineHeight * 1.2f;
         h -= (_asset.Font.LineHeight - _asset.Font.Base);
-        size = new Size((int)availableSize.Width, (int)(h));
+        size = new SizeF((float)availableSize.Width, (float)(h));
       }
       if (Width <= 0)
-        _desiredSize.Width = ((int)size.Width) - (int)(Margin.X + Margin.W);
+        _desiredSize.Width = ((float)size.Width) - (float)(Margin.X + Margin.W);
       if (Height <= 0)
-        _desiredSize.Height = ((int)size.Height) - (int)(Margin.Y + Margin.Z);
+        _desiredSize.Height = ((float)size.Height) - (float)(Margin.Y + Margin.Z);
 
-      _desiredSize.Width += (int)(Margin.X + Margin.W);
-      _desiredSize.Height += (int)(Margin.Y + Margin.Z);
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
 
-      _availableSize = new Size(availableSize.Width, availableSize.Height);
+      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -222,15 +222,15 @@ namespace SkinEngine.Controls.Visuals
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(System.Drawing.Rectangle finalRect)
+    public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.Rectangle(finalRect.Location, finalRect.Size);
-      System.Drawing.Rectangle layoutRect = new System.Drawing.Rectangle(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (int)(Margin.X);
-      layoutRect.Y += (int)(Margin.Y);
-      layoutRect.Width -= (int)(Margin.X + Margin.W);
-      layoutRect.Height -= (int)(Margin.Y + Margin.Z);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
