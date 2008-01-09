@@ -76,7 +76,7 @@ namespace SkinEngine.Controls.Panels
       _desiredSize = rect.Size;
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      _transformedSize = _desiredSize;
+      _originalSize = _desiredSize;
 
       if (LayoutTransform != null)
       {

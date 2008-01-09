@@ -4,13 +4,7 @@
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
-    <Canvas Canvas.Top="50" Canvas.Left="50">
-      <Canvas.LayoutTransform>
-        <ScaleTransform ScaleX="4" ScaleY="2"/>
-      </Canvas.LayoutTransform>
-      <Rectangle Width="50" Height="50" Fill="Red"/>
-    </Canvas>
-    <!--
+
     <DockPanel Background="{StaticResource backGroundBrush}">
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="My Movies" Height="50"/>
 
@@ -183,7 +177,5 @@
       </Canvas>
 
     </Canvas>
-
-    -->
   </Canvas>
 </MyXaml>

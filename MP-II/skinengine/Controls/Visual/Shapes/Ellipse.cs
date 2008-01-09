@@ -73,19 +73,26 @@ namespace SkinEngine.Controls.Visuals
     {
       Trace.WriteLine("Ellipse.PerformLayout()");
       Free();
-      double w = Width; if (w <= 0) w = ActualWidth;
-      double h = Height; if (h <= 0) h = ActualHeight;
+
+      double w = ActualWidth;
+      double h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
-      float centerX = (float)(ActualPosition.X + ActualWidth / 2);
-      float centerY = (float)(ActualPosition.Y + ActualHeight / 2);
+      float centerX, centerY;
+      SizeF rectSize = new SizeF((float)w, (float)h);
+
+      _finalLayoutTransform.InvertSize(ref rectSize);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+
+
       //Fill brush
       PointF[] vertices;
       PositionColored2Textured[] verts;
       GraphicsPath path;
       if (Fill != null)
       {
-        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h));
-        vertices = ConvertPathToTriangleFan(path, (int)+(centerX), (int)(centerY));
+        path = GetEllipse(rect);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
 
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
@@ -106,8 +113,9 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetEllipse(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h));
-        vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)StrokeThickness);
+        path = GetEllipse(rect);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
@@ -137,6 +145,11 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddEllipse(baseRect);
       mPath.CloseFigure();
+      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      mPath.Transform(m);
       mPath.Flatten();
       return mPath;
     }

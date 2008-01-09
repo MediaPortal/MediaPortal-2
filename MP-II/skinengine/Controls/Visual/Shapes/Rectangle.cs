@@ -149,17 +149,20 @@ namespace SkinEngine.Controls.Visuals
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
-      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
+      float centerX, centerY;
+      SizeF rectSize = new SizeF((float)w, (float)h);
 
-      float centerX = (float)(ActualPosition.X + w / 2);
-      float centerY = (float)(ActualPosition.Y + h / 2);
+      _finalLayoutTransform.InvertSize(ref rectSize);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+
       PositionColored2Textured[] verts;
       PointF[] vertices;
       GraphicsPath path;
       if (Fill != null)
       {
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), (float)RadiusX, (float)RadiusY);
-        vertices = ConvertPathToTriangleFan(path, (int)+(centerX), (int)(centerY));
+        path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
 
         _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
@@ -178,11 +181,11 @@ namespace SkinEngine.Controls.Visuals
       }
       //border brush
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetRoundedRect(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), (float)RadiusX, (float)RadiusY);
-        vertices = ConvertPathToTriangleStrip(path, (int)(centerX), (int)(centerY), (float)StrokeThickness);
+        path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
@@ -200,7 +203,6 @@ namespace SkinEngine.Controls.Visuals
         _verticesCountBorder = (verts.Length / 3);
       }
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       ActualWidth = w;
       ActualHeight = h;
     }
@@ -217,6 +219,11 @@ namespace SkinEngine.Controls.Visuals
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
         mPath.CloseFigure();
+        System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+        m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+        m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        mPath.Transform(m);
         mPath.Flatten();
         return mPath;
       }
@@ -260,6 +267,11 @@ namespace SkinEngine.Controls.Visuals
       path.AddArc(arc, 90, 90);
 
       path.CloseFigure();
+      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      path.Transform(mtx);
 
       path.Flatten();
       return path;
@@ -311,6 +323,11 @@ namespace SkinEngine.Controls.Visuals
       {
         path.CloseFigure();
       }
+      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+      path.Transform(mtx);
       return path;
     }
     #endregion

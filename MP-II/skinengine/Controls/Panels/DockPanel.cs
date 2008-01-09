@@ -63,17 +63,17 @@ namespace SkinEngine.Controls.Panels
         child.Measure(size);
         if (child.Dock == Dock.Top || child.Dock == Dock.Bottom)
         {
-          size.Height -= child.TransformedSize.Height;
+          size.Height -= child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Left || child.Dock == Dock.Right)
         {
-          size.Width -= child.TransformedSize.Width;
+          size.Width -= child.DesiredSize.Width;
         }
         else if (child.Dock == Dock.Center)
         {
           child.Measure(size);
-          size.Width -= child.TransformedSize.Width;
-          size.Height -= child.TransformedSize.Height;
+          size.Width -= child.DesiredSize.Width;
+          size.Height -= child.DesiredSize.Height;
         }
       }
       if (Width > 0) _desiredSize.Width = (int)Width;
@@ -81,7 +81,7 @@ namespace SkinEngine.Controls.Panels
 
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      _transformedSize = _desiredSize;
+      _originalSize = _desiredSize;
 
       base.Measure(availableSize);
     }
@@ -121,19 +121,19 @@ namespace SkinEngine.Controls.Panels
           else
             ArrangeChild(child, ref location, new System.Drawing.Size(size.Width, 0));
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetTop += child.TransformedSize.Height;
-          size.Height -= child.TransformedSize.Height;
+          offsetTop += child.DesiredSize.Height;
+          size.Height -= child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Bottom)
         {
-          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + layoutRect.Height - (offsetBottom + child.TransformedSize.Height)));
+          Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + layoutRect.Height - (offsetBottom + child.DesiredSize.Height)));
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
             ArrangeChild(child, ref location, new System.Drawing.Size(size.Width, 0));
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetBottom += child.TransformedSize.Height;
-          size.Height -= child.TransformedSize.Height;
+          offsetBottom += child.DesiredSize.Height;
+          size.Height -= child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Left)
         {
@@ -143,29 +143,29 @@ namespace SkinEngine.Controls.Panels
           else
             ArrangeChild(child, ref location, new System.Drawing.Size(0, size.Height));
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetLeft += child.TransformedSize.Width;
-          size.Width -= child.TransformedSize.Width;
+          offsetLeft += child.DesiredSize.Width;
+          size.Width -= child.DesiredSize.Width;
         }
         else if (child.Dock == Dock.Right)
         {
-          Point location = new Point((int)(this.ActualPosition.X + layoutRect.Width - (offsetRight + child.TransformedSize.Width)), (int)(this.ActualPosition.Y + offsetTop));
+          Point location = new Point((int)(this.ActualPosition.X + layoutRect.Width - (offsetRight + child.DesiredSize.Width)), (int)(this.ActualPosition.Y + offsetTop));
 
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
             ArrangeChild(child, ref location, new System.Drawing.Size(0, size.Height));
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetRight += child.TransformedSize.Width;
-          size.Width -= child.TransformedSize.Width;
+          offsetRight += child.DesiredSize.Width;
+          size.Width -= child.DesiredSize.Width;
         }
         else
         {
           Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
           ArrangeChild(child, ref location, size);
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetRight += child.TransformedSize.Width;
-          size.Height -= child.TransformedSize.Height;
-          size.Width -= child.TransformedSize.Width;
+          offsetRight += child.DesiredSize.Width;
+          size.Height -= child.DesiredSize.Height;
+          size.Width -= child.DesiredSize.Width;
         }
       }
 
@@ -178,7 +178,7 @@ namespace SkinEngine.Controls.Panels
           Point location = new Point((int)(this.ActualPosition.X + offsetLeft), (int)(this.ActualPosition.Y + offsetTop));
           //ArrangeChild(child, ref location);
           child.Arrange(new Rectangle(location, child.DesiredSize));
-          offsetLeft += child.TransformedSize.Width;
+          offsetLeft += child.DesiredSize.Width;
         }
       }
       base.PerformLayout();
@@ -192,22 +192,22 @@ namespace SkinEngine.Controls.Panels
       if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
       {
         if (s.Width > 0)
-          p.X += ((s.Width - child.TransformedSize.Width) / 2);
+          p.X += ((s.Width - child.DesiredSize.Width) / 2);
       }
       else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
       {
         if (s.Width > 0)
-          p.X += (s.Width - child.TransformedSize.Width);
+          p.X += (s.Width - child.DesiredSize.Width);
       }
       if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
       {
         if (s.Height > 0)
-          p.Y += ((s.Height - child.TransformedSize.Height) / 2);
+          p.Y += ((s.Height - child.DesiredSize.Height) / 2);
       }
       else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
       {
         if (s.Height > 0)
-          p.Y += (s.Height - child.TransformedSize.Height);
+          p.Y += (s.Height - child.DesiredSize.Height);
       }
     }
   }

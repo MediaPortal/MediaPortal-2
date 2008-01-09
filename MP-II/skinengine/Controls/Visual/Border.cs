@@ -553,7 +553,7 @@ namespace SkinEngine.Controls.Visuals
 
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      _transformedSize = _desiredSize;
+      _originalSize = _desiredSize;
 
 
       base.Measure(availableSize);

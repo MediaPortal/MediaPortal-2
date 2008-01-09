@@ -54,8 +54,9 @@ namespace SkinEngine.Controls.Visuals
     protected int _verticesCountFill;
     protected VertexBuffer _vertexBufferBorder;
     protected int _verticesCountBorder;
-    DateTime _lastTimeUsed;
-    bool _performLayout;
+    protected DateTime _lastTimeUsed;
+    protected bool _performLayout;
+    protected ExtendedMatrix _finalLayoutTransform;
 
     public Shape()
     {
@@ -281,7 +282,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cx">The cx.</param>
     /// <param name="cy">The cy.</param>
     /// <returns></returns>
-    protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, int cx, int cy)
+    protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy)
     {
       if (path.PointCount <= 0) return null;
       if (path.PathPoints.Length == 3)
@@ -314,8 +315,11 @@ namespace SkinEngine.Controls.Visuals
     {
       double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
       ang += (float)(Math.PI / 2.0);
-      x = (float)(Math.Cos(ang) * thickNess + point.X); //radians
-      y = (float)(Math.Sin(ang) * thickNess + point.Y);
+      x = (float)(Math.Cos(ang) * thickNess); //radians
+      y = (float)(Math.Sin(ang) * thickNess);
+      _finalLayoutTransform.TransformXY(ref x, ref y);
+      x += point.X;
+      y += point.Y;
     }
 
     /// <summary>
@@ -338,10 +342,10 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, int cx, int cy, float thickNess)
+    protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess)
     {
       if (path.PointCount <= 0) return null;
-      thickNess /= 2.0f;
+      //thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
       int verticeCount = points.Length * 2 * 3;
       PointF[] vertices = new PointF[verticeCount];
@@ -374,11 +378,11 @@ namespace SkinEngine.Controls.Visuals
       layoutRect.Y += (int)(Margin.Y);
       layoutRect.Width -= (int)(Margin.X + Margin.W);
       layoutRect.Height -= (int)(Margin.Y + Margin.Z);
-      SkinContext.FinalLayoutTransform.TransformRectLocation(ref layoutRect);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       _performLayout = true;
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.Arrange(layoutRect);
     }
 
@@ -397,12 +401,59 @@ namespace SkinEngine.Controls.Visuals
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       _desiredSize.Width += (int)(Margin.X + Margin.W);
       _desiredSize.Height += (int)(Margin.Y + Margin.Z);
-      _transformedSize = _desiredSize;
 
       base.Measure(availableSize);
     }
 
 
+    protected void ZCross(ref PointF left, ref PointF right, out double result)
+    {
+      result = left.X * right.Y - left.Y * right.X;
+    }
+    protected void CalcCentroid(PointF[] points, out float cx, out float cy)
+    {
+      Vector2 centroid = new Vector2();
+      double temp;
+      double area = 0;
+      PointF v1 = (PointF)points[points.Length - 1];
+      PointF v2;
+      for (int index = 0; index < points.Length; ++index, v1 = v2)
+      {
+        v2 = (PointF)points[index];
+        ZCross(ref v1, ref v2, out temp);
+        area += temp;
+        centroid.X += (float)((v1.X + v2.X) * temp);
+        centroid.Y += (float)((v1.Y + v2.Y) * temp);
+      }
+      temp = 1 / (Math.Abs(area) * 3);
+      centroid.X *= (float)temp;
+      centroid.Y *= (float)temp;
+
+      cx = (float)(Math.Abs(centroid.X));
+      cy = (float)(Math.Abs(centroid.Y));
+    }
+    protected void CalcCentroid(GraphicsPath path, out float cx, out float cy)
+    {
+      Vector2 centroid = new Vector2();
+      double temp;
+      double area = 0;
+      PointF v1 = (PointF)path.PathPoints[path.PathPoints.Length - 1];
+      PointF v2;
+      for (int index = 0; index < path.PathPoints.Length; ++index, v1 = v2)
+      {
+        v2 = (PointF)path.PathPoints[index];
+        ZCross(ref v1, ref v2, out temp);
+        area += temp;
+        centroid.X += (float)((v1.X + v2.X) * temp);
+        centroid.Y += (float)((v1.Y + v2.Y) * temp);
+      }
+      temp = 1 / (Math.Abs(area) * 3);
+      centroid.X *= (float)temp;
+      centroid.Y *= (float)temp;
+
+      cx = (float)(Math.Abs(centroid.X));
+      cy = (float)(Math.Abs(centroid.Y));
+    }
     #region IAsset Members
 
     /// <summary>

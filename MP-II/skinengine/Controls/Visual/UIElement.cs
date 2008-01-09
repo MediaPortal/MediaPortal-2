@@ -72,7 +72,7 @@ namespace SkinEngine.Controls.Visuals
     Property _opacityProperty;
     Property _freezableProperty;
     protected Size _desiredSize;
-    protected Size _transformedSize;
+    protected Size _originalSize;
     protected Size _availableSize;
     protected System.Drawing.Rectangle _finalRect;
     bool _isArrangeValid;
@@ -1063,17 +1063,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets the size after aplying the transformlayout.
-    /// </summary>
-    /// <value>size after aplying the tranfsormlayout.</value>
-    public Size TransformedSize
-    {
-      get
-      {
-        return _transformedSize;
-      }
-    }
     /// <summary>
     /// Gets the size for brush.
     /// </summary>

@@ -209,11 +209,14 @@ namespace SkinEngine.Controls.Visuals
     {
       Trace.WriteLine("Line.PerformLayout()");
       Free();
-      float cx;
-      float cy;
-      double w = Width; if (w <= 0) w = ActualWidth;
-      double h = Height; if (h <= 0) h = ActualHeight;
-      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
+      double w = ActualWidth;
+      double h = ActualHeight;
+      float centerX, centerY;
+      SizeF rectSize = new SizeF((float)w, (float)h);
+
+      _finalLayoutTransform.InvertSize(ref rectSize);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+
       //Fill brush
       GraphicsPath path;
       PointF[] vertices;
@@ -221,11 +224,11 @@ namespace SkinEngine.Controls.Visuals
 
       //border brush
 
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetLine(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), (float)(StrokeThickness), out cx, out cy);
-        vertices = ConvertPathToTriangleStrip(path, (int)cx, (int)(cy), (float)(StrokeThickness));
+        path = GetLine(rect);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
 
         _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
         verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
@@ -240,13 +243,36 @@ namespace SkinEngine.Controls.Visuals
         }
         Stroke.SetupBrush(this, ref verts);
         _vertexBufferBorder.Unlock();
-        _verticesCountBorder = (verts.Length /3);
+        _verticesCountBorder = (verts.Length / 3);
       }
 
     }
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
+    public override void DoRender()
+    {
+      if (!IsVisible) return;
+      if ((Stroke != null && _vertexBufferBorder == null) || _performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+      }
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleFan);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBorder);
+        Stroke.EndRender();
+      }
+
+      base.DoRender();
+      _lastTimeUsed = SkinContext.Now;
+    }
 
     #region Get the desired Rounded Rectangle path.
-    private GraphicsPath GetLine(RectangleF baseRect, float thickNess, out float cx, out float cy)
+    private GraphicsPath GetLine(RectangleF baseRect)
     {
       float x1 = (float)(X1 + baseRect.X);
       float y1 = (float)(Y1 + baseRect.Y);
@@ -254,19 +280,24 @@ namespace SkinEngine.Controls.Visuals
       float y2 = (float)(Y2 + baseRect.Y);
 
       float w = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-      cx = (float)(x1 + (w) / 2);
-      cy = (float)(y1 + (thickNess) / 2);
+     
       float ang = (float)((y2 - y1) / (x2 - x1));
       ang = (float)Math.Atan(ang);
       ang *= (float)(180.0f / Math.PI);
-      System.Drawing.Drawing2D.Matrix matrix = new System.Drawing.Drawing2D.Matrix();
-      matrix.RotateAt(ang, new PointF(cx, cy));
       GraphicsPath mPath = new GraphicsPath();
-      System.Drawing.Rectangle r = new System.Drawing.Rectangle((int)x1, (int)y1, (int)w, (int)thickNess);
+      System.Drawing.Rectangle r = new System.Drawing.Rectangle((int)x1, (int)y1, (int)w, (int)StrokeThickness);
       mPath.AddRectangle(r);
       mPath.CloseFigure();
+
+      System.Drawing.Drawing2D.Matrix matrix = new System.Drawing.Drawing2D.Matrix();
+      matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
+
+      matrix.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      matrix.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(matrix);
       mPath.Flatten();
+
       return mPath;
     }
     #endregion

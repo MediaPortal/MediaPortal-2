@@ -112,19 +112,24 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       Trace.WriteLine("Path.PerformLayout()");
-      float cx, cy;
       Free();
-      double w = Width; if (w <= 0) w = ActualWidth;
-      double h = Height; if (h <= 0) h = ActualHeight;
-      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
+      double w = ActualWidth;
+      double h = ActualHeight;
+      float centerX, centerY;
+      SizeF rectSize = new SizeF((float)w, (float)h);
+
+      _finalLayoutTransform.InvertSize(ref rectSize);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+
       //Fill brush
       PositionColored2Textured[] verts;
       GraphicsPath path;
       PointF[] vertices;
       if (Fill != null)
       {
-        path = GetPath(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), out cx, out cy);
-        vertices = ConvertPathToTriangleFan(path, (int)+(cx), (int)(cy));
+        path = GetPath(rect);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleFan(path, centerX, centerY);
         if (vertices != null)
         {
           _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
@@ -148,8 +153,9 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        path = GetPath(new RectangleF(ActualPosition.X, ActualPosition.Y, (float)w, (float)h), out cx, out cy);
-        vertices = ConvertPathToTriangleStrip(path, (int)(cx), (int)(cy), (float)StrokeThickness);
+        path = GetPath(rect);
+        CalcCentroid(path, out centerX, out centerY);
+        vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
         if (vertices != null)
         {
 
@@ -173,7 +179,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    private GraphicsPath GetPath(RectangleF baseRect, out float cx, out float cy)
+    private GraphicsPath GetPath(RectangleF baseRect)
     {
       GraphicsPath mPath = new GraphicsPath();
       PointF lastPoint = new PointF();
@@ -351,41 +357,18 @@ namespace SkinEngine.Controls.Visuals
           ++i;
         }
       }
-      RectangleF bounds = mPath.GetBounds();
-      float w = bounds.Width;
-      float h = bounds.Height;
-      float scaleX = 1;
-      float scaleY = 1;
-      /*
-      if (w > 0 && baseRect.Width > 0 && Stretch != Stretch.None)
-        scaleX = ((float)baseRect.Width) / w;
-      if (h > 0 && baseRect.Height > 0 && Stretch != Stretch.None)
-        scaleY = ((float)baseRect.Height) / h;
+
+      RectangleF rectF = mPath.GetBounds();
 
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-
-      m.Scale(scaleX, scaleY, MatrixOrder.Append);
-      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      */
-      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      //m.Translate(-rectF.X, -rectF.Y, MatrixOrder.Append);
+      //m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
+      m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
+
       mPath.Flatten();
 
-      cx = cy = 0;
-      if (mPath.PointCount > 0)
-      {
-        _points.Clear();
-        PointF[] points = new PointF[mPath.PathPoints.Length];
-        for (int x = 0; x < mPath.PathPoints.Length; ++x)
-        {
-          PointF f = new PointF(mPath.PathPoints[x].X, mPath.PathPoints[x].Y);
-          points[x] = f;
-          _points.Add(f);
-        }
-        CalcCentroid(points, out cx, out cy);
-      }
       return mPath;
     }
 
@@ -444,32 +427,6 @@ namespace SkinEngine.Controls.Visuals
       float f;
       float.TryParse(floatString, out f);
       return f;
-    }
-    void ZCross(ref PointF left, ref PointF right, out double result)
-    {
-      result = left.X * right.Y - left.Y * right.X;
-    }
-    void CalcCentroid(PointF[] points, out float cx, out float cy)
-    {
-      Vector2 centroid = new Vector2();
-      double temp;
-      double area = 0;
-      PointF v1 = (PointF)points[points.Length - 1];
-      PointF v2;
-      for (int index = 0; index < points.Length; ++index, v1 = v2)
-      {
-        v2 = (PointF)points[index];
-        ZCross(ref v1, ref v2, out temp);
-        area += temp;
-        centroid.X += (float)((v1.X + v2.X) * temp);
-        centroid.Y += (float)((v1.Y + v2.Y) * temp);
-      }
-      temp = 1 / (Math.Abs(area) * 3);
-      centroid.X *= (float)temp;
-      centroid.Y *= (float)temp;
-
-      cx = (float)(Math.Abs(centroid.X));
-      cy = (float)(Math.Abs(centroid.Y));
     }
   }
 }

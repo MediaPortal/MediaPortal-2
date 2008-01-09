@@ -167,6 +167,14 @@ namespace SkinEngine
       rect.X = (int)w1;
       rect.Y = (int)h1;
     }
+    public void InvertSize(ref System.Drawing.SizeF size)
+    {
+      float fx = 1.0f * Matrix.M11 + 1.0f * Matrix.M21;
+      float fy = 1.0f * Matrix.M12 + 1.0f * Matrix.M22;
+      size.Width /= fx;
+      size.Height /= fy;
+    }
+
     public void TransformRectLocation(ref System.Drawing.Rectangle rect)
     {
       float w = rect.X;
@@ -176,15 +184,15 @@ namespace SkinEngine
       rect.X = (int)w1;
       rect.Y = (int)h1;
     }
-    public float TransformX(float w, float h)
+
+    public void TransformXY(ref float w, ref float h)
     {
-      return w * Matrix.M11 + h * Matrix.M21;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      w = w1;
+      h = h1;
     }
 
-    public float TransformY(float w,float h)
-    {
-      return w * Matrix.M12 + h * Matrix.M22;
-    }
     public System.Drawing.Drawing2D.Matrix Get2dMatrix()
     {
       return new System.Drawing.Drawing2D.Matrix(Matrix.M11, Matrix.M12, Matrix.M21, Matrix.M22, 0, 0);
