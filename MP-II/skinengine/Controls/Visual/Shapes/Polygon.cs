@@ -106,7 +106,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Polygon.PerformLayout()");
+      Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -188,6 +188,12 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
       m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+      }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 

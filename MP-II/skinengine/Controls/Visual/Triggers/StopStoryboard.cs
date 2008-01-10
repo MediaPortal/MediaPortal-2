@@ -70,7 +70,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
         BeginStoryboard beginAction = action as BeginStoryboard;
         if (beginAction != null && beginAction.Name == BeginStoryboardName)
         {
-          Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
+          //Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
           element.StopStoryboard(beginAction.Storyboard);
           return;
         }

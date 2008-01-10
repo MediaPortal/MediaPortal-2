@@ -260,6 +260,7 @@ namespace SkinEngine.Controls.Visuals
         InitializeBindings();
         InitializeTriggers();
       }
+      _isLayoutInvalid = false;
     }
     /// <summary>
     /// Renders the visual

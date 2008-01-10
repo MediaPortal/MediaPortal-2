@@ -110,13 +110,14 @@ namespace SkinEngine.Controls.Visuals.Styles
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.PerformLayout();
+      _performLayout = true;
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
         InitializeBindings();
         InitializeTriggers();
       }
+      _isLayoutInvalid = false;
     }
   }
 }

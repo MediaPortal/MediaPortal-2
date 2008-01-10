@@ -79,7 +79,7 @@ namespace SkinEngine.Controls.Visuals
     ResourceDictionary _resources;
     List<Timeline> _runningAnimations;
     BindingCollection _bindings;
-    bool _isLayoutInvalid = true;
+    protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
 
     /// <summary>
@@ -1107,6 +1107,7 @@ namespace SkinEngine.Controls.Visuals
         InitializeBindings();
         InitializeTriggers();
       }
+      _isLayoutInvalid = false;
     }
 
     /// <summary>

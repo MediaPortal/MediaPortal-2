@@ -298,7 +298,7 @@ namespace SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.PerformLayout();
+      _performLayout = true;
       base.Arrange(layoutRect);
     }
     /// <summary>
@@ -308,7 +308,7 @@ namespace SkinEngine.Controls.Panels
     {
       lock (_orientationProperty)
       {
-        if (Background != null && _vertexBufferBackground == null)
+        if (_performLayout || (Background != null && _vertexBufferBackground == null))
         {
           PerformLayout();
         }

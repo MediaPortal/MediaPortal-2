@@ -207,7 +207,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Line.PerformLayout()");
+      Trace.WriteLine("Line.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -300,6 +300,12 @@ namespace SkinEngine.Controls.Visuals
 
       matrix.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       matrix.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        matrix.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+      }
       matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(matrix);
       mPath.Flatten();

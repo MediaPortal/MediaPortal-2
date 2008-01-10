@@ -46,6 +46,7 @@ namespace SkinEngine.Controls.Panels
     protected Property _backgroundProperty;
     protected VertexBuffer _vertexBufferBackground;
     protected DateTime _lastTimeUsed;
+    protected bool _performLayout = true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
@@ -229,7 +230,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public override void DoRender()
     {
-      if ((Background != null && _vertexBufferBackground == null))
+      if (_performLayout || (Background != null && _vertexBufferBackground == null))
       {
         PerformLayout();
       }
@@ -260,7 +261,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public void PerformLayout()
     {
-      Trace.WriteLine("Panel.PerformLayout()");
+      Trace.WriteLine("Panel.PerformLayout() " + this.Name);
       Free();
       if (Background != null)
       {
@@ -277,6 +278,7 @@ namespace SkinEngine.Controls.Panels
         Background.SetupBrush(this, ref verts);
         _vertexBufferBackground.Unlock();
       }
+      _performLayout = false;
     }
 
 

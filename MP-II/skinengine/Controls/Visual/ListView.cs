@@ -284,9 +284,6 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      if (DoUpdateItems())
-      {
-      }
       _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
         _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
@@ -361,6 +358,7 @@ namespace SkinEngine.Controls.Visuals
         InitializeBindings();
         InitializeTriggers();
       }
+      _isLayoutInvalid = false;
     }
 
     /// <summary>
@@ -368,6 +366,10 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
+      if (DoUpdateItems())
+      {
+        Invalidate();
+      }
       base.DoRender();
       if (Template != null)
       {

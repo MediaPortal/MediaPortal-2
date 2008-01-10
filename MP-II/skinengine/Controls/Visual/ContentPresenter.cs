@@ -253,6 +253,7 @@ namespace SkinEngine.Controls.Visuals
         InitializeBindings();
         InitializeTriggers();
       }
+      _isLayoutInvalid = false;
     }
 
     protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)

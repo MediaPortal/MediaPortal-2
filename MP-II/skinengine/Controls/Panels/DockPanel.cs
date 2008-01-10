@@ -205,7 +205,7 @@ namespace SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.PerformLayout();
+      _performLayout = true;
       base.Arrange(layoutRect);
     }
 

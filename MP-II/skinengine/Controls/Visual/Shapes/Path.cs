@@ -111,7 +111,7 @@ namespace SkinEngine.Controls.Visuals
     }
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Path.PerformLayout()");
+      Trace.WriteLine("Path.PerformLayout() "+this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -232,7 +232,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath mPath = new GraphicsPath();
       PointF lastPoint = new PointF();
       int i = 0;
-      Trace.WriteLine(String.Format("{0}", Data.Trim()));
+//      Trace.WriteLine(String.Format("{0}", Data.Trim()));
       while (i < Data.Length)
       {
         char ch = Data[i];
@@ -241,13 +241,13 @@ namespace SkinEngine.Controls.Visuals
           //relative origin
           PointF point = GetPoint(ref i);
           lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
-          Trace.WriteLine(String.Format("  m({0},{1})  ({2},{3})", point.X, point.Y, lastPoint.X, lastPoint.Y));
+//          Trace.WriteLine(String.Format("  m({0},{1})  ({2},{3})", point.X, point.Y, lastPoint.X, lastPoint.Y));
         }
         else if (ch == 'M')
         {
           //absolute origin
           PointF point = GetPoint(ref i);
-          Trace.WriteLine(String.Format("  M({0},{1})", point.X, point.Y));
+//          Trace.WriteLine(String.Format("  M({0},{1})", point.X, point.Y));
           lastPoint = new PointF(point.X, point.Y);
         }
         else if (ch == 'L')
@@ -261,7 +261,7 @@ namespace SkinEngine.Controls.Visuals
             if (Data[i] != ',') i--;
             PointF point1 = GetPoint(ref i);
             mPath.AddLine(lastPoint, point1);
-            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
+//            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
             lastPoint = new PointF(point1.X, point1.Y);
             if (i >= Data.Length) break;
           }
@@ -279,7 +279,7 @@ namespace SkinEngine.Controls.Visuals
             point1.X += lastPoint.X;
             point1.Y += lastPoint.Y;
             mPath.AddLine(lastPoint, point1);
-            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
+//            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
             lastPoint = new PointF(point1.X, point1.Y);
             if (i >= Data.Length) break;
           }
@@ -289,7 +289,7 @@ namespace SkinEngine.Controls.Visuals
           //Horizontal line to absolute X
           float x = GetDecimal(ref i);
           PointF point1 = new PointF(x, lastPoint.Y);
-          Trace.WriteLine(String.Format("  H({0})", x));
+//          Trace.WriteLine(String.Format("  H({0})", x));
           mPath.AddLine(lastPoint, point1);
           lastPoint = new PointF(point1.X, point1.Y);
         }
@@ -297,7 +297,7 @@ namespace SkinEngine.Controls.Visuals
         {
           //Horizontal line to relative X
           float x = GetDecimal(ref i);
-          Trace.WriteLine(String.Format("  h({0})", x));
+//          Trace.WriteLine(String.Format("  h({0})", x));
           PointF point1 = new PointF(lastPoint.X + x, lastPoint.Y);
           mPath.AddLine(lastPoint, point1);
           lastPoint = new PointF(point1.X, point1.Y);
@@ -306,7 +306,7 @@ namespace SkinEngine.Controls.Visuals
         {
           //Vertical line to absolute y
           float y = GetDecimal(ref i);
-          Trace.WriteLine(String.Format("  V({0})", y));
+//          Trace.WriteLine(String.Format("  V({0})", y));
           PointF point1 = new PointF(lastPoint.X, y);
           mPath.AddLine(lastPoint, point1);
           lastPoint = new PointF(point1.X, point1.Y);
@@ -315,7 +315,7 @@ namespace SkinEngine.Controls.Visuals
         {
           //Vertical line to relative y
           float y = GetDecimal(ref i);
-          Trace.WriteLine(String.Format("  v({0})", y));
+//          Trace.WriteLine(String.Format("  v({0})", y));
           PointF point1 = new PointF(lastPoint.X, lastPoint.Y + y);
           mPath.AddLine(lastPoint, point1);
           lastPoint = new PointF(point1.X, point1.Y);
@@ -334,7 +334,7 @@ namespace SkinEngine.Controls.Visuals
             PointF endpoint = GetPoint(ref i);
             mPath.AddBezier(lastPoint, controlPoint1, controlPoint2, endpoint);
             lastPoint = new PointF(endpoint.X, endpoint.Y);
-            Trace.WriteLine(String.Format("  C({0},{1}) ({2},{3}) ({4},{5}  ({6},{7}))", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y, lastPoint.X, lastPoint.Y));
+//            Trace.WriteLine(String.Format("  C({0},{1}) ({2},{3}) ({4},{5}  ({6},{7}))", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y, lastPoint.X, lastPoint.Y));
             if (i >= Data.Length) break;
           }
         }
@@ -350,7 +350,7 @@ namespace SkinEngine.Controls.Visuals
             PointF controlPoint1 = GetPoint(ref i);
             PointF controlPoint2 = GetPoint(ref i);
             PointF endpoint = GetPoint(ref i);
-            Trace.WriteLine(String.Format("  c({0},{1}) ({2},{3}) ({4},{5})", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y));
+//            Trace.WriteLine(String.Format("  c({0},{1}) ({2},{3}) ({4},{5})", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y));
             controlPoint1.X += lastPoint.X;
             controlPoint1.Y += lastPoint.Y;
 
@@ -368,7 +368,7 @@ namespace SkinEngine.Controls.Visuals
         {
           //Horizontal line to relative X
           float x = GetDecimal(ref i);
-          Trace.WriteLine(String.Format("  F({0})", x));
+//          Trace.WriteLine(String.Format("  F({0})", x));
           if (x == 0.0f)
           {
             //the EvenOdd fill rule
@@ -395,13 +395,13 @@ namespace SkinEngine.Controls.Visuals
         {
           //close figure
           mPath.CloseFigure();
-          Trace.WriteLine(String.Format("  z"));
+//          Trace.WriteLine(String.Format("  z"));
           break;
         }
         else
         {
-          if (Data[i] != ' ' && Data[i] != '\r')
-            Trace.WriteLine(String.Format("  ?:{0}", Data[i]));
+          //if (Data[i] != ' ' && Data[i] != '\r')
+//            Trace.WriteLine(String.Format("  ?:{0}", Data[i]));
           ++i;
         }
       }
@@ -411,6 +411,13 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+      }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 

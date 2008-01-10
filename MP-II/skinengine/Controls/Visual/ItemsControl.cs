@@ -371,7 +371,7 @@ namespace SkinEngine.Controls.Visuals
         }
         ItemsPanel.Children.Add(container);
       }
-      bool result = false;
+      //bool result = false;
       ItemsPanel.Invalidate();
       if (focusedItem != null)
       {
@@ -380,7 +380,7 @@ namespace SkinEngine.Controls.Visuals
         {
           info.Reset();
         }
-        result = true;
+//        result = true;
         ItemsPanel.UpdateLayout();
         focusedItem.HasFocus = false;
         if (ItemsPanel.Children.Count <= focusedIndex)
@@ -396,7 +396,7 @@ namespace SkinEngine.Controls.Visuals
           ItemsPanel.OnMouseMove(x, y);
         }
       }
-      return result;
+      return true;
     }
 
 
@@ -404,8 +404,10 @@ namespace SkinEngine.Controls.Visuals
     {
       if (_prepare)
       {
-        _prepare = false;
-        return Prepare();
+        if (Prepare())
+        {
+          _prepare = false;
+        }
       }
       return false;
     }

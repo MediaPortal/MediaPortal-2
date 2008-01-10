@@ -256,7 +256,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Border.PerformLayout()");
+      Trace.WriteLine("Border.PerformLayout() " + this.Name);
       if (Name == "b21")
       {
         int xxxx = 1;
@@ -266,13 +266,13 @@ namespace SkinEngine.Controls.Visuals
       double h = ActualHeight;
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
-
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         m.InvertSize(ref rectSize);
       }
+
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       PositionColored2Textured[] verts;
@@ -352,6 +352,12 @@ namespace SkinEngine.Controls.Visuals
         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
         m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
         m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix em;
+          LayoutTransform.GetTransform(out em);
+          m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+        }
         m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
         mPath.Transform(m);
         mPath.Flatten();
@@ -400,6 +406,12 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        mtx.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+      }
       mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       path.Transform(mtx);
 
@@ -456,6 +468,12 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        mtx.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+      }
       mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       path.Transform(mtx);
       return path;

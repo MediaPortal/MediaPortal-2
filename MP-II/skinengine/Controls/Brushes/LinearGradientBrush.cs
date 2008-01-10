@@ -159,7 +159,7 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
-      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
+//      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
       _verts = verts;
       // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
