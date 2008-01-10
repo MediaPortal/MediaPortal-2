@@ -300,13 +300,21 @@ namespace SkinEngine.Controls.Visuals
         if (Height <= 0)
           _desiredSize.Height = ((float)32) - (float)(Margin.Y + Margin.Z);
 
-
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m = new ExtendedMatrix();
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
+        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+        _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
+        if (LayoutTransform != null)
+        {
+          SkinContext.RemoveLayoutTransform();
+        }
         _desiredSize.Width += (float)(Margin.X + Margin.W);
         _desiredSize.Height += (float)(Margin.Y + Margin.Z);
         _originalSize = _desiredSize;
-
-
-        _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
         return;
       }
 
@@ -315,15 +323,8 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
-      
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
       Template.Measure(_desiredSize);
 
       if (Width <= 0)
@@ -332,6 +333,13 @@ namespace SkinEngine.Controls.Visuals
       if (Height <= 0)
         _desiredSize.Height = Template.DesiredSize.Height;
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
       {
@@ -375,11 +383,11 @@ namespace SkinEngine.Controls.Visuals
         ActualHeight = ((FrameworkElement)Template).ActualHeight;
       }
 
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;

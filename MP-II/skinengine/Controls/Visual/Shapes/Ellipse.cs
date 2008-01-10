@@ -79,8 +79,12 @@ namespace SkinEngine.Controls.Visuals
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
-
-      _finalLayoutTransform.InvertSize(ref rectSize);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        m.InvertSize(ref rectSize);
+      }
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
 
 

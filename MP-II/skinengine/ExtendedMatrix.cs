@@ -189,18 +189,30 @@ namespace SkinEngine
     }
     public void InvertSize(ref System.Drawing.SizeF size)
     {
-      float fx = 1.0f * Matrix.M11 + 1.0f * Matrix.M21;
-      float fy = 1.0f * Matrix.M12 + 1.0f * Matrix.M22;
-      size.Width /= fx;
-      size.Height /= fy;
+      float w = size.Width;
+      float h = size.Height;
+      if (Matrix.M21 != 0)
+        size.Width = h / Matrix.M21 - w / Matrix.M11;
+      else
+        size.Width = w / Matrix.M11;
+      if (Matrix.M12 != 0)
+        size.Height = h / Matrix.M22 - w / Matrix.M12;
+      else
+        size.Height = h / Matrix.M22;
     }
 
     public void InvertXY(ref float x, ref float y)
     {
-      float fx = 1.0f * Matrix.M11 + 1.0f * Matrix.M21;
-      float fy = 1.0f * Matrix.M12 + 1.0f * Matrix.M22;
-      x /= fx;
-      y /= fy;
+      float w = x;
+      float h = y;
+      if (Matrix.M21 != 0)
+        x = h / Matrix.M21 - w / Matrix.M11;
+      else
+        x = w / Matrix.M11;
+      if (Matrix.M12 != 0)
+        y = h / Matrix.M22 - w / Matrix.M12;
+      else
+        y = h / Matrix.M22;
     }
 
     public void TransformRectLocation(ref System.Drawing.Rectangle rect)

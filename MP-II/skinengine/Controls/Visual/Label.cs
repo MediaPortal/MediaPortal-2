@@ -200,8 +200,8 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
       if (_asset != null)
       {
-        float h = _asset.Font.LineHeight * 1.2f;
-        h -= (_asset.Font.LineHeight - _asset.Font.Base);
+        float h = _asset.Font.LineHeight;// *1.2f;
+        //h -= (_asset.Font.LineHeight - _asset.Font.Base);
         size = new SizeF((float)availableSize.Width, (float)(h));
       }
       if (Width <= 0)
@@ -209,6 +209,18 @@ namespace SkinEngine.Controls.Visuals
       if (Height <= 0)
         _desiredSize.Height = ((float)size.Height) - (float)(Margin.Y + Margin.Z);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
@@ -234,7 +246,17 @@ namespace SkinEngine.Controls.Visuals
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
-
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
@@ -253,21 +275,33 @@ namespace SkinEngine.Controls.Visuals
 
       base.DoRender();
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.Device.Transform.World *= _finalLayoutTransform.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
-      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
+      float x = (float)ActualPosition.X;
+      float y = (float)ActualPosition.Y;
+      float w = (float)ActualWidth;
+      float h = (float)ActualHeight;
+      _finalLayoutTransform.InvertXY(ref x, ref y);
+      _finalLayoutTransform.InvertXY(ref w, ref h);
+      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
       SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
         align = SkinEngine.Fonts.Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
 
-
       if (rect.Height < _asset.Font.LineHeight * 1.2f)
       {
         rect.Height = (int)(_asset.Font.LineHeight * 1.2f);
       }
-      rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
+      if (VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        rect.Y = (int)(y + (h - _asset.Font.LineHeight) / 2.0);
+      }
+
+      //rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
+
       _asset.Draw(Text, rect, align, size, color, Scroll, out totalWidth);
     }
   }

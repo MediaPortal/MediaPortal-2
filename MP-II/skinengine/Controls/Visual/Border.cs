@@ -257,13 +257,22 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       Trace.WriteLine("Border.PerformLayout()");
+      if (Name == "b21")
+      {
+        int xxxx = 1;
+      }
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
-      _finalLayoutTransform.InvertSize(ref rectSize);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        m.InvertSize(ref rectSize);
+      }
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       PositionColored2Textured[] verts;
@@ -275,21 +284,24 @@ namespace SkinEngine.Controls.Visuals
         {
           CalcCentroid(path, out centerX, out centerY);
           vertices = ConvertPathToTriangleFan(path, centerX, centerY);
-
-          _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
-          unchecked
+          if (vertices != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
+
+            _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+            verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
+            unchecked
             {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
+              for (int i = 0; i < vertices.Length; ++i)
+              {
+                verts[i].X = vertices[i].X;
+                verts[i].Y = vertices[i].Y;
+                verts[i].Z = 1.0f;
+              }
             }
+            Background.SetupBrush(this, ref verts);
+            _vertexBufferFill.Unlock();
+            _verticesCountFill = (verts.Length - 2);
           }
-          Background.SetupBrush(this, ref verts);
-          _vertexBufferFill.Unlock();
-          _verticesCountFill = (verts.Length - 2);
         }
       }
       //border brush
@@ -300,26 +312,26 @@ namespace SkinEngine.Controls.Visuals
         {
           CalcCentroid(path, out centerX, out centerY);
           vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)BorderThickness);
-
-          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-          unchecked
+          if (vertices != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
+            _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+            verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
+            unchecked
             {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
+              for (int i = 0; i < vertices.Length; ++i)
+              {
+                verts[i].X = vertices[i].X;
+                verts[i].Y = vertices[i].Y;
+                verts[i].Z = 1.0f;
+              }
             }
+            BorderBrush.SetupBrush(this, ref verts);
+            _vertexBufferBorder.Unlock();
+            _verticesCountBorder = (verts.Length / 3);
           }
-          BorderBrush.SetupBrush(this, ref verts);
-          _vertexBufferBorder.Unlock();
-          _verticesCountBorder = (verts.Length / 3);
         }
       }
 
-      ActualWidth = w;
-      ActualHeight = h;
     }
 
 

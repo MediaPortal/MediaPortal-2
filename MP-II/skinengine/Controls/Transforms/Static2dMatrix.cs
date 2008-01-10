@@ -30,6 +30,7 @@ namespace SkinEngine.Controls.Transforms
 {
   public class Static2dMatrix : Transform
   {
+    float[] _elements;
     /// <summary>
     /// Initializes a new instance of the <see cref="SkewTransform"/> class.
     /// </summary>
@@ -40,6 +41,8 @@ namespace SkinEngine.Controls.Transforms
     public Static2dMatrix(Static2dMatrix r)
       : base(r)
     {
+      _elements = (float[])r._elements.Clone();
+      CreateMatrix();
     }
     void Init()
     {
@@ -52,14 +55,19 @@ namespace SkinEngine.Controls.Transforms
 
     public void Set2DMatrix(System.Drawing.Drawing2D.Matrix matrix2d)
     {
-      float[] elements = matrix2d.Elements;
+      _elements = matrix2d.Elements;
+      CreateMatrix();
+    }
+    void CreateMatrix()
+    {
       _matrix = Matrix.Identity;
-      _matrix.M11 = elements[0];
-      _matrix.M12 = elements[1];
-      _matrix.M21 = elements[2];
-      _matrix.M22 = elements[3];
-      _matrix.M41 = elements[4];
-      _matrix.M42 = elements[5];
+      _matrix.M11 = _elements[0];
+      _matrix.M12 = _elements[1];
+      _matrix.M21 = _elements[2];
+      _matrix.M22 = _elements[3];
+      _matrix.M41 = _elements[4];
+      _matrix.M42 = _elements[5];
+      _needUpdate = false;
     }
   }
 }

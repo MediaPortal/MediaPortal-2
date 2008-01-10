@@ -431,6 +431,12 @@ namespace SkinEngine.Controls.Visuals
     }
     protected void CalcCentroid(GraphicsPath path, out float cx, out float cy)
     {
+      if (path.PointCount == 0)
+      {
+        cx = 0;
+        cy = 0;
+        return;
+      }
       Vector2 centroid = new Vector2();
       double temp;
       double area = 0;

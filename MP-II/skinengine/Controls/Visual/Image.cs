@@ -269,6 +269,17 @@ namespace SkinEngine.Controls.Visuals
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       _performLayout = true;
 
       if (!IsArrangeValid)
@@ -290,6 +301,17 @@ namespace SkinEngine.Controls.Visuals
         if (FallbackSource == null)
         {
           _desiredSize = new SizeF((float)Width, (float)Height);
+        }
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m = new ExtendedMatrix();
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
+        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+        if (LayoutTransform != null)
+        {
+          SkinContext.RemoveLayoutTransform();
         }
         return;
       }
@@ -320,6 +342,18 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize = new SizeF((float)Width, (float)Height);
       }
 
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;

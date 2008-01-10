@@ -183,6 +183,13 @@ namespace SkinEngine.Controls.Visuals
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
+      if (Content != null)
+      {
+        Content.Measure(_desiredSize);
+      }
+      if (Width > 0) _desiredSize.Width = (float)Width;
+      if (Height > 0) _desiredSize.Height = (float)Height;
+
       if (LayoutTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
@@ -190,14 +197,6 @@ namespace SkinEngine.Controls.Visuals
         SkinContext.AddLayoutTransform(m);
       }
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      if (Content != null)
-      {
-        Content.Measure(_desiredSize);
-        _desiredSize = Content.DesiredSize;
-      }
-      if (Width > 0) _desiredSize.Width = (float)Width;
-      if (Height > 0) _desiredSize.Height = (float)Height;
-
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
@@ -236,17 +235,17 @@ namespace SkinEngine.Controls.Visuals
 
       if (Content != null)
       {
-        Content.Arrange(layoutRect);
-        ActualPosition = Content.ActualPosition;
-        ActualWidth = ((FrameworkElement)Content).ActualWidth;
-        ActualHeight = ((FrameworkElement)Content).ActualHeight;
+        PointF location = new PointF((float)(layoutRect.X), (float)(layoutRect.Y));
+        SizeF size = new SizeF(Content.DesiredSize.Width, Content.DesiredSize.Height);
+        ArrangeChild(Content, ref location, (double)layoutRect.Width, (double)layoutRect.Height);
+        Content.Arrange(new RectangleF(location, size));
       }
 
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       if (!IsArrangeValid)
       {
@@ -256,6 +255,27 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
+    {
+      if (VisualParent == null) return;
+
+      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      {
+        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
+      }
+      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      {
+        p.X += (float)(widthPerCell - child.DesiredSize.Width);
+      }
+      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
+      }
+      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+      {
+        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
+      }
+    }
     /// <summary>
     /// Renders the visual
     /// </summary>

@@ -57,6 +57,18 @@ namespace SkinEngine.Controls.Visuals.Styles
       if (Height > 0) rect.Height = (float)Height;
       _desiredSize = rect.Size;
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
@@ -74,6 +86,13 @@ namespace SkinEngine.Controls.Visuals.Styles
       ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       if (Children.Count > 0)
       {
         UIElement child = Children[0];
@@ -86,6 +105,11 @@ namespace SkinEngine.Controls.Visuals.Styles
           child.Arrange(new System.Drawing.RectangleF(p, child.DesiredSize));
         }
       }
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.PerformLayout();
       if (!IsArrangeValid)
       {

@@ -140,12 +140,6 @@ namespace SkinEngine.Controls.Panels
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
       double w = _desiredSize.Width;
       double h = _desiredSize.Height;
 
@@ -222,14 +216,23 @@ namespace SkinEngine.Controls.Panels
       if (Width > 0) _desiredSize.Width = (float)Width;
       if (Height > 0) _desiredSize.Height = (float)Height;
 
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
-      _originalSize = _desiredSize;
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+
+      _desiredSize.Width += (float)(Margin.X + Margin.W);
+      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      _originalSize = _desiredSize;
+
       base.Measure(availableSize);
     }
 

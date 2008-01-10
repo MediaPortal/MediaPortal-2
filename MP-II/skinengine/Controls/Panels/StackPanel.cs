@@ -110,18 +110,20 @@ namespace SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
+      if (this.Name == "Panel1")
+      {
+        int xxx = 123;
+      }
+      if (this.Name == "Panel2")
+      {
+        int xxx = 123;
+      }
       _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       if (Width <= 0)
         _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
@@ -139,7 +141,7 @@ namespace SkinEngine.Controls.Panels
         {
           child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
-          if (totalHeight + child.DesiredSize.Height > availableSize.Height)
+          if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > availableSize.Height)
             break;
           totalHeight += child.DesiredSize.Height;
           child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
@@ -150,7 +152,7 @@ namespace SkinEngine.Controls.Panels
         {
           child.Measure(new SizeF(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
-          if (totalWidth + child.DesiredSize.Width > availableSize.Width)
+          if (availableSize.Width > 0 & totalWidth + child.DesiredSize.Width > availableSize.Width)
             break;
           totalWidth += child.DesiredSize.Width;
 
@@ -176,15 +178,22 @@ namespace SkinEngine.Controls.Panels
       if (Height > 0) totalHeight = (float)Height;
       _desiredSize = new SizeF((float)totalWidth, (float)totalHeight);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
       _originalSize = _desiredSize;
 
 
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
       base.Measure(availableSize);
     }
 
@@ -195,6 +204,10 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
+      if (this.Name == "Panel2")
+      {
+        int xxx = 123;
+      }
       _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
