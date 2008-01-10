@@ -193,6 +193,8 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
+      base.Measure(availableSize);
+      /*
       using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null))
       {
         RectangleF bounds = p.GetBounds();
@@ -204,15 +206,29 @@ namespace SkinEngine.Controls.Visuals
         if (bounds.Height <= 0)
           _desiredSize.Height = ((float)availableSize.Height) - (float)(Margin.Y + Margin.Z);
 
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m = new ExtendedMatrix();
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
         SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
+        if (LayoutTransform != null)
+        {
+          SkinContext.RemoveLayoutTransform();
+        }
         _desiredSize.Width += (float)(Margin.X + Margin.W);
         _desiredSize.Height += (float)(Margin.Y + Margin.Z);
 
-        base.Measure(availableSize);
-      }
+        _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      }*/
     }
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
+      base.Arrange(finalRect);
+      /*
+
       _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
@@ -225,6 +241,7 @@ namespace SkinEngine.Controls.Visuals
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.Arrange(layoutRect);
+       */
     }
 
     private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform)

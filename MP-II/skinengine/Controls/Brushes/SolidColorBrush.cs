@@ -116,6 +116,7 @@ namespace SkinEngine.Controls.Brushes
       //Trace.WriteLine("SolidColorBrush.SetupBrush()");
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
+        UpdateBounds(element, ref verts);
         base.SetupBrush(element, ref verts);
         ColorValue color = ColorValue.FromColor(this.Color);
         color.Alpha *= (float)Opacity;

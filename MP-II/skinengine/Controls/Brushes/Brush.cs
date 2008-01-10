@@ -57,6 +57,7 @@ namespace SkinEngine.Controls.Brushes
     bool _isOpacity;
     protected System.Drawing.RectangleF _bounds;
     protected System.Drawing.PointF _orginalPosition;
+    protected System.Drawing.PointF _minPosition;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
@@ -278,17 +279,28 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public virtual void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
+      float w = (float)element.ActualWidth;
+      float h = (float)element.ActualHeight;
+      float xoff = _bounds.X;
+      float yoff = _bounds.Y;
+      if (element.FinalLayoutTransform != null)
+      {
+        w = _bounds.Width;
+        h = _bounds.Height;
+        element.FinalLayoutTransform.TransformXY(ref w, ref h);
+        element.FinalLayoutTransform.TransformXY(ref xoff, ref yoff);
+      }
       for (int i = 0; i < verts.Length; ++i)
       {
         float u, v;
         float x1, y1;
         y1 = (float)verts[i].Y;
-        v = (float)(y1 - element.ActualPosition.Y);
-        v /= (float)(element.ActualHeight);
+        v = (float)(y1 - (element.ActualPosition.Y + yoff));
+        v /= (float)(h);
 
         x1 = (float)verts[i].X;
-        u = (float)(x1 - element.ActualPosition.X);
-        u /= (float)(element.ActualWidth);
+        u = (float)(x1 - (element.ActualPosition.X + xoff));
+        u /= (float)(w);
 
         if (u < 0) u = 0;
         if (u > 1) u = 1;
@@ -307,7 +319,7 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    protected void UpdateBounds(FrameworkElement element,ref PositionColored2Textured[] verts)
+    protected void UpdateBounds(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
@@ -323,16 +335,19 @@ namespace SkinEngine.Controls.Brushes
       }
       if (element.FinalLayoutTransform != null)
       {
+        maxx -= minx;
+        maxy -= miny;
+        minx -= (float)element.ActualPosition.X;
+        miny -= (float)element.ActualPosition.Y;
         element.FinalLayoutTransform.InvertXY(ref minx, ref miny);
         element.FinalLayoutTransform.InvertXY(ref maxx, ref maxy);
 
-        float x = (float)element.ActualPosition.X;
-        float y = (float)element.ActualPosition.Y;
-        element.FinalLayoutTransform.InvertXY(ref x, ref y);
-        _orginalPosition.X = x;
-        _orginalPosition.Y = y;
+        _orginalPosition.X = (float)element.ActualPosition.X;
+        _orginalPosition.Y = (float)element.ActualPosition.Y;
+        _minPosition.X = _orginalPosition.X+minx;
+        _minPosition.Y = _orginalPosition.Y+miny;
       }
-      _bounds = new System.Drawing.RectangleF(minx, miny, maxx - minx, maxy - miny);
+      _bounds = new System.Drawing.RectangleF(minx, miny, maxx, maxy);
 
     }
 

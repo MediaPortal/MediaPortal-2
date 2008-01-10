@@ -279,11 +279,11 @@ namespace SkinEngine.Controls.Brushes
       float[] g_endpoint = new float[2] { EndPoint.X, EndPoint.Y };
       if (MappingMode == BrushMappingMode.Absolute)
       {
-        g_startpoint[0] = (float)((StartPoint.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
-        g_startpoint[1] = (float)((StartPoint.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
+        g_startpoint[0] = (float)((StartPoint.X - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+        g_startpoint[1] = (float)((StartPoint.Y - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
 
-        g_endpoint[0] = (float)((EndPoint.X - (_bounds.X - _orginalPosition.X)) / _bounds.Width);
-        g_endpoint[1] = (float)((EndPoint.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
+        g_endpoint[0] = (float)((EndPoint.X - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+        g_endpoint[1] = (float)((EndPoint.Y - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
       }
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
