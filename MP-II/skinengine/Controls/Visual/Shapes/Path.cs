@@ -155,25 +155,32 @@ namespace SkinEngine.Controls.Visuals
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
         bool isClosed;
-        using (path = GetPath(rect, _finalLayoutTransform, out isClosed))
+        if (Fill != null)
         {
-          CalcCentroid(path, out centerX, out centerY);
-          Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount,isClosed));
-          if (Fill != null)
+          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, 0))
           {
-            _vertexBufferFill = Triangulate(path, centerX, centerY, out verts, out _fillPrimitiveType);
-            if (_vertexBufferFill != null)
+            CalcCentroid(path, out centerX, out centerY);
+            Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
+            if (Fill != null)
             {
-              Fill.SetupBrush(this, ref verts);
-              _vertexBufferFill.Unlock();
-              if (_fillPrimitiveType == PrimitiveType.TriangleList)
-                _verticesCountFill = (verts.Length / 3);
-              else
-                _verticesCountFill = (verts.Length -2);
+              _vertexBufferFill = Triangulate(path, centerX, centerY, out verts, out _fillPrimitiveType);
+              if (_vertexBufferFill != null)
+              {
+                Fill.SetupBrush(this, ref verts);
+                _vertexBufferFill.Unlock();
+                if (_fillPrimitiveType == PrimitiveType.TriangleList)
+                  _verticesCountFill = (verts.Length / 3);
+                else
+                  _verticesCountFill = (verts.Length - 2);
+              }
             }
           }
-          if (Stroke != null && StrokeThickness > 0)
+        }
+        if (Stroke != null && StrokeThickness > 0)
+        {
+          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)StrokeThickness))
           {
+            CalcCentroid(path, out centerX, out centerY);
             _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, isClosed, out verts);
             if (_vertexBufferBorder != null)
             {
@@ -245,7 +252,7 @@ namespace SkinEngine.Controls.Visuals
        */
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed)
+    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickNess)
     {
       isClosed = false;
       GraphicsPath mPath = new GraphicsPath();
@@ -430,6 +437,15 @@ namespace SkinEngine.Controls.Visuals
 
       RectangleF rbounds = mPath.GetBounds();
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      if (thickNess != 0.0)
+      {
+        RectangleF bounds = mPath.GetBounds();
+        float cx = bounds.X + (bounds.Width / 2.0f);
+        float cy = bounds.X + (bounds.Height / 2.0f);
+        m.Translate(-cx, -cy, MatrixOrder.Append);
+        m.Scale((thickNess + bounds.Width) / bounds.Width, (thickNess + bounds.Height) / bounds.Height, MatrixOrder.Append);
+        m.Translate(cx, cy, MatrixOrder.Append);
+      }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
 
