@@ -46,7 +46,7 @@ namespace SkinEngine.Controls.Visuals
   public class Path : Shape
   {
     Property _dataProperty;
-    ArrayList _points;
+    PrimitiveType _fillPrimitiveType;
 
 
 
@@ -70,7 +70,6 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _dataProperty = new Property("");
-      _points = new ArrayList();
     }
 
 
@@ -119,9 +118,9 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleList);
+        Fill.BeginRender(_vertexBufferFill, _verticesCountFill, _fillPrimitiveType);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
+        GraphicsDevice.Device.DrawPrimitives(_fillPrimitiveType, 0, _verticesCountFill);
         Fill.EndRender();
       }
       if (Stroke != null && StrokeThickness > 0)
@@ -137,7 +136,6 @@ namespace SkinEngine.Controls.Visuals
     }
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Path.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -159,19 +157,23 @@ namespace SkinEngine.Controls.Visuals
         bool isClosed;
         using (path = GetPath(rect, _finalLayoutTransform, out isClosed))
         {
+          CalcCentroid(path, out centerX, out centerY);
+          Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount,isClosed));
           if (Fill != null)
           {
-            _vertexBufferFill = Triangulate(path, out verts);
+            _vertexBufferFill = Triangulate(path, centerX, centerY, out verts, out _fillPrimitiveType);
             if (_vertexBufferFill != null)
             {
               Fill.SetupBrush(this, ref verts);
               _vertexBufferFill.Unlock();
-              _verticesCountFill = (verts.Length / 3);
+              if (_fillPrimitiveType == PrimitiveType.TriangleList)
+                _verticesCountFill = (verts.Length / 3);
+              else
+                _verticesCountFill = (verts.Length -2);
             }
           }
           if (Stroke != null && StrokeThickness > 0)
           {
-            CalcCentroid(path, out centerX, out centerY);
             _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, isClosed, out verts);
             if (_vertexBufferBorder != null)
             {

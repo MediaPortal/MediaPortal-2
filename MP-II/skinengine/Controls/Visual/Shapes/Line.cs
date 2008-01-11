@@ -223,7 +223,6 @@ namespace SkinEngine.Controls.Visuals
 
       //Fill brush
       GraphicsPath path;
-      PointF[] vertices;
       PositionColored2Textured[] verts;
 
       //border brush

@@ -354,7 +354,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, bool isClosed,out PositionColored2Textured[] verts)
+    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, bool isClosed, out PositionColored2Textured[] verts)
     {
       verts = null;
       if (path.PointCount <= 0) return null;
@@ -380,7 +380,7 @@ namespace SkinEngine.Controls.Visuals
 
         verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 4].Position = new Vector3(x, y, 1);
-        if (i + 1 < (pointCount ) && isClosed==false)
+        if (i + 1 < (pointCount) && isClosed == false)
         {
           PointF nextpoint1 = GetNextPoint(points, i + 1);
           GetInset(nextpoint1, nextpoint, out x, out y, (double)thickNess);
@@ -400,14 +400,15 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    protected VertexBuffer Triangulate(GraphicsPath path, out PositionColored2Textured[] verts)
+    protected VertexBuffer Triangulate(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts, out PrimitiveType primitive)
     {
       verts = null;
       if (path.PointCount <= 3)
       {
-        return null;
+        primitive = PrimitiveType.TriangleFan;
+        return ConvertPathToTriangleFan(path, cx, cy, out verts);
       }
-
+      primitive= PrimitiveType.TriangleList;
       CPolygonShape cutPolygon = new CPolygonShape(path);
       cutPolygon.CutEar();
 

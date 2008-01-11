@@ -95,9 +95,9 @@ namespace SkinEngine.Controls.Visuals
       {
         using (path = GetEllipse(rect))
         {
+          CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            CalcCentroid(path, out centerX, out centerY);
             _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
             if (_vertexBufferFill != null)
             {
@@ -109,7 +109,6 @@ namespace SkinEngine.Controls.Visuals
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            CalcCentroid(path, out centerX, out centerY);
             _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
             if (_vertexBufferBorder != null)
             {

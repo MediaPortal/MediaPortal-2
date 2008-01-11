@@ -277,37 +277,35 @@ namespace SkinEngine.Controls.Visuals
 
       PositionColored2Textured[] verts;
       GraphicsPath path;
-      if (Background != null)
+      if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
         using (path = GetRoundedRect(rect, (float)CornerRadius))
         {
           CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-          if (_vertexBufferFill != null)
+          if (Background != null)
           {
-            Background.SetupBrush(this, ref verts);
-            _vertexBufferFill.Unlock();
-            _verticesCountFill = (verts.Length - 2);
+            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+            if (_vertexBufferFill != null)
+            {
+              Background.SetupBrush(this, ref verts);
+              _vertexBufferFill.Unlock();
+              _verticesCountFill = (verts.Length - 2);
+            }
+          }
+
+          if (BorderBrush != null && BorderThickness > 0)
+          {
+            _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
+            if (_vertexBufferBorder != null)
+            {
+              BorderBrush.SetupBrush(this, ref verts);
+              _vertexBufferBorder.Unlock();
+              _verticesCountBorder = (verts.Length / 3);
+            }
+
           }
         }
       }
-      //border brush
-
-      if (BorderBrush != null && BorderThickness > 0)
-      {
-        using (path = GetRoundedRect(rect, (float)CornerRadius))
-        {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
-          if (_vertexBufferBorder != null)
-          {
-            BorderBrush.SetupBrush(this, ref verts);
-            _vertexBufferBorder.Unlock();
-            _verticesCountBorder = (verts.Length / 3);
-          }
-        }
-      }
-
     }
 
 
