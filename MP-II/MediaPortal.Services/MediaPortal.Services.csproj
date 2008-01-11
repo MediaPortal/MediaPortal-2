@@ -71,7 +71,6 @@
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\StringManager.cs" />
     <Compile Include="Logging\CrashLogger.cs" />
-    <Compile Include="Logging\DxDiagLog.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="MenuManager\Menu.cs" />
     <Compile Include="MenuManager\MenuBuilder.cs" />
