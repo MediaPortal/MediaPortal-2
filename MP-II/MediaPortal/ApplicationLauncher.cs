@@ -154,15 +154,17 @@ namespace MediaPortal
         logger.Debug("MPApplication: Starting core");
         ApplicationCore core = new ApplicationCore();
         core.Start();
+        //throw new ArgumentException("Test Execption");
 #if !DEBUG
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-          //TODO: log exception and all crash information
-          Form frm =
-            new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
-                                  "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
-                                  BaseScreen.Image.bug);
+          CrashLogger crash = new CrashLogger(pathManager.GetPath("<LOG>"));
+          crash.CreateLog(ex);
+          //Form frm =
+          //  new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
+          //                        "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
+          //                        BaseScreen.Image.bug);
           //restart = frm.ShowDialog() == DialogResult.Yes;
         }
 #endif

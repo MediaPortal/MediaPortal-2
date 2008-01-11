@@ -55,6 +55,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -69,6 +70,8 @@
     <Compile Include="Exif\ExifReader.cs" />
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\StringManager.cs" />
+    <Compile Include="Logging\CrashLogger.cs" />
+    <Compile Include="Logging\DxDiagLog.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="MenuManager\Menu.cs" />
     <Compile Include="MenuManager\MenuBuilder.cs" />
