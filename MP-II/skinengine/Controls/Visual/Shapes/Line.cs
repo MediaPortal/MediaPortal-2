@@ -233,22 +233,13 @@ namespace SkinEngine.Controls.Visuals
         using (path = GetLine(rect))
         {
           CalcCentroid(path, out centerX, out centerY);
-          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
-
-          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-          unchecked
+          _vertexBufferBorder = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+          if (_vertexBufferBorder != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
-            {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
-            }
+            Stroke.SetupBrush(this, ref verts);
+            _vertexBufferBorder.Unlock();
+            _verticesCountBorder = (verts.Length / 3);
           }
-          Stroke.SetupBrush(this, ref verts);
-          _vertexBufferBorder.Unlock();
-          _verticesCountBorder = (verts.Length / 3);
         }
       }
 

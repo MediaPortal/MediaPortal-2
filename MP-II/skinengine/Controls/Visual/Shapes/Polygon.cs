@@ -123,27 +123,18 @@ namespace SkinEngine.Controls.Visuals
       //Fill brush
       PositionColored2Textured[] verts;
       GraphicsPath path;
-      PointF[] vertices;
       if (Fill != null)
       {
         using (path = GetPolygon(rect))
         {
           CalcCentroid(path, out centerX, out centerY);
-          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
-          _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferFill.Lock(0, 0);
-          unchecked
+          _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+          if (_vertexBufferFill != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
-            {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
-            }
+            Fill.SetupBrush(this, ref verts);
+            _vertexBufferFill.Unlock();
+            _verticesCountFill = (verts.Length - 2);
           }
-          Fill.SetupBrush(this, ref verts);
-          _vertexBufferFill.Unlock();
-          _verticesCountFill = (verts.Length - 2);
         }
       }
       //border brush
@@ -153,22 +144,13 @@ namespace SkinEngine.Controls.Visuals
         using (path = GetPolygon(rect))
         {
           CalcCentroid(path, out centerX, out centerY);
-          vertices = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness);
-
-          _vertexBufferBorder = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-          verts = (PositionColored2Textured[])_vertexBufferBorder.Lock(0, 0);
-          unchecked
+          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, out verts);
+          if (_vertexBufferBorder != null)
           {
-            for (int i = 0; i < vertices.Length; ++i)
-            {
-              verts[i].X = vertices[i].X;
-              verts[i].Y = vertices[i].Y;
-              verts[i].Z = 1.0f;
-            }
+            Stroke.SetupBrush(this, ref verts);
+            _vertexBufferBorder.Unlock();
+            _verticesCountBorder = (verts.Length / 3);
           }
-          Stroke.SetupBrush(this, ref verts);
-          _vertexBufferBorder.Unlock();
-          _verticesCountBorder = (verts.Length / 3);
         }
       }
 

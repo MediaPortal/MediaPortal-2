@@ -106,7 +106,8 @@ namespace MediaPortal.Core
     /// <remarks>
     /// This pointer is only static for the current thread.
     /// </remarks>
-    [ThreadStatic] private static ServiceScope current;
+    [ThreadStatic]
+    private static ServiceScope current;
 
     /// <summary>
     /// Pointer to the global <see cref="ServiceScope"/>.  This is the 
@@ -155,7 +156,7 @@ namespace MediaPortal.Core
     /// <summary>
     /// Creates a new <see cref="ServiceScope"/> instance and initialize it.
     /// </summary>
-    public ServiceScope() : this(false) {}
+    public ServiceScope() : this(false) { }
 
     /// <summary>
     /// Gets or sets the current <see cref="ServiceScope"/>
@@ -265,17 +266,17 @@ namespace MediaPortal.Core
 
     private void AddService<T>(T service)
     {
-      services[typeof (T)] = service;
+      services[typeof(T)] = service;
     }
 
     private void RemoveService<T>()
     {
-      services.Remove(typeof (T));
+      services.Remove(typeof(T));
     }
 
     private bool IsServiceRegistered<T>()
     {
-      Type type = typeof (T);
+      Type type = typeof(T);
       if (services.ContainsKey(type))
       {
         return true;
@@ -285,7 +286,7 @@ namespace MediaPortal.Core
 
     private T GetService<T>(bool throwIfNotFound)
     {
-      Type type = typeof (T);
+      Type type = typeof(T);
       if (services.ContainsKey(type))
       {
         ServiceCreatorCallback<T> callback = services[type] as ServiceCreatorCallback<T>;
@@ -293,14 +294,14 @@ namespace MediaPortal.Core
         {
           return callback(this);
         }
-        return (T) services[type];
+        return (T)services[type];
       }
       if (oldInstance == null)
       {
         object newService = Get<IPluginManager>().GetPluginItem<T>("/Services", type.Name);
         if (newService != null)
         {
-          Add<T>((T) newService);
+          Add<T>((T)newService);
           return (T)newService;
         }
 
@@ -309,7 +310,7 @@ namespace MediaPortal.Core
           throw new ServiceNotFoundException(type);
         }
         object o = null;
-        return (T) (o);
+        return (T)(o);
       }
       return oldInstance.GetService<T>(throwIfNotFound);
     }

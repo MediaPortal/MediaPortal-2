@@ -12,11 +12,10 @@ namespace GeometryUtility
   /// </summary>
   public class CPolygonShape
   {
-    private CPoint2D[] m_aInputVertices;
+    //private CPoint2D[] m_aInputVertices;
     private CPoint2D[] m_aUpdatedPolygonVertices;
 
-    private System.Collections.ArrayList m_alEars
-      = new System.Collections.ArrayList();
+    private List<CPoint2D[]> m_alEars = new List<CPoint2D[]>();
     private CPoint2D[][] m_aPolygons;
 
     public int NumberOfPolygons
@@ -26,7 +25,13 @@ namespace GeometryUtility
         return m_aPolygons.Length;
       }
     }
-
+    public CPoint2D[] this[int index]
+    {
+      get
+      {
+        return m_aPolygons[index];
+      }
+    }
     public CPoint2D[] Polygons(int index)
     {
       if (index < m_aPolygons.Length)
@@ -40,8 +45,7 @@ namespace GeometryUtility
       int nVertices = path.PointCount;
       if (nVertices < 3)
       {
-        System.Diagnostics.Trace.WriteLine("To make a polygon, "
-          + " at least 3 points are required!");
+        System.Diagnostics.Trace.WriteLine("To make a polygon, " + " at least 3 points are required!");
         return;
       }
 
@@ -55,17 +59,20 @@ namespace GeometryUtility
         }
       }
 
-      //initalize the 2D points
-      m_aInputVertices = new CPoint2D[points.Count];
 
+      m_aUpdatedPolygonVertices = new CPoint2D[points.Count];
       for (int i = 0; i < points.Count; i++)
-        m_aInputVertices[i] = new CPoint2D(points[i].X, points[i].Y);
+        m_aUpdatedPolygonVertices[i] = new CPoint2D(points[i].X, points[i].Y);
+
+      //m_aUpdatedPolygonVertices should be in count clock wise
+      if (CPolygon.PointsDirection(m_aUpdatedPolygonVertices) == PolygonDirection.Clockwise)
+        CPolygon.ReversePointsDirection(m_aUpdatedPolygonVertices);
 
       //make a working copy,  m_aUpdatedPolygonVertices are
       //in count clock direction from user view
-      SetUpdatedPolygonVertices();
+      // SetUpdatedPolygonVertices();
     }
-
+    /*
     public CPolygonShape(CPoint2D[] vertices)
     {
       int nVertices = vertices.Length;
@@ -86,14 +93,6 @@ namespace GeometryUtility
       //in count clock direction from user view
       SetUpdatedPolygonVertices();
     }
-
-    /****************************************************
-    To fill m_aUpdatedPolygonVertices array with input array.
-		
-    m_aUpdatedPolygonVertices is a working array that will 
-    be updated when an ear is cut till m_aUpdatedPolygonVertices
-    makes triangle (a convex polygon).
-     ******************************************************/
     private void SetUpdatedPolygonVertices()
     {
       int nVertices = m_aInputVertices.Length;
@@ -105,7 +104,7 @@ namespace GeometryUtility
       //m_aUpdatedPolygonVertices should be in count clock wise
       if (CPolygon.PointsDirection(m_aUpdatedPolygonVertices) == PolygonDirection.Clockwise)
         CPolygon.ReversePointsDirection(m_aUpdatedPolygonVertices);
-    }
+    }*/
 
     /**********************************************************
     To check the Pt is in the Triangle or not.
@@ -119,8 +118,7 @@ namespace GeometryUtility
       if (trianglePts.Length != 3)
         return false;
 
-      for (int i = trianglePts.GetLowerBound(0);
-        i < trianglePts.GetUpperBound(0); i++)
+      for (int i = trianglePts.GetLowerBound(0); i < trianglePts.GetUpperBound(0); i++)
       {
         if (pt.EqualsPoint(trianglePts[i]))
           return true;
@@ -132,8 +130,7 @@ namespace GeometryUtility
       CLineSegment line1 = new CLineSegment(trianglePts[1], trianglePts[2]);
       CLineSegment line2 = new CLineSegment(trianglePts[2], trianglePts[0]);
 
-      if (pt.InLine(line0) || pt.InLine(line1)
-        || pt.InLine(line2))
+      if (pt.InLine(line0) || pt.InLine(line1) || pt.InLine(line2))
         bIn = true;
       else //point is not in the lines
       {
@@ -178,8 +175,7 @@ namespace GeometryUtility
           CPoint2D pj = polygon.PreviousPoint(vertex); //previous vertex
           CPoint2D pk = polygon.NextPoint(vertex);//next vertex
 
-          for (int i = m_aUpdatedPolygonVertices.GetLowerBound(0);
-            i < m_aUpdatedPolygonVertices.GetUpperBound(0); i++)
+          for (int i = m_aUpdatedPolygonVertices.GetLowerBound(0); i < m_aUpdatedPolygonVertices.GetUpperBound(0); i++)
           {
             CPoint2D pt = m_aUpdatedPolygonVertices[i];
             if (!(pt.EqualsPoint(pi) || pt.EqualsPoint(pj) || pt.EqualsPoint(pk)))
@@ -212,7 +208,7 @@ namespace GeometryUtility
 
       for (int i = 0; i < nPolygon - 1; i++) //add ears
       {
-        CPoint2D[] points = (CPoint2D[])m_alEars[i];
+        CPoint2D[] points = m_alEars[i];
 
         m_aPolygons[i] = new CPoint2D[3]; //3 vertices each ear
         m_aPolygons[i][0] = points[0];
@@ -221,8 +217,7 @@ namespace GeometryUtility
       }
 
       //add UpdatedPolygon:
-      m_aPolygons[nPolygon - 1] = new
-        CPoint2D[m_aUpdatedPolygonVertices.Length];
+      m_aPolygons[nPolygon - 1] = new CPoint2D[m_aUpdatedPolygonVertices.Length];
 
       for (int i = 0; i < m_aUpdatedPolygonVertices.Length; i++)
       {
@@ -293,8 +288,7 @@ namespace GeometryUtility
       {
         int i = 0;
         bool bNotFound = true;
-        while (bNotFound
-          && (i < m_aUpdatedPolygonVertices.Length)) //loop till find an ear
+        while (bNotFound && (i < m_aUpdatedPolygonVertices.Length)) //loop till find an ear
         {
           pt = m_aUpdatedPolygonVertices[i];
           if (IsEarOfUpdatedPolygon(pt))

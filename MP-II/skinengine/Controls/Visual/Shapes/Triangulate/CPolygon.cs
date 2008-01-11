@@ -34,23 +34,18 @@ namespace GeometryUtility
       {
         if (nNumOfPoitns < 3)
         {
-          InvalidInputGeometryDataException ex =
-            new InvalidInputGeometryDataException();
+          InvalidInputGeometryDataException ex = new InvalidInputGeometryDataException();
           throw ex;
         }
         else
         {
-          m_aVertices = new CPoint2D[nNumOfPoitns];
-          for (int i = 0; i < nNumOfPoitns; i++)
-          {
-            m_aVertices[i] = points[i];
-          }
+          m_aVertices = (CPoint2D[])points.Clone();
+          
         }
       }
       catch (Exception e)
       {
-        System.Diagnostics.Trace.WriteLine(
-          e.Message + e.StackTrace);
+        System.Diagnostics.Trace.WriteLine(e.Message + e.StackTrace);
       }
     }
 
@@ -281,12 +276,8 @@ namespace GeometryUtility
         j = (i + 1) % nNumOfVertices; //j:=i+1;
         k = (i + 2) % nNumOfVertices; //k:=i+2;
 
-        double crossProduct = (m_aVertices[j].X - m_aVertices[i].X)
-          * (m_aVertices[k].Y - m_aVertices[j].Y);
-        crossProduct = crossProduct - (
-          (m_aVertices[j].Y - m_aVertices[i].Y)
-          * (m_aVertices[k].X - m_aVertices[j].X)
-          );
+        double crossProduct = (m_aVertices[j].X - m_aVertices[i].X) * (m_aVertices[k].Y - m_aVertices[j].Y);
+        crossProduct = crossProduct - ((m_aVertices[j].Y - m_aVertices[i].Y) * (m_aVertices[k].X - m_aVertices[j].X));
 
         //change the value of nCount
         if ((crossProduct > 0) && (nCount == 0))
@@ -375,12 +366,8 @@ namespace GeometryUtility
         j = (i + 1) % nVertices; //j:=i+1;
         k = (i + 2) % nVertices; //k:=i+2;
 
-        double crossProduct = (m_aVertices[j].X - m_aVertices[i].X)
-          * (m_aVertices[k].Y - m_aVertices[j].Y);
-        crossProduct = crossProduct - (
-          (m_aVertices[j].Y - m_aVertices[i].Y)
-          * (m_aVertices[k].X - m_aVertices[j].X)
-          );
+        double crossProduct = (m_aVertices[j].X - m_aVertices[i].X) * (m_aVertices[k].Y - m_aVertices[j].Y);
+        crossProduct = crossProduct - ((m_aVertices[j].Y - m_aVertices[i].Y) * (m_aVertices[k].X - m_aVertices[j].X));
 
         if (crossProduct > 0)
           nCount++;
@@ -411,7 +398,7 @@ namespace GeometryUtility
       if (nPoints < 3)
         return PolygonDirection.Unknown;
 
-      for (int i = 0; i < nPoints-2; i++)
+      for (int i = 0; i < nPoints - 2; i++)
       {
         j = (i + 1) % nPoints; //j:=i+1;
         k = (i + 2) % nPoints; //k:=i+2;

@@ -280,25 +280,39 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cx">The cx.</param>
     /// <param name="cy">The cy.</param>
     /// <returns></returns>
-    protected PointF[] ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy)
+    protected VertexBuffer ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
     {
+      verts = null;
       if (path.PointCount <= 0) return null;
       if (path.PathPoints.Length == 3)
       {
-        return path.PathPoints;
+        VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), 3, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+        verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+
+        verts[0].Position = new Vector3(path.PathPoints[0].X, path.PathPoints[0].Y, 1);
+        verts[1].Position = new Vector3(path.PathPoints[1].X, path.PathPoints[1].Y, 1);
+        verts[2].Position = new Vector3(path.PathPoints[2].X, path.PathPoints[2].Y, 1);
+        return vertexBuffer;
       }
-      PointF[] points = path.PathPoints;
-      int verticeCount = points.Length + 2;
-      PointF[] vertices = new PointF[verticeCount];
-      vertices[0] = new PointF(cx, cy);
-      vertices[1] = points[0];
-      vertices[2] = points[1];
-      for (int i = 2; i < points.Length; ++i)
+      else
       {
-        vertices[i + 1] = points[i];
+
+        PointF[] points = path.PathPoints;
+        int verticeCount = points.Length + 2;
+
+        VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+        verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+
+        verts[0].Position = new Vector3(cx, cy, 1);
+        verts[1].Position = new Vector3(points[0].X, points[0].Y, 1);
+        verts[2].Position = new Vector3(points[1].X, points[1].Y, 1);
+        for (int i = 2; i < points.Length; ++i)
+        {
+          verts[i + 1].Position = new Vector3(points[i].X, points[i].Y, 1);
+        }
+        verts[verticeCount - 1].Position = new Vector3(points[0].X, points[0].Y, 1);
+        return vertexBuffer;
       }
-      vertices[verticeCount - 1] = points[0];
-      return vertices;
     }
 
     /// <summary>
@@ -340,36 +354,41 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected PointF[] ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess)
+    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, out PositionColored2Textured[] verts)
     {
+      verts = null;
       if (path.PointCount <= 0) return null;
       //thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
       int verticeCount = (points.Length - 1) * 2 * 3;
-      PointF[] vertices = new PointF[verticeCount];
+
+      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+
       float x, y;
       for (int i = 0; i < (points.Length - 1); ++i)
       {
+        int offset = i * 6;
         PointF nextpoint = GetNextPoint(points, i);
         GetInset(nextpoint, points[i], out x, out y, (double)thickNess);
-        vertices[i * 6] = points[i];
-        vertices[i * 6 + 1] = nextpoint;
-        vertices[i * 6 + 2] = new PointF(x, y);
+        verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
+        verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 2].Position = new Vector3(x, y, 1);
 
-        vertices[i * 6 + 3] = nextpoint;
-        vertices[i * 6 + 4] = new PointF(x, y);
+        verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 4].Position = new Vector3(x, y, 1);
         if (i + 1 < (points.Length - 1))
         {
           PointF nextpoint1 = GetNextPoint(points, i + 1);
           GetInset(nextpoint1, nextpoint, out x, out y, (double)thickNess);
-          vertices[i * 6 + 5] = new PointF(x, y);
+          verts[offset + 5].Position = new Vector3(x, y, 1);
         }
         else
         {
-          vertices[i * 6 + 5] = new PointF(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y));
+          verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
         }
       }
-      return vertices;
+      return vertexBuffer;
     }
 
 
@@ -378,25 +397,29 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    protected PointF[] Triangulate(GraphicsPath path)
+    protected VertexBuffer Triangulate(GraphicsPath path, out PositionColored2Textured[] verts)
     {
-      if (path.PointCount <= 0) return null;
+      verts = null;
+      if (path.PointCount <= 3)
+      {
+        return null;
+      }
 
       CPolygonShape cutPolygon = new CPolygonShape(path);
       cutPolygon.CutEar();
 
-      PointF[] triangles = new PointF[cutPolygon.NumberOfPolygons * 3];
-      for (int i = 0; i < cutPolygon.NumberOfPolygons; i++)
+      int count = cutPolygon.NumberOfPolygons;
+      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), count * 3, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+      for (int i = 0; i < count; i++)
       {
-        triangles[i * 3 + 0].X = (float)cutPolygon.Polygons(i)[0].X;
-        triangles[i * 3 + 0].Y = (float)cutPolygon.Polygons(i)[0].Y;
-        triangles[i * 3 + 1].X = (float)cutPolygon.Polygons(i)[1].X;
-        triangles[i * 3 + 1].Y = (float)cutPolygon.Polygons(i)[1].Y;
-        triangles[i * 3 + 2].X = (float)cutPolygon.Polygons(i)[2].X;
-        triangles[i * 3 + 2].Y = (float)cutPolygon.Polygons(i)[2].Y;
-
+        CPoint2D[] triangle = cutPolygon[i];
+        int offset = i * 3;
+        verts[offset].Position = new Vector3(triangle[0].X, triangle[0].Y, 1);
+        verts[offset + 1].Position = new Vector3(triangle[1].X, triangle[1].Y, 1);
+        verts[offset + 2].Position = new Vector3(triangle[2].X, triangle[2].Y, 1);
       }
-      return triangles;
+      return vertexBuffer;
     }
     /// <summary>
     /// Arranges the UI element
