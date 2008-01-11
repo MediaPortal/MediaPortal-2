@@ -162,39 +162,38 @@ namespace SkinEngine.Controls.Visuals
 
       PositionColored2Textured[] verts;
       GraphicsPath path;
-      if (Fill != null)
+      if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
         {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-          if (_vertexBufferFill != null)
+          if (Fill != null)
           {
-            Fill.SetupBrush(this, ref verts);
-            _vertexBufferFill.Unlock();
-            _verticesCountFill = (verts.Length - 2);
+            CalcCentroid(path, out centerX, out centerY);
+            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+            if (_vertexBufferFill != null)
+            {
+              Fill.SetupBrush(this, ref verts);
+              _vertexBufferFill.Unlock();
+              _verticesCountFill = (verts.Length - 2);
+            }
+          }
+
+          if (Stroke != null && StrokeThickness > 0)
+          {
+            using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
+            {
+              CalcCentroid(path, out centerX, out centerY);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
+              if (_vertexBufferBorder != null)
+              {
+                Stroke.SetupBrush(this, ref verts);
+                _vertexBufferBorder.Unlock();
+                _verticesCountBorder = (verts.Length / 3);
+              }
+            }
           }
         }
       }
-      //border brush
-
-      if (Stroke != null && StrokeThickness > 0)
-      {
-        using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
-        {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, out verts);
-          if (_vertexBufferBorder != null)
-          {
-            Stroke.SetupBrush(this, ref verts);
-            _vertexBufferBorder.Unlock();
-            _verticesCountBorder = (verts.Length / 3);
-          }
-        }
-      }
-
-      ActualWidth = w;
-      ActualHeight = h;
     }
 
     #region Get the desired Rounded Rectangle path.

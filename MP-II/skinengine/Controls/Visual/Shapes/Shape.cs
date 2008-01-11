@@ -354,19 +354,22 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, out PositionColored2Textured[] verts)
+    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, bool isClosed,out PositionColored2Textured[] verts)
     {
       verts = null;
       if (path.PointCount <= 0) return null;
       //thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
-      int verticeCount = (points.Length - 1) * 2 * 3;
+      int pointCount = points.Length;
+      if (!isClosed)
+        pointCount--;
+      int verticeCount = (pointCount) * 2 * 3;
 
       VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
 
       float x, y;
-      for (int i = 0; i < (points.Length - 1); ++i)
+      for (int i = 0; i < (pointCount); ++i)
       {
         int offset = i * 6;
         PointF nextpoint = GetNextPoint(points, i);
@@ -377,7 +380,7 @@ namespace SkinEngine.Controls.Visuals
 
         verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 4].Position = new Vector3(x, y, 1);
-        if (i + 1 < (points.Length - 1))
+        if (i + 1 < (pointCount ) && isClosed==false)
         {
           PointF nextpoint1 = GetNextPoint(points, i + 1);
           GetInset(nextpoint1, nextpoint, out x, out y, (double)thickNess);

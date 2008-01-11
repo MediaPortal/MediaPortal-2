@@ -154,37 +154,35 @@ namespace SkinEngine.Controls.Visuals
       //Fill brush
       PositionColored2Textured[] verts;
       GraphicsPath path;
-      if (Fill != null)
+      if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        using (path = GetPath(rect, _finalLayoutTransform))
+        bool isClosed;
+        using (path = GetPath(rect, _finalLayoutTransform, out isClosed))
         {
-          _vertexBufferFill = Triangulate(path, out verts);
-          if (_vertexBufferFill != null)
+          if (Fill != null)
           {
-            Fill.SetupBrush(this, ref verts);
-            _vertexBufferFill.Unlock();
-            _verticesCountFill = (verts.Length / 3);
+            _vertexBufferFill = Triangulate(path, out verts);
+            if (_vertexBufferFill != null)
+            {
+              Fill.SetupBrush(this, ref verts);
+              _vertexBufferFill.Unlock();
+              _verticesCountFill = (verts.Length / 3);
+            }
+          }
+          if (Stroke != null && StrokeThickness > 0)
+          {
+            CalcCentroid(path, out centerX, out centerY);
+            _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, isClosed, out verts);
+            if (_vertexBufferBorder != null)
+            {
+              Stroke.SetupBrush(this, ref verts);
+              _vertexBufferBorder.Unlock();
+              _verticesCountBorder = (verts.Length / 3);
+            }
+
           }
         }
-
       }
-      //border brush
-
-      if (Stroke != null && StrokeThickness > 0)
-      {
-        using (path = path = GetPath(rect, _finalLayoutTransform))
-        {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, out verts);
-          if (_vertexBufferBorder != null)
-          {
-            Stroke.SetupBrush(this, ref verts);
-            _vertexBufferBorder.Unlock();
-            _verticesCountBorder = (verts.Length / 3);
-          }
-        }
-      }
-
     }
 
 
@@ -245,9 +243,11 @@ namespace SkinEngine.Controls.Visuals
        */
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform)
+    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed)
     {
+      isClosed = false;
       GraphicsPath mPath = new GraphicsPath();
+      mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
       PointF lastPoint = new PointF();
       int i = 0;
       //      Trace.WriteLine(String.Format("{0}", Data.Trim()));
@@ -412,6 +412,7 @@ namespace SkinEngine.Controls.Visuals
         else if (ch == 'z')
         {
           //close figure
+          isClosed = true;
           mPath.CloseFigure();
           //          Trace.WriteLine(String.Format("  z"));
           break;

@@ -91,36 +91,38 @@ namespace SkinEngine.Controls.Visuals
       //Fill brush
       PositionColored2Textured[] verts;
       GraphicsPath path;
-      if (Fill != null)
+      if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (path = GetEllipse(rect))
         {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-          if (_vertexBufferFill != null)
+          if (Fill != null)
           {
-            Fill.SetupBrush(this, ref verts);
-            _vertexBufferFill.Unlock();
-            _verticesCountFill = (verts.Length - 2);
+            CalcCentroid(path, out centerX, out centerY);
+            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+            if (_vertexBufferFill != null)
+            {
+              Fill.SetupBrush(this, ref verts);
+              _vertexBufferFill.Unlock();
+              _verticesCountFill = (verts.Length - 2);
+            }
+          }
+
+          if (Stroke != null && StrokeThickness > 0)
+          {
+            CalcCentroid(path, out centerX, out centerY);
+            _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
+            if (_vertexBufferBorder != null)
+            {
+              Stroke.SetupBrush(this, ref verts);
+              _vertexBufferBorder.Unlock();
+              _verticesCountBorder = (verts.Length / 3);
+            }
+
           }
         }
       }
       //border brush
 
-      if (Stroke != null && StrokeThickness > 0)
-      {
-        using (path = GetEllipse(rect))
-        {
-          CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, out verts);
-          if (_vertexBufferBorder != null)
-          {
-            Stroke.SetupBrush(this, ref verts);
-            _vertexBufferBorder.Unlock();
-            _verticesCountBorder = (verts.Length / 3);
-          }
-        }
-      }
 
       ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       ActualWidth = w;

@@ -298,7 +298,7 @@ namespace SkinEngine.Controls.Visuals
         using (path = GetRoundedRect(rect, (float)CornerRadius))
         {
           CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, out verts);
+          _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
           if (_vertexBufferBorder != null)
           {
             BorderBrush.SetupBrush(this, ref verts);
