@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
@@ -254,186 +255,168 @@ namespace SkinEngine.Controls.Visuals
 
     private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickNess)
     {
+      if (this.Name == "path8606")
+      {
+        //the mouth
+      }
       isClosed = false;
       GraphicsPath mPath = new GraphicsPath();
       mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
       PointF lastPoint = new PointF();
-      int i = 0;
-      //      Trace.WriteLine(String.Format("{0}", Data.Trim()));
-      while (i < Data.Length)
+      Regex regex = new Regex(@"[a-zA-Z][0-9\.,0-9\.]*");
+      MatchCollection matches = regex.Matches(Data);
+
+      foreach (Match match in matches)
       {
-        char ch = Data[i];
-        if (ch == 'm')
+        char cmd = match.Value[0];
+        PointF[] points = null;
+        if (match.Value.Length > 0)
         {
-          //relative origin
-          PointF point = GetPoint(ref i);
-          lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
-          //          Trace.WriteLine(String.Format("  m({0},{1})  ({2},{3})", point.X, point.Y, lastPoint.X, lastPoint.Y));
-        }
-        else if (ch == 'M')
-        {
-          //absolute origin
-          PointF point = GetPoint(ref i);
-          //          Trace.WriteLine(String.Format("  M({0},{1})", point.X, point.Y));
-          lastPoint = new PointF(point.X, point.Y);
-        }
-        else if (ch == 'L')
-        {
-          //absolute Line
-          ++i;
-          while (true)
+          string[] txtpoints;
+          txtpoints = match.Value.Substring(1).Split(new char[] { ',' });
+          if (txtpoints.Length == 1)
           {
-            while (Data[i] == ' ') i++;
-            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
-            if (Data[i] != ',') i--;
-            PointF point1 = GetPoint(ref i);
-            mPath.AddLine(lastPoint, point1);
-            //            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
-            lastPoint = new PointF(point1.X, point1.Y);
-            if (i >= Data.Length) break;
+            points = new PointF[1];
+            points[0].X = GetFloat(txtpoints[0]);
+          }
+          else
+          {
+            int c = txtpoints.Length / 2;
+            points = new PointF[c];
+            for (int i = 0; i < c; i++)
+            {
+              points[i].X = GetFloat(txtpoints[i * 2]);
+              if (i + 1 < txtpoints.Length)
+                points[i].Y = GetFloat(txtpoints[i * 2 + 1]);
+            }
           }
         }
-        else if (ch == 'l')
+        switch (cmd)
         {
-          //relative Line
-          ++i;
-          while (true)
-          {
-            while (Data[i] == ' ') i++;
-            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
-            if (Data[i] != ',') i--;
-            PointF point1 = GetPoint(ref i);
-            point1.X += lastPoint.X;
-            point1.Y += lastPoint.Y;
-            mPath.AddLine(lastPoint, point1);
-            //            Trace.WriteLine(String.Format("  L({0},{1}) ({2},{3})", lastPoint.X, lastPoint.Y, point1.X, point1.Y));
-            lastPoint = new PointF(point1.X, point1.Y);
-            if (i >= Data.Length) break;
-          }
-        }
-        else if (ch == 'H')
-        {
-          //Horizontal line to absolute X
-          float x = GetDecimal(ref i);
-          PointF point1 = new PointF(x, lastPoint.Y);
-          //          Trace.WriteLine(String.Format("  H({0})", x));
-          mPath.AddLine(lastPoint, point1);
-          lastPoint = new PointF(point1.X, point1.Y);
-        }
-        else if (ch == 'h')
-        {
-          //Horizontal line to relative X
-          float x = GetDecimal(ref i);
-          //          Trace.WriteLine(String.Format("  h({0})", x));
-          PointF point1 = new PointF(lastPoint.X + x, lastPoint.Y);
-          mPath.AddLine(lastPoint, point1);
-          lastPoint = new PointF(point1.X, point1.Y);
-        }
-        else if (ch == 'V')
-        {
-          //Vertical line to absolute y
-          float y = GetDecimal(ref i);
-          //          Trace.WriteLine(String.Format("  V({0})", y));
-          PointF point1 = new PointF(lastPoint.X, y);
-          mPath.AddLine(lastPoint, point1);
-          lastPoint = new PointF(point1.X, point1.Y);
-        }
-        else if (ch == 'v')
-        {
-          //Vertical line to relative y
-          float y = GetDecimal(ref i);
-          //          Trace.WriteLine(String.Format("  v({0})", y));
-          PointF point1 = new PointF(lastPoint.X, lastPoint.Y + y);
-          mPath.AddLine(lastPoint, point1);
-          lastPoint = new PointF(point1.X, point1.Y);
-        }
-        else if (ch == 'C')
-        {
-          //Quadratic Bezier Curve Command
-          ++i;
-          while (true)
-          {
-            while (Data[i] == ' ') i++;
-            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
-            if (Data[i] != ',') i--;
-            PointF controlPoint1 = GetPoint(ref i);
-            PointF controlPoint2 = GetPoint(ref i);
-            PointF endpoint = GetPoint(ref i);
-            mPath.AddBezier(lastPoint, controlPoint1, controlPoint2, endpoint);
-            lastPoint = new PointF(endpoint.X, endpoint.Y);
-            //            Trace.WriteLine(String.Format("  C({0},{1}) ({2},{3}) ({4},{5}  ({6},{7}))", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y, lastPoint.X, lastPoint.Y));
-            if (i >= Data.Length) break;
-          }
-        }
-        else if (ch == 'c')
-        {
-          //Quadratic Bezier Curve Command
-          ++i;
-          while (true)
-          {
-            while (Data[i] == ' ') i++;
-            if ((Data[i] < '0' || Data[i] > '9') && Data[i] != ',') break;
-            if (Data[i] != ',') i--;
-            PointF controlPoint1 = GetPoint(ref i);
-            PointF controlPoint2 = GetPoint(ref i);
-            PointF endpoint = GetPoint(ref i);
-            //            Trace.WriteLine(String.Format("  c({0},{1}) ({2},{3}) ({4},{5})", controlPoint1.X, controlPoint1.Y, controlPoint2.X, controlPoint2.Y, endpoint.X, endpoint.Y));
-            controlPoint1.X += lastPoint.X;
-            controlPoint1.Y += lastPoint.Y;
-
-            controlPoint2.X += lastPoint.X;
-            controlPoint2.Y += lastPoint.Y;
-
-            endpoint.X += lastPoint.X;
-            endpoint.Y += lastPoint.Y;
-            mPath.AddBezier(lastPoint, controlPoint1, controlPoint2, endpoint);
-            lastPoint = new PointF(endpoint.X, endpoint.Y);
-            if (i >= Data.Length) break;
-          }
-        }
-        else if (ch == 'F')
-        {
-          //Horizontal line to relative X
-          float x = GetDecimal(ref i);
-          //          Trace.WriteLine(String.Format("  F({0})", x));
-          if (x == 0.0f)
-          {
-            //the EvenOdd fill rule
-            //Rule that determines whether a point is in the fill region by drawing a ray 
-            //from that point to infinity in any direction and counting the number of path 
-            //segments within the given shape that the ray crosses. If this number is odd, 
-            //the point is inside; if even, the point is outside.
-            mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-          }
-          else if (x == 1.0f)
-          {
-            //the Nonzero fill rule.
-            //Rule that determines whether a point is in the fill region of the 
-            //path by drawing a ray from that point to infinity in any direction
-            //and then examining the places where a segment of the shape crosses
-            //the ray. Starting with a count of zero, add one each time a segment 
-            //crosses the ray from left to right and subtract one each time a path
-            //segment crosses the ray from right to left. After counting the crossings
-            //, if the result is zero then the point is outside the path. Otherwise, it is inside.
-            mPath.FillMode = System.Drawing.Drawing2D.FillMode.Winding;
-          }
-        }
-        else if (ch == 'z')
-        {
-          //close figure
-          isClosed = true;
-          mPath.CloseFigure();
-          //          Trace.WriteLine(String.Format("  z"));
-          break;
-        }
-        else
-        {
-          //if (Data[i] != ' ' && Data[i] != '\r')
-          //            Trace.WriteLine(String.Format("  ?:{0}", Data[i]));
-          ++i;
+          case 'm':
+            {
+              //relative origin
+              PointF point = points[0];
+              lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
+            }
+            break;
+          case 'M':
+            {
+              //absolute origin
+              lastPoint = points[0]; ;
+            }
+            break;
+          case 'L':
+            {
+              //absolute Line
+              for (int i = 0; i < points.Length; ++i)
+              {
+                mPath.AddLine(lastPoint, points[i]);
+                lastPoint = points[i];
+              }
+            }
+            break;
+          case 'l':
+            {
+              //relative Line
+              for (int i = 0; i < points.Length; ++i)
+              {
+                points[i].X += lastPoint.X;
+                points[i].Y += lastPoint.Y;
+                mPath.AddLine(lastPoint, points[i]);
+                lastPoint = points[i];
+              }
+            }
+            break;
+          case 'H':
+            {
+              //Horizontal line to absolute X 
+              PointF point1 = new PointF(points[0].X, lastPoint.Y);
+              mPath.AddLine(lastPoint, point1);
+              lastPoint = new PointF(point1.X, point1.Y);
+            }
+            break;
+          case 'h':
+            {
+              //Horizontal line to relative X
+              PointF point1 = new PointF(lastPoint.X + points[0].X, lastPoint.Y);
+              mPath.AddLine(lastPoint, point1);
+              lastPoint = new PointF(point1.X, point1.Y);
+            }
+            break;
+          case 'V':
+            {
+              //Vertical line to absolute y 
+              PointF point1 = new PointF(lastPoint.X, points[0].X);
+              mPath.AddLine(lastPoint, point1);
+              lastPoint = new PointF(point1.X, point1.Y);
+            }
+            break;
+          case 'v':
+            {
+              //Vertical line to relative y
+              PointF point1 = new PointF(lastPoint.X, lastPoint.Y + points[0].X);
+              mPath.AddLine(lastPoint, point1);
+              lastPoint = new PointF(point1.X, point1.Y);
+            }
+            break;
+          case 'C':
+            {
+              //Quadratic Bezier Curve Command C21,17,17,21,13,21
+              for (int i = 0; i < points.Length; i += 3)
+              {
+                mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+                lastPoint = points[i + 2];
+              }
+            }
+            break;
+          case 'c':
+            {
+              //Quadratic Bezier Curve Command
+              for (int i = 0; i < points.Length; i += 3)
+              {
+                points[i].X += lastPoint.X;
+                points[i].Y += lastPoint.Y;
+                mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+                lastPoint = points[i + 2];
+              }
+            }
+            break;
+          case 'F':
+            {
+              //Horizontal line to relative X
+              if (points[0].X == 0.0f)
+              {
+                //the EvenOdd fill rule
+                //Rule that determines whether a point is in the fill region by drawing a ray 
+                //from that point to infinity in any direction and counting the number of path 
+                //segments within the given shape that the ray crosses. If this number is odd, 
+                //the point is inside; if even, the point is outside.
+                mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+              }
+              else if (points[0].X == 1.0f)
+              {
+                //the Nonzero fill rule.
+                //Rule that determines whether a point is in the fill region of the 
+                //path by drawing a ray from that point to infinity in any direction
+                //and then examining the places where a segment of the shape crosses
+                //the ray. Starting with a count of zero, add one each time a segment 
+                //crosses the ray from left to right and subtract one each time a path
+                //segment crosses the ray from right to left. After counting the crossings
+                //, if the result is zero then the point is outside the path. Otherwise, it is inside.
+                mPath.FillMode = System.Drawing.Drawing2D.FillMode.Winding;
+              }
+            }
+            break;
+          case 'z':
+            {
+              //close figure
+              isClosed = true;
+              mPath.CloseFigure();
+            }
+            break;
         }
       }
-
 
       RectangleF rbounds = mPath.GetBounds();
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
@@ -466,51 +449,16 @@ namespace SkinEngine.Controls.Visuals
       return mPath;
     }
 
-    float GetDecimal(ref int i)
-    {
-      i++;
-      string pointTxt = "";
-      while ((Data[i] >= '0' && Data[i] <= '9') || (Data[i] == '.'))
-      {
-        pointTxt += Data[i];
-        ++i;
-        if (i >= Data.Length) break;
-      }
-      pointTxt = pointTxt.Trim();
-      float x = GetFloat(pointTxt);
-      return x;
-    }
-    PointF GetPoint(ref int i)
-    {
-      i++;
-      string pointTxt = "";
-      int comma = 0;
-      while ((Data[i] >= '0' && Data[i] <= '9') || (Data[i] == '.' || Data[i] == ','))
-      {
-        if (Data[i] == ',')
-        {
-          comma++;
-          if (comma == 2)
-            break;
-        }
-        pointTxt += Data[i];
-        ++i;
-        if (i >= Data.Length) break;
-      }
-      pointTxt = pointTxt.Trim();
-      string[] parts = pointTxt.Split(new char[] { ',' });
-      if (parts.Length != 2)
-        return new PointF(0, 0);
-      float x = GetFloat(parts[0]);
-      float y = GetFloat(parts[1]);
-      return new PointF(x, y);
-    }
+    static int useCommas = -1;
     protected float GetFloat(string floatString)
     {
-      float test = 12.03f;
-      string comma = test.ToString();
-      bool replaceCommas = (comma.IndexOf(",") >= 0);
-      if (replaceCommas)
+      if (useCommas == -1)
+      {
+        float test = 12.03f;
+        string comma = test.ToString();
+        useCommas = (comma.IndexOf(",") >= 0) ? 1 : 0;
+      }
+      if (useCommas == 1)
       {
         floatString = floatString.Replace(".", ",");
       }

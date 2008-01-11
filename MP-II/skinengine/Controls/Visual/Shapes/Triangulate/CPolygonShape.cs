@@ -53,9 +53,12 @@ namespace GeometryUtility
       points.Add(path.PathPoints[0]);
       for (int i = 1; i < nVertices; ++i)
       {
-        if (path.PathPoints[i] != path.PathPoints[i - 1])
+        if (path.PathPoints[i] != path.PathPoints[i - 1] )
         {
-          points.Add(path.PathPoints[i]);
+          if (i <= 1 || path.PathPoints[i] != path.PathPoints[i - 2])
+          {
+            points.Add(path.PathPoints[i]);
+          }
         }
       }
 
