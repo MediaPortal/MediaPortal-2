@@ -24,6 +24,7 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Database.Implementation.Sql;
 using MediaPortal.Database.Implementation.SqlLite;
 
@@ -36,6 +37,7 @@ namespace MediaPortal.Database.Implementation
     {
       ServiceScope.Add<IDatabases>(new Databases());
     }
+
     /// <summary>
     /// Creates a new database builder based for the connection string
     /// </summary>
@@ -54,6 +56,17 @@ namespace MediaPortal.Database.Implementation
       return null;
     }
 
+    /// <summary>
+    /// Creates a new database builder from databaseId
+    /// </summary>
+    public IDatabaseFactory CreateFromId(string databaseId)
+    {
+      // create database of default type
+      string location = ServiceScope.Get<IPathManager>().GetPath("<DATABASE>");
+      string connection = string.Format(@"sqlite:Data Source={0}\{1}.db3", location, databaseId);
+
+      return Create(connection);
+    }
     #endregion
   }
 }

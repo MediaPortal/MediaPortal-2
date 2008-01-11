@@ -21,6 +21,7 @@
 */
 
 #endregion
+using System;
 
 namespace MediaPortal.Core.Database.Interfaces
 {
@@ -29,6 +30,12 @@ namespace MediaPortal.Core.Database.Interfaces
     /// <summary>
     /// Creates a new database factory based for the connection string
     /// </summary>
+    [Obsolete("Use CreateFromId(string databaseId) instead.")]
     IDatabaseFactory Create(string connectionString);
+
+    ///// <summary>
+    ///// Creates a new database factory based from database Id
+    ///// </summary>
+    IDatabaseFactory CreateFromId(string databaseId);
   }
 }

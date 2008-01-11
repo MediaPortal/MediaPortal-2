@@ -64,7 +64,7 @@ namespace PictureImporter
 
     public void Dispose()
     {
-      ServiceScope.Get<IImporterManager>().UnRegister(this);
+      //ServiceScope.Get<IImporterManager>().UnRegister(this);
     }
 
     #endregion
@@ -519,7 +519,7 @@ namespace PictureImporter
       try
       {
         IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\Picturesv3.db3");
+        IDatabaseFactory factory = builderFactory.CreateFromId("Pictures");
 
         _pictureDatabase = factory.Open("Pictures");
 

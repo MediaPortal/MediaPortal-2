@@ -3,4 +3,5 @@
  <Path name="DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\MediaPortal" />
  <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
  <Path name="LOG" value="&lt;DATA&gt;\Log" />
+ <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
 </Paths>

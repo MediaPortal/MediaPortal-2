@@ -92,7 +92,7 @@ namespace MusicImporter
 
     public void Dispose()
     {
-      ServiceScope.Get<IImporterManager>().UnRegister(this);
+      //ServiceScope.Get<IImporterManager>().UnRegister(this);
     }
 
     #endregion
@@ -433,7 +433,7 @@ namespace MusicImporter
       try
       {
         IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\musicV3.db3");
+        IDatabaseFactory factory = builderFactory.CreateFromId("Music");
 
         _musicDatabase = factory.Open("Music");
 

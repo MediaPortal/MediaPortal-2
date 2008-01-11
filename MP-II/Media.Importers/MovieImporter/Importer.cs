@@ -67,7 +67,7 @@ namespace MovieImporter
 
     public void Dispose()
     {
-      ServiceScope.Get<IImporterManager>().UnRegister(this);
+      //ServiceScope.Get<IImporterManager>().UnRegister(this);
     }
 
     #endregion
@@ -481,7 +481,7 @@ namespace MovieImporter
       try
       {
         IDatabaseBuilderFactory builderFactory = ServiceScope.Get<IDatabaseBuilderFactory>();
-        IDatabaseFactory factory = builderFactory.Create(@"sqlite:Data Source=Databases\movies3.db3");
+        IDatabaseFactory factory = builderFactory.CreateFromId("Movies");
 
 
         _movieDatabase = factory.Open("Movies");

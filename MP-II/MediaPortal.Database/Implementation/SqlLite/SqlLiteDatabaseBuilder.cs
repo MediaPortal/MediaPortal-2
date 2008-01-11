@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.IO;
 using MediaPortal.Core.Database.Interfaces;
 
 namespace MediaPortal.Database.Implementation.SqlLite
@@ -39,6 +40,11 @@ namespace MediaPortal.Database.Implementation.SqlLite
     public SqlLiteDatabaseBuilder(string connectionString)
     {
       _connectionString = connectionString;
+
+      // Create Database directory if it Doesn't exist
+      FileInfo databaseFile = new FileInfo(DatabaseName);
+      if (!databaseFile.Directory.Exists)
+        databaseFile.Directory.Create();
     }
 
     /// <summary>
