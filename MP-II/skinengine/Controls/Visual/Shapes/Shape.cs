@@ -41,7 +41,7 @@ using Brush = SkinEngine.Controls.Brushes.Brush;
 
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
-
+using GeometryUtility;
 namespace SkinEngine.Controls.Visuals
 {
   public class Shape : FrameworkElement, IAsset
@@ -253,7 +253,6 @@ namespace SkinEngine.Controls.Visuals
         Stroke.EndRender();
       }
 
-      base.DoRender();
       _lastTimeUsed = SkinContext.Now;
     }
 
@@ -346,10 +345,10 @@ namespace SkinEngine.Controls.Visuals
       if (path.PointCount <= 0) return null;
       //thickNess /= 2.0f;
       PointF[] points = path.PathPoints;
-      int verticeCount = points.Length * 2 * 3;
+      int verticeCount = (points.Length - 1) * 2 * 3;
       PointF[] vertices = new PointF[verticeCount];
       float x, y;
-      for (int i = 0; i < points.Length; ++i)
+      for (int i = 0; i < (points.Length - 1); ++i)
       {
         PointF nextpoint = GetNextPoint(points, i);
         GetInset(nextpoint, points[i], out x, out y, (double)thickNess);
@@ -359,11 +358,46 @@ namespace SkinEngine.Controls.Visuals
 
         vertices[i * 6 + 3] = nextpoint;
         vertices[i * 6 + 4] = new PointF(x, y);
-        vertices[i * 6 + 5] = new PointF(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y));
+        if (i + 1 < (points.Length - 1))
+        {
+          PointF nextpoint1 = GetNextPoint(points, i + 1);
+          GetInset(nextpoint1, nextpoint, out x, out y, (double)thickNess);
+          vertices[i * 6 + 5] = new PointF(x, y);
+        }
+        else
+        {
+          vertices[i * 6 + 5] = new PointF(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y));
+        }
       }
       return vertices;
     }
 
+
+    /// <summary>
+    /// Splits the path into triangles.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <returns></returns>
+    protected PointF[] Triangulate(GraphicsPath path)
+    {
+      if (path.PointCount <= 0) return null;
+
+      CPolygonShape cutPolygon = new CPolygonShape(path);
+      cutPolygon.CutEar();
+
+      PointF[] triangles = new PointF[cutPolygon.NumberOfPolygons * 3];
+      for (int i = 0; i < cutPolygon.NumberOfPolygons; i++)
+      {
+        triangles[i * 3 + 0].X = (float)cutPolygon.Polygons(i)[0].X;
+        triangles[i * 3 + 0].Y = (float)cutPolygon.Polygons(i)[0].Y;
+        triangles[i * 3 + 1].X = (float)cutPolygon.Polygons(i)[1].X;
+        triangles[i * 3 + 1].Y = (float)cutPolygon.Polygons(i)[1].Y;
+        triangles[i * 3 + 2].X = (float)cutPolygon.Polygons(i)[2].X;
+        triangles[i * 3 + 2].Y = (float)cutPolygon.Polygons(i)[2].Y;
+
+      }
+      return triangles;
+    }
     /// <summary>
     /// Arranges the UI element
     /// and positions it in the finalrect

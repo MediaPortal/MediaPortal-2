@@ -208,6 +208,12 @@
     <Compile Include="Controls\Visual\Shapes\Polygon.cs" />
     <Compile Include="Controls\Visual\Shapes\Rectangle.cs" />
     <Compile Include="Controls\Visual\Shapes\Shape.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\AnalyticGeometryException.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\CLine.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\CPoint2D.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\CPolygon.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\CPolygonShape.cs" />
+    <Compile Include="Controls\Visual\Shapes\Triangulate\Definition.cs" />
     <Compile Include="Controls\Visual\StyleSelector.cs" />
     <Compile Include="Controls\Visual\Styles\ControlTemplate.cs" />
     <Compile Include="Controls\Visual\Styles\Setter.cs" />

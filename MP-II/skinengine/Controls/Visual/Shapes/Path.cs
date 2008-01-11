@@ -107,7 +107,33 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (String.IsNullOrEmpty(Data)) return;
-      base.DoRender();
+      if (!IsVisible) return;
+      if ((Fill != null && _vertexBufferFill == null) ||
+           (Stroke != null && _vertexBufferBorder == null) || _performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+      }
+
+      if (Fill != null)
+      {
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleList);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
+        Fill.EndRender();
+      }
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+        Stroke.EndRender();
+      }
+
+      _lastTimeUsed = SkinContext.Now;
     }
     protected override void PerformLayout()
     {
@@ -133,8 +159,7 @@ namespace SkinEngine.Controls.Visuals
       {
         using (path = GetPath(rect, _finalLayoutTransform))
         {
-          CalcCentroid(path, out centerX, out centerY);
-          vertices = ConvertPathToTriangleFan(path, centerX, centerY);
+          vertices = Triangulate(path);
           if (vertices != null)
           {
             _vertexBufferFill = new VertexBuffer(typeof(PositionColored2Textured), vertices.Length, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
@@ -150,7 +175,7 @@ namespace SkinEngine.Controls.Visuals
             }
             Fill.SetupBrush(this, ref verts);
             _vertexBufferFill.Unlock();
-            _verticesCountFill = (verts.Length - 2);
+            _verticesCountFill = (verts.Length / 3);
           }
         }
 
