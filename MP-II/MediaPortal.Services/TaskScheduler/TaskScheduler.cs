@@ -75,8 +75,8 @@ namespace MediaPortal.Services.TaskScheduler
     }
     #endregion
 
-    #region Destructor
-    ~TaskScheduler()
+    #region Public methods
+    public void Stop()
     {
       _work.Cancel();
       ServiceScope.Get<IThreadPool>().RemoveIntervalWork(_work);
