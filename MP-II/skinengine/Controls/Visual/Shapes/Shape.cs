@@ -323,12 +323,16 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     /// <param name="thickNess">The thick ness.</param>
-    void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNess)
+    void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction)
     {
       double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
-      ang += (float)(Math.PI / 2.0);
-      x = (float)(Math.Cos(ang) * thickNess); //radians
-      y = (float)(Math.Sin(ang) * thickNess);
+      double pi2 = Math.PI / 2.0; //90gr
+      if (direction == PolygonDirection.Clockwise)
+        ang += pi2;
+      else
+        ang -= pi2;
+      x = (float)(Math.Cos(ang) * thickNessW); //radians
+      y = (float)(Math.Sin(ang) * thickNessH);
       _finalLayoutTransform.TransformXY(ref x, ref y);
       x += point.X;
       y += point.Y;
@@ -340,10 +344,10 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="points">The points.</param>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    PointF GetNextPoint(PointF[] points, int i)
+    PointF GetNextPoint(PointF[] points, int i, int max)
     {
       i++;
-      while (i >= points.Length) i -= points.Length;
+      while (i >= max) i -= max;
       return points[i];
     }
     /// <summary>
@@ -354,42 +358,40 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float cx, float cy, float thickNess, bool isClosed, out PositionColored2Textured[] verts)
+    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts)
     {
+      if (Name == "path5146")
+      {
+      }
       verts = null;
       if (path.PointCount <= 0) return null;
-      //thickNess /= 2.0f;
+      // thickNess /= 2.0f;
+      float thicknessW = thickNess;
+      float thicknessH = thickNess;
+      PolygonDirection direction = PointsDirection(path);
       PointF[] points = path.PathPoints;
       int pointCount = points.Length;
-      if (!isClosed)
-        pointCount--;
       int verticeCount = (pointCount) * 2 * 3;
 
       VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
       verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
 
       float x, y;
-      for (int i = 0; i < (pointCount); ++i)
+      for (int i = 0; i < (pointCount - 1); ++i)
       {
         int offset = i * 6;
-        PointF nextpoint = GetNextPoint(points, i);
-        GetInset(nextpoint, points[i], out x, out y, (double)thickNess);
+        PointF nextpoint = GetNextPoint(points, i, pointCount);
+        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 2].Position = new Vector3(x, y, 1);
 
         verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 4].Position = new Vector3(x, y, 1);
-        if (i + 1 < (pointCount) && isClosed == false)
-        {
-          PointF nextpoint1 = GetNextPoint(points, i + 1);
-          GetInset(nextpoint1, nextpoint, out x, out y, (double)thickNess);
-          verts[offset + 5].Position = new Vector3(x, y, 1);
-        }
-        else
-        {
-          verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
-        }
+
+        verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
+
+
       }
       return vertexBuffer;
     }
@@ -400,7 +402,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    protected VertexBuffer Triangulate(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts, out PrimitiveType primitive)
+    protected VertexBuffer Triangulate(GraphicsPath path, float cx, float cy, bool isClosed, out PositionColored2Textured[] verts, out PrimitiveType primitive)
     {
       verts = null;
       if (path.PointCount <= 3)
@@ -408,8 +410,11 @@ namespace SkinEngine.Controls.Visuals
         primitive = PrimitiveType.TriangleFan;
         return ConvertPathToTriangleFan(path, cx, cy, out verts);
       }
-      primitive= PrimitiveType.TriangleList;
-      CPolygonShape cutPolygon = new CPolygonShape(path);
+      if (Name == "path134" )
+      {
+      }
+      primitive = PrimitiveType.TriangleList;
+      CPolygonShape cutPolygon = new CPolygonShape(path, isClosed);
       cutPolygon.CutEar();
 
       int count = cutPolygon.NumberOfPolygons;
@@ -507,6 +512,35 @@ namespace SkinEngine.Controls.Visuals
 
       cx = (float)(Math.Abs(centroid.X));
       cy = (float)(Math.Abs(centroid.Y));
+    }
+    public PolygonDirection PointsDirection(GraphicsPath points)
+    {
+      int nCount = 0, j = 0, k = 0;
+      int nPoints = points.PointCount;
+
+      if (nPoints < 3)
+        return PolygonDirection.Unknown;
+
+      for (int i = 0; i < nPoints - 2; i++)
+      {
+        j = (i + 1) % nPoints; //j:=i+1;
+        k = (i + 2) % nPoints; //k:=i+2;
+
+        double crossProduct = (points.PathPoints[j].X - points.PathPoints[i].X) * (points.PathPoints[k].Y - points.PathPoints[j].Y);
+        crossProduct = crossProduct - ((points.PathPoints[j].Y - points.PathPoints[i].Y) * (points.PathPoints[k].X - points.PathPoints[j].X));
+
+        if (crossProduct > 0)
+          nCount++;
+        else
+          nCount--;
+      }
+
+      if (nCount < 0)
+        return PolygonDirection.Count_Clockwise;
+      else if (nCount > 0)
+        return PolygonDirection.Clockwise;
+      else
+        return PolygonDirection.Unknown;
     }
     #region IAsset Members
 

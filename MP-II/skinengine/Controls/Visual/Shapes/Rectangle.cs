@@ -182,7 +182,7 @@ namespace SkinEngine.Controls.Visuals
           {
             using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
             {
-              _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path,  (float)StrokeThickness, true, out verts);
               if (_vertexBufferBorder != null)
               {
                 Stroke.SetupBrush(this, ref verts);

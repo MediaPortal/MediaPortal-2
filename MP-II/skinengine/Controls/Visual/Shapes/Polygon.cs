@@ -143,7 +143,7 @@ namespace SkinEngine.Controls.Visuals
           {
             using (path = GetPolygon(rect))
             {
-              _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, true, out verts);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path,  (float)StrokeThickness, true, out verts);
               if (_vertexBufferBorder != null)
               {
                 Stroke.SetupBrush(this, ref verts);

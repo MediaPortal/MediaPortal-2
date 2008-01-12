@@ -40,7 +40,7 @@ namespace GeometryUtility
         return null;
     }
 
-    public CPolygonShape(GraphicsPath path)
+    public CPolygonShape(GraphicsPath path, bool isClosed)
     {
       int nVertices = path.PointCount;
       if (nVertices < 3)
@@ -53,15 +53,16 @@ namespace GeometryUtility
       points.Add(path.PathPoints[0]);
       for (int i = 1; i < nVertices; ++i)
       {
-        if (path.PathPoints[i] != path.PathPoints[i - 1] )
-        {
-          if (i <= 1 || path.PathPoints[i] != path.PathPoints[i - 2])
-          {
-            points.Add(path.PathPoints[i]);
-          }
-        }
+        points.Add(path.PathPoints[i]);
       }
 
+      if (points.Count >= 2)
+      {
+        if (points[points.Count - 1] == points[points.Count - 2])
+        {
+          points.RemoveAt(points.Count - 1);
+        }
+      }
 
       m_aUpdatedPolygonVertices = new CPoint2D[points.Count];
       for (int i = 0; i < points.Count; i++)
@@ -260,8 +261,7 @@ namespace GeometryUtility
         } //not equal points
       }
 
-      if (m_aUpdatedPolygonVertices.Length
-        - alTempPts.Count == 1)
+      if (m_aUpdatedPolygonVertices.Length - alTempPts.Count == 1)
       {
         int nLength = m_aUpdatedPolygonVertices.Length;
         m_aUpdatedPolygonVertices = new CPoint2D[nLength - 1];
@@ -301,8 +301,15 @@ namespace GeometryUtility
         } //bNotFount
         //An ear found:}
         if (pt != null)
+        {
+          int count = m_aUpdatedPolygonVertices.Length;
           UpdatePolygonVertices(pt);
-
+          if (count == m_aUpdatedPolygonVertices.Length)
+          {
+            //sanity check
+            bFinish = true;
+          }
+        }
         polygon = new CPolygon(m_aUpdatedPolygonVertices);
         //if ((polygon.GetPolygonType()==PolygonType.Convex)
         //	&& (m_aUpdatedPolygonVertices.Length==3))

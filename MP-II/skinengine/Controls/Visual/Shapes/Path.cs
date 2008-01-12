@@ -164,7 +164,7 @@ namespace SkinEngine.Controls.Visuals
             Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
             if (Fill != null)
             {
-              _vertexBufferFill = Triangulate(path, centerX, centerY, out verts, out _fillPrimitiveType);
+              _vertexBufferFill = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
               if (_vertexBufferFill != null)
               {
                 Fill.SetupBrush(this, ref verts);
@@ -179,10 +179,9 @@ namespace SkinEngine.Controls.Visuals
         }
         if (Stroke != null && StrokeThickness > 0)
         {
-          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)StrokeThickness))
+          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)(StrokeThickness)))
           {
-            CalcCentroid(path, out centerX, out centerY);
-            _vertexBufferBorder = ConvertPathToTriangleStrip(path, centerX, centerY, (float)StrokeThickness, isClosed, out verts);
+            _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts);
             if (_vertexBufferBorder != null)
             {
               Stroke.SetupBrush(this, ref verts);
@@ -255,15 +254,11 @@ namespace SkinEngine.Controls.Visuals
 
     private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickNess)
     {
-      if (this.Name == "path8606")
-      {
-        //the mouth
-      }
       isClosed = false;
       GraphicsPath mPath = new GraphicsPath();
       mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
       PointF lastPoint = new PointF();
-      Regex regex = new Regex(@"[a-zA-Z][0-9\.,0-9\.]*");
+      Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\.]*");
       MatchCollection matches = regex.Matches(Data);
 
       foreach (Match match in matches)
@@ -418,34 +413,41 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
-      RectangleF rbounds = mPath.GetBounds();
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      if (thickNess != 0.0)
-      {
-        RectangleF bounds = mPath.GetBounds();
-        float cx = bounds.X + (bounds.Width / 2.0f);
-        float cy = bounds.X + (bounds.Height / 2.0f);
-        m.Translate(-cx, -cy, MatrixOrder.Append);
-        m.Scale((thickNess + bounds.Width) / bounds.Width, (thickNess + bounds.Height) / bounds.Height, MatrixOrder.Append);
-        m.Translate(cx, cy, MatrixOrder.Append);
-      }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
 
+      ExtendedMatrix em = null;
       if (LayoutTransform != null)
       {
-        ExtendedMatrix em;
         LayoutTransform.GetTransform(out em);
         m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
       }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 
-      mPath.Flatten();
-      //mPath = new GraphicsPath();
-      // mPath.AddRectangle(rbounds);
-      // mPath.Flatten();
+      if (thickNess != 0.0)
+      {
+        //thickNess /= 2.0f;
+        m = new System.Drawing.Drawing2D.Matrix();
+        RectangleF bounds = mPath.GetBounds();
+        float thicknessW = thickNess;
+        float thicknessH = thickNess;
+        if (finalTransform != null)
+          finalTransform.TransformXY(ref thicknessW, ref thicknessH);
+        if (em != null)
+          em.TransformXY(ref thicknessW, ref thicknessH);
+        thicknessW = (bounds.Width + Math.Abs(thicknessW));
+        thicknessH = (bounds.Height + Math.Abs(thicknessH));
 
+        float cx = bounds.X + (bounds.Width / 2.0f);
+        float cy = bounds.Y + (bounds.Height / 2.0f);
+        m.Translate(-cx, -cy, MatrixOrder.Append);
+        m.Scale(thicknessW / bounds.Width, thicknessH / bounds.Height, MatrixOrder.Append);
+        m.Translate(cx, cy, MatrixOrder.Append);
+        mPath.Transform(m);
+      }
+      mPath.Flatten();
       return mPath;
     }
 
