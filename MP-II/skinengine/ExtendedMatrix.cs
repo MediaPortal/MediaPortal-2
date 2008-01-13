@@ -233,6 +233,14 @@ namespace SkinEngine
       h = h1;
     }
 
+    public void TransformXY(ref Vector2 vector)
+    {
+      float w1 = vector.X * Matrix.M11 + vector.Y * Matrix.M21;
+      float h1 = vector.X * Matrix.M12 + vector.Y * Matrix.M22;
+      vector.X = w1;
+      vector.Y = h1;
+    }
+
     public System.Drawing.Drawing2D.Matrix Get2dMatrix()
     {
       return new System.Drawing.Drawing2D.Matrix(Matrix.M11, Matrix.M12, Matrix.M21, Matrix.M22, 0, 0);

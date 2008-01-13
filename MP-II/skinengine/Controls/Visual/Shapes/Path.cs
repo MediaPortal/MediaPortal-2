@@ -41,6 +41,7 @@ using Matrix = Microsoft.DirectX.Matrix;
 
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using GeometryUtility;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -127,9 +128,9 @@ namespace SkinEngine.Controls.Visuals
       if (Stroke != null && StrokeThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
+        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleStrip);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
         Stroke.EndRender();
       }
 
@@ -181,12 +182,18 @@ namespace SkinEngine.Controls.Visuals
         {
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)(StrokeThickness)))
           {
-            _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts);
+            PolygonDirection direction = PointsDirection(path);
+            WidthMode mode = WidthMode.RightHanded;
+            if (direction == PolygonDirection.Count_Clockwise)
+              mode = WidthMode.LeftHanded;
+            //_vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts);
+
+            _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode,out verts);
             if (_vertexBufferBorder != null)
             {
               Stroke.SetupBrush(this, ref verts);
               _vertexBufferBorder.Unlock();
-              _verticesCountBorder = (verts.Length / 3);
+              _verticesCountBorder = verts.Length - 2;// (verts.Length / 3);
             }
 
           }

@@ -44,6 +44,29 @@ using Microsoft.DirectX.Direct3D;
 using GeometryUtility;
 namespace SkinEngine.Controls.Visuals
 {
+  /// <summary>
+  /// Describes to a LineStrip how it should place the line's width relative to its points
+  /// </summary>
+  /// <remarks>
+  /// The behavior of the LeftHanded and RightHanded modes depends on the order the points are
+  /// listed in. LeftHanded will draw the line on the outside of a clockwise curve and on the
+  /// inside of a counterclockwise curve; RightHanded is the opposite.
+  /// </remarks>
+  public enum WidthMode
+  {
+    /// <summary>
+    /// Centers the width on the line
+    /// </summary>
+    Centered,
+    /// <summary>
+    /// Places the width on the left-hand side of the line
+    /// </summary>
+    LeftHanded,
+    /// <summary>
+    /// Places the width on the right-hand side of the line
+    /// </summary>
+    RightHanded
+  }
   public class Shape : FrameworkElement, IAsset
   {
     Property _stretchProperty;
@@ -410,7 +433,7 @@ namespace SkinEngine.Controls.Visuals
         primitive = PrimitiveType.TriangleFan;
         return ConvertPathToTriangleFan(path, cx, cy, out verts);
       }
-      if (Name == "path134" )
+      if (Name == "path134")
       {
       }
       primitive = PrimitiveType.TriangleList;
@@ -581,6 +604,249 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
+    #endregion
+
+
+    #region math helpers
+    /// <summary>the slope of v, or NaN if it is nearly vertical</summary>
+    /// <param name="v">Vector to take slope from</param>
+    protected float vectorSlope(Vector2 v)
+    {
+      return Math.Abs(v.X) < 0.0001f ? float.NaN : (v.Y / v.X);
+    }
+
+    /// <summary>Finds the intercept of a line</summary>
+    /// <param name="point">A point on the line</param>
+    /// <param name="slope">The slope of the line</param>
+    protected float lineIntercept(Vector2 point, float slope)
+    {
+      return point.Y - slope * point.X;
+    }
+
+    /// <summary>The unit length right-hand normal of v</summary>
+    /// <param name="v">Vector to find the normal of</param>
+    protected Vector2 normal(Vector2 v)
+    {
+      //Avoid division by zero/returning a zero vector
+      if (Math.Abs(v.Y) < 0.0001) return new Vector2(0, sgn(v.X));
+      if (Math.Abs(v.X) < 0.0001) return new Vector2(-sgn(v.Y), 0);
+
+      float r = 1 / v.Length();
+      return new Vector2(-v.Y * r, v.X * r);
+    }
+
+    /// <summary>Finds the sign of a number</summary>
+    /// <param name="x">Number to take the sign of</param>
+    private float sgn(float x)
+    {
+      return (x > 0f ? 1f : (x < 0f ? -1f : 0f));
+    }
+    #endregion
+
+    #region point calculation
+    /// <overloads>Computes points needed to connect thick lines properly</overloads>
+    /// <summary>Finds the inside vertex at a point in a line strip</summary>
+    /// <param name="distance">Distance from the center of the line that the point should be</param>
+    /// <param name="lastPoint">Point on the strip before point</param>
+    /// <param name="point">Point whose inside vertex we are finding</param>
+    /// <param name="nextPoint">Point on the strip after point</param>
+    /// <param name="slope">Assigned the slope of the line from lastPoint to point</param>
+    /// <param name="intercept">Assigned the intercept of the line with the computed slope through the inner point</param>
+    /// <remarks>
+    /// This overload is less efficient for calculating a sequence of inner vertices because
+    /// it does not reuse results from previously calculated points
+    /// </remarks>
+    protected Vector2 InnerPoint(float distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
+    {
+      Vector2 lastDifference = point - lastPoint;
+      slope = vectorSlope(lastDifference);
+      intercept = lineIntercept(lastPoint + distance * normal(lastDifference), slope);
+      return InnerPoint(distance, ref slope, ref intercept, lastPoint + distance * normal(lastDifference), point, nextPoint);
+    }
+
+    /// <summary>Finds the inside vertex at a point in a line strip</summary>
+    /// <param name="distance">Distance from the center of the line that the point should be</param>
+    /// <param name="lastSlope">Slope of the previous line in, slope from point to nextPoint out</param>
+    /// <param name="lastIntercept">Intercept of the previous line in, intercept of the line through point and nextPoint out</param>
+    /// <param name="lastInnerPoint">Last computed inner point</param>
+    /// <param name="point">Point whose inside vertex we are finding</param>
+    /// <param name="nextPoint">Point on the strip after point</param>
+    /// <remarks>
+    /// This overload can reuse information calculated about the previous point, so it is more
+    /// efficient for computing the inside of a string of contiguous points on a strip
+    /// </remarks>
+    protected Vector2 InnerPoint(float distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
+    {
+      Vector2 edgeVector = nextPoint - point;
+      //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
+      Vector2 innerPoint = distance * normal(edgeVector);
+
+      if (_finalLayoutTransform != null)
+        _finalLayoutTransform.TransformXY(ref innerPoint);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        m.TransformXY(ref innerPoint);
+      }
+      innerPoint = nextPoint + innerPoint;
+
+      float slope = vectorSlope(edgeVector);
+      float intercept = lineIntercept(innerPoint, slope);
+
+      float safeSlope, safeIntercept;	//Slope and intercept on one of the lines guaranteed not to be vertical
+      float x;						//X-coordinate of intersection
+
+      if (float.IsNaN(slope))
+      {
+        safeSlope = lastSlope;
+        safeIntercept = lastIntercept;
+        x = innerPoint.X;
+      }
+      else if (float.IsNaN(lastSlope))
+      {
+        safeSlope = slope;
+        safeIntercept = intercept;
+        x = lastInnerPoint.X;
+      }
+      else if (slope == lastSlope)
+      {
+        safeSlope = slope;
+        safeIntercept = intercept;
+        x = lastInnerPoint.X;
+      }
+      else
+      {
+        safeSlope = slope;
+        safeIntercept = intercept;
+        x = (lastIntercept - intercept) / (slope - lastSlope);
+      }
+
+      lastSlope = slope;
+      lastIntercept = intercept;
+
+      return new Vector2(x, safeSlope * x + safeIntercept);
+    }
+
+    /// <summary>
+    /// Generates the vertices of a thickened line strip
+    /// </summary>
+    /// <param name="points">Sequence of points on the line strip</param>
+    /// <param name="thickness">Thickness of the line</param>
+    /// <param name="close">Whether to connect the last point back to the first</param>
+    /// <param name="widthMode">How to place the weight of the line relative to it</param>
+    /// <returns>Points ready to pass to the Transform constructor</returns>
+    protected VertexBuffer CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode, out PositionColored2Textured[] verts)
+    {
+      verts = null;
+      if (path.PointCount < 3)
+      {
+        if (close) return null;
+        else if (path.PointCount < 2)
+          return null;
+      }
+      int count = path.PointCount;
+      if (path.PathPoints[count - 2] == path.PathPoints[count - 1])
+        count--;
+      Vector2[] points = new Vector2[count];
+      for (int i = 0; i < count; ++i)
+      {
+        points[i] = new Vector2(path.PathPoints[i].X, path.PathPoints[i].Y);
+      }
+
+      float innerDistance = 0;
+      switch (widthMode)
+      {
+        case WidthMode.Centered:
+          innerDistance = thickness / 2;
+          break;
+        case WidthMode.LeftHanded:
+          innerDistance = -thickness;
+          break;
+        case WidthMode.RightHanded:
+          innerDistance = thickness;
+          break;
+      }
+
+
+      Vector2[] outPoints = new Vector2[(points.Length + (close ? 1 : 0)) * 2];
+
+      float slope, intercept;
+      ExtendedMatrix m = null;
+      if (LayoutTransform != null)
+      {
+        LayoutTransform.GetTransform(out m);
+      }
+      //Get the endpoints
+      if (close)
+      {
+        //Get the overlap points
+        int lastIndex = outPoints.Length - 4;
+        outPoints[lastIndex] = InnerPoint(innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
+        outPoints[0] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
+      }
+      else
+      {
+        //Take endpoints based on the end segments' normals alone
+        outPoints[0] = innerDistance * normal(points[1] - points[0]);
+        if (_finalLayoutTransform != null)
+          _finalLayoutTransform.TransformXY(ref outPoints[0]);
+        if (m != null)
+          m.TransformXY(ref outPoints[0]);
+        outPoints[0] = points[0] + outPoints[0];
+
+        //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
+        Vector2 norm = innerDistance * normal(points[points.Length - 1] - points[points.Length - 2]); //DEBUG
+
+        if (_finalLayoutTransform != null)
+          _finalLayoutTransform.TransformXY(ref norm);
+        if (m != null)
+          m.TransformXY(ref norm);
+        outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
+
+        //Get the slope and intercept of the first segment to feed into the middle loop
+        slope = vectorSlope(points[1] - points[0]);
+        intercept = lineIntercept(outPoints[0], slope);
+      }
+
+      //Get the middle points
+      for (int i = 1; i < points.Length - 1; i++)
+      {
+        outPoints[2 * i] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
+      }
+
+      //Derive the outer points from the inner points
+      if (widthMode == WidthMode.Centered)
+      {
+        for (int i = 0; i < points.Length; i++)
+        {
+          outPoints[2 * i + 1] = 2 * points[i] - outPoints[2 * i];
+        }
+      }
+      else
+      {
+        for (int i = 0; i < points.Length; i++)
+        {
+          outPoints[2 * i + 1] = points[i];
+        }
+      }
+
+      //Closed strips must repeat the first two points
+      if (close)
+      {
+        outPoints[outPoints.Length - 2] = outPoints[0];
+        outPoints[outPoints.Length - 1] = outPoints[1];
+      }
+      int verticeCount = outPoints.Length;
+      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+
+      for (int i = 0; i < verticeCount; ++i)
+      {
+        verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, 1);
+      }
+      return vertexBuffer;
+    }
     #endregion
   }
 }
