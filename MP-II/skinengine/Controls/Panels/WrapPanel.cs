@@ -37,7 +37,7 @@ namespace SkinEngine.Controls.Panels
   public class WrapPanel : Panel
   {
     Property _orientationProperty;
-
+    List<float> _sizeCol;
     /// <summary>
     /// Initializes a new instance of the <see cref="StackPanel"/> class.
     /// </summary>
@@ -55,6 +55,7 @@ namespace SkinEngine.Controls.Panels
     {
       _orientationProperty = new Property(Orientation.Horizontal);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
+      _sizeCol = new List<float>();
     }
 
     public override object Clone()
@@ -106,15 +107,22 @@ namespace SkinEngine.Controls.Panels
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      int offset = 0;
+      _sizeCol.Clear();
+      float w = 0.0f;
+      float h = 0.0f;
       switch (Orientation)
       {
         case Orientation.Horizontal:
           {
+            w = childSize.Width;
             foreach (FrameworkElement child in Children)
             {
               child.Measure(new SizeF(0, childSize.Height));
               if (child.DesiredSize.Width > childSize.Width)
               {
+                _sizeCol.Add(totalHeight);
+                h += totalHeight;
                 childSize.Height -= totalHeight;
                 childSize.Width = _desiredSize.Width;
                 totalHeight = 0.0f;
@@ -126,16 +134,21 @@ namespace SkinEngine.Controls.Panels
                 totalHeight = child.DesiredSize.Height;
 
             }
+            _sizeCol.Add(totalHeight);
+            h += totalHeight;
           }
           break;
 
         case Orientation.Vertical:
           {
+            h = childSize.Height;
             foreach (FrameworkElement child in Children)
             {
               child.Measure(new SizeF(childSize.Width, 0));
               if (child.DesiredSize.Height > childSize.Height)
               {
+                _sizeCol.Add(totalWidth);
+                w += totalWidth;
                 childSize.Width -= totalWidth;
                 childSize.Height = _desiredSize.Height;
                 totalWidth = 0.0f;
@@ -147,12 +160,14 @@ namespace SkinEngine.Controls.Panels
                 totalWidth = child.DesiredSize.Width;
 
             }
+            _sizeCol.Add(totalWidth);
+            w += totalWidth;
           }
           break;
       }
-      if (Width > 0) totalWidth = (float)Width;
-      if (Height > 0) totalHeight = (float)Height;
-      _desiredSize = new SizeF((float)totalWidth, (float)totalHeight);
+      if (Width > 0) w = (float)Width;
+      if (Height > 0) h = (float)Height;
+      _desiredSize = new SizeF((float)w, (float)h);
 
 
       if (LayoutTransform != null)
@@ -198,6 +213,7 @@ namespace SkinEngine.Controls.Panels
             float offsetX = 0;
             float offsetY = 0;
             float totalHeight = 0;
+            int offset = 0;
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) continue;
@@ -206,9 +222,21 @@ namespace SkinEngine.Controls.Panels
                 offsetX = 0;
                 offsetY += totalHeight;
                 totalHeight = 0;
+                offset++;
               }
               PointF location = new PointF((float)(this.ActualPosition.X + offsetX), (float)(this.ActualPosition.Y + offsetY));
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
+
+              //align vertically 
+              if (AlignmentY == AlignmentY.Center)
+              {
+                location.Y += (float)((_sizeCol[offset] - child.DesiredSize.Height) / 2);
+              }
+              else if (AlignmentY == AlignmentY.Bottom)
+              {
+                location.Y += (float)(_sizeCol[offset] - child.DesiredSize.Height);
+              }
+
 
               child.Arrange(new RectangleF(location, size));
               offsetX += child.DesiredSize.Width;
@@ -223,6 +251,7 @@ namespace SkinEngine.Controls.Panels
             float offsetX = 0;
             float offsetY = 0;
             float totalWidth = 0;
+            int offset = 0;
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) continue;
@@ -231,10 +260,20 @@ namespace SkinEngine.Controls.Panels
                 offsetY = 0;
                 offsetX += totalWidth;
                 totalWidth = 0;
+                offset++;
               }
               PointF location = new PointF((float)(this.ActualPosition.X + offsetX), (float)(this.ActualPosition.Y + offsetY));
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
+              //align horizontally 
+              if (AlignmentX == AlignmentX.Center)
+              {
+                location.X += (float)((_sizeCol[offset] - size.Width) / 2);
+              }
+              else if (AlignmentX == AlignmentX.Right)
+              {
+                location.X += (float)(_sizeCol[offset] - child.Width);
+              }
               child.Arrange(new RectangleF(location, size));
               offsetY += child.DesiredSize.Height;
               if (child.DesiredSize.Width > totalWidth)
