@@ -138,6 +138,8 @@ namespace SkinEngine.Controls.Visuals
     }
     protected override void PerformLayout()
     {
+      TimeSpan ts;
+      DateTime now = DateTime.Now;
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -177,6 +179,8 @@ namespace SkinEngine.Controls.Visuals
               }
             }
           }
+          ts = DateTime.Now - now;
+          Trace.WriteLine(String.Format(" fill:{0}", ts.TotalMilliseconds));
         }
         if (Stroke != null && StrokeThickness > 0)
         {
@@ -188,7 +192,7 @@ namespace SkinEngine.Controls.Visuals
               mode = WidthMode.LeftHanded;
             //_vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts);
 
-            _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode,out verts);
+            _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
             if (_vertexBufferBorder != null)
             {
               Stroke.SetupBrush(this, ref verts);
@@ -199,6 +203,9 @@ namespace SkinEngine.Controls.Visuals
           }
         }
       }
+
+      ts = DateTime.Now - now;
+      Trace.WriteLine(String.Format("total:{0}", ts.TotalMilliseconds));
     }
 
 

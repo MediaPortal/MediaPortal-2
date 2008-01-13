@@ -656,12 +656,12 @@ namespace SkinEngine.Controls.Visuals
     /// This overload is less efficient for calculating a sequence of inner vertices because
     /// it does not reuse results from previously calculated points
     /// </remarks>
-    protected Vector2 InnerPoint(float distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
+    protected Vector2 InnerPoint(ref Matrix matrix, float distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
     {
       Vector2 lastDifference = point - lastPoint;
       slope = vectorSlope(lastDifference);
       intercept = lineIntercept(lastPoint + distance * normal(lastDifference), slope);
-      return InnerPoint(distance, ref slope, ref intercept, lastPoint + distance * normal(lastDifference), point, nextPoint);
+      return InnerPoint(ref matrix, distance, ref slope, ref intercept, lastPoint + distance * normal(lastDifference), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -675,20 +675,13 @@ namespace SkinEngine.Controls.Visuals
     /// This overload can reuse information calculated about the previous point, so it is more
     /// efficient for computing the inside of a string of contiguous points on a strip
     /// </remarks>
-    protected Vector2 InnerPoint(float distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
+    protected Vector2 InnerPoint(ref Matrix matrix, float distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
       Vector2 innerPoint = distance * normal(edgeVector);
 
-      if (_finalLayoutTransform != null)
-        _finalLayoutTransform.TransformXY(ref innerPoint);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        m.TransformXY(ref innerPoint);
-      }
+      TransformXY(ref innerPoint, ref matrix);
       innerPoint = nextPoint + innerPoint;
 
       float slope = vectorSlope(edgeVector);
@@ -727,6 +720,13 @@ namespace SkinEngine.Controls.Visuals
 
       return new Vector2(x, safeSlope * x + safeIntercept);
     }
+    public void TransformXY(ref Vector2 vector, ref Matrix m)
+    {
+      float w1 = vector.X * m.M11 + vector.Y * m.M21;
+      float h1 = vector.X * m.M12 + vector.Y * m.M22;
+      vector.X = w1;
+      vector.Y = h1;
+    }
 
     /// <summary>
     /// Generates the vertices of a thickened line strip
@@ -744,6 +744,18 @@ namespace SkinEngine.Controls.Visuals
         if (close) return null;
         else if (path.PointCount < 2)
           return null;
+      }
+
+      Matrix matrix = new Matrix();
+      if (_finalLayoutTransform != null)
+      {
+        matrix = _finalLayoutTransform.Matrix;
+      }
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        matrix.Multiply(em.Matrix);
       }
       int count = path.PointCount;
       if (path.PathPoints[count - 2] == path.PathPoints[count - 1])
@@ -772,36 +784,25 @@ namespace SkinEngine.Controls.Visuals
       Vector2[] outPoints = new Vector2[(points.Length + (close ? 1 : 0)) * 2];
 
       float slope, intercept;
-      ExtendedMatrix m = null;
-      if (LayoutTransform != null)
-      {
-        LayoutTransform.GetTransform(out m);
-      }
       //Get the endpoints
       if (close)
       {
         //Get the overlap points
         int lastIndex = outPoints.Length - 4;
-        outPoints[lastIndex] = InnerPoint(innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
-        outPoints[0] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
+        outPoints[lastIndex] = InnerPoint(ref matrix, innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
+        outPoints[0] = InnerPoint(ref matrix, innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
       }
       else
       {
         //Take endpoints based on the end segments' normals alone
         outPoints[0] = innerDistance * normal(points[1] - points[0]);
-        if (_finalLayoutTransform != null)
-          _finalLayoutTransform.TransformXY(ref outPoints[0]);
-        if (m != null)
-          m.TransformXY(ref outPoints[0]);
+        TransformXY(ref outPoints[0], ref matrix);
         outPoints[0] = points[0] + outPoints[0];
 
         //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
         Vector2 norm = innerDistance * normal(points[points.Length - 1] - points[points.Length - 2]); //DEBUG
 
-        if (_finalLayoutTransform != null)
-          _finalLayoutTransform.TransformXY(ref norm);
-        if (m != null)
-          m.TransformXY(ref norm);
+        TransformXY(ref norm, ref matrix);
         outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
 
         //Get the slope and intercept of the first segment to feed into the middle loop
@@ -812,7 +813,7 @@ namespace SkinEngine.Controls.Visuals
       //Get the middle points
       for (int i = 1; i < points.Length - 1; i++)
       {
-        outPoints[2 * i] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
+        outPoints[2 * i] = InnerPoint(ref matrix, innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
       }
 
       //Derive the outer points from the inner points
