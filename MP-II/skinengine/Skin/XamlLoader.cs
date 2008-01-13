@@ -377,6 +377,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "GridLength")
         return true;
+      else if (name == "WrapPanel")
+        return true;
 
       //visuals
       else if (name == "Border")
@@ -518,6 +520,11 @@ namespace SkinEngine.Skin
         return new ColumnDefinition();
       else if (name == "GridLength")
         return new GridLength();
+      else if (name == "WrapPanel")
+      {
+        _lastElement = new WrapPanel();
+        return _lastElement;
+      }
 
 
       //visuals
