@@ -91,7 +91,6 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
       layoutRect.Y += (float)(Margin.Y);
@@ -128,7 +127,13 @@ namespace SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      _performLayout = true;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      }
       base.Arrange(layoutRect);
     }
 

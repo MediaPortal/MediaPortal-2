@@ -259,7 +259,6 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
       layoutRect.Y += (float)(Margin.Y);
@@ -280,7 +279,13 @@ namespace SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      _performLayout = true;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      }
 
       if (!IsArrangeValid)
       {
@@ -416,16 +421,24 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       base.DoRender();
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      SkinContext.AddTransform(m);
       GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
       if (_image != null)
       {
         _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
-        if (_image.Texture.IsAllocated) return;
+        if (_image.Texture.IsAllocated)
+        {
+          SkinContext.RemoveTransform();
+          return;
+        }
       }
       if (_fallbackImage != null)
       {
         _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);
       }
+      SkinContext.RemoveTransform();
     }
 
     /// <summary>
@@ -452,7 +465,7 @@ namespace SkinEngine.Controls.Visuals
           }
         }
 
-        Vector3 pos = ActualPosition;
+        Vector3 pos = new Vector3(0, 0, 1f);
         float height = (float)ActualHeight;
         float width = (float)ActualWidth;
         float pixelRatio = 1.0f;

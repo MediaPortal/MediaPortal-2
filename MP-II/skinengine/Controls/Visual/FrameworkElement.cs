@@ -583,6 +583,7 @@ namespace SkinEngine.Controls.Visuals
       }
       else
       {
+
         //no opacity mask
         //apply rendertransform
         if (RenderTransform != null)

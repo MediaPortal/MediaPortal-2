@@ -204,11 +204,6 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
-      if (this.Name == "Panel2")
-      {
-        int xxx = 123;
-      }
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
       layoutRect.Y += (float)(Margin.Y);
@@ -298,7 +293,13 @@ namespace SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      _performLayout = true;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      }
       base.Arrange(layoutRect);
     }
     /// <summary>
@@ -314,6 +315,9 @@ namespace SkinEngine.Controls.Panels
         }
         if (Background != null)
         {
+          ExtendedMatrix m = new ExtendedMatrix();
+          m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+          SkinContext.AddTransform(m);
           Matrix mrel, mt;
           Background.RelativeTransform.GetTransform(out mrel);
           Background.Transform.GetTransform(out mt);
@@ -323,6 +327,7 @@ namespace SkinEngine.Controls.Panels
           GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
           Background.EndRender();
+          SkinContext.RemoveTransform();
         }
 
         int index = 0;
@@ -529,6 +534,10 @@ namespace SkinEngine.Controls.Panels
     }
     #endregion
 
+    /// <summary>
+    /// Handles keypresses
+    /// </summary>
+    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
       int index = 0;

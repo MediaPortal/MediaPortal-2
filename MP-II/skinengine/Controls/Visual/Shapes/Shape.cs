@@ -109,6 +109,12 @@ namespace SkinEngine.Controls.Visuals
       _strokeThicknessProperty = new Property(1.0);
       _stretchProperty = new Property(Stretch.None);
       ContentManager.Add(this);
+      _strokeThicknessProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
+    }
+
+    void OnStrokeThicknessChanged(Property property)
+    {
+      Invalidate();
     }
 
 

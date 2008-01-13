@@ -76,8 +76,16 @@ namespace SkinEngine.Controls.Visuals
       _y1Property = new Property(0.0);
       _x2Property = new Property(0.0);
       _y2Property = new Property(0.0);
+      _x1Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
+      _y1Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
+      _x2Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
+      _y2Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
     }
 
+    void OnCoordinateChanged(Property property)
+    {
+      Invalidate();
+    }
 
     /// <summary>
     /// Gets or sets the x1 property.
@@ -276,7 +284,7 @@ namespace SkinEngine.Controls.Visuals
       float y2 = (float)(Y2 + baseRect.Y);
 
       float w = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-     
+
       float ang = (float)((y2 - y1) / (x2 - x1));
       ang = (float)Math.Atan(ang);
       ang *= (float)(180.0f / Math.PI);

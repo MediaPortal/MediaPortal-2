@@ -70,6 +70,13 @@ namespace SkinEngine.Controls.Visuals
     {
       _radiusXProperty = new Property(0.0);
       _radiusYProperty = new Property(0.0);
+      _radiusXProperty.Attach(new PropertyChangedHandler(OnRadiusChanged));
+      _radiusYProperty.Attach(new PropertyChangedHandler(OnRadiusChanged));
+    }
+
+    void OnRadiusChanged(Property property)
+    {
+      Invalidate();
     }
 
 
@@ -137,7 +144,76 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+    public override void Arrange(System.Drawing.RectangleF finalRect)
+    {
+      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeBindings();
+        InitializeTriggers();
+      }
+      _isLayoutInvalid = false;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      }
+    }
+
+    /// <summary>
+    /// Renders the visual
+    /// </summary>
+    public override void DoRender()
+    {
+      if (!IsVisible) return;
+      if ((Fill != null && _vertexBufferFill == null) ||
+           (Stroke != null && _vertexBufferBorder == null) || _performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+      }
+
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      SkinContext.AddTransform(m);
+      if (Fill != null)
+      {
+        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
+        Fill.EndRender();
+      }
+      if (Stroke != null && StrokeThickness > 0)
+      {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+        Stroke.EndRender();
+      }
+
+      SkinContext.RemoveTransform();
+      _lastTimeUsed = SkinContext.Now;
+    }
 
 
     /// <summary>
@@ -145,7 +221,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Rectangle.PerformLayout() " + this.Name);
+      Trace.WriteLine("Rectangle.PerformLayout() " + this.Name + "  "+this._performLayout);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -158,7 +234,7 @@ namespace SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         m.InvertSize(ref rectSize);
       }
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
 
       PositionColored2Textured[] verts;
       GraphicsPath path;
@@ -182,7 +258,7 @@ namespace SkinEngine.Controls.Visuals
           {
             using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
             {
-              _vertexBufferBorder = ConvertPathToTriangleStrip(path,  (float)StrokeThickness, true, out verts);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts);
               if (_vertexBufferBorder != null)
               {
                 Stroke.SetupBrush(this, ref verts);

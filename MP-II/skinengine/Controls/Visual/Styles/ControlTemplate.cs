@@ -77,7 +77,6 @@ namespace SkinEngine.Controls.Visuals.Styles
     }
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X);
       layoutRect.Y += (float)(Margin.Y);
@@ -110,12 +109,17 @@ namespace SkinEngine.Controls.Visuals.Styles
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      _performLayout = true;
       if (!IsArrangeValid)
       {
         IsArrangeValid = true;
         InitializeBindings();
         InitializeTriggers();
+      }
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
       _isLayoutInvalid = false;
     }

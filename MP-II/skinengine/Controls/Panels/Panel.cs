@@ -236,6 +236,9 @@ namespace SkinEngine.Controls.Panels
       }
       if (Background != null)
       {
+        ExtendedMatrix m = new ExtendedMatrix();
+        m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+        SkinContext.AddTransform(m);
         Matrix mrel, mt;
         Background.RelativeTransform.GetTransform(out mrel);
         Background.Transform.GetTransform(out mt);
@@ -245,6 +248,7 @@ namespace SkinEngine.Controls.Panels
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
         Background.EndRender();
+        SkinContext.RemoveTransform();
       }
       foreach (UIElement element in Children)
       {
@@ -269,10 +273,10 @@ namespace SkinEngine.Controls.Panels
         PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexBufferBackground.Lock(0, 0);
         unchecked
         {
-          verts[0].Position = new Microsoft.DirectX.Vector3((float)(ActualPosition.X), (float)(ActualPosition.Y), 1.0f);
-          verts[1].Position = new Microsoft.DirectX.Vector3((float)(ActualPosition.X), (float)(ActualPosition.Y + ActualHeight), 1.0f);
-          verts[2].Position = new Microsoft.DirectX.Vector3((float)(ActualPosition.X + ActualWidth), (float)(ActualPosition.Y + ActualHeight), 1.0f);
-          verts[3].Position = new Microsoft.DirectX.Vector3((float)(ActualPosition.X + ActualWidth), (float)(ActualPosition.Y), 1.0f);
+          verts[0].Position = new Microsoft.DirectX.Vector3(0, 0, 1.0f);
+          verts[1].Position = new Microsoft.DirectX.Vector3(0, (float)(ActualHeight), 1.0f);
+          verts[2].Position = new Microsoft.DirectX.Vector3((float)(ActualWidth), (float)(ActualHeight), 1.0f);
+          verts[3].Position = new Microsoft.DirectX.Vector3((float)(ActualWidth), 0, 1.0f);
 
         }
         Background.SetupBrush(this, ref verts);

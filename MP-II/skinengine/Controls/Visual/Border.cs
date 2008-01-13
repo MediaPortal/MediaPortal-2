@@ -220,6 +220,39 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    /// <summary>
+    /// Arranges the UI element
+    /// and positions it in the finalrect
+    /// </summary>
+    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+    public override void Arrange(System.Drawing.RectangleF finalRect)
+    {
+      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += (float)(Margin.X);
+      layoutRect.Y += (float)(Margin.Y);
+      layoutRect.Width -= (float)(Margin.X + Margin.W);
+      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+
+      if (!IsArrangeValid)
+      {
+        IsArrangeValid = true;
+        InitializeBindings();
+        InitializeTriggers();
+      }
+      _isLayoutInvalid = false;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      }
+    }
+
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -230,6 +263,9 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      SkinContext.AddTransform(m);
       if (Background != null)
       {
         GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
@@ -247,6 +283,7 @@ namespace SkinEngine.Controls.Visuals
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
         BorderBrush.EndRender();
       }
+      SkinContext.RemoveTransform();
 
       _lastTimeUsed = SkinContext.Now;
     }
@@ -257,10 +294,6 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       Trace.WriteLine("Border.PerformLayout() " + this.Name);
-      if (Name == "b21")
-      {
-        int xxxx = 1;
-      }
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -273,7 +306,7 @@ namespace SkinEngine.Controls.Visuals
         m.InvertSize(ref rectSize);
       }
 
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
 
       PositionColored2Textured[] verts;
       GraphicsPath path;
