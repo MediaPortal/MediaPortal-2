@@ -721,8 +721,10 @@ namespace SkinEngine.Controls.Visuals
         x = (lastIntercept - intercept) / (slope - lastSlope);
       }
 
-      lastSlope = slope;
-      lastIntercept = intercept;
+      if (!float.IsNaN(slope))
+        lastSlope = slope;
+      if (!float.IsNaN(intercept))
+        lastIntercept = intercept;
 
       return new Vector2(x, safeSlope * x + safeIntercept);
     }
