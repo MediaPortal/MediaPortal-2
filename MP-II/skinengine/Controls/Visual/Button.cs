@@ -558,7 +558,6 @@ namespace SkinEngine.Controls.Visuals
       UIElement cntl = FocusManager.PredictFocus(this, ref key);
       if (cntl != null)
       {
-        HasFocus = false;
         cntl.HasFocus = true;
         key = MediaPortal.Core.InputManager.Key.None;
       }

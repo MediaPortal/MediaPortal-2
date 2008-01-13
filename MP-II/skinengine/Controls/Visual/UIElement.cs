@@ -735,7 +735,19 @@ namespace SkinEngine.Controls.Visuals
       }
       set
       {
-        _hasFocusProperty.SetValue(value);
+        if (value != HasFocus)
+        {
+          _hasFocusProperty.SetValue(value);
+          if (value)
+          {
+            FocusManager.FocusedElement = this;
+            FireEvent("OnGotFocus");
+          }
+          else
+          {
+            FireEvent("OnLostFocus");
+          }
+        }
       }
     }
     /// <summary>

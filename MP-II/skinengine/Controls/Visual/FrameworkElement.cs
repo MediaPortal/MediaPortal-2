@@ -336,7 +336,6 @@ namespace SkinEngine.Controls.Visuals
           if (IsEnabled && Focusable && !HasFocus)
           {
             HasFocus = true;
-            FireEvent("OnGotFocus");
           }
           return;
         }
@@ -346,13 +345,9 @@ namespace SkinEngine.Controls.Visuals
         _mouseOver = false;
         FireEvent("OnMouseLeave");
       }
-      if (IsEnabled && Focusable)
+      if (IsEnabled && Focusable && HasFocus)
       {
-        if (HasFocus)
-        {
-          HasFocus = false;
-          FireEvent("OnLostFocus");
-        }
+        HasFocus = false;
       }
     }
 

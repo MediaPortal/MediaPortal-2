@@ -34,6 +34,27 @@ namespace SkinEngine
 {
   public class FocusManager
   {
+    static UIElement _focusedElement;
+
+    public static UIElement FocusedElement
+    {
+      get
+      {
+        return _focusedElement;
+      }
+      set
+      {
+        if (_focusedElement != value)
+        {
+          if (_focusedElement != null)
+          {
+            if (_focusedElement.HasFocus)
+              _focusedElement.HasFocus = false;
+          }
+          _focusedElement = value;
+        }
+      }
+    }
     /// <summary>
     /// Predicts which FrameworkElement should get the focus
     /// </summary>

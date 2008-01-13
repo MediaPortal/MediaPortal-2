@@ -529,6 +529,45 @@ namespace SkinEngine.Controls.Panels
     }
     #endregion
 
+    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
+    {
+      int index = 0;
+      foreach (UIElement element in Children)
+      {
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        if (false == element.IsVisible) continue;
+        element.OnKeyPressed(ref key);
+        if (key == MediaPortal.Core.InputManager.Key.None) return;
+        index++;
+        if (index >= _endIndex) break;
+      }
+    }
+
+    /// <summary>
+    /// Called when the mouse moves
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public override void OnMouseMove(float x, float y)
+    {
+      int index = 0;
+      foreach (UIElement element in Children)
+      {
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        if (false == element.IsVisible) continue;
+        element.OnMouseMove(x, y);
+        index++;
+        if (index >= _endIndex) break;
+      }
+    }
 
     #region focus prediction
 

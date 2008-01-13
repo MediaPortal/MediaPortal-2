@@ -12,7 +12,6 @@ namespace SkinEngine.Controls.Visuals
     UIElement _root;
     Dictionary<string, object> _cache;
     static VisualTreeHelper _instance;
-
     public static VisualTreeHelper Instance
     {
       get
