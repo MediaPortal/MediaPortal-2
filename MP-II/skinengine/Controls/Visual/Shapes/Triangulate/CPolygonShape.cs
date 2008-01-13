@@ -238,11 +238,12 @@ namespace GeometryUtility
     {
       System.Collections.ArrayList alTempPts = new System.Collections.ArrayList();
 
+      bool found = false;
       for (int i = 0; i < m_aUpdatedPolygonVertices.Length; i++)
       {
-        if (vertex.EqualsPoint(
-          m_aUpdatedPolygonVertices[i])) //add 3 pts to FEars
+        if (!found && vertex.EqualsPoint(m_aUpdatedPolygonVertices[i])) //add 3 pts to FEars
         {
+          found = true;
           CPolygon polygon = new CPolygon(m_aUpdatedPolygonVertices);
           CPoint2D pti = vertex;
           CPoint2D ptj = polygon.PreviousPoint(vertex); //previous point
