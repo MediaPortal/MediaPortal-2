@@ -53,7 +53,7 @@ namespace SkinEngine.Controls.Panels
 
     void Init()
     {
-      _orientationProperty = new Property(Orientation.Vertical);
+      _orientationProperty = new Property(Orientation.Horizontal);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
     }
 
@@ -108,7 +108,7 @@ namespace SkinEngine.Controls.Panels
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       switch (Orientation)
       {
-        case Orientation.Vertical:
+        case Orientation.Horizontal:
           {
             foreach (FrameworkElement child in Children)
             {
@@ -129,10 +129,23 @@ namespace SkinEngine.Controls.Panels
           }
           break;
 
-        case Orientation.Horizontal:
+        case Orientation.Vertical:
           {
             foreach (FrameworkElement child in Children)
             {
+              child.Measure(new SizeF(childSize.Width, 0));
+              if (child.DesiredSize.Height > childSize.Height)
+              {
+                childSize.Width -= totalWidth;
+                childSize.Height = _desiredSize.Height;
+                totalWidth = 0.0f;
+              }
+              childSize.Height -= child.DesiredSize.Height;
+              totalHeight += child.DesiredSize.Height;
+              child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
+              if (child.DesiredSize.Width > totalWidth)
+                totalWidth = child.DesiredSize.Width;
+
             }
           }
           break;
@@ -180,7 +193,7 @@ namespace SkinEngine.Controls.Panels
 
       switch (Orientation)
       {
-        case Orientation.Vertical:
+        case Orientation.Horizontal:
           {
             float offsetX = 0;
             float offsetY = 0;
@@ -205,10 +218,27 @@ namespace SkinEngine.Controls.Panels
           }
           break;
 
-        case Orientation.Horizontal:
+        case Orientation.Vertical:
           {
+            float offsetX = 0;
+            float offsetY = 0;
+            float totalWidth = 0;
             foreach (FrameworkElement child in Children)
             {
+              if (!child.IsVisible) continue;
+              if (child.DesiredSize.Height + offsetY > _desiredSize.Height)
+              {
+                offsetY = 0;
+                offsetX += totalWidth;
+                totalWidth = 0;
+              }
+              PointF location = new PointF((float)(this.ActualPosition.X + offsetX), (float)(this.ActualPosition.Y + offsetY));
+              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
+
+              child.Arrange(new RectangleF(location, size));
+              offsetY += child.DesiredSize.Height;
+              if (child.DesiredSize.Width > totalWidth)
+                totalWidth = child.DesiredSize.Width;
             }
           }
           break;
