@@ -40,17 +40,11 @@ namespace SkinEngine.Effects
     private string _effectName;
     private Effect _effect;
     private DateTime _lastUsed = DateTime.MinValue;
-    private double _ticksPerSecond = 0;
-    private double _lastElapsedTime = 0;
     Dictionary<string, object> _effectParameters;
-
-    [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-    [DllImport("kernel32")]
-    public static extern bool QueryPerformanceFrequency(ref long PerformanceFrequency);
-
-    [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
-    [DllImport("kernel32")]
-    public static extern bool QueryPerformanceCounter(ref long PerformanceCount);
+    EffectHandle _handleWorldProjection;
+    EffectHandle _handleTexture;
+    EffectHandle _handleTechnique;
+    Dictionary<string, EffectHandleAsset> _parameters;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EffectAsset"/> class.
@@ -58,21 +52,16 @@ namespace SkinEngine.Effects
     /// <param name="effectName">Name of the effect.</param>
     public EffectAsset(string effectName)
     {
+      _parameters = new Dictionary<string, EffectHandleAsset>();
       _effectParameters = new Dictionary<string, object>();
       _effectName = effectName;
-      long ticksPerSecond = 0;
-      bool res = QueryPerformanceFrequency(ref ticksPerSecond);
-      _ticksPerSecond = (float)ticksPerSecond;
-
-      long time = 0;
-      QueryPerformanceCounter(ref time);
-      _lastElapsedTime = (double)time;
+      Allocate();
     }
 
     /// <summary>
     /// Allocates this instance.
     /// </summary>
-    private void Allocate()
+    public void Allocate()
     {
       string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
       if (File.Exists(effectFile))
@@ -85,6 +74,12 @@ namespace SkinEngine.Effects
           ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
           ServiceScope.Get<ILogger>().Error("errors:{0}", errors);
           _lastUsed = SkinContext.Now;
+        }
+        else
+        {
+          _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
+          _handleTexture = _effect.GetParameter(null, "g_texture");
+          _handleTechnique = _effect.GetTechnique(0);
         }
       }
     }
@@ -128,6 +123,22 @@ namespace SkinEngine.Effects
     /// </summary>
     public void Free()
     {
+      if (_handleTechnique != null)
+        _handleTechnique.Dispose();
+      if (_handleTexture != null)
+        _handleTexture.Dispose();
+      if (_handleWorldProjection != null)
+        _handleWorldProjection.Dispose();
+      Dictionary<string, EffectHandleAsset>.Enumerator enumer = _parameters.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        enumer.Current.Value.Handle.Dispose();
+        enumer.Current.Value.Handle = null;
+      }
+      _handleTechnique = null;
+      _handleWorldProjection = null;
+      _handleTexture = null;
+
       if (_effect != null)
       {
         _effect.Dispose();
@@ -163,13 +174,9 @@ namespace SkinEngine.Effects
         }
       }
 
-      long time = 0;
-      QueryPerformanceCounter(ref time);
-      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue("g_texture", tex.Texture);
-      _effect.SetValue("appTime", (float)elapsedTime);
-      _effect.Technique = "simple";
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleTexture, tex.Texture);
+      _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
@@ -191,13 +198,9 @@ namespace SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(0, tex);
         return;
       }
-      long time = 0;
-      QueryPerformanceCounter(ref time);
-      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue("g_texture", tex);
-      _effect.SetValue("appTime", (float)elapsedTime);
-      _effect.Technique = "simple";
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleTexture, tex);
+      _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
@@ -228,13 +231,9 @@ namespace SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(stream, tex);
         return;
       }
-      long time = 0;
-      QueryPerformanceCounter(ref time);
-      double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue("g_texture", tex);
-      _effect.SetValue("appTime", (float)elapsedTime);
-      _effect.Technique = "simple";
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleTexture, tex);
+      _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
@@ -260,6 +259,7 @@ namespace SkinEngine.Effects
 
     void SetEffectParameters()
     {
+      if (_effectParameters.Count == 0) return;
       Dictionary<string, object>.Enumerator enumer = _effectParameters.GetEnumerator();
       while (enumer.MoveNext())
       {
@@ -295,6 +295,25 @@ namespace SkinEngine.Effects
         else if (type == typeof(int))
           _effect.SetValue(enumer.Current.Key, (int)v);
 
+      }
+    }
+
+    public EffectHandleAsset GetParameterHandle(string name)
+    {
+      if (_parameters.ContainsKey(name))
+      {
+        return _parameters[name];
+      }
+      EffectHandleAsset asset = new EffectHandleAsset(name, this);
+      _parameters[name] = asset;
+      return asset;
+    }
+
+    public Effect Effect
+    {
+      get
+      {
+        return _effect;
       }
     }
   }

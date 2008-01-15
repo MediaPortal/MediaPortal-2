@@ -233,6 +233,7 @@
     <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Vertex.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
+    <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="ExtendedMatrix.cs" />
     <Compile Include="InputManager\FocusManager.cs" />
     <Compile Include="Models\Model.cs" />

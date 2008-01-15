@@ -54,6 +54,7 @@ namespace MediaPortal.Services.Burning
 
     public BurnManager()
     {
+      /*
       AvailableDrives = new List<Burner>(1);
       Logger = ServiceScope.Get<ILogger>();
       // Making sure the singleton constructor is called.
@@ -65,7 +66,7 @@ namespace MediaPortal.Services.Burning
       initDriveThread.IsBackground = true;      
       initDriveThread.Name = "BurnManager";
       initDriveThread.Priority = ThreadPriority.BelowNormal;
-      initDriveThread.Start();
+      initDriveThread.Start();*/
     }
     
     public void Dispose()

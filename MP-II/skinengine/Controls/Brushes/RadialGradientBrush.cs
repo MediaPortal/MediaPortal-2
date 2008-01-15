@@ -55,7 +55,13 @@ namespace SkinEngine.Controls.Brushes
     ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
     bool _singleColor = true;
-
+    EffectHandleAsset _handleRelativeTransform;
+    EffectHandleAsset _handleFocus;
+    EffectHandleAsset _handleCenter;
+    EffectHandleAsset _handleRadius;
+    EffectHandleAsset _handleOpacity;
+    EffectHandleAsset _handleColor;
+    EffectHandleAsset _handleAlphaTexture;
     /// <summary>
     /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
     /// </summary>
@@ -303,10 +309,16 @@ namespace SkinEngine.Controls.Brushes
         {
           SetColor(vertexBuffer);
           _effect = ContentManager.GetEffect("solidbrush");
+          _handleColor = _effect.GetParameterHandle("g_solidColor");
         }
         else
         {
           _effect = ContentManager.GetEffect("radialgradient");
+          _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+          _handleFocus = _effect.GetParameterHandle("g_focus");
+          _handleCenter = _effect.GetParameterHandle("g_center");
+          _handleRadius = _effect.GetParameterHandle("g_radius");
+          _handleOpacity = _effect.GetParameterHandle("g_opacity");
         }
         if (_cacheTexture != null)
         {
@@ -339,6 +351,12 @@ namespace SkinEngine.Controls.Brushes
           {
             Trace.WriteLine("RadialGradientBrush:Create cached texture");
             _effect = ContentManager.GetEffect("radialgradient");
+            _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+            _handleFocus = _effect.GetParameterHandle("g_focus");
+            _handleCenter = _effect.GetParameterHandle("g_center");
+            _handleRadius = _effect.GetParameterHandle("g_radius");
+            _handleOpacity = _effect.GetParameterHandle("g_opacity");
+
             float w = (float)_width;
             float h = (float)_height;
             float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
@@ -388,14 +406,14 @@ namespace SkinEngine.Controls.Brushes
                 //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
 
-                _effect.Parameters["g_focus"] = g_focus;
-                _effect.Parameters["g_center"] = g_center;
-                _effect.Parameters["g_radius"] = g_radius;
-                _effect.Parameters["g_opacity"] = (float)Opacity;
                 Matrix mrel = Matrix.Identity;
                 RelativeTransform.GetTransform(out mrel);
                 mrel = Matrix.Invert(mrel);
-                _effect.Parameters["RelativeTransform"] = mrel;
+                _handleRelativeTransform.SetParameter(mrel);
+                _handleFocus.SetParameter(g_focus);
+                _handleCenter.SetParameter(g_center);
+                _handleRadius.SetParameter(g_radius);
+                _handleOpacity.SetParameter((float)Opacity);
 
                 _effect.StartRender(_gradientTexture);
 
@@ -423,15 +441,15 @@ namespace SkinEngine.Controls.Brushes
         }
         else
         {
-
-          _effect.Parameters["g_focus"] = g_focus;
-          _effect.Parameters["g_center"] = g_center;
-          _effect.Parameters["g_radius"] = g_radius;
-          _effect.Parameters["g_opacity"] = (float)Opacity;
           Matrix m = Matrix.Identity;
           RelativeTransform.GetTransform(out m);
           m = Matrix.Invert(m);
-          _effect.Parameters["RelativeTransform"] = m;
+
+          _handleRelativeTransform.SetParameter(m);
+          _handleFocus.SetParameter(g_focus);
+          _handleCenter.SetParameter(g_center);
+          _handleRadius.SetParameter(g_radius);
+          _handleOpacity.SetParameter((float)Opacity);
 
           _effect.StartRender(_gradientTexture);
           _lastTimeUsed = SkinContext.Now;
@@ -440,7 +458,7 @@ namespace SkinEngine.Controls.Brushes
       else
       {
         ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
-        _effect.Parameters["g_solidColor"] = v;
+        _handleColor.SetParameter(v);
         _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
       }
@@ -482,6 +500,12 @@ namespace SkinEngine.Controls.Brushes
           //SetColor(vertexBuffer);
         }
         _effect = ContentManager.GetEffect("radialopacitygradient");
+        _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+        _handleFocus = _effect.GetParameterHandle("g_focus");
+        _handleCenter = _effect.GetParameterHandle("g_center");
+        _handleRadius = _effect.GetParameterHandle("g_radius");
+        _handleOpacity = _effect.GetParameterHandle("g_opacity");
+        _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
       }
 
       float[] g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
@@ -502,15 +526,16 @@ namespace SkinEngine.Controls.Brushes
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
-        _effect.Parameters["g_alphatex"] = _gradientTexture;
-        _effect.Parameters["g_focus"] = g_focus;
-        _effect.Parameters["g_center"] = g_center;
-        _effect.Parameters["g_radius"] = g_radius;
         Matrix m = Matrix.Identity;
         RelativeTransform.GetTransform(out m);
         m = Matrix.Invert(m);
-        _effect.Parameters["RelativeTransform"] = m;
 
+        _handleRelativeTransform.SetParameter(m);
+        _handleFocus.SetParameter(g_focus);
+        _handleCenter.SetParameter(g_center);
+        _handleRadius.SetParameter(g_radius);
+        _handleOpacity.SetParameter((float)Opacity);
+        _handleAlphaTexture.SetParameter(_gradientTexture);
         _effect.StartRender(tex);
         _lastTimeUsed = SkinContext.Now;
       }

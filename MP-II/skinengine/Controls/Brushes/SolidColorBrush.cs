@@ -44,6 +44,7 @@ namespace SkinEngine.Controls.Brushes
     double _height;
     double _width;
     EffectAsset _effect;
+    EffectHandleAsset _effectHandleColor;
     DateTime _lastTimeUsed;
 
     /// <summary>
@@ -67,6 +68,7 @@ namespace SkinEngine.Controls.Brushes
       //ContentManager.Add(this);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _effect = ContentManager.GetEffect("solidbrush");
+      _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
     }
 
     public override object Clone()
@@ -145,7 +147,7 @@ namespace SkinEngine.Controls.Brushes
 
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       ColorValue v = ColorConverter.FromColor(this.Color);
-      _effect.Parameters["g_solidColor"] = v;
+      _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
       GraphicsDevice.Device.SetTexture(0, null);
       _lastTimeUsed = SkinContext.Now;

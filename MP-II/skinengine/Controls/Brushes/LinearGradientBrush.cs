@@ -52,6 +52,12 @@ namespace SkinEngine.Controls.Brushes
     ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
     bool _singleColor = true;
+    EffectHandleAsset _handleRelativeTransform;
+    EffectHandleAsset _handleOpacity;
+    EffectHandleAsset _handleStartPoint;
+    EffectHandleAsset _handleEndPoint;
+    EffectHandleAsset _handleSolidColor;
+    EffectHandleAsset _handleAlphaTexture;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LinearGradientBrush"/> class.
@@ -216,10 +222,15 @@ namespace SkinEngine.Controls.Brushes
         {
           SetColor(vertexBuffer);
           _effect = ContentManager.GetEffect("solidbrush");
+          _handleSolidColor = _effect.GetParameterHandle("g_solidColor");
         }
         else
         {
           _effect = ContentManager.GetEffect("lineargradient");
+          _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+          _handleOpacity = _effect.GetParameterHandle("g_opacity");
+          _handleStartPoint = _effect.GetParameterHandle("g_StartPoint");
+          _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
         }
         if (_cacheTexture != null)
         {
@@ -246,6 +257,11 @@ namespace SkinEngine.Controls.Brushes
           if (_cacheTexture == null)
           {
             _effect = ContentManager.GetEffect("lineargradient");
+            _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+            _handleOpacity = _effect.GetParameterHandle("g_opacity");
+            _handleStartPoint = _effect.GetParameterHandle("g_StartPoint");
+            _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
+
             Trace.WriteLine("LinearGradientBrush:Create cached texture");
             float w = (float)_width;
             float h = (float)_height;
@@ -296,14 +312,13 @@ namespace SkinEngine.Controls.Brushes
                 //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
 
-                _effect.Parameters["g_opacity"] = (float)Opacity;
-                _effect.Parameters["g_StartPoint"] = g_startpoint;
-                _effect.Parameters["g_EndPoint"] = g_endpoint;
                 Matrix mrel = Matrix.Identity;
                 RelativeTransform.GetTransform(out mrel);
                 mrel = Matrix.Invert(mrel);
-                _effect.Parameters["RelativeTransform"] = mrel;
-
+                _handleRelativeTransform.SetParameter(mrel);
+                _handleOpacity.SetParameter((float)Opacity);
+                _handleStartPoint.SetParameter(g_startpoint);
+                _handleEndPoint.SetParameter(g_endpoint);
                 _effect.StartRender(_gradientTexture);
 
                 GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -330,14 +345,14 @@ namespace SkinEngine.Controls.Brushes
         }
         else
         {
-          _effect.Parameters["g_opacity"] = (float)Opacity;
-          _effect.Parameters["g_StartPoint"] = g_startpoint;
-          _effect.Parameters["g_EndPoint"] = g_endpoint;
           Matrix m = Matrix.Identity;
           RelativeTransform.GetTransform(out m);
           m = Matrix.Invert(m);
-          _effect.Parameters["RelativeTransform"] = m;
 
+          _handleRelativeTransform.SetParameter(m);
+          _handleOpacity.SetParameter((float)Opacity);
+          _handleStartPoint.SetParameter(g_startpoint);
+          _handleEndPoint.SetParameter(g_endpoint);
           _effect.StartRender(_gradientTexture);
           _lastTimeUsed = SkinContext.Now;
         }
@@ -345,7 +360,7 @@ namespace SkinEngine.Controls.Brushes
       else
       {
         ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
-        _effect.Parameters["g_solidColor"] = v;
+        _handleSolidColor.SetParameter(v);
         _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
       }
@@ -383,6 +398,11 @@ namespace SkinEngine.Controls.Brushes
           //SetColor(vertexBuffer);
         }
         _effect = ContentManager.GetEffect("linearopacitygradient");
+        _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+        _handleOpacity = _effect.GetParameterHandle("g_opacity");
+        _handleStartPoint = _effect.GetParameterHandle("g_StartPoint");
+        _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
+        _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
       }
 
       float[] g_startpoint = new float[2] { StartPoint.X, StartPoint.Y };
@@ -399,13 +419,14 @@ namespace SkinEngine.Controls.Brushes
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
-        _effect.Parameters["g_alphatex"] = _gradientTexture;
-        _effect.Parameters["g_StartPoint"] = g_startpoint;
-        _effect.Parameters["g_EndPoint"] = g_endpoint;
         Matrix m = Matrix.Identity;
         RelativeTransform.GetTransform(out m);
         m = Matrix.Invert(m);
-        _effect.Parameters["RelativeTransform"] = m;
+        _handleRelativeTransform.SetParameter(m);
+        _handleOpacity.SetParameter((float)Opacity);
+        _handleStartPoint.SetParameter(g_startpoint);
+        _handleEndPoint.SetParameter(g_endpoint);
+        _handleAlphaTexture.SetParameter(_gradientTexture);
 
         _effect.StartRender(tex);
         _lastTimeUsed = SkinContext.Now;
