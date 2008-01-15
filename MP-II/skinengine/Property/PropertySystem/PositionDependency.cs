@@ -23,7 +23,8 @@
 #endregion
 
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Properties
 {
@@ -45,8 +46,8 @@ namespace SkinEngine.Properties
     {
       _posParent = (Vector3)property.GetValue();
       Vector3 finalPos = _posControl;
-      finalPos.Add(_posParent);
-      finalPos.Add(_offset);
+      finalPos+=(_posParent);
+      finalPos += (_offset);
       SetValue(finalPos);
     }
 
@@ -54,8 +55,8 @@ namespace SkinEngine.Properties
     {
       _posControl = (Vector3)property.GetValue();
       Vector3 finalPos = _posControl;
-      finalPos.Add(_posParent);
-      finalPos.Add(_offset);
+      finalPos += (_posParent);
+      finalPos += (_offset);
       SetValue(finalPos);
     }
 

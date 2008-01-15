@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-
+using SlimDX;
 namespace SkinEngine.Controls.Transforms
 {
   public class TranslateTransform : Transform
@@ -133,7 +133,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
-      _matrix.Translate((float)X, (float)Y, 0);
+      _matrix = Matrix.Translation((float)X, (float)Y, 0);
     }
 
 

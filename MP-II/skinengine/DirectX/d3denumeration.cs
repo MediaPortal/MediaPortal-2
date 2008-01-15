@@ -22,35 +22,13 @@
 
 #endregion
 
-#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
 
 using System.Collections;
 using System.Diagnostics;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.DirectX
 {
@@ -91,7 +69,7 @@ namespace SkinEngine.DirectX
   {
     public int AdapterOrdinal;
     public DeviceType DevType;
-    public Caps Caps;
+    public Capabilities Caps;
     public ArrayList DeviceComboList = new ArrayList(); // List of D3DDeviceCombos
 
     public override string ToString()
@@ -107,8 +85,8 @@ namespace SkinEngine.DirectX
   /// </summary>
   public class DepthStencilMultiSampleConflict
   {
-    public DepthFormat DepthStencilFormat;
-    public MultiSampleType MultiSampleType;
+    public Format DepthStencilFormat;
+    public MultisampleType MultisampleType;
   }
 
 
@@ -124,7 +102,7 @@ namespace SkinEngine.DirectX
     public Format BackBufferFormat;
     public bool IsWindowed;
     public ArrayList DepthStencilFormatList = new ArrayList(); // List of D3DFORMATs
-    public ArrayList MultiSampleTypeList = new ArrayList(); // List of D3DMULTISAMPLE_TYPEs
+    public ArrayList MultisampleTypeList = new ArrayList(); // List of D3DMULTISAMPLE_TYPEs
     public ArrayList MultiSampleQualityList = new ArrayList(); // List of ints (maxQuality per multisample type)
     public ArrayList DepthStencilMultiSampleConflictList = new ArrayList(); // List of DepthStencilMultiSampleConflicts
     public ArrayList VertexProcessingTypeList = new ArrayList(); // List of VertexProcessingTypes
@@ -142,8 +120,8 @@ namespace SkinEngine.DirectX
     /// </summary>
     public int Compare(object x, object y)
     {
-      DisplayMode dx = (DisplayMode) x;
-      DisplayMode dy = (DisplayMode) y;
+      DisplayMode dx = (DisplayMode)x;
+      DisplayMode dy = (DisplayMode)y;
 
       if (dx.Width > dy.Width)
       {
@@ -191,7 +169,7 @@ namespace SkinEngine.DirectX
     /// The confirm device delegate which is used to determine if a device 
     /// meets the needs of the simulation
     /// </summary>
-    public delegate bool ConfirmDeviceCallbackType(Caps caps,
+    public delegate bool ConfirmDeviceCallbackType(Capabilities caps,
                                                    VertexProcessingType vertexProcessingType, Format adapterFormat,
                                                    Format backBufferFormat);
 
@@ -218,16 +196,16 @@ namespace SkinEngine.DirectX
     /// </summary>
     public void Enumerate()
     {
-      foreach (AdapterInformation ai in Manager.Adapters)
+      foreach (AdapterInformation ai in Direct3D.Adapters)
       {
         ArrayList adapterFormatList = new ArrayList();
         GraphicsAdapterInfo adapterInfo = new GraphicsAdapterInfo();
         adapterInfo.AdapterOrdinal = ai.Adapter;
-        adapterInfo.AdapterDetails = ai.Information;
+        adapterInfo.AdapterDetails = ai.Details;
 
         // Get list of all display modes on this adapter.  
         // Also build a temporary list of all display adapter formats.
-        foreach (DisplayMode displayMode in ai.SupportedDisplayModes)
+        foreach (DisplayMode displayMode in ai.GetDisplayModes(Format.X8R8G8B8))
         {
           if (displayMode.Width < AppMinFullscreenWidth)
           {
@@ -272,8 +250,7 @@ namespace SkinEngine.DirectX
     [DebuggerStepThrough]
     protected void EnumerateDevices(GraphicsAdapterInfo adapterInfo, ArrayList adapterFormatList)
     {
-      DeviceType[] devTypeArray = new DeviceType[]
-        {DeviceType.Hardware, DeviceType.Software, DeviceType.Reference};
+      DeviceType[] devTypeArray = new DeviceType[] { DeviceType.Hardware, DeviceType.Software, DeviceType.Reference };
 
       foreach (DeviceType devType in devTypeArray)
       {
@@ -282,7 +259,7 @@ namespace SkinEngine.DirectX
         deviceInfo.DevType = devType;
         try
         {
-          deviceInfo.Caps = Manager.GetDeviceCaps(adapterInfo.AdapterOrdinal, devType);
+          deviceInfo.Caps = Direct3D.GetDeviceCaps(adapterInfo.AdapterOrdinal, devType);
         }
         catch (DirectXException)
         {
@@ -313,7 +290,7 @@ namespace SkinEngine.DirectX
           Format.A8R8G8B8, Format.X8R8G8B8, Format.A2R10G10B10,
           Format.R5G6B5, Format.A1R5G5B5, Format.X1R5G5B5,
         };
-      bool[] isWindowedArray = new bool[] {false, true};
+      bool[] isWindowedArray = new bool[] { false, true };
 
       // See which adapter formats are supported by this device
       foreach (Format adapterFormat in adapterFormatList)
@@ -335,7 +312,7 @@ namespace SkinEngine.DirectX
               continue;
             }
             if (
-              !Manager.CheckDeviceType(deviceInfo.AdapterOrdinal, deviceInfo.DevType, adapterFormat, backBufferFormat,
+              !Direct3D.CheckDeviceType(deviceInfo.AdapterOrdinal, deviceInfo.DevType, adapterFormat, backBufferFormat,
                                        isWindowed))
             {
               continue;
@@ -359,8 +336,8 @@ namespace SkinEngine.DirectX
                 continue;
               }
             }
-            BuildMultiSampleTypeList(deviceCombo);
-            if (deviceCombo.MultiSampleTypeList.Count == 0)
+            BuildMultisampleTypeList(deviceCombo);
+            if (deviceCombo.MultisampleTypeList.Count == 0)
             {
               continue;
             }
@@ -389,17 +366,17 @@ namespace SkinEngine.DirectX
     /// </summary>
     public void BuildDepthStencilFormatList(DeviceCombo deviceCombo)
     {
-      DepthFormat[] depthStencilFormatArray =
+      Format[] depthStencilFormatArray =
         {
-          DepthFormat.D16,
-          DepthFormat.D15S1,
-          DepthFormat.D24X8,
-          DepthFormat.D24S8,
-          DepthFormat.D24X4S4,
-          DepthFormat.D32,
+          Format.D16,
+          Format.D15S1,
+          Format.D24X8,
+          Format.D24S8,
+          Format.D24X4S4,
+          Format.D32,
         };
 
-      foreach (DepthFormat depthStencilFmt in depthStencilFormatArray)
+      foreach (Format depthStencilFmt in depthStencilFormatArray)
       {
         if (D3DUtil.GetDepthBits(depthStencilFmt) < AppMinDepthBits)
         {
@@ -409,10 +386,10 @@ namespace SkinEngine.DirectX
         {
           continue;
         }
-        if (Manager.CheckDeviceFormat(deviceCombo.AdapterOrdinal, deviceCombo.DevType, deviceCombo.AdapterFormat,
+        if (Direct3D.CheckDeviceFormat(deviceCombo.AdapterOrdinal, deviceCombo.DevType, deviceCombo.AdapterFormat,
                                       Usage.DepthStencil, ResourceType.Surface, depthStencilFmt))
         {
-          if (Manager.CheckDepthStencilMatch(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
+          if (Direct3D.CheckDepthStencilMatch(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
                                              deviceCombo.AdapterFormat, deviceCombo.BackBufferFormat, depthStencilFmt))
           {
             deviceCombo.DepthStencilFormatList.Add(depthStencilFmt);
@@ -426,37 +403,37 @@ namespace SkinEngine.DirectX
     /// Adds all multisample types that are compatible with the device and app to
     /// the given deviceCombo
     /// </summary>
-    public void BuildMultiSampleTypeList(DeviceCombo deviceCombo)
+    public void BuildMultisampleTypeList(DeviceCombo deviceCombo)
     {
-      MultiSampleType[] msTypeArray = {
-                                        MultiSampleType.None,
-                                        MultiSampleType.NonMaskable,
-                                        MultiSampleType.TwoSamples,
-                                        MultiSampleType.ThreeSamples,
-                                        MultiSampleType.FourSamples,
-                                        MultiSampleType.FiveSamples,
-                                        MultiSampleType.SixSamples,
-                                        MultiSampleType.SevenSamples,
-                                        MultiSampleType.EightSamples,
-                                        MultiSampleType.NineSamples,
-                                        MultiSampleType.TenSamples,
-                                        MultiSampleType.ElevenSamples,
-                                        MultiSampleType.TwelveSamples,
-                                        MultiSampleType.ThirteenSamples,
-                                        MultiSampleType.FourteenSamples,
-                                        MultiSampleType.FifteenSamples,
-                                        MultiSampleType.SixteenSamples,
+      MultisampleType[] msTypeArray = {
+                                        MultisampleType.None,
+                                        MultisampleType.NonMaskable,
+                                        MultisampleType.TwoSamples,
+                                        MultisampleType.ThreeSamples,
+                                        MultisampleType.FourSamples,
+                                        MultisampleType.FiveSamples,
+                                        MultisampleType.SixSamples,
+                                        MultisampleType.SevenSamples,
+                                        MultisampleType.EightSamples,
+                                        MultisampleType.NineSamples,
+                                        MultisampleType.TenSamples,
+                                        MultisampleType.ElevenSamples,
+                                        MultisampleType.TwelveSamples,
+                                        MultisampleType.ThirteenSamples,
+                                        MultisampleType.FourteenSamples,
+                                        MultisampleType.FifteenSamples,
+                                        MultisampleType.SixteenSamples,
                                       };
 
-      foreach (MultiSampleType msType in msTypeArray)
+      foreach (MultisampleType msType in msTypeArray)
       {
         int result;
         int qualityLevels = 0;
-        if (Manager.CheckDeviceMultiSampleType(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
+        if (Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
                                                deviceCombo.BackBufferFormat, deviceCombo.IsWindowed, msType,
                                                out result, out qualityLevels))
         {
-          deviceCombo.MultiSampleTypeList.Add(msType);
+          deviceCombo.MultisampleTypeList.Add(msType);
           deviceCombo.MultiSampleQualityList.Add(qualityLevels);
         }
       }
@@ -471,16 +448,16 @@ namespace SkinEngine.DirectX
     {
       DepthStencilMultiSampleConflict DSMSConflict;
 
-      foreach (DepthFormat dsFmt in deviceCombo.DepthStencilFormatList)
+      foreach (Format dsFmt in deviceCombo.DepthStencilFormatList)
       {
-        foreach (MultiSampleType msType in deviceCombo.MultiSampleTypeList)
+        foreach (MultisampleType msType in deviceCombo.MultisampleTypeList)
         {
-          if (!Manager.CheckDeviceMultiSampleType(deviceCombo.AdapterOrdinal,
-                                                  deviceCombo.DevType, (Format) dsFmt, deviceCombo.IsWindowed, msType))
+          if (!Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal,
+                                                  deviceCombo.DevType, (Format)dsFmt, deviceCombo.IsWindowed, msType))
           {
             DSMSConflict = new DepthStencilMultiSampleConflict();
             DSMSConflict.DepthStencilFormat = dsFmt;
-            DSMSConflict.MultiSampleType = msType;
+            DSMSConflict.MultisampleType = msType;
             deviceCombo.DepthStencilMultiSampleConflictList.Add(DSMSConflict);
           }
         }
@@ -494,9 +471,9 @@ namespace SkinEngine.DirectX
     /// </summary>
     public void BuildVertexProcessingTypeList(GraphicsDeviceInfo deviceInfo, DeviceCombo deviceCombo)
     {
-      if (deviceInfo.Caps.DeviceCaps.SupportsHardwareTransformAndLight)
+      if ((deviceInfo.Caps.DeviceCaps & DeviceCaps.HWTransformAndLight) != 0)
       {
-        if (deviceInfo.Caps.DeviceCaps.SupportsPureDevice)
+        if ((deviceInfo.Caps.DeviceCaps & DeviceCaps.PureDevice) != 0)
         {
           if (ConfirmDeviceCallback == null ||
               ConfirmDeviceCallback(deviceInfo.Caps, VertexProcessingType.PureHardware,
@@ -556,8 +533,9 @@ namespace SkinEngine.DirectX
         }
         // Note that PresentInterval.Default is zero, so you
         // can't do a caps check for it -- it is always available.
+
         if (pi == PresentInterval.Default ||
-            (deviceInfo.Caps.PresentationIntervals & pi) != (PresentInterval) 0)
+            (deviceInfo.Caps.PresentInterval & pi) != (PresentInterval)0)
         {
           deviceCombo.PresentIntervalList.Add(pi);
         }

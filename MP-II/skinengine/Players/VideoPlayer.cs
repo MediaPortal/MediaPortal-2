@@ -39,8 +39,9 @@ using MediaPortal.Core.Players;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Effects;
 using SkinEngine.Players.Vmr9;
@@ -463,9 +464,10 @@ namespace SkinEngine.Players
         hr = config.SetNumberOfStreams(_streamCount);
 
         IntPtr hMonitor;
-        AdapterInformation ai = Manager.Adapters.Default;
-        hMonitor = Manager.GetAdapterMonitor(ai.Adapter);
-        IntPtr upDevice = GraphicsDevice.Device.GetObjectByValue(-759872593);
+        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+        AdapterInformation ai = Direct3D.Adapters[ordinal];
+        hMonitor = Direct3D.GetAdapterMonitor(ai.Adapter);
+        IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
         _allocatorKey = EvrInit(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
         if (_allocatorKey >= 0)
         {
@@ -502,9 +504,10 @@ namespace SkinEngine.Players
         _allocator = new Allocator(this, _useEvr);
 
         IntPtr hMonitor;
-        AdapterInformation ai = Manager.Adapters.Default;
-        hMonitor = Manager.GetAdapterMonitor(ai.Adapter);
-        IntPtr upDevice = GraphicsDevice.Device.GetObjectByValue(-759872593);
+        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+        AdapterInformation ai = Direct3D.Adapters[ordinal];
+        hMonitor = Direct3D.GetAdapterMonitor(ai.Adapter);
+        IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
         _allocatorKey = Vmr9Init(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
 
         IVMRMixerControl9 mixerControl = (IVMRMixerControl9)_vmr9;
@@ -816,14 +819,7 @@ namespace SkinEngine.Players
         FreeResources();
       }
       // Alloc a Vertex buffer to draw the video (4 vertices -> a Quad)
-      _vertexBuffer = new VertexBuffer(
-        typeof(PositionColored2Textured),
-        4,
-        GraphicsDevice.Device,
-         Usage.WriteOnly,
-        PositionColored2Textured.Format,
-        Pool.Default
-        );
+      _vertexBuffer = PositionColored2Textured.Create(4);
       ContentManager.VertexReferences++;
     }
 
@@ -1077,7 +1073,7 @@ namespace SkinEngine.Players
       _vertices[3].Tv2 = tv2;
 
       // Fill the vertex buffer
-      _vertexBuffer.SetData(_vertices, 0, LockFlags.None);
+      PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
     }
 
     /// <summary>
@@ -1086,7 +1082,7 @@ namespace SkinEngine.Players
     protected void RenderTexture()
     {
       // Attach the vertex buffer to the Direct3D Device
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0);
+      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
 
       _allocator.Render(_effect);

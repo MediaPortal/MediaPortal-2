@@ -26,8 +26,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using Font = SkinEngine.Fonts.Font;
 using FontBufferAsset = SkinEngine.Fonts.FontBufferAsset;
 using FontManager = SkinEngine.Fonts.FontManager;
@@ -272,11 +273,11 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (_asset == null) return;
-      ColorValue color = ColorValue.FromColor(this.Color);
+      ColorValue color = ColorConverter.FromColor(this.Color);
 
       base.DoRender();
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      GraphicsDevice.Device.Transform.World *= _finalLayoutTransform.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
       float x = (float)ActualPosition.X;

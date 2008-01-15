@@ -26,7 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SkinEngine.Players;
 using SkinEngine.Players.Geometry;
 using Control = SkinEngine.Controls.Control;
@@ -299,7 +300,7 @@ namespace SkinEngine
         Vector3 pos = position;
         if (TemporaryTransform != null)
         {
-          pos.Add(TemporaryTransform.Translation);
+          pos += (TemporaryTransform.Translation);
         }
 
         u = (pos.X - _gradientPosition.X) / (_gradientSize.X);

@@ -29,8 +29,9 @@ using MediaPortal.Core.Properties;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -298,7 +299,7 @@ namespace SkinEngine.Controls.Brushes
         Scale(ref u, ref v);
         unchecked
         {
-          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+          ColorValue color = ColorConverter.FromColor(System.Drawing.Color.White);
           color.Alpha *= (float)Opacity;
           verts[i].Color = color.ToArgb();
         }

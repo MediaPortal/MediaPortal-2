@@ -26,7 +26,8 @@ using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Commands;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SkinEngine.Controls;
 using SkinEngine.Properties;
 

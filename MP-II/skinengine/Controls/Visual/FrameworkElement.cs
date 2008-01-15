@@ -26,8 +26,9 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
@@ -545,7 +546,7 @@ namespace SkinEngine.Controls.Visuals
           using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
           {
             //copy the correct rectangle from the backbuffer in the opacitytexture
-            GraphicsDevice.Device.StretchRectangle(backBuffer,
+            GraphicsDevice.Device.StretchRect(backBuffer,
                                                    new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
                                                    textureOpacitySurface,
                                                    new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
@@ -558,7 +559,7 @@ namespace SkinEngine.Controls.Visuals
             //render the control (will be rendered into the opacitytexture)
             GraphicsDevice.Device.BeginScene();
             GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-            GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+            GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
             DoRender();
             GraphicsDevice.Device.EndScene();
             SkinContext.RemoveTransform();
@@ -575,7 +576,7 @@ namespace SkinEngine.Controls.Visuals
         GraphicsDevice.Device.BeginScene();
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         OpacityMask.BeginRender(_textureOpacity);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
         OpacityMask.EndRender();
 
@@ -680,7 +681,7 @@ namespace SkinEngine.Controls.Visuals
       {
         _updateOpacityMask = true;
 
-        _vertexOpacityMaskBorder = new VertexBuffer(typeof(PositionColored2Textured), 4, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+        _vertexOpacityMaskBorder = PositionColored2Textured.Create(4);
       }
       if (!_updateOpacityMask) return;
       Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
@@ -694,8 +695,9 @@ namespace SkinEngine.Controls.Visuals
       float h = (float)ActualHeight;
       _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
-      PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexOpacityMaskBorder.Lock(0, 0);
-      ColorValue col = ColorValue.FromColor(System.Drawing.Color.White);
+      PositionColored2Textured[] verts = new PositionColored2Textured[4];
+      
+      ColorValue col = ColorConverter.FromColor(System.Drawing.Color.White);
       col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
       SurfaceDescription desc = _textureOpacity.GetLevelDescription(0);
@@ -745,7 +747,7 @@ namespace SkinEngine.Controls.Visuals
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;
       OpacityMask.SetupBrush(this, ref verts);
-      _vertexOpacityMaskBorder.Unlock();
+      PositionColored2Textured.Set(_vertexOpacityMaskBorder, ref verts);
 
       _updateOpacityMask = false;
     }

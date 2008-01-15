@@ -37,8 +37,9 @@ using MediaPortal.Core.Commands;
 using SkinEngine.Commands;
 using SkinEngine.Scripts;
 using SkinEngine.Skin;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine;
 
 namespace SkinEngine.Controls

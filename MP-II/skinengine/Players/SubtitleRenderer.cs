@@ -26,9 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using Microsoft.DirectX;
+using SlimDX;
 using System.Runtime.InteropServices;
-using Microsoft.DirectX.Direct3D;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using System.Threading;
 using DirectShowLib;
 using System.IO;
@@ -36,7 +37,7 @@ using System.Drawing.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Logging;
-
+using SkinEngine.DirectX;
 namespace SkinEngine.Players
 {
   /// <summary>
@@ -148,7 +149,7 @@ namespace SkinEngine.Players
   public class SubtitleRenderer
   {
     private bool useBitmap = true; // if false use teletext
-    private int activeSubPage=-1; // if use teletext, what page
+    private int activeSubPage = -1; // if use teletext, what page
     //private static SubtitleRenderer instance = null;
     private IDVBSubtitleSource subFilter = null;
     private long subCounter = 0;
@@ -503,27 +504,30 @@ namespace SkinEngine.Players
         Bitmap bitmap = subtitle.subBitmap;
         // allocate new texture
         texture = new Texture(GraphicsDevice.Device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
-        int pitch;
-        Microsoft.DirectX.GraphicsStream a = texture.LockRectangle(0, LockFlags.None, out pitch);
+
+        LockedRect rect = texture.LockRectangle(0, LockFlags.None);
+
         System.Drawing.Imaging.BitmapData bd = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
         // Quick copy of content
         unsafe
         {
-          byte* to = (byte*)a.InternalDataPointer;
+          byte* to = (byte*)rect.Data.DataPointer.ToPointer();
           byte* from = (byte*)bd.Scan0.ToPointer();
           for (int y = 0; y < bd.Height; ++y)
           {
             for (int x = 0; x < bd.Width * 4; ++x)
             {
-              to[pitch * y + x] = from[y * bd.Stride + x];
+              to[rect.Pitch * y + x] = from[y * bd.Stride + x];
             }
           }
         }
+
         texture.UnlockRectangle(0);
         bitmap.UnlockBits(bd);
         bitmap.Dispose();
         bitmap = null;
+        rect.Data.Dispose();
       }
       catch (Exception e)
       {
@@ -672,15 +676,13 @@ namespace SkinEngine.Players
       }
       bool alphaTest = false;
       bool alphaBlend = false;
-      VertexFormats vertexFormat = CustomVertex.TransformedColoredTextured.Format;
 
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       try
       {
         // store current settings so they can be restored when we are done
-        alphaTest = GraphicsDevice.Device.GetRenderStateBoolean(RenderStates.AlphaTestEnable);
-        alphaBlend = GraphicsDevice.Device.GetRenderStateBoolean(RenderStates.AlphaBlendEnable);
-        vertexFormat = GraphicsDevice.Device.VertexFormat;
+        alphaTest = (GraphicsDevice.Device.GetRenderState(RenderState.AlphaTestEnable) != 0);
+        alphaBlend = (GraphicsDevice.Device.GetRenderState(RenderState.AlphaBlendEnable) != 0);
 
         int wx = 0, wy = 0, wwidth = 0, wheight = 0;
         float rationW = 1, rationH = 1;
@@ -703,12 +705,12 @@ namespace SkinEngine.Players
         // ServiceScope.Get<ILogger>().Debug("Subtitle render target: wx = {0} wy = {1} ww = {2} wh = {3}", wx, wy, wwidth, wheight);
 
         // enable alpha testing so that the subtitle is rendered with transparent background
-        GraphicsDevice.Device.SetRenderState(RenderStates.AlphaBlendEnable, true);
-        GraphicsDevice.Device.SetRenderState(RenderStates.AlphaTestEnable, false);
+        GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, true);
+        GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, false);
 
-        GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0);
+        GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColoredTextured.StrideSize);
         GraphicsDevice.Device.SetTexture(0, subTexture);
-        GraphicsDevice.Device.VertexFormat = CustomVertex.PositionTextured.Format;
+        GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
       }
       catch (Exception e)
@@ -719,9 +721,8 @@ namespace SkinEngine.Players
       {
         // Restore device settings
         GraphicsDevice.Device.SetTexture(0, null);
-        GraphicsDevice.Device.VertexFormat = vertexFormat;
-        GraphicsDevice.Device.SetRenderState(RenderStates.AlphaBlendEnable, alphaBlend);
-        GraphicsDevice.Device.SetRenderState(RenderStates.AlphaTestEnable, alphaTest);
+        GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, alphaBlend);
+        GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, alphaTest);
       }
       catch (Exception e)
       {
@@ -742,36 +743,49 @@ namespace SkinEngine.Players
       if (vertexBuffer == null)
       {
         ServiceScope.Get<ILogger>().Debug("Subtitle: Creating vertex buffer");
-        vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionTextured),
-                        4, GraphicsDevice.Device,
-                        0, CustomVertex.PositionTextured.Format,
-                        Pool.Managed);
+        vertexBuffer = PositionColoredTextured.Create(4);
       }
 
       if (wx0 != wx || wy0 != wy || wwidth0 != wwidth || wheight0 != wheight)
       {
         ServiceScope.Get<ILogger>().Debug("Subtitle: Setting vertices");
-        CustomVertex.PositionTextured[] verts = (CustomVertex.PositionTextured[])vertexBuffer.Lock(0, 0);
+        PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
         // upper left
-        verts[0] = new CustomVertex.PositionTextured(wx, wy, 0, 0, 0);
+        verts[0].X = wx;
+        verts[0].Y = wy;
+        verts[0].Z = 1.0f;
+        verts[0].Tu1 = 0;
+        verts[0].Tv1 = 0;
 
         // upper right
-        verts[1] = new CustomVertex.PositionTextured(wx + wwidth, wy, 0, 1, 0);
+        verts[1].X = wx + wwidth;
+        verts[1].Y = wy;
+        verts[1].Z = 1.0f;
+        verts[1].Tu1 = 1;
+        verts[1].Tv1 = 0;
 
         // lower left
-        verts[2] = new CustomVertex.PositionTextured(wx, wy + wheight, 0, 0, 1);
+        verts[2].X = wx;
+        verts[2].Y = wy + wheight;
+        verts[2].Z = 1.0f;
+        verts[2].Tu1 = 0;
+        verts[2].Tv1 = 1;
 
         // lower right
-        verts[3] = new CustomVertex.PositionTextured(wx + wwidth, wy + wheight, 0, 1, 1);
+        verts[3].X = wx + wwidth;
+        verts[3].Y = wy + wheight;
+        verts[3].Z = 1.0f;
+        verts[3].Tu1 = 1;
+        verts[3].Tv1 = 1;
 
-        vertexBuffer.Unlock();
 
         // remember what the vertexBuffer is set to
         wy0 = wy;
         wx0 = wx;
         wheight0 = wheight;
         wwidth0 = wwidth;
+        PositionColoredTextured.Set(vertexBuffer,ref verts);
       }
     }
 

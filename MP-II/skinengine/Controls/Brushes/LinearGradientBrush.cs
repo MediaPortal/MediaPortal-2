@@ -30,15 +30,15 @@ using MediaPortal.Core.Properties;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine;
 
 namespace SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush, IAsset
   {
-    Texture _gradientTexture;
     Texture _cacheTexture;
     double _height;
     double _width;
@@ -52,7 +52,6 @@ namespace SkinEngine.Controls.Brushes
     ColorValue[] _colors = new ColorValue[6];
     bool _refresh = false;
     bool _singleColor = true;
-    PositionColored2Textured[] _verts;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LinearGradientBrush"/> class.
@@ -159,11 +158,11 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="element">The element.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
-//      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
+      //      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
       _verts = verts;
       // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        UpdateBounds(element,ref verts);
+        UpdateBounds(element, ref verts);
         if (!IsOpacityBrush)
           base.SetupBrush(element, ref verts);
 
@@ -182,57 +181,6 @@ namespace SkinEngine.Controls.Brushes
         _refresh = true;
       }
     }
-    void CreateGradient()
-    {
-      int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
-      float width = 256.0f;
-      for (int i = 0; i < GradientStops.Count - 1; ++i)
-      {
-        GradientStop stopbegin = GradientStops[i];
-        GradientStop stopend = GradientStops[i + 1];
-        ColorValue colorStart = ColorValue.FromColor(stopbegin.Color);
-        ColorValue colorEnd = ColorValue.FromColor(stopend.Color);
-        int offsetStart = (int)(stopbegin.Offset * width);
-        int offsetEnd = (int)(stopend.Offset * width);
-
-        float distance = offsetEnd - offsetStart;
-        for (int x = offsetStart; x < offsetEnd; ++x)
-        {
-          float step = (x - offsetStart) / distance;
-          float r = step * (colorEnd.Red - colorStart.Red);
-          r += colorStart.Red;
-
-          float g = step * (colorEnd.Green - colorStart.Green);
-          g += colorStart.Green;
-
-          float b = step * (colorEnd.Blue - colorStart.Blue);
-          b += colorStart.Blue;
-
-          float a = step * (colorEnd.Alpha - colorStart.Alpha);
-          a += colorStart.Alpha;
-
-          ColorValue color = new ColorValue(r, g, b, a);
-          if (IsOpacityBrush)
-            color = new ColorValue(a, a, a, 1);
-          buffer[0, x] = color.ToArgb();
-          buffer[1, x] = color.ToArgb();
-        }
-      }
-
-      _gradientTexture.UnlockRectangle(0);
-      //TextureLoader.Save(@"c:\1\gradient.png",ImageFileFormat.Png,_texture);
-    }
-
-    void SetColor(VertexBuffer vertexbuffer)
-    {
-      ColorValue color = ColorValue.FromColor(GradientStops[0].Color);
-      color.Alpha *= (float)Opacity;
-      for (int i = 0; i < _verts.Length; ++i)
-      {
-        _verts[i].Color = color.ToArgb();
-      }
-      vertexbuffer.SetData(_verts, 0, LockFlags.None);
-    }
 
     /// <summary>
     /// Begins the render.
@@ -250,7 +198,7 @@ namespace SkinEngine.Controls.Brushes
         foreach (GradientStop stop in GradientStops)
         {
           _offsets[index] = (float)stop.Offset;
-          _colors[index] = ColorValue.FromColor(stop.Color);
+          _colors[index] = ColorConverter.FromColor(stop.Color);
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
@@ -267,6 +215,11 @@ namespace SkinEngine.Controls.Brushes
         if (_singleColor)
         {
           SetColor(vertexBuffer);
+          _effect = ContentManager.GetEffect("solidbrush");
+        }
+        else
+        {
+          _effect = ContentManager.GetEffect("lineargradient");
         }
         if (_cacheTexture != null)
         {
@@ -285,13 +238,14 @@ namespace SkinEngine.Controls.Brushes
         g_endpoint[0] = (float)((EndPoint.X - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
         g_endpoint[1] = (float)((EndPoint.Y - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
       }
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
         if (Freezable)
         {
           if (_cacheTexture == null)
           {
+            _effect = ContentManager.GetEffect("lineargradient");
             Trace.WriteLine("LinearGradientBrush:Create cached texture");
             float w = (float)_width;
             float h = (float)_height;
@@ -326,7 +280,7 @@ namespace SkinEngine.Controls.Brushes
                 if (copy)
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
-                  GraphicsDevice.Device.StretchRectangle(backBuffer,
+                  GraphicsDevice.Device.StretchRect(backBuffer,
                                                          new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
                                                          cacheSurface,
                                                          new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
@@ -339,9 +293,8 @@ namespace SkinEngine.Controls.Brushes
                 //render the control (will be rendered into the opacitytexture)
                 GraphicsDevice.Device.BeginScene();
                 GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-                GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+                GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
-                _effect = ContentManager.GetEffect("lineargradient");
 
                 _effect.Parameters["g_opacity"] = (float)Opacity;
                 _effect.Parameters["g_StartPoint"] = g_startpoint;
@@ -353,7 +306,7 @@ namespace SkinEngine.Controls.Brushes
 
                 _effect.StartRender(_gradientTexture);
 
-                GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0);
+                GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColored2Textured.StrideSize);
                 GraphicsDevice.Device.DrawPrimitives(primitiveType, 0, primitiveCount);
 
                 _effect.EndRender();
@@ -363,26 +316,20 @@ namespace SkinEngine.Controls.Brushes
 
                 //restore the backbuffer
                 GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
+                _effect = ContentManager.GetEffect("normal");
               }
-              _effect = null;
+
 
               //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
             }
             GraphicsDevice.Device.BeginScene();
           }
-          GraphicsDevice.Device.SetTexture(0, _cacheTexture);
+          _effect.StartRender(_cacheTexture);
+          //GraphicsDevice.Device.SetTexture(0, _cacheTexture);
           _lastTimeUsed = SkinContext.Now;
         }
         else
         {
-          if (IsOpacityBrush)
-          {
-            _effect = ContentManager.GetEffect("linearopacitygradient");
-          }
-          else
-          {
-            _effect = ContentManager.GetEffect("lineargradient");
-          }
           _effect.Parameters["g_opacity"] = (float)Opacity;
           _effect.Parameters["g_StartPoint"] = g_startpoint;
           _effect.Parameters["g_EndPoint"] = g_endpoint;
@@ -397,7 +344,9 @@ namespace SkinEngine.Controls.Brushes
       }
       else
       {
-        GraphicsDevice.Device.SetTexture(0, null);
+        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        _effect.Parameters["g_solidColor"] = v;
+        _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
       }
     }
@@ -415,7 +364,7 @@ namespace SkinEngine.Controls.Brushes
         foreach (GradientStop stop in GradientStops)
         {
           _offsets[index] = (float)stop.Offset;
-          _colors[index] = ColorValue.FromColor(stop.Color);
+          _colors[index] = ColorConverter.FromColor(stop.Color);
           _colors[index].Alpha *= (float)Opacity;
           index++;
         }
@@ -433,6 +382,7 @@ namespace SkinEngine.Controls.Brushes
         {
           //SetColor(vertexBuffer);
         }
+        _effect = ContentManager.GetEffect("linearopacitygradient");
       }
 
       float[] g_startpoint = new float[2] { StartPoint.X, StartPoint.Y };
@@ -446,17 +396,9 @@ namespace SkinEngine.Controls.Brushes
         g_endpoint[1] = (float)((EndPoint.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
       }
 
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
-        if (IsOpacityBrush)
-        {
-          _effect = ContentManager.GetEffect("linearopacitygradient");
-        }
-        else
-        {
-          _effect = ContentManager.GetEffect("lineargradient");
-        }
         _effect.Parameters["g_alphatex"] = _gradientTexture;
         _effect.Parameters["g_StartPoint"] = g_startpoint;
         _effect.Parameters["g_EndPoint"] = g_endpoint;
@@ -470,7 +412,7 @@ namespace SkinEngine.Controls.Brushes
       }
       else
       {
-        GraphicsDevice.Device.SetTexture(0, null);
+        _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
       }
     }
@@ -483,7 +425,6 @@ namespace SkinEngine.Controls.Brushes
       if (_effect != null)
       {
         _effect.EndRender();
-        _effect = null;
       }
     }
 

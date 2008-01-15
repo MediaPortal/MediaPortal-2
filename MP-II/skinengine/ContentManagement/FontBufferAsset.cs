@@ -24,8 +24,9 @@
 
 using System;
 using System.Drawing;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 
 namespace SkinEngine.Fonts
@@ -82,9 +83,7 @@ namespace SkinEngine.Fonts
       }
 
       //ServiceScope.Get<ILogger>().Debug("FONTASSET alloc vertextbuffer");
-      _vertexBuffer = new VertexBuffer(GraphicsDevice.Device, Font.MaxVertices * PositionColored2Textured.StrideSize,
-                                       Usage.Dynamic | Usage.WriteOnly, PositionColored2Textured.Format,
-                                       Pool.Default);
+      _vertexBuffer = PositionColored2Textured.Create(Font.MaxVertices);//dynamic|writeonly?
       ContentManager.VertexReferences++;
       _previousText = "";
       _previousTextBox = new RectangleF();
@@ -182,14 +181,13 @@ namespace SkinEngine.Fonts
           text += " ";
           string textDraw = text.Substring(_characterIndex) + text;
 
-          Plane planeLeft = Plane.FromPointNormal(new Vector3(textBox.X, textBox.Y, 0), new Vector3(1, 0, 0));
-          Plane planeRight = Plane.FromPointNormal(new Vector3(textBox.Right, textBox.Y, 0), new Vector3(-1, 0, 0));
-          GraphicsDevice.Device.ClipPlanes.EnableAll();
-          GraphicsDevice.Device.RenderState.Clipping = true;
-          GraphicsDevice.Device.ClipPlanes[0].Enabled = true;
-          GraphicsDevice.Device.ClipPlanes[0].Plane = planeLeft;
-          GraphicsDevice.Device.ClipPlanes[1].Enabled = true;
-          GraphicsDevice.Device.ClipPlanes[1].Plane = planeRight;
+          Plane planeLeft = new Plane();// Plane.FromPointNormal(new Vector3(textBox.X, textBox.Y, 0), new Vector3(1, 0, 0));
+          Plane planeRight = new Plane();//Plane.FromPointNormal(new Vector3(textBox.Right, textBox.Y, 0), new Vector3(-1, 0, 0));
+          GraphicsDevice.Device.SetRenderState(RenderState.ClipPlaneEnable, true);
+
+          GraphicsDevice.Device.SetRenderState(RenderState.Clipping, true);
+          GraphicsDevice.Device.SetClipPlane(0, planeLeft);
+          GraphicsDevice.Device.SetClipPlane(1, planeRight);
 
           textBox.X -= (float)_xPosition;
           textBox.Width += 20.0f;
@@ -198,10 +196,8 @@ namespace SkinEngine.Fonts
           _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
           _font.ClearStrings();
 
-          GraphicsDevice.Device.ClipPlanes.DisableAll();
-          GraphicsDevice.Device.ClipPlanes[0].Enabled = false;
-          GraphicsDevice.Device.ClipPlanes[1].Enabled = false;
-          GraphicsDevice.Device.RenderState.Clipping = false;
+          GraphicsDevice.Device.SetRenderState(RenderState.ClipPlaneEnable, false); 
+          GraphicsDevice.Device.SetRenderState(RenderState.Clipping, false);
 
           if (_xPosition >= _font.FirstCharWidth)
           {

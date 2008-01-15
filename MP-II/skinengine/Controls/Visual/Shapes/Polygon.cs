@@ -35,10 +35,11 @@ using SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = Microsoft.DirectX.Matrix;
+using Matrix = SlimDX.Matrix;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -134,7 +135,8 @@ namespace SkinEngine.Controls.Visuals
             if (_vertexBufferFill != null)
             {
               Fill.SetupBrush(this, ref verts);
-              _vertexBufferFill.Unlock();
+
+              PositionColored2Textured.Set(_vertexBufferFill, ref verts);
               _verticesCountFill = (verts.Length - 2);
             }
           }
@@ -147,7 +149,8 @@ namespace SkinEngine.Controls.Visuals
               if (_vertexBufferBorder != null)
               {
                 Stroke.SetupBrush(this, ref verts);
-                _vertexBufferBorder.Unlock();
+
+                PositionColored2Textured.Set(_vertexBufferBorder, ref verts);
                 _verticesCountBorder = (verts.Length / 3);
               }
             }

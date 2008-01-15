@@ -24,12 +24,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
-
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
+using SkinEngine.DirectX;
 namespace SkinEngine.Controls.Brushes
 {
+  
 
   public enum BrushMappingMode
   {
@@ -53,6 +58,8 @@ namespace SkinEngine.Controls.Brushes
 
   public class GradientBrush : Brush, IList
   {
+    protected Texture _gradientTexture;
+    protected PositionColored2Textured[] _verts;
     Property _colorInterpolationModeProperty;
     Property _gradientStopsProperty;
     Property _spreadMethodProperty;
@@ -231,6 +238,78 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    /// <summary>
+    /// Sets the color.
+    /// </summary>
+    /// <param name="vertexbuffer">The vertexbuffer.</param>
+    protected void SetColor(VertexBuffer vertexbuffer)
+    {
+      ColorValue color = ColorConverter.FromColor(GradientStops[0].Color);
+      color.Alpha *= (float)Opacity;
+      for (int i = 0; i < _verts.Length; ++i)
+      {
+        _verts[i].Color = color.ToArgb();
+      }
+
+      PositionColored2Textured.Set(vertexbuffer, ref _verts);
+    }
+
+    protected void CreateGradient()
+    {
+      LockedRect rect = _gradientTexture.LockRectangle(0, LockFlags.None);
+      //int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
+      float width = 256.0f;
+      byte[] data = new byte[4 * 512];
+      int offY = 256 * 4;
+      for (int i = 0; i < GradientStops.Count - 1; ++i)
+      {
+        GradientStop stopbegin = GradientStops[i];
+        GradientStop stopend = GradientStops[i + 1];
+        ColorValue colorStart = ColorConverter.FromColor(stopbegin.Color);
+        ColorValue colorEnd = ColorConverter.FromColor(stopend.Color);
+        int offsetStart = (int)(stopbegin.Offset * width);
+        int offsetEnd = (int)(stopend.Offset * width);
+
+        float distance = offsetEnd - offsetStart;
+        for (int x = offsetStart; x < offsetEnd; ++x)
+        {
+          float step = (x - offsetStart) / distance;
+          float r = step * (colorEnd.Red - colorStart.Red);
+          r += colorStart.Red;
+
+          float g = step * (colorEnd.Green - colorStart.Green);
+          g += colorStart.Green;
+
+          float b = step * (colorEnd.Blue - colorStart.Blue);
+          b += colorStart.Blue;
+
+          float a = step * (colorEnd.Alpha - colorStart.Alpha);
+          a += colorStart.Alpha;
+
+          Color color;
+          if (IsOpacityBrush)
+            color = ColorConverter.FromColor(a, a, a, 1.0f);
+          else
+            color = ColorConverter.FromColor(a, r, g, b);
+
+          int offx = x * 4;
+          data[offx] = (byte)color.B;
+          data[offx + 1] = (byte)color.G;
+          data[offx + 2] = (byte)color.R;
+          data[offx + 3] = (byte)color.A;
+
+          data[offY + offx] = (byte)color.B;
+          data[offY + offx + 1] = (byte)color.G;
+          data[offY + offx + 2] = (byte)color.R;
+          data[offY + offx + 3] = (byte)color.A;
+
+        }
+      }
+      rect.Data.Write(data, 0, 4 * 512);
+      _gradientTexture.UnlockRectangle(0);
+      rect.Data.Dispose();
+
+    }
 
     #region IList Members
 

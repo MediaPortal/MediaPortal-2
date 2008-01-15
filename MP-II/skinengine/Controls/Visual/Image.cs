@@ -1,11 +1,13 @@
-using System;
+
+using SlimDX.Direct3D9;using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -422,9 +424,9 @@ namespace SkinEngine.Controls.Visuals
       }
       base.DoRender();
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_image != null)
       {
         _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);

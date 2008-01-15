@@ -26,8 +26,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
@@ -195,7 +196,7 @@ namespace SkinEngine.Controls.Panels
       layoutRect.Y += (float)(Margin.Y);
       layoutRect.Width -= (float)(Margin.X + Margin.W);
       layoutRect.Height -= (float)(Margin.Y + Margin.Z);
-      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 

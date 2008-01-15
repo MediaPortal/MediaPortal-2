@@ -22,7 +22,8 @@
 
 #endregion
 
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine
 {
@@ -32,7 +33,7 @@ namespace SkinEngine
 
     public Matrix Matrix;
     public Vector4 Alpha;
-    public Vector3 Translation = Vector3.Empty;
+    public Vector3 Translation ;
 
     #endregion
 
@@ -73,8 +74,8 @@ namespace SkinEngine
                                 out Vector3 vScale,
                                 out Matrix mRot)
     {
-      vTrans = Vector3.Empty;
-      vScale = Vector3.Empty;
+      vTrans = new Vector3();
+      vScale = new Vector3();
       mRot = Matrix.Identity;
 
       Vector3[] vCols = new Vector3[]

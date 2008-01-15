@@ -58,20 +58,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\dxEngine\references\DirectShowLib-2005.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxEngine\references\Microsoft.DirectX.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.DirectX.Direct3D, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxEngine\references\Microsoft.DirectX.Direct3D.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.DirectX.Direct3DX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxengine\references\Microsoft.DirectX.Direct3DX.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.DirectX.DirectDraw, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\dxengine\references\Microsoft.DirectX.DirectDraw.dll</HintPath>
@@ -83,6 +69,10 @@
     <Reference Include="nunit.framework, Version=2.2.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\dxengine\references\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="SlimDX, Version=1.0.2863.25597, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dxengine\references\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -105,6 +95,7 @@
     <Compile Include="Animations\Animations\ZoomAnimation.cs" />
     <Compile Include="Animations\Triggers\VisibleTrigger.cs" />
     <Compile Include="Animations\Triggers\WindowOpenTrigger.cs" />
+    <Compile Include="ColorConverter.cs" />
     <Compile Include="Commands\CommandBuilder.cs" />
     <Compile Include="Commands\Expression\EventClasses.cs" />
     <Compile Include="Commands\Expression\ExprEval.cs" />
@@ -238,6 +229,7 @@
     <Compile Include="DirectX\d3dSetup.cs" />
     <Compile Include="DirectX\d3dutil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
+    <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Vertex.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="ExtendedMatrix.cs" />

@@ -35,10 +35,11 @@ using SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = Microsoft.DirectX.Matrix;
+using Matrix = SlimDX.Matrix;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -191,14 +192,14 @@ namespace SkinEngine.Controls.Visuals
       }
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       if (Fill != null)
       {
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Fill.EndRender();
       }
@@ -206,7 +207,7 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
         Stroke.EndRender();
       }
@@ -249,7 +250,8 @@ namespace SkinEngine.Controls.Visuals
             if (_vertexBufferFill != null)
             {
               Fill.SetupBrush(this, ref verts);
-              _vertexBufferFill.Unlock();
+
+              PositionColored2Textured.Set(_vertexBufferFill, ref verts);
               _verticesCountFill = (verts.Length - 2);
             }
           }
@@ -261,8 +263,10 @@ namespace SkinEngine.Controls.Visuals
               _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts);
               if (_vertexBufferBorder != null)
               {
+
                 Stroke.SetupBrush(this, ref verts);
-                _vertexBufferBorder.Unlock();
+
+                PositionColored2Textured.Set(_vertexBufferBorder, ref verts);
                 _verticesCountBorder = (verts.Length / 3);
               }
             }

@@ -25,7 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX.Direct3D;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls
 {
@@ -60,23 +61,26 @@ namespace SkinEngine.Controls
       {
         Free();
       }
-//      ServiceScope.Get<ILogger>().Debug("alphamask alloc texture ");
+      //      ServiceScope.Get<ILogger>().Debug("alphamask alloc texture ");
       _texture = new Texture(GraphicsDevice.Device, (int)_width, (int)_height, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
-      int[,] buffer = (int[,])_texture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)_width, (int)_height });
 
+      LockedRect rect = _texture.LockRectangle(0, LockFlags.None);
+      //int[,] buffer = (int[,])_texture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)_width, (int)_height });
+
+      byte[] data = new byte[(int)(_height * rect.Pitch)];
       ContentManager.TextureReferences++;
       for (int i = 0; i < _gradientStops.Count; ++i)
       {
         GradientStop stopbegin = _gradientStops[i];
         float alphaStart = stopbegin.Color;
         float alphaEnd = 1;
-        int startY = (int) (stopbegin.Offset*((float) _height));
+        int startY = (int)(stopbegin.Offset * ((float)_height));
         int endY = (int)_height;
         if (i + 1 < _gradientStops.Count)
         {
           GradientStop stopend = _gradientStops[i + 1];
           alphaEnd = stopend.Color;
-          endY = (int) (stopend.Offset*((float) _height));
+          endY = (int)(stopend.Offset * ((float)_height));
         }
 
         float w = endY - startY;
@@ -86,16 +90,21 @@ namespace SkinEngine.Controls
           alpha /= w;
           alpha *= (alphaEnd - alphaStart);
           alpha += alphaStart;
-          ColorValue color = new ColorValue(1, 1, 1, alpha);
+          alpha *= 255;
           for (int x = 0; x < _width; ++x)
           {
-            buffer[y, x] = color.ToArgb();
+            data[(int)(y * rect.Pitch) + x * 4] = (byte)255;//blue
+            data[(int)(y * rect.Pitch) + x * 4 + 1] = (byte)255;//green;
+            data[(int)(y * rect.Pitch) + x * 4 + 2] = (byte)255;
+            data[(int)(y * rect.Pitch) + x * 4 + 3] = (byte)alpha;
+            //rect.Data[(int)(_width * rect.Pitch) + x] = color.ToArgb();
           }
         }
       }
-
+      rect.Data.Write(data,0,data.Length);
       _texture.UnlockRectangle(0);
-      // TextureLoader.Save(@"c:\1.png", ImageFileFormat.Png, _texture);
+      rect.Data.Dispose();
+      //Texture.ToFile(_texture, @"c:\1\1.png", ImageFileFormat.Png);
     }
 
     /// <summary>
@@ -162,7 +171,7 @@ namespace SkinEngine.Controls
     {
       if (_texture != null)
       {
-//        ServiceScope.Get<ILogger>().Debug("texture dispose alphamask");
+        //        ServiceScope.Get<ILogger>().Debug("texture dispose alphamask");
         _texture.Dispose();
         _texture = null;
 

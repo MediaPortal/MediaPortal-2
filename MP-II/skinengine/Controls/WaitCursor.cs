@@ -25,7 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls
 {

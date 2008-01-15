@@ -32,7 +32,8 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Microsoft.DirectX.Direct3D;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Players;
 using SkinEngine.Players.Geometry;
 using SkinEngine.Thumbnails;
@@ -320,14 +321,16 @@ namespace SkinEngine
             //            ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
             if (UseThumbNail)
             {
-              _texture =
-                TextureLoader.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default,
-                                         Filter.None, Filter.None, 0, ref info);
+              info = ImageInformation.FromStream(stream);
+              stream.Seek(0, SeekOrigin.Begin);
+              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default,
+                                            Filter.None, Filter.None, 0);
               ContentManager.TextureReferences++;
             }
             else
             {
-              ImageInformation imgInfo = TextureLoader.ImageInformationFromStream(stream);
+              ImageInformation imgInfo = ImageInformation.FromStream(stream);
+              stream.Seek(0, SeekOrigin.Begin);
               if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
               {
                 int destWidth = GraphicsDevice.Width;
@@ -360,18 +363,21 @@ namespace SkinEngine
                   {
                     bmPhoto.Save(streamMem, ImageFormat.Bmp);
                     streamMem.Seek(0, SeekOrigin.Begin);
-                    _texture =
-                      TextureLoader.FromStream(GraphicsDevice.Device, streamMem, 0, 0, 1, Usage.None, Format.Unknown,
-                                               Pool.Managed, Filter.None, Filter.None, 0, ref info);
+                    info = ImageInformation.FromStream(streamMem);
+                    streamMem.Seek(0, SeekOrigin.Begin);
+                    _texture = Texture.FromStream(GraphicsDevice.Device, streamMem, 0, 0, 1, Usage.None, Format.Unknown,
+                                               Pool.Managed, Filter.None, Filter.None, 0);
                     ContentManager.TextureReferences++;
                   }
                 }
               }
               else
               {
+                info = ImageInformation.FromStream(stream);
+                stream.Seek(0, SeekOrigin.Begin);
                 _texture =
-                  TextureLoader.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                                         Pool.Managed, Filter.None, Filter.None, 0, ref info);
+                  Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
+                                         Pool.Managed, Filter.None, Filter.None, 0);
                 ContentManager.TextureReferences++;
               }
             }
@@ -389,14 +395,13 @@ namespace SkinEngine
         {
           if (UseThumbNail)
           {
-            _texture =
-              TextureLoader.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                                     Pool.Default, Filter.None, Filter.None, 0, ref info);
+            info = ImageInformation.FromFile(_sourceFileName);
+            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0);
             ContentManager.TextureReferences++;
           }
           else
           {
-            ImageInformation imgInfo = TextureLoader.ImageInformationFromFile(_sourceFileName);
+            ImageInformation imgInfo = ImageInformation.FromFile(_sourceFileName);
             if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
             {
               int destWidth = GraphicsDevice.Width;
@@ -429,18 +434,21 @@ namespace SkinEngine
                 {
                   bmPhoto.Save(stream, ImageFormat.Bmp);
                   stream.Seek(0, SeekOrigin.Begin);
+                  info = ImageInformation.FromStream(stream);
+                  stream.Seek(0, SeekOrigin.Begin);
                   _texture =
-                    TextureLoader.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                                             Pool.Managed, Filter.None, Filter.None, 0, ref info);
+                    Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
+                                             Pool.Managed, Filter.None, Filter.None, 0);
                   ContentManager.TextureReferences++;
                 }
               }
             }
             else
             {
+              info = ImageInformation.FromFile(_sourceFileName);
               _texture =
-                TextureLoader.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.Unknown,
-                                       Pool.Managed, Filter.None, Filter.None, 0, ref info);
+                Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.Unknown,
+                                       Pool.Managed, Filter.None, Filter.None, 0);
               ContentManager.TextureReferences++;
             }
           }
@@ -464,7 +472,7 @@ namespace SkinEngine
     {
       if (e.Error != null)
       {
-        ServiceScope.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);        
+        ServiceScope.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);
         _webClient.Dispose();
         _webClient = null;
         _state = State.DoesNotExist;

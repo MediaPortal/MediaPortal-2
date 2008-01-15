@@ -31,8 +31,9 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Collections;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Fonts;
 
@@ -56,6 +57,10 @@ namespace SkinEngine
     private static bool _firstTimeInitialisationMemory = true;
 
     #endregion
+    public static Matrix TransformWorld;
+    public static Matrix TransformView;
+    public static Matrix TransformProjection;
+    public static Matrix FinalTransform;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GraphicsDevice"/> class.
@@ -66,6 +71,8 @@ namespace SkinEngine
       if (_firstTimeInitialisationMemory)
       {
         _firstTimeInitialisationMemory = false;
+#if DEBUG
+#else
         Microsoft.DirectX.DirectDraw.Device tmpDev = new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
         Microsoft.DirectX.DirectDraw.GetCapsStruct caps = tmpDev.GetCaps();
         tmpDev.Dispose();
@@ -78,13 +85,15 @@ namespace SkinEngine
           string text = String.Format("MediaPortal-II needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal-II will continue but migh run slow", videoMemory);
           MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
+#endif
       }
       try
       {
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize directx");
         _setup.SetupDirectX(window, maximize);
         _backBuffer = _device.GetRenderTarget(0);
-        AdapterInformation adapterInfo = Manager.Adapters.Default;
+        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+        AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx initialized {0}x{1} format: {2} {3} Hz", Width,
                                           Height, adapterInfo.CurrentDisplayMode.Format,
                                           adapterInfo.CurrentDisplayMode.RefreshRate);
@@ -105,24 +114,24 @@ namespace SkinEngine
 
     private static void GetCapabilities()
     {
-      _anisotropy = _device.DeviceCaps.MaxAnisotropy;
-      _supportsFiltering = Manager.CheckDeviceFormat(
-        _device.DeviceCaps.AdapterOrdinal,
-        _device.DeviceCaps.DeviceType,
-        _device.DisplayMode.Format,
-        Usage.RenderTarget | Usage.QueryFilter, ResourceType.Textures,
+      _anisotropy = _device.GetDeviceCaps().MaxAnisotropy;
+      _supportsFiltering = Direct3D.CheckDeviceFormat(
+        _device.GetDeviceCaps().AdapterOrdinal,
+        _device.GetDeviceCaps().DeviceType,
+        _device.GetDisplayMode(0).Format,
+        Usage.RenderTarget | Usage.QueryFilter, ResourceType.Texture,
         Format.A8R8G8B8);
 
-      _supportsAlphaBlend = Manager.CheckDeviceFormat(_device.DeviceCaps.AdapterOrdinal,
-                                                      _device.DeviceCaps.DeviceType,
-                                                      _device.DisplayMode.Format,
+      _supportsAlphaBlend = Direct3D.CheckDeviceFormat(_device.GetDeviceCaps().AdapterOrdinal,
+                                                      _device.GetDeviceCaps().DeviceType,
+                                                      _device.GetDisplayMode(0).Format,
                                                       Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
                                                       ResourceType.Surface,
                                                       Format.A8R8G8B8);
-      int vertexShaderVersion = Device.DeviceCaps.VertexShaderVersion.Major;
-      int pixelShaderVersion = Device.DeviceCaps.PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("Directx: Pixel shader support:{0}.{1}", Device.DeviceCaps.PixelShaderVersion.Major, Device.DeviceCaps.PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("Directx: Vertex shader support:{0}.{1}", Device.DeviceCaps.VertexShaderVersion.Major, Device.DeviceCaps.VertexShaderVersion.Minor);
+      int vertexShaderVersion = Device.GetDeviceCaps().VertexShaderVersion.Major;
+      int pixelShaderVersion = Device.GetDeviceCaps().PixelShaderVersion.Major;
+      ServiceScope.Get<ILogger>().Info("Directx: Pixel shader support:{0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("Directx: Vertex shader support:{0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;
@@ -162,7 +171,8 @@ namespace SkinEngine
           }
           _backBuffer = null;
           _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
-          AdapterInformation adapterInfo = Manager.Adapters.Default;
+          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
@@ -246,34 +256,34 @@ namespace SkinEngine
     /// </summary>
     private static void SetRenderState()
     {
-      Device.RenderState.CullMode = Cull.None;
-      Device.RenderState.Lighting = false;
-      Device.RenderState.ZBufferEnable = false;
+      Device.SetRenderState(RenderState.CullMode, Cull.None);
+      Device.SetRenderState(RenderState.Lighting, false);
+      Device.SetRenderState(RenderState.ZEnable, false);
 
-      Device.RenderState.FillMode = FillMode.Solid;
-      Device.RenderState.AlphaBlendEnable = true;
-      Device.RenderState.SourceBlend = Blend.SourceAlpha;
-      Device.RenderState.DestinationBlend = Blend.InvSourceAlpha;
-      Device.TextureState[0].ColorOperation = TextureOperation.Modulate;
-      Device.TextureState[0].ColorArgument1 = TextureArgument.TextureColor;
-      Device.TextureState[0].ColorArgument2 = TextureArgument.Diffuse;
-      Device.TextureState[0].AlphaOperation = TextureOperation.Modulate;
-      Device.TextureState[0].AlphaArgument1 = TextureArgument.TextureColor;
-      Device.TextureState[0].AlphaArgument2 = TextureArgument.Diffuse;
+      Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
+      Device.SetRenderState(RenderState.AlphaBlendEnable, true);
+      Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+      Device.SetRenderState(RenderState.DestBlend, Blend.InvSourceAlpha);
+      Device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
+      Device.SetTextureStageState(0, TextureStage.ColorArg0, TextureArgument.Texture);
+      Device.SetTextureStageState(0, TextureStage.ColorArg1, TextureArgument.Diffuse);
+      Device.SetTextureStageState(0, TextureStage.AlphaOperation, TextureOperation.Modulate);
+      Device.SetTextureStageState(0, TextureStage.AlphaArg0, TextureArgument.Texture);
+      Device.SetTextureStageState(0, TextureStage.AlphaArg1, TextureArgument.Diffuse);
 
-      Device.TextureState[1].ColorOperation = TextureOperation.Modulate;
-      Device.TextureState[1].ColorArgument1 = TextureArgument.TextureColor;
-      Device.TextureState[1].ColorArgument2 = TextureArgument.Current;
-      Device.TextureState[1].AlphaOperation = TextureOperation.Modulate;
-      Device.TextureState[1].AlphaArgument1 = TextureArgument.TextureColor;
-      Device.TextureState[1].AlphaArgument2 = TextureArgument.Current;
+      Device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
+      Device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
+      Device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
+      Device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
+      Device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
+      Device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
 
 
       if (_supportsAlphaBlend)
       {
-        Device.RenderState.AlphaTestEnable = true;
-        Device.RenderState.ReferenceAlpha = 0x01;
-        Device.RenderState.AlphaFunction = Compare.GreaterEqual;
+        Device.SetRenderState(RenderState.AlphaTestEnable, true);
+        Device.SetRenderState(RenderState.AlphaRef, 0x01);
+        Device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
 
       if (_supportsFiltering)
@@ -289,10 +299,10 @@ namespace SkinEngine
          */
         try
         {
-          Device.SamplerState[0].MinFilter = TextureFilter.Anisotropic;
-          Device.SamplerState[0].MagFilter = TextureFilter.Anisotropic;
-          Device.SamplerState[0].MipFilter = TextureFilter.Linear;
-          Device.SamplerState[0].MaxAnisotropy = _anisotropy;
+          Device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Anisotropic);
+          Device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Anisotropic);
+          Device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
+          Device.SetSamplerState(0, SamplerState.MaxAnisotropy, _anisotropy);
         }
         catch (Exception)
         {
@@ -301,9 +311,9 @@ namespace SkinEngine
       }
       else
       {
-        Device.SamplerState[0].MinFilter = TextureFilter.Point;
-        Device.SamplerState[0].MagFilter = TextureFilter.Point;
-        Device.SamplerState[0].MipFilter = TextureFilter.Point;
+        Device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Point);
+        Device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Point);
+        Device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
       }
 
 
@@ -322,7 +332,7 @@ namespace SkinEngine
 
       Matrix mtxWorld;
       mtxWorld = Matrix.Identity;
-      Device.Transform.World = mtxWorld;
+      GraphicsDevice.TransformWorld = mtxWorld;
 
       // camera view.  Multiply the Y coord by -1) { translate so that everything is relative to the camera
       // position.
@@ -330,7 +340,7 @@ namespace SkinEngine
       flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
       translate = Matrix.Translation(-(viewport.X + w + offset.X), -(viewport.Y + h + offset.Y), 2 * h);
       mtxView = Matrix.Multiply(translate, flipY);
-      Device.Transform.View = mtxView;
+      GraphicsDevice.TransformView = mtxView;
 
       // projection onto screen space
       Matrix mtxProjection = Matrix.PerspectiveOffCenterLH((-w - offset.X) * 0.5f, //Minimum x-value of the view volume.
@@ -339,11 +349,12 @@ namespace SkinEngine
                                                            (h + offset.Y) * 0.5f, //Maximum y-value of the view volume.
                                                            h, //Minimum z-value of the view volume.
                                                            100 * h); //Maximum z-value of the view volume.
-      Device.Transform.Projection = mtxProjection;
+      GraphicsDevice.TransformProjection = mtxProjection;
 
-      //GraphicsDevice.Device.Transform.World = Matrix.Identity;
-      //GraphicsDevice.Device.Transform.View = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
-      //GraphicsDevice.Device.Transform.Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
+      GraphicsDevice.FinalTransform = GraphicsDevice.TransformView * GraphicsDevice.TransformProjection;
+      //GraphicsDevice.TransformWorld = Matrix.Identity;
+      //GraphicsDevice.TransformView = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
+      //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
     }
 
     /// <summary>
@@ -432,7 +443,7 @@ namespace SkinEngine
           _deviceLost = true;
           return true;
         }
-        catch (Microsoft.DirectX.Direct3D.InvalidCallException ex)
+        catch (SlimDX.Direct3D9.InvalidCallException ex)
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: InvalidCallException");
           ServiceScope.Get<ILogger>().Error(ex);
@@ -473,7 +484,8 @@ namespace SkinEngine
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice:device reset");
           _setup.Reset();
-          AdapterInformation adapterInfo = Manager.Adapters.Default;
+          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);

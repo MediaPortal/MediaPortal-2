@@ -28,8 +28,9 @@ using System.Collections.Generic;
 using System.Text;
 using SkinEngine.Controls.Visuals;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Brushes;
 using SkinEngine;
@@ -237,15 +238,15 @@ namespace SkinEngine.Controls.Panels
       if (Background != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix.Translate(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+        m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
         Matrix mrel, mt;
         Background.RelativeTransform.GetTransform(out mrel);
         Background.Transform.GetTransform(out mt);
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix * mrel * mt;
+        GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
         Background.EndRender();
         SkinContext.RemoveTransform();
@@ -269,18 +270,19 @@ namespace SkinEngine.Controls.Panels
       Free();
       if (Background != null)
       {
-        _vertexBufferBackground = new VertexBuffer(typeof(PositionColored2Textured), 4, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexBufferBackground.Lock(0, 0);
+        _vertexBufferBackground = PositionColored2Textured.Create(4);
+        PositionColored2Textured[] verts = new PositionColored2Textured[4];
         unchecked
         {
-          verts[0].Position = new Microsoft.DirectX.Vector3(0, 0, 1.0f);
-          verts[1].Position = new Microsoft.DirectX.Vector3(0, (float)(ActualHeight), 1.0f);
-          verts[2].Position = new Microsoft.DirectX.Vector3((float)(ActualWidth), (float)(ActualHeight), 1.0f);
-          verts[3].Position = new Microsoft.DirectX.Vector3((float)(ActualWidth), 0, 1.0f);
+          verts[0].Position = new SlimDX.Vector3(0, 0, 1.0f);
+          verts[1].Position = new SlimDX.Vector3(0, (float)(ActualHeight), 1.0f);
+          verts[2].Position = new SlimDX.Vector3((float)(ActualWidth), (float)(ActualHeight), 1.0f);
+          verts[3].Position = new SlimDX.Vector3((float)(ActualWidth), 0, 1.0f);
 
         }
         Background.SetupBrush(this, ref verts);
-        _vertexBufferBackground.Unlock();
+
+        PositionColored2Textured.Set(_vertexBufferBackground, ref verts);
       }
       _performLayout = false;
     }

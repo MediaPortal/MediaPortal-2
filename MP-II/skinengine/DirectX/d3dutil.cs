@@ -22,32 +22,9 @@
 
 #endregion
 
-#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
-
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.DirectX
 {
@@ -138,21 +115,21 @@ namespace SkinEngine.DirectX
     /// <summary>
     /// Gets the number of depth bits
     /// </summary>
-    public static int GetDepthBits(DepthFormat format)
+    public static int GetDepthBits(Format format)
     {
       switch (format)
       {
-        case DepthFormat.D16:
+        case Format.D16:
           return 16;
-        case DepthFormat.D15S1:
+        case Format.D15S1:
           return 15;
-        case DepthFormat.D24X8:
+        case Format.D24X8:
           return 24;
-        case DepthFormat.D24S8:
+        case Format.D24S8:
           return 24;
-        case DepthFormat.D24X4S4:
+        case Format.D24X4S4:
           return 24;
-        case DepthFormat.D32:
+        case Format.D32:
           return 32;
         default:
           return 0;
@@ -163,21 +140,21 @@ namespace SkinEngine.DirectX
     /// <summary>
     /// Gets the number of stencil bits
     /// </summary>
-    public static int GetStencilBits(DepthFormat format)
+    public static int GetStencilBits(Format format)
     {
       switch (format)
       {
-        case DepthFormat.D16:
+        case Format.D16:
           return 0;
-        case DepthFormat.D15S1:
+        case Format.D15S1:
           return 1;
-        case DepthFormat.D24X8:
+        case Format.D24X8:
           return 0;
-        case DepthFormat.D24S8:
+        case Format.D24S8:
           return 8;
-        case DepthFormat.D24X4S4:
+        case Format.D24X4S4:
           return 4;
-        case DepthFormat.D32:
+        case Format.D32:
           return 0;
         default:
           return 0;

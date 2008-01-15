@@ -28,8 +28,9 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.InputManager;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Animations;
 
 namespace SkinEngine.Controls
@@ -270,8 +271,9 @@ namespace SkinEngine.Controls
     public Property ListItemProperty
     {
       get { return _listItem; }
-      set { 
-        _listItem = value; 
+      set
+      {
+        _listItem = value;
       }
     }
 
@@ -660,7 +662,7 @@ namespace SkinEngine.Controls
       Vector3 pos = Position;
       if (ClipPlane1Enabled)
       {
-        GraphicsDevice.Device.RenderState.ScissorTestEnable = true;
+        GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
         float x = _clipPlane1.X;
         float y = _clipPlane1.Y;
         float w = _clipPlane1.Width;
@@ -678,15 +680,15 @@ namespace SkinEngine.Controls
         {
           h = (float)GraphicsDevice.Height - y;
         }
-        GraphicsDevice.Device.ScissorRectangle = new Rectangle((int)x, (int)y, (int)w, (int)h);
+        GraphicsDevice.Device.ScissorRect = new Rectangle((int)x, (int)y, (int)w, (int)h);
       }
       if (IsDepthTestEnabled)
       {
-        GraphicsDevice.Device.RenderState.ZBufferEnable = true;
+        GraphicsDevice.Device.SetRenderState(RenderState.ZEnable, true);
       }
       else
       {
-        GraphicsDevice.Device.RenderState.ZBufferEnable = false;
+        GraphicsDevice.Device.SetRenderState(RenderState.ZEnable, false);
       }
 
       Animate(currentTime);
@@ -712,11 +714,11 @@ namespace SkinEngine.Controls
 
       if (IsDepthTestEnabled)
       {
-        GraphicsDevice.Device.RenderState.ZBufferEnable = false;
+        GraphicsDevice.Device.SetRenderState(RenderState.ZEnable, false);
       }
       if (ClipPlane1Enabled)
       {
-        GraphicsDevice.Device.RenderState.ScissorTestEnable = false;
+        GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
       }
     }
 

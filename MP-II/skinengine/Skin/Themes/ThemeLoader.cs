@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Drawing;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 namespace SkinEngine.Skin
@@ -133,17 +135,17 @@ namespace SkinEngine.Skin
       XmlNode attrib = node.Attributes.GetNamedItem("value");
       if (attrib == null)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
       string colorString = attrib.Value;
       if (colorString == null)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
       string[] parts = colorString.Split(new char[] { ',' });
       if (parts.Length < 3)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
       float a, r, g, b;
       a = 255.0f;
@@ -193,7 +195,7 @@ namespace SkinEngine.Skin
       {
         b = 1.0f;
       }
-      return new ColorValue(r, g, b, a);
+      return new ColorValue(a, r, g, b);
     }
   }
 }

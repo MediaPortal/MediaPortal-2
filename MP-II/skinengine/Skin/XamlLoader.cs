@@ -16,8 +16,9 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Bindings;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 namespace SkinEngine.Skin
 {
   public class XamlLoader

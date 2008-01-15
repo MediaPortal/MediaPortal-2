@@ -29,8 +29,9 @@ using System.Runtime.InteropServices;
 using System.Security;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Effects
 {
@@ -76,9 +77,9 @@ namespace SkinEngine.Effects
       string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
       if (File.Exists(effectFile))
       {
-        ShaderFlags shaderFlags = ShaderFlags.NoPreShader;
+        ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
         string errors = "";
-        _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, shaderFlags, null, out errors);
+        _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, null, null, shaderFlags, null, out errors);
         if (_effect == null)
         {
           ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
@@ -140,7 +141,7 @@ namespace SkinEngine.Effects
     /// Renders the effect
     /// </summary>
     /// <param name="tex">The texture.</param>
-    public void Render(TextureAsset tex)
+    public void Render(TextureAsset tex, int stream)
     {
       if (!IsAllocated)
       {
@@ -150,7 +151,7 @@ namespace SkinEngine.Effects
       if (!IsAllocated)
       {
         //render without effect
-        tex.Draw(0);
+        tex.Draw(stream);
         return;
       }
       if (!tex.IsAllocated)
@@ -165,16 +166,14 @@ namespace SkinEngine.Effects
       long time = 0;
       QueryPerformanceCounter(ref time);
       double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj",
-                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
-                       GraphicsDevice.Device.Transform.Projection);
+      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetValue("g_texture", tex.Texture);
       _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";
       SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
-      tex.Draw(0);
+      tex.Draw(stream);
       _effect.EndPass();
       _effect.End();
       _lastUsed = SkinContext.Now;
@@ -195,10 +194,7 @@ namespace SkinEngine.Effects
       long time = 0;
       QueryPerformanceCounter(ref time);
       double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj",
-                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
-                       GraphicsDevice.Device.Transform.Projection);
-
+      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetValue("g_texture", tex);
       _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";
@@ -235,9 +231,7 @@ namespace SkinEngine.Effects
       long time = 0;
       QueryPerformanceCounter(ref time);
       double elapsedTime = (double)(time - _lastElapsedTime) / (double)_ticksPerSecond;
-      _effect.SetValue("worldViewProj",
-                       SkinContext.FinalMatrix.Matrix * GraphicsDevice.Device.Transform.View *
-                       GraphicsDevice.Device.Transform.Projection);
+      _effect.SetValue("worldViewProj", SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetValue("g_texture", tex);
       _effect.SetValue("appTime", (float)elapsedTime);
       _effect.Technique = "simple";

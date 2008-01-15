@@ -32,7 +32,9 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;
 using System.Drawing;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 namespace SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush//, IAsset
@@ -41,7 +43,7 @@ namespace SkinEngine.Controls.Brushes
     //Texture _texture;
     double _height;
     double _width;
-    //EffectAsset _effect;
+    EffectAsset _effect;
     DateTime _lastTimeUsed;
 
     /// <summary>
@@ -64,9 +66,10 @@ namespace SkinEngine.Controls.Brushes
       _colorProperty = new Property(Color.White);
       //ContentManager.Add(this);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _effect = ContentManager.GetEffect("solidbrush");
     }
 
-    public override  object Clone()
+    public override object Clone()
     {
       return new SolidColorBrush(this);
     }
@@ -118,7 +121,7 @@ namespace SkinEngine.Controls.Brushes
       {
         UpdateBounds(element, ref verts);
         base.SetupBrush(element, ref verts);
-        ColorValue color = ColorValue.FromColor(this.Color);
+        ColorValue color = ColorConverter.FromColor(this.Color);
         color.Alpha *= (float)Opacity;
         for (int i = 0; i < verts.Length; ++i)
         {
@@ -140,11 +143,11 @@ namespace SkinEngine.Controls.Brushes
     {
       //if (_texture == null) return;
 
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
-      //_effect = ContentManager.GetEffect("solidbrush");
-      //_effect.Parameters["g_solidColor"] = color;
-      //_effect.StartRender(_texture);
-      GraphicsDevice.Device.SetTexture(0,null);
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      ColorValue v = ColorConverter.FromColor(this.Color);
+      _effect.Parameters["g_solidColor"] = v;
+      _effect.StartRender(null);
+      GraphicsDevice.Device.SetTexture(0, null);
       _lastTimeUsed = SkinContext.Now;
     }
 
@@ -153,11 +156,10 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void EndRender()
     {
-     // if (_effect != null)
-     // {
-     //   _effect.EndRender();
-     //   _effect = null;
-      // }
+      if (_effect != null)
+      {
+        _effect.EndRender();
+      }
     }
 
 #if NOTUSED

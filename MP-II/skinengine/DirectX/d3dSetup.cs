@@ -31,10 +31,13 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.DirectX.Direct3D;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Collections;
+
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.DirectX
 {
@@ -115,6 +118,7 @@ namespace SkinEngine.DirectX
     /// <returns>true if a good device was found, false otherwise</returns>
     public bool SetupDirectX(Form form, bool exclusiveMode)
     {
+      Direct3D.Initialize();
       _cancelEventHandler = CancelAutoResizeEvent;
       _window = form;
       RenderTarget = form;
@@ -190,7 +194,7 @@ namespace SkinEngine.DirectX
     {
       // Get display mode of primary adapter (which is assumed to be where the window 
       // will appear)
-      DisplayMode primaryDesktopDisplayMode = Manager.Adapters[0].CurrentDisplayMode;
+      DisplayMode primaryDesktopDisplayMode = Direct3D.Adapters[0].CurrentDisplayMode;
 
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
@@ -202,7 +206,7 @@ namespace SkinEngine.DirectX
         if (GUIGraphicsContext._useScreenSelector)
         {
           adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
-          primaryDesktopDisplayMode = Manager.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
+          primaryDesktopDisplayMode = Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         }*/
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
         {
@@ -265,13 +269,13 @@ namespace SkinEngine.DirectX
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
       {
-        _graphicsSettings.WindowedDepthStencilBufferFormat = (DepthFormat)bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.WindowedDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
       }
-      int iQuality = 0; //bestDeviceCombo.MultiSampleTypeList.Count-1;
-      if (bestDeviceCombo.MultiSampleTypeList.Count > 0)
-        iQuality = bestDeviceCombo.MultiSampleTypeList.Count - 1;
-      _graphicsSettings.WindowedMultisampleType = (MultiSampleType)bestDeviceCombo.MultiSampleTypeList[iQuality];
-      _graphicsSettings.WindowedMultisampleQuality = 0; //(int)bestDeviceCombo.MultiSampleQualityList[iQuality];
+      int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
+      if (bestDeviceCombo.MultisampleTypeList.Count > 0)
+        iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
+      _graphicsSettings.WindowedMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
+      _graphicsSettings.WindowedMultisampleQuality = 0; //(int)bestDeviceCombo.MultisampleQualityList[iQuality];
 
       _graphicsSettings.WindowedVertexProcessingType =
         (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
@@ -313,7 +317,7 @@ namespace SkinEngine.DirectX
           adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
         }*/
 
-        adapterDesktopDisplayMode = Manager.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
+        adapterDesktopDisplayMode = Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
@@ -398,14 +402,14 @@ namespace SkinEngine.DirectX
 
       if (_enumerationSettings.AppUsesDepthBuffer)
       {
-        _graphicsSettings.FullscreenDepthStencilBufferFormat = (DepthFormat)bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.FullscreenDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
       }
-      int iQuality = 0; //bestDeviceCombo.MultiSampleTypeList.Count-1;
-      if (bestDeviceCombo.MultiSampleTypeList.Count > 0)
-        iQuality = bestDeviceCombo.MultiSampleTypeList.Count - 1;
-      _graphicsSettings.FullscreenMultisampleType = (MultiSampleType)bestDeviceCombo.MultiSampleTypeList[iQuality];
+      int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
+      if (bestDeviceCombo.MultisampleTypeList.Count > 0)
+        iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
+      _graphicsSettings.FullscreenMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
       _graphicsSettings.FullscreenMultisampleQuality = 0;
-      _graphicsSettings.FullscreenVertexProcessingType =(VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
+      _graphicsSettings.FullscreenVertexProcessingType = (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
       _graphicsSettings.FullscreenPresentInterval = PresentInterval.Default;
 
       return true;
@@ -444,7 +448,7 @@ namespace SkinEngine.DirectX
       // Set up the presentation parameters
       BuildPresentParamsFromSettings();
 
-      if (deviceInfo.Caps.PrimitiveMiscCaps.IsNullReference)
+      if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
       {
         // Warn user about null ref device that can't render anything
         HandleSampleException(new NullReferenceDeviceException(), ApplicationMessage.None);
@@ -478,16 +482,16 @@ namespace SkinEngine.DirectX
       try
       {
         // Create the device
-        Device.IsUsingEventHandlers = false;
+        //Device.IsUsingEventHandlers = false;
 
         GraphicsDevice.Device = new Device(_graphicsSettings.AdapterOrdinal,
                                            _graphicsSettings.DevType,
           //windowed ? ourRenderTarget : this,
-                                           _ourRenderTarget,
-                                           createFlags | CreateFlags.MultiThreaded,
+                                           _ourRenderTarget.Handle,
+                                           createFlags | CreateFlags.Multithreaded,
                                            _presentParams);
 
-        GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
+        //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
         // Cache our local objects
         //renderState = GraphicsDevice.Device.RenderState;
         //sampleState = GraphicsDevice.Device.SamplerState;
@@ -511,7 +515,7 @@ namespace SkinEngine.DirectX
           this.ClientSize = currentClientSize;
           this.TopMost = alwaysOnTop;*/
         }
-
+        /*
         StringBuilder sb = new StringBuilder();
 
         // Store device description
@@ -528,7 +532,6 @@ namespace SkinEngine.DirectX
           sb.Append("SW");
         }
 
-        BehaviorFlags behaviorFlags = new BehaviorFlags(createFlags);
         if ((behaviorFlags.HardwareVertexProcessing) &&
             (behaviorFlags.PureDevice))
         {
@@ -575,7 +578,7 @@ namespace SkinEngine.DirectX
         }
 
         // Set device stats string
-        _deviceStats = sb.ToString();
+        _deviceStats = sb.ToString();*/
 
         // Set up the fullscreen cursor
         /*if (showCursorWhenFullscreen && !windowed)
@@ -648,7 +651,7 @@ namespace SkinEngine.DirectX
       e.Cancel = true;
     }
 
-    protected virtual bool ConfirmDevice(Caps caps, VertexProcessingType vertexProcessingType,
+    protected virtual bool ConfirmDevice(Capabilities caps, VertexProcessingType vertexProcessingType,
                                          Format adapterFormat, Format backBufferFormat)
     {
       return true;
@@ -1209,41 +1212,41 @@ namespace SkinEngine.DirectX
       _presentParams.Windowed = _graphicsSettings.IsWindowed;
       _presentParams.BackBufferCount = 2;
       _presentParams.EnableAutoDepthStencil = true;
-      _presentParams.ForceNoMultiThreadedFlag = false;
+      //_presentParams.ForceNoMultiThreadedFlag = false;
 
       ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
         _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
 
       if (_graphicsSettings.IsWindowed)
       {
-        _presentParams.MultiSample = _graphicsSettings.WindowedMultisampleType;
-        _presentParams.MultiSampleQuality = _graphicsSettings.WindowedMultisampleQuality;
+        _presentParams.Multisample = _graphicsSettings.WindowedMultisampleType;
+        _presentParams.MultisampleQuality = _graphicsSettings.WindowedMultisampleQuality;
         _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
         _presentParams.PresentationInterval = PresentInterval.Default; // Immediate.Default;
-        _presentParams.FullScreenRefreshRateInHz = 0;
+        _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = SwapEffect.Discard;
-        _presentParams.PresentFlag = PresentFlag.Video; //PresentFlag.LockableBackBuffer;
-        _presentParams.DeviceWindow = _ourRenderTarget;
+        _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
+        _presentParams.DeviceWindowHandle = _ourRenderTarget.Handle;
         _presentParams.Windowed = true;
         //         _presentParams.PresentationInterval = PresentInterval.Immediate;
       }
       else
       {
-        _presentParams.MultiSample = _graphicsSettings.FullscreenMultisampleType;
-        _presentParams.MultiSampleQuality = _graphicsSettings.FullscreenMultisampleQuality;
+        _presentParams.Multisample = _graphicsSettings.FullscreenMultisampleType;
+        _presentParams.MultisampleQuality = _graphicsSettings.FullscreenMultisampleQuality;
         _presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
 
         _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
         _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.DeviceCombo.BackBufferFormat;
         _presentParams.PresentationInterval = PresentInterval.Default;
-        _presentParams.FullScreenRefreshRateInHz = _graphicsSettings.DisplayMode.RefreshRate;
+        _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
         _presentParams.SwapEffect = SwapEffect.Discard;
-        _presentParams.PresentFlag = PresentFlag.Video; //|PresentFlag.LockableBackBuffer;
-        _presentParams.DeviceWindow = _window;
+        _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;
+        _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;
       }
       ;
@@ -1277,35 +1280,35 @@ namespace SkinEngine.DirectX
 
       Trace.WriteLine("----switch----");
       BuildPresentParamsFromSettings();
-      GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
+      //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
       try
       {
         GraphicsDevice.Device.Reset(_presentParams);
       }
-      catch (Microsoft.DirectX.Direct3D.DeviceLostException)
+      catch (DeviceLostException)
       {
-        int result = 0;
+        CooperativeLevel result = CooperativeLevel.DriverInternalError;
         // Loop until it's ok to reset
-        while (result != (int)ResultCode.DeviceNotReset)
+        while (result != (CooperativeLevel.DeviceNotReset))
         {
           Thread.Sleep(10);
-          GraphicsDevice.Device.CheckCooperativeLevel(out result);
+          result = GraphicsDevice.Device.CheckCooperativeLevel();
         }
         GraphicsDevice.Device.Reset(_presentParams);
       }
-      GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
+      //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
     }
 
     public void Reset()
     {
       try
       {
-        GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
+        //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
         GraphicsDevice.Device.Reset(_presentParams);
       }
       finally
       {
-        GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
+        //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
       }
     }
 

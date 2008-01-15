@@ -330,7 +330,7 @@ namespace SkinEngine.Controls.Visuals
       layoutRect.Y += (float)(Margin.Y);
       layoutRect.Width -= (float)(Margin.X + Margin.W);
       layoutRect.Height -= (float)(Margin.Y + Margin.Z);
-      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       if (LayoutTransform != null)

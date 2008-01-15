@@ -54,7 +54,8 @@ applications, and to alter it and redistribute it freely, subject to the followi
 using System;
 using SkinEngine.DirectX;
 
-//using Microsoft.DirectX.Direct3D
+//using SlimDX.Direct3D
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Fonts
 {

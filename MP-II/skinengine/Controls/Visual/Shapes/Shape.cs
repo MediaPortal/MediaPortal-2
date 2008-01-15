@@ -36,11 +36,12 @@ using SkinEngine.Controls.Brushes;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = Microsoft.DirectX.Matrix;
+using Matrix = SlimDX.Matrix;
 using Brush = SkinEngine.Controls.Brushes.Brush;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using GeometryUtility;
 namespace SkinEngine.Controls.Visuals
 {
@@ -266,10 +267,10 @@ namespace SkinEngine.Controls.Visuals
 
       if (Fill != null)
       {
-        GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+        GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
         Fill.EndRender();
       }
@@ -277,7 +278,7 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
         Stroke.EndRender();
       }
@@ -315,8 +316,8 @@ namespace SkinEngine.Controls.Visuals
       if (path.PointCount <= 0) return null;
       if (path.PathPoints.Length == 3)
       {
-        VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), 3, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+        VertexBuffer vertexBuffer = PositionColored2Textured.Create(3);
+        verts = new PositionColored2Textured[3];
 
         verts[0].Position = new Vector3(path.PathPoints[0].X, path.PathPoints[0].Y, 1);
         verts[1].Position = new Vector3(path.PathPoints[1].X, path.PathPoints[1].Y, 1);
@@ -329,8 +330,8 @@ namespace SkinEngine.Controls.Visuals
         PointF[] points = path.PathPoints;
         int verticeCount = points.Length + 2;
 
-        VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-        verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+        VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
+        verts = new PositionColored2Textured[verticeCount];
 
         verts[0].Position = new Vector3(cx, cy, 1);
         verts[1].Position = new Vector3(points[0].X, points[0].Y, 1);
@@ -402,8 +403,8 @@ namespace SkinEngine.Controls.Visuals
       int pointCount = points.Length;
       int verticeCount = (pointCount) * 2 * 3;
 
-      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+      VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
+      verts = new PositionColored2Textured[verticeCount];
 
       float x, y;
       for (int i = 0; i < (pointCount - 1); ++i)
@@ -447,8 +448,8 @@ namespace SkinEngine.Controls.Visuals
       cutPolygon.CutEar();
 
       int count = cutPolygon.NumberOfPolygons;
-      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), count * 3, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+      VertexBuffer vertexBuffer = PositionColored2Textured.Create(count*3);
+      verts = new PositionColored2Textured[count*3];
       for (int i = 0; i < count; i++)
       {
         CPoint2D[] triangle = cutPolygon[i];
@@ -763,7 +764,7 @@ namespace SkinEngine.Controls.Visuals
       {
         ExtendedMatrix em;
         LayoutTransform.GetTransform(out em);
-        matrix.Multiply(em.Matrix);
+        matrix *= em.Matrix;
       }
       int count = path.PointCount;
       if (path.PathPoints[count - 2] == path.PathPoints[count - 1])
@@ -847,8 +848,8 @@ namespace SkinEngine.Controls.Visuals
         outPoints[outPoints.Length - 1] = outPoints[1];
       }
       int verticeCount = outPoints.Length;
-      VertexBuffer vertexBuffer = new VertexBuffer(typeof(PositionColored2Textured), verticeCount, GraphicsDevice.Device, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
-      verts = (PositionColored2Textured[])vertexBuffer.Lock(0, 0);
+      VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
+      verts = new PositionColored2Textured[verticeCount];
 
       for (int i = 0; i < verticeCount; ++i)
       {

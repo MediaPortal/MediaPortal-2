@@ -98,7 +98,7 @@ namespace SkinEngine.Controls.Panels
       layoutRect.Height -= (float)(Margin.Y + Margin.Z);
       //SkinContext.FinalLayoutTransform.TransformRect(ref layoutRect);
 
-      ActualPosition = new Microsoft.DirectX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
 

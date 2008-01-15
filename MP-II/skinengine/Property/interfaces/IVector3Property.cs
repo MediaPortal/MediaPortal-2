@@ -23,7 +23,8 @@
 #endregion
 
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine
 {

@@ -25,7 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 namespace SkinEngine.Controls.Transforms
 {
   public class SkewTransform : Transform
@@ -217,7 +218,7 @@ namespace SkinEngine.Controls.Transforms
 
       bool translation = ((cx != 0.0) || (cy != 0.0));
       if (translation)
-        _matrix.Translate((float)cx, (float)cy, 0);
+        _matrix = Matrix.Translation((float)cx, (float)cy, 0);
       else
         _matrix = Matrix.Identity;
 
@@ -230,7 +231,7 @@ namespace SkinEngine.Controls.Transforms
       //        _matrix.yx = Math.Tan(ay * Math.PI / 180);
 
       if (translation)
-        _matrix.Translate((float)-cx, (float)-cy, 0);
+        _matrix = Matrix.Translation((float)-cx, (float)-cy, 0);
 
     }
 

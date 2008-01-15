@@ -22,32 +22,9 @@
 
 #endregion
 
-#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
-
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.DirectX
 {
@@ -62,8 +39,8 @@ namespace SkinEngine.DirectX
     public GraphicsDeviceInfo WindowedDeviceInfo;
     public DeviceCombo WindowedDeviceCombo;
     public DisplayMode WindowedDisplayMode; // not changable by the user
-    public DepthFormat WindowedDepthStencilBufferFormat;
-    public MultiSampleType WindowedMultisampleType;
+    public Format WindowedDepthStencilBufferFormat;
+    public MultisampleType WindowedMultisampleType;
     public int WindowedMultisampleQuality;
     public VertexProcessingType WindowedVertexProcessingType;
     public PresentInterval WindowedPresentInterval;
@@ -76,8 +53,8 @@ namespace SkinEngine.DirectX
     public DisplayMode[] FullscreenDisplayModes = new DisplayMode[100];
     public int CurrentFullscreenDisplayMode = 0;
     public int DesktopDisplayMode = 0;
-    public DepthFormat FullscreenDepthStencilBufferFormat;
-    public MultiSampleType FullscreenMultisampleType;
+    public Format FullscreenDepthStencilBufferFormat;
+    public MultisampleType FullscreenMultisampleType;
     public int FullscreenMultisampleQuality;
     public VertexProcessingType FullscreenVertexProcessingType;
     public PresentInterval FullscreenPresentInterval;
@@ -182,7 +159,7 @@ namespace SkinEngine.DirectX
     /// <summary>
     /// The Depth stencils format
     /// </summary>
-    public DepthFormat DepthStencilBufferFormat
+    public Format DepthStencilBufferFormat
     {
       get { return IsWindowed ? WindowedDepthStencilBufferFormat : FullscreenDepthStencilBufferFormat; }
       set
@@ -202,7 +179,7 @@ namespace SkinEngine.DirectX
     /// <summary>
     /// The multisample type
     /// </summary>
-    public MultiSampleType MultisampleType
+    public MultisampleType MultisampleType
     {
       get { return IsWindowed ? WindowedMultisampleType : FullscreenMultisampleType; }
       set

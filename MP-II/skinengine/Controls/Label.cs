@@ -25,8 +25,9 @@
 using System;
 using System.Drawing;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Fonts;
 using SkinEngine.Properties;
 using Font = SkinEngine.Fonts.Font;
@@ -153,14 +154,14 @@ namespace SkinEngine.Controls
       rect.Y -= (_font.Font.LineHeight - _font.Font.Base);
       float size = _font.Font.Size;
 
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float alpha = Color.Alpha * AlphaMask.X;
       if (SkinContext.TemporaryTransform != null)
       {
-        GraphicsDevice.Device.Transform.World *= SkinContext.TemporaryTransform.Matrix;
+        GraphicsDevice.TransformWorld *= SkinContext.TemporaryTransform.Matrix;
         alpha *= SkinContext.TemporaryTransform.Alpha.X;
       }
-      ColorValue color = new ColorValue(Color.Red, Color.Green, Color.Blue, alpha * SkinContext.FinalMatrix.Alpha.X);
+      ColorValue color = new ColorValue(alpha * SkinContext.FinalMatrix.Alpha.X,Color.Red, Color.Green, Color.Blue);
 
       float totalWidth;
       _font.Draw(Text, rect, Align, size, color, Scroll, out totalWidth);

@@ -26,8 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
+using SkinEngine.Effects;
 using SkinEngine.DirectX;
 
 namespace SkinEngine.Fonts
@@ -53,7 +55,7 @@ namespace SkinEngine.Fonts
     private readonly float _defaultSize = 20;
     private readonly Dictionary<int, string> _pages;
     private float _firstCharWidth = 0;
-
+    EffectAsset _effect;
     /// <summary>Creates a new bitmap font.</summary>
     /// <param name="fntFile">Font file name.</param>
     /// <param name="size"></param>
@@ -66,6 +68,7 @@ namespace SkinEngine.Fonts
       _charSet = new BitmapCharacterSet();
       _defaultSize = size;
       ParseFNTFile();
+      _effect = ContentManager.GetEffect("normal");
     }
 
     public float FirstCharWidth
@@ -284,7 +287,8 @@ namespace SkinEngine.Fonts
           _texture.Dispose();
           ContentManager.TextureReferences--;
         }
-        _texture = TextureLoader.FromFile(device, fileName,
+        
+        _texture = Texture.FromFile(device, fileName,
                                           _charSet.Width, _charSet.Height, 0, Usage.None, Format.Dxt3, Pool.Default,
                                           Filter.Linear, Filter.Linear, 0);
         ContentManager.TextureReferences++;
@@ -363,9 +367,10 @@ namespace SkinEngine.Fonts
     public void Render(Device device, int count)
     {
       // Render
+      _effect.StartRender(_texture);
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetTexture(0, _texture);
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
+      _effect.EndRender();
     }
 
     public void Render(Device device, VertexBuffer buffer, out int count)
@@ -382,20 +387,25 @@ namespace SkinEngine.Fonts
 
       // Add vertices to the buffer
       //GraphicsBuffer<SkinEngine.DirectX.PositionColored2Textured> gb =
-      GraphicsStream gb = buffer.Lock(0, 6 * count * PositionColored2Textured.StrideSize, LockFlags.Discard);
+      //GraphicsStream gb = buffer.Lock(0, 6 * count * PositionColored2Textured.StrideSize, LockFlags.Discard);
 
-      foreach (FontQuad q in _quads)
+      using (DataStream stream = buffer.Lock(0, 0, LockFlags.None))
       {
-        gb.Write(q.Vertices);
+        foreach (FontQuad q in _quads)
+        {
+          stream.WriteRange(q.Vertices);
+        }
       }
 
       buffer.Unlock();
 
+      _effect.StartRender(_texture);
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
 
       GraphicsDevice.Device.SetTexture(0, _texture);
       GraphicsDevice.Device.SetStreamSource(0, buffer, 0, PositionColored2Textured.StrideSize);
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
+      _effect.EndRender();
     }
 
     /// <summary>Gets the list of Quads from a StringBlock all ready to render.</summary>

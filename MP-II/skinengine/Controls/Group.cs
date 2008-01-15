@@ -28,8 +28,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.InputManager;
 using MediaPortal.Core.WindowManager;
 using SkinEngine.Skin.Layout;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls
 {

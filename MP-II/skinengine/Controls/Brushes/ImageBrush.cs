@@ -29,8 +29,9 @@ using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -174,7 +175,7 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_tex == null)
       {
         Allocate();

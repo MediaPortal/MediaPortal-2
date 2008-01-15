@@ -33,8 +33,9 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine;
 using SkinEngine.DirectX;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -308,7 +309,7 @@ namespace SkinEngine.Controls.Brushes
         if (v > 1) v = 1;
         unchecked
         {
-          ColorValue color = ColorValue.FromArgb((int)0xffffffff);
+          ColorValue color = ColorConverter.FromColor(System.Drawing.Color.White);
           color.Alpha *= (float)Opacity;
           verts[i].Color = color.ToArgb();
         }

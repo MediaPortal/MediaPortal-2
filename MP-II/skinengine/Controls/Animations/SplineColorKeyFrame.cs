@@ -25,7 +25,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 namespace SkinEngine.Controls.Animations
 {
   public class SplineColorKeyFrame : ColorKeyFrame

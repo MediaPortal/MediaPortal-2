@@ -25,7 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 namespace SkinEngine.Controls.Transforms
 {
   public class ScaleTransform : Transform
@@ -218,11 +219,11 @@ namespace SkinEngine.Controls.Transforms
 
       if (cx == 0.0 && cy == 0.0)
       {
-        _matrix.Scale((float)sx, (float)sy, 1.0f);
+        _matrix=Matrix.Scaling((float)sx, (float)sy, 1.0f);
       }
       else
       {
-        _matrix.Translate((float)-cx, (float)-cy, 0);
+        _matrix=Matrix.Translation((float)-cx, (float)-cy, 0);
         _matrix *= Matrix.Scaling((float)sx, (float)sy, 1.0f);
         _matrix *= Matrix.Translation((float)cx, (float)cy, 0);
       }

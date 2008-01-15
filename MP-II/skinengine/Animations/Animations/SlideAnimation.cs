@@ -23,7 +23,8 @@
 #endregion
 
 using System;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SkinEngine.Controls;
 
 namespace SkinEngine.Animations

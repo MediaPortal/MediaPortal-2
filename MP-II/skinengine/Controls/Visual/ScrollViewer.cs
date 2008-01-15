@@ -30,7 +30,8 @@ using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
 
 using SkinEngine;
-
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -72,7 +73,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
-      GraphicsDevice.Device.RenderState.ScissorTestEnable = true;
+      GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
       float x = (int)ActualPosition.X;
       float y = (int)ActualPosition.Y;
       float w = (int)ActualWidth;
@@ -90,12 +91,12 @@ namespace SkinEngine.Controls.Visuals
       {
         h = (float)GraphicsDevice.Height - y;
       }
-      GraphicsDevice.Device.ScissorRectangle = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+      GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
       if (Content != null)
       {
         Content.DoRender();
       }
-      GraphicsDevice.Device.RenderState.ScissorTestEnable = false;
+      GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
     }
 
     /// <summary>

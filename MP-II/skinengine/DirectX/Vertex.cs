@@ -51,12 +51,15 @@ applications, and to alter it and redistribute it freely, subject to the followi
     3. This notice may not be removed or altered from any source distribution.
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using System.Runtime.InteropServices;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.DirectX
 {
   /// <summary>Vertex with Position and two sets of texture coordinates</summary>
+  [StructLayout(LayoutKind.Sequential)]
   public struct PositionColored2Textured
   {
     public float X; //0..3
@@ -68,8 +71,7 @@ namespace SkinEngine.DirectX
     public float Tu2; //24..27
     public float Tv2; //28..31
 
-    public static readonly VertexFormats Format = VertexFormats.Position | VertexFormats.Texture2 |
-                                                  VertexFormats.Diffuse;
+    public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture2 | VertexFormat.Diffuse;
 
     public static readonly VertexElement[] Declarator = new VertexElement[]
       {
@@ -82,7 +84,7 @@ namespace SkinEngine.DirectX
         VertexElement.VertexDeclarationEnd
       };
 
-    public static readonly int StrideSize = VertexInformation.GetDeclarationVertexSize(Declarator, 0);
+    public static readonly int StrideSize = 32;
 
     public PositionColored2Textured(float x, float y, float z, float u1, float v1, float u2, float v2, int color)
     {
@@ -124,6 +126,20 @@ namespace SkinEngine.DirectX
         Y = value.Y;
         Z = value.Z;
       }
+    }
+
+    public static VertexBuffer Create(int verticeCount)
+    {
+      return new VertexBuffer(GraphicsDevice.Device, PositionColored2Textured.StrideSize * verticeCount, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+    }
+
+    public static void Set(VertexBuffer buffer, ref PositionColored2Textured[] verts)
+    {
+      using (DataStream stream=buffer.Lock(0, 0, LockFlags.None))
+      {
+        stream.WriteRange(verts);
+      }
+      buffer.Unlock();
     }
   }
 }

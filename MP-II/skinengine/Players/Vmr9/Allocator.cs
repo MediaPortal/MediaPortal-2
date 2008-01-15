@@ -34,7 +34,8 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
-using Microsoft.DirectX.Direct3D;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Effects;
 
 namespace SkinEngine.Players.Vmr9
@@ -71,7 +72,8 @@ namespace SkinEngine.Players.Vmr9
     private bool _usingEvr = false;
     private PlayerCollection _players;
     private IPlayer _player;
-    private bool _guiBeingReinitialized=false;
+    private bool _guiBeingReinitialized = false;
+    EffectAsset _normalEffect;
 
     #endregion
 
@@ -87,6 +89,7 @@ namespace SkinEngine.Players.Vmr9
       _player = player;
       _usingEvr = usingEvr;
       _lock = new Object();
+      _normalEffect = ContentManager.GetEffect("normal");
     }
 
     #endregion
@@ -127,14 +130,14 @@ namespace SkinEngine.Players.Vmr9
       lock (_lock)
       {
         Dispose();
-        _guiBeingReinitialized=true;
+        _guiBeingReinitialized = true;
       }
     }
     public void ReallocResources()
     {
       lock (_lock)
       {
-      _guiBeingReinitialized=false;
+        _guiBeingReinitialized = false;
       }
     }
     /// <summary>
@@ -174,9 +177,9 @@ namespace SkinEngine.Players.Vmr9
           }
           else
           {
-            GraphicsDevice.Device.SetTexture(0, _texture);
+            _normalEffect.StartRender(_texture);
             GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-            GraphicsDevice.Device.SetTexture(0, null);
+            _normalEffect.EndRender();
           }
         }
       }
@@ -240,10 +243,9 @@ namespace SkinEngine.Players.Vmr9
         _aspectRatio = new Size(arx, ary);
         if (_texture == null)
         {
-          AdapterInformation adapterInfo = Manager.Adapters.Default;
-          _texture =
-            new Texture(GraphicsDevice.Device, cx, cy, 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format,
-                        Pool.Default);
+          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
+          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
+          _texture = new Texture(GraphicsDevice.Device, cx, cy, 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
           ContentManager.TextureReferences++;
           _surface = _texture.GetSurfaceLevel(0);
 
@@ -252,14 +254,17 @@ namespace SkinEngine.Players.Vmr9
 
         IntPtr ptr = new IntPtr(dwImg);
         Marshal.AddRef(ptr);
-        using (Surface surf = new Surface(ptr))
+        unsafe
         {
-          GraphicsDevice.Device.StretchRectangle(surf,
-                                                 new Rectangle(Point.Empty, _videoSize),
-                                                 _surface,
-                                                 new Rectangle(Point.Empty, _videoSize),
-                                                 TextureFilter.None
-            );
+          using (Surface surf = new Surface(ptr))
+          {
+            GraphicsDevice.Device.StretchRect(surf,
+                                                   new Rectangle(Point.Empty, _videoSize),
+                                                   _surface,
+                                                   new Rectangle(Point.Empty, _videoSize),
+                                                   TextureFilter.None
+              );
+          }
         }
       }
 

@@ -24,8 +24,9 @@
 
 using System.Diagnostics;
 using System.Drawing;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Effects;
 using MediaPortal.Core.Properties;
 
@@ -118,7 +119,7 @@ namespace SkinEngine.Controls
       //      ServiceScope.Get<ILogger>().Debug("visualbrush alloc surface");
       using (Surface surfaceSource = GraphicsDevice.Device.GetRenderTarget(0))
       {
-        GraphicsDevice.Device.StretchRectangle(surfaceSource,
+        GraphicsDevice.Device.StretchRect(surfaceSource,
                                                rSource,
                                                surfaceDest,
                                                rectDest,
@@ -164,10 +165,10 @@ namespace SkinEngine.Controls
       _lastTime = timePassed;
 
       Vector4 alpha = AlphaMask;
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (SkinContext.TemporaryTransform != null)
       {
-        GraphicsDevice.Device.Transform.World *= SkinContext.TemporaryTransform.Matrix;
+        GraphicsDevice.TransformWorld *= SkinContext.TemporaryTransform.Matrix;
         alpha.X *= SkinContext.TemporaryTransform.Alpha.X;
         alpha.W *= SkinContext.TemporaryTransform.Alpha.W;
         alpha.Z *= SkinContext.TemporaryTransform.Alpha.Z;

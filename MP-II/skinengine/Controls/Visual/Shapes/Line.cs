@@ -35,10 +35,11 @@ using SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = Microsoft.DirectX.Matrix;
+using Matrix = SlimDX.Matrix;
 
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -244,7 +245,7 @@ namespace SkinEngine.Controls.Visuals
           if (_vertexBufferBorder != null)
           {
             Stroke.SetupBrush(this, ref verts);
-            _vertexBufferBorder.Unlock();
+            PositionColored2Textured.Set(_vertexBufferBorder, ref verts);
             _verticesCountBorder = (verts.Length / 3);
           }
         }
@@ -266,7 +267,7 @@ namespace SkinEngine.Controls.Visuals
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0);
+        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBorder);
         Stroke.EndRender();
       }

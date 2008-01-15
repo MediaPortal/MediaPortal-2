@@ -35,8 +35,9 @@ using MediaPortal.Core.Commands;
 using SkinEngine.Commands;
 using SkinEngine.Scripts;
 using SkinEngine.Skin;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 namespace SkinEngine.Controls
 {
@@ -155,7 +156,7 @@ namespace SkinEngine.Controls
         {
           if (key == Key.Home)
           {
-            Position = new Microsoft.DirectX.Vector3(OriginalPosition.X, OriginalPosition.Y, OriginalPosition.Z);
+            Position = new SlimDX.Vector3(OriginalPosition.X, OriginalPosition.Y, OriginalPosition.Z);
             _offset = 0.0f;
             if (Window.FocusedControl != this && Window.FocusedControl != null)
               Window.FocusedControl.HasFocus = false;
@@ -167,7 +168,7 @@ namespace SkinEngine.Controls
             if (_styles.SelectedStyle.Height > Height)
             {
               _offset = -(_styles.SelectedStyle.Height - Height);
-              Position = new Microsoft.DirectX.Vector3(OriginalPosition.X, _offset + OriginalPosition.Y, OriginalPosition.Z);
+              Position = new SlimDX.Vector3(OriginalPosition.X, _offset + OriginalPosition.Y, OriginalPosition.Z);
             }
             if (Window.FocusedControl != this && Window.FocusedControl != null)
               Window.FocusedControl.HasFocus = false;
@@ -239,7 +240,7 @@ namespace SkinEngine.Controls
       HasFocus = false;
       base.Reset();
       _styles.Reset();
-      Position = new Microsoft.DirectX.Vector3(OriginalPosition.X, OriginalPosition.Y, OriginalPosition.Z);
+      Position = new SlimDX.Vector3(OriginalPosition.X, OriginalPosition.Y, OriginalPosition.Z);
       _offset = 0.0f;
 
       Items = new ItemsCollection();
@@ -429,7 +430,7 @@ namespace SkinEngine.Controls
         {
           _offset = (OriginalPosition.Y - childControl.Position.Y);
 
-          Position = new Microsoft.DirectX.Vector3(OriginalPosition.X, Position.Y + _offset, OriginalPosition.Z);
+          Position = new SlimDX.Vector3(OriginalPosition.X, Position.Y + _offset, OriginalPosition.Z);
         }
       }
       return childControl;
@@ -459,7 +460,7 @@ namespace SkinEngine.Controls
             Trace.WriteLine(String.Format("  next:{0} cur:{1}->off={2}", c.Position.Y, childControl.Position.Y, _offset));
 
 
-            Position = new Microsoft.DirectX.Vector3(OriginalPosition.X, Position.Y + _offset, OriginalPosition.Z);
+            Position = new SlimDX.Vector3(OriginalPosition.X, Position.Y + _offset, OriginalPosition.Z);
             Trace.WriteLine(String.Format("  pos:{0} offset:{1} {2}", Position.Y, _offset, childControl.Position.Y));
           }
         }

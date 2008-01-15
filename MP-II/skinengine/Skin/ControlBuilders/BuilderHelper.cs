@@ -31,8 +31,9 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.WindowManager;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.Animations;
 using SkinEngine.Commands;
 using SkinEngine.Controls;
@@ -481,12 +482,12 @@ namespace SkinEngine.Skin
       XmlNode attrib = node.Attributes.GetNamedItem("color");
       if (attrib == null)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
       string colorString = attrib.Value;
       if (colorString == null)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
 
       if (SkinContext.Theme.HasColor(colorString))
@@ -496,7 +497,7 @@ namespace SkinEngine.Skin
       string[] parts = colorString.Split(new char[] { ',' });
       if (parts.Length < 3)
       {
-        return ColorValue.FromColor(Color.White);
+        return ColorConverter.FromColor(Color.White);
       }
       float a, r, g, b;
       a = 255.0f;
@@ -546,7 +547,7 @@ namespace SkinEngine.Skin
       {
         b = 1.0f;
       }
-      return new ColorValue(r, g, b, a);
+      return new ColorValue(a,r, g, b);
     }
 
     /// <summary>

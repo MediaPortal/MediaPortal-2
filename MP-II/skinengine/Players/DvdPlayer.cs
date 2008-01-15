@@ -42,7 +42,8 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Players;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SkinEngine.Commands;
 using MenuItem = MediaPortal.Core.MenuManager.MenuItem;
 

@@ -23,7 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Animations

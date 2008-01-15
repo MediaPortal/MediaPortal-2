@@ -27,7 +27,8 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Properties;
-using Microsoft.DirectX;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SkinEngine.Effects;
 using SkinEngine.Players;
 
@@ -226,7 +227,7 @@ namespace SkinEngine.Controls
         if (texture.StartsWith("#video") && texture.Length > "#video".Length)
         {
           int index = Int32.Parse(texture.Substring("#video".Length)) - 1;
-          GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+          GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
           PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
           if (index >= collection.Count)
           {
@@ -487,10 +488,10 @@ namespace SkinEngine.Controls
         u = 1;
       }
       Vector4 alpha = AlphaMask;
-      GraphicsDevice.Device.Transform.World = SkinContext.FinalMatrix.Matrix;
+      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (SkinContext.TemporaryTransform != null)
       {
-        GraphicsDevice.Device.Transform.World *= SkinContext.TemporaryTransform.Matrix;
+        GraphicsDevice.TransformWorld *= SkinContext.TemporaryTransform.Matrix;
         alpha.X *= SkinContext.TemporaryTransform.Alpha.X;
         alpha.W *= SkinContext.TemporaryTransform.Alpha.W;
         alpha.Z *= SkinContext.TemporaryTransform.Alpha.Z;

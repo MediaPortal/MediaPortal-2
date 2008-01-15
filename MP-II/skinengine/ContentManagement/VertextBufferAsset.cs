@@ -23,8 +23,9 @@
 #endregion
 
 using System;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Effects;
 
@@ -51,6 +52,7 @@ namespace SkinEngine
     private float _previousVoff;
     private float _previousUmax;
     private float _previousVMax;
+    EffectAsset _effect;
 
     #endregion
 
@@ -61,6 +63,7 @@ namespace SkinEngine
     public VertextBufferAsset(TextureAsset texture)
     {
       _texture = texture;
+      _effect = ContentManager.GetEffect("normal");
     }
 
     /// <summary>
@@ -74,9 +77,7 @@ namespace SkinEngine
         Free();
       }
       //      ServiceScope.Get<ILogger>().Debug("VERTEXTBUFFERASSET alloc vertextbuffer {0}",_texture.Name);
-      _vertexBuffer =
-        new VertexBuffer(typeof(PositionColored2Textured), 4, GraphicsDevice.Device, Usage.WriteOnly,
-                         PositionColored2Textured.Format, Pool.Default);
+      _vertexBuffer = PositionColored2Textured.Create(4);//writeonly
       ContentManager.VertexReferences++;
       Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
     }
@@ -153,7 +154,7 @@ namespace SkinEngine
       umax *= _texture.MaxU;
       vmax *= _texture.MaxV;
       UpdateVertexBuffer(x, y, z, w, h,
-                         uoff,voff,umax,vmax,
+                         uoff, voff, umax, vmax,
                          colorUpperLeft, colorBottomLeft,
                          colorBottomRight, colorUpperRight);
       _previousX = x;
@@ -197,7 +198,7 @@ namespace SkinEngine
       Vector3 bottomRight = new Vector3(right, bottom, z);
       Vector3 upperRight = new Vector3(right, top, z);
 
-      PositionColored2Textured[] verts = (PositionColored2Textured[])_vertexBuffer.Lock(0, 0);
+      PositionColored2Textured[] verts = new PositionColored2Textured[4];
       unchecked
       {
         float tu2, tv2;
@@ -249,7 +250,7 @@ namespace SkinEngine
         verts[3].Tu2 = tu2;
         verts[3].Tv2 = tv2;
       }
-      _vertexBuffer.Unlock();
+      PositionColored2Textured.Set(_vertexBuffer, ref verts);
     }
 
     #region IAsset Members
@@ -344,8 +345,8 @@ namespace SkinEngine
       Set(x, y, z, width, height, 0, 0, 1, 1, (int)alpha, (int)alpha, (int)alpha, (int)alpha);
 
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0);
-      _texture.Draw(streamNumber);
+      GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
+      _effect.Render(_texture, streamNumber);
       _lastTimeUsed = SkinContext.Now;
     }
 
@@ -428,10 +429,10 @@ namespace SkinEngine
           (int)alphaBottomLeft,
           (int)alphaBottomRight,
           (int)alphaUpperRight);
-
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0);
-      _texture.Draw(0);
+      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
+
+      _effect.Render(_texture, 0);
       _lastTimeUsed = SkinContext.Now;
     }
 
@@ -505,8 +506,8 @@ namespace SkinEngine
           (int)alphaUpperRight);
 
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0);
-      effect.Render(_texture);
+      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
+      effect.Render(_texture,0);
       _lastTimeUsed = SkinContext.Now;
     }
   }
