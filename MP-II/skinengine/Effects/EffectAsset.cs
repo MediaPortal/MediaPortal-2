@@ -66,7 +66,7 @@ namespace SkinEngine.Effects
       string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
       if (File.Exists(effectFile))
       {
-        ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
+        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 ;
         string errors = "";
         _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, null, null, shaderFlags, null, out errors);
         if (_effect == null)
