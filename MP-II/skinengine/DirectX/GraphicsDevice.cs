@@ -332,7 +332,7 @@ namespace SkinEngine
 
       Matrix mtxWorld;
       mtxWorld = Matrix.Identity;
-      GraphicsDevice.TransformWorld = mtxWorld;
+      //GraphicsDevice.TransformWorld = mtxWorld;
 
       // camera view.  Multiply the Y coord by -1) { translate so that everything is relative to the camera
       // position.
@@ -352,7 +352,7 @@ namespace SkinEngine
       GraphicsDevice.TransformProjection = mtxProjection;
 
       GraphicsDevice.FinalTransform = GraphicsDevice.TransformView * GraphicsDevice.TransformProjection;
-      //GraphicsDevice.TransformWorld = Matrix.Identity;
+      ////GraphicsDevice.TransformWorld = Matrix.Identity;
       //GraphicsDevice.TransformView = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
       //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
     }

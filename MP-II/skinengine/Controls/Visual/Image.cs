@@ -426,7 +426,7 @@ namespace SkinEngine.Controls.Visuals
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_image != null)
       {
         _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, (float)Opacity, (float)Opacity, (float)Opacity, (float)Opacity);

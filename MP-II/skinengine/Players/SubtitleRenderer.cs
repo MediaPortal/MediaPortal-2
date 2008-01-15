@@ -677,7 +677,7 @@ namespace SkinEngine.Players
       bool alphaTest = false;
       bool alphaBlend = false;
 
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       try
       {
         // store current settings so they can be restored when we are done

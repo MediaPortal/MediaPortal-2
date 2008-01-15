@@ -165,7 +165,7 @@ namespace SkinEngine.Controls
       _lastTime = timePassed;
 
       Vector4 alpha = AlphaMask;
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (SkinContext.TemporaryTransform != null)
       {
         GraphicsDevice.TransformWorld *= SkinContext.TemporaryTransform.Matrix;

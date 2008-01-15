@@ -238,7 +238,7 @@ namespace SkinEngine.Controls.Brushes
         g_endpoint[0] = (float)((EndPoint.X - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
         g_endpoint[1] = (float)((EndPoint.Y - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
       }
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
         if (Freezable)
@@ -293,7 +293,7 @@ namespace SkinEngine.Controls.Brushes
                 //render the control (will be rendered into the opacitytexture)
                 GraphicsDevice.Device.BeginScene();
                 GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-                GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+                //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
 
                 _effect.Parameters["g_opacity"] = (float)Opacity;
@@ -396,7 +396,7 @@ namespace SkinEngine.Controls.Brushes
         g_endpoint[1] = (float)((EndPoint.Y - (_bounds.Y - _orginalPosition.Y)) / _bounds.Height);
       }
 
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
         _effect.Parameters["g_alphatex"] = _gradientTexture;

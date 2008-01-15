@@ -199,7 +199,15 @@ namespace SkinEngine.Controls.Visuals.Styles
       object obj = Value;
       if (obj as String != null)
       {
-        obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+        if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
+        {
+          obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+        }
+        else
+        {
+          SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
+          obj = loader.ConvertType(pinfo2.PropertyType, obj);
+        }
       }
       ICloneable clone = obj as ICloneable;
       if (clone != null)

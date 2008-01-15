@@ -231,6 +231,16 @@ namespace SkinEngine.Skin
         }
       }
     }
+    public object ConvertType(Type propertyType, object propertyValue)
+    {
+      CustomTypeEventArgs e = new CustomTypeEventArgs();
+      e.PropertyType = propertyType;
+      e.Value = propertyValue;
+      e.Result = propertyValue;
+      parser_CustomTypeConvertor(null, e);
+      return e.Result;
+
+    }
     /// <summary>
     /// Handles the CustomTypeConvertor event of the parser control.
     /// </summary>

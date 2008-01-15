@@ -267,7 +267,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (Fill != null)
       {
-        GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);

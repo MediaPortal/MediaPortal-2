@@ -330,7 +330,7 @@ namespace SkinEngine.Controls.Brushes
         g_radius[1] = (float)(RadiusY / _bounds.Height);
       }
 
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
         if (Freezable)
@@ -385,7 +385,7 @@ namespace SkinEngine.Controls.Brushes
                 //render the control (will be rendered into the opacitytexture)
                 GraphicsDevice.Device.BeginScene();
                 GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-                GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+                //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
 
                 _effect.Parameters["g_focus"] = g_focus;
@@ -499,7 +499,7 @@ namespace SkinEngine.Controls.Brushes
         g_radius[0] = (float)(RadiusX / _bounds.Width);
         g_radius[1] = (float)(RadiusY / _bounds.Height);
       }
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {
         _effect.Parameters["g_alphatex"] = _gradientTexture;

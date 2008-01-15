@@ -276,7 +276,7 @@ namespace SkinEngine.Controls.Visuals
       ColorValue color = ColorConverter.FromColor(this.Color);
 
       base.DoRender();
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;

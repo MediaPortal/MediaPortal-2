@@ -317,12 +317,12 @@ namespace SkinEngine.Controls.Panels
         if (Background != null)
         {
           ExtendedMatrix m = new ExtendedMatrix();
-          m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+          m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
           SkinContext.AddTransform(m);
           Matrix mrel, mt;
           Background.RelativeTransform.GetTransform(out mrel);
           Background.Transform.GetTransform(out mt);
-          GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
+          //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
           GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
@@ -332,7 +332,7 @@ namespace SkinEngine.Controls.Panels
         }
 
         int index = 0;
-        foreach (UIElement element in Children)
+        foreach (UIElement element in _renderOrder)
         {
           if (!element.IsVisible) continue;
           if (index < _startIndex)

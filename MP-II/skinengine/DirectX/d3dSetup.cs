@@ -1225,7 +1225,7 @@ namespace SkinEngine.DirectX
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
-        _presentParams.PresentationInterval = PresentInterval.Default; // Immediate.Default;
+        _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
         _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = SwapEffect.Discard;
         _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;

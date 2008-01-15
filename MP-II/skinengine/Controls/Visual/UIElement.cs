@@ -72,6 +72,7 @@ namespace SkinEngine.Controls.Visuals
     Property _opacityMask;
     Property _opacityProperty;
     Property _freezableProperty;
+    Property _zIndexProperty;
     protected SizeF _desiredSize;
     protected SizeF _originalSize;
     protected SizeF _availableSize;
@@ -114,6 +115,7 @@ namespace SkinEngine.Controls.Visuals
       Freezable = el.Freezable;
       Opacity = el.Opacity;
       Context = el.Context;
+      ZIndex = el.ZIndex;
       if (OpacityMask != null)
         OpacityMask = (SkinEngine.Controls.Brushes.Brush)el.OpacityMask.Clone();
 
@@ -179,10 +181,12 @@ namespace SkinEngine.Controls.Visuals
       _rowSpanProperty = new Property(1);
       _columnSpanProperty = new Property(1);
       _opacityMask = new Property(null);
+      _zIndexProperty = new Property(-1.0);
 
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _zIndexProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _visibilityProperty.Attach(new PropertyChangedHandler(OnVisibilityPropertyChanged));
     }
 
@@ -225,6 +229,37 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Gets or sets the Z index property.
+    /// </summary>
+    /// <value>The Z index property.</value>
+    public Property ZIndexProperty
+    {
+      get
+      {
+        return _zIndexProperty;
+      }
+      set
+      {
+        _zIndexProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the Z index.
+    /// </summary>
+    /// <value>The Z index.</value>
+    public double ZIndex
+    {
+      get
+      {
+        return (double)_zIndexProperty.GetValue();
+      }
+      set
+      {
+        _zIndexProperty.SetValue(value);
+      }
+    }
 
 
     /// <summary>

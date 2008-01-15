@@ -227,7 +227,7 @@ namespace SkinEngine.Controls
         if (texture.StartsWith("#video") && texture.Length > "#video".Length)
         {
           int index = Int32.Parse(texture.Substring("#video".Length)) - 1;
-          GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+          //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
           PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
           if (index >= collection.Count)
           {
@@ -488,7 +488,7 @@ namespace SkinEngine.Controls
         u = 1;
       }
       Vector4 alpha = AlphaMask;
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (SkinContext.TemporaryTransform != null)
       {
         GraphicsDevice.TransformWorld *= SkinContext.TemporaryTransform.Matrix;

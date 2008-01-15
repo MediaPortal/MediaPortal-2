@@ -48,7 +48,7 @@ namespace SkinEngine.Controls.Panels
     protected VertexBuffer _vertexBufferBackground;
     protected DateTime _lastTimeUsed;
     protected bool _performLayout = true;
-
+    protected List<UIElement> _renderOrder;
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
     /// </summary>
@@ -81,6 +81,7 @@ namespace SkinEngine.Controls.Panels
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _renderOrder = new List<UIElement>();
     }
 
     /// <summary>
@@ -243,7 +244,7 @@ namespace SkinEngine.Controls.Panels
         Matrix mrel, mt;
         Background.RelativeTransform.GetTransform(out mrel);
         Background.Transform.GetTransform(out mt);
-        GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
+        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
         GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
@@ -251,7 +252,7 @@ namespace SkinEngine.Controls.Panels
         Background.EndRender();
         SkinContext.RemoveTransform();
       }
-      foreach (UIElement element in Children)
+      foreach (UIElement element in _renderOrder)
       {
         if (element.IsVisible)
         {
@@ -284,6 +285,12 @@ namespace SkinEngine.Controls.Panels
 
         PositionColored2Textured.Set(_vertexBufferBackground, ref verts);
       }
+
+      foreach (UIElement element in Children)
+      {
+        _renderOrder.Add(element);
+      }
+      _renderOrder.Sort(new ZOrderComparer());
       _performLayout = false;
     }
 

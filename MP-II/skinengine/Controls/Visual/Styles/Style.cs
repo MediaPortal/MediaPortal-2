@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
@@ -238,10 +239,32 @@ namespace SkinEngine.Controls.Visuals.Styles
       if (pinfo == null) return;
       MethodInfo minfo = pinfo.GetGetMethod();
       Property property = minfo.Invoke(element, null) as Property;
-      ICloneable clone = setter.Value as ICloneable;
+
+      object obj = setter.Value;
+      if (obj as String != null)
+      {
+        PropertyInfo pinfo2 = t.GetProperty(setter.Property);
+        if (pinfo2 != null)
+        {
+          if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
+          {
+            obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+          }
+          else
+          {
+            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
+            obj = loader.ConvertType(pinfo2.PropertyType, obj);
+          }
+        }
+      }
+      ICloneable clone = obj as ICloneable;
       if (clone != null)
       {
         property.SetValue(clone.Clone());
+      }
+      else
+      {
+        property.SetValue(obj);
       }
     }
   }

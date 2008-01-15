@@ -559,7 +559,7 @@ namespace SkinEngine.Controls.Visuals
             //render the control (will be rendered into the opacitytexture)
             GraphicsDevice.Device.BeginScene();
             GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-            GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+            //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
             DoRender();
             GraphicsDevice.Device.EndScene();
             SkinContext.RemoveTransform();

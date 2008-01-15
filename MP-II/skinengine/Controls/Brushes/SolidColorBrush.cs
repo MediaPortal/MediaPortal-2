@@ -143,7 +143,7 @@ namespace SkinEngine.Controls.Brushes
     {
       //if (_texture == null) return;
 
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       ColorValue v = ColorConverter.FromColor(this.Color);
       _effect.Parameters["g_solidColor"] = v;
       _effect.StartRender(null);

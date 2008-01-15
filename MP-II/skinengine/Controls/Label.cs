@@ -154,7 +154,7 @@ namespace SkinEngine.Controls
       rect.Y -= (_font.Font.LineHeight - _font.Font.Base);
       float size = _font.Font.Size;
 
-      GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float alpha = Color.Alpha * AlphaMask.X;
       if (SkinContext.TemporaryTransform != null)
       {
