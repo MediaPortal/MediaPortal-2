@@ -59,7 +59,7 @@ technique simple
 {
     pass p0
     {
-        vertexshader = compile vs_1_1 renderVertexShader();
-        pixelshader  = compile ps_1_1 renderPixelShader();
+        vertexshader = compile vs_2_0 renderVertexShader();
+        pixelshader  = compile ps_2_0 renderPixelShader();
     }
 }

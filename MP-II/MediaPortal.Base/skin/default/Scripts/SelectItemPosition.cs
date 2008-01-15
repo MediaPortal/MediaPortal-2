@@ -29,8 +29,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Properties;
 using SkinEngine.Properties;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
+using SlimDX;
+using SlimDX.Direct3D;
+using SlimDX.Direct3D9;
 
 
 public class Scriptlet : IScriptProperty
@@ -72,7 +73,7 @@ public class SelectedListItemPositionProperty : Dependency
     Control parent = c.Parent as Control;
     if (parent != null)
     {
-      pos.Subtract(parent.Position);
+      pos-=(parent.Position);
     }
     SetValue(pos);
   }
