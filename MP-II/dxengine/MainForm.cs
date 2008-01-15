@@ -266,7 +266,7 @@ namespace dxEngine
       bool shouldWait = GraphicsDevice.Render(true);
       if (shouldWait || !_hasFocus)
       {
-        //Thread.Sleep(100);
+        Thread.Sleep(100);
       }
       _fpsCounter += 1.0f;
     }
