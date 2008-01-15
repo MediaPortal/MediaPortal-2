@@ -52,6 +52,7 @@ using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
 using MediaPortal.Services.MPIManager;
 using MediaPortal.Services.MetaData;
+using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
 
@@ -130,6 +131,10 @@ namespace MediaPortal
 
         logger.Debug("MPApplication: Registering TaskScheduler");
         ServiceScope.Add<ITaskScheduler>(new TaskScheduler());
+        
+        logger.Debug("MPApplication: Registering BurnManager");
+        ServiceScope.Add<IBurnManager>(new BurnManager());
+        EventHelper.Init(); // only for quick test simulating a plugin
 
         //MPInstaller - for testing only 
         logger.Debug("MPApplication: Executing MPInstaller");
