@@ -58,8 +58,8 @@ namespace SkinEngine.Controls.Visuals
 
     public void Add(UIElement element)
     {
-      if (element.ZIndex < 0)
-        element.ZIndex = _elements.Count + 1;
+      if (element.ZIndex == -1)
+        element.ZIndex = -20000 + _elements.Count;
       element.VisualParent = _parent;
       _elements.Add(element);
       _parent.Invalidate();
@@ -95,8 +95,8 @@ namespace SkinEngine.Controls.Visuals
       {
         if (value != _elements[index])
         {
-          if (value.ZIndex < 0)
-            value.ZIndex = _elements.Count + 1;
+          if (value.ZIndex == -1)
+            value.ZIndex = -20000 + _elements.Count;
           _elements[index] = value;
           _elements[index].VisualParent = _parent;
           _parent.Invalidate();

@@ -40,17 +40,17 @@ namespace PictureImporter
   public class Importer : IPlugin, IImporter
   {
     #region IPlugin Members
-    //List<string> _extensions;
+    List<string> _extensions;
     IDatabase _pictureDatabase;
     DateTime _lastImport = DateTime.MinValue;
 
     public Importer()
     {
-      //_extensions = new List<string>();
-      //_extensions.Add(".jpg");
-      //_extensions.Add(".png");
-      //_extensions.Add(".gif");
-      //_extensions.Add(".tga");
+      _extensions = new List<string>();
+      _extensions.Add(".jpg");
+      _extensions.Add(".png");
+      _extensions.Add(".gif");
+      _extensions.Add(".tga");
     }
 
     public void Initialize(string id)
@@ -116,6 +116,8 @@ namespace PictureImporter
         if (file.ToLower().IndexOf("folder.jpg") >= 0) return false;
         string fName = System.IO.Path.GetFileName(file);
         if (fName.ToLower().StartsWith("albumart")) return false;
+        string ext = System.IO.Path.GetExtension(file).ToLower();
+        if (!_extensions.Contains(ext)) return false;
         try
         {
           Query imageByFilename = new Query("contentURI", Operator.Same, file);
@@ -469,6 +471,9 @@ namespace PictureImporter
     {
       try
       {
+        string ext = System.IO.Path.GetExtension(file).ToLower();
+        if (!_extensions.Contains(ext)) return null;
+
         using (ExifMetaInfo exif = new ExifMetaInfo(file))
         {
           FileInfo info = new FileInfo(file);

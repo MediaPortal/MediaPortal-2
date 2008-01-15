@@ -49,6 +49,7 @@ namespace SkinEngine.Controls.Panels
     protected DateTime _lastTimeUsed;
     protected bool _performLayout = true;
     protected List<UIElement> _renderOrder;
+    bool _updateRenderOrder = true;
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
     /// </summary>
@@ -226,12 +227,18 @@ namespace SkinEngine.Controls.Panels
         _alignmentYProperty.SetValue(value);
       }
     }
+    public override void Invalidate()
+    {
+      base.Invalidate();
+      _updateRenderOrder = true;
+    }
 
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
+      UpdateRenderOrder();
       if (_performLayout || (Background != null && _vertexBufferBackground == null))
       {
         PerformLayout();
@@ -286,14 +293,22 @@ namespace SkinEngine.Controls.Panels
         PositionColored2Textured.Set(_vertexBufferBackground, ref verts);
       }
 
-      foreach (UIElement element in Children)
-      {
-        _renderOrder.Add(element);
-      }
-      _renderOrder.Sort(new ZOrderComparer());
       _performLayout = false;
     }
-
+    protected void UpdateRenderOrder()
+    {
+      if (!_updateRenderOrder) return;
+      _updateRenderOrder = false;
+      if (_renderOrder != null && Children != null)
+      {
+        _renderOrder.Clear();
+        foreach (UIElement element in Children)
+        {
+          _renderOrder.Add(element);
+        }
+        _renderOrder.Sort(new ZOrderComparer());
+      }
+    }
 
     /// <summary>
     /// Frees this asset.

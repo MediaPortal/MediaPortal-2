@@ -141,7 +141,7 @@ namespace dxEngine
 
       Rectangle screen = Screen.PrimaryScreen.Bounds;
       float ar = screen.Width / ((float)screen.Height);
-      if (false&&ar >= 1.6)
+      if (false && ar >= 1.6)
       {
         float height = screen.Height;
         height *= 0.7f;
@@ -163,7 +163,7 @@ namespace dxEngine
       // fixed_aspect_ratio = 3.0f / 4.0f;
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      
+
       // Remember prev size
       _previousClientSize = ClientSize;
 
@@ -571,7 +571,7 @@ namespace dxEngine
         ServiceScope.Get<ILogger>().Debug("Application: ClientSize {0}", ClientSize);
         _previousClientSize = ClientSize;
       }
-      
+
 
       ServiceScope.Get<ILogger>().Debug("Application: stop renderthread");
 

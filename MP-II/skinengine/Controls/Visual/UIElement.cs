@@ -186,7 +186,7 @@ namespace SkinEngine.Controls.Visuals
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _dockProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _zIndexProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      //_zIndexProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _visibilityProperty.Attach(new PropertyChangedHandler(OnVisibilityPropertyChanged));
     }
 

@@ -66,6 +66,7 @@ namespace SkinEngine.Controls.Panels
       _lineWidth = 0.0;
       _lineHeight = 0.0;
       _controlCount = 0;
+      
     }
 
     public override object Clone()
@@ -310,10 +311,12 @@ namespace SkinEngine.Controls.Panels
     {
       lock (_orientationProperty)
       {
+        UpdateRenderOrder();
         if (_performLayout || (Background != null && _vertexBufferBackground == null))
         {
           PerformLayout();
         }
+
         if (Background != null)
         {
           ExtendedMatrix m = new ExtendedMatrix();
