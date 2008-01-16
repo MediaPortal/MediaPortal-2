@@ -34,6 +34,10 @@ namespace SkinEngine.Skin
     public object Load(string skinFile)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
+      if (System.IO.File.Exists(skinFile))
+      {
+        fullFileName = skinFile;
+      }
       using (Parser parser = new Parser())
       {
         parser.InstantiatePropertyDeclaration += new Parser.InstantiatePropertyDeclarationDlgt(parser_InstantiatePropertyDeclaration);
@@ -53,6 +57,10 @@ namespace SkinEngine.Skin
     public object Load(string skinFile, string tagName)
     {
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
+      if (System.IO.File.Exists(skinFile))
+      {
+        fullFileName = skinFile;
+      }
       using (Parser parser = new Parser())
       {
         parser.InstantiatePropertyDeclaration += new Parser.InstantiatePropertyDeclarationDlgt(parser_InstantiatePropertyDeclaration);

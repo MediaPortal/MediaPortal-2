@@ -289,7 +289,7 @@ namespace SkinEngine.Controls.Visuals
         if (match.Value.Length > 0)
         {
           string[] txtpoints;
-          txtpoints = match.Value.Substring(1).Split(new char[] { ',' });
+          txtpoints = match.Value.Substring(1).Trim().Split(new char[] { ',', ' ' });
           if (txtpoints.Length == 1)
           {
             points = new PointF[1];
@@ -433,8 +433,21 @@ namespace SkinEngine.Controls.Visuals
             break;
         }
       }
-
+      RectangleF bounds;
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      if (Stretch == Stretch.Fill)
+      {
+        bounds = mPath.GetBounds();
+        float cx = bounds.X + (bounds.Width / 2.0f);
+        float cy = bounds.Y + (bounds.Height / 2.0f);
+        m.Translate(-cx, -cy, MatrixOrder.Append);
+        float scaleW = baseRect.Width / bounds.Width;
+        float scaleH = baseRect.Height / bounds.Height;
+        if (Width > 0) scaleW = 1.0f;
+        if (Height > 0) scaleH = 1.0f;
+        m.Scale(scaleW, scaleH, MatrixOrder.Append);
+        m.Translate(cx, cy, MatrixOrder.Append);
+      }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
 
@@ -444,14 +457,19 @@ namespace SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out em);
         m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
       }
+      bounds = mPath.GetBounds();
+      if (Stretch == Stretch.Fill)
+      {
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+      }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 
       if (thickNess != 0.0)
       {
         //thickNess /= 2.0f;
+        bounds = mPath.GetBounds();
         m = new System.Drawing.Drawing2D.Matrix();
-        RectangleF bounds = mPath.GetBounds();
         float thicknessW = thickNess;
         float thicknessH = thickNess;
         if (finalTransform != null)

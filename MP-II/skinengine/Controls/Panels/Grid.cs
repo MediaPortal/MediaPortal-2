@@ -302,6 +302,7 @@ namespace SkinEngine.Controls.Panels
 
       if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
       {
+        
         p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
       }
       else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
