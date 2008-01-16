@@ -84,7 +84,7 @@ namespace SkinEngine.Controls.Brushes
       _keyProperty = new Property("");
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
-      _transformProperty = new Property(new TransformGroup());
+      _transformProperty = new Property(null);
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _freezableProperty = new Property(false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
@@ -262,11 +262,11 @@ namespace SkinEngine.Controls.Brushes
     /// Gets or sets the transform.
     /// </summary>
     /// <value>The transform.</value>
-    public TransformGroup Transform
+    public Transform Transform
     {
       get
       {
-        return (TransformGroup)_transformProperty.GetValue();
+        return _transformProperty.GetValue() as Transform;
       }
       set
       {
@@ -356,8 +356,9 @@ namespace SkinEngine.Controls.Brushes
     /// Begins the render.
     /// </summary>
     /// <param name="vertexBuffer">The vertex buffer.</param>
-    public virtual void BeginRender(VertexBuffer vertexBuffer, int primitiveCount,PrimitiveType primitiveType)
+    public virtual bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount,PrimitiveType primitiveType)
     {
+      return false;
     }
     /// <summary>
     /// Begins the render.

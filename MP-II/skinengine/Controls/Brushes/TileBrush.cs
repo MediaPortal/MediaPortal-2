@@ -284,19 +284,39 @@ namespace SkinEngine.Controls.Brushes
           break;
       }
 
+      float w = (float)element.ActualWidth;
+      float h = (float)element.ActualHeight;
+      float xoff = _bounds.X;
+      float yoff = _bounds.Y;
+      if (element.FinalLayoutTransform != null)
+      {
+        w = _bounds.Width;
+        h = _bounds.Height;
+        element.FinalLayoutTransform.TransformXY(ref w, ref h);
+        element.FinalLayoutTransform.TransformXY(ref xoff, ref yoff);
+      }
 
       for (int i = 0; i < verts.Length; ++i)
       {
         float u, v;
         float x1, y1;
-        y1 = (float)(verts[i].Y - element.ActualPosition.Y);
-        v = y1 / (float)(element.ActualHeight * ViewPort.W);
+        y1 = (float)verts[i].Y;
+        v = (float)(y1 - (element.ActualPosition.Y + yoff));
+        v /= (float)(h * ViewPort.W);
         v += ViewPort.Y;
 
-        x1 = (float)(verts[i].X - element.ActualPosition.X);
-        u = x1 / (float)(element.ActualWidth * ViewPort.Z);
+
+        x1 = (float)verts[i].X;
+        u = (float)(x1 - (element.ActualPosition.X + xoff));
+        u /= (float)(w * ViewPort.Z);
         u += ViewPort.X;
+
         Scale(ref u, ref v);
+
+        if (u < 0) u = 0;
+        if (u > 1) u = 1;
+        if (v < 0) v = 0;
+        if (v > 1) v = 1;
         unchecked
         {
           ColorValue color = ColorConverter.FromColor(System.Drawing.Color.White);
@@ -305,8 +325,8 @@ namespace SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Tu2 = 0;
-        verts[i].Tv2 = 0;
+        verts[i].Tu2 = u;
+        verts[i].Tv2 = v;
       }
     }
 

@@ -141,7 +141,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
+    public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       //if (_texture == null) return;
 
@@ -151,6 +151,7 @@ namespace SkinEngine.Controls.Brushes
       _effect.StartRender(null);
       GraphicsDevice.Device.SetTexture(0, null);
       _lastTimeUsed = SkinContext.Now;
+      return true;
     }
 
     /// <summary>

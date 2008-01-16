@@ -173,7 +173,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
+    public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_tex == null)
@@ -181,6 +181,7 @@ namespace SkinEngine.Controls.Brushes
         Allocate();
       }
       _tex.Set(0);
+      return true;
     }
 
     /// <summary>

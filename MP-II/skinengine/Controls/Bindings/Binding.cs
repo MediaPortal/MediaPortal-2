@@ -119,6 +119,7 @@ namespace SkinEngine.Controls.Bindings
         string setter = matches[i].Value;
         Regex regex2 = new Regex(@"[a-zA-Z0-9.\[\]\(\)]+");
         MatchCollection matches2 = regex2.Matches(setter);
+        bool done = false;
         if (matches2.Count == 2)
         {
           string bindingPropertyName = matches2[0].Value;
@@ -129,11 +130,32 @@ namespace SkinEngine.Controls.Bindings
           }
           if (bindingPropertyName == "Path")
           {
+            done = true;
             if (elementName != "")
               SetupDatabinding(bindingDestinationObject, elementName + "." + bindingValue);
             else
               SetupDatabinding(bindingDestinationObject, bindingValue);
           }
+        }
+        if (!done && !String.IsNullOrEmpty(elementName))
+        {
+          object vis = VisualTreeHelper.Instance.FindElement(elementName);
+          if (vis == null) return;
+
+          PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true);
+          if (info == null) return;
+          if (info.PropertyType == typeof(Property))
+          {
+            //get the destination property
+            MethodInfo methodInfo = info.GetGetMethod();
+            if (methodInfo == null) return;
+            Property destinationProperty = (Property)methodInfo.Invoke(bindingDestinationObject, null);
+
+            destinationProperty.SetValue(vis);
+
+
+          }
+
         }
       }
     }

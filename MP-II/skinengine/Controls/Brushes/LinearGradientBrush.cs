@@ -191,11 +191,11 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Begins the render.
     /// </summary>
-    public override void BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
+    public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (_gradientTexture == null)
       {
-        return;
+        return false;
       }
       if (_refresh)
       {
@@ -364,6 +364,7 @@ namespace SkinEngine.Controls.Brushes
         _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
       }
+      return true;
     }
 
     public override void BeginRender(Texture tex)

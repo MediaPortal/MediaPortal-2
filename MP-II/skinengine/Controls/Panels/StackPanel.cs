@@ -66,7 +66,7 @@ namespace SkinEngine.Controls.Panels
       _lineWidth = 0.0;
       _lineHeight = 0.0;
       _controlCount = 0;
-      
+
     }
 
     public override object Clone()
@@ -327,10 +327,12 @@ namespace SkinEngine.Controls.Panels
           Background.Transform.GetTransform(out mt);
           //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan);
-          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-          Background.EndRender();
+          if (Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan))
+          {
+            GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
+            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+            Background.EndRender();
+          }
           SkinContext.RemoveTransform();
         }
 

@@ -271,18 +271,22 @@ namespace SkinEngine.Controls.Visuals
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        Background.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
-        Background.EndRender();
+        if (Background.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan))
+        {
+          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
+          Background.EndRender();
+        }
       }
       if (BorderBrush != null && BorderThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        BorderBrush.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList);
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
-        BorderBrush.EndRender();
+        if (BorderBrush.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList))
+        {
+          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+          BorderBrush.EndRender();
+        }
       }
       SkinContext.RemoveTransform();
 
