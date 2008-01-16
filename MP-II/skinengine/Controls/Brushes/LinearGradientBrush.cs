@@ -193,6 +193,12 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
+      if (Transform != null)
+      {
+        ExtendedMatrix mTrans;
+        Transform.GetTransform(out mTrans);
+        SkinContext.AddTransform(mTrans);
+      }
       if (_gradientTexture == null)
       {
         return false;
@@ -369,6 +375,12 @@ namespace SkinEngine.Controls.Brushes
 
     public override void BeginRender(Texture tex)
     {
+      if (Transform != null)
+      {
+        ExtendedMatrix mTrans;
+        Transform.GetTransform(out mTrans);
+        SkinContext.AddTransform(mTrans);
+      }
       if (tex == null)
       {
         return;
@@ -447,6 +459,10 @@ namespace SkinEngine.Controls.Brushes
       if (_effect != null)
       {
         _effect.EndRender();
+      }
+      if (Transform != null)
+      {
+        SkinContext.RemoveTransform();
       }
     }
 

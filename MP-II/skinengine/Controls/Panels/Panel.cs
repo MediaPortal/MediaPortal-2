@@ -248,8 +248,8 @@ namespace SkinEngine.Controls.Panels
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
-        Matrix mrel, mt;
-        Background.RelativeTransform.GetTransform(out mrel);
+        //Matrix mrel, mt;
+        //Background.RelativeTransform.GetTransform(out mrel);
         //Background.Transform.GetTransform(out mt);
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;

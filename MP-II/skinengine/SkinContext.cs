@@ -151,7 +151,17 @@ namespace SkinEngine
       set { _skinHeight = value; }
     }
 
-
+    public static List<ExtendedMatrix> Transforms
+    {
+      get
+      {
+        return _groupTransforms;
+      }
+      set
+      {
+        _groupTransforms = value;
+      }
+    }
     /// <summary>
     /// Adds the transform matrix to the current transform stack
     /// </summary>

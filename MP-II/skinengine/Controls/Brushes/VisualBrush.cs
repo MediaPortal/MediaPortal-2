@@ -111,24 +111,9 @@ namespace SkinEngine.Controls.Brushes
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (this.Visual == null) return false;
-      ExtendedMatrix matrixOrg = SkinContext.FinalMatrix;
-      SkinContext.RemoveTransform();
+      List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
+      SkinContext.Transforms = new List<ExtendedMatrix>();
 
-      ExtendedMatrix matrix = new ExtendedMatrix();
-      Vector3 pos = new Vector3((float)this.Visual.ActualPosition.X, (float)this.Visual.ActualPosition.Y, this.Visual.ActualPosition.Z);
-      float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
-      float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
-      float width = (float)this.Visual.ActualWidth;
-      float height = (float)this.Visual.ActualHeight;
-      float w = (float)(_bounds.Width / this.Visual.Width);
-      float h = (float)(_bounds.Height / this.Visual.Height);
-
-      //m.Matrix *= SkinContext.FinalMatrix.Matrix;
-      matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-      //matrix.Matrix *= Matrix.Scaling(w, h, 1);
-
-      matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / width), (float)(((float)SkinContext.Height) / height), 1);
-      SkinContext.AddTransform(matrix);
 
       GraphicsDevice.Device.EndScene();
 
@@ -138,15 +123,47 @@ namespace SkinEngine.Controls.Brushes
         //get the surface of our opacity texture
         using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
         {
+          SurfaceDescription desc = backBuffer.Description;
+
+          ExtendedMatrix matrix = new ExtendedMatrix();
+          Vector3 pos = new Vector3((float)this.Visual.ActualPosition.X, (float)this.Visual.ActualPosition.Y, this.Visual.ActualPosition.Z);
+          float width = (float)this.Visual.ActualWidth;
+          float height = (float)this.Visual.ActualHeight;
+          float w = (float)(_bounds.Width / this.Visual.Width);
+          float h = (float)(_bounds.Height / this.Visual.Height);
+
+          //m.Matrix *= SkinContext.FinalMatrix.Matrix;
+          //matrix.Matrix *= Matrix.Scaling(w, h, 1);
 
 
-          //copy the correct rectangle from the backbuffer in the opacitytexture
-          GraphicsDevice.Device.StretchRect(backBuffer,
-                                                 new System.Drawing.Rectangle((int)(_orginalPosition.X * cx), (int)(_orginalPosition.Y * cy), (int)(_bounds.Width * cx), (int)(_bounds.Height * cy)),
-                                                 textureOpacitySurface,
-                                                 new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
-                                                 TextureFilter.None);
+          if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
+          {
+            float cx = ((float)desc.Width) / ((float)SkinContext.Width);
+            float cy = ((float)desc.Height) / ((float)SkinContext.Height);
 
+            //copy the correct rectangle from the backbuffer in the opacitytexture
+            GraphicsDevice.Device.StretchRect(backBuffer,
+                                                   new System.Drawing.Rectangle((int)(_orginalPosition.X * cx), (int)(_orginalPosition.Y * cy), (int)(_bounds.Width * cx), (int)(_bounds.Height * cy)),
+                                                   textureOpacitySurface,
+                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
+                                                   TextureFilter.None);
+            matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
+            matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / width), (float)(((float)SkinContext.Height) / height), 1);
+          }
+          else
+          {
+            GraphicsDevice.Device.StretchRect(backBuffer,
+                                                   new System.Drawing.Rectangle(0, 0, desc.Width, desc.Height),
+                                                   textureOpacitySurface,
+                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
+                                                   TextureFilter.None);
+            
+            matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
+            matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / width), (float)(((float)SkinContext.Height) / height), 1);
+          }
+
+
+          SkinContext.AddTransform(matrix);
 
           //change the rendertarget to the opacitytexture
           GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
@@ -164,7 +181,7 @@ namespace SkinEngine.Controls.Brushes
         //Texture.ToFile(_textureOpacity, @"c:\1\test.png", ImageFileFormat.Png);
         //TextureLoader.Save(@"C:\erwin\trunk\MP-II\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
       }
-      SkinContext.AddTransform(matrixOrg);
+      SkinContext.Transforms = originalTransforms;
       if (Transform != null)
       {
         ExtendedMatrix mTrans;

@@ -495,7 +495,7 @@ namespace SkinEngine.Controls.Visuals
     public override void Render()
     {
       UpdateLayout();
-      ExtendedMatrix m;
+      ExtendedMatrix matrix;
 
       if (OpacityMask != null)
       {
@@ -514,43 +514,58 @@ namespace SkinEngine.Controls.Visuals
         float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
         float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
 
-
-        m = new ExtendedMatrix();
-        m.Matrix *= SkinContext.FinalMatrix.Matrix;
+        List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
+        SkinContext.Transforms = new List<ExtendedMatrix>();
+        matrix = new ExtendedMatrix();
 
         //Apply the rendertransform
         if (RenderTransform != null)
         {
           Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
-          m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
+          matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
-          m.Matrix *= mNew;
-          m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+          matrix.Matrix *= mNew;
+          matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
         }
 
         //next put the control at position (0,0,0)
         //and scale it correctly since the backbuffer now has the dimensions of the control
         //instead of the skin width/height dimensions
-        m.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
-        m.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
+        matrix.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
+        matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
 
-        SkinContext.AddTransform(m);
+        SkinContext.AddTransform(matrix);
 
         GraphicsDevice.Device.EndScene();
 
         //get the current backbuffer
         using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
         {
+          SurfaceDescription desc = backBuffer.Description; 
           //get the surface of our opacity texture
           using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
           {
             //copy the correct rectangle from the backbuffer in the opacitytexture
-            GraphicsDevice.Device.StretchRect(backBuffer,
-                                                   new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
-                                                   textureOpacitySurface,
-                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
-                                                   TextureFilter.None);
+            if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
+            {
+
+              //copy the correct rectangle from the backbuffer in the opacitytexture
+              GraphicsDevice.Device.StretchRect(backBuffer,
+                                                     new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
+                                                     textureOpacitySurface,
+                                                     new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
+                                                     TextureFilter.None);
+            }
+            else
+            {
+              GraphicsDevice.Device.StretchRect(backBuffer,
+                                                     new System.Drawing.Rectangle(0, 0, desc.Width, desc.Height),
+                                                     textureOpacitySurface,
+                                                     new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
+                                                     TextureFilter.None);
+
+            }
 
 
             //change the rendertarget to the opacitytexture
@@ -572,6 +587,7 @@ namespace SkinEngine.Controls.Visuals
 
         }
 
+        SkinContext.Transforms = originalTransforms;
         //now render the opacitytexture with the opacitymask brush
         GraphicsDevice.Device.BeginScene();
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -589,15 +605,15 @@ namespace SkinEngine.Controls.Visuals
         //apply rendertransform
         if (RenderTransform != null)
         {
-          m = new ExtendedMatrix();
-          m.Matrix *= SkinContext.FinalMatrix.Matrix;
+          matrix = new ExtendedMatrix();
+          matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
           Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
-          m.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
+          matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
-          m.Matrix *= mNew;
-          m.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-          SkinContext.AddTransform(m);
+          matrix.Matrix *= mNew;
+          matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+          SkinContext.AddTransform(matrix);
         }
 
         //render the control
@@ -696,7 +712,7 @@ namespace SkinEngine.Controls.Visuals
       _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
       PositionColored2Textured[] verts = new PositionColored2Textured[4];
-      
+
       ColorValue col = ColorConverter.FromColor(System.Drawing.Color.White);
       col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
