@@ -74,7 +74,8 @@ namespace SkinEngine.Controls.Brushes
       Key = b.Key;
       Opacity = b.Opacity;
       RelativeTransform = (TransformGroup)b.RelativeTransform.Clone();
-      Transform = (TransformGroup)b.Transform.Clone();
+      if (Transform != null)
+        Transform = (Transform)b.Transform.Clone();
       Freezable = b.Freezable;
     }
 
@@ -345,8 +346,8 @@ namespace SkinEngine.Controls.Brushes
 
         _orginalPosition.X = (float)element.ActualPosition.X;
         _orginalPosition.Y = (float)element.ActualPosition.Y;
-        _minPosition.X = _orginalPosition.X+minx;
-        _minPosition.Y = _orginalPosition.Y+miny;
+        _minPosition.X = _orginalPosition.X + minx;
+        _minPosition.Y = _orginalPosition.Y + miny;
       }
       _bounds = new System.Drawing.RectangleF(minx, miny, maxx, maxy);
 
