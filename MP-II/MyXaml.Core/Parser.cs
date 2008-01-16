@@ -1185,12 +1185,12 @@ namespace MyXaml.Core
               PropertyInfo prop = t.GetProperty(propertyName);
               if (prop == null)
               {
-                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
+                ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Property:{1} not found on  {2}", CurrentFile, propertyName, obj.GetType().ToString());
                 return;
               }
               if (objValue == null)
               {
-                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Resource :" + refVal + " not found");
+                ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Resource:{1} not found", CurrentFile, refVal);
                 return;
               }
               MethodInfo setInfo = prop.GetSetMethod();
@@ -1205,7 +1205,8 @@ namespace MyXaml.Core
               PropertyInfo prop = t.GetProperty(propertyName);
               if (prop == null)
               {
-                ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Property :" + propertyName + " not found on:" + obj.GetType().ToString());
+                ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Property:{1} not found on  {2}", CurrentFile, propertyName, obj.GetType().ToString());
+
                 return;
               }
               int pos = refVal.IndexOf(' ');
@@ -1489,8 +1490,8 @@ namespace MyXaml.Core
                 string nameSpace = Namespace(child.Prefix);		// Get the child type.
                 //CodePath.Executing(117);
                 string qualifiedName = tagName;
-                if (nameSpace!=null)
-                  qualifiedName= StringHelpers.LeftOf(nameSpace, ',') + "." + NameMangler(tagName) + ", " + StringHelpers.RightOf(nameSpace, ',');
+                if (nameSpace != null)
+                  qualifiedName = StringHelpers.LeftOf(nameSpace, ',') + "." + NameMangler(tagName) + ", " + StringHelpers.RightOf(nameSpace, ',');
                 if (OnPropertyDeclarationTest(pi, qualifiedName))
                 {
                   isPropertyDeclaration = true;
@@ -1647,7 +1648,9 @@ namespace MyXaml.Core
             }
             catch
             {
-              throw (new PropertyConversionException("Can't convert " + val));
+              ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Cannot convert '{0}' to {1}", val, pi.Name);
+              //throw (new PropertyConversionException("Can't convert " + val));
+              return true;
             }
 
             try
