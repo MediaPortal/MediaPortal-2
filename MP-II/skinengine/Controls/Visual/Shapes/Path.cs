@@ -279,7 +279,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath mPath = new GraphicsPath();
       mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
       PointF lastPoint = new PointF();
-      Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\.]*");
+      Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
       MatchCollection matches = regex.Matches(Data);
 
       foreach (Match match in matches)
