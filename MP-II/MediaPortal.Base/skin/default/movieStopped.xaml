@@ -4,8 +4,8 @@
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
-    <Canvas Background="{StaticResource backGroundBrush}"/>
-    <Canvas>
+    <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576"/>
+    <Canvas Width="720" Height="576">
       <Canvas.Background>
         <VideoBrush/>
       </Canvas.Background>

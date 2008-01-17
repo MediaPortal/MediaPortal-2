@@ -439,64 +439,72 @@ namespace SkinEngine
       {
         _history.Add(window);
       }
-
-      if (_currentDialog != null)
+      
+#if TESTXAML
+      lock (_history)
       {
-        _currentDialog.WindowState = Window.State.Closing;
-        _currentDialog.HasFocus = false;
-        _currentDialog.Hide();
-        while (_currentDialog.IsAnimating && SkinContext.IsRendering)
+#endif
+        if (_currentDialog != null)
         {
-          Thread.Sleep(10);
+          _currentDialog.WindowState = Window.State.Closing;
+          _currentDialog.HasFocus = false;
+          _currentDialog.Hide();
+          while (_currentDialog.IsAnimating && SkinContext.IsRendering)
+          {
+            Thread.Sleep(10);
+          }
         }
-      }
-      _previousWindow = _currentWindow;
-      if (_previousWindow != null)
-      {
-        _previousWindow.WindowState = Window.State.Closing;
-        _previousWindow.HasFocus = false;
-        _previousWindow.Hide();
-      }
-      _currentWindow = window;
-      _currentWindow.HasFocus = true;
-      _currentWindow.WindowState = Window.State.Running;
-      _currentWindow.Show(true);
-      _currentDialog = null;
-      DateTime dt = DateTime.Now;
-      while (SkinContext.IsRendering)
-      {
-        bool isAnimating = false;
-        if (_currentWindow.IsAnimating)
+        _previousWindow = _currentWindow;
+        if (_previousWindow != null)
         {
-          isAnimating = true;
+          _previousWindow.WindowState = Window.State.Closing;
+          _previousWindow.HasFocus = false;
+          _previousWindow.Hide();
         }
-        if (_previousWindow != null && _previousWindow.IsAnimating)
+        _currentWindow = window;
+        _currentWindow.HasFocus = true;
+        _currentWindow.WindowState = Window.State.Running;
+        _currentWindow.Show(true);
+        _currentDialog = null;
+        DateTime dt = DateTime.Now;
+        while (SkinContext.IsRendering)
         {
-          isAnimating = true;
-        }
-        if (!isAnimating)
-        {
-          break;
-        }
-        Thread.Sleep(10);
-        TimeSpan ts = DateTime.Now - dt;
-        if (ts.TotalSeconds >= 2)
-        {
-          Trace.WriteLine("animation timeout after :" + ts.TotalSeconds.ToString());
+          bool isAnimating = false;
+          if (_currentWindow.IsAnimating)
+          {
+            isAnimating = true;
+          }
           if (_previousWindow != null && _previousWindow.IsAnimating)
-            Trace.WriteLine("  prev window still animating:" + _previousWindow.Name);
-          if (_currentWindow != null && _currentWindow.IsAnimating)
-            Trace.WriteLine("  cur window still animating:" + _currentWindow.Name);
-          break;
+          {
+            isAnimating = true;
+          }
+          if (!isAnimating)
+          {
+            break;
+          }
+          Thread.Sleep(10);
+          TimeSpan ts = DateTime.Now - dt;
+          if (ts.TotalSeconds >= 2)
+          {
+            Trace.WriteLine("animation timeout after :" + ts.TotalSeconds.ToString());
+            if (_previousWindow != null && _previousWindow.IsAnimating)
+              Trace.WriteLine("  prev window still animating:" + _previousWindow.Name);
+            if (_currentWindow != null && _currentWindow.IsAnimating)
+              Trace.WriteLine("  cur window still animating:" + _currentWindow.Name);
+            break;
+          }
         }
-      }
-      _previousWindow = null;
+        _previousWindow = null;
 
-      if (_currentWindow != null && _currentWindow.Name == "login")
-      {
-        Thread tStart = new Thread(new ThreadStart(ShowHomeMenu));
-        tStart.Start();
+        if (_currentWindow != null && _currentWindow.Name == "login")
+        {
+          Thread tStart = new Thread(new ThreadStart(ShowHomeMenu));
+          tStart.Start();
+        }
+
+#if TESTXAML
       }
+#endif
     }
     void ShowHomeMenu()
     {
