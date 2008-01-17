@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Controls.Bindings
@@ -9,6 +10,8 @@ namespace SkinEngine.Controls.Bindings
   {
     Property _source;
     Property _destination;
+    MethodInfo _methodInfo;
+    object _destinationObject;
 
     public BindingDependency(Property source, Property dest)
     {
@@ -18,9 +21,25 @@ namespace SkinEngine.Controls.Bindings
       OnSourcePropertyChanged(_source);
     }
 
+    public BindingDependency(Property source, MethodInfo info, object destobject)
+    {
+      _source = source;
+      _destinationObject = destobject;
+      _methodInfo = info;
+      _source.Attach(new PropertyChangedHandler(OnSourcePropertyChanged));
+      OnSourcePropertyChanged(_source);
+    }
     void OnSourcePropertyChanged(Property property)
     {
-      _destination.SetValue(property.GetValue());
+      if (_destination != null)
+      {
+        _destination.SetValue(property.GetValue());
+      }
+      else
+      {
+
+        _methodInfo.Invoke(_destinationObject, new object[] { property.GetValue() });
+      }
     }
   }
 }

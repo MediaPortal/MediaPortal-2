@@ -240,6 +240,14 @@ namespace PicturePlayer
       }
     }
 
+    public object Texture
+    {
+      get
+      {
+        return null;
+      }
+    }
+
     /// <summary>
     /// Gets the stream position.
     /// </summary>

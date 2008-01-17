@@ -98,6 +98,13 @@ namespace BassPlayer
         return true;
       }
     }
+    public object Texture
+    {
+      get
+      {
+        return null;
+      }
+    }
 
     public void ReleaseResources()
     {

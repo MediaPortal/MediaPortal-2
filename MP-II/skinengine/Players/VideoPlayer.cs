@@ -1089,6 +1089,14 @@ namespace SkinEngine.Players
 
     }
 
+    public object Texture
+    {
+      get
+      {
+        return _allocator.Texture;
+      }
+    }
+
     /// <summary>
     /// Render the video
     /// </summary>

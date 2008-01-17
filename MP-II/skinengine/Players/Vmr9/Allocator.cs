@@ -159,6 +159,13 @@ namespace SkinEngine.Players.Vmr9
         ContentManager.TextureReferences--;
       }
     }
+    public Texture Texture
+    {
+      get
+      {
+        return _texture;
+      }
+    }
 
     /// <summary>
     /// Renders the video texture.

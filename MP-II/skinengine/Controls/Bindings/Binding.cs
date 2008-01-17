@@ -39,7 +39,7 @@ namespace SkinEngine.Controls.Bindings
   {
     public string _expression;
     PropertyInfo _propertyInfo;
-    BindingDependency _dependency;
+    protected BindingDependency _dependency;
 
     public Binding()
     {
@@ -60,7 +60,7 @@ namespace SkinEngine.Controls.Bindings
     /// Gets or sets the expression.
     /// </summary>
     /// <value>The expression.</value>
-    public string Expression
+    public virtual string Expression
     {
       get
       {
@@ -95,7 +95,7 @@ namespace SkinEngine.Controls.Bindings
     /// Initializes the binding to the object specified
     /// </summary>
     /// <param name="obj">The object.</param>
-    public void Initialize(object bindingDestinationObject)
+    public virtual void Initialize(object bindingDestinationObject)
     {
       //{Binding bindingPropertyName1=value,bindingPropertyName2=value,bindingPropertyNameN=value}
       // binding properties
@@ -205,7 +205,7 @@ namespace SkinEngine.Controls.Bindings
           if (info == null) return;
           MethodInfo methodInfo = info.GetSetMethod();
           if (methodInfo == null) return;
-          methodInfo.Invoke(bindingDestinationObject, new object[] { sourceProperty.GetValue() });
+          _dependency = new BindingDependency(sourceProperty, methodInfo, bindingDestinationObject);
         }
 
       }
@@ -225,7 +225,7 @@ namespace SkinEngine.Controls.Bindings
     /// <param name="element">The element.</param>
     /// <param name="bindingSourcePropertyName">Name of the binding source property.</param>
     /// <returns></returns>
-    object GetBindingSourceObject(UIElement element, string bindingSourcePropertyName)
+    protected object GetBindingSourceObject(UIElement element, string bindingSourcePropertyName)
     {
       if (element.Context == null)
       {
@@ -325,7 +325,7 @@ namespace SkinEngine.Controls.Bindings
     }
 
 
-    PropertyInfo GetPropertyOnObject(object obj, string propertyName, bool checkForProperty)
+    protected PropertyInfo GetPropertyOnObject(object obj, string propertyName, bool checkForProperty)
     {
       PropertyInfo info;
       if (checkForProperty)

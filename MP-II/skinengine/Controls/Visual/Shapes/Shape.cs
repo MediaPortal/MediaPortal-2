@@ -111,11 +111,12 @@ namespace SkinEngine.Controls.Visuals
       _stretchProperty = new Property(Stretch.None);
       ContentManager.Add(this);
       _strokeThicknessProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
+      _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
     }
 
     void OnStrokeThicknessChanged(Property property)
     {
-      Invalidate();
+      _performLayout = true;
     }
 
 

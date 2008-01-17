@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.InputManager;
+using MediaPortal.Core.Players;
+using MediaPortal.Core.Properties;
+using MediaPortal.Core.WindowManager;
+
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -37,8 +42,22 @@ namespace SkinEngine.Controls.Visuals
       string[] parts = name.Split(new char[] { '.' });
       object obj;
       if (parts[0] == "this") obj = visual;
+      else if (parts[0] == "WindowManager")
+      {
+        obj = ServiceScope.Get<IWindowManager>();
+      }
+      else if (parts[0] == "InputManager")
+      {
+        obj = ServiceScope.Get<IInputManager>();
+      }
+      else if (parts[0] == "Players")
+      {
+        obj = ServiceScope.Get<PlayerCollection>();
+      }
       else
+      {
         obj = visual.FindElement(parts[0]);
+      }
       if (obj == null) return null;
       if (parts.Length == 1)
       {

@@ -962,6 +962,13 @@ namespace SkinEngine.Controls.Visuals
       {
         return (this.Visibility == VisibilityEnum.Visible);
       }
+      set
+      {
+        if (value)
+          this.Visibility = VisibilityEnum.Visible;
+        else
+          this.Visibility = VisibilityEnum.Hidden;
+      }
     }
 
 

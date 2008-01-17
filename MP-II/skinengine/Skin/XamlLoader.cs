@@ -49,6 +49,7 @@ namespace SkinEngine.Skin
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
         parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
+        parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
         return parser.Instantiate(fullFileName, "*");
       }
     }
@@ -71,10 +72,12 @@ namespace SkinEngine.Skin
         parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
         parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
+        parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
         parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
         return (UIElement)parser.Instantiate(fullFileName, tagName);
       }
     }
+
 
     void parser_OnImportNameSpace(object parser, object obj, string nameSpace)
     {
@@ -138,6 +141,25 @@ namespace SkinEngine.Skin
           }
         }
       }
+    }
+
+    object parser_OnGetTemplateBinding(object parser, object obj, string bindingExpression, PropertyInfo info)
+    {
+      if (obj is IBindingCollection)
+      {
+        Visual element = (Visual)obj;;
+        TemplateBinding b = new TemplateBinding();
+        b.Expression = bindingExpression;
+        b.PropertyInfo = info;
+
+        IBindingCollection collection = (IBindingCollection)obj;
+        collection.Add(b);
+      }
+      else
+      {
+        ServiceScope.Get<ILogger>().Info("XamlParser: class {0} does not implement IBindingCollection", obj);
+      }
+      return null;
     }
     object parser_OnGetBinding(object parser, object obj, string bindingExpression, PropertyInfo info)
     {
@@ -449,6 +471,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "VisualBrush")
         return true;
+      else if (name == "VideoBrush")
+        return true;
       else if (name == "GradientStop")
         return true;
 
@@ -634,6 +658,8 @@ namespace SkinEngine.Skin
         return new ImageBrush();
       else if (name == "VisualBrush")
         return new VisualBrush();
+      else if (name == "VideoBrush")
+        return new VideoBrush();
       else if (name == "GradientStop")
         return new GradientStop();
 

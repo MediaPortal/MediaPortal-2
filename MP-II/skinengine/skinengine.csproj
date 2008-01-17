@@ -137,6 +137,7 @@
     <Compile Include="Controls\Bindings\BindingDependency.cs" />
     <Compile Include="Controls\Bindings\Command.cs" />
     <Compile Include="Controls\Bindings\IBindingCollection.cs" />
+    <Compile Include="Controls\Bindings\TemplateBinding.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />
     <Compile Include="Controls\Brushes\GradientStop.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Controls\Brushes\RadialGradientBrush.cs" />
     <Compile Include="Controls\Brushes\SolidColorBrush.cs" />
     <Compile Include="Controls\Brushes\TileBrush.cs" />
+    <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\CheckBox.cs" />
     <Compile Include="Controls\IScrollInfo.cs" />

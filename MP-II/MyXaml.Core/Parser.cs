@@ -86,6 +86,7 @@ namespace MyXaml.Core
 
     public event GetResourceDlgt OnGetResource;
     public event GetBindingDlgt OnGetBinding;
+    public event GetBindingDlgt OnGetTemplateBinding;
     public event SetContentDlg OnSetContent;
     public event ImportNamespaceDlgt OnImportNameSpace;
 
@@ -1211,6 +1212,22 @@ namespace MyXaml.Core
               }
               int pos = refVal.IndexOf(' ');
               OnGetBinding(this, obj, refVal.Substring(pos + 1), prop);
+            }
+          }
+          else if (refVal.StartsWith("TemplateBinding"))
+          {
+            if (OnGetBinding != null)
+            {
+              Type t = obj.GetType();
+              PropertyInfo prop = t.GetProperty(propertyName);
+              if (prop == null)
+              {
+                ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Property:{1} not found on  {2}", CurrentFile, propertyName, obj.GetType().ToString());
+
+                return;
+              }
+              int pos = refVal.IndexOf(' ');
+              OnGetTemplateBinding(this, obj, refVal.Substring(pos + 1), prop);
             }
           }
           else

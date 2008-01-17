@@ -733,6 +733,14 @@ namespace BassPlayer
       set { }
     }
 
+    public object Texture
+    {
+      get
+      {
+        return null;
+      }
+    }
+
     /// <summary>
     /// gets/sets the position on screen where the video should be drawn
     /// </summary>

@@ -95,6 +95,7 @@ namespace MediaPortal.Core.Players
     /// Render the video
     /// </summary>
     void Render();
+    object Texture { get;}
 
     /// <summary>
     /// gets/sets wheter video is paused

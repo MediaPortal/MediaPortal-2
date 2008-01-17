@@ -171,6 +171,48 @@
       </Setter>
     </Style>
 
+    <!-- style for a video button. shows video when present, otherwise a black rectangle -->
+    <Style Key="buttonVideoWindow" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Background" Value="Black"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="Timeline1">
+                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Stroke).(SolidColorBrush.Color)">
+                  <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF000000"/>
+                  <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF045935"/>
+                </ColorAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.StrokeThickness)">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="5"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Grid>
+              <Rectangle Stroke="#FF000000" StrokeThickness="0" Name="rectangle">
+                <Rectangle.Fill>
+                  <VideoBrush>
+
+                  </VideoBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard1" Storyboard="{StaticResource Timeline1}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard1"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
 
     <!-- style for a radio toggle button-->
     <Style Key="MpRadioButton" BasedOn="{Null}" TargetType="{Type Button}">
@@ -1760,7 +1802,7 @@
       <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
       <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
       <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
       <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
       <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
       <Setter Property="MinWidth" Value="120"/>
@@ -1790,7 +1832,7 @@
       <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
       <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
       <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
       <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
       <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
       <Setter Property="MinWidth" Value="120"/>
