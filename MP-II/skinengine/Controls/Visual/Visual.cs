@@ -37,6 +37,7 @@ namespace SkinEngine.Controls.Visuals
   public class Visual : ICloneable
   {
     Property _visualParentProperty;
+    bool _history;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Visual"/> class.
@@ -48,10 +49,12 @@ namespace SkinEngine.Controls.Visuals
     public Visual(Visual v)
     {
       Init();
+      History = v.History;
       VisualParent = v.VisualParent;
     }
     void Init()
     {
+      _history = true;
       _visualParentProperty = new Property(null);
     }
 
@@ -113,6 +116,17 @@ namespace SkinEngine.Controls.Visuals
       DoRender();
     }
 
+    public bool History
+    {
+      get
+      {
+        return _history;
+      }
+      set
+      {
+        _history = value;
+      }
+    }
     #region ICloneable Members
 
     public virtual object Clone()

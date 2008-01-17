@@ -124,6 +124,7 @@ namespace SkinEngine
         _visual = value;
         if (_visual != null)
         {
+          _history = _visual.History;
           _visual.IsArrangeValid = true;
         }
       }
