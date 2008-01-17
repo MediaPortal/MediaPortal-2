@@ -442,11 +442,11 @@ namespace MyMovies
           //play it
           player.Play(movie.MediaItem);
 
-          if (player.CanResumeSession(uri))
-          {
-            player.Paused = true;
-            ServiceScope.Get<IWindowManager>().ShowDialog("movieResume");
-          }
+          //if (player.CanResumeSession(uri))
+          //{
+          //  player.Paused = true;
+          //  ServiceScope.Get<IWindowManager>().ShowDialog("movieResume");
+          //}
 
         }
         finally

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies" Background="Blue">
+  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies">
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
@@ -20,7 +20,7 @@
           </LinearGradientBrush>
         </Label.OpacityMask>
       </Label>
-      <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0">
+      <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top">
         <ListView Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>

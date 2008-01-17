@@ -386,6 +386,7 @@ namespace SkinEngine.Controls.Brushes
             SkinContext.AddTransform(m);
 
             GraphicsDevice.Device.EndScene();
+
             _cacheTexture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             //get the current backbuffer
             using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
