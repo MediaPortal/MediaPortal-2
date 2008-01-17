@@ -522,7 +522,15 @@ namespace MyXaml.Core
       XmlDocument doc = new XmlDocument();									// Create an XmlDocument instance.
       try
       {
-        doc.Load(filename);												// Load from file.
+        if (System.IO.File.Exists(filename))
+        {
+          doc.Load(filename);												// Load from file.
+        }
+        else
+        {
+          ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open :{0}", filename);
+          return null;
+        }
       }
       catch (Exception e)
       {

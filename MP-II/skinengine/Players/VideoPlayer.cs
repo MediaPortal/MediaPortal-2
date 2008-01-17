@@ -349,6 +349,7 @@ namespace SkinEngine.Players
       OperatingSystem osInfo = Environment.OSVersion;
       if (osInfo.Version.Major <= 5)
       {
+        _useEvr = false;
         if (_evrResult == EvrResult.Failed)
         {
           _useEvr = false;
@@ -1093,6 +1094,7 @@ namespace SkinEngine.Players
     {
       get
       {
+        if (_initialized == false) return null;
         if (_allocator == null) return null;
         return _allocator.Texture;
       }
