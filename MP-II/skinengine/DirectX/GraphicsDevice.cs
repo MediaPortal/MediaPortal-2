@@ -71,8 +71,7 @@ namespace SkinEngine
       if (_firstTimeInitialisationMemory)
       {
         _firstTimeInitialisationMemory = false;
-#if DEBUG
-#else
+#if NOTUSED
         Microsoft.DirectX.DirectDraw.Device tmpDev = new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
         Microsoft.DirectX.DirectDraw.GetCapsStruct caps = tmpDev.GetCaps();
         tmpDev.Dispose();

@@ -25,7 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.Localisation;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -42,7 +44,7 @@ namespace SkinEngine.Controls.Visuals
     Property _scrollProperty;
     Property _fontProperty;
     FontBufferAsset _asset;
-
+    StringId _label;
     public Label()
     {
       Init();
@@ -57,6 +59,7 @@ namespace SkinEngine.Controls.Visuals
       Color = lbl.Color;
       Scroll = lbl.Scroll;
       Font = lbl.Font;
+      _label = new StringId(Text);
     }
     void Init()
     {
@@ -75,6 +78,7 @@ namespace SkinEngine.Controls.Visuals
 
     void OnTextChanged(Property prop)
     {
+      _label = new StringId(Text);
       Invalidate();
     }
     void OnFontChanged(Property prop)
@@ -304,7 +308,7 @@ namespace SkinEngine.Controls.Visuals
 
       //rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
 
-      _asset.Draw(Text, rect, align, size, color, Scroll, out totalWidth);
+      _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
     }
   }
 }
