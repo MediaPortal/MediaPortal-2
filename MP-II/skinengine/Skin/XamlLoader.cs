@@ -549,7 +549,7 @@ namespace SkinEngine.Skin
       //visuals
       else if (name == "Border")
       {
-        _lastElement = new Border();
+        _lastElement = new ContentControl();
         return _lastElement;
       }
       else if (name == "Image")

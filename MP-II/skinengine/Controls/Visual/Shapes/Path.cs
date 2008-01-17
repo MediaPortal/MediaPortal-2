@@ -279,6 +279,7 @@ namespace SkinEngine.Controls.Visuals
       GraphicsPath mPath = new GraphicsPath();
       mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
       PointF lastPoint = new PointF();
+      PointF startPoint = new PointF();
       Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
       MatchCollection matches = regex.Matches(Data);
 
@@ -314,12 +315,14 @@ namespace SkinEngine.Controls.Visuals
               //relative origin
               PointF point = points[0];
               lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
+              startPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
             }
             break;
           case 'M':
             {
               //absolute origin
               lastPoint = points[0]; ;
+              startPoint = new PointF(points[0].X, points[0].Y);
             }
             break;
           case 'L':
@@ -428,6 +431,10 @@ namespace SkinEngine.Controls.Visuals
             {
               //close figure
               isClosed = true;
+              if (Math.Abs(lastPoint.X - startPoint.X) >= 1 || Math.Abs(lastPoint.Y - startPoint.Y) >= 1)
+              {
+                mPath.AddLine(lastPoint, startPoint);
+              }
               mPath.CloseFigure();
             }
             break;
@@ -439,11 +446,21 @@ namespace SkinEngine.Controls.Visuals
       {
         bounds = mPath.GetBounds();
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        float xoff = 0;
+        float yoff = 0;
         float scaleW = baseRect.Width / bounds.Width;
         float scaleH = baseRect.Height / bounds.Height;
+        if (StrokeThickness > 0)
+        {
+          xoff = (float)(StrokeThickness / 2.0f);
+          yoff = (float)(StrokeThickness / 2.0f);
+          scaleW = (float)((baseRect.Width - StrokeThickness) / bounds.Width);
+          scaleH = (float)((baseRect.Height - StrokeThickness) / bounds.Height);
+        }
         if (Width > 0) scaleW = 1.0f;
         if (Height > 0) scaleH = 1.0f;
         m.Scale(scaleW, scaleH, MatrixOrder.Append);
+        m.Translate(xoff, yoff, MatrixOrder.Append);
       }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);

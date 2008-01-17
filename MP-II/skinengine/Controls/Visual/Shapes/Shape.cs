@@ -411,7 +411,7 @@ namespace SkinEngine.Controls.Visuals
       verts = new PositionColored2Textured[verticeCount];
 
       float x, y;
-      for (int i = 0; i < (pointCount ); ++i)
+      for (int i = 0; i < (pointCount); ++i)
       {
         int offset = i * 6;
         PointF nextpoint = GetNextPoint(points, i, pointCount);
@@ -452,8 +452,8 @@ namespace SkinEngine.Controls.Visuals
       cutPolygon.CutEar();
 
       int count = cutPolygon.NumberOfPolygons;
-      VertexBuffer vertexBuffer = PositionColored2Textured.Create(count*3);
-      verts = new PositionColored2Textured[count*3];
+      VertexBuffer vertexBuffer = PositionColored2Textured.Create(count * 3);
+      verts = new PositionColored2Textured[count * 3];
       for (int i = 0; i < count; i++)
       {
         CPoint2D[] triangle = cutPolygon[i];
@@ -623,7 +623,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="v">Vector to take slope from</param>
     protected float vectorSlope(Vector2 v)
     {
-      return Math.Abs(v.X) < 0.0001f ? float.NaN : (v.Y / v.X);
+      return Math.Abs(v.X) < 0.001f ? float.NaN : (v.Y / v.X);
     }
 
     /// <summary>Finds the intercept of a line</summary>
@@ -713,7 +713,7 @@ namespace SkinEngine.Controls.Visuals
         safeIntercept = intercept;
         x = lastInnerPoint.X;
       }
-      else if (slope == lastSlope)
+      else if (Math.Abs(slope - lastSlope)<0.001)
       {
         safeSlope = slope;
         safeIntercept = intercept;
