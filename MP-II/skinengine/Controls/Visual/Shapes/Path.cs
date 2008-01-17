@@ -438,15 +438,12 @@ namespace SkinEngine.Controls.Visuals
       if (Stretch == Stretch.Fill)
       {
         bounds = mPath.GetBounds();
-        float cx = bounds.X + (bounds.Width / 2.0f);
-        float cy = bounds.Y + (bounds.Height / 2.0f);
-        m.Translate(-cx, -cy, MatrixOrder.Append);
+        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
         float scaleW = baseRect.Width / bounds.Width;
         float scaleH = baseRect.Height / bounds.Height;
         if (Width > 0) scaleW = 1.0f;
         if (Height > 0) scaleH = 1.0f;
         m.Scale(scaleW, scaleH, MatrixOrder.Append);
-        m.Translate(cx, cy, MatrixOrder.Append);
       }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
@@ -456,11 +453,6 @@ namespace SkinEngine.Controls.Visuals
       {
         LayoutTransform.GetTransform(out em);
         m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
-      bounds = mPath.GetBounds();
-      if (Stretch == Stretch.Fill)
-      {
-          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
