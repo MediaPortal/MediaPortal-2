@@ -260,7 +260,7 @@ namespace SkinEngine.Players.Vmr9
         }
 
         IntPtr ptr = new IntPtr(dwImg);
-        Marshal.AddRef(ptr);
+        //Marshal.AddRef(ptr);
         unsafe
         {
           using (Surface surf = new Surface(ptr))
