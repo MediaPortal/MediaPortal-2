@@ -1,4 +1,5 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#define TESTXAML
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -30,6 +31,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
+using SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
@@ -74,7 +76,6 @@ namespace SkinEngine
     private Window _previousWindow = null;
     private List<Window> _history = new List<Window>();
     private ISkinLoader _skinLoader;
-
     #endregion
 
     /// <summary>
@@ -116,17 +117,20 @@ namespace SkinEngine
       }
       SkinContext.SkinName = settings.Skin;
       SkinContext.ThemeName = settings.Theme;
+#if TESTXAML
+      ShowWindow("movies");
+#else
 
       PrepareWindow("homevista");
       ShowWindow("homevista");
-      //ShowWindow("sharesAdd");
+#endif
     }
 
     public void SwitchTheme(string newThemeName)
     {
       if (newThemeName == SkinContext.ThemeName) return;
       CloseDialog();
-      lock (_skinLoader)
+      lock (_history)
       {
         ServiceScope.Get<ILogger>().Info("WindowManager:Switch to theme:{0}", newThemeName);
         string windowName = _currentWindow.Name;
@@ -179,7 +183,7 @@ namespace SkinEngine
     {
       if (newSkinName == SkinContext.SkinName) return;
       CloseDialog();
-      lock (_skinLoader)
+      lock (_history)
       {
         ServiceScope.Get<ILogger>().Info("WindowManager:Switch to skin:{0}", newSkinName);
         string windowName = _currentWindow.Name;
@@ -256,7 +260,7 @@ namespace SkinEngine
     /// </summary>
     public void Render()
     {
-      lock (_skinLoader)
+      lock (_history)
       {
         SkinContext.Now = DateTime.Now;
         lock (_windows)
@@ -318,8 +322,16 @@ namespace SkinEngine
             return window;
           }
         }
+#if TESTXAML
+        Window win = new Window(windowName);
+        XamlLoader loader = new XamlLoader();
+        UIElement root = loader.Load(windowName + ".xaml") as UIElement;
+        if (root == null) return null;
+        win.Visual = root;
+#else
         Window win = new Window(windowName);
         _skinLoader.Load(win, windowName + ".xml");
+#endif
         //Don't show window here.
         //That is done at the appriopriate time by all methods calling this one.
         //Calling show here will result in the model loading its data twice

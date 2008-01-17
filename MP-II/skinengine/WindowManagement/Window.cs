@@ -1,4 +1,4 @@
-﻿//#define TESTXAML
+﻿#define TESTXAML
 #region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
@@ -79,9 +79,7 @@ namespace SkinEngine
     private Control _focusedControl;
     private Control _focusedMouseControl;
     private bool _history;
-#if TESTXAML
     UIElement _visual;
-#endif
     #endregion
 
     /// <summary>
@@ -109,15 +107,27 @@ namespace SkinEngine
       _models = new Dictionary<string, Model>();
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
-#if TESTXAML
-      XamlLoader loader = new XamlLoader();
-      _visual = (UIElement)loader.Load("test.xml");
-      _visual.IsArrangeValid = true;
-      _visual.Invalidate();
-      VisualTreeHelper.Instance.SetRootElement(_visual);
-#endif
-    }
 
+      //XamlLoader loader = new XamlLoader();
+      //_visual = (UIElement)loader.Load("test.xml");
+
+
+    }
+    public UIElement Visual
+    {
+      get
+      {
+        return _visual;
+      }
+      set
+      {
+        _visual = value;
+        if (_visual != null)
+        {
+          _visual.IsArrangeValid = true;
+        }
+      }
+    }
     public Control FocusedControl
     {
       get { return _focusedControl; }
@@ -373,7 +383,7 @@ namespace SkinEngine
       uint time = (uint)Environment.TickCount;
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
-      
+
 #if TESTXAML
 #else
       for (int i = 0; i < _controls.Count; ++i)
@@ -427,6 +437,10 @@ namespace SkinEngine
         ServiceScope.Get<IInputManager>().OnMouseMove += _mouseMoveHandler;
         _attachedInput = true;
       }
+#if TESTXAML
+      _visual.Invalidate();
+      VisualTreeHelper.Instance.SetRootElement(_visual);
+#else
       if (animate)
       {
         for (int i = 0; i < _controls.Count; ++i)
@@ -443,6 +457,7 @@ namespace SkinEngine
           }
         }
       }
+#endif
       if (_openCommand != null)
       {
         _openCommand.Execute(_openCommandParameter);

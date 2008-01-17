@@ -111,7 +111,7 @@ namespace SkinEngine.Controls.Visuals
       if (String.IsNullOrEmpty(Data)) return;
       if (!IsVisible) return;
       if ((Fill != null && _vertexBufferFill == null) ||
-           (Stroke != null && _vertexBufferBorder == null) || _performLayout)
+           (Stroke != null && _vertexBufferBorder == null&& StrokeThickness>0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;

@@ -1093,6 +1093,7 @@ namespace SkinEngine.Players
     {
       get
       {
+        if (_allocator == null) return null;
         return _allocator.Texture;
       }
     }

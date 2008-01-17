@@ -526,8 +526,8 @@ namespace MyXaml.Core
       }
       catch (Exception e)
       {
-        Trace.WriteLine(e.Message + "\r\n" + e.InnerException);
-        throw (e);
+        ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open :{0}", filename);
+        return null;
       }
 
       currentFile = filename;
@@ -1114,7 +1114,7 @@ namespace MyXaml.Core
       Type t = Type.GetType(qualifiedName);
       if (t == null)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Unknown type :" + qualifiedName);
+        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Unknown type :{1}", CurrentFile, qualifiedName);
         return null;
       }
       try
@@ -1123,7 +1123,7 @@ namespace MyXaml.Core
       }
       catch (Exception e)
       {
-        throw (new InstantiationException("Can't instantiate " + qualifiedName + "\r\n" + e.Message));
+        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Can't instantiate :{1}", CurrentFile, qualifiedName);
       }
       return classInstance;
     }
