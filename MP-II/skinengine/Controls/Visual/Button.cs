@@ -535,7 +535,10 @@ namespace SkinEngine.Controls.Visuals
       {
         if (Command != null)
         {
-          Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
+          if (CommandParameter != null)
+            Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
+          else
+            Command.Method.Invoke(Command.Object, null);
         }
         if (Context is ListItem)
         {
