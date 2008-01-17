@@ -286,7 +286,7 @@ namespace SkinEngine.Controls.Visuals
 
       // return the original rectangle 
 
-      if (radiusX <= 0.0f && RadiusY <= 0.0f)
+      if (radiusX <= 0.0f && radiusY <= 0.0f)
       {
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);

@@ -411,7 +411,7 @@ namespace SkinEngine.Controls.Visuals
       verts = new PositionColored2Textured[verticeCount];
 
       float x, y;
-      for (int i = 0; i < (pointCount - 1); ++i)
+      for (int i = 0; i < (pointCount ); ++i)
       {
         int offset = i * 6;
         PointF nextpoint = GetNextPoint(points, i, pointCount);
