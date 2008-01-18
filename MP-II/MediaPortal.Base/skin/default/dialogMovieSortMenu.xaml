@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
-  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies"  History="False">
+  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies"  History="False" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
@@ -9,8 +9,8 @@
       <Canvas Width="500" Height="345" Background="{StaticResource dialogBackGroundBrush}" >
         <Label Font="font13" Canvas.Left="25" Canvas.Top="0" Text="[system.5]" Width="100"  Color="#FFADADAD" VerticalAlignment="Top"/>
         <Label Font="font13" Canvas.Left="136" Canvas.Top="0" Text="[movies.5]" Width="300"  Color="#FFF1E994" VerticalAlignment="Top"/>
-        <Button name="closebtn" Canvas.Left="440" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Binding Path=WindowManager.CloseDialog}" />
-        <ListView Canvas.Left="34" Canvas.Top="40" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SortOptions}" />
+        <Button Name="closebtn" Canvas.Left="440" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Binding Path=WindowManager.CloseDialog}" />
+        <ListView Name="mainMenu" Canvas.Left="34" Canvas.Top="40" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SortOptions}" />
 
       </Canvas>
     </Border>

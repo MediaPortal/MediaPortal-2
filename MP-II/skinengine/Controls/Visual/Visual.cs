@@ -37,6 +37,7 @@ namespace SkinEngine.Controls.Visuals
   public class Visual : ICloneable
   {
     Property _visualParentProperty;
+    Property _focusedElement;
     bool _history;
 
     /// <summary>
@@ -56,6 +57,7 @@ namespace SkinEngine.Controls.Visuals
     {
       _history = true;
       _visualParentProperty = new Property(null);
+      _focusedElement = new Property(null);
     }
 
     /// <summary>
@@ -87,6 +89,39 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _visualParentProperty.SetValue(value);
+      }
+    }
+
+
+    /// <summary>
+    /// Gets or sets the default focused element. property.
+    /// </summary>
+    /// <value>The visual parent property.</value>
+    public Property FocusedElementProperty
+    {
+      get
+      {
+        return _focusedElement;
+      }
+      set
+      {
+        _focusedElement = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default focused element.
+    /// </summary>
+    /// <value>The focused element.</value>
+    public UIElement FocusedElement
+    {
+      get
+      {
+        return _focusedElement.GetValue() as UIElement;
+      }
+      set
+      {
+        _focusedElement.SetValue(value);
       }
     }
 

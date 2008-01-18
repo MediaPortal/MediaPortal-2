@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
-  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies" History="False">
+  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies" History="False" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
@@ -22,7 +22,7 @@
     <Image Canvas.Left="170" Canvas.Top="90"  Source="logo_stop.png" />
     <Label Canvas.Left="240" Canvas.Top="100"  Font="font26"  Text="[playback.38]" Width="500"  Height="50" Color="#7FFFFFFF"/>
     <Canvas Canvas.Left="240" Canvas.Top="170">
-      <ListView Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieEndedMenu}" />
+    <ListView Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieEndedMenu}" />
     </Canvas>
   </Canvas>
 </MyXaml>

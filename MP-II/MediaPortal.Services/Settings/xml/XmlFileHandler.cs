@@ -229,15 +229,27 @@ namespace MediaPortal.Services.Settings
       {
         if (File.Exists(_filename + ".bak"))
         {
-          File.Delete(_filename + ".bak");
+          try
+          {
+            File.Delete(_filename + ".bak");
+          }
+          catch (Exception)
+          {
+          }
         }
         if (File.Exists(_filename))
         {
-          File.Move(_filename, _filename + ".bak");
+          try
+          {
+            File.Move(_filename, _filename + ".bak");
+          }
+          catch (Exception)
+          {
+          }
         }
       }
 
-      catch (Exception) {}
+      catch (Exception) { }
 
       using (StreamWriter stream = new StreamWriter(_filename, false))
       {
@@ -259,7 +271,7 @@ namespace MediaPortal.Services.Settings
     }
 
     #endregion
-    
+
     #region Private methods
 
     /// <summary>

@@ -482,7 +482,28 @@ namespace SkinEngine.Controls.Visuals
           CurrentItem = element.Context;
         }
       }
+    }
 
+    public override bool HasFocus
+    {
+      get
+      {
+        if (Template != null)
+        {
+          UIElement element = Template.FindFocusedItem();
+          return (element != null);
+        }
+        return base.HasFocus;
+      }
+      set
+      {
+        if (ItemsPanel.Children.Count > 0)
+        {
+          ItemsPanel.Children[0].OnMouseMove((float)ItemsPanel.Children[0].ActualPosition.X, (float)ItemsPanel.Children[0].ActualPosition.Y);
+          return;
+        }
+        base.HasFocus = value;
+      }
     }
 
     #region focus prediction

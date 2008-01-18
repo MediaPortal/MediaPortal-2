@@ -243,7 +243,12 @@ namespace SkinEngine
     /// <value>The current window.</value>
     public IWindow CurrentWindow
     {
-      get { return _currentWindow; }
+      get 
+      {
+        if (_currentDialog != null) 
+          return _currentDialog;
+        return _currentWindow; 
+      }
     }
 
     /// <summary>

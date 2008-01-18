@@ -80,6 +80,7 @@ namespace SkinEngine
     private Control _focusedMouseControl;
     private bool _history;
     UIElement _visual;
+    bool _setFocusedElement = false;
     #endregion
 
     /// <summary>
@@ -406,6 +407,14 @@ namespace SkinEngine
 #if TESTXAML
       _visual.Render();
       _visual.Animate();
+      if (_setFocusedElement)
+      {
+        if (_visual.FocusedElement != null)
+        {
+          _visual.FocusedElement.HasFocus = true;
+          _setFocusedElement = !_visual.FocusedElement.HasFocus;
+        }
+      }
 #endif
     }
 
@@ -439,8 +448,11 @@ namespace SkinEngine
         _attachedInput = true;
       }
 #if TESTXAML
-      _visual.Invalidate();
+      FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
+      _visual.Invalidate();
+      _visual.InitializeBindings();
+      _setFocusedElement = true;
 #else
       if (animate)
       {
@@ -471,7 +483,7 @@ namespace SkinEngine
     /// <param name="key">The key.</param>
     private void OnKeyPressed(ref Key key)
     {
-      if (!HasFocus)
+      if (!HasFocus || !_attachedInput)
       {
         return;
       }
@@ -503,7 +515,7 @@ namespace SkinEngine
     /// <param name="y">The y.</param>
     private void OnMouseMove(float x, float y)
     {
-      if (!HasFocus)
+      if (!HasFocus || !_attachedInput)
       {
         return;
       }
