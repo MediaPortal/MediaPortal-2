@@ -18,8 +18,8 @@
           <TranslateTransform X="-0.036" Y="-0.146"/>
         </TransformGroup>
       </RadialGradientBrush.RelativeTransform>
-      <GradientStop Color="#CF5BB0FF" Offset="0"/>
-      <GradientStop Color="#CF238DFF" Offset="1"/>
+      <GradientStop Color="#EF105EB8" Offset="0"/>
+      <GradientStop Color="#EF0C4191" Offset="1"/>
     </RadialGradientBrush>
 
     <!-- default brush for a submenu button -->
@@ -1821,17 +1821,15 @@
       <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
       <Setter Property="MinWidth" Value="120"/>
       <Setter Property="MinHeight" Value="32"/>
-      <!--
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="VerticalAlignment" Value="Stretch"/>
-      -->
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
       <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ListBox">
             <ScrollViewer>
-              <StackPanel  IsItemsHost="True" >
+              <StackPanel  IsItemsHost="True" VerticalAlignment="Top">
               </StackPanel>
             </ScrollViewer>
           </ControlTemplate>
@@ -1851,17 +1849,15 @@
       <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
       <Setter Property="MinWidth" Value="120"/>
       <Setter Property="MinHeight" Value="32"/>
-      <!--
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="VerticalAlignment" Value="Stretch"/>
-      -->
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
       <Setter Property="ItemTemplate" Value="{StaticResource itemMenuTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource itemMenuContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
-          <ControlTemplate TargetType="ListBox">
-            <ScrollViewer>
-              <StackPanel  IsItemsHost="True" >
+          <ControlTemplate TargetType="ListBox" >
+            <ScrollViewer >
+              <StackPanel  IsItemsHost="True" VerticalAlignment="Top">
               </StackPanel>
             </ScrollViewer>
           </ControlTemplate>

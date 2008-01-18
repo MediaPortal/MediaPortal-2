@@ -335,7 +335,7 @@ namespace SkinEngine.Controls.Visuals
 
           if (BorderBrush != null && BorderThickness > 0)
           {
-            _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts);
+            _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts);
             if (_vertexBufferBorder != null)
             {
               BorderBrush.SetupBrush(this, ref verts);

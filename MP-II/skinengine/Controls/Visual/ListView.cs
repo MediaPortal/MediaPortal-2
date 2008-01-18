@@ -292,11 +292,6 @@ namespace SkinEngine.Controls.Visuals
 
       if (_desiredSize.Width == 0) _desiredSize.Width = 200;
       if (_desiredSize.Height == 0) _desiredSize.Height = 200;
-      if (Template != null)
-      {
-        Template.Measure(_desiredSize);
-        _desiredSize = Template.DesiredSize;
-      }
       if (Width > 0) _desiredSize.Width = (float)Width;
       if (Height > 0) _desiredSize.Height = (float)Height;
       if (LayoutTransform != null)
@@ -310,6 +305,10 @@ namespace SkinEngine.Controls.Visuals
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
+      }
+      if (Template != null)
+      {
+        Template.Measure(_desiredSize);
       }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
@@ -341,14 +340,6 @@ namespace SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      if (Template != null)
-      {
-        Template.Arrange(layoutRect);
-        ActualPosition = Template.ActualPosition;
-        ActualWidth = ((FrameworkElement)Template).ActualWidth;
-        ActualHeight = ((FrameworkElement)Template).ActualHeight;
-      }
-
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
@@ -360,7 +351,44 @@ namespace SkinEngine.Controls.Visuals
         InitializeBindings();
         InitializeTriggers();
       }
+      if (Template != null)
+      {
+        layoutRect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
+        layoutRect.X += (float)(Margin.X);
+        layoutRect.Y += (float)(Margin.Y);
+        layoutRect.Width -= (float)(Margin.X + Margin.W);
+        layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+
+
+        System.Drawing.PointF p = layoutRect.Location;
+        ArrangeChild((FrameworkElement)Template, ref p, layoutRect.Width, layoutRect.Height);
+        Template.Arrange(new System.Drawing.RectangleF(p, Template.DesiredSize));
+        Template.Arrange(layoutRect);
+      }
+
       _isLayoutInvalid = false;
+    }
+    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
+    {
+      if (VisualParent == null) return;
+
+      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      {
+
+        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
+      }
+      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      {
+        p.X += (float)(widthPerCell - child.DesiredSize.Width);
+      }
+      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
+      }
+      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+      {
+        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
+      }
     }
 
     /// <summary>
