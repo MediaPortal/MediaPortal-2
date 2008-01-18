@@ -185,7 +185,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!IsVisible) return;
       if ((Fill != null && _vertexBufferFill == null) ||
-           (Stroke != null && _vertexBufferBorder == null && StrokeThickness>0) || _performLayout)
+           (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -247,10 +247,13 @@ namespace SkinEngine.Controls.Visuals
       {
         using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
         {
-          CalcCentroid(path, out centerX, out centerY);
+          centerX = rect.Width / 2 + rect.Left;
+          centerY = rect.Height / 2 + rect.Top;
+          //CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+
+            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY,  out verts);
             if (_vertexBufferFill != null)
             {
               Fill.SetupBrush(this, ref verts);
@@ -264,7 +267,7 @@ namespace SkinEngine.Controls.Visuals
           {
             using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
             {
-              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, GeometryUtility.PolygonDirection.Clockwise, out verts);
               if (_vertexBufferBorder != null)
               {
 

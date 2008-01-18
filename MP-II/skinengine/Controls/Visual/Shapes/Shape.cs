@@ -260,7 +260,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!IsVisible) return;
       if ((Fill != null && _vertexBufferFill == null) ||
-           (Stroke != null && _vertexBufferBorder == null&& StrokeThickness>0) || _performLayout)
+           (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -395,6 +395,11 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts)
     {
+      PolygonDirection direction = PointsDirection(path);
+      return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts);
+    }
+    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction,out PositionColored2Textured[] verts)
+    {
       if (Name == "path5146")
       {
       }
@@ -403,7 +408,6 @@ namespace SkinEngine.Controls.Visuals
       // thickNess /= 2.0f;
       float thicknessW = thickNess;
       float thicknessH = thickNess;
-      PolygonDirection direction = PointsDirection(path);
       PointF[] points = path.PathPoints;
       int pointCount = points.Length;
       int verticeCount = (pointCount) * 2 * 3;
@@ -714,7 +718,7 @@ namespace SkinEngine.Controls.Visuals
         safeIntercept = intercept;
         x = lastInnerPoint.X;
       }
-      else if (Math.Abs(slope - lastSlope)<0.001)
+      else if (Math.Abs(slope - lastSlope) < 0.001)
       {
         safeSlope = slope;
         safeIntercept = intercept;

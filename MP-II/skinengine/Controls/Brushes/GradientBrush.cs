@@ -34,7 +34,7 @@ using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 namespace SkinEngine.Controls.Brushes
 {
-  
+
 
   public enum BrushMappingMode
   {
@@ -286,22 +286,31 @@ namespace SkinEngine.Controls.Brushes
           float a = step * (colorEnd.Alpha - colorStart.Alpha);
           a += colorStart.Alpha;
 
-          Color color;
           if (IsOpacityBrush)
-            color = ColorConverter.FromColor(a, a, a, 1.0f);
+          {
+            a *= 255;
+            r = a;
+            g = a;
+            b = 255;
+          }
           else
-            color = ColorConverter.FromColor(a, r, g, b);
+          {
+            a *= 255;
+            r *= 255;
+            g *= 255;
+            b *= 255;
+          }
 
           int offx = x * 4;
-          data[offx] = (byte)color.B;
-          data[offx + 1] = (byte)color.G;
-          data[offx + 2] = (byte)color.R;
-          data[offx + 3] = (byte)color.A;
+          data[offx] = (byte)b;
+          data[offx + 1] = (byte)g;
+          data[offx + 2] = (byte)r;
+          data[offx + 3] = (byte)a;
 
-          data[offY + offx] = (byte)color.B;
-          data[offY + offx + 1] = (byte)color.G;
-          data[offY + offx + 2] = (byte)color.R;
-          data[offY + offx + 3] = (byte)color.A;
+          data[offY + offx] = (byte)b;
+          data[offY + offx + 1] = (byte)g;
+          data[offY + offx + 2] = (byte)r;
+          data[offY + offx + 3] = (byte)a;
 
         }
       }
