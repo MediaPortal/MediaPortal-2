@@ -73,7 +73,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
-      GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
+      //GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
       float x = (int)ActualPosition.X;
       float y = (int)ActualPosition.Y;
       float w = (int)ActualWidth;

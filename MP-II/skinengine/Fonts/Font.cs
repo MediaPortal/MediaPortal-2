@@ -104,7 +104,10 @@ namespace SkinEngine.Fonts
     {
       get { return _charSet.LineHeight; }
     }
-
+    public float AverageWidth
+    {
+      get { return _charSet.AverageWidth; }
+    }
     public float Height
     {
       get { return _charSet.Height; }
@@ -287,7 +290,7 @@ namespace SkinEngine.Fonts
           _texture.Dispose();
           ContentManager.TextureReferences--;
         }
-        
+
         _texture = Texture.FromFile(device, fileName,
                                           _charSet.Width, _charSet.Height, 0, Usage.None, Format.Dxt3, Pool.Default,
                                           Filter.Linear, Filter.Linear, 0);
@@ -899,6 +902,7 @@ namespace SkinEngine.Fonts
     public int RenderedSize;
     public int Width;
     public int Height;
+    public float _averageWidth;
     public BitmapCharacter[] Characters;
 
     /// <summary>Creates a new BitmapCharacterSet</summary>
@@ -921,6 +925,26 @@ namespace SkinEngine.Fonts
         {
           Characters[i] = new BitmapCharacter();
         }
+      }
+    }
+    public float AverageWidth
+    {
+      get
+      {
+        if (_averageWidth > 0) return _averageWidth;
+
+        float w = 0;
+        float count = 0;
+        for (int i = 0; i < MaxCharacters; i++)
+        {
+          if (Characters[i].Width > 0)
+          {
+            w += Characters[i].Width;
+            count++;
+          }
+        }
+        _averageWidth = (w / count)*1.5f;
+        return _averageWidth;
       }
     }
   } ;
@@ -981,7 +1005,7 @@ namespace SkinEngine.Fonts
     /// <param name="color">Color</param>
     /// <param name="kerning">true to use kerning, false otherwise.</param>
     public StringBlock(string text, RectangleF textBox, Font.Align alignment,
-                       float size, ColorValue color, bool kerning)
+                     float size, ColorValue color, bool kerning)
     {
       Text = text;
       TextBox = textBox;

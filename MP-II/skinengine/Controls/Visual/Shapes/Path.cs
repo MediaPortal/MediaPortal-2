@@ -111,7 +111,7 @@ namespace SkinEngine.Controls.Visuals
       if (String.IsNullOrEmpty(Data)) return;
       if (!IsVisible) return;
       if ((Fill != null && _vertexBufferFill == null) ||
-           (Stroke != null && _vertexBufferBorder == null&& StrokeThickness>0) || _performLayout)
+           (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -222,17 +222,17 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      base.Measure(availableSize);
-      /*
-      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null))
+      bool isclosed;
+      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, out isclosed, 0))
       {
         RectangleF bounds = p.GetBounds();
-
+        if (Width > 0) bounds.Width = (float)Width;
+        if (Height > 0) bounds.Height = (float)Height;
         _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
 
-        if (bounds.Width <= 0)
+        if (availableSize.Width > 0)
           _desiredSize.Width = ((float)availableSize.Width) - (float)(Margin.X + Margin.W);
-        if (bounds.Height <= 0)
+        if (availableSize.Height > 0)
           _desiredSize.Height = ((float)availableSize.Height) - (float)(Margin.Y + Margin.Z);
 
         if (LayoutTransform != null)
@@ -251,7 +251,7 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Height += (float)(Margin.Y + Margin.Z);
 
         _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-      }*/
+      }
     }
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
@@ -448,17 +448,25 @@ namespace SkinEngine.Controls.Visuals
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
         float xoff = 0;
         float yoff = 0;
+        if (Width > 0) baseRect.Width = (float)Width;
+        if (Height > 0) baseRect.Height = (float)Height;
         float scaleW = baseRect.Width / bounds.Width;
         float scaleH = baseRect.Height / bounds.Height;
+        if (baseRect.Width == 0) scaleW = 1.0f;
+        if (baseRect.Height == 0) scaleH = 1.0f;
         if (StrokeThickness > 0)
         {
-          xoff = (float)(StrokeThickness / 2.0f);
-          yoff = (float)(StrokeThickness / 2.0f);
-          scaleW = (float)((baseRect.Width - StrokeThickness) / bounds.Width);
-          scaleH = (float)((baseRect.Height - StrokeThickness) / bounds.Height);
+          if (baseRect.Width > 0)
+          {
+            xoff = (float)(StrokeThickness / 2.0f);
+            scaleW = (float)((baseRect.Width - StrokeThickness) / bounds.Width);
+          }
+          if (baseRect.Height > 0)
+          {
+            yoff = (float)(StrokeThickness / 2.0f);
+            scaleH = (float)((baseRect.Height - StrokeThickness) / bounds.Height);
+          }
         }
-        if (Width > 0) scaleW = 1.0f;
-        if (Height > 0) scaleH = 1.0f;
         m.Scale(scaleW, scaleH, MatrixOrder.Append);
         m.Translate(xoff, yoff, MatrixOrder.Append);
       }

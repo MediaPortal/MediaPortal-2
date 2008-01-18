@@ -56,30 +56,55 @@ namespace SkinEngine.Controls.Panels
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
       System.Drawing.SizeF size = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      SizeF sizeTop = new SizeF();
+      SizeF sizeLeft = new SizeF();
+      SizeF sizeCenter = new SizeF();
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
-
+        if (size.Width < 0) size.Width = 0;
+        if (size.Height < 0) size.Height = 0;
         child.Measure(size);
         if (child.Dock == Dock.Top || child.Dock == Dock.Bottom)
         {
           size.Height -= child.DesiredSize.Height;
+          sizeTop.Height += child.DesiredSize.Height;
+          if (child.DesiredSize.Width > sizeTop.Width)
+            sizeTop.Width = child.DesiredSize.Width;
         }
         else if (child.Dock == Dock.Left || child.Dock == Dock.Right)
         {
           size.Width -= child.DesiredSize.Width;
+          sizeLeft.Width += child.DesiredSize.Width;
+          if (child.DesiredSize.Height > sizeLeft.Height)
+            sizeLeft.Height = child.DesiredSize.Height;
         }
         else if (child.Dock == Dock.Center)
         {
           child.Measure(size);
           size.Width -= child.DesiredSize.Width;
           size.Height -= child.DesiredSize.Height;
+          if (child.DesiredSize.Width > sizeCenter.Width)
+            sizeCenter.Width = child.DesiredSize.Width;
+          if (child.DesiredSize.Height > sizeCenter.Height)
+            sizeCenter.Height = child.DesiredSize.Height;
         }
       }
+
+      if (availableSize.Width == 0)
+      {
+        _desiredSize.Width = sizeLeft.Width;
+        float w = Math.Max(sizeTop.Width, sizeCenter.Width);
+        if (w > sizeLeft.Width)
+          _desiredSize.Width = w;
+      }
+      if (availableSize.Height == 0)
+      {
+        _desiredSize.Height = sizeTop.Height + Math.Max(sizeLeft.Height, sizeCenter.Height);
+      }
+
       if (Width > 0) _desiredSize.Width = (float)Width;
       if (Height > 0) _desiredSize.Height = (float)Height;
-
-
       if (LayoutTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();

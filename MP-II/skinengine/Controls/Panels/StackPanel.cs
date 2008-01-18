@@ -141,6 +141,8 @@ namespace SkinEngine.Controls.Panels
         }
         if (Orientation == Orientation.Vertical)
         {
+          if (childSize.Width < 0) childSize.Width = 0;
+          if (childSize.Height < 0) childSize.Height = 0;
           child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
           if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > availableSize.Height)

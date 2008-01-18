@@ -290,6 +290,8 @@ namespace SkinEngine.Controls.Visuals
       if (Height <= 0)
         _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
 
+      if (_desiredSize.Width == 0) _desiredSize.Width = 200;
+      if (_desiredSize.Height == 0) _desiredSize.Height = 200;
       if (Template != null)
       {
         Template.Measure(_desiredSize);

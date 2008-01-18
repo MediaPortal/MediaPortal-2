@@ -516,6 +516,7 @@ namespace SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += (float)(Margin.X + Margin.W);
       _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
       base.Measure(availableSize);
     }
 

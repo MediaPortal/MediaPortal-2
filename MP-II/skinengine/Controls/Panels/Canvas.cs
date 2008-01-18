@@ -60,7 +60,7 @@ namespace SkinEngine.Controls.Panels
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
-        child.Measure(_desiredSize);
+        child.Measure(new Size(0, 0));
         rect = RectangleF.Union(rect, new RectangleF(new PointF(child.Position.X, child.Position.Y), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
       }
       if (Width > 0) rect.Width = (float)Width;

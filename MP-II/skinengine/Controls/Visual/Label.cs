@@ -208,6 +208,8 @@ namespace SkinEngine.Controls.Visuals
         float h = _asset.Font.LineHeight;// *1.2f;
         //h -= (_asset.Font.LineHeight - _asset.Font.Base);
         size = new SizeF((float)availableSize.Width, (float)(h));
+        if (availableSize.Width == 0)
+          size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
       }
       if (Width <= 0)
         _desiredSize.Width = ((float)size.Width) - (float)(Margin.X + Margin.W);

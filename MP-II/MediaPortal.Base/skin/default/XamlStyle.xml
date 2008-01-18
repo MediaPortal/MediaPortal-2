@@ -21,7 +21,7 @@
       <GradientStop Color="#CF5BB0FF" Offset="0"/>
       <GradientStop Color="#CF238DFF" Offset="1"/>
     </RadialGradientBrush>
-    
+
     <!-- default brush for a submenu button -->
     <RadialGradientBrush Key="MpSubMenuButtonBrush" GradientOrigin="0.85,0.82">
       <RadialGradientBrush.RelativeTransform>
@@ -132,7 +132,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Name="grid" Margin="0,2,0,2" >
+            <Grid Name="grid" Margin="0,2,0,2" >
               <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4"  Margin="0,0,0,0" Name="shine" >
                 <Rectangle.Fill>
                   <RadialGradientBrush GradientOrigin="0.85,0.82">
@@ -151,7 +151,7 @@
               </Rectangle>
               <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
               </ContentPresenter>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -461,7 +461,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Name="grid" Margin="0,2,0,2">
+            <Grid Name="grid" Margin="0,2,0,2">
               <Rectangle  Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Name="shine" Width="32">
                 <Rectangle.Fill>
                   <RadialGradientBrush  GradientOrigin="0.85,0.82">
@@ -479,7 +479,7 @@
                 </Rectangle.Fill>
               </Rectangle>
               <Path Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Name="check" Width="12.016" Data="M22.645977,12.578536 L14.858618,23.864771 12.139105,20.117524 14.858041,23.864623 z"/>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -527,7 +527,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Name="grid" Width="48" Height="48">
+            <Grid Name="grid" Width="48" Height="48">
               <Ellipse  Stroke="{Null}" StrokeThickness="4" HorizontalAlignment="Stretch" Margin="0.022,-0.026,-0.022,0.026" Name="ButtonBackground" Width="48" Height="48">
                 <Ellipse.Fill>
                   <RadialGradientBrush>
@@ -601,7 +601,7 @@
                   </RadialGradientBrush>
                 </Path.Fill>
               </Path>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Trigger.EnterActions>
@@ -674,7 +674,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Width="40" Height="40">
+            <Grid Width="40" Height="40">
               <Rectangle Name="Body">
                 <Rectangle.Fill>
                   <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
@@ -715,7 +715,7 @@
                   </TransformGroup>
                 </Path.RenderTransform>
               </Path>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -804,7 +804,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Width="40" Height="40" Name="grid">
+            <Grid Width="40" Height="40" Name="grid">
               <Rectangle Name="Body">
                 <Rectangle.Fill>
                   <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
@@ -845,7 +845,7 @@
                   </TransformGroup>
                 </Path.RenderTransform>
               </Path>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -934,7 +934,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Width="40" Height="40" Name="grid">
+            <Grid Width="40" Height="40" Name="grid">
               <Rectangle Name="Body">
                 <Rectangle.Fill>
                   <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
@@ -975,7 +975,7 @@
                   </TransformGroup>
                 </Path.RenderTransform>
               </Path>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -1064,7 +1064,7 @@
                 </ColorAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Width="40" Height="40" Name="grid">
+            <Grid Width="40" Height="40" Name="grid">
               <Rectangle Name="Body">
                 <Rectangle.Fill>
                   <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
@@ -1105,7 +1105,7 @@
                   </TransformGroup>
                 </Path.RenderTransform>
               </Path>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -1234,7 +1234,7 @@
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Name="grid" Margin="0,2,0,2">
+            <Grid Name="grid" Margin="0,2,0,2">
               <Rectangle  Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Name="shine" Width="32">
                 <Rectangle.Fill>
                   <RadialGradientBrush  GradientOrigin="0.85,0.82">
@@ -1253,7 +1253,7 @@
               </Rectangle>
               <Path Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="6.912,14.572,0,13.561" Name="pathHorz" VerticalAlignment="Stretch" Width="18" Data="M4.6666667,15 L26.666667,15" StrokeThickness="2"/>
               <Path Visibility="Visible" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="15.912,7.005,0,0" Name="pathVert" Width="2" Data="M13.666667,5.6666667 L13.666667,25" VerticalAlignment="Top" Height="17.001" StrokeThickness="2"/>
-            </Canvas>
+            </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
               <Trigger Property="HasFocus" Value="True">
@@ -1548,17 +1548,17 @@
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </ControlTemplate.Resources>
-            <Canvas Width="90.221" Height="89.922" RenderTransformOrigin="0.5,0.5" Name="grid">
-              <Canvas.RenderTransform>
+            <Grid Width="90.221" Height="89.922" RenderTransformOrigin="0.5,0.5" Name="grid">
+              <Grid.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
                   <SkewTransform AngleX="0" AngleY="0"/>
                   <RotateTransform Angle="0"/>
                   <TranslateTransform X="0" Y="0"/>
                 </TransformGroup>
-              </Canvas.RenderTransform>
-              <Canvas Name="CursorBusy" RenderTransformOrigin="0.582,0.491" Margin="0.002,0,0,0">
-                <Path Stretch="Fill" Stroke="#7F336F32" Height="17.788" Data="M306.63968,180.99327 L306.62275,171.0691 C316.13932,172.13855 323.28407,175.02257 330.51708,180.69159 L324.00411,187.85985 C319.3108,184.02487 313.24803,181.56381 306.63968,180.99327 z" Name="Body1" Width="24.907" Canvas.Left="48.703">
+              </Grid.RenderTransform>
+              <Grid Name="CursorBusy" RenderTransformOrigin="0.582,0.491" Margin="0.002,0,0,0">
+                <Path Stretch="Fill" Stroke="#7F336F32" Height="17.788" Data="M306.63968,180.99327 L306.62275,171.0691 C316.13932,172.13855 323.28407,175.02257 330.51708,180.69159 L324.00411,187.85985 C319.3108,184.02487 313.24803,181.56381 306.63968,180.99327 z" Name="Body1" Width="24.907" Grid.Left="48.703">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1574,7 +1574,7 @@
                     </RadialGradientBrush>
                   </Path.Fill>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7F336F32" Height="17.588" Data="M306.72119,180.78865 L306.62275,171.0691 C316.74244,172.3826 323.77012,175.30607 330.44904,180.75992 L323.62849,187.65938 C318.80678,183.96325 313.20546,181.48972 306.72119,180.78865 z" RenderTransformOrigin="0.5,0.5" Name="Body2" Width="24.838" Canvas.Left="69.674" Canvas.Top="22">
+                <Path Stretch="Fill" Stroke="#7F336F32" Height="17.588" Data="M306.72119,180.78865 L306.62275,171.0691 C316.74244,172.3826 323.77012,175.30607 330.44904,180.75992 L323.62849,187.65938 C318.80678,183.96325 313.20546,181.48972 306.72119,180.78865 z" RenderTransformOrigin="0.5,0.5" Name="Body2" Width="24.838" Grid.Left="69.674" Grid.Top="22">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <GradientStop Color="#F292CD91" Offset="0.005"/>
@@ -1590,7 +1590,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7F336F32" Data="M306.64277,180.50297 L306.6219,170.6014 C316.65865,171.97514 323.61917,175.43457 330.38117,180.82808 L323.56062,187.72754 C318.79289,184.14217 313.17399,181.33963 306.64277,180.50297 z" RenderTransformOrigin="0.5,0.5" Width="24.77" Name="Body3" Height="18.124" Canvas.Left="70.169" Canvas.Top="49.501">
+                <Path Stretch="Fill" Stroke="#7F336F32" Data="M306.64277,180.50297 L306.6219,170.6014 C316.65865,171.97514 323.61917,175.43457 330.38117,180.82808 L323.56062,187.72754 C318.79289,184.14217 313.17399,181.33963 306.64277,180.50297 z" RenderTransformOrigin="0.5,0.5" Width="24.77" Name="Body3" Height="18.124" Grid.Left="70.169" Grid.Top="49.501">
                   <Path.Fill>
                     <RadialGradientBrush GradientOrigin="0.449,0.498">
                       <RadialGradientBrush.RelativeTransform>
@@ -1614,7 +1614,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7F336F32" Data="M306.61248,181.21157 L306.62275,171.01453 C315.39125,171.8434 322.26333,174.46851 330.18656,180.36091 L323.62849,187.84309 C318.78194,184.1617 313.06431,181.94214 306.61248,181.21157 z" RenderTransformOrigin="0.434,0.441" Name="Body4" Width="24.583" Height="17.829" Canvas.Left="48.694" Canvas.Top="72.069">
+                <Path Stretch="Fill" Stroke="#7F336F32" Data="M306.61248,181.21157 L306.62275,171.01453 C315.39125,171.8434 322.26333,174.46851 330.18656,180.36091 L323.62849,187.84309 C318.78194,184.1617 313.06431,181.94214 306.61248,181.21157 z" RenderTransformOrigin="0.434,0.441" Name="Body4" Width="24.583" Height="17.829" Grid.Left="48.694" Grid.Top="72.069">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1638,7 +1638,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7FD2D7E6" Data="M306.72156,181.23884 L306.73184,170.98724 C315.56832,171.72276 323.70522,174.93091 331.11994,180.69159 L324.0541,188.36623 C319.30494,184.62453 313.27437,181.90203 306.72156,181.23884 z" RenderTransformOrigin="0.5,0.5" Height="18.37" Name="Body5" Width="25.401" Canvas.Left="17.267" Canvas.Top="72.096">
+                <Path Stretch="Fill" Stroke="#7FD2D7E6" Data="M306.72156,181.23884 L306.73184,170.98724 C315.56832,171.72276 323.70522,174.93091 331.11994,180.69159 L324.0541,188.36623 C319.30494,184.62453 313.27437,181.90203 306.72156,181.23884 z" RenderTransformOrigin="0.5,0.5" Height="18.37" Name="Body5" Width="25.401" Grid.Left="17.267" Grid.Top="72.096">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1662,7 +1662,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7FD2D7E6" Data="M305.59252,180.51523 L305.64334,170.0936 C315.37318,170.9357 323.6885,174.51943 330.75947,180.44815 L323.41122,187.87758 C318.69367,183.96574 312.17675,181.00929 305.59252,180.51523 z" RenderTransformOrigin="0.5,0.5" Name="Body6" Width="26.18" Height="18.812" Canvas.Left="-3.636" Canvas.Top="50.576">
+                <Path Stretch="Fill" Stroke="#7FD2D7E6" Data="M305.59252,180.51523 L305.64334,170.0936 C315.37318,170.9357 323.6885,174.51943 330.75947,180.44815 L323.41122,187.87758 C318.69367,183.96574 312.17675,181.00929 305.59252,180.51523 z" RenderTransformOrigin="0.5,0.5" Name="Body6" Width="26.18" Height="18.812" Grid.Left="-3.636" Grid.Top="50.576">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1686,7 +1686,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7FD2D7E6" Height="17.964" Data="M306.62196,181.20908 L306.62275,171.0691 C315.52748,171.77319 322.82329,174.63254 330.58873,180.61964 L323.25596,188.03347 C318.54246,184.40903 313.21034,181.99713 306.62196,181.20908 z" RenderTransformOrigin="0.5,0.5" Name="Body7" Width="24.982" Canvas.Top="21.999" Canvas.Left="-3.84">
+                <Path Stretch="Fill" Stroke="#7FD2D7E6" Height="17.964" Data="M306.62196,181.20908 L306.62275,171.0691 C315.52748,171.77319 322.82329,174.63254 330.58873,180.61964 L323.25596,188.03347 C318.54246,184.40903 313.21034,181.99713 306.62196,181.20908 z" RenderTransformOrigin="0.5,0.5" Name="Body7" Width="24.982" Grid.Top="21.999" Grid.Left="-3.84">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1710,7 +1710,7 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-                <Path Stretch="Fill" Stroke="#7FD2D7E6" Height="17.616" Data="M306.5545,181.02157 L306.62275,171.0691 C315.24902,171.84794 322.27225,174.24976 330.37942,180.19806 L323.46143,187.68768 C318.44449,183.96574 312.81218,181.72276 306.5545,181.02157 z" RenderTransformOrigin="0.5,0.5" Name="Body8" Width="24.83" Canvas.Left="17.434">
+                <Path Stretch="Fill" Stroke="#7FD2D7E6" Height="17.616" Data="M306.5545,181.02157 L306.62275,171.0691 C315.24902,171.84794 322.27225,174.24976 330.37942,180.19806 L323.46143,187.68768 C318.44449,183.96574 312.81218,181.72276 306.5545,181.02157 z" RenderTransformOrigin="0.5,0.5" Name="Body8" Width="24.83" Grid.Left="17.434">
                   <Path.Fill>
                     <RadialGradientBrush>
                       <RadialGradientBrush.RelativeTransform>
@@ -1734,8 +1734,8 @@
                     </TransformGroup>
                   </Path.RenderTransform>
                 </Path>
-              </Canvas>
-            </Canvas>
+              </Grid>
+            </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsVisible" Value="True">
                 <Trigger.EnterActions>
@@ -1804,9 +1804,9 @@
       </Grid>
     </DataTemplate>
     <DataTemplate Key="itemMenuTemplate" DataType="{Type local:DialogMenuItem}">
-      <Canvas>
+      <Grid>
         <Label Name="lbl1" Margin="10,4,0,0" Text="{Binding Name}" Font="font13"/>
-      </Canvas>
+      </Grid>
     </DataTemplate>
     <Style Key="MpListView" TargetType="ListBox">
       <Setter Property="SnapsToDevicePixels" Value="true"/>
