@@ -66,7 +66,7 @@ namespace SkinEngine.Effects
       string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
       if (File.Exists(effectFile))
       {
-        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 ;
+        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3;
         string errors = "";
         _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, null, null, shaderFlags, null, out errors);
         if (_effect == null)
@@ -132,7 +132,8 @@ namespace SkinEngine.Effects
       Dictionary<string, EffectHandleAsset>.Enumerator enumer = _parameters.GetEnumerator();
       while (enumer.MoveNext())
       {
-        enumer.Current.Value.Handle.Dispose();
+        if (enumer.Current.Value.Handle != null)
+          enumer.Current.Value.Handle.Dispose();
         enumer.Current.Value.Handle = null;
       }
       _handleTechnique = null;

@@ -80,11 +80,12 @@ namespace SkinEngine.Controls.Visuals
           parts[partNr] = parts[partNr].Substring(0, p1);
         }
         object res = null;
-
-        MethodInfo info =
-         obj.GetType().GetProperty(parts[partNr],
+        PropertyInfo propInfo = obj.GetType().GetProperty(parts[partNr],
                                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
-                                   BindingFlags.InvokeMethod | BindingFlags.ExactBinding).GetGetMethod();
+                                   BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
+        if (propInfo==null)
+          return null;
+        MethodInfo info = propInfo.GetGetMethod();
         if (info == null)
         {
           ServiceScope.Get<ILogger>().Error("cannot get object for {0}", name);
