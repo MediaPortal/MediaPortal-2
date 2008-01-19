@@ -47,6 +47,10 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bass.Net, Version=2.3.1.8, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MediaPortal.Base\Bass.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -57,6 +61,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FreeDB\CDInfo.cs" />
+    <Compile Include="FreeDB\CDInfoDetail.cs" />
+    <Compile Include="FreeDB\CDTrackDetail.cs" />
+    <Compile Include="FreeDB\FreeDBQuery.cs" />
+    <Compile Include="FreeDB\FreeDBSite.cs" />
+    <Compile Include="FreeDB\XMCDParser.cs" />
     <Compile Include="MusicImporter.cs" />
     <Compile Include="TagReader\MusicTag.cs" />
     <Compile Include="TagReader\TagReader.cs" />
@@ -65,6 +75,10 @@
     <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

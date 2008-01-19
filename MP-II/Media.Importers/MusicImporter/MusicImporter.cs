@@ -36,6 +36,8 @@ using MediaPortal.Core.Importers;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.MediaManager;
 
+using MediaPortal.Utilities.CD;
+using MusicImporter.Freedb;
 
 namespace MusicImporter
 {
@@ -75,10 +77,6 @@ namespace MusicImporter
 
     public MusicImporter()
     {
-      //_extensions = new List<string>();
-      //string[] exts = _supportedExtensions.Split(new char[] { ',' });
-      //for (int i = 0; i < exts.Length; ++i)
-      //  _extensions.Add(exts[i]);
     }
 
     public void Initialize(string id)
@@ -97,43 +95,8 @@ namespace MusicImporter
 
     #endregion
 
-    //#region IAutoStart Members
-
-    //public void Startup()
-    //{
-
-    //  ServiceScope.Get<IImporterManager>().Register(this);
-
-    //}
-
-    //#endregion
 
     #region IImporter Members
-
-    ///// <summary>
-    ///// Gets the importer name.
-    ///// </summary>
-    ///// <value>The importer name.</value>
-    //public string Name
-    //{
-    //  get
-    //  {
-    //    return "MusicImporter";
-    //  }
-    //}
-
-    ///// <summary>
-    ///// Gets the file-extensions the importer supports
-    ///// </summary>
-    ///// <value>The file-extensions.</value>
-    //public List<string> Extensions
-    //{
-    //  get
-    //  {
-    //    return _extensions;
-    //  }
-    //}
-
     /// <summary>
     /// Imports the file.
     /// </summary>
@@ -183,28 +146,28 @@ namespace MusicImporter
         //string ext = Path.GetExtension(file).ToLower();
         //if (Extensions.Contains(ext))
         //{
-          // Has the song already be added? 
-          // This happens when a full directory is copied into the share.
-          if (SongExists(file))
-            return;
-          // For some reason the Create is fired already by windows while the file is still copied.
-          // This happens especially on large songs copied via WLAN.
-          // The result is that Tagreader is throwing an IO Exception.
-          // I'm trying to open the file here. In case of an exception the file is processed by the Change Event.
-          try
-          {
-            FileInfo fileInfo = new FileInfo(file);
-            Stream s = null;
-            s = fileInfo.OpenRead();
-            s.Close();
-          }
-          catch (Exception)
-          {
-            // The file is not closed yet. Ignore the event, it will be processed by the Change event
-            return;
-          }
-          IDbItem track = AddSong(file);
-          if (track != null) track.Save();
+        // Has the song already be added? 
+        // This happens when a full directory is copied into the share.
+        if (SongExists(file))
+          return;
+        // For some reason the Create is fired already by windows while the file is still copied.
+        // This happens especially on large songs copied via WLAN.
+        // The result is that Tagreader is throwing an IO Exception.
+        // I'm trying to open the file here. In case of an exception the file is processed by the Change Event.
+        try
+        {
+          FileInfo fileInfo = new FileInfo(file);
+          Stream s = null;
+          s = fileInfo.OpenRead();
+          s.Close();
+        }
+        catch (Exception)
+        {
+          // The file is not closed yet. Ignore the event, it will be processed by the Change event
+          return;
+        }
+        IDbItem track = AddSong(file);
+        if (track != null) track.Save();
         //}
 
       }
@@ -229,16 +192,16 @@ namespace MusicImporter
         //string ext = Path.GetExtension(file).ToLower();
         //if (Extensions.Contains(ext))
         //{
-          if (SongExists(file))
-          {
-            IDbItem track = UpdateSong(file);
-            if (track != null) track.Save();
-          }
-          else
-          {
-            IDbItem track = AddSong(file);
-            if (track != null) track.Save();
-          }
+        if (SongExists(file))
+        {
+          IDbItem track = UpdateSong(file);
+          if (track != null) track.Save();
+        }
+        else
+        {
+          IDbItem track = AddSong(file);
+          if (track != null) track.Save();
+        }
         //}
 
       }
@@ -356,6 +319,16 @@ namespace MusicImporter
     {
       try
       {
+        // Is the given Folder a Redbook Audio CD? Then we need to query FreeDB
+        if (folder.Length < 4)
+        {
+          if (Utils.isARedBookCD(folder))
+          {
+            QueryFreeDB(folder, ref items);
+            return;
+          }
+        }
+
         Query imagesByPath = new Query("path", Operator.Same, folder);
         List<IDbItem> results = _musicDatabase.Query(imagesByPath);
         foreach (IAbstractMediaItem item in items)
@@ -366,39 +339,39 @@ namespace MusicImporter
           //string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
           //if (Extensions.Contains(ext))
           //{
-            bool found = false;
-            IMediaItem mediaItem = item as IMediaItem;
-            if (mediaItem != null)
+          bool found = false;
+          IMediaItem mediaItem = item as IMediaItem;
+          if (mediaItem != null)
+          {
+            foreach (IDbItem dbItem in results)
             {
-              foreach (IDbItem dbItem in results)
+              string contentUri = dbItem.Attributes["contenturi"].Value.ToString();
+              if (mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
               {
-                string contentUri = dbItem.Attributes["contenturi"].Value.ToString();
-                if (mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
+                found = true;
+                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                while (enumer.MoveNext())
                 {
-                  found = true;
-                  Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
-                  while (enumer.MoveNext())
-                  {
-                    mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
-                  }
-                  mediaItem.Title = dbItem.Attributes["title"].Value as string;
-                  break;
+                  mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
                 }
-              }
-              if (!found)
-              {
-                IDbItem dbItem = AddSong(mediaItem.ContentUri.LocalPath);
-                if (dbItem != null)
-                {
-                  Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
-                  while (enumer.MoveNext())
-                  {
-                    mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
-                  }
-                  mediaItem.Title = dbItem.Attributes["title"].Value as string;
-                }
+                mediaItem.Title = dbItem.Attributes["title"].Value as string;
+                break;
               }
             }
+            if (!found)
+            {
+              IDbItem dbItem = AddSong(mediaItem.ContentUri.LocalPath);
+              if (dbItem != null)
+              {
+                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                while (enumer.MoveNext())
+                {
+                  mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
+                }
+                mediaItem.Title = dbItem.Attributes["title"].Value as string;
+              }
+            }
+          }
           //}
         }
       }
@@ -407,6 +380,51 @@ namespace MusicImporter
       }
     }
 
+    /// <summary>
+    /// Queries FreeDB for the Audio CD inserted
+    /// </summary>
+    /// <param name="folder"></param>
+    /// <param name="items"></param>
+    public void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
+    {
+      string discId = string.Empty;
+      CDInfoDetail MusicCD = new CDInfoDetail();
+      char driveLetter = System.IO.Path.GetFullPath(folder).ToCharArray()[0];
+      try
+      {
+        FreeDBQuery freedb = new FreeDBQuery();
+        freedb.Connect(); 
+        Freedb.CDInfo[] cds = freedb.GetDiscInfo(driveLetter);
+        if (cds != null)
+        {
+          if (cds.Length == 1)
+          {
+            MusicCD = freedb.GetDiscDetails(cds[0].Category, cds[0].DiscId);
+            discId = cds[0].DiscId;
+          }
+        }
+        freedb.Disconnect();
+      }
+      catch (Exception)
+      {
+        MusicCD = null;
+      }
+
+      if (MusicCD != null)
+      {
+        // Update the Items with the Track Details
+        int i = 0;
+        foreach (IAbstractMediaItem item in items)
+        {
+          IMediaItem mediaItem = item as IMediaItem;
+          if (mediaItem != null)
+          {
+            mediaItem.Title = MusicCD.Tracks[i].Title;
+          }
+          i++;
+        }
+      }
+    }
     #endregion
 
     #region private methods

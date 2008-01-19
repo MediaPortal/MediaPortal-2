@@ -42,12 +42,13 @@ using MediaPortal.Core.UserManagement;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Importers;
+using MediaPortal.Core.AutoPlay;
 
 using MediaPortal.Services.ExifReader;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
-
 using MediaPortal.Services.UserManagement;
+using MediaPortal.Services.AutoPlay;
 
 using SkinEngine;
 using SkinEngine.Commands;
@@ -102,10 +103,6 @@ namespace dxEngine
       MenuBuilder menuBuilder = new MenuBuilder();
       ServiceScope.Add<IMenuBuilder>(menuBuilder);
 
-      //add importer-manager
-
-
-
       ServiceScope.Get<ILogger>().Debug("Application: create IWindowManager service");
       WindowManager windowManager = new WindowManager();
       ServiceScope.Add<IWindowManager>(windowManager);
@@ -115,20 +112,15 @@ namespace dxEngine
       MediaPlayers players = new MediaPlayers();
       ServiceScope.Add<PlayerCollection>(players);
 
-
-
       ServiceScope.Get<ILogger>().Debug("Application: create UserService service");
       UserService userservice = new UserService();
       ServiceScope.Add<IUserService>(userservice);
 
-      // moved to plugin PlayerManager
-      ////services for creating/managing playlists
-      //ServiceScope.Add<IPlaylistFactory>(new PlaylistFactory());
-      //ServiceScope.Add<IPlaylistManager>(new PlaylistManager());
+      ServiceScope.Get<ILogger>().Debug("Application: create AutoPlay service");
+      AutoPlay autoplayservice = new AutoPlay();    
+      ServiceScope.Add<IAutoPlay>(autoplayservice);
 
-
-
-
+      
       //**********************************************************
 
       _previousMousePosition = new Point(-1, -1);
@@ -208,8 +200,10 @@ namespace dxEngine
       _renderThread.Name = "DirectX Render Thread";
       _renderThread.Start();
       ServiceScope.Get<ILogger>().Debug("Application: running");
-    }
 
+      // The form is active, so let's start listening on AutoPlay events
+      ServiceScope.Get<IAutoPlay>().StartListening(this.Handle);
+    }
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
