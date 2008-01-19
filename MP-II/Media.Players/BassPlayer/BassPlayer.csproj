@@ -47,11 +47,11 @@
   <ItemGroup>
     <Reference Include="Bass.Net, Version=2.3.1.8, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Bass.Net.dll</HintPath>
+      <HintPath>..\..\MediaPortal.Base\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\BassRegistration.dll</HintPath>
+      <HintPath>..\..\MediaPortal.Base\BassRegistration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
