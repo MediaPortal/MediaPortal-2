@@ -203,13 +203,16 @@ namespace SkinEngine.Controls.Visuals
     {
       _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
-      if (_asset != null)
+      if (_label != null)
       {
-        float h = _asset.Font.LineHeight;// *1.2f;
-        //h -= (_asset.Font.LineHeight - _asset.Font.Base);
-        size = new SizeF((float)availableSize.Width, (float)(h));
-        if (availableSize.Width == 0)
-          size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
+        if (_asset != null)
+        {
+          float h = _asset.Font.LineHeight;// *1.2f;
+          //h -= (_asset.Font.LineHeight - _asset.Font.Base);
+          size = new SizeF((float)availableSize.Width, (float)(h));
+          if (availableSize.Width == 0)
+            size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
+        }
       }
       if (Width <= 0)
         _desiredSize.Width = ((float)size.Width) - (float)(Margin.X + Margin.W);
@@ -309,8 +312,8 @@ namespace SkinEngine.Controls.Visuals
       }
 
       //rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
-
-      _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
+      if (_label != null)
+        _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
     }
   }
 }
