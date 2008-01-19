@@ -132,7 +132,9 @@
     <Compile Include="Controls\Bindings\BindingCollection.cs" />
     <Compile Include="Controls\Bindings\BindingDependency.cs" />
     <Compile Include="Controls\Bindings\Command.cs" />
+    <Compile Include="Controls\Bindings\CommandGroup.cs" />
     <Compile Include="Controls\Bindings\IBindingCollection.cs" />
+    <Compile Include="Controls\Bindings\InvokeCommand.cs" />
     <Compile Include="Controls\Bindings\TemplateBinding.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />

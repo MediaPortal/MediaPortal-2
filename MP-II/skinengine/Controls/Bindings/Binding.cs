@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Bindings
   {
     public string _expression;
     PropertyInfo _propertyInfo;
+    UIElement _context;
     protected BindingDependency _dependency;
 
     public Binding()
@@ -90,13 +91,21 @@ namespace SkinEngine.Controls.Bindings
         _propertyInfo = value;
       }
     }
-
+    public virtual void Initialize(object bindingDestinationObject)
+    {
+      UIElement element = bindingDestinationObject as UIElement;
+      if (element != null)
+      {
+        Initialize(bindingDestinationObject, element);
+      }
+    }
     /// <summary>
     /// Initializes the binding to the object specified
     /// </summary>
     /// <param name="obj">The object.</param>
-    public virtual void Initialize(object bindingDestinationObject)
+    public virtual void Initialize(object bindingDestinationObject, UIElement context)
     {
+      _context = context;
       //{Binding bindingPropertyName1=value,bindingPropertyName2=value,bindingPropertyNameN=value}
       // binding properties
       //   ElementName=
@@ -162,26 +171,45 @@ namespace SkinEngine.Controls.Bindings
 
     void SetupDatabinding(object bindingDestinationObject, string bindingSourcePropertyName)
     {
+      object bindingSourceProperty;
       UIElement sourceElement = bindingDestinationObject as UIElement;
-      if (sourceElement == null)
+      if (sourceElement != null)
       {
-        return;
-      }
-      object bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
-      if (bindingSourceProperty == null)
-      {
-        bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName + "Property");
+        bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
         if (bindingSourceProperty == null)
         {
-          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName);
+          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName + "Property");
           if (bindingSourceProperty == null)
           {
-            ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
-              Expression, bindingSourcePropertyName, sourceElement);
-            return;
+            bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName);
+            if (bindingSourceProperty == null)
+            {
+              ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
+                Expression, bindingSourcePropertyName, sourceElement);
+              return;
+            }
           }
         }
       }
+      else
+      {
+        bindingSourceProperty = GetBindingSourceObject(_context, bindingSourcePropertyName);
+        if (bindingSourceProperty == null)
+        {
+          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(_context, bindingSourcePropertyName + "Property");
+          if (bindingSourceProperty == null)
+          {
+            bindingSourceProperty = VisualTreeHelper.Instance.FindElement(_context, bindingSourcePropertyName);
+            if (bindingSourceProperty == null)
+            {
+              ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
+                Expression, bindingSourcePropertyName, sourceElement);
+              return;
+            }
+          }
+        }
+      }
+
       if (bindingSourceProperty is Property)
       {
         Property sourceProperty = (Property)bindingSourceProperty;
@@ -264,6 +292,25 @@ namespace SkinEngine.Controls.Bindings
       object bindingObject = methodInfo.Invoke(element.Context, null);
       return bindingObject;
     }
+
+    protected object GetBindingSourceObject(object element, string bindingSourcePropertyName)
+    {
+      PropertyInfo info = GetPropertyOnObject(element, bindingSourcePropertyName, true);
+      if (info == null)
+      {
+        Command newCmd = GetMethodInfo(bindingSourcePropertyName);
+        if (newCmd != null)
+        {
+          return newCmd;
+        }
+        return null;
+      }
+      MethodInfo methodInfo = info.GetGetMethod();
+      if (methodInfo == null) return null;
+      object bindingObject = methodInfo.Invoke(element, null);
+      return bindingObject;
+    }
+
     Command GetMethodInfo(string command)
     {
       IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;

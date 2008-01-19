@@ -32,25 +32,29 @@ namespace SkinEngine.Controls.Bindings
   {
     MethodInfo _info;
     object _object;
+    object _parameter;
 
     public Command()
     {
     }
+
     public Command(Command c)
     {
       Object = c.Object;
       Method = c.Method;
+      Parameter = c.Parameter;
     }
 
     #region ICloneable Members
 
-    public object Clone()
+    public virtual object Clone()
     {
       return new Command(this);
     }
 
 
     #endregion
+
     public MethodInfo Method
     {
       get
@@ -62,6 +66,7 @@ namespace SkinEngine.Controls.Bindings
         _info = value;
       }
     }
+
     public object Object
     {
       get
@@ -71,6 +76,41 @@ namespace SkinEngine.Controls.Bindings
       set
       {
         _object = value;
+      }
+    }
+
+    public object Parameter
+    {
+      get
+      {
+        return _parameter;
+      }
+      set
+      {
+        _parameter = value;
+      }
+    }
+
+    public virtual void Execute(object commandParameter)
+    {
+      if (commandParameter != null)
+      {
+        _info.Invoke(_object, new object[] { commandParameter });
+      }
+      else
+      {
+        _info.Invoke(_object, null);
+      }
+    }
+    public virtual void Execute()
+    {
+      if (Parameter != null)
+      {
+        _info.Invoke(_object, new object[] { Parameter });
+      }
+      else
+      {
+        _info.Invoke(_object, null);
       }
     }
   }

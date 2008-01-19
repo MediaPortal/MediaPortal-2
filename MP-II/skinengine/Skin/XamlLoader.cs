@@ -527,6 +527,10 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ControlTemplate")
         return true;
+      else if (name == "CommandGroup")
+        return true;
+      else if (name == "InvokeCommand")
+        return true;
       return false;
     }
     /// <summary>
@@ -714,6 +718,10 @@ namespace SkinEngine.Skin
         return new SkinEngine.Controls.Visuals.Styles.Setter();
       else if (name == "ControlTemplate")
         return new SkinEngine.Controls.Visuals.Styles.ControlTemplate();
+      else if (name == "CommandGroup")
+        return new SkinEngine.Controls.Bindings.CommandGroup();
+      else if (name == "InvokeCommand")
+        return new SkinEngine.Controls.Bindings.InvokeCommand();
       return null;
     }
 

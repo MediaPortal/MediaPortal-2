@@ -43,6 +43,7 @@ namespace SkinEngine.Controls.Visuals
     Property _templateProperty;
     Property _commandParameter;
     Command _command;
+    Property _commands;
     Command _contextMenuCommand;
     Property _contextMenuCommandParameterProperty;
 
@@ -84,6 +85,7 @@ namespace SkinEngine.Controls.Visuals
 
       ContextMenuCommand = c.ContextMenuCommand;
       ContextMenuCommandParameter = c.ContextMenuCommandParameter;
+      Commands = (CommandGroup)c.Commands.Clone();
     }
 
     public override object Clone()
@@ -96,6 +98,7 @@ namespace SkinEngine.Controls.Visuals
       _styleProperty = new Property(null);
       _templateProperty = new Property(null);
       _commandParameter = new Property(null);
+      _commands = new Property(new CommandGroup());
       _command = null;
       _contextMenuCommandParameterProperty = new Property(null);
       _contextMenuCommand = null;
@@ -182,6 +185,32 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    public Property CommandsProperty
+    {
+      get
+      {
+        return _commands;
+      }
+      set
+      {
+        _commands = value;
+      }
+    }
+    /// <summary>
+    /// Gets or sets the command.s
+    /// </summary>
+    /// <value>The command.</value>
+    public CommandGroup Commands
+    {
+      get
+      {
+        return _commands.GetValue() as CommandGroup;
+      }
+      set
+      {
+        _commands.SetValue(value);
+      }
+    }
     /// <summary>
     /// Gets or sets the command.
     /// </summary>
@@ -452,14 +481,15 @@ namespace SkinEngine.Controls.Visuals
       {
         if (Command != null)
         {
-          Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
+          Command.Execute(CommandParameter);
         }
+        Commands.Execute(this);
       }
       if (executeContextCmd)
       {
         if (ContextMenuCommand != null)
         {
-          ContextMenuCommand.Method.Invoke(ContextMenuCommand.Object, new object[] { ContextMenuCommandParameter });
+          ContextMenuCommand.Execute(ContextMenuCommandParameter);
 
         }
       }
