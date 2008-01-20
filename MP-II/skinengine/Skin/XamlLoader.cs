@@ -458,6 +458,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ResourceDictionary")
         return true;
+      else if (name == "ProgressBar")
+        return true;
 
 
       //brushes
@@ -633,6 +635,11 @@ namespace SkinEngine.Skin
       else if (name == "ContentPresenter")
       {
         _lastElement = new SkinEngine.Controls.Visuals.ContentPresenter();
+        return _lastElement;
+      }
+      else if (name == "ProgressBar")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.ProgressBar();
         return _lastElement;
       }
       else if (name == "DataTemplate")

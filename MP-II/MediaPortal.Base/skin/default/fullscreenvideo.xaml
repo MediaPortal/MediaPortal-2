@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
   <Canvas  History="False" xmlns:local="clr-namespace:Model;assembly=mymovies" >
+    <Canvas.Resources>
+      <ResourceDictionary Source="XamlStyle.xml"/>
+    </Canvas.Resources>
     <Canvas.Background>
       <VideoBrush/>
     </Canvas.Background>
@@ -32,13 +35,23 @@
       </Border.Background>
     </Border>
 
-    <Canvas>
+    <Border Name="bgProgressbar" Canvas.Left="224" Canvas.Top="436" Width="395" Height="15" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
+      <Border.Background>
+        <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
+          <GradientStop Offset="0" Color="#48F2F2F2"/>
+          <GradientStop Offset="1" Color="#F8CCCCCC"/>
+        </RadialGradientBrush>
+      </Border.Background>
+    </Border>
+    <ProgressBar  Name="progressBar" Canvas.Left="227" Canvas.Top="438" Width="390" Height="10" Value="{Binding Players.OSD.PercentPlayed}" Style="{StaticResource MpProgressBar}"/>
+
+    <Canvas Name="pipWindow">
       <Canvas.Background>
         <VideoBrush Canvas.Left="30" Canvas.Top="457" Width="100" Height="91" Stream="1"/>
       </Canvas.Background>
     </Canvas>
-    <Label Name="startTime" Font="font12" HorizontalAlignment="Center" Canvas.Left="145" Canvas.Top="438" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
-    <Label Name="endTime" Font="font12" HorizontalAlignment="Center" Canvas.Left="609"  Canvas.Top="438" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.RemainingTime}" />
+    <Label Name="startTime" Font="font12" VerticalAlignment="Top"  HorizontalAlignment="Center" Canvas.Left="145" Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
+    <Label Name="endTime" Font="font12" VerticalAlignment="Top"  HorizontalAlignment="Center" Canvas.Left="609"  Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.RemainingTime}" />
     <Label Name="osdname" Font="font12" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="510" Color="Black" Width="190" Height="30" Text="Video" />
 
     <Label Name="time" Font="font13" Canvas.Left="637" Canvas.Top="513" Text="#script:Time" Width="100" Height="32" Color="Black"/>
