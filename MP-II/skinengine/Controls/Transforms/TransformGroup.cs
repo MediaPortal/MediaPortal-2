@@ -102,6 +102,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      base.UpdateTransform();
       _matrix = Matrix.Identity;
       foreach (Transform t in Children)
       {

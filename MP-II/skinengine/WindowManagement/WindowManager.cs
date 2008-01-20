@@ -33,6 +33,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
+using MediaPortal.Core.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.InputManager;
@@ -76,6 +77,7 @@ namespace SkinEngine
     private Window _previousWindow = null;
     private List<Window> _history = new List<Window>();
     private ISkinLoader _skinLoader;
+    public Utils _utils = new Utils();
     #endregion
 
     /// <summary>
@@ -243,11 +245,11 @@ namespace SkinEngine
     /// <value>The current window.</value>
     public IWindow CurrentWindow
     {
-      get 
+      get
       {
-        if (_currentDialog != null) 
+        if (_currentDialog != null)
           return _currentDialog;
-        return _currentWindow; 
+        return _currentWindow;
       }
     }
 
@@ -265,9 +267,10 @@ namespace SkinEngine
     /// </summary>
     public void Render()
     {
+      Utils.Update();
+      SkinContext.Now = DateTime.Now;
       lock (_history)
       {
-        SkinContext.Now = DateTime.Now;
         lock (_windows)
         {
           if (_previousWindow != null)
@@ -444,7 +447,7 @@ namespace SkinEngine
       {
         _history.Add(window);
       }
-      
+
 #if TESTXAML
       lock (_history)
       {
@@ -546,7 +549,7 @@ namespace SkinEngine
         CloseDialog();
         return;
       }
-      
+
 #if TESTXAML
 #else
       if (_history.Count <= 1)
@@ -601,6 +604,16 @@ namespace SkinEngine
       _previousWindow = null;
     }
 
-
+    public Utils Utils
+    {
+      get
+      {
+        return _utils;
+      }
+      set
+      {
+        _utils = value;
+      }
+    }
   }
 }

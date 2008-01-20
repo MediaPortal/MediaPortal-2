@@ -210,6 +210,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      base.UpdateTransform();
       _matrix = Matrix.Identity;
       return;
       ///@todo: fix skew transform

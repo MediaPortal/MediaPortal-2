@@ -326,6 +326,7 @@
     <Compile Include="Skin\XamlLoader.cs" />
     <Compile Include="WindowManagement\nUnit\TestWindow.cs" />
     <Compile Include="WindowManagement\nUnit\TestWindowManager.cs" />
+    <Compile Include="WindowManagement\Utils.cs" />
     <Compile Include="WindowManagement\Window.cs" />
     <Compile Include="WindowManagement\WindowManager.cs" />
     <Compile Include="WindowManagement\WindowSettings.cs" />

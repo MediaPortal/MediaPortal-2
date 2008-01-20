@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyXaml >
+  <ResourceDictionary>
+    <Style Key="AnalogClockTemplate" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate Key="AnalogClockTemplate">
+            <Grid>
+              <Ellipse Width="54" Height="54" StrokeThickness="3">
+                <Ellipse.Stroke>
+                  <LinearGradientBrush>
+                    <GradientStop Color="#F8AAAAAA" Offset="0" />
+                    <GradientStop Color="#F8070707" Offset="1" />
+                  </LinearGradientBrush>
+                </Ellipse.Stroke>
+              </Ellipse>
+              <Ellipse VerticalAlignment="Center" HorizontalAlignment="Center" Width="54" Height="54" Fill="#F8A0A0A0" StrokeThickness="3">
+                <Ellipse.Stroke>
+                  <LinearGradientBrush>
+                    <GradientStop Color="#F8070707" Offset="0" />
+                    <GradientStop Color="#F8AAAAAA" Offset="1" />
+                  </LinearGradientBrush>
+                </Ellipse.Stroke>
+              </Ellipse>
+
+              <Canvas Width="51" Height="51">
+                <Ellipse Width="4" Height="4" Fill="Black" Canvas.Top="24" Canvas.Left="23" />
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24" Fill="Black" Width="2" Height="4">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="0" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="30" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="60" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24" Fill="Black" Width="2" Height="4">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="90" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="120" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="150" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24" Fill="Black" Width="2" Height="4">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="180" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="210" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="240" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24" Fill="Black" Width="2" Height="4">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="270" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="300" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Canvas.Top="2.5" Canvas.Left="24.5" Fill="Black" Width="1" Height="3">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="1" CenterY="24" Angle="330" />
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+
+
+                <Rectangle Name="HourHand" Canvas.Top="10.5" Canvas.Left="24" Fill="Black" Width="2" Height="15">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform Name="HourHand2" CenterX="1" CenterY="15" Angle="{Binding WindowManager.Utils.HourAngle}">
+                    </RotateTransform>
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+
+                <Rectangle Name="MinuteHand" Canvas.Top="3" Canvas.Left="24.5" Fill="Black" Width="1" Height="22.5">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform CenterX="0.5" CenterY="22.5" Angle="{Binding WindowManager.Utils.MinuteAngle}">
+                    </RotateTransform>
+                  </Rectangle.RenderTransform>
+                </Rectangle>
+              </Canvas>
+            </Grid>
+
+
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </ResourceDictionary>
+</MyXaml>

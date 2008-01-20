@@ -180,6 +180,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      base.UpdateTransform();
       double radians = Angle / 180.0 * Math.PI;
 
       if (CenterX == 0.0 && CenterY == 0.0)

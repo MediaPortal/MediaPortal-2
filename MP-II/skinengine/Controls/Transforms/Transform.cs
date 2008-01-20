@@ -26,24 +26,43 @@ using System.Collections.Generic;
 using System.Text;
 using SlimDX;
 using SlimDX.Direct3D9;
+using MediaPortal.Core;
 using MediaPortal.Core.Properties;
-
+using MediaPortal.Core.WindowManager;
+using SkinEngine.Controls.Bindings;
+using SkinEngine;
 namespace SkinEngine.Controls.Transforms
 {
-  public class Transform : Property, ICloneable
+  public class Transform : Property, ICloneable, IBindingCollection
   {
     protected bool _needUpdate = true;
     protected Matrix _matrix = Matrix.Identity;
+    BindingCollection _bindings;
+    bool _initialized;
 
     public Transform()
     {
+      Init();
     }
+
     public Transform(Transform r)
     {
+      Init();
+      foreach (Binding b in r._bindings)
+      {
+        _bindings.Add((Binding)b.Clone());
+      }
     }
+
     public virtual object Clone()
     {
       return new Transform(this);
+    }
+
+    void Init()
+    {
+      _initialized = false;
+      _bindings = new BindingCollection();
     }
 
     public void GetTransform(out ExtendedMatrix m)
@@ -53,6 +72,7 @@ namespace SkinEngine.Controls.Transforms
       m = new ExtendedMatrix();
       m.Matrix *= matrix;
     }
+
     /// <summary>
     /// Gets the transform.
     /// </summary>
@@ -72,7 +92,29 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public virtual void UpdateTransform()
     {
+      InitializeBindings();
     }
 
+
+    #region IBindingCollection Members
+
+    public void Add(Binding binding)
+    {
+      _bindings.Add(binding);
+    }
+
+    public virtual void InitializeBindings()
+    {
+      if (_initialized) return;
+      if (_bindings.Count == 0) return;
+      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
+      Window window = (Window)mgr.CurrentWindow;
+      foreach (Binding binding in _bindings)
+      {
+        binding.Initialize(this, window.Visual);
+      }
+      _initialized = true;
+    }
+    #endregion
   }
 }

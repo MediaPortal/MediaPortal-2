@@ -79,7 +79,7 @@ namespace SkinEngine.Controls.Visuals
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
-      Invalidate();
+     // Invalidate();
     }
     void OnFontChanged(Property prop)
     {

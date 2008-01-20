@@ -3,6 +3,7 @@
   <Canvas  History="False" xmlns:local="clr-namespace:Model;assembly=mymovies" >
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
+      <ResourceDictionary Source="AnalogClock.xaml"/>
     </Canvas.Resources>
     <Canvas.Background>
       <VideoBrush/>
@@ -45,19 +46,20 @@
     </Border>
     <ProgressBar  Name="progressBar" Canvas.Left="227" Canvas.Top="438" Width="390" Height="10" Value="{Binding Players.OSD.PercentPlayed}" Style="{StaticResource MpProgressBar}"/>
 
-    <Canvas Name="pipWindow">
-      <Canvas.Background>
-        <VideoBrush Canvas.Left="30" Canvas.Top="457" Width="100" Height="91" Stream="1"/>
-      </Canvas.Background>
-    </Canvas>
     <Label Name="startTime" Font="font12" VerticalAlignment="Top"  HorizontalAlignment="Center" Canvas.Left="145" Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
     <Label Name="endTime" Font="font12" VerticalAlignment="Top"  HorizontalAlignment="Center" Canvas.Left="609"  Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Players.OSD.RemainingTime}" />
     <Label Name="osdname" Font="font12" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="510" Color="Black" Width="190" Height="30" Text="Video" />
 
-    <Label Name="time" Font="font13" Canvas.Left="637" Canvas.Top="513" Text="#script:Time" Width="100" Height="32" Color="Black"/>
-    <Label Name="osdTitle" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="466" Color="Black" Width="260" Height="30" Text="{Binding Players.OSD.Title}" />
-    <Label Name="osdTime" Font="font13" HorizontalAlignment="Left" Canvas.Left="25" Canvas.Top="445" Color="Black" Width="190" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
+    <Label Name="time" Font="font13" Canvas.Left="610" Canvas.Top="513" Text="{Binding WindowManager.Utils.CurrentTime}" Width="120" Height="32" Color="Black" HorizontalAlignment="Left"/>
+    <Label Name="osdTitle" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="466" Color="Black" Width="420" Height="30" Text="{Binding Players.OSD.Title}" />
+    <Label Name="osdTime" Font="font13" HorizontalAlignment="Left" Canvas.Left="30" Canvas.Top="440" Color="Black" Width="190" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
     <Label Name="osdDuration" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="533" Color="Black" Width="190" Height="30" Text="{Binding Players.OSD.Duration}" />
 
+    <ProgressBar Name="Clock" Canvas.Left="550" Canvas.Top="510" Width="25" Height="25" Style="{StaticResource AnalogClockTemplate}"/>
+    <Canvas Name="pipWindow" Canvas.Left="30" Canvas.Top="438" Width="100" Height="93">
+      <Canvas.Background>
+        <VideoBrush  Stream="1"/>
+      </Canvas.Background>
+    </Canvas>
   </Canvas>
 </MyXaml>

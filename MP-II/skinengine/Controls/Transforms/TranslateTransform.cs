@@ -133,6 +133,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      base.UpdateTransform();
       _matrix = Matrix.Translation((float)X, (float)Y, 0);
     }
 

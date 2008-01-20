@@ -208,6 +208,7 @@ namespace SkinEngine.Controls.Transforms
     /// </summary>
     public override void UpdateTransform()
     {
+      base.UpdateTransform();
       double sx = ScaleX;
       double sy = ScaleY;
 
