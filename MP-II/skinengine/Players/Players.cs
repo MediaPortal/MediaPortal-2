@@ -57,6 +57,7 @@ namespace SkinEngine.Players
     private List<IPlayer> _players;
     private ListItem _pipMenu;
     private Property _videoPaused;
+    private Property _videoPlaying;
     private Property _muted;
     private PlaybackSettings _playbackSettings = new PlaybackSettings();
     private OsdProperties _osdProperties;
@@ -74,6 +75,7 @@ namespace SkinEngine.Players
       queue.OnMessageReceive += new MessageReceivedHandler(OnInternalPlayerMessageReceived);
       _osdProperties = new OsdProperties(this);
       _videoPaused = new Property("Players.VideoPaused", false);
+      _videoPlaying = new Property("Players.VideoPlaying", false);
       _players = new List<IPlayer>();
       _muted = new Property(false);
       _activePlayersProperty = new Property(0);
@@ -149,6 +151,7 @@ namespace SkinEngine.Players
 
       _players.Clear();
       Paused = false;
+      Playing = false;
       ActivePlayers = 0;
     }
 
@@ -184,6 +187,7 @@ namespace SkinEngine.Players
       if (_players.Count == 0)
       {
         Paused = false;
+        Playing = false;
       }
     }
 
@@ -403,6 +407,26 @@ namespace SkinEngine.Players
     {
       get { return (bool)_videoPaused.GetValue(); }
       set { _videoPaused.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the playing property.
+    /// </summary>
+    /// <value>The playing property.</value>
+    public Property PlayingProperty
+    {
+      get { return _videoPlaying; }
+      set { _videoPlaying = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this <see cref="MediaPlayers"/> is playing.
+    /// </summary>
+    /// <value><c>true</c> if playing; otherwise, <c>false</c>.</value>
+    public bool Playing
+    {
+      get { return (bool)_videoPlaying.GetValue(); }
+      set { _videoPlaying.SetValue(value); }
     }
     #endregion
 
@@ -632,7 +656,7 @@ namespace SkinEngine.Players
     /// <summary>
     /// fast rewind playback.
     /// </summary>
-    public void Rewind() 
+    public void Rewind()
     {
       SeekBackward();
     }
@@ -672,7 +696,6 @@ namespace SkinEngine.Players
           msg.MetaData["action"] = "paused";
         else
           msg.MetaData["action"] = "continue";
-        Paused = this[0].Paused;
       }
     }
 
@@ -684,7 +707,6 @@ namespace SkinEngine.Players
       if (Count != 0)
       {
         this[0].Paused = true;
-        Paused = true;
 
         IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
         MPMessage msg = new MPMessage();
@@ -701,7 +723,6 @@ namespace SkinEngine.Players
       if (Count != 0)
       {
         this[0].Restart();
-        Paused = this[0].Paused;
         IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
         MPMessage msg = new MPMessage();
         msg.MetaData["player"] = this[0];
@@ -718,7 +739,6 @@ namespace SkinEngine.Players
       if (Count != 0)
       {
         this[0].Paused = false;
-        Paused = this[0].Paused;
 
         IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
         MPMessage msg = new MPMessage();
@@ -732,6 +752,7 @@ namespace SkinEngine.Players
       if (Count != 0)
       {
         this[0].Paused = false;
+        Playing = true;
         this[0].ResumeSession();
       }
     }
@@ -740,6 +761,7 @@ namespace SkinEngine.Players
       if (Count != 0)
       {
         this[0].Paused = false;
+        Playing = true;
         this[0].Restart();
       }
     }
@@ -765,6 +787,29 @@ namespace SkinEngine.Players
       }
       else
       {
+        if (action == "started")
+        {
+          if (player == this[0])
+          {
+            Playing = true;
+          }
+        }
+        if (action == "paused")
+        {
+          if (player == this[0])
+          {
+            Playing = false;
+            Paused = true;
+          }
+        }
+        if (action == "playing")
+        {
+          if (player == this[0])
+          {
+            Playing = true;
+            Paused = false;
+          }
+        }
         queue.Send(message);
       }
     }

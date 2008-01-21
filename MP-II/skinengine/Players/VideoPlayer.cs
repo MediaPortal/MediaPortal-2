@@ -1211,7 +1211,16 @@ namespace SkinEngine.Players
           }
           _state = PlaybackState.Playing;
         }
-        ServiceScope.Get<PlayerCollection>().Paused = value;
+
+
+        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
+        MPMessage msg = new MPMessage();
+        msg.MetaData["player"] = this;
+        if (_state == PlaybackState.Paused)
+          msg.MetaData["action"] = "paused";
+        else
+          msg.MetaData["action"] = "playing";
+        queue.Send(msg);
       }
     }
 

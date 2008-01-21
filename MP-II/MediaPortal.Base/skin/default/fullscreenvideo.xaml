@@ -54,6 +54,9 @@
     <Label Name="osdTitle" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="466" Color="Black" Width="420" Height="30" Text="{Binding Players.OSD.Title}" />
     <Label Name="osdTime" Font="font13" HorizontalAlignment="Left" Canvas.Left="30" Canvas.Top="440" Color="Black" Width="190" Height="30" Text="{Binding Players.OSD.CurrentTime}" />
     <Label Name="osdDuration" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="533" Color="Black" Width="190" Height="30" Text="{Binding Players.OSD.Duration}" />
+    <Label Name="row1" font="font13" Canvas.Left="129" Canvas.Top="530"  Width="100" Height="30" Color="Black" Text="Players.OSD.SeekTime" />
+    <Image Name="pause" Source="video-pause.png" Canvas.Left="144" Canvas.Top="449" Width="25" Height="32"  IsVisible="{Binding Players.Paused}"/>
+    <Image Name="play" Source="video-play.png" Canvas.Left="144" Canvas.Top="449" Width="25" Height="32"  IsVisible="{Binding Players.Playing}"/>
 
     <ProgressBar Name="Clock" Canvas.Left="550" Canvas.Top="510" Width="25" Height="25" Style="{StaticResource AnalogClockTemplate}"/>
     <Canvas Name="pipWindow" Canvas.Left="30" Canvas.Top="438" Width="100" Height="93">
