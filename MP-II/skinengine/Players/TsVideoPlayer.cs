@@ -135,6 +135,7 @@ namespace SkinEngine.Players
         _subtitleFilter = null;
       }
       _renderer.Clear();
+      _renderer.ReleaseResources();
       _renderer = null;
       IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("fullscreenVideocontext");
       if (menu != null)
