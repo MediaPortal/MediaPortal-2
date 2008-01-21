@@ -76,7 +76,7 @@ namespace MediaPortal.Core.Players
     /// Gets the onscreen rectangle where movie gets rendered
     /// </summary>
     /// <value>The movie rectangle.</value>
-    Rectangle MovieRectangle { get;}
+    Rectangle MovieRectangle { get;set;}
 
     /// <summary>
     /// gets/sets the alphamask
@@ -98,7 +98,8 @@ namespace MediaPortal.Core.Players
     /// Render the video
     /// </summary>
     void Render();
-    object Texture { get;}
+    void BeginRender(object effect);
+    void EndRender(object effect);
 
     /// <summary>
     /// gets/sets wheter video is paused

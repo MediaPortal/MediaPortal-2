@@ -31,6 +31,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.WindowManager;
+using SkinEngine.Players.Subtitles;
 
 [ComVisible(true), ComImport,
 Guid("324FAA1F-4DA6-47B8-832B-3993D8FF4151"),
@@ -657,7 +658,16 @@ namespace SkinEngine.Players
       base.Render();
       if (_renderer != null)
         _renderer.Render();
-
+    }
+    public override void BeginRender(object effect)
+    {
+      base.BeginRender(effect);
+    }
+    public override void EndRender(object effect)
+    {
+      base.EndRender(effect);
+      if (_renderer != null)
+        _renderer.Render();
     }
 
     #endregion

@@ -98,12 +98,11 @@ namespace BassPlayer
         return true;
       }
     }
-    public object Texture
+    public void BeginRender(object effect)
     {
-      get
-      {
-        return null;
-      }
+    }
+    public void EndRender(object effect)
+    {
     }
 
     public void ReleaseResources()
@@ -151,6 +150,10 @@ namespace BassPlayer
       get
       {
         return _playerInstance.MovieRectangle;
+      }
+      set
+      {
+        _playerInstance.MovieRectangle = value;
       }
     }
 

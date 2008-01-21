@@ -38,13 +38,15 @@ using MediaPortal.Core;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Logging;
 using SkinEngine.DirectX;
-namespace SkinEngine.Players
+using SkinEngine.Effects;
+
+namespace SkinEngine.Players.Subtitles
 {
   /// <summary>
   /// Structure used in communication with subtitle filter
   /// </summary>
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
-  public struct SUBTITLE
+  public struct NATIVE_SUBTITLE
   {
     // start of bitmap fields
     public Int32 bmType;
@@ -64,6 +66,18 @@ namespace SkinEngine.Players
     public Int32 firstScanLine;
   }
 
+  /*
+   * int character_table;
+  LPCSTR language;
+  int page;
+  LPCSTR text;
+  int firstLine;  // can be 0 to (totalLines - 1)
+  int totalLines; // for teletext this is 25 lines
+
+  unsigned    __int64 timestamp;
+  unsigned    __int64 timeOut;
+
+  */
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TEXT_SUBTITLE
   {
@@ -72,9 +86,7 @@ namespace SkinEngine.Players
 
     public int page;
     public string text; // subtitle lines seperated by newline characters
-    public int startTextLine;
-    public int totalTextLines;
-
+    public LineContent[] lc;
     public UInt64 timeStamp;
     public UInt64 timeOut; // in seconds
 
@@ -109,6 +121,11 @@ namespace SkinEngine.Players
 
   public class Subtitle
   {
+    public static int idCount = 0;
+    public Subtitle()
+    {
+      id = idCount++;
+    }
     public Bitmap subBitmap;
     public uint width;
     public uint height;
@@ -133,27 +150,25 @@ namespace SkinEngine.Players
   public interface IDVBSubtitleSource
   {
     void SetBitmapCallback(IntPtr callBack);
-    void SetTeletextCallback(IntPtr callBack);
     void SetResetCallback(IntPtr callBack);
     void SetUpdateTimeoutCallback(IntPtr callBack);
     void StatusTest(int status);
   }
 
   [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-  public delegate int SubtitleCallback(ref SUBTITLE sub);
-  public delegate int TextSubtitleCallback(/*ref TEXT_SUBTITLE sub*/IntPtr textsub);
+  public delegate int SubtitleCallback(ref NATIVE_SUBTITLE sub);
   public delegate int ResetCallback();
   public delegate int UpdateTimeoutCallback(ref Int64 timeOut);
-  public delegate void PageInfoCallback(TeletextPageEntry entry);
 
   public class SubtitleRenderer
   {
+    bool _reinitialzing = true;
     private bool useBitmap = true; // if false use teletext
-    private int activeSubPage = -1; // if use teletext, what page
-    //private static SubtitleRenderer instance = null;
+    private int activeSubPage; // if use teletext, what page
+    private static SubtitleRenderer instance = null;
     private IDVBSubtitleSource subFilter = null;
     private long subCounter = 0;
-    bool _reinitialzing = false;
+    private const int MAX_SUBTITLES_IN_QUEUE = 20;
     /// <summary>
     /// The coordinates of current vertex buffer
     /// </summary>
@@ -167,10 +182,11 @@ namespace SkinEngine.Players
     // important, these delegates must NOT be garbage collected
     // or horrible things will happen when the native code tries to call those!
     private SubtitleCallback callBack;
-    private TextSubtitleCallback textCallBack;
+    // private TextSubtitleCallback textCallBack;
     private ResetCallback resetCallBack;
     private UpdateTimeoutCallback updateTimeoutCallBack;
-    private PageInfoCallback pageInfoCallback;
+
+    private double posOnLastRender; //file position on last render
 
     /// <summary>
     /// Texture storing the current/last subtitle
@@ -205,6 +221,8 @@ namespace SkinEngine.Players
         renderSubtitles = value;
         if (value == false)
         {
+          activeSubPage = -1;
+          useBitmap = false;
           clearOnNextRender = true;
         }
       }
@@ -213,12 +231,11 @@ namespace SkinEngine.Players
     public SubtitleRenderer()
     {
       subtitles = new LinkedList<Subtitle>();
-      callBack = new SubtitleCallback(this.OnSubtitle);
-      textCallBack = new TextSubtitleCallback(this.OnTextSubtitle);
-      resetCallBack = new ResetCallback(this.Reset);
-      updateTimeoutCallBack = new UpdateTimeoutCallback(this.UpdateTimeout);
+      callBack = new SubtitleCallback(OnSubtitle);
+      //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
+      resetCallBack = new ResetCallback(Reset);
+      updateTimeoutCallBack = new UpdateTimeoutCallback(UpdateTimeout);
     }
-
 
     public void SetPlayer(IPlayer p)
     {
@@ -230,27 +247,31 @@ namespace SkinEngine.Players
       player = p;
     }
 
-    public void SetPageInfoCallback(PageInfoCallback cb)
-    {
-      this.pageInfoCallback = cb;
-    }
-    /*
+
+
     public void SetSubtitleOption(SubtitleOption option)
     {
-      if (option.type == SubtitleType.Teletext)
+      if (option.type == SubtitleType.None)
+      {
+        useBitmap = false;
+        activeSubPage = 0;
+      }
+      else if (option.type == SubtitleType.Teletext)
       {
         useBitmap = false;
         activeSubPage = option.entry.page;
+        ServiceScope.Get<ILogger>().Debug("SubtitleRender: Now rendering {0} teletext subtitle page {1}", option.language, activeSubPage);
       }
       else if (option.type == SubtitleType.Bitmap)
       {
         useBitmap = true;
+        ServiceScope.Get<ILogger>().Debug("SubtitleRender: Now rendering bitmap subtitles in language {0}", option.language);
       }
       else
       {
         ServiceScope.Get<ILogger>().Error("Unknown subtitle option " + option);
       }
-    }*/
+    }
 
     /// <summary>
     /// Alerts the subtitle render that a seek has just been performed.
@@ -269,6 +290,7 @@ namespace SkinEngine.Players
       // Fixed seeking, currently TsPlayer & TsReader is not reseting the base time when seeking
       //this.startPos = startPos;
       clearOnNextRender = true;
+      //posOnLastTextSub = -1;
       ServiceScope.Get<ILogger>().Debug("New StartPos is " + startPos);
       return 0;
     }
@@ -324,9 +346,8 @@ namespace SkinEngine.Players
     /// for the duration of OnSubtitle.
     /// </summary>
     /// <returns></returns>
-    public int OnSubtitle(ref SUBTITLE sub)
+    public int OnSubtitle(ref NATIVE_SUBTITLE sub)
     {
-      if (_reinitialzing) return 0;
       if (!useBitmap) return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
       ServiceScope.Get<ILogger>().Debug("OnSubtitle - stream position " + player.StreamPosition);
       lock (alert)
@@ -369,6 +390,11 @@ namespace SkinEngine.Players
 
           lock (subtitles)
           {
+            while (subtitles.Count >= MAX_SUBTITLES_IN_QUEUE)
+            {
+              ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
+              subtitles.RemoveFirst();
+            }
             subtitles.AddLast(subtitle);
             ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle added, now have " + subtitles.Count + " subtitles in cache");
           }
@@ -381,72 +407,85 @@ namespace SkinEngine.Players
       return 0;
     }
 
-    public int OnTextSubtitle(IntPtr p /*ref TEXT_SUBTITLE sub*/)
+    /* private double posOnLastTextSub = -1;
+     private bool lastTextSubBlank = false;
+     private bool useMinSeperation = false;*/
+
+    public void OnTextSubtitle(ref TEXT_SUBTITLE sub)
     {
-      if (_reinitialzing) return 0;
-      TEXT_SUBTITLE sub = new TEXT_SUBTITLE();
-      ServiceScope.Get<ILogger>().Debug("On\nText\nSubtitle\ncalled");
+      //bool blank = false;
+      ServiceScope.Get<ILogger>().Debug("On TextSubtitle called");
+
       try
       {
-        sub = (TEXT_SUBTITLE)Marshal.PtrToStructure(p, typeof(TEXT_SUBTITLE));
-        ServiceScope.Get<ILogger>().Debug("Page: " + sub.page);
-        ServiceScope.Get<ILogger>().Debug("Character table: " + sub.encoding);
-        ServiceScope.Get<ILogger>().Debug("Start line: " + sub.startTextLine + " total lines " + sub.totalTextLines);
-        ServiceScope.Get<ILogger>().Debug("Timeout: " + sub.timeOut);
-        ServiceScope.Get<ILogger>().Debug("Timestamp" + sub.timeStamp);
-        ServiceScope.Get<ILogger>().Debug("Language: " + sub.language);
-        String content = sub.text;
-        if (content.Trim().Length > 0) // debug log subtitles
+        if (sub.page == activeSubPage)
         {
-          StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
-          while (st.HasMore)
+          ServiceScope.Get<ILogger>().Debug("Page: " + sub.page);
+          ServiceScope.Get<ILogger>().Debug("Character table: " + sub.encoding);
+          ServiceScope.Get<ILogger>().Debug("Timeout: " + sub.timeOut);
+          ServiceScope.Get<ILogger>().Debug("Timestamp" + sub.timeStamp);
+          ServiceScope.Get<ILogger>().Debug("Language: " + sub.language);
+
+          String content = sub.text;
+          if (content == null)
           {
-            ServiceScope.Get<ILogger>().Debug(st.NextToken());
+            ServiceScope.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
+            return;
+          }
+          ServiceScope.Get<ILogger>().Debug("Content: ");
+          if (content.Trim().Length > 0) // debug log subtitles
+          {
+            StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
+            while (st.HasMore)
+            {
+              ServiceScope.Get<ILogger>().Debug(st.NextToken());
+            }
+          }
+          else
+          {
+            //blank = true;
+            ServiceScope.Get<ILogger>().Debug("<BLANK PAGE>");
           }
         }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Problem marshalling TEXT_SUBTITLE");
+        ServiceScope.Get<ILogger>().Error("Problem with TEXT_SUBTITLE");
         ServiceScope.Get<ILogger>().Error(e);
       }
 
       try
       {
-        TeletextPageEntry pageEntry = new TeletextPageEntry();
-        pageEntry.language = String.Copy(sub.language);
-        pageEntry.encoding = (TeletextCharTable)sub.encoding;
-        pageEntry.page = sub.page;
-
-        if (pageInfoCallback != null)
-        {
-          pageInfoCallback(pageEntry);
-        }
-
         // if we dont need the subtitle
-        if (!renderSubtitles || useBitmap || (activeSubPage != pageEntry.page))
+        if (!renderSubtitles || useBitmap || (activeSubPage != sub.page))
         {
-          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", pageEntry.page, useBitmap, activeSubPage);
-          return 0;
+          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
+          return;
         }
         else
         {
-          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", pageEntry.page, useBitmap, activeSubPage);
+          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
         }
 
         Subtitle subtitle = new Subtitle();
-        subtitle.subBitmap = RenderText(sub.text, sub.startTextLine, sub.totalTextLines);
+        subtitle.subBitmap = RenderText(sub.lc);
         subtitle.timeOut = sub.timeOut;
-        subtitle.presentTime = player.CurrentTime.TotalSeconds; // compute present time in SECONDS, text subs are show immediatly
-        subtitle.height = 576;
-        subtitle.width = 720;
-        subtitle.firstScanLine = (int)(sub.startTextLine / (float)sub.totalTextLines) * 576; //sub.firstScanLine;
+        subtitle.presentTime = sub.timeStamp / 90000.0f + startPos;
+
+        subtitle.height = (uint)SkinContext.Height;
+        subtitle.width = (uint)SkinContext.Width;
+        subtitle.firstScanLine = 0;
 
         lock (subtitles)
         {
+          while (subtitles.Count >= MAX_SUBTITLES_IN_QUEUE)
+          {
+            ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
+            subtitles.RemoveFirst();
+          }
           subtitles.AddLast(subtitle);
 
-          ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have " + subtitles.Count + " subtitles in cache " + subtitle.ToString());
+          ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have " + subtitles.Count + " subtitles in cache " + subtitle.ToString() + " pos on last render was " + posOnLastRender);
         }
       }
       catch (Exception e)
@@ -454,37 +493,39 @@ namespace SkinEngine.Players
         ServiceScope.Get<ILogger>().Error("Problem processing text subtitle");
         ServiceScope.Get<ILogger>().Error(e);
       }
-      return 0;
+
+      return;
     }
 
-
-    public Bitmap RenderText(string lines, int startLine, int totalLines)
+    public static Bitmap RenderText(LineContent[] lc)
     {
-      int w = 720;
-      int h = 576;
+
+      int w = (int)SkinContext.Width;
+      int h = (int)SkinContext.Height;
 
       Bitmap bmp = new Bitmap(w, h);
-
-      int hOffset = (int)(h * (startLine / (float)totalLines));
-
-      Console.WriteLine(hOffset);
 
       using (Graphics gBmp = Graphics.FromImage(bmp))
       using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
       using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(0, 0, 0)))
       {
         gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-        using (System.Drawing.Font fnt = new System.Drawing.Font("Courier", 14, FontStyle.Bold)) // fixed width font!
+        for (int i = 0; i < lc.Length; i++)
         {
+          using (System.Drawing.Font fnt = new System.Drawing.Font("Courier", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
+          {
+            int vertOffset = (h / lc.Length) * i;
 
-          SizeF size = gBmp.MeasureString(lines, fnt);
-          //gBmp.FillRectangle(new SolidBrush(Color.Pink), new Rectangle(0, 0, w, h));
-          int vOffset = (int)((w - size.Width) / 2); // center based on actual text width
-          gBmp.DrawString(lines, fnt, blackBrush, new PointF(vOffset + 1, hOffset + 0));
-          gBmp.DrawString(lines, fnt, blackBrush, new PointF(vOffset + 0, hOffset + 1));
-          gBmp.DrawString(lines, fnt, blackBrush, new PointF(vOffset - 1, hOffset + 0));
-          gBmp.DrawString(lines, fnt, blackBrush, new PointF(vOffset + 0, hOffset - 1));
-          gBmp.DrawString(lines, fnt, brush, new PointF(vOffset, hOffset));
+            SizeF size = gBmp.MeasureString(lc[i].line, fnt);
+            //gBmp.FillRectangle(new SolidBrush(Color.Pink), new Rectangle(0, 0, w, h));
+            int horzOffset = (int)((w - size.Width) / 2); // center based on actual text width
+            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 1, vertOffset + 0));
+            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset + 1));
+            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset - 1, vertOffset + 0));
+            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset - 1));
+            gBmp.DrawString(lc[i].line, fnt, brush, new PointF(horzOffset, vertOffset));
+
+          }
         }
       }
       return bmp;
@@ -502,32 +543,39 @@ namespace SkinEngine.Players
       try
       {
         Bitmap bitmap = subtitle.subBitmap;
-        // allocate new texture
-        texture = new Texture(GraphicsDevice.Device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
-
-        LockedRect rect = texture.LockRectangle(0, LockFlags.None);
-
-        System.Drawing.Imaging.BitmapData bd = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-        // Quick copy of content
-        unsafe
+        if (bitmap != null)
         {
-          byte* to = (byte*)rect.Data.DataPointer.ToPointer();
-          byte* from = (byte*)bd.Scan0.ToPointer();
-          for (int y = 0; y < bd.Height; ++y)
+          // allocate new texture
+          texture = new Texture(GraphicsDevice.Device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+
+          LockedRect rect = texture.LockRectangle(0, LockFlags.None);
+
+          System.Drawing.Imaging.BitmapData bd = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+          // Quick copy of content
+          unsafe
           {
-            for (int x = 0; x < bd.Width * 4; ++x)
+            byte* to = (byte*)rect.Data.DataPointer.ToPointer();
+            byte* from = (byte*)bd.Scan0.ToPointer();
+            for (int y = 0; y < bd.Height; ++y)
             {
-              to[rect.Pitch * y + x] = from[y * bd.Stride + x];
+              for (int x = 0; x < bd.Width * 4; ++x)
+              {
+                to[rect.Pitch * y + x] = from[y * bd.Stride + x];
+              }
             }
           }
-        }
 
-        texture.UnlockRectangle(0);
-        bitmap.UnlockBits(bd);
-        bitmap.Dispose();
-        bitmap = null;
-        rect.Data.Dispose();
+          texture.UnlockRectangle(0);
+          bitmap.UnlockBits(bd);
+          bitmap.Dispose();
+          bitmap = null;
+          rect.Data.Dispose();
+        }
+        else
+        {
+          texture = new Texture(GraphicsDevice.Device, 100, 100, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+        }
       }
       catch (Exception e)
       {
@@ -535,6 +583,7 @@ namespace SkinEngine.Players
         ServiceScope.Get<ILogger>().Error(e);
         return;
       }
+
       // dispose of old subtitle
       if (subTexture != null)
       {
@@ -558,8 +607,7 @@ namespace SkinEngine.Players
     {
       try
       {
-        filter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                         "MediaPortal DVBSub2");
+        filter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "MediaPortal DVBSub2");
         subFilter = filter as IDVBSubtitleSource;
         ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (filter != null) + " & " + (subFilter != null));
       }
@@ -569,9 +617,7 @@ namespace SkinEngine.Players
       }
       subFilter.StatusTest(111);
       IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(callBack);
-      IntPtr pTextCallback = Marshal.GetFunctionPointerForDelegate(textCallBack);
       subFilter.SetBitmapCallback(pCallback);
-      subFilter.SetTeletextCallback(pTextCallback);
 
       subFilter.StatusTest(222);
 
@@ -580,9 +626,6 @@ namespace SkinEngine.Players
 
       IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(updateTimeoutCallBack);
       subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
-
-      //IntPtr pTextCallback = Marshal.GetFunctionPointerForDelegate(textCallBack); // needed for when teletext stuff is added
-      //subFilter.SetTextCallback(pTextCallback);
 
       return filter;
     }
@@ -594,7 +637,7 @@ namespace SkinEngine.Players
         return;
       }
       //ServiceScope.Get<ILogger>().Debug("\n\n***** SubtitleRenderer: Subtitle render *********");
-      //ServiceScope.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
+      // ServiceScope.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
       //if (!GUIGraphicsContext.IsFullScreenVideo) return;
 
       if (clearOnNextRender)
@@ -625,6 +668,8 @@ namespace SkinEngine.Players
           }
         }
       }
+
+      posOnLastRender = player.StreamPosition.TotalSeconds;
 
       // Check for subtitle if we dont have one currently or if the current one is beyond its timeout
       if (currentSubtitle == null || currentSubtitle.presentTime + currentSubtitle.timeOut <= player.StreamPosition.TotalSeconds || timeForNext)
@@ -665,34 +710,36 @@ namespace SkinEngine.Players
             // next wants to be displayed in the future so break
             else
             {
+
               //ServiceScope.Get<ILogger>().Debug("-next is in the future");
               break;
             }
           }
         }
         // if currentSubtitle is non-null we have a new subtitle
-        if (currentSubtitle != null) SetSubtitle(currentSubtitle);
+        if (currentSubtitle != null)
+        {
+          SetSubtitle(currentSubtitle);
+        }
         else return;
       }
       bool alphaTest = false;
       bool alphaBlend = false;
 
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       try
       {
         // store current settings so they can be restored when we are done
-        alphaTest = (GraphicsDevice.Device.GetRenderState(RenderState.AlphaTestEnable) != 0);
-        alphaBlend = (GraphicsDevice.Device.GetRenderState(RenderState.AlphaBlendEnable) != 0);
+        alphaTest = true;// (GraphicsDevice.Device.GetRenderState(RenderState.AlphaTestEnable) != 0);
+        alphaBlend = true;// (GraphicsDevice.Device.GetRenderState(RenderState.AlphaBlendEnable) != 0);
 
         int wx = 0, wy = 0, wwidth = 0, wheight = 0;
         float rationW = 1, rationH = 1;
 
         Rectangle movieRect = player.MovieRectangle;
-        rationH = movieRect.Height / 576.0f;
-        rationW = movieRect.Width / 720.0f;
+        rationH = movieRect.Height / ((float)SkinContext.Height);
+        rationW = movieRect.Width / ((float)SkinContext.Width);
 
-        wx = (movieRect.Right) - (movieRect.Width / 2) -
-          (int)(((float)currentSubtitle.width * rationW) / 2);
+        wx = (movieRect.Right) - (movieRect.Width / 2) - (int)(((float)currentSubtitle.width * rationW) / 2);
         wy = movieRect.Top + (int)(rationH * (float)currentSubtitle.firstScanLine);
 
 
@@ -708,13 +755,16 @@ namespace SkinEngine.Players
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, true);
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, false);
 
+        EffectAsset effect = ContentManager.GetEffect("normal");
         GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColoredTextured.StrideSize);
-        GraphicsDevice.Device.SetTexture(0, subTexture);
         GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
+        effect.StartRender(subTexture);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+        effect.EndRender();
       }
       catch (Exception e)
       {
+
         ServiceScope.Get<ILogger>().Error(e);
       }
       try
@@ -750,6 +800,11 @@ namespace SkinEngine.Players
       {
         ServiceScope.Get<ILogger>().Debug("Subtitle: Setting vertices");
         PositionColoredTextured[] verts = new PositionColoredTextured[4];
+        int color;
+        unchecked
+        {
+          color = (int)0xffffffff;
+        }
 
         // upper left
         verts[0].X = wx;
@@ -757,6 +812,7 @@ namespace SkinEngine.Players
         verts[0].Z = 1.0f;
         verts[0].Tu1 = 0;
         verts[0].Tv1 = 0;
+        verts[0].Color = color;
 
         // upper right
         verts[1].X = wx + wwidth;
@@ -764,6 +820,7 @@ namespace SkinEngine.Players
         verts[1].Z = 1.0f;
         verts[1].Tu1 = 1;
         verts[1].Tv1 = 0;
+        verts[1].Color = color;
 
         // lower left
         verts[2].X = wx;
@@ -771,6 +828,7 @@ namespace SkinEngine.Players
         verts[2].Z = 1.0f;
         verts[2].Tu1 = 0;
         verts[2].Tv1 = 1;
+        verts[2].Color = color;
 
         // lower right
         verts[3].X = wx + wwidth;
@@ -778,6 +836,7 @@ namespace SkinEngine.Players
         verts[3].Z = 1.0f;
         verts[3].Tu1 = 1;
         verts[3].Tv1 = 1;
+        verts[3].Color = color;
 
 
         // remember what the vertexBuffer is set to
@@ -785,7 +844,7 @@ namespace SkinEngine.Players
         wx0 = wx;
         wheight0 = wheight;
         wwidth0 = wwidth;
-        PositionColoredTextured.Set(vertexBuffer,ref verts);
+        PositionColoredTextured.Set(vertexBuffer, ref verts);
       }
     }
 
@@ -809,13 +868,7 @@ namespace SkinEngine.Players
           subFilter = null;
         }
       }
-      if (vertexBuffer != null)
-      {
-        vertexBuffer.Dispose();
-        vertexBuffer = null;
-      }
     }
-
     public void ReleaseResources()
     {
       _reinitialzing = true;

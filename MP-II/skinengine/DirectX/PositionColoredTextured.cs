@@ -16,7 +16,7 @@ namespace SkinEngine.DirectX
     public float Tu1; //16..19
     public float Tv1; //20..23
 
-    public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture0 | VertexFormat.Diffuse;
+    public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture1 | VertexFormat.Diffuse;
 
     public static readonly VertexElement[] Declarator = new VertexElement[]
       {

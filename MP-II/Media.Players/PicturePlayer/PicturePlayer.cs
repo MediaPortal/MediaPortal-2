@@ -177,6 +177,9 @@ namespace PicturePlayer
       {
         return new System.Drawing.Rectangle(0, 0, 0, 0);
       }
+      set
+      {
+      }
     }
 
     /// <summary>
@@ -244,12 +247,12 @@ namespace PicturePlayer
       }
     }
 
-    public object Texture
+
+    public void BeginRender(object effect)
     {
-      get
-      {
-        return null;
-      }
+    }
+    public void EndRender(object effect)
+    {
     }
 
     /// <summary>

@@ -733,12 +733,12 @@ namespace BassPlayer
       set { }
     }
 
-    public object Texture
+
+    public void BeginRender(object effect)
     {
-      get
-      {
-        return null;
-      }
+    }
+    public void EndRender(object effect)
+    {
     }
 
     /// <summary>
@@ -908,6 +908,9 @@ namespace BassPlayer
       get
       {
         return new Rectangle(0, 0, 0, 0);
+      }
+      set
+      {
       }
     }
     #endregion

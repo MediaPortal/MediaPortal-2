@@ -264,6 +264,10 @@ namespace SkinEngine.Players
       {
         return _movieRect;
       }
+      set
+      {
+        _movieRect = value;
+      }
     }
 
     public Size VideoSize
@@ -1107,14 +1111,21 @@ namespace SkinEngine.Players
 
     }
 
-    public object Texture
+
+    public virtual void BeginRender(object effect)
     {
-      get
-      {
-        if (_initialized == false) return null;
-        if (_allocator == null) return null;
-        return _allocator.Texture;
-      }
+      if (_initialized == false) return ;
+      if (_allocator == null) return ;
+      EffectAsset e = (EffectAsset)effect;
+      e.StartRender(_allocator.Texture);
+    }
+
+    public virtual void EndRender(object effect)
+    {
+      if (_initialized == false) return ;
+      if (_allocator == null) return ;
+      EffectAsset e = (EffectAsset)effect;
+      e.EndRender();
     }
 
     /// <summary>

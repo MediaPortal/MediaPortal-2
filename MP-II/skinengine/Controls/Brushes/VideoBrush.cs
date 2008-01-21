@@ -157,6 +157,7 @@ namespace SkinEngine.Controls.Brushes
                                      out sourceRect,
                                      out destinationRect,
                                      SkinContext.CropSettings);
+      player.MovieRectangle = destinationRect;
       string shaderName = SkinContext.Geometry.Current.Shader;
       if (shaderName != "")
       {
@@ -221,7 +222,7 @@ namespace SkinEngine.Controls.Brushes
 
       IPlayer player = players[Stream];
       UpdateVertexBuffer(player, vertexBuffer);
-      _effect.StartRender(player.Texture as Texture);
+      player.BeginRender(_effect);
       return true;
     }
 
@@ -235,7 +236,7 @@ namespace SkinEngine.Controls.Brushes
       if (players.Count <= Stream) return;
 
       IPlayer player = players[Stream];
-      _effect.EndRender();
+      player.EndRender(_effect);
       if (Transform != null)
       {
         SkinContext.RemoveTransform();
