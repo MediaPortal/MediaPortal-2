@@ -651,6 +651,7 @@ namespace SkinEngine.Players
           _renderer.OnSeek(CurrentTime.TotalSeconds);
       }
     }
+
     public override void Render()
     {
       base.Render();
@@ -658,6 +659,7 @@ namespace SkinEngine.Players
         _renderer.Render();
 
     }
+
     #endregion
     public override void ReleaseResources()
     {
