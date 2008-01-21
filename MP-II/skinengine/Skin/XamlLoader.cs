@@ -460,6 +460,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ProgressBar")
         return true;
+      else if (name == "KeyBinding")
+        return true;
 
 
       //brushes
@@ -641,6 +643,10 @@ namespace SkinEngine.Skin
       {
         _lastElement = new SkinEngine.Controls.Visuals.ProgressBar();
         return _lastElement;
+      }
+      else if (name == "KeyBinding")
+      {
+        return new SkinEngine.Controls.Visuals.KeyBinding();
       }
       else if (name == "DataTemplate")
         return new SkinEngine.Controls.Visuals.DataTemplate();

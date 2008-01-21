@@ -190,6 +190,7 @@
     <Compile Include="Controls\Visual\Image.cs" />
     <Compile Include="Controls\Visual\ItemCollection.cs" />
     <Compile Include="Controls\Visual\ItemsControl.cs" />
+    <Compile Include="Controls\Visual\KeyBinding.cs" />
     <Compile Include="Controls\Visual\Label.cs" />
     <Compile Include="Controls\Visual\ListView.cs" />
     <Compile Include="Controls\Visual\ProgressBar.cs" />
