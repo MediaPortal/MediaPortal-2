@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
@@ -92,6 +93,7 @@ namespace PicturePlayer
     #endregion
 
     #region IPlayer properties
+
     /// <summary>
     /// gets the Name of the Player
     /// </summary>
@@ -146,6 +148,8 @@ namespace PicturePlayer
       }
     }
 
+    public Size VideoSize { get { return new Size(0, 0); } }
+    public Size VideoAspectRatio { get { return new Size(0, 0); } }
     /// <summary>
     /// gets/sets the position on screen where the video should be drawn
     /// </summary>

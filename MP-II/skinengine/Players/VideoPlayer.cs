@@ -266,6 +266,23 @@ namespace SkinEngine.Players
       }
     }
 
+    public Size VideoSize
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.VideoSize;
+      }
+    }
+    public Size VideoAspectRatio
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.AspectRatio;
+      }
+    }
+
     void SetRefreshRate(IMediaItem mediaItem)
     {
       PlayerCollection players = ServiceScope.Get<PlayerCollection>();

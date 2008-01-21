@@ -766,6 +766,8 @@ namespace BassPlayer
     {
     }
 
+    public Size VideoSize { get { return new Size(0, 0); } }
+    public Size VideoAspectRatio { get { return new Size(0, 0); } }
     /// <summary>
     /// returns list of available audio streams
     /// </summary>

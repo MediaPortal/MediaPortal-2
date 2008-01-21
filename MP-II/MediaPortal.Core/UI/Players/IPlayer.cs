@@ -45,6 +45,9 @@ namespace MediaPortal.Core.Players
     /// </summary>
     string Name { get; }
 
+    Size VideoSize { get; }
+    Size VideoAspectRatio { get;  }
+
     /// <summary>
     /// Releases any gui resources.
     /// </summary>

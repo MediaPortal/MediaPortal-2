@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 
@@ -37,6 +38,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.Core.Players;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SkinEngine.Controls.Brushes
 {
@@ -44,6 +46,11 @@ namespace SkinEngine.Controls.Brushes
   {
     Property _streamProperty;
     EffectAsset _effect;
+    Size _videoSize;
+    Size _videoAspectRatio;
+    string _previousGeometry;
+    PositionColored2Textured[] _verts;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="VideoBrush"/> class.
     /// </summary>
@@ -121,6 +128,75 @@ namespace SkinEngine.Controls.Brushes
     {
       UpdateBounds(element, ref verts);
       base.SetupBrush(element, ref verts);
+      _verts = verts;
+      _videoSize = new Size(0, 0);
+      _videoAspectRatio = new Size(0, 0);
+    }
+
+
+    void UpdateVertexBuffer(IPlayer player, VertexBuffer vertexBuffer)
+    {
+      Size size = player.VideoSize;
+      Size aspectRatio = player.VideoAspectRatio;
+      if (size == _videoSize && aspectRatio == _videoAspectRatio)
+      {
+        if (SkinContext.Geometry.Current.Name == _previousGeometry)
+          return;
+      }
+
+      _videoSize = size;
+      _videoAspectRatio = aspectRatio;
+      _previousGeometry = SkinContext.Geometry.Current.Name;
+      Rectangle sourceRect;
+      Rectangle destinationRect;
+      SkinContext.Geometry.ImageWidth = (int)_videoSize.Width;
+      SkinContext.Geometry.ImageHeight = (int)_videoSize.Height;
+      SkinContext.Geometry.ScreenWidth = (int)_bounds.Width;
+      SkinContext.Geometry.ScreenHeight = (int)_bounds.Height;
+      SkinContext.Geometry.GetWindow(aspectRatio.Width, aspectRatio.Height,
+                                     out sourceRect,
+                                     out destinationRect,
+                                     SkinContext.CropSettings);
+      string shaderName = SkinContext.Geometry.Current.Shader;
+      if (shaderName != "")
+      {
+        _effect = ContentManager.GetEffect(shaderName);
+      }
+      else
+      {
+        _effect = ContentManager.GetEffect("normal");
+      }
+
+      float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
+      float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
+      float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
+      float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
+
+      float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
+      float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
+
+      float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
+      float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
+
+      float diffU = maxU - minU;
+      float diffV = maxV - minV;
+      PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
+      for (int i = 0; i < _verts.Length; ++i)
+      {
+        float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
+        float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
+        verts[i].X = (x * _bounds.Width) + _minPosition.X;
+        verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
+
+        float u = _verts[i].Tu1 * diffU + minU;
+        float v = _verts[i].Tv1 * diffV + minV;
+        verts[i].Tu1 = u;
+        verts[i].Tv1 = v;
+        verts[i].Tu2 = verts[i].Tu1;
+        verts[i].Tv2 = verts[i].Tv1;
+        verts[i].Color = _verts[i].Color;
+      }
+      PositionColored2Textured.Set(vertexBuffer, ref verts);
     }
 
     /// <summary>
@@ -144,6 +220,7 @@ namespace SkinEngine.Controls.Brushes
       }
 
       IPlayer player = players[Stream];
+      UpdateVertexBuffer(player, vertexBuffer);
       _effect.StartRender(player.Texture as Texture);
       return true;
     }
