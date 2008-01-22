@@ -126,7 +126,7 @@ namespace MediaPortal.Services.AutoPlay
           }
           else if ((_settings.AutoPlayDVD == "Ask") && (ShouldWeAutoPlay(MediaType.DVD)))
           {
-              PlayDVD = true;
+            PlayDVD = true;
           }
           if (PlayDVD)
           {
@@ -188,15 +188,19 @@ namespace MediaPortal.Services.AutoPlay
               // This does call the MusicImporter, which does a FreeDB Query
               IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
               List<IAbstractMediaItem> tracks = mediaManager.GetView(strDrive + @"\");
-              IMediaItem mediaItem = tracks[0] as IMediaItem;
-              mediaItem.MetaData["MimeType"] = "audio";
 
-              // Get the Player and play it
-              PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
-              IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
-              IPlayer player = factory.GetPlayer(mediaItem);
-              player.Play(mediaItem);
-              collection.Add(player);
+              // Add all items of the CD to the Playlist
+              IPlaylistManager playList = ServiceScope.Get<IPlaylistManager>();
+              foreach (IAbstractMediaItem item in tracks)
+              {
+                IMediaItem mediaItem = item as IMediaItem;
+                if (mediaItem != null)
+                {
+                  mediaItem.MetaData["MimeType"] = "audio";
+                  playList.PlayList.Add(mediaItem);
+                }
+              }
+              playList.PlayAt(0);
             }
             finally
             {
