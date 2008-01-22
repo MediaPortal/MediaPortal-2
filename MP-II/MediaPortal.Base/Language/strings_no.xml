@@ -272,6 +272,8 @@
     <String name="cancelupdate" text="Avbryt oppdatering"/>
     <String name="name" text="Navn"/>
     <String name="downloads" text="Nedlastninger"/>
+    <String name="size" text="Størrelse"/>
+    <String name="date" text="Dato"/>
     <String name="reinstall" text="Installer på nytt"/>
     <String name="installinfo" text="Denne kommandoen vil bli utført neste gang MediaPortal startes"/>
     <String name="dependecyinfo" text="Dette tilegget krever en eller flere andre tilegg som også vil bli installert. Fortsette ?"/>
