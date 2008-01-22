@@ -593,6 +593,8 @@ namespace SkinEngine
     public void Reset()
     {
 #if TESTXAML
+
+      SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
 #else
       for (int i = 0; i < _controls.Count; ++i)

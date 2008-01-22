@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -146,7 +147,7 @@ namespace SkinEngine.Controls.Panels
           if (childSize.Height < 0) childSize.Height = 0;
           child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
-          if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > availableSize.Height)
+          if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > 5 + availableSize.Height)
             break;
           totalHeight += child.DesiredSize.Height;
           child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
@@ -157,7 +158,7 @@ namespace SkinEngine.Controls.Panels
         {
           child.Measure(new SizeF(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
-          if (availableSize.Width > 0 & totalWidth + child.DesiredSize.Width > availableSize.Width)
+          if (availableSize.Width > 0 & totalWidth + child.DesiredSize.Width > 5 + availableSize.Width)
             break;
           totalWidth += child.DesiredSize.Width;
 
@@ -194,6 +195,7 @@ namespace SkinEngine.Controls.Panels
 
 
       base.Measure(availableSize);
+      Trace.WriteLine(String.Format("StackPanel.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
     /// <summary>
@@ -203,6 +205,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
+      Trace.WriteLine(String.Format("StackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
       layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);

@@ -124,9 +124,9 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     /// <param name="totalLength">The total length.</param>
     /// <returns></returns>
-    public double GetLength(double totalLength, int maxItems)
+    public double GetLength(double totalLength, int maxItems, float scale)
     {
-      if (IsAbsolute) return _value;
+      if (IsAbsolute) return _value * scale;
       if (IsStar) return ((_value / 100.0) * totalLength);
       return totalLength / maxItems;
     }

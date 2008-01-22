@@ -1174,6 +1174,8 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!IsArrangeValid) return;
       _isLayoutInvalid = true;
+      if (VisualParent == null)
+        _availableSize = new SizeF(0, 0);
     }
 
     /// <summary>
