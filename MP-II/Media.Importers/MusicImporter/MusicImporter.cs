@@ -420,6 +420,14 @@ namespace MusicImporter
           if (mediaItem != null)
           {
             mediaItem.Title = MusicCD.Tracks[i].Title;
+            mediaItem.MetaData["album"] = MusicCD.Title;
+            mediaItem.MetaData["duration"] = MusicCD.Tracks[i].Duration;
+            mediaItem.MetaData["track"] = MusicCD.Tracks[i].TrackNumber;
+
+            if (MusicCD.Tracks[i].Artist != null)
+              mediaItem.MetaData["album"] = MusicCD.Tracks[i].Artist;
+            else
+              mediaItem.MetaData["artist"] = MusicCD.Artist;
           }
           i++;
         }
