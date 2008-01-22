@@ -365,11 +365,11 @@ namespace SkinEngine.Controls.Brushes
 
             float w = (float)_width;
             float h = (float)_height;
-            float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
-            float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+            float cx = 1.0f;// ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
+            float cy = 1.0f;//((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
 
             bool copy = true;
-            if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
+            if ((int)w >= SkinContext.Width && (int)h >= SkinContext.Height)
             {
               copy = false;
               w /= 2;
@@ -381,7 +381,7 @@ namespace SkinEngine.Controls.Brushes
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
             m.Matrix *= Matrix.Translation(new Vector3(-(float)(_position.X + 1), -(float)(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) * cx) / w), (float)((((float)SkinContext.Height * cy)) / h), 1.0f);
+            m.Matrix *= Matrix.Scaling((float)((((float)GraphicsDevice.Width) * cx) / w), (float)((((float)GraphicsDevice.Height * cy)) / h), 1.0f);
 
             SkinContext.AddTransform(m);
 

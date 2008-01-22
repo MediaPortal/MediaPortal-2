@@ -222,12 +222,16 @@ namespace SkinEngine.Controls.Visuals
       double h = ActualHeight;
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
+
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        m.InvertSize(ref rectSize);
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Matrix *= em.Matrix;
       }
+      m.InvertSize(ref rectSize);
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       //Fill brush

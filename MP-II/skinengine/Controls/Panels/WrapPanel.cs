@@ -98,13 +98,20 @@ namespace SkinEngine.Controls.Panels
 
     public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
       if (Height <= 0)
-        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
-
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
@@ -166,24 +173,18 @@ namespace SkinEngine.Controls.Panels
           }
           break;
       }
-      if (Width > 0) w = (float)Width;
-      if (Height > 0) h = (float)Height;
+      if (Width > 0) w = (float)Width * SkinContext.Zoom.Width;
+      if (Height > 0) h = (float)Height * SkinContext.Zoom.Height;
       _desiredSize = new SizeF((float)w, (float)h);
 
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
       }
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
       _originalSize = _desiredSize;
 
 

@@ -79,7 +79,7 @@ namespace SkinEngine.Controls.Visuals
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
-     // Invalidate();
+      // Invalidate();
     }
     void OnFontChanged(Property prop)
     {
@@ -201,7 +201,6 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
       if (_label != null)
       {
@@ -214,10 +213,13 @@ namespace SkinEngine.Controls.Visuals
             size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
         }
       }
+      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = ((float)size.Width) - (float)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)(size.Width - marginWidth);
       if (Height <= 0)
-        _desiredSize.Height = ((float)size.Height) - (float)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)(size.Height - marginHeight);
 
       if (LayoutTransform != null)
       {
@@ -231,8 +233,8 @@ namespace SkinEngine.Controls.Visuals
       {
         SkinContext.RemoveLayoutTransform();
       }
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
       _originalSize = _desiredSize;
 
 
@@ -249,10 +251,10 @@ namespace SkinEngine.Controls.Visuals
       _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -302,18 +304,25 @@ namespace SkinEngine.Controls.Visuals
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
 
-      if (rect.Height < _asset.Font.LineHeight * 1.2f)
+      if (rect.Height < _asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height)
       {
-        rect.Height = (int)(_asset.Font.LineHeight * 1.2f);
+        rect.Height = (int)(_asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height);
       }
       if (VerticalAlignment == VerticalAlignmentEnum.Center)
       {
-        rect.Y = (int)(y + (h - _asset.Font.LineHeight) / 2.0);
+        rect.Y = (int)(y + (h - _asset.Font.LineHeight * SkinContext.Zoom.Height) / 2.0);
       }
 
-      //rect.Y -= (int)(_asset.Font.LineHeight - _asset.Font.Base);
+      rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
+      rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
+      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      SkinContext.AddTransform(m);
       if (_label != null)
         _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
+      SkinContext.RemoveTransform();
     }
   }
 }

@@ -515,8 +515,8 @@ namespace SkinEngine.Controls.Visuals
 
           float w = (float)ActualWidth;
           float h = (float)ActualHeight;
-          float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
-          float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+          float cx = 1.0f;// ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
+          float cy = 1.0f;//((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
 
           List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
           SkinContext.Transforms = new List<ExtendedMatrix>();
@@ -537,7 +537,7 @@ namespace SkinEngine.Controls.Visuals
           //and scale it correctly since the backbuffer now has the dimensions of the control
           //instead of the skin width/height dimensions
           matrix.Matrix *= Matrix.Translation(new Vector3(-(float)ActualPosition.X, -(float)ActualPosition.Y, 0));
-          matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / w), (float)(((float)SkinContext.Height) / h), 1);
+          matrix.Matrix *= Matrix.Scaling((float)(((float)GraphicsDevice.Width) / w), (float)(((float)GraphicsDevice.Height) / h), 1);
 
           SkinContext.AddTransform(matrix);
 

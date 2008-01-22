@@ -49,12 +49,20 @@ namespace SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
       if (Height <= 0)
-        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
       System.Drawing.SizeF size = new SizeF(_desiredSize.Width, _desiredSize.Height);
       SizeF sizeTop = new SizeF();
       SizeF sizeLeft = new SizeF();
@@ -103,22 +111,16 @@ namespace SkinEngine.Controls.Panels
         _desiredSize.Height = sizeTop.Height + Math.Max(sizeLeft.Height, sizeCenter.Height);
       }
 
-      if (Width > 0) _desiredSize.Width = (float)Width;
-      if (Height > 0) _desiredSize.Height = (float)Height;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
+      if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
       _originalSize = _desiredSize;
 
       base.Measure(availableSize);
@@ -133,10 +135,10 @@ namespace SkinEngine.Controls.Panels
     {
       //_finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z); ;
+      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -159,7 +161,11 @@ namespace SkinEngine.Controls.Panels
         if (!child.IsVisible) continue;
         if (child.Dock == Dock.Top)
         {
-          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
+
+          PointF location = new PointF(offsetLeft, offsetTop);
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
@@ -170,7 +176,10 @@ namespace SkinEngine.Controls.Panels
         }
         else if (child.Dock == Dock.Bottom)
         {
-          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + layoutRect.Height - (offsetBottom + child.DesiredSize.Height)));
+          PointF location = new PointF(offsetLeft, layoutRect.Height - (offsetBottom + child.DesiredSize.Height));
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
@@ -181,7 +190,11 @@ namespace SkinEngine.Controls.Panels
         }
         else if (child.Dock == Dock.Left)
         {
-          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF(offsetLeft, offsetTop);
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
+
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
           else
@@ -192,7 +205,10 @@ namespace SkinEngine.Controls.Panels
         }
         else if (child.Dock == Dock.Right)
         {
-          PointF location = new PointF((float)(this.ActualPosition.X + layoutRect.Width - (offsetRight + child.DesiredSize.Width)), (float)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF(layoutRect.Width - (offsetRight + child.DesiredSize.Width), offsetTop);
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
 
           if (count == Children.Count)
             ArrangeChild(child, ref location, size);
@@ -204,7 +220,10 @@ namespace SkinEngine.Controls.Panels
         }
         else
         {
-          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
+          PointF location = new PointF(offsetLeft, offsetTop);
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
           ArrangeChild(child, ref location, size);
           child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetRight += child.DesiredSize.Width;
@@ -219,7 +238,11 @@ namespace SkinEngine.Controls.Panels
         if (child.Dock == Dock.Center)
         {
           float width = (float)(ActualWidth - (offsetLeft + offsetRight));
-          PointF location = new PointF((float)(this.ActualPosition.X + offsetLeft), (float)(this.ActualPosition.Y + offsetTop));
+
+          PointF location = new PointF(offsetLeft, offsetTop);
+          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+          location.X += (float)this.ActualPosition.X;
+          location.Y += (float)this.ActualPosition.Y;
           //ArrangeChild(child, ref location);
           child.Arrange(new RectangleF(location, child.DesiredSize));
           offsetLeft += child.DesiredSize.Width;

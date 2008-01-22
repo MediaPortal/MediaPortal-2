@@ -287,8 +287,8 @@ namespace dxEngine
       float y = e.Y;
       //x *= (((float)SkinContext.Width) / ((float)this.ClientSize.Width));
       //y *= (((float)SkinContext.Height) / ((float)this.ClientSize.Height));
-      x *= (SkinContext.Width / GraphicsDevice.Width);
-      y *= (SkinContext.Height / GraphicsDevice.Height);
+      //x *= (SkinContext.Width / GraphicsDevice.Width);
+      //y *= (SkinContext.Height / GraphicsDevice.Height);
       //      this.Text = String.Format("{0},{1}", x.ToString("f2"), y.ToString("f2"));
       ServiceScope.Get<IInputManager>().MouseMove(x, y);
     }
@@ -509,6 +509,7 @@ namespace dxEngine
           GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), string.Empty);
           //ServiceScope.Get<ILogger>().Debug("Application: allocate fonts");
           FontManager.Alloc();
+          ServiceScope.Get<IWindowManager>().CurrentWindow.Reset();
 
           //ServiceScope.Get<ILogger>().Debug("Application: start render thread");
           _renderThread = new Thread(RenderLoop);

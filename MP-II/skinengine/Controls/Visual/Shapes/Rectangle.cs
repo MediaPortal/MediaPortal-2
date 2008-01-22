@@ -153,10 +153,11 @@ namespace SkinEngine.Controls.Visuals
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+
+      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -233,12 +234,15 @@ namespace SkinEngine.Controls.Visuals
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        m.InvertSize(ref rectSize);
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Matrix *= em.Matrix;
       }
+      m.InvertSize(ref rectSize);
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
 
       PositionColored2Textured[] verts;

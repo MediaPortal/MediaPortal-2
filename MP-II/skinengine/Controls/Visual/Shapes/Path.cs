@@ -150,12 +150,16 @@ namespace SkinEngine.Controls.Visuals
       double h = ActualHeight;
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
+
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        m.InvertSize(ref rectSize);
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Matrix *= em.Matrix;
       }
+      m.InvertSize(ref rectSize);
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       //Fill brush
@@ -228,12 +232,16 @@ namespace SkinEngine.Controls.Visuals
         RectangleF bounds = p.GetBounds();
         if (Width > 0) bounds.Width = (float)Width;
         if (Height > 0) bounds.Height = (float)Height;
-        _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
+        bounds.Width *= SkinContext.Zoom.Width;
+        bounds.Height *= SkinContext.Zoom.Height;
 
-        if (availableSize.Width > 0)
-          _desiredSize.Width = ((float)availableSize.Width) - (float)(Margin.X + Margin.W);
-        if (availableSize.Height > 0)
-          _desiredSize.Height = ((float)availableSize.Height) - (float)(Margin.Y + Margin.Z);
+        float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+        float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+        _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
+        if (availableSize.Width > 0 && Width <= 0)
+          _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        if (availableSize.Width > 0 && Height <= 0)
+          _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
         if (LayoutTransform != null)
         {
@@ -247,30 +255,13 @@ namespace SkinEngine.Controls.Visuals
         {
           SkinContext.RemoveLayoutTransform();
         }
-        _desiredSize.Width += (float)(Margin.X + Margin.W);
-        _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+        _desiredSize.Width += marginWidth;
+        _desiredSize.Height += marginHeight;
 
         _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-      }
-    }
-    public override void Arrange(System.Drawing.RectangleF finalRect)
-    {
-      base.Arrange(finalRect);
-      /*
+        Trace.WriteLine(String.Format("path.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
 
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-      _performLayout = true;
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.Arrange(layoutRect);
-       */
+      }
     }
 
     private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickNess)
@@ -472,6 +463,7 @@ namespace SkinEngine.Controls.Visuals
       }
       if (finalTransform != null)
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
+      m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
 
       ExtendedMatrix em = null;
       if (LayoutTransform != null)

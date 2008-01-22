@@ -50,7 +50,7 @@ namespace SkinEngine.Controls.Visuals.Styles
         if (child.IsVisible)
         {
           child.Measure(_desiredSize);
-          rect = System.Drawing.RectangleF.Union(rect, new System.Drawing.RectangleF(new System.Drawing.PointF((float)child.Position.X, (float)child.Position.Y), new System.Drawing.SizeF((float)child.DesiredSize.Width, (float)child.DesiredSize.Height)));
+          rect = System.Drawing.RectangleF.Union(rect, new System.Drawing.RectangleF(new System.Drawing.PointF((float)child.Position.X * SkinContext.Zoom.Width, (float)child.Position.Y * SkinContext.Zoom.Height), new System.Drawing.SizeF((float)child.DesiredSize.Width, (float)child.DesiredSize.Height)));
         }
       }
       if (Width > 0) rect.Width = (float)Width;
@@ -97,9 +97,9 @@ namespace SkinEngine.Controls.Visuals.Styles
         UIElement child = Children[0];
         if (child.IsVisible)
         {
-          System.Drawing.PointF p = new System.Drawing.PointF((float)(child.Position.X + this.ActualPosition.X), (float)(child.Position.Y + this.ActualPosition.Y));
-          double widthPerCell = ActualWidth - (child.Position.X - this.ActualPosition.X);
-          double heightPerCell = ActualHeight - (child.Position.Y - this.ActualPosition.Y);
+          System.Drawing.PointF p = new System.Drawing.PointF((float)(child.Position.X * SkinContext.Zoom.Width + this.ActualPosition.X), (float)(child.Position.Y * SkinContext.Zoom.Height + this.ActualPosition.Y));
+          double widthPerCell = ActualWidth - (child.Position.X * SkinContext.Zoom.Width - this.ActualPosition.X);
+          double heightPerCell = ActualHeight - (child.Position.Y * SkinContext.Zoom.Height - this.ActualPosition.Y);
 
           child.Arrange(new System.Drawing.RectangleF(p, child.DesiredSize));
         }

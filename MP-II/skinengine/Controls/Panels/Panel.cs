@@ -248,10 +248,6 @@ namespace SkinEngine.Controls.Panels
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
-        //Matrix mrel, mt;
-        //Background.RelativeTransform.GetTransform(out mrel);
-        //Background.Transform.GetTransform(out mt);
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan))
         {
@@ -280,14 +276,28 @@ namespace SkinEngine.Controls.Panels
       Free();
       if (Background != null)
       {
+        double w = ActualWidth;
+        double h = ActualHeight;
+        System.Drawing.SizeF rectSize = new System.Drawing.SizeF((float)w, (float)h);
+
+        ExtendedMatrix m = new ExtendedMatrix();
+        m.Matrix *= _finalLayoutTransform.Matrix;
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix em;
+          LayoutTransform.GetTransform(out em);
+          m.Matrix *= em.Matrix;
+        }
+        m.InvertSize(ref rectSize);
+        System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
         _vertexBufferBackground = PositionColored2Textured.Create(4);
         PositionColored2Textured[] verts = new PositionColored2Textured[4];
         unchecked
         {
-          verts[0].Position = new SlimDX.Vector3(0, 0, 1.0f);
-          verts[1].Position = new SlimDX.Vector3(0, (float)(ActualHeight), 1.0f);
-          verts[2].Position = new SlimDX.Vector3((float)(ActualWidth), (float)(ActualHeight), 1.0f);
-          verts[3].Position = new SlimDX.Vector3((float)(ActualWidth), 0, 1.0f);
+          verts[0].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
+          verts[1].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Bottom, 1.0f));
+          verts[2].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
+          verts[3].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
 
         }
         Background.SetupBrush(this, ref verts);

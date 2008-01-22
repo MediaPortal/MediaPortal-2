@@ -201,13 +201,15 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
+      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       if (Template == null)
       {
-        _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+        _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
         if (Width <= 0)
-          _desiredSize.Width = ((float)100) - (float)(Margin.X + Margin.W);
+          _desiredSize.Width = (float)(availableSize.Width - marginWidth);
         if (Height <= 0)
-          _desiredSize.Height = ((float)32) - (float)(Margin.Y + Margin.Z);
+          _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
         if (LayoutTransform != null)
         {
@@ -221,19 +223,23 @@ namespace SkinEngine.Controls.Visuals
         {
           SkinContext.RemoveLayoutTransform();
         }
-        _desiredSize.Width += (float)(Margin.X + Margin.W);
-        _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+        _desiredSize.Width += marginWidth;
+        _desiredSize.Height += marginHeight;
         _originalSize = _desiredSize;
         return;
       }
 
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
       if (Height <= 0)
-        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
+        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
 
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
       Template.Measure(_desiredSize);
 
       if (Width <= 0)
@@ -248,14 +254,10 @@ namespace SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
       _originalSize = _desiredSize;
 
 

@@ -316,18 +316,19 @@ namespace SkinEngine
       }
 
 
-      int gw = Width;
-      int gh = Height;
-      gw = (int)SkinContext.Width;
-      gh = (int)SkinContext.Height;
+      int gw = (int)Width;
+      int gh = (int)Height;
+      gw = (int)Width;
+      gh = (int)Height;
+      SkinContext.Zoom = new SizeF( ((float)Width) / SkinContext.Width,((float)Height) / SkinContext.Height);
       Point camera = new Point(gw / 2, gh / 2);
       // and calculate the offset from the screen center
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
 
       // grab the viewport dimensions and location
-      Viewport viewport = Device.Viewport;
-      float w = SkinContext.Width * 0.5f; // viewport.Width * 0.5f;
-      float h = SkinContext.Height * 0.5f; // viewport.Height * 0.5f;
+      Viewport viewport =  Device.Viewport;
+      float w = Width * 0.5f; // viewport.Width * 0.5f;
+      float h = Height * 0.5f; // viewport.Height * 0.5f;
 
       Matrix mtxWorld;
       mtxWorld = Matrix.Identity;

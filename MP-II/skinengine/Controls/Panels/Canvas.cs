@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -50,25 +51,13 @@ namespace SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
-      _desiredSize = new System.Drawing.SizeF((float)Width, (float)Height);
+      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)availableSize.Width - (float)(Margin.X + Margin.W);
+        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
       if (Height <= 0)
-        _desiredSize.Height = (float)availableSize.Height - (float)(Margin.Y + Margin.Z);
-
-      RectangleF rect = new RectangleF(0, 0, 0, 0);
-      foreach (UIElement child in Children)
-      {
-        if (!child.IsVisible) continue;
-        child.Measure(new Size(0, 0));
-        rect = RectangleF.Union(rect, new RectangleF(new PointF(child.Position.X, child.Position.Y), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
-      }
-      if (Width > 0) rect.Width = (float)Width;
-      if (Height > 0) rect.Height = (float)Height;
-      _desiredSize = rect.Size;
-      _desiredSize.Width += (float)(Margin.X + Margin.W);
-      _desiredSize.Height += (float)(Margin.Y + Margin.Z);
-      _originalSize = _desiredSize;
+        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
       if (LayoutTransform != null)
       {
@@ -76,11 +65,24 @@ namespace SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      RectangleF rect = new RectangleF(0, 0, 0, 0);
+      foreach (UIElement child in Children)
+      {
+        if (!child.IsVisible) continue;
+        child.Measure(new Size(0, 0));
+        rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
+      }
+      _originalSize = _desiredSize;
+
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
+      Trace.WriteLine(String.Format("canvas.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+
       base.Measure(availableSize);
     }
 
@@ -91,11 +93,13 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
+      Trace.WriteLine(String.Format("canvas.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       //SkinContext.FinalLayoutTransform.TransformRect(ref layoutRect);
 
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
@@ -113,7 +117,7 @@ namespace SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        PointF p = new PointF((child.Position.X), (child.Position.Y));
+        PointF p = new PointF((child.Position.X * SkinContext.Zoom.Width), (child.Position.Y * SkinContext.Zoom.Height));
         SkinContext.FinalLayoutTransform.TransformPoint(ref p);
         p.X += (float)this.ActualPosition.X;
         p.Y += (float)this.ActualPosition.Y;

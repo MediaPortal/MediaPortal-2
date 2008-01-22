@@ -138,8 +138,8 @@ namespace SkinEngine.Controls.Brushes
 
           if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
           {
-            float cx = ((float)desc.Width) / ((float)SkinContext.Width);
-            float cy = ((float)desc.Height) / ((float)SkinContext.Height);
+            float cx = 1.0f;// ((float)desc.Width) / ((float)GraphicsDevice.Width);
+            float cy = 1.0f;//((float)desc.Height) / ((float)GraphicsDevice.Height);
 
             //copy the correct rectangle from the backbuffer in the opacitytexture
             GraphicsDevice.Device.StretchRect(backBuffer,
@@ -148,7 +148,7 @@ namespace SkinEngine.Controls.Brushes
                                                    new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
                                                    TextureFilter.None);
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / width), (float)(((float)SkinContext.Height) / height), 1);
+            matrix.Matrix *= Matrix.Scaling((float)(((float)GraphicsDevice.Width) / width), (float)(((float)GraphicsDevice.Height) / height), 1);
           }
           else
           {
@@ -159,7 +159,7 @@ namespace SkinEngine.Controls.Brushes
                                                    TextureFilter.None);
             
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling((float)(((float)SkinContext.Width) / width), (float)(((float)SkinContext.Height) / height), 1);
+            matrix.Matrix *= Matrix.Scaling((float)(((float)GraphicsDevice.Width) / width), (float)(((float)GraphicsDevice.Height) / height), 1);
           }
 
 

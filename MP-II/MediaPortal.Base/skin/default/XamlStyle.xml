@@ -3,7 +3,7 @@
   <ResourceDictionary>
 
     <!-- default brush used to paint the background of a page/window -->
-    <RadialGradientBrush Key="backGroundBrush" GradientOrigin="0.186,0.311" Freezable="True">
+    <RadialGradientBrush Key="backGroundBrush" GradientOrigin="0.186,0.311">
       <GradientStop Color="#FF5C9AE6" Offset="0"/>
       <GradientStop Color="#FF1253A3" Offset="1"/>
     </RadialGradientBrush>

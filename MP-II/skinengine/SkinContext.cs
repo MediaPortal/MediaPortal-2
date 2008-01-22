@@ -67,6 +67,7 @@ namespace SkinEngine
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
     public static uint TimePassed;
+    public static System.Drawing.SizeF _skinZoom = new System.Drawing.SizeF(1, 1);
     #endregion
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
@@ -150,6 +151,11 @@ namespace SkinEngine
     {
       get { return _skinHeight; }
       set { _skinHeight = value; }
+    }
+    public static System.Drawing.SizeF Zoom
+    {
+      get { return _skinZoom; }
+      set { _skinZoom = value; }
     }
 
     public static List<ExtendedMatrix> Transforms

@@ -592,10 +592,14 @@ namespace SkinEngine
 
     public void Reset()
     {
+#if TESTXAML
+      _visual.Invalidate();
+#else
       for (int i = 0; i < _controls.Count; ++i)
       {
         _controls[i].Reset();
       }
+#endif
     }
   }
 }

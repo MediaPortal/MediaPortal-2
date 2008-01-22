@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
-  <Canvas  History="False" xmlns:local="clr-namespace:Model;assembly=mymovies" >
+  <Canvas  History="False" xmlns:local="clr-namespace:Model;assembly=mymovies" Width="720" Height="576">
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
       <ResourceDictionary Source="AnalogClock.xaml"/>

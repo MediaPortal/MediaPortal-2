@@ -183,8 +183,8 @@ namespace SkinEngine.Fonts
 
           float x1 = textBox.X;
           float y1 = textBox.Y;
-          float x2 = textBox.Width;
-          float y2 = textBox.Height;
+          float x2 = textBox.Width * SkinContext.Zoom.Width;
+          float y2 = textBox.Height *  SkinContext.Zoom.Height;
 
           uint enabled = GraphicsDevice.Device.GetRenderState<uint>(RenderState.ScissorTestEnable);
           System.Drawing.Rectangle rectOld = GraphicsDevice.Device.ScissorRect;

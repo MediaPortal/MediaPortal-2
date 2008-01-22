@@ -33,7 +33,7 @@ namespace SkinEngine
 
     public Matrix Matrix;
     public Vector4 Alpha;
-    public Vector3 Translation ;
+    public Vector3 Translation;
 
     #endregion
 
@@ -188,32 +188,39 @@ namespace SkinEngine
       rect.X = (int)w1;
       rect.Y = (int)h1;
     }
+    public void TransformRect(ref System.Drawing.RectangleF rect)
+    {
+      float w = rect.Width;
+      float h = rect.Height;
+      float w1 = w * Matrix.M11 + h * Matrix.M21;
+      float h1 = w * Matrix.M12 + h * Matrix.M22;
+      rect.Width = w1;
+      rect.Height = h1;
+
+      w = rect.X;
+      h = rect.Y;
+      w1 = w * Matrix.M11 + h * Matrix.M21;
+      h1 = w * Matrix.M12 + h * Matrix.M22;
+      rect.X = w1;
+      rect.Y = h1;
+    }
+
     public void InvertSize(ref System.Drawing.SizeF size)
     {
-      float w = size.Width;
-      float h = size.Height;
-      if (Matrix.M21 != 0)
-        size.Width = h / Matrix.M21 - w / Matrix.M11;
-      else
-        size.Width = w / Matrix.M11;
-      if (Matrix.M12 != 0)
-        size.Height = h / Matrix.M22 - w / Matrix.M12;
-      else
-        size.Height = h / Matrix.M22;
+      Matrix inverse = Matrix.Invert(Matrix);
+      float w1 = size.Width * inverse.M11 + size.Height * inverse.M21;
+      float h1 = size.Width * inverse.M12 + size.Height * inverse.M22;
+      size.Width = w1;
+      size.Height = h1;
     }
 
     public void InvertXY(ref float x, ref float y)
     {
-      float w = x;
-      float h = y;
-      if (Matrix.M21 != 0)
-        x = h / Matrix.M21 - w / Matrix.M11;
-      else
-        x = w / Matrix.M11;
-      if (Matrix.M12 != 0)
-        y = h / Matrix.M22 - w / Matrix.M12;
-      else
-        y = h / Matrix.M22;
+      Matrix inverse = Matrix.Invert(Matrix);
+      float w1 = x * inverse.M11 + y * inverse.M21;
+      float h1 = x * inverse.M12 + y * inverse.M22;
+      x = w1;
+      y = h1;
     }
 
     public void TransformRectLocation(ref System.Drawing.Rectangle rect)
@@ -240,6 +247,14 @@ namespace SkinEngine
       float h1 = vector.X * Matrix.M12 + vector.Y * Matrix.M22;
       vector.X = w1;
       vector.Y = h1;
+    }
+    public Vector3 Transform(Vector3 vector)
+    {
+      float w1 = vector.X * Matrix.M11 + vector.Y * Matrix.M21;
+      float h1 = vector.X * Matrix.M12 + vector.Y * Matrix.M22;
+      vector.X = w1;
+      vector.Y = h1;
+      return vector;
     }
 
     public System.Drawing.Drawing2D.Matrix Get2dMatrix()

@@ -1215,15 +1215,16 @@ namespace SkinEngine.Controls.Visuals
         FrameworkElement element = this as FrameworkElement;
         if (element == null)
         {
-          Measure(new SizeF((float)SkinContext.Width, (float)SkinContext.Height));
-          Arrange(new System.Drawing.RectangleF(0, 0, (float)SkinContext.Width, (float)SkinContext.Height));
+          SizeF size = new SizeF(SkinContext.Width * SkinContext.Zoom.Width, SkinContext.Height * SkinContext.Zoom.Height);
+          Measure(size);
+          Arrange(new System.Drawing.RectangleF(0, 0, (float)size.Width, (float)size.Height));
         }
         else
         {
-          float w = (float)element.Width;
-          float h = (float)element.Height;
-          if (w == 0) w = (float)SkinContext.Width;
-          if (h == 0) h = (float)SkinContext.Height;
+          float w = (float)element.Width * SkinContext.Zoom.Width;
+          float h = (float)element.Height * SkinContext.Zoom.Height;
+          if (w == 0) w = (float)SkinContext.Width * SkinContext.Zoom.Width;
+          if (h == 0) h = (float)SkinContext.Height * SkinContext.Zoom.Height;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
           Measure(new SizeF(w, h));
@@ -1232,7 +1233,7 @@ namespace SkinEngine.Controls.Visuals
 
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Arrange(new System.Drawing.RectangleF((float)element.Position.X, (float)element.Position.Y, w, h));
+          Arrange(new System.Drawing.RectangleF((float)element.Position.X * SkinContext.Zoom.Width, (float)element.Position.Y * SkinContext.Zoom.Height, w, h));
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

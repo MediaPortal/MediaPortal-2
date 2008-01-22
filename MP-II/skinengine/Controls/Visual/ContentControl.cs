@@ -201,10 +201,11 @@ namespace SkinEngine.Controls.Visuals
       if (Content != null)
       {
         System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
-        layoutRect.X += (float)(Margin.X);
-        layoutRect.Y += (float)(Margin.Y);
-        layoutRect.Width -= (float)(Margin.X + Margin.W);
-        layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+
+        layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
+        layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
+        layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+        layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
 
 
         PointF p = layoutRect.Location;
