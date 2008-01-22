@@ -479,8 +479,8 @@ namespace SkinEngine.Controls.Visuals
         //thickNess /= 2.0f;
         bounds = mPath.GetBounds();
         m = new System.Drawing.Drawing2D.Matrix();
-        float thicknessW = thickNess;
-        float thicknessH = thickNess;
+        float thicknessW = thickNess * SkinContext.Zoom.Width;
+        float thicknessH = thickNess * SkinContext.Zoom.Height;
         if (finalTransform != null)
           finalTransform.TransformXY(ref thicknessW, ref thicknessH);
         if (em != null)

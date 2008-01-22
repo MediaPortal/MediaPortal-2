@@ -678,12 +678,12 @@ namespace SkinEngine.Controls.Visuals
     /// This overload is less efficient for calculating a sequence of inner vertices because
     /// it does not reuse results from previously calculated points
     /// </remarks>
-    protected Vector2 InnerPoint(ref Matrix matrix, float distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
+    protected Vector2 InnerPoint(ref Matrix matrix, Vector2 distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
     {
       Vector2 lastDifference = point - lastPoint;
       slope = vectorSlope(lastDifference);
-      intercept = lineIntercept(lastPoint + distance * normal(lastDifference), slope);
-      return InnerPoint(ref matrix, distance, ref slope, ref intercept, lastPoint + distance * normal(lastDifference), point, nextPoint);
+      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance,  normal(lastDifference)), slope);
+      return InnerPoint(ref matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance , normal(lastDifference)), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -697,11 +697,11 @@ namespace SkinEngine.Controls.Visuals
     /// This overload can reuse information calculated about the previous point, so it is more
     /// efficient for computing the inside of a string of contiguous points on a strip
     /// </remarks>
-    protected Vector2 InnerPoint(ref Matrix matrix, float distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
+    protected Vector2 InnerPoint(ref Matrix matrix, Vector2 distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
-      Vector2 innerPoint = distance * normal(edgeVector);
+      Vector2 innerPoint = Vector2.Modulate(distance , normal(edgeVector));
 
       TransformXY(ref innerPoint, ref matrix);
       innerPoint = nextPoint + innerPoint;
@@ -790,17 +790,20 @@ namespace SkinEngine.Controls.Visuals
         points[i] = new Vector2(path.PathPoints[i].X, path.PathPoints[i].Y);
       }
 
-      float innerDistance = 0;
+      Vector2 innerDistance = new Vector2(0, 0);
       switch (widthMode)
       {
         case WidthMode.Centered:
-          innerDistance = thickness / 2;
+          //innerDistance =thickness / 2;
+          innerDistance = new Vector2((thickness / 2) * SkinContext.Zoom.Width, (thickness / 2) * SkinContext.Zoom.Height);
           break;
         case WidthMode.LeftHanded:
-          innerDistance = -thickness;
+          //innerDistance = -thickness;
+          innerDistance = new Vector2((-thickness ) * SkinContext.Zoom.Width, (-thickness ) * SkinContext.Zoom.Height);
           break;
         case WidthMode.RightHanded:
-          innerDistance = thickness;
+          //innerDistance = thickness;
+          innerDistance = new Vector2((thickness ) * SkinContext.Zoom.Width, (thickness ) * SkinContext.Zoom.Height);
           break;
       }
 
@@ -819,12 +822,12 @@ namespace SkinEngine.Controls.Visuals
       else
       {
         //Take endpoints based on the end segments' normals alone
-        outPoints[0] = innerDistance * normal(points[1] - points[0]);
+        outPoints[0] = Vector2.Modulate(innerDistance , normal(points[1] - points[0]));
         TransformXY(ref outPoints[0], ref matrix);
         outPoints[0] = points[0] + outPoints[0];
 
         //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
-        Vector2 norm = innerDistance * normal(points[points.Length - 1] - points[points.Length - 2]); //DEBUG
+        Vector2 norm = Vector2.Modulate(innerDistance , normal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
 
         TransformXY(ref norm, ref matrix);
         outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
