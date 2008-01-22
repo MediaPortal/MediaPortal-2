@@ -137,6 +137,11 @@ namespace SkinEngine.Controls.Transforms
       _matrix = Matrix.Translation((float)X * SkinContext.Zoom.Width, (float)Y * SkinContext.Zoom.Width, 0);
     }
 
+    public override void UpdateTransformRel()
+    {
+      base.UpdateTransformRel();
+      _matrixRel = Matrix.Translation((float)X , (float)Y , 0);
+    }
 
   }
 }

@@ -112,6 +112,18 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    public override void UpdateTransformRel()
+    {
+      base.UpdateTransformRel();
+      _matrixRel = Matrix.Identity;
+      foreach (Transform t in Children)
+      {
+        Matrix m;
+        t.GetTransformRel(out m);
+        _matrixRel *= m;
+      }
+    }
+
 
     #region IList Members
 

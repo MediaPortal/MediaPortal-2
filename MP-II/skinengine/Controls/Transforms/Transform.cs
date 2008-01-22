@@ -36,7 +36,9 @@ namespace SkinEngine.Controls.Transforms
   public class Transform : Property, ICloneable, IBindingCollection
   {
     protected bool _needUpdate = true;
+    protected bool _needUpdateRel = true;
     protected Matrix _matrix = Matrix.Identity;
+    protected Matrix _matrixRel = Matrix.Identity;
     BindingCollection _bindings;
     bool _initialized;
 
@@ -79,6 +81,16 @@ namespace SkinEngine.Controls.Transforms
       m.Matrix *= matrix;
     }
 
+
+    public void GetTransformRel(out ExtendedMatrix m)
+    {
+      SlimDX.Matrix matrix;
+      GetTransformRel(out matrix);
+      m = new ExtendedMatrix();
+      m.Matrix *= matrix;
+    }
+
+
     /// <summary>
     /// Gets the transform.
     /// </summary>
@@ -92,11 +104,24 @@ namespace SkinEngine.Controls.Transforms
       }
       m = _matrix;
     }
+    public virtual void GetTransformRel(out Matrix m)
+    {
+      if (_needUpdateRel)
+      {
+        UpdateTransformRel();
+        _needUpdate = false;
+      }
+      m = _matrixRel;
+    }
 
     /// <summary>
     /// Updates the transform.
     /// </summary>
     public virtual void UpdateTransform()
+    {
+      InitializeBindings();
+    }
+    public virtual void UpdateTransformRel()
     {
       InitializeBindings();
     }

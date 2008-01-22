@@ -414,7 +414,7 @@ namespace SkinEngine.Controls.Brushes
 
 
                 Matrix mrel = Matrix.Identity;
-                RelativeTransform.GetTransform(out mrel);
+                RelativeTransform.GetTransformRel(out mrel);
                 mrel = Matrix.Invert(mrel);
                 _handleRelativeTransform.SetParameter(mrel);
                 _handleFocus.SetParameter(g_focus);
@@ -449,7 +449,7 @@ namespace SkinEngine.Controls.Brushes
         else
         {
           Matrix m = Matrix.Identity;
-          RelativeTransform.GetTransform(out m);
+          RelativeTransform.GetTransformRel(out m);
           m = Matrix.Invert(m);
 
           _handleRelativeTransform.SetParameter(m);
@@ -541,7 +541,7 @@ namespace SkinEngine.Controls.Brushes
       if (!_singleColor)
       {
         Matrix m = Matrix.Identity;
-        RelativeTransform.GetTransform(out m);
+        RelativeTransform.GetTransformRel(out m);
         m = Matrix.Invert(m);
 
         _handleRelativeTransform.SetParameter(m);

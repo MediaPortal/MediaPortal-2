@@ -194,5 +194,22 @@ namespace SkinEngine.Controls.Transforms
         _matrix *= Matrix.Translation((float)CenterX * SkinContext.Zoom.Width, (float)CenterY * SkinContext.Zoom.Height, 0);
       }
     }
+
+    public override void UpdateTransformRel()
+    {
+      base.UpdateTransformRel();
+      double radians = Angle / 180.0 * Math.PI;
+
+      if (CenterX == 0.0 && CenterY == 0.0)
+      {
+        _matrixRel = Matrix.RotationZ((float)radians);
+      }
+      else
+      {
+        _matrixRel = Matrix.Translation((float)-CenterX, (float)-CenterY, 0);
+        _matrixRel *= Matrix.RotationZ((float)radians);
+        _matrixRel *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
+      }
+    }
   }
 }

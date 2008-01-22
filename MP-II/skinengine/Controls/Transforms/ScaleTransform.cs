@@ -230,5 +230,29 @@ namespace SkinEngine.Controls.Transforms
       }
     }
 
+    public override void UpdateTransformRel()
+    {
+      base.UpdateTransformRel();
+      double sx = ScaleX;
+      double sy = ScaleY;
+
+      if (sx == 0.0) sx = 0.00002;
+      if (sy == 0.0) sy = 0.00002;
+
+      double cx = CenterX ;
+      double cy = CenterY ;
+
+      if (cx == 0.0 && cy == 0.0)
+      {
+        _matrixRel = Matrix.Scaling((float)sx, (float)sy, 1.0f);
+      }
+      else
+      {
+        _matrixRel = Matrix.Translation((float)-cx, (float)-cy, 0);
+        _matrixRel *= Matrix.Scaling((float)sx, (float)sy, 1.0f);
+        _matrixRel *= Matrix.Translation((float)cx, (float)cy, 0);
+      }
+    }
+
   }
 }
