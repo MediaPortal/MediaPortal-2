@@ -7,7 +7,6 @@ namespace SkinEngine.Controls.Visuals
 {
   public class UIElementCollection : IEnumerable<UIElement>
   {
-    int _zIndex = 0;
     public class UIElementEnumerator : IEnumerator<UIElement>
     {
       int index = -1;
@@ -50,6 +49,7 @@ namespace SkinEngine.Controls.Visuals
 
     UIElement _parent;
     List<UIElement> _elements;
+    bool _zIndexFixed = false;
 
     public UIElementCollection(UIElement parent)
     {
@@ -57,13 +57,28 @@ namespace SkinEngine.Controls.Visuals
       _elements = new List<UIElement>();
     }
 
+    public void FixZIndex()
+    {
+      if (_zIndexFixed) return;
+      _zIndexFixed = true;
+      double zindex1 = 0;
+      foreach (UIElement element in _elements)
+      {
+        if (element.ZIndex < 0)
+        {
+          element.ZIndex = zindex1;
+          zindex1 += 0.0001;
+        }
+        else
+        {
+          element.ZIndex += zindex1;
+          zindex1 += 0.0001;
+        }
+      }
+    }
+
     public void Add(UIElement element)
     {
-      if (element.ZIndex == -1)
-      {
-        element.ZIndex = _zIndex;
-        _zIndex++;
-      }
       element.VisualParent = _parent;
       _elements.Add(element);
       _parent.Invalidate();
@@ -99,11 +114,6 @@ namespace SkinEngine.Controls.Visuals
       {
         if (value != _elements[index])
         {
-          if (value.ZIndex == -1)
-          {
-            value.ZIndex = _zIndex;
-            _zIndex++;
-          }
           _elements[index] = value;
           _elements[index].VisualParent = _parent;
           _parent.Invalidate();

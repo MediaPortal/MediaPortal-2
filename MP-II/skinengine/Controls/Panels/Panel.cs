@@ -313,6 +313,7 @@ namespace SkinEngine.Controls.Panels
       _updateRenderOrder = false;
       if (_renderOrder != null && Children != null)
       {
+        Children.FixZIndex();
         _renderOrder.Clear();
         foreach (UIElement element in Children)
         {
