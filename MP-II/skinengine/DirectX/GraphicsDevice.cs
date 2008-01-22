@@ -321,6 +321,9 @@ namespace SkinEngine
       gw = (int)Width;
       gh = (int)Height;
       SkinContext.Zoom = new SizeF( ((float)Width) / SkinContext.Width,((float)Height) / SkinContext.Height);
+
+      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
+      mgr.Utils.Zoom = SkinContext.Zoom;
       Point camera = new Point(gw / 2, gh / 2);
       // and calculate the offset from the screen center
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));

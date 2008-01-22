@@ -189,9 +189,9 @@ namespace SkinEngine.Controls.Transforms
       }
       else
       {
-        _matrix = Matrix.Translation((float)-CenterX, (float)-CenterY, 0);
+        _matrix = Matrix.Translation((float)-CenterX * SkinContext.Zoom.Width, (float)-CenterY * SkinContext.Zoom.Height, 0);
         _matrix *= Matrix.RotationZ((float)radians);
-        _matrix *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
+        _matrix *= Matrix.Translation((float)CenterX * SkinContext.Zoom.Width, (float)CenterY * SkinContext.Zoom.Height, 0);
       }
     }
   }

@@ -134,7 +134,7 @@ namespace SkinEngine.Controls.Transforms
     public override void UpdateTransform()
     {
       base.UpdateTransform();
-      _matrix = Matrix.Translation((float)X, (float)Y, 0);
+      _matrix = Matrix.Translation((float)X * SkinContext.Zoom.Width, (float)Y * SkinContext.Zoom.Width, 0);
     }
 
 

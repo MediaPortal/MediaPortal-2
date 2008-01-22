@@ -63,6 +63,12 @@ namespace SkinEngine.Controls.Transforms
     {
       _initialized = false;
       _bindings = new BindingCollection();
+      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
+      mgr.Utils.ZoomProperty.Attach(new PropertyChangedHandler(OnZoomChanged));
+    }
+    void OnZoomChanged(Property prop)
+    {
+      _needUpdate = true;
     }
 
     public void GetTransform(out ExtendedMatrix m)

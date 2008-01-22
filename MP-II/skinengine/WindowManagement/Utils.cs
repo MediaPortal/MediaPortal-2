@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine
@@ -11,7 +12,12 @@ namespace SkinEngine
     Property _currentTimeProperty = new Property(DateTime.Now.ToShortTimeString());
     Property _hourAngleProperty = new Property(0.0);
     Property _minuteAngleProperty = new Property(0.0);
+    Property _zoomProperty = new Property(new SizeF(1, 1));
 
+    public Utils()
+    {
+
+    }
     public Property CurrentTimeProperty
     {
       get
@@ -84,6 +90,29 @@ namespace SkinEngine
       }
     }
 
+    public Property ZoomProperty
+    {
+      get
+      {
+        return _zoomProperty;
+      }
+      set
+      {
+        _zoomProperty = value;
+      }
+    }
+
+    public SizeF Zoom
+    {
+      get
+      {
+        return (SizeF)_zoomProperty.GetValue();
+      }
+      set
+      {
+        _zoomProperty.SetValue(value);
+      }
+    }
 
     public void Update()
     {
