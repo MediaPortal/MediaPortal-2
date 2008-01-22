@@ -682,8 +682,8 @@ namespace SkinEngine.Controls.Visuals
     {
       Vector2 lastDifference = point - lastPoint;
       slope = vectorSlope(lastDifference);
-      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance,  normal(lastDifference)), slope);
-      return InnerPoint(ref matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance , normal(lastDifference)), point, nextPoint);
+      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance, normal(lastDifference)), slope);
+      return InnerPoint(ref matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, normal(lastDifference)), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -701,7 +701,7 @@ namespace SkinEngine.Controls.Visuals
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
-      Vector2 innerPoint = Vector2.Modulate(distance , normal(edgeVector));
+      Vector2 innerPoint = Vector2.Modulate(distance, normal(edgeVector));
 
       TransformXY(ref innerPoint, ref matrix);
       innerPoint = nextPoint + innerPoint;
@@ -799,11 +799,11 @@ namespace SkinEngine.Controls.Visuals
           break;
         case WidthMode.LeftHanded:
           //innerDistance = -thickness;
-          innerDistance = new Vector2((-thickness ) * SkinContext.Zoom.Width, (-thickness ) * SkinContext.Zoom.Height);
+          innerDistance = new Vector2((-thickness) * SkinContext.Zoom.Width, (-thickness) * SkinContext.Zoom.Height);
           break;
         case WidthMode.RightHanded:
           //innerDistance = thickness;
-          innerDistance = new Vector2((thickness ) * SkinContext.Zoom.Width, (thickness ) * SkinContext.Zoom.Height);
+          innerDistance = new Vector2((thickness) * SkinContext.Zoom.Width, (thickness) * SkinContext.Zoom.Height);
           break;
       }
 
@@ -822,12 +822,12 @@ namespace SkinEngine.Controls.Visuals
       else
       {
         //Take endpoints based on the end segments' normals alone
-        outPoints[0] = Vector2.Modulate(innerDistance , normal(points[1] - points[0]));
+        outPoints[0] = Vector2.Modulate(innerDistance, normal(points[1] - points[0]));
         TransformXY(ref outPoints[0], ref matrix);
         outPoints[0] = points[0] + outPoints[0];
 
         //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
-        Vector2 norm = Vector2.Modulate(innerDistance , normal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
+        Vector2 norm = Vector2.Modulate(innerDistance, normal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
 
         TransformXY(ref norm, ref matrix);
         outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;

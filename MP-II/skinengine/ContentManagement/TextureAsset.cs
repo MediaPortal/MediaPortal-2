@@ -333,42 +333,9 @@ namespace SkinEngine
               stream.Seek(0, SeekOrigin.Begin);
               if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
               {
-                int destWidth = GraphicsDevice.Width;
-                int destHeight = GraphicsDevice.Height;
-                GeometryNormal g = new GeometryNormal();
-                Geometry gem = SkinContext.Geometry;
-                using (Bitmap bmPhoto = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb))
+                using (Image imgSource = Image.FromStream(stream))
                 {
-                  using (Image imgSource = Image.FromStream(stream))
-                  {
-                    using (Graphics grPhoto = Graphics.FromImage(bmPhoto))
-                    {
-                      Rectangle rSource;
-                      Rectangle rDest;
-                      float sourcFrameRatio = imgSource.Width / ((float)imgSource.Height);
-                      CropSettings crop = new CropSettings();
-                      gem.ImageWidth = imgSource.Width;
-                      gem.ImageHeight = imgSource.Height;
-                      gem.ScreenWidth = GraphicsDevice.Width;
-                      gem.ScreenHeight = GraphicsDevice.Height;
-                      g.GetWindow(gem, sourcFrameRatio, out rSource, out rDest, crop);
-                      grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                      grPhoto.DrawImage(imgSource,
-                                        new Rectangle(rDest.X, rDest.Y, rDest.Width, rDest.Height),
-                                        new Rectangle(rSource.X, rSource.Y, rSource.Width, rSource.Height),
-                                        GraphicsUnit.Pixel);
-                    }
-                  }
-                  using (MemoryStream streamMem = new MemoryStream())
-                  {
-                    bmPhoto.Save(streamMem, ImageFormat.Bmp);
-                    streamMem.Seek(0, SeekOrigin.Begin);
-                    info = ImageInformation.FromStream(streamMem);
-                    streamMem.Seek(0, SeekOrigin.Begin);
-                    _texture = Texture.FromStream(GraphicsDevice.Device, streamMem, 0, 0, 1, Usage.None, Format.Unknown,
-                                               Pool.Managed, Filter.None, Filter.None, 0);
-                    ContentManager.TextureReferences++;
-                  }
+                  info = Scale(imgSource, imgInfo);
                 }
               }
               else
@@ -404,43 +371,9 @@ namespace SkinEngine
             ImageInformation imgInfo = ImageInformation.FromFile(_sourceFileName);
             if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
             {
-              int destWidth = GraphicsDevice.Width;
-              int destHeight = GraphicsDevice.Height;
-              GeometryNormal g = new GeometryNormal();
-              Geometry gem = SkinContext.Geometry;
-              using (Bitmap bmPhoto = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb))
+              using (Image imgSource = Image.FromFile(_sourceFileName))
               {
-                using (Image imgSource = Image.FromFile(_sourceFileName))
-                {
-                  using (Graphics grPhoto = Graphics.FromImage(bmPhoto))
-                  {
-                    Rectangle rSource;
-                    Rectangle rDest;
-                    float sourcFrameRatio = imgSource.Width / ((float)imgSource.Height);
-                    CropSettings crop = new CropSettings();
-                    gem.ImageWidth = imgSource.Width;
-                    gem.ImageHeight = imgSource.Height;
-                    gem.ScreenWidth = GraphicsDevice.Width;
-                    gem.ScreenHeight = GraphicsDevice.Height;
-                    g.GetWindow(gem, sourcFrameRatio, out rSource, out rDest, crop);
-                    grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    grPhoto.DrawImage(imgSource,
-                                      new Rectangle(rDest.X, rDest.Y, rDest.Width, rDest.Height),
-                                      new Rectangle(rSource.X, rSource.Y, rSource.Width, rSource.Height),
-                                      GraphicsUnit.Pixel);
-                  }
-                }
-                using (MemoryStream stream = new MemoryStream())
-                {
-                  bmPhoto.Save(stream, ImageFormat.Bmp);
-                  stream.Seek(0, SeekOrigin.Begin);
-                  info = ImageInformation.FromStream(stream);
-                  stream.Seek(0, SeekOrigin.Begin);
-                  _texture =
-                    Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                                             Pool.Managed, Filter.None, Filter.None, 0);
-                  ContentManager.TextureReferences++;
-                }
+                info = Scale(imgSource, imgInfo);
               }
             }
             else
@@ -585,5 +518,47 @@ namespace SkinEngine
     }
 
     #endregion
+
+    ImageInformation Scale(Image imgSource, ImageInformation imgInfo)
+    {
+      ImageInformation info = new ImageInformation();
+      Rectangle rDest = new Rectangle();
+      if (imgInfo.Width >= imgInfo.Height)
+      {
+        float ar = ((float)imgInfo.Height) / ((float)imgInfo.Width);
+        rDest.Width = (int)GraphicsDevice.Width;
+        rDest.Height = (int)(((float)GraphicsDevice.Width) * ar);
+      }
+      else
+      {
+        float ar = ((float)imgInfo.Width) / ((float)imgInfo.Height);
+        rDest.Height = (int)GraphicsDevice.Height;
+        rDest.Width = (int)(((float)GraphicsDevice.Height) * ar);
+      }
+      using (Bitmap bmPhoto = new Bitmap(rDest.Width, rDest.Height, PixelFormat.Format24bppRgb))
+      {
+        using (Graphics grPhoto = Graphics.FromImage(bmPhoto))
+        {
+          grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
+          grPhoto.DrawImage(imgSource,
+                            new Rectangle(0, 0, rDest.Width, rDest.Height),
+                            new Rectangle(0, 0, imgSource.Width, imgSource.Height),
+                            GraphicsUnit.Pixel);
+        }
+
+        using (MemoryStream stream = new MemoryStream())
+        {
+          bmPhoto.Save(stream, ImageFormat.Bmp);
+          stream.Seek(0, SeekOrigin.Begin);
+          info = ImageInformation.FromStream(stream);
+          stream.Seek(0, SeekOrigin.Begin);
+          _texture =
+            Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
+                                     Pool.Managed, Filter.None, Filter.None, 0);
+          ContentManager.TextureReferences++;
+        }
+      }
+      return info;
+    }
   }
 }

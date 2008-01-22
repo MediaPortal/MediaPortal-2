@@ -1,5 +1,28 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
 
-using SlimDX.Direct3D9;using System;
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
@@ -37,11 +60,13 @@ namespace SkinEngine.Controls.Visuals
     Property _stretchDirectionProperty;
     Property _stretchProperty;
     Property _opacityProperty;
+    Property _thumbnailProperty;
     private VertextBufferAsset _image;
     private VertextBufferAsset _fallbackImage;
-    bool _performLayout = false;
+
     float _u, _v, _uoff, _voff, _w, _h;
     Vector3 _pos;
+    bool _performImageLayout;
 
     public Image()
     {
@@ -57,6 +82,7 @@ namespace SkinEngine.Controls.Visuals
       Stretch = img.Stretch;
       StretchDirection = img.StretchDirection;
       Opacity = img.Opacity;
+      Thumbnail = img.Thumbnail;
     }
 
     void Init()
@@ -66,6 +92,7 @@ namespace SkinEngine.Controls.Visuals
       _stretchDirectionProperty = new Property(StretchDirection.Both);
       _stretchProperty = new Property(Stretch.Fill);
       _opacityProperty = new Property((double)1.0f);
+      _thumbnailProperty = new Property(false);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnImageChanged));
       _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -83,7 +110,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="property">The property.</param>
     void OnPropertyChanged(Property property)
     {
-      _performLayout = true;
+      _performImageLayout = true;
     }
     /// <summary>
     /// Called when the imagesource has been changed
@@ -94,6 +121,38 @@ namespace SkinEngine.Controls.Visuals
     void OnImageChanged(Property property)
     {
       _image = null;
+    }
+
+    /// <summary>
+    /// Gets or sets the thumbnail property.
+    /// </summary>
+    /// <value>The thumbnail property.</value>
+    public Property ThumbnailProperty
+    {
+      get
+      {
+        return _thumbnailProperty;
+      }
+      set
+      {
+        _thumbnailProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this <see cref="Image"/> is thumbnail.
+    /// </summary>
+    /// <value><c>true</c> if thumbnail; otherwise, <c>false</c>.</value>
+    public bool Thumbnail
+    {
+      get
+      {
+        return (bool)_thumbnailProperty.GetValue();
+      }
+      set
+      {
+        _thumbnailProperty.SetValue(value);
+      }
     }
 
     /// <summary>
@@ -285,7 +344,7 @@ namespace SkinEngine.Controls.Visuals
       if (!finalRect.IsEmpty)
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
+          _performImageLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
 
@@ -326,32 +385,17 @@ namespace SkinEngine.Controls.Visuals
         }
         return;
       }
-      if (_image != null && _image.Texture.IsAllocated)
-      {
-        float w = (float)Width * SkinContext.Zoom.Width;
-        float h = (float)Height * SkinContext.Zoom.Height;
-        if (Stretch == Stretch.Uniform)
-        {
-          if (w <= 0) w = _image.Texture.Width;
-          if (h <= 0) h = _image.Texture.Height;
-        }
-        else
-        {
-          if (w <= 0)
-            _desiredSize.Width = ((float)availableSize.Width) - marginWidth;
-          if (w <= 0)
-            _desiredSize.Height = ((float)availableSize.Height) - marginHeight;
-        }
-        _desiredSize = new SizeF(w, h);
-      }
-      else if (_fallbackImage != null && _fallbackImage.Texture.IsAllocated)
-      {
-        _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      }
-      else
-      {
-        _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      }
+      float w = (float)Width * SkinContext.Zoom.Width;
+      float h = (float)Height * SkinContext.Zoom.Height;
+      if (w <= 0 && availableSize.Width > 0)
+        w = ((float)availableSize.Width) - marginWidth;
+      if (h <= 0 && availableSize.Width > 0)
+        h = ((float)availableSize.Height) - marginHeight;
+
+      if (w <= 0) w = _image.Texture.Width;
+      if (h <= 0) h = _image.Texture.Height;
+
+      _desiredSize = new SizeF(w, h);
 
 
       if (LayoutTransform != null)
@@ -380,23 +424,25 @@ namespace SkinEngine.Controls.Visuals
     {
       if (_image == null && Source != null)
       {
-        _image = ContentManager.Load(Source, true);
-        _performLayout = true;
+        _image = ContentManager.Load(Source, Thumbnail);
+        _image.Texture.UseThumbNail = Thumbnail;
+        _performImageLayout = true;
       }
       if (_fallbackImage == null && FallbackSource != null)
       {
-        _fallbackImage = ContentManager.Load(FallbackSource, true);
-        _performLayout = true;
+        _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
+        _fallbackImage.Texture.UseThumbNail = Thumbnail;
+        _performImageLayout = true;
       }
 
-      if (_performLayout)
+      if (_performImageLayout)
       {
         if (_image != null)
         {
           if (_image.Texture.IsAllocated)
           {
-            _performLayout = false;
-            if (Width == 0 || Height == 0)
+            _performImageLayout = false;
+            if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
             {
               Invalidate();
             }
@@ -406,14 +452,14 @@ namespace SkinEngine.Controls.Visuals
             }
           }
         }
-        if (_performLayout)
+        if (_performImageLayout)
         {
           if (_fallbackImage != null)
           {
             if (_fallbackImage.Texture.IsAllocated)
             {
-              _performLayout = false;
-              if (Width == 0 || Height == 0)
+              _performImageLayout = false;
+              if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
               {
                 Invalidate();
               }
@@ -427,7 +473,7 @@ namespace SkinEngine.Controls.Visuals
       }
       base.DoRender();
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_image != null)
