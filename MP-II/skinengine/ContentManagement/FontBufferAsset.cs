@@ -181,13 +181,15 @@ namespace SkinEngine.Fonts
           text += " ";
           string textDraw = text.Substring(_characterIndex) + text;
 
-          Plane planeLeft = new Plane();// Plane.FromPointNormal(new Vector3(textBox.X, textBox.Y, 0), new Vector3(1, 0, 0));
-          Plane planeRight = new Plane();//Plane.FromPointNormal(new Vector3(textBox.Right, textBox.Y, 0), new Vector3(-1, 0, 0));
-          GraphicsDevice.Device.SetRenderState(RenderState.ClipPlaneEnable, true);
+          float x1 = textBox.X;
+          float y1 = textBox.Y;
+          float x2 = textBox.Width;
+          float y2 = textBox.Height;
 
-          GraphicsDevice.Device.SetRenderState(RenderState.Clipping, true);
-          GraphicsDevice.Device.SetClipPlane(0, planeLeft);
-          GraphicsDevice.Device.SetClipPlane(1, planeRight);
+          uint enabled = GraphicsDevice.Device.GetRenderState<uint>(RenderState.ScissorTestEnable);
+          System.Drawing.Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
+          GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
+          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
 
           textBox.X -= (float)_xPosition;
           textBox.Width += 20.0f;
@@ -196,9 +198,8 @@ namespace SkinEngine.Fonts
           _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
           _font.ClearStrings();
 
-          GraphicsDevice.Device.SetRenderState(RenderState.ClipPlaneEnable, false); 
-          GraphicsDevice.Device.SetRenderState(RenderState.Clipping, false);
-
+          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, (enabled != 0));
+          GraphicsDevice.Device.ScissorRect = rectOld;
           if (_xPosition >= _font.FirstCharWidth)
           {
             _characterIndex++;
