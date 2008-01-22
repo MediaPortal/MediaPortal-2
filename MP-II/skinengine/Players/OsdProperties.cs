@@ -180,6 +180,12 @@ namespace SkinEngine.Players
     /// </summary>
     private void DetermineIfTopbarIsVisble()
     {
+      if (_players.Count == 0)
+      {
+        IsTopBarVisible = false;
+        _timer = DateTime.MinValue;
+        return;
+      }
       if (_players.Seeking.IsSeeking)
       {
         IsTopBarVisible = true;

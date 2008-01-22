@@ -232,7 +232,7 @@ namespace SkinEngine.Controls.Visuals
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
 
       //Fill brush
       GraphicsPath path;
@@ -262,11 +262,14 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if ((Stroke != null && _vertexBufferBorder == null&& StrokeThickness>0) || _performLayout)
+      if ((Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
       }
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      SkinContext.AddTransform(m);
       if (Stroke != null && StrokeThickness > 0)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -277,18 +280,54 @@ namespace SkinEngine.Controls.Visuals
           Stroke.EndRender();
         }
       }
-
-      base.DoRender();
+      SkinContext.RemoveTransform();
       _lastTimeUsed = SkinContext.Now;
+    }
+    public override void Measure(SizeF availableSize)
+    {
+      using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
+      {
+        RectangleF bounds = p.GetBounds();
+        if (Width > 0) bounds.Width = (float)Width;
+        if (Height > 0) bounds.Height = (float)Height;
+        bounds.Width *= SkinContext.Zoom.Width;
+        bounds.Height *= SkinContext.Zoom.Height;
+
+        float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+        float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+        _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
+        if (availableSize.Width > 0 && Width <= 0)
+          _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        if (availableSize.Width > 0 && Height <= 0)
+          _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m = new ExtendedMatrix();
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
+        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
+        if (LayoutTransform != null)
+        {
+          SkinContext.RemoveLayoutTransform();
+        }
+        _desiredSize.Width += marginWidth;
+        _desiredSize.Height += marginHeight;
+
+        _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+        Trace.WriteLine(String.Format("line.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+      }
     }
 
     #region Get the desired Rounded Rectangle path.
     private GraphicsPath GetLine(RectangleF baseRect)
     {
-      float x1 = (float)(X1 + baseRect.X);
-      float y1 = (float)(Y1 + baseRect.Y);
-      float x2 = (float)(X2 + baseRect.X);
-      float y2 = (float)(Y2 + baseRect.Y);
+      float x1 = (float)(X1);
+      float y1 = (float)(Y1);
+      float x2 = (float)(X2);
+      float y2 = (float)(Y2);
 
       float w = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
@@ -303,8 +342,11 @@ namespace SkinEngine.Controls.Visuals
       System.Drawing.Drawing2D.Matrix matrix = new System.Drawing.Drawing2D.Matrix();
       matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
 
-      matrix.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      matrix.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+
+      if (_finalLayoutTransform != null)
+        matrix.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      matrix.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
+
       if (LayoutTransform != null)
       {
         ExtendedMatrix em;
