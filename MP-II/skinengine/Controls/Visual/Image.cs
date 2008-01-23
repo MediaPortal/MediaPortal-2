@@ -366,25 +366,6 @@ namespace SkinEngine.Controls.Visuals
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
 
-      if (Source == null)
-      {
-        if (FallbackSource == null)
-        {
-          _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-        }
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix m = new ExtendedMatrix();
-          LayoutTransform.GetTransform(out m);
-          SkinContext.AddLayoutTransform(m);
-        }
-        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-        if (LayoutTransform != null)
-        {
-          SkinContext.RemoveLayoutTransform();
-        }
-        return;
-      }
       float w = (float)Width * SkinContext.Zoom.Width;
       float h = (float)Height * SkinContext.Zoom.Height;
       if (w <= 0 && availableSize.Width > 0)
@@ -392,8 +373,16 @@ namespace SkinEngine.Controls.Visuals
       if (h <= 0 && availableSize.Width > 0)
         h = ((float)availableSize.Height) - marginHeight;
 
-      if (w <= 0) w = _image.Texture.Width;
-      if (h <= 0) h = _image.Texture.Height;
+      if (_image != null)
+      {
+        if (w <= 0) w = _image.Texture.Width;
+        if (h <= 0) h = _image.Texture.Height;
+      }
+      else if (_fallbackImage != null)
+      {
+        if (w <= 0) w = _fallbackImage.Texture.Width;
+        if (h <= 0) h = _fallbackImage.Texture.Height;
+      }
 
       _desiredSize = new SizeF(w, h);
 
