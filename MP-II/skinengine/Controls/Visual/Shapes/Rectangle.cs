@@ -236,7 +236,8 @@ namespace SkinEngine.Controls.Visuals
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
+      if (_finalLayoutTransform != null)
+        m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
         ExtendedMatrix em;
@@ -258,7 +259,7 @@ namespace SkinEngine.Controls.Visuals
           if (Fill != null)
           {
 
-            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY,  out verts);
+            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
             if (_vertexBufferFill != null)
             {
               Fill.SetupBrush(this, ref verts);
@@ -301,7 +302,8 @@ namespace SkinEngine.Controls.Visuals
         mPath.CloseFigure();
         System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
         m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-        m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+        if (_finalLayoutTransform != null)
+          m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
         if (LayoutTransform != null)
         {
           ExtendedMatrix em;
@@ -355,7 +357,8 @@ namespace SkinEngine.Controls.Visuals
       path.CloseFigure();
       System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (_finalLayoutTransform != null)
+        mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       path.Transform(mtx);
 
@@ -411,7 +414,8 @@ namespace SkinEngine.Controls.Visuals
       }
       System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      if (_finalLayoutTransform != null)
+        mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       path.Transform(mtx);
       return path;

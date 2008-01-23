@@ -354,7 +354,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
-      ItemsPanel.Children.Clear();
+      UIElementCollection children = new UIElementCollection(null);
       IEnumerator enumer = ItemsSource.GetEnumerator();
       while (enumer.MoveNext())
       {
@@ -369,9 +369,10 @@ namespace SkinEngine.Controls.Visuals
         {
           presenter.Content = newItem;
         }
-        ItemsPanel.Children.Add(container);
+        children.Add(container);
       }
-      //bool result = false;
+      children.SetParent(ItemsPanel);
+      ItemsPanel.SetChildren(children);
       ItemsPanel.Invalidate();
       if (focusedItem != null)
       {
@@ -380,7 +381,7 @@ namespace SkinEngine.Controls.Visuals
         {
           info.Reset();
         }
-//        result = true;
+        //        result = true;
         ItemsPanel.UpdateLayout();
         focusedItem.HasFocus = false;
         if (ItemsPanel.Children.Count <= focusedIndex)

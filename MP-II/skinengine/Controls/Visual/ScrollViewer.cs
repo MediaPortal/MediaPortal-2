@@ -91,7 +91,7 @@ namespace SkinEngine.Controls.Visuals
       {
         h = (float)GraphicsDevice.Height - y;
       }
-      GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+    //  GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
       if (Content != null)
       {
         ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
@@ -99,7 +99,7 @@ namespace SkinEngine.Controls.Visuals
         Content.DoRender();
         SkinContext.RemoveTransform();
       }
-      GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
+   //   GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
     }
 
     /// <summary>

@@ -76,24 +76,35 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
+    public void SetParent(UIElement parent)
+    {
+      _parent = parent;
+      foreach (UIElement element in _elements)
+      {
+        element.VisualParent = _parent;
+      }
+    }
 
     public void Add(UIElement element)
     {
       element.VisualParent = _parent;
       _elements.Add(element);
-      _parent.Invalidate();
+      if (_parent != null)
+        _parent.Invalidate();
     }
 
     public void Remove(UIElement element)
     {
       _elements.Remove(element);
-      _parent.Invalidate();
+      if (_parent != null)
+        _parent.Invalidate();
     }
 
     public void Clear()
     {
       _elements.Clear();
-      _parent.Invalidate();
+      if (_parent != null)
+        _parent.Invalidate();
     }
 
     public int Count
@@ -115,8 +126,11 @@ namespace SkinEngine.Controls.Visuals
         if (value != _elements[index])
         {
           _elements[index] = value;
-          _elements[index].VisualParent = _parent;
-          _parent.Invalidate();
+          if (_parent != null)
+          {
+            _elements[index].VisualParent = _parent;
+            _parent.Invalidate();
+          }
         }
       }
     }

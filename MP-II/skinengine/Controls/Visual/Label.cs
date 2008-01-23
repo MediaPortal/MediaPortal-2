@@ -288,15 +288,19 @@ namespace SkinEngine.Controls.Visuals
 
       base.DoRender();
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
       float totalWidth;
       float size = _asset.Font.Size;
       float x = (float)ActualPosition.X;
       float y = (float)ActualPosition.Y;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
-      _finalLayoutTransform.InvertXY(ref x, ref y);
-      _finalLayoutTransform.InvertXY(ref w, ref h);
+      if (_finalLayoutTransform != null)
+      {
+        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
+
+        _finalLayoutTransform.InvertXY(ref x, ref y);
+        _finalLayoutTransform.InvertXY(ref w, ref h);
+      }
       System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
       SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)

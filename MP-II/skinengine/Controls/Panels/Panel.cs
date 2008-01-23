@@ -163,6 +163,11 @@ namespace SkinEngine.Controls.Panels
         return _childrenProperty.GetValue() as UIElementCollection;
       }
     }
+    public void SetChildren(UIElementCollection children)
+    {
+      _childrenProperty.SetValue(children);
+      _updateRenderOrder = true;
+    }
 
     /// <summary>
     /// Gets or sets the alignment X property.

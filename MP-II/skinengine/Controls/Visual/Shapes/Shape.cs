@@ -371,7 +371,8 @@ namespace SkinEngine.Controls.Visuals
         ang -= pi2;
       x = (float)(Math.Cos(ang) * thickNessW); //radians
       y = (float)(Math.Sin(ang) * thickNessH);
-      _finalLayoutTransform.TransformXY(ref x, ref y);
+      if (_finalLayoutTransform != null)
+        _finalLayoutTransform.TransformXY(ref x, ref y);
       x += point.X;
       y += point.Y;
     }
