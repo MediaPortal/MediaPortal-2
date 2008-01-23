@@ -72,7 +72,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
       Free();
 
       double w = ActualWidth;

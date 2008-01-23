@@ -300,7 +300,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Border.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Border.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;

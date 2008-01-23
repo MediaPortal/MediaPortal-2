@@ -487,7 +487,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     void PerformLayout(VertextBufferAsset asset)
     {
-      Trace.WriteLine("Image.PerformLayout()");
+      //Trace.WriteLine("Image.PerformLayout()");
       if (asset != null && asset.Texture.IsAllocated)
       {
         Vector3 imgScale = new Vector3(1, 1, 1);

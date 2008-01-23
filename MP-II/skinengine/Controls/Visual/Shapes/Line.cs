@@ -216,7 +216,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Line.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Line.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -317,7 +317,7 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Height += marginHeight;
 
         _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-        Trace.WriteLine(String.Format("line.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+        //Trace.WriteLine(String.Format("line.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
       }
     }
 

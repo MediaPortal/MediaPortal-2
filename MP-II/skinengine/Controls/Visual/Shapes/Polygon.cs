@@ -107,7 +107,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     protected override void PerformLayout()
     {
-      Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
       Free();
       double w = ActualWidth;
       double h = ActualHeight;

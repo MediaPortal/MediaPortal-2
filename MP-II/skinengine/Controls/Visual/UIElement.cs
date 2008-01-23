@@ -142,7 +142,7 @@ namespace SkinEngine.Controls.Visuals
         else
         {
           Resources[enumer.Key] = enumer.Value;
-          Trace.WriteLine(String.Format("resource type:{0} is not clonable", enumer.Value));
+          //Trace.WriteLine(String.Format("resource type:{0} is not clonable", enumer.Value));
         }
       }
 
@@ -1184,7 +1184,7 @@ namespace SkinEngine.Controls.Visuals
     public void UpdateLayout()
     {
       if (false == _isLayoutInvalid) return;
-      Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
+      //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
       _isLayoutInvalid = false;
       ExtendedMatrix m = _finalLayoutTransform;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)

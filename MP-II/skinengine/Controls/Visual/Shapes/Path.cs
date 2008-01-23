@@ -176,7 +176,7 @@ namespace SkinEngine.Controls.Visuals
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, 0))
           {
             CalcCentroid(path, out centerX, out centerY);
-            Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
+            //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
             if (Fill != null)
             {
               _vertexBufferFill = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
@@ -193,7 +193,7 @@ namespace SkinEngine.Controls.Visuals
             }
           }
           ts = DateTime.Now - now;
-          Trace.WriteLine(String.Format(" fill:{0}", ts.TotalMilliseconds));
+          //Trace.WriteLine(String.Format(" fill:{0}", ts.TotalMilliseconds));
         }
         if (Stroke != null && StrokeThickness > 0)
         {
@@ -219,7 +219,7 @@ namespace SkinEngine.Controls.Visuals
       }
 
       ts = DateTime.Now - now;
-      Trace.WriteLine(String.Format("total:{0}", ts.TotalMilliseconds));
+      //Trace.WriteLine(String.Format("total:{0}", ts.TotalMilliseconds));
     }
 
 
@@ -260,7 +260,7 @@ namespace SkinEngine.Controls.Visuals
         _desiredSize.Height += marginHeight;
 
         _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-        Trace.WriteLine(String.Format("path.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+        //Trace.WriteLine(String.Format("path.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
 
       }
     }
