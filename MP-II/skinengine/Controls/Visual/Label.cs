@@ -320,6 +320,8 @@ namespace SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
       SkinContext.AddTransform(m);
+      color.Alpha *= (float)SkinContext.FinalMatrix.Opacity;
+      color.Alpha *= (float)this.Opacity;
       if (_label != null)
         _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();

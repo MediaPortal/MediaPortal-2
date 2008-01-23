@@ -193,7 +193,7 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
-      ExtendedMatrix m = new ExtendedMatrix();
+      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
       m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       if (Fill != null)

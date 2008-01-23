@@ -317,12 +317,14 @@ namespace SkinEngine.Controls.Panels
           PerformLayout();
         }
 
+        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
+        SkinContext.AddTransform(em);
         if (Background != null)
         {
           ExtendedMatrix m = new ExtendedMatrix();
           m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
           SkinContext.AddTransform(m);
-          Matrix mrel, mt;
+          //Matrix mrel, mt;
           //Background.RelativeTransform.GetTransform(out mrel);
           //Background.Transform.GetTransform(out mt);
           //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
@@ -352,6 +354,7 @@ namespace SkinEngine.Controls.Panels
           index++;
           if (index >= _endIndex) break;
         }
+        SkinContext.RemoveTransform();
         _lastTimeUsed = SkinContext.Now;
       }
     }

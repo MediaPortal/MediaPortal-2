@@ -266,6 +266,8 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
+      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+      SkinContext.AddTransform(m);
       if (Fill != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -287,6 +289,7 @@ namespace SkinEngine.Controls.Visuals
           Stroke.EndRender();
         }
       }
+      SkinContext.RemoveTransform();
 
       _lastTimeUsed = SkinContext.Now;
     }

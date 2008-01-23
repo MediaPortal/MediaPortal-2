@@ -420,7 +420,7 @@ namespace SkinEngine.Controls.Brushes
                 _handleFocus.SetParameter(g_focus);
                 _handleCenter.SetParameter(g_center);
                 _handleRadius.SetParameter(g_radius);
-                _handleOpacity.SetParameter((float)Opacity);
+                _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
 
                 _effect.StartRender(_gradientTexture);
 
@@ -456,7 +456,7 @@ namespace SkinEngine.Controls.Brushes
           _handleFocus.SetParameter(g_focus);
           _handleCenter.SetParameter(g_center);
           _handleRadius.SetParameter(g_radius);
-          _handleOpacity.SetParameter((float)Opacity);
+          _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
 
           _effect.StartRender(_gradientTexture);
           _lastTimeUsed = SkinContext.Now;
@@ -548,7 +548,7 @@ namespace SkinEngine.Controls.Brushes
         _handleFocus.SetParameter(g_focus);
         _handleCenter.SetParameter(g_center);
         _handleRadius.SetParameter(g_radius);
-        _handleOpacity.SetParameter((float)Opacity);
+        _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
         _handleAlphaTexture.SetParameter(_gradientTexture);
         _effect.StartRender(tex);
         _lastTimeUsed = SkinContext.Now;

@@ -34,7 +34,7 @@ namespace SkinEngine
     public Matrix Matrix;
     public Vector4 Alpha;
     public Vector3 Translation;
-
+    public double Opacity;
     #endregion
 
     /// <summary>
@@ -43,6 +43,13 @@ namespace SkinEngine
     public ExtendedMatrix()
     {
       Matrix = Matrix.Identity;
+      Opacity = 1.0;
+      Alpha = new Vector4(1, 1, 1, 1);
+    }
+    public ExtendedMatrix(double opacity)
+    {
+      Matrix = Matrix.Identity;
+      Opacity = opacity;
       Alpha = new Vector4(1, 1, 1, 1);
     }
 
@@ -59,6 +66,7 @@ namespace SkinEngine
       m.Alpha.Y = Alpha.Y * matrix.Alpha.Y;
       m.Alpha.Z = Alpha.Z * matrix.Alpha.Z;
       m.Alpha.W = Alpha.W * matrix.Alpha.W;
+      m.Opacity = Opacity * matrix.Opacity;
       return m;
     }
 

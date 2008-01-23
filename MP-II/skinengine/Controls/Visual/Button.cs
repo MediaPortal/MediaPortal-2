@@ -320,7 +320,7 @@ namespace SkinEngine.Controls.Visuals
         return;
       }
       _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-        
+
       if (Width <= 0)
         _desiredSize.Width = (float)availableSize.Width - marginWidth;
       if (Height <= 0)
@@ -410,7 +410,10 @@ namespace SkinEngine.Controls.Visuals
       base.DoRender();
       if (Template != null)
       {
+        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
+        SkinContext.AddTransform(em);
         Template.DoRender();
+        SkinContext.RemoveTransform();
       }
     }
 

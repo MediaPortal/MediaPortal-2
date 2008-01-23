@@ -322,7 +322,7 @@ namespace SkinEngine.Controls.Brushes
                 RelativeTransform.GetTransformRel(out mrel);
                 mrel = Matrix.Invert(mrel);
                 _handleRelativeTransform.SetParameter(mrel);
-                _handleOpacity.SetParameter((float)Opacity);
+                _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
                 _handleStartPoint.SetParameter(g_startpoint);
                 _handleEndPoint.SetParameter(g_endpoint);
                 _effect.StartRender(_gradientTexture);
@@ -356,7 +356,7 @@ namespace SkinEngine.Controls.Brushes
           m = Matrix.Invert(m);
 
           _handleRelativeTransform.SetParameter(m);
-          _handleOpacity.SetParameter((float)Opacity);
+          _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
           _handleStartPoint.SetParameter(g_startpoint);
           _handleEndPoint.SetParameter(g_endpoint);
           _effect.StartRender(_gradientTexture);
@@ -436,7 +436,7 @@ namespace SkinEngine.Controls.Brushes
         RelativeTransform.GetTransformRel(out m);
         m = Matrix.Invert(m);
         _handleRelativeTransform.SetParameter(m);
-        _handleOpacity.SetParameter((float)Opacity);
+        _handleOpacity.SetParameter((float)(Opacity * SkinContext.FinalMatrix.Opacity));
         _handleStartPoint.SetParameter(g_startpoint);
         _handleEndPoint.SetParameter(g_endpoint);
         _handleAlphaTexture.SetParameter(_gradientTexture);

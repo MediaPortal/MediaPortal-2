@@ -287,7 +287,10 @@ namespace SkinEngine.Controls.Visuals
       base.DoRender();
       if (Content != null)
       {
+        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
+        SkinContext.AddTransform(em);
         Content.DoRender();
+        SkinContext.RemoveTransform();
       }
     }
 

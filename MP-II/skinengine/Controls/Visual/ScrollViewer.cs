@@ -94,7 +94,10 @@ namespace SkinEngine.Controls.Visuals
       GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
       if (Content != null)
       {
+        ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+        SkinContext.AddTransform(m);
         Content.DoRender();
+        SkinContext.RemoveTransform();
       }
       GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
     }
