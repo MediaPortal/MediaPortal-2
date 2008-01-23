@@ -50,10 +50,11 @@ namespace GeometryUtility
       }
 
       List<PointF> points = new List<PointF>();
-      points.Add(path.PathPoints[0]);
+      PointF[] pathPoints = path.PathPoints;
+      points.Add(pathPoints[0]);
       for (int i = 1; i < nVertices; ++i)
       {
-        points.Add(path.PathPoints[i]);
+        points.Add(pathPoints[i]);
       }
 
       if (points.Count >= 2)

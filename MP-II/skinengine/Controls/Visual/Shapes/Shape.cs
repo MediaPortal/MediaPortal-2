@@ -321,34 +321,34 @@ namespace SkinEngine.Controls.Visuals
     protected VertexBuffer ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
     {
       verts = null;
-      if (path.PointCount <= 0) return null;
-      if (path.PathPoints.Length == 3)
+      int pointCount = path.PointCount;
+      if (pointCount <= 0) return null;
+      PointF[] pathPoints = path.PathPoints;
+      if (pointCount == 3)
       {
         VertexBuffer vertexBuffer = PositionColored2Textured.Create(3);
         verts = new PositionColored2Textured[3];
 
-        verts[0].Position = new Vector3(path.PathPoints[0].X, path.PathPoints[0].Y, 1);
-        verts[1].Position = new Vector3(path.PathPoints[1].X, path.PathPoints[1].Y, 1);
-        verts[2].Position = new Vector3(path.PathPoints[2].X, path.PathPoints[2].Y, 1);
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
         return vertexBuffer;
       }
       else
       {
-
-        PointF[] points = path.PathPoints;
-        int verticeCount = points.Length + 2;
+        int verticeCount = pointCount + 2;
 
         VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
         verts = new PositionColored2Textured[verticeCount];
 
         verts[0].Position = new Vector3(cx, cy, 1);
-        verts[1].Position = new Vector3(points[0].X, points[0].Y, 1);
-        verts[2].Position = new Vector3(points[1].X, points[1].Y, 1);
-        for (int i = 2; i < points.Length; ++i)
+        verts[1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[2].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
+        for (int i = 2; i < pointCount; ++i)
         {
-          verts[i + 1].Position = new Vector3(points[i].X, points[i].Y, 1);
+          verts[i + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
         }
-        verts[verticeCount - 1].Position = new Vector3(points[0].X, points[0].Y, 1);
+        verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
         return vertexBuffer;
       }
     }
@@ -536,20 +536,22 @@ namespace SkinEngine.Controls.Visuals
     }
     protected void CalcCentroid(GraphicsPath path, out float cx, out float cy)
     {
-      if (path.PointCount == 0)
+      int pointCount = path.PointCount;
+      if (pointCount == 0)
       {
         cx = 0;
         cy = 0;
         return;
       }
+      PointF[] pathPoints = path.PathPoints;
       Vector2 centroid = new Vector2();
       double temp;
       double area = 0;
-      PointF v1 = (PointF)path.PathPoints[path.PathPoints.Length - 1];
+      PointF v1 = (PointF)pathPoints[pointCount - 1];
       PointF v2;
-      for (int index = 0; index < path.PathPoints.Length; ++index, v1 = v2)
+      for (int index = 0; index < pointCount; ++index, v1 = v2)
       {
-        v2 = (PointF)path.PathPoints[index];
+        v2 = pathPoints[index];
         ZCross(ref v1, ref v2, out temp);
         area += temp;
         centroid.X += (float)((v1.X + v2.X) * temp);
@@ -569,14 +571,14 @@ namespace SkinEngine.Controls.Visuals
 
       if (nPoints < 3)
         return PolygonDirection.Unknown;
-
+      PointF[] pathPoints = points.PathPoints;
       for (int i = 0; i < nPoints - 2; i++)
       {
         j = (i + 1) % nPoints; //j:=i+1;
         k = (i + 2) % nPoints; //k:=i+2;
 
-        double crossProduct = (points.PathPoints[j].X - points.PathPoints[i].X) * (points.PathPoints[k].Y - points.PathPoints[j].Y);
-        crossProduct = crossProduct - ((points.PathPoints[j].Y - points.PathPoints[i].Y) * (points.PathPoints[k].X - points.PathPoints[j].X));
+        double crossProduct = (pathPoints[j].X - pathPoints[i].X) * (pathPoints[k].Y - pathPoints[j].Y);
+        crossProduct = crossProduct - ((pathPoints[j].Y - pathPoints[i].Y) * (pathPoints[k].X - pathPoints[j].X));
 
         if (crossProduct > 0)
           nCount++;
@@ -786,12 +788,13 @@ namespace SkinEngine.Controls.Visuals
         matrix *= em.Matrix;
       }
       int count = path.PointCount;
-      if (path.PathPoints[count - 2] == path.PathPoints[count - 1])
+      PointF[] pathPoints = path.PathPoints;
+      if (pathPoints[count - 2] == pathPoints[count - 1])
         count--;
       Vector2[] points = new Vector2[count];
       for (int i = 0; i < count; ++i)
       {
-        points[i] = new Vector2(path.PathPoints[i].X, path.PathPoints[i].Y);
+        points[i] = new Vector2(pathPoints[i].X, pathPoints[i].Y);
       }
 
       Vector2 innerDistance = new Vector2(0, 0);
