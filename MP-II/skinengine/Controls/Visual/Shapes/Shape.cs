@@ -409,8 +409,8 @@ namespace SkinEngine.Controls.Visuals
       verts = null;
       if (path.PointCount <= 0) return null;
       // thickNess /= 2.0f;
-      float thicknessW = thickNess;
-      float thicknessH = thickNess;
+      float thicknessW = thickNess * SkinContext.Zoom.Width;
+      float thicknessH = thickNess * SkinContext.Zoom.Height;
       PointF[] points = path.PathPoints;
       int pointCount = points.Length;
       int verticeCount = (pointCount) * 2 * 3;
