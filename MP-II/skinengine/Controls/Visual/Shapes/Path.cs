@@ -227,13 +227,11 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       bool isclosed;
-      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, out isclosed, 0))
+      using (GraphicsPath p = GetPath(new RectangleF(0, 0, availableSize.Width, availableSize.Height), null, out isclosed, 0))
       {
         RectangleF bounds = p.GetBounds();
-        if (Width > 0) bounds.Width = (float)Width;
-        if (Height > 0) bounds.Height = (float)Height;
-        bounds.Width *= SkinContext.Zoom.Width;
-        bounds.Height *= SkinContext.Zoom.Height;
+        if (Width > 0) bounds.Width = (float)(Width * SkinContext.Zoom.Width);
+        if (Height > 0) bounds.Height = (float)(Height * SkinContext.Zoom.Height);
 
         float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
         float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
@@ -439,8 +437,8 @@ namespace SkinEngine.Controls.Visuals
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
         float xoff = 0;
         float yoff = 0;
-        if (Width > 0) baseRect.Width = (float)Width;
-        if (Height > 0) baseRect.Height = (float)Height;
+        if (Width > 0) baseRect.Width = (float)(Width * SkinContext.Zoom.Width);
+        if (Height > 0) baseRect.Height = (float)(Height * SkinContext.Zoom.Width);
         float scaleW = baseRect.Width / bounds.Width;
         float scaleH = baseRect.Height / bounds.Height;
         if (baseRect.Width == 0) scaleW = 1.0f;
@@ -462,9 +460,11 @@ namespace SkinEngine.Controls.Visuals
         m.Translate(xoff, yoff, MatrixOrder.Append);
       }
       if (finalTransform != null)
+      {
         m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
-      m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
-
+        if (Stretch != Stretch.Fill)
+          m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
+      }
       ExtendedMatrix em = null;
       if (LayoutTransform != null)
       {

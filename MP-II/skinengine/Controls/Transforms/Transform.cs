@@ -109,7 +109,7 @@ namespace SkinEngine.Controls.Transforms
       if (_needUpdateRel)
       {
         UpdateTransformRel();
-        _needUpdate = false;
+        _needUpdateRel = false;
       }
       m = _matrixRel;
     }

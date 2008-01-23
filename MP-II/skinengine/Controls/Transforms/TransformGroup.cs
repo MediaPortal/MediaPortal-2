@@ -66,6 +66,7 @@ namespace SkinEngine.Controls.Transforms
     protected void OnPropertyChanged(Property property)
     {
       _needUpdate = true;
+      _needUpdateRel = true;
       Fire();
     }
 
