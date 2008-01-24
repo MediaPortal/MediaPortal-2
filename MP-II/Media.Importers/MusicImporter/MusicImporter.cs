@@ -30,11 +30,11 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Importers;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.MediaManager;
+using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Utilities.CD;
 using MusicImporter.Freedb;
@@ -329,16 +329,33 @@ namespace MusicImporter
           }
         }
 
-        Query imagesByPath = new Query("path", Operator.Same, folder);
-        List<IDbItem> results = _musicDatabase.Query(imagesByPath);
+        bool foundCueFile = false;
+        List<IAbstractMediaItem> cueFileItems = new List<IAbstractMediaItem>();
+        List<string> cueFiles = new List<string>();
+
+        Query songsByPath = new Query("path", Operator.Same, folder);
+        List<IDbItem> results = _musicDatabase.Query(songsByPath);
         foreach (IAbstractMediaItem item in items)
         {
           if (item.ContentUri == null) continue;
           if (item.ContentUri.IsFile == false) continue;
           if (item.ContentUri.LocalPath.ToLower().IndexOf("folder.jpg") >= 0) continue;
-          //string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
-          //if (Extensions.Contains(ext))
-          //{
+          
+          if (Path.GetExtension(item.ContentUri.LocalPath.ToLower()) == ".cue")
+          {
+            // We've got a cue file, so let's analyse it and add the tracks to the items
+            foundCueFile = true;
+            List<IAbstractMediaItem> cueItems = ProcessCueSheet(item);
+            if (cueItems.Count > 0)
+            {
+              cueFileItems.AddRange(cueItems);
+              cueFiles.Add(cueItems[0].ContentUri.LocalPath);
+            }
+
+            // No need to check for the queuue files in the database
+            continue;
+          }
+
           bool found = false;
           IMediaItem mediaItem = item as IMediaItem;
           if (mediaItem != null)
@@ -372,8 +389,28 @@ namespace MusicImporter
               }
             }
           }
-          //}
         }
+        
+        // Now search through the Item and remove the file that the Cue is pointing from the list
+        if (foundCueFile)
+        {
+          for (int i = 0; i < items.Count; i++)
+          {
+            foreach (string cuefile in cueFiles)
+            {
+              if (items[i].ContentUri.LocalPath == cuefile)
+              {
+                items.RemoveAt(i);
+                i--;
+                continue;
+              }
+            }
+          }
+        }
+
+        // Add the Content of Cue File Items to the List
+        if (cueFileItems.Count > 0)
+          items.AddRange(cueFileItems);
       }
       catch (Exception)
       {
@@ -385,7 +422,7 @@ namespace MusicImporter
     /// </summary>
     /// <param name="folder"></param>
     /// <param name="items"></param>
-    public void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
+    private void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
     {
       string discId = string.Empty;
       CDInfoDetail MusicCD = new CDInfoDetail();
@@ -432,6 +469,68 @@ namespace MusicImporter
           i++;
         }
       }
+    }
+
+    /// <summary>
+    /// Opens a queue file and adds all the tracks found to the items
+    /// </summary>
+    /// <param name="strFileName"></param>
+    /// <returns>List of Tracks found in the CueSheet</returns>
+    private List<IAbstractMediaItem> ProcessCueSheet(IAbstractMediaItem item)
+    {
+      List<IAbstractMediaItem> items = new List<IAbstractMediaItem>();
+      CueSheet cuesheet = new CueSheet(item.ContentUri.LocalPath);     
+      string defaultCueAudioFile = cuesheet.Tracks[0].DataFile.Filename;
+      
+      if (Path.GetDirectoryName(defaultCueAudioFile) == String.Empty)
+        defaultCueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), defaultCueAudioFile);
+
+      // Get the tag from the original file, so that we have a duration
+      MusicTag tag = GetTag(defaultCueAudioFile);
+
+      for (int i = 0; i < cuesheet.Tracks.Length; i++)
+      {
+        Track track, nextTrack;
+        int startPosition, endPosition;
+        
+        track = cuesheet.Tracks[i];
+
+        if (track.TrackDataType != DataType.AUDIO)
+          continue;
+
+        if (i + 1 < cuesheet.Tracks.Length)
+          nextTrack = cuesheet.Tracks[i + 1];
+        else
+          nextTrack = cuesheet.Tracks[i];
+        
+        string cueAudioFile = track.DataFile.Filename;
+        if (cueAudioFile == null)
+          cueAudioFile = defaultCueAudioFile;
+        else
+        {
+          if (Path.GetDirectoryName(cueAudioFile) == String.Empty)
+            cueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), cueAudioFile);
+        }
+
+        CueMediaItem mediaitem = new CueMediaItem(cueAudioFile);
+        mediaitem.Title = track.Title;
+        mediaitem.MetaData["artist"] = track.Performer;
+        mediaitem.MetaData["track"] = track.TrackNumber;
+        mediaitem.MetaData["album"] = cuesheet.Title;
+        // Calculate Startpoint in ms 
+        // Note: 1 second = 75 Frames in a cuesheet
+        startPosition = track.Indices[0].Minutes * 60 * 1000 + track.Indices[0].Seconds * 1000 + (int)((double)track.Indices[0].Frames / 75.0 * 1000.0);
+
+        if (i + 1 < cuesheet.Tracks.Length)
+          endPosition = nextTrack.Indices[0].Minutes * 60 * 1000 + nextTrack.Indices[0].Seconds * 1000 + (int)((double)nextTrack.Indices[0].Frames / 75.0 * 1000.0);
+        else
+          endPosition = tag.Duration * 1000;
+
+        mediaitem.MetaData["resumeAt"] = startPosition;
+        mediaitem.MetaData["duration"] = (endPosition - startPosition) / 1000;
+        items.Add(mediaitem);
+      }
+      return items;
     }
     #endregion
 
@@ -865,15 +964,13 @@ namespace MusicImporter
         MusicTag tag = GetTag(strFileName);
         if (tag != null)
         {
-          FileInfo info = new FileInfo(strFileName);
-
           // Todo: Handle Artist Prefix based on Settings
           //string sortableArtist = tag.Artist;
           //StripArtistNamePrefix(ref sortableArtist, true);
 
           IDbItem track = _musicDatabase.CreateNew();
-          track["contenturi"] = strFileName;
-          track["path"] = Path.GetDirectoryName(strFileName);
+          track["contenturi"] = tag.FileName;
+          track["path"] = Path.GetDirectoryName(tag.FileName);
           track["artist"] = tag.Artist;
           track["albumArtist"] = tag.AlbumArtist;
           track["album"] = tag.Album;
@@ -894,7 +991,7 @@ namespace MusicImporter
           track["lyrics"] = tag.Lyrics;
           track["musicBrainzID"] = String.Empty;
           track["dateLastPlayed"] = DateTime.MinValue;
-          track["dateAdded"] = info.CreationTime;
+          track["dateAdded"] = DateTime.Now;
           track.Save();
         }
       }

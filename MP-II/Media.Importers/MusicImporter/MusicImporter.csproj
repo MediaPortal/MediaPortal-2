@@ -61,6 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CueMediaItem.cs" />
+    <Compile Include="CueSheet.cs" />
     <Compile Include="FreeDB\CDInfo.cs" />
     <Compile Include="FreeDB\CDInfoDetail.cs" />
     <Compile Include="FreeDB\CDTrackDetail.cs" />

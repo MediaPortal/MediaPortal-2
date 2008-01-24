@@ -55,7 +55,7 @@ namespace BassPlayer
     #region Delegates
     private SYNCPROC PlaybackFadeOutProcDelegate = null;      // SyncProc called to initiate Crossfading
     private SYNCPROC PlaybackEndProcDelegate = null;          // SyncProc called to indicate the song has ended
-    //private SYNCPROC MetaTagSyncProcDelegate = null;          // SyncProc indicating that Meta´data has been sent via an Internet Stream
+    //private SYNCPROC MetaTagSyncProcDelegate = null;          // SyncProc indicating that Metaï¿½data has been sent via an Internet Stream
     //private DOWNLOADPROC LastFmDownloadProcDelegate = null;   // Download Proc, when playing a last.fm stream
     #endregion
 
@@ -65,6 +65,9 @@ namespace BassPlayer
     private IMediaItem _mediaItem;
     private BassPlayerSettings _settings;
     private FileType _filetype;
+
+    private int _resumeAt = 0;                                // Playback should resume at the specified position
+    private int _duration = 0;                                // The Duration of the Playback (needed for Cue file playback)
 
     private int _syncHandleFade = 0;                          // The Synchandle for Crossfading
     private int _syncHandleEnd = 0;                           // The Synchandle when a Stream Ends
@@ -96,7 +99,7 @@ namespace BassPlayer
     {
       BASSStream streamFlags = BASSStream.BASS_STREAM_DECODE | BASSStream.BASS_SAMPLE_FLOAT;
       _filetype = GetFileType();
-      ServiceScope.Get<ILogger>().Info("BASS: Creating stream for {0}. FileType: {1}", _mediaItem.ContentUri.AbsoluteUri, Enum.GetName(typeof(FileType),_filetype));
+      ServiceScope.Get<ILogger>().Info("BASS: Creating stream for {0}. FileType: {1}", _mediaItem.ContentUri.AbsoluteUri, Enum.GetName(typeof(FileType), _filetype));
       switch (_filetype)
       {
         case FileType.File:
@@ -116,10 +119,32 @@ namespace BassPlayer
 
       if (_stream != 0)
       {
-        RegisterPlaybackEvents();
+        // Do we need to resume at a specific position. e.g. Processing a Cue File
+        try
+        {
+          _resumeAt = (int)_mediaItem.MetaData["resumeAt"];
+        }
+        catch (Exception)
+        {
+          _resumeAt = 0;
+        }
+        try
+        {
+          _duration = (int)_mediaItem.MetaData["duration"];
+        }
+        catch (Exception)
+        {
+          _duration = 0;
+        }
+        
+        if (_resumeAt > 0)
+        {
+          Bass.BASS_ChannelSetPosition(_stream, Bass.BASS_ChannelSeconds2Bytes(_stream, (float)_resumeAt / 1000f));
+        }
 
         // ToDo: Apply DSP Processing etc.
 
+        RegisterPlaybackEvents();
       }
       else
       {
@@ -240,6 +265,11 @@ namespace BassPlayer
       int syncHandle = 0;
       long len = Bass.BASS_ChannelGetLength(_stream); // length in bytes
       float totaltime = Bass.BASS_ChannelBytes2Seconds(_stream, len); // the total time length
+
+      // Did we get a Resume & Duration (Cue File)
+      if (_resumeAt > 0 && _duration > 0)
+        totaltime = (float)_resumeAt / 1000f + (float)_duration;
+
       float fadeOutSeconds = 0;
 
       if (!_settings.GaplessPlayback && _settings.Crossfade > 0)
@@ -270,10 +300,10 @@ namespace BassPlayer
     private void PlaybackFadeOutProc(int handle, int stream, int data, int userData)
     {
       ServiceScope.Get<ILogger>().Debug("BASS: Fade out of stream {0}", stream);
-      
+
       if (!_settings.GaplessPlayback)
         Bass.BASS_ChannelSlideAttributes(stream, -1, -2, -101, _settings.Crossfade);
-      
+
       SendInternalMessage("xfading");
     }
 
@@ -287,11 +317,25 @@ namespace BassPlayer
     {
       int syncHandle = 0;
 
-      syncHandle = Bass.BASS_ChannelSetSync(_stream,
-          BASSSync.BASS_SYNC_END,
-          0, PlaybackEndProcDelegate,
-          0);
+      // Did we get a Resume & Duration (Cue File)
+      // Then we can't wait for the end of the stream, we need to set a sync_pos
+      if (_resumeAt > 0 && _duration > 0)
+      {
+        float totaltime = (float)_resumeAt / 1000f + (float)_duration;
+        long bytePos = Bass.BASS_ChannelSeconds2Bytes(_stream, totaltime);
 
+        syncHandle = Bass.BASS_ChannelSetSync(_stream,
+            BASSSync.BASS_SYNC_POS,
+            bytePos, PlaybackEndProcDelegate,
+            0);
+      }
+      else
+      {
+        syncHandle = Bass.BASS_ChannelSetSync(_stream,
+            BASSSync.BASS_SYNC_END,
+            0, PlaybackEndProcDelegate,
+            0);
+      }
       if (syncHandle == 0)
       {
         int error = Bass.BASS_ErrorGetCode();
