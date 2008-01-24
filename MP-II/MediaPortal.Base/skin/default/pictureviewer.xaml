@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyXaml>
+  <Canvas  History="False" xmlns:local="clr-namespace:PictureModel;assembly=mypicture" Width="720" Height="576" Background="Black">
+    <Image Name="picture1" Source="{Binding SlideShow.PreviousPicture}" Width="720" Height="576" Thumbnail="False" IsVisible="{Binding SlideShow.PreviousPictureVisible}"/>
+    <Image Name="picture2" Source="{Binding SlideShow.CurrentPicture}" Width="720" Height="576" Thumbnail="False" IsVisible="{Binding SlideShow.CurrentPictureVisibile}"/>
+
+
+    <Canvas Name="osd" Width="720" Height="576" IsVisible="{Binding SlideShow.IsPaused}">
+      <Border Canvas.Left="20" Canvas.Top="20" Width="680" Height="40" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Offset="0" Color="#90FFFFFF"/>
+            <GradientStop Offset="0.5" Color="#F87A7673"/>
+            <GradientStop Offset="1" Color="#F87A7673"/>
+          </LinearGradientBrush >
+        </Border.Background>
+      </Border>
+
+      <Image Name="pause" Source="video-pause.png" Canvas.Left="604" Canvas.Top="22" Width="92" Height="34"  />
+      <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Text="{Binding SlideShow.CurrentTitle}" Color="White"/>
+    </Canvas>
+    <KeyBinding KeyPress="ContextMenu" Command="{Binding WindowManager.ShowDialog}" CommandParameter="dialogMyPictureContextMenu"/>
+    <KeyBinding KeyPress="Left" Command="{Binding SlideShow.ShowPreviousPicture}"/>
+    <KeyBinding KeyPress="Right" Command="{Binding SlideShow.ShowNextPicture}"/>
+    <KeyBinding KeyPress="Space" Command="{Binding SlideShow.Pause}"/>
+  </Canvas>
+</MyXaml>
