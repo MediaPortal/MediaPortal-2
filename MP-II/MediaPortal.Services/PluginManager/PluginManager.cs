@@ -46,30 +46,29 @@ namespace MediaPortal.Services.PluginManager
 
     public PluginManager()
     {
-      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-      
+      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;     
     }
 
-    static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-    {
-      int pos = args.Name.IndexOf(",");
-      if (pos >= 0)
-      {
-        string dllName = args.Name.Substring(0, pos);
-      string[] folders=System.IO.Directory.GetDirectories("plugins");
-      for (int i = 0; i < folders.Length; ++i)
-      {
-        string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(),folders[i], dllName);
-        if (System.IO.File.Exists(fname))
-        {
-          return Assembly.LoadFile(fname);
-        }
-      }
-      }
-      return null;
-    }
+		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			int pos = args.Name.IndexOf(",");
+			if (pos >= 0)
+			{
+				string dllName = args.Name.Substring(0, pos);
+				string[] folders = System.IO.Directory.GetDirectories("plugins");
+				for (int i = 0; i < folders.Length; ++i)
+				{
+					string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(), folders[i], dllName);
+					if (System.IO.File.Exists(fname))
+					{
+						return Assembly.LoadFile(fname);
+					}
+				}
+			}
+			return null;
+		}
 
-    #region Private
+  	#region Private
     /// <summary>
     /// Loads all the available plugins
     /// </summary>
@@ -89,7 +88,6 @@ namespace MediaPortal.Services.PluginManager
         for (int x = 0; x < files.Length; ++x)
         {
           _pluginFiles.Add(files[x]);
-
         }
       }
 
