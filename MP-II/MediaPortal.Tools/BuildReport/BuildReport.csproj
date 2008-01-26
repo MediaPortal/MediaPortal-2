@@ -34,8 +34,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildReport.cs" />
-    <Compile Include="AnalyseInput.cs" />
+    <Compile Include="AnalyseVS2005Input.cs" />
     <Compile Include="CommandLineOptions.cs" />
+    <Compile Include="AnalyseMsbuildInput.cs" />
+    <Compile Include="IAnalyseInput.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Solution.cs" />
     <Compile Include="WriteReport.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MediaPortal.Tools.BuildReport
 {
-  class Project
+  class Project : IComparable<Project>
   {
     public enum CssClass
     {
@@ -15,8 +15,9 @@ namespace MediaPortal.Tools.BuildReport
       question
     }
 
-    public string name;
-    public Solution.Compile build;
+    public string name = string.Empty;
+    public string filename = string.Empty;
+    public Solution.Compile build = Solution.Compile.Skipped;
     public int errors = 0;
     public int warnings = 0;
 
@@ -36,5 +37,14 @@ namespace MediaPortal.Tools.BuildReport
         return CssClass.success;
       }
     }
+
+    #region IComparer<ListItem> Members
+
+    public int CompareTo(Project x)
+    {
+      return string.Compare(this.name, x.name);
+    }
+
+    #endregion
   }
 }

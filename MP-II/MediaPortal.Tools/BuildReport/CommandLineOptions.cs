@@ -39,7 +39,8 @@ namespace MediaPortal.Tools.BuildReport
       Input,
       Output,
       Solution,
-      Title
+      Title,
+      VS2005
       // put options here
     }
     #endregion

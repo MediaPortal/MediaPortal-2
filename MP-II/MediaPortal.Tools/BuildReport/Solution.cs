@@ -75,6 +75,20 @@ namespace MediaPortal.Tools.BuildReport
     {
       _totalErrors += newProject.errors;
       _totalWarnings += newProject.warnings;
+      switch (newProject.build)
+      {
+        case Compile.Success:
+          _succeeded++;
+          break;
+        case Compile.Failed:
+          _failed++;
+          break;
+        case Compile.Skipped:
+          _skipped++;
+          break;
+        default:
+          break;
+      }
       _projects.Add(newProject);
     }
   }

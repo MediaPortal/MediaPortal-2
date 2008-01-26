@@ -1,1 +1,1 @@
-@"%ProgramFiles%\Microsoft Visual Studio 8\Common7\IDE\devenv.com" ..\MediaPortal.sln /Rebuild "Release|x86" /Out devenv.log
+@"%ProgramFiles%\Microsoft Visual Studio 8\Common7\IDE\devenv.com" ..\MediaPortal.sln /Rebuild "Release|x86" /Out build.log

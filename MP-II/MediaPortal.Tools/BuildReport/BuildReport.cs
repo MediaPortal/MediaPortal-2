@@ -38,7 +38,10 @@ namespace MediaPortal.Tools.BuildReport
       string buildOutput = input.ReadToEnd();
       input.Close();
 
-      AnalyseInput analyser = new AnalyseInput();
+      IAnalyseInput analyser = new AnalyseMsbuildInput();
+
+      if (brArgs.IsOption(CommandLineOptions.Option.VS2005))
+        analyser = new AnalyseVS2005Input();
 
       analyser.Parse(buildOutput);
 

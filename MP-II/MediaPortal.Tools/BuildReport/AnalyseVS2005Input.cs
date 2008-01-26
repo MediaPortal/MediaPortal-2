@@ -6,11 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace MediaPortal.Tools.BuildReport
 {
-  class AnalyseInput
+  class AnalyseVS2005Input : IAnalyseInput
   {
     Solution _solution;
 
-    public AnalyseInput()
+    public AnalyseVS2005Input()
     {
     }
 
@@ -28,13 +28,13 @@ namespace MediaPortal.Tools.BuildReport
       _solution = new Solution();
       _solution.Name = "Unknown";
 
-      Match slnSummary = summary.Match(input);
-      if (slnSummary.Success)
-      {
-        _solution.Succeeded = Int32.Parse(slnSummary.Groups["succeeded"].Value);
-        _solution.Failed = Int32.Parse(slnSummary.Groups["failed"].Value);
-        _solution.Skipped = Int32.Parse(slnSummary.Groups["skipped"].Value);
-      }
+      //Match slnSummary = summary.Match(input);
+      //if (slnSummary.Success)
+      //{
+      //  _solution.Succeeded = Int32.Parse(slnSummary.Groups["succeeded"].Value);
+      //  _solution.Failed = Int32.Parse(slnSummary.Groups["failed"].Value);
+      //  _solution.Skipped = Int32.Parse(slnSummary.Groups["skipped"].Value);
+      //}
 
       MatchCollection projStart = rebuild.Matches(input);
       MatchCollection projComplete = complete.Matches(input);
@@ -75,6 +75,8 @@ namespace MediaPortal.Tools.BuildReport
 
         _solution.AddProject(proj);
       }
+
+      _solution.Projects.Sort();
     }
   }
 }
