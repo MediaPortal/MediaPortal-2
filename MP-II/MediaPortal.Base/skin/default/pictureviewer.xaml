@@ -1,27 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
-  <Canvas  History="False" xmlns:local="clr-namespace:PictureModel;assembly=mypicture" Width="720" Height="576" Background="Black">
-    <Image Name="picture1" Source="{Binding SlideShow.PreviousPicture}" Width="720" Height="576" Thumbnail="False" IsVisible="{Binding SlideShow.PreviousPictureVisible}"/>
-    <Image Name="picture2" Source="{Binding SlideShow.CurrentPicture}" Width="720" Height="576" Thumbnail="False" IsVisible="{Binding SlideShow.CurrentPictureVisibile}"/>
+  <Canvas   History="False" xmlns:local="clr-namespace:PictureModel;assembly=mypicture" Width="720" Height="576" Background="Black">
+    <Canvas Name="tst" Loaded="{Binding Path=SlideShow.UpdateCurrentPicture}">
+      <Image Name="picture1" Stretch="UniformToFill" Source="{Binding SlideShow.PreviousPicture}"  Width="720" Height="576" Thumbnail="False" IsEnabled="{Binding SlideShow.PreviousPictureVisible}">
 
+        <Image.Resources>
+          <Storyboard Key="fadeOutStoryboard" >
+            <DoubleAnimation BeginTime="00:00:00" From="1.0" To="0.0" Duration="00:00:01.8000000"  Storyboard.TargetName="picture1" Storyboard.TargetProperty="Opacity"/>
+          </Storyboard>
+        </Image.Resources>
+        <Image.Triggers>
+          <Trigger Property="IsEnabled" Value="False">
+            <Trigger.EnterActions>
+              <BeginStoryboard Name="fadeOut" Storyboard="{StaticResource fadeOutStoryboard}" />
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="fadeOut"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Image.Triggers>
+      </Image>
+      <Image Name="picture2" Stretch="UniformToFill" Source="{Binding SlideShow.CurrentPicture}" Opacity="0.0"  Width="720" Height="576" Thumbnail="False" IsEnabled="{Binding SlideShow.CurrentPictureVisibile}">
+        <Image.Resources>
+          <Storyboard Key="fadeInStoryboard" >
+            <DoubleAnimation BeginTime="00:00:00" From="0.0" To="1.0" Duration="00:00:01.8000000"  Storyboard.TargetName="picture2" Storyboard.TargetProperty="Opacity"/>
+          </Storyboard>
+        </Image.Resources>
+        <Image.Triggers>
+          <Trigger Property="IsEnabled" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard Name="fadeIn" Storyboard="{StaticResource fadeInStoryboard}" />
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="fadeIn"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Image.Triggers>
+      </Image>
+      <Canvas Name="osd" Width="720" Height="576" IsVisible="{Binding SlideShow.IsPaused}">
+        <Border Canvas.Left="20" Canvas.Top="20" Width="680" Height="40" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Offset="0" Color="#90FFFFFF"/>
+              <GradientStop Offset="0.5" Color="#F87A7673"/>
+              <GradientStop Offset="1" Color="#F87A7673"/>
+            </LinearGradientBrush >
+          </Border.Background>
+        </Border>
 
-    <Canvas Name="osd" Width="720" Height="576" IsVisible="{Binding SlideShow.IsPaused}">
-      <Border Canvas.Left="20" Canvas.Top="20" Width="680" Height="40" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-            <GradientStop Offset="0" Color="#90FFFFFF"/>
-            <GradientStop Offset="0.5" Color="#F87A7673"/>
-            <GradientStop Offset="1" Color="#F87A7673"/>
-          </LinearGradientBrush >
-        </Border.Background>
-      </Border>
-
-      <Image Name="pause" Source="video-pause.png" Canvas.Left="604" Canvas.Top="22" Width="92" Height="34"  />
-      <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Text="{Binding SlideShow.CurrentTitle}" Color="White"/>
+        <Image Name="pause" Source="video-pause.png" Canvas.Left="604" Canvas.Top="22" Width="92" Height="34"  />
+        <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Text="{Binding SlideShow.CurrentTitle}" Color="White"/>
+      </Canvas>
+      <KeyBinding KeyPress="ContextMenu" Command="{Binding WindowManager.ShowDialog}" CommandParameter="dialogMyPictureContextMenu"/>
+      <KeyBinding KeyPress="Left" Command="{Binding SlideShow.ShowPreviousPicture}"/>
+      <KeyBinding KeyPress="Right" Command="{Binding SlideShow.ShowNextPicture}"/>
+      <KeyBinding KeyPress="Space" Command="{Binding SlideShow.Pause}"/>
     </Canvas>
-    <KeyBinding KeyPress="ContextMenu" Command="{Binding WindowManager.ShowDialog}" CommandParameter="dialogMyPictureContextMenu"/>
-    <KeyBinding KeyPress="Left" Command="{Binding SlideShow.ShowPreviousPicture}"/>
-    <KeyBinding KeyPress="Right" Command="{Binding SlideShow.ShowNextPicture}"/>
-    <KeyBinding KeyPress="Space" Command="{Binding SlideShow.Pause}"/>
   </Canvas>
 </MyXaml>

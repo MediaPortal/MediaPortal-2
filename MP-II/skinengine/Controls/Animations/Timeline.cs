@@ -529,6 +529,7 @@ namespace SkinEngine.Controls.Animations
         if (propertyname.Length > 0) propertyname += ".";
         propertyname += part1;
       }
+      if (propertyname.Length == 0) propertyname = targetProperty;
 
       string propertyName = String.Format("{0}.{1}", targetName, propertyname);
       int posPoint = propertyName.LastIndexOf('.');

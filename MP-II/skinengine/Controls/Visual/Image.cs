@@ -348,12 +348,9 @@ namespace SkinEngine.Controls.Visuals
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
 
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       _isLayoutInvalid = false;
     }
 
@@ -411,6 +408,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     public override void DoRender()
     {
+      if (!IsEnabled && Opacity == 0.0) return;
       if (_image == null && Source != null)
       {
         _image = ContentManager.Load(Source, Thumbnail);

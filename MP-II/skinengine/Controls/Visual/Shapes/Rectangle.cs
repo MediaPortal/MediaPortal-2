@@ -164,12 +164,9 @@ namespace SkinEngine.Controls.Visuals
       ActualHeight = layoutRect.Height;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       _isLayoutInvalid = false;
 
       if (!finalRect.IsEmpty)

@@ -83,6 +83,9 @@ namespace SkinEngine.Controls.Visuals
     BindingCollection _bindings;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
+    Command _loaded;
+    bool _bindingsInitialized;
+    bool _triggersInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -116,6 +119,8 @@ namespace SkinEngine.Controls.Visuals
       Opacity = el.Opacity;
       Context = el.Context;
       ZIndex = el.ZIndex;
+      Loaded = el.Loaded;
+
       if (OpacityMask != null)
         OpacityMask = (SkinEngine.Controls.Brushes.Brush)el.OpacityMask.Clone();
 
@@ -188,6 +193,23 @@ namespace SkinEngine.Controls.Visuals
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       //_zIndexProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _visibilityProperty.Attach(new PropertyChangedHandler(OnVisibilityPropertyChanged));
+    }
+
+
+    /// <summary>
+    /// Gets or sets the loaded event 
+    /// </summary>
+    /// <value>The loaded.</value>
+    public Command Loaded
+    {
+      get
+      {
+        return _loaded;
+      }
+      set
+      {
+        _loaded = value;
+      }
     }
 
     void OnVisibilityPropertyChanged(Property property)
@@ -1156,12 +1178,9 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public virtual void Arrange(System.Drawing.RectangleF finalRect)
     {
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       _isLayoutInvalid = false;
     }
 
@@ -1262,9 +1281,13 @@ namespace SkinEngine.Controls.Visuals
 
     public void InitializeTriggers()
     {
-      foreach (Trigger trigger in Triggers)
+      if (!_triggersInitialized)
       {
-        trigger.Setup(this);
+        _triggersInitialized = true;
+        foreach (Trigger trigger in Triggers)
+        {
+          trigger.Setup(this);
+        }
       }
     }
     /// <summary>
@@ -1285,6 +1308,13 @@ namespace SkinEngine.Controls.Visuals
               StartStoryboard(eventTrig.Storyboard);
             }
           }
+        }
+      }
+      if (eventName == "FrameworkElement.Loaded")
+      {
+        if (Loaded != null)
+        {
+          _loaded.Execute();
         }
       }
     }
@@ -1410,11 +1440,18 @@ namespace SkinEngine.Controls.Visuals
 
     public virtual void InitializeBindings()
     {
-      if (_bindings.Count == 0) return;
-      foreach (Binding binding in _bindings)
+      if (Name == "tst")
       {
-        binding.Initialize(this);
       }
+      if (!_bindingsInitialized)
+      {
+        _bindingsInitialized = true;
+        foreach (Binding binding in _bindings)
+        {
+          binding.Initialize(this);
+        }
+      }
+      FireEvent("FrameworkElement.Loaded");
     }
     #endregion
   }

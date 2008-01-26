@@ -276,6 +276,9 @@ namespace SkinEngine.Controls.Animations
     public override void Setup(UIElement element)
     {
       VisualParent = element;
+      if (TargetName == "picture1")
+      {
+      }
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (double)_property.GetValue();

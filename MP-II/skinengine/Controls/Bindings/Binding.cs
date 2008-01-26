@@ -151,14 +151,15 @@ namespace SkinEngine.Controls.Bindings
           object vis = VisualTreeHelper.Instance.FindElement(elementName);
           if (vis == null) return;
 
-          PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true);
+          object obj;
+          PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true, out obj);
           if (info == null) return;
           if (info.PropertyType == typeof(Property))
           {
             //get the destination property
             MethodInfo methodInfo = info.GetGetMethod();
             if (methodInfo == null) return;
-            Property destinationProperty = (Property)methodInfo.Invoke(bindingDestinationObject, null);
+            Property destinationProperty = (Property)methodInfo.Invoke(obj, null);
 
             destinationProperty.SetValue(vis);
 
@@ -210,17 +211,18 @@ namespace SkinEngine.Controls.Bindings
         }
       }
 
+      object obj;
       if (bindingSourceProperty is Property)
       {
         Property sourceProperty = (Property)bindingSourceProperty;
-        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true);
+        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, true, out obj);
         if (info == null) return;
         if (info.PropertyType == typeof(Property))
         {
           //get the destination property
           MethodInfo methodInfo = info.GetGetMethod();
           if (methodInfo == null) return;
-          Property destinationProperty = (Property)methodInfo.Invoke(bindingDestinationObject, null);
+          Property destinationProperty = (Property)methodInfo.Invoke(obj, null);
 
           //create a new dependency..
           _dependency = new BindingDependency(sourceProperty, destinationProperty);
@@ -229,21 +231,21 @@ namespace SkinEngine.Controls.Bindings
         }
         else
         {
-          info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false);
+          info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false, out obj);
           if (info == null) return;
           MethodInfo methodInfo = info.GetSetMethod();
           if (methodInfo == null) return;
-          _dependency = new BindingDependency(sourceProperty, methodInfo, bindingDestinationObject);
+          _dependency = new BindingDependency(sourceProperty, methodInfo, obj);
         }
 
       }
       else
       {
-        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false);
+        PropertyInfo info = GetPropertyOnObject(bindingDestinationObject, this.PropertyInfo.Name, false, out obj);
         if (info == null) return;
         MethodInfo methodInfo = info.GetSetMethod();
         if (methodInfo == null) return;
-        methodInfo.Invoke(bindingDestinationObject, new object[] { bindingSourceProperty });
+        methodInfo.Invoke(obj, new object[] { bindingSourceProperty });
       }
     }
 
@@ -260,7 +262,8 @@ namespace SkinEngine.Controls.Bindings
         if (element.VisualParent == null) return null;
         return GetBindingSourceObject(element.VisualParent, bindingSourcePropertyName);
       }
-      PropertyInfo info = GetPropertyOnObject(element.Context, bindingSourcePropertyName, true);
+      Object obj;
+      PropertyInfo info = GetPropertyOnObject(element.Context, bindingSourcePropertyName, true, out obj);
       if (info == null)
       {
         if (element.Context is ListItem)
@@ -272,12 +275,12 @@ namespace SkinEngine.Controls.Bindings
           }
         }
         //check if its a method
-        MethodInfo infoM = element.Context.GetType().GetMethod(bindingSourcePropertyName);
+        MethodInfo infoM = GetMethodOnObject(element.Context, bindingSourcePropertyName, out obj);
         if (infoM != null)
         {
           Command cmd = new Command();
           cmd.Method = infoM;
-          cmd.Object = element.Context;
+          cmd.Object = obj;
           return cmd;
         }
         Command newCmd = GetMethodInfo(bindingSourcePropertyName);
@@ -289,13 +292,14 @@ namespace SkinEngine.Controls.Bindings
       }
       MethodInfo methodInfo = info.GetGetMethod();
       if (methodInfo == null) return null;
-      object bindingObject = methodInfo.Invoke(element.Context, null);
+      object bindingObject = methodInfo.Invoke(obj, null);
       return bindingObject;
     }
 
     protected object GetBindingSourceObject(object element, string bindingSourcePropertyName)
     {
-      PropertyInfo info = GetPropertyOnObject(element, bindingSourcePropertyName, true);
+      object obj;
+      PropertyInfo info = GetPropertyOnObject(element, bindingSourcePropertyName, true, out obj);
       if (info == null)
       {
         Command newCmd = GetMethodInfo(bindingSourcePropertyName);
@@ -307,7 +311,7 @@ namespace SkinEngine.Controls.Bindings
       }
       MethodInfo methodInfo = info.GetGetMethod();
       if (methodInfo == null) return null;
-      object bindingObject = methodInfo.Invoke(element, null);
+      object bindingObject = methodInfo.Invoke(obj, null);
       return bindingObject;
     }
 
@@ -372,16 +376,120 @@ namespace SkinEngine.Controls.Bindings
     }
 
 
-    protected PropertyInfo GetPropertyOnObject(object obj, string propertyName, bool checkForProperty)
+    protected PropertyInfo GetPropertyOnObject(object element, string propertyName, bool checkForProperty, out object context)
     {
+      context = null;
       PropertyInfo info;
+      string[] parts = propertyName.Split('.');
+      if (parts.Length == 1)
+      {
+        if (checkForProperty)
+        {
+          info = element.GetType().GetProperty(propertyName + "Property");
+          if (info != null)
+          {
+            context = element;
+            return info;
+          }
+        }
+        info = element.GetType().GetProperty(propertyName);
+        if (info != null)
+        {
+          context = element;
+        }
+        return info;
+      }
+      ///----
+      object model = element;
+      int partNr = 0;
+      object obj = null;
+      while (partNr < parts.Length - 1)
+      {
+        Type classType = model.GetType();
+        info = classType.GetProperty(parts[partNr],
+                                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
+                                BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
+        if (info == null)
+          return null;
+        MethodInfo methodInfo = info.GetGetMethod();
+        if (methodInfo == null)
+          return null;
+        obj = methodInfo.Invoke(model, null);
+
+        partNr++;
+        if (partNr < parts.Length)
+        {
+          model = obj;
+          if (model == null)
+          {
+            return null;
+          }
+        }
+      }
+
       if (checkForProperty)
       {
-        info = obj.GetType().GetProperty(propertyName + "Property");
-        if (info != null) return info;
+        info = model.GetType().GetProperty(parts[parts.Length - 1] + "Property");
+        if (info != null)
+        {
+          context = model;
+          return info;
+        }
       }
-      info = obj.GetType().GetProperty(propertyName);
+      info = model.GetType().GetProperty(parts[parts.Length - 1]);
+      context = model;
       return info;
+      //----
+    }
+
+    protected MethodInfo GetMethodOnObject(object element, string propertyName, out object context)
+    {
+      context = null;
+      MethodInfo info;
+      string[] parts = propertyName.Split('.');
+      if (parts.Length == 1)
+      {
+        info = element.GetType().GetMethod(propertyName);
+        if (info != null)
+        {
+          context = element;
+          return info;
+        }
+        return null;
+      }
+      ///----
+      object model = element;
+      int partNr = 0;
+      object obj = null;
+      while (partNr < parts.Length - 1)
+      {
+        Type classType = model.GetType();
+        PropertyInfo inf = classType.GetProperty(parts[partNr],
+                                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
+                                BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
+        if (inf == null)
+          return null;
+        MethodInfo methodInfo = inf.GetGetMethod();
+        if (methodInfo == null)
+          return null;
+        obj = methodInfo.Invoke(model, null);
+
+        partNr++;
+        if (partNr < parts.Length)
+        {
+          model = obj;
+          if (model == null)
+          {
+            return null;
+          }
+        }
+      }
+
+
+      info = model.GetType().GetMethod(parts[parts.Length - 1]);
+      context = model;
+      return info;
+      //----
     }
   }
 

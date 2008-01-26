@@ -499,6 +499,10 @@ namespace MyMusic
       }
     }
 
+    public void OnSelectionChange(ListItem item)
+    {
+      SelectedItem = item;
+    }
     /// <summary>
     /// allows skin to set/get the current selected list item
     /// </summary>

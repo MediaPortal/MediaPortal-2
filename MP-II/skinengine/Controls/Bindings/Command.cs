@@ -91,9 +91,9 @@ namespace SkinEngine.Controls.Bindings
       }
     }
 
-    public virtual void Execute(object commandParameter)
+    public virtual void Execute(object commandParameter, bool hasParameter)
     {
-      if (commandParameter != null)
+      if (commandParameter != null || hasParameter)
       {
         _info.Invoke(_object, new object[] { commandParameter });
       }

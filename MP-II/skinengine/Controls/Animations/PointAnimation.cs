@@ -246,7 +246,7 @@ namespace SkinEngine.Controls.Animations
       disty *= timepassed;
       disty += From.Y;
 
-      _property.SetValue(new Vector2((float)distx, (float)disty));
+      SetValue(new Vector2((float)distx, (float)disty));
     }
 
     public override void Ended()
@@ -256,7 +256,7 @@ namespace SkinEngine.Controls.Animations
       {
         if (FillBehaviour != FillBehaviour.HoldEnd)
         {
-          _property.SetValue(_originalValue);
+          SetValue(_originalValue);
         }
       }
     }
@@ -278,7 +278,7 @@ namespace SkinEngine.Controls.Animations
       _property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
-      _originalValue = (Vector2)_property.GetValue();
+      _originalValue = GetValue();
     }
 
     public override void Stop()
@@ -287,8 +287,39 @@ namespace SkinEngine.Controls.Animations
       _state = State.Idle;
       if (_property != null)
       {
-        _property.SetValue(_originalValue);
+        SetValue(_originalValue);
       }
+    }
+
+    Vector2 GetValue()
+    {
+      if (_property == null) return new Vector2(0, 0);
+      object o = _property.GetValue();
+      if (o.GetType() == typeof(Vector2)) return (Vector2)o;
+      if (o.GetType() == typeof(Vector3))
+      {
+        Vector3 v = (Vector3)o;
+        return new Vector2(v.X, v.Y);
+      }
+      return new Vector2(0, 0);
+
+    }
+    void SetValue(Vector2 vector)
+    {
+      if (_property == null) return ;
+      object o = _property.GetValue();
+      if (o.GetType() == typeof(Vector2))
+      {
+        _property.SetValue(vector);
+        return;
+      }
+      if (o.GetType() == typeof(Vector3))
+      {
+        Vector3 v = new Vector3(vector.X, vector.Y, ((Vector3)o).Z);
+        _property.SetValue(v);
+        return;
+      }
+
     }
   }
 }

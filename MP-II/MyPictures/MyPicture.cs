@@ -520,12 +520,12 @@ namespace Pictures
               IImporterManager mgr = ServiceScope.Get<IImporterManager>();
               if (mgr.Shares.Contains(folder.MediaContainer.ContentUri.LocalPath))
               {
-                menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.ForceImport]);
-                menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.RemoveShare]);
+                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.ForceImport]);
+                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.RemoveShare]);
               }
               else
               {
-                menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.AddShare]);
+                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.AddShare]);
               }
             }
           }
@@ -549,6 +549,10 @@ namespace Pictures
 
     #endregion
 
+    public void OnSelectionChange(ListItem item)
+    {
+      SelectedItem = item;
+    }
     /// <summary>
     /// allows skin to set/get the current selected list item
     /// </summary>

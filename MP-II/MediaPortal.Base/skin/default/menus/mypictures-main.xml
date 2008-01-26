@@ -3,7 +3,7 @@
     <item text="[general.view]" image="" command="list.SwitchStyle" parameter=""/>
     <item text="[general.sort]" image="" command="WindowManager.ShowDialog" parameter="dialogMyPictureSortMenu"/>
     <item text="[pictures.4]" image="" command="WindowManager.ShowDialog" parameter="dialogMyPictureViewMenu"/>    
-    <item text="[pictures.6]" image="" command="model.SlideShow.Start+WindowManager.ShowWindow" parameter="+pictureviewer"/>
+    <item text="[pictures.6]" image="" command="mypicture:PictureModel.SlideShow.Start+WindowManager.ShowWindow" parameter="+pictureviewer"/>
   </items>
 
 </menu>

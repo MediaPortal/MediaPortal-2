@@ -3,7 +3,7 @@
     <item text="[playback.34]" image="" command="Players.Stop+WindowManager.ShowPreviousWindow" parameter=""/>
     <item text="[playback.35]" image="" command="Players.Resume+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
     <item text="[playback.36]" image="" command="Players.Restart+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
-    <item text="[playback.37]" image="" command="model.StopAndDeleteMovie+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
+    <item text="[playback.37]" image="" command="mymovies:Model.StopAndDeleteMovie+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
   </items>
 
 </menu>

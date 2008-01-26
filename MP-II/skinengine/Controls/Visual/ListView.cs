@@ -46,6 +46,7 @@ namespace SkinEngine.Controls.Visuals
     Property _commands;
     Command _contextMenuCommand;
     Property _contextMenuCommandParameterProperty;
+    Command _selectionChanged;
 
 
     //ArrayList _items;
@@ -82,6 +83,7 @@ namespace SkinEngine.Controls.Visuals
         Template = (UIElement)c.Template.Clone();
       Command = c.Command;
       CommandParameter = c._commandParameter;
+      SelectionChanged = c.SelectionChanged;
 
       ContextMenuCommand = c.ContextMenuCommand;
       ContextMenuCommandParameter = c.ContextMenuCommandParameter;
@@ -119,6 +121,18 @@ namespace SkinEngine.Controls.Visuals
       this.Template.VisualParent = this;
       ItemsPanel = (Panel)this.Template.FindItemsHost();
       Invalidate();
+    }
+
+    public Command SelectionChanged
+    {
+      get
+      {
+        return _selectionChanged;
+      }
+      set
+      {
+        _selectionChanged = value;
+      }
     }
 
     /// <summary>
@@ -378,12 +392,9 @@ namespace SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       if (Template != null)
       {
         layoutRect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
@@ -489,7 +500,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (Command != null)
         {
-          Command.Execute(CommandParameter);
+          Command.Execute(CommandParameter,false);
         }
         Commands.Execute(this);
       }
@@ -497,7 +508,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (ContextMenuCommand != null)
         {
-          ContextMenuCommand.Execute(ContextMenuCommandParameter);
+          ContextMenuCommand.Execute(ContextMenuCommandParameter, false);
 
         }
       }
@@ -518,6 +529,10 @@ namespace SkinEngine.Controls.Visuals
         else
         {
           CurrentItem = element.Context;
+        }
+        if (SelectionChanged != null)
+        {
+          SelectionChanged.Execute(CurrentItem, true);
         }
       }
     }

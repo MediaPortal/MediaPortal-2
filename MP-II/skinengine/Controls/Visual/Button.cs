@@ -393,12 +393,9 @@ namespace SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       _isLayoutInvalid = false;
     }
 

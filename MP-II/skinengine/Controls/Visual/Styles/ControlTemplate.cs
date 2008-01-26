@@ -109,12 +109,9 @@ namespace SkinEngine.Controls.Visuals.Styles
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      if (!IsArrangeValid)
-      {
-        IsArrangeValid = true;
-        InitializeBindings();
-        InitializeTriggers();
-      }
+      IsArrangeValid = true;
+      InitializeBindings();
+      InitializeTriggers();
       if (!finalRect.IsEmpty)
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)

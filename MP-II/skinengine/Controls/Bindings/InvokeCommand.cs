@@ -116,7 +116,7 @@ namespace SkinEngine.Controls.Bindings
       InitializeBindings(element);
       if (Command != null)
       {
-        Command.Execute(CommandParameter);
+        Command.Execute(CommandParameter, false);
       }
     }
 
