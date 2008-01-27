@@ -131,13 +131,12 @@ namespace MyMusic
 
       StringId menuText = new StringId("playlists", "add");
       MenuItem menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "{Binding Path=AddToPlayList}";
-      menuItem.CommandParameter = "{Binding Path=SelectedItem}";
+      menuItem.Command = "mymusic:Model.AddToPlayList+WindowManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("playlists", "addall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "{Binding Path=AddAllToPlayList}";
+      menuItem.Command = "mymusic:Model.AddAllToPlayList+WindowManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
     }
 
@@ -528,9 +527,9 @@ namespace MyMusic
     /// Called by the skin to add the current item to the playlist.
     /// </summary>
     /// <param name="item">The item.</param>
-    public void AddToPlayList(ListItem item)
+    public void AddToPlayList()
     {
-      MusicItem song = item as MusicItem;
+      MusicItem song = SelectedItem as MusicItem;
       if (song != null)
       {
         IPlaylistManager playList = ServiceScope.Get<IPlaylistManager>();

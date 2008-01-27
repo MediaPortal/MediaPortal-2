@@ -1843,9 +1843,9 @@
           <RowDefinition/>
         </Grid.RowDefinitions>
         <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32"  FallbackSource="{Binding defaulticon}" Source="{Binding CoverArt}" />
-        <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="6" Text="{Binding Name}" Font="font13"/>
-        <CheckBox Style="{StaticResource MpArrowButtonUp}" Height="32" Grid.Column="7" Grid.ColumnSpan="2"/>
-        <CheckBox Style="{StaticResource MpArrowButtonDown}" Height="32" Grid.Column="9" Grid.ColumnSpan="2"/>
+        <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding Name}" Font="font13"/>
+        <Button Style="{StaticResource MpArrowButtonUp}" VerticalAlignment="Center" Height="30" Width="30" Margin="2,2,2,2" Grid.Column="9" Grid.ColumnSpan="1"/>
+        <Button Style="{StaticResource MpArrowButtonDown}" VerticalAlignment="Center" Height="30" Width="30"  Margin="2,2,2,2" Grid.Column="10" Grid.ColumnSpan="1"/>
         <Grid.Triggers>
           <Trigger Property="HasFocus" Value="True">
             <Setter TargetName="lbl11" Property="Scroll" Value="True" />
