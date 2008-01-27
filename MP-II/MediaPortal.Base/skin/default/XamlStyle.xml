@@ -1780,6 +1780,13 @@
         </Setter.Value>
       </Setter>
     </Style>
+    <Style Key="itemCheckBoxListContainerStyle">
+      <Setter Property="Template">
+        <Setter.Value>
+          <Button Height="46"  Style="{StaticResource MpButton}"/>
+        </Setter.Value>
+      </Setter>
+    </Style>
     <Style Key="itemMenuContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
@@ -1817,6 +1824,35 @@
         </Grid.Triggers>
       </Grid>
     </DataTemplate>
+    <DataTemplate Key="itemCheckBoxListTemplate" DataType="{Type local:DialogMenuItem}">
+      <Grid Height="46">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32"  FallbackSource="{Binding defaulticon}" Source="{Binding CoverArt}" />
+        <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="6" Text="{Binding Name}" Font="font13"/>
+        <CheckBox Style="{StaticResource MpArrowButtonUp}" Height="32" Grid.Column="7" Grid.ColumnSpan="2"/>
+        <CheckBox Style="{StaticResource MpArrowButtonDown}" Height="32" Grid.Column="9" Grid.ColumnSpan="2"/>
+        <Grid.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Setter TargetName="lbl11" Property="Scroll" Value="True" />
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </DataTemplate>
     <DataTemplate Key="itemMenuTemplate" DataType="{Type local:DialogMenuItem}">
       <Grid>
         <Label Name="lbl1" Margin="10,4,0,0" Text="{Binding Name}" Font="font13"/>
@@ -1839,6 +1875,34 @@
       <Setter Property="VerticalAlignment" Value="Top"/>
       <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBox">
+            <ScrollViewer>
+              <StackPanel  IsItemsHost="True" VerticalAlignment="Top">
+              </StackPanel>
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="MpCheckboxListView" TargetType="ListBox">
+      <Setter Property="SnapsToDevicePixels" Value="true"/>
+      <Setter Property="OverridesDefaultStyle" Value="true"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+      <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
+      <Setter Property="MinWidth" Value="120"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
+      <Setter Property="ItemTemplate" Value="{StaticResource itemCheckBoxListTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource itemCheckBoxListContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ListBox">

@@ -131,13 +131,13 @@ namespace MyMusic
 
       StringId menuText = new StringId("playlists", "add");
       MenuItem menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.AddToPlayList";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "{Binding Path=AddToPlayList}";
+      menuItem.CommandParameter = "{Binding Path=SelectedItem}";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("playlists", "addall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.AddAllToPlayList";
+      menuItem.Command = "{Binding Path=AddAllToPlayList}";
       _dynamicContextMenuItems.Add(menuItem);
     }
 
