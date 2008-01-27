@@ -570,5 +570,11 @@ namespace SkinEngine.Controls.Visuals
         key = MediaPortal.Core.InputManager.Key.None;
       }
     }
+    public override void Reset()
+    {
+      base.Reset();
+      if (Template!=null)
+        Template.Reset();
+    }
   }
 }

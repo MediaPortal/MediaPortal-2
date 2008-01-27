@@ -812,5 +812,14 @@ namespace SkinEngine.Controls.Panels
         p.Y += (DesiredSize.Height - child.DesiredSize.Height);
       }
     }
+    public override void Reset()
+    {
+      base.Reset();
+
+      foreach (UIElement element in Children)
+      {
+        element.Reset();
+      }
+    }
   }
 }

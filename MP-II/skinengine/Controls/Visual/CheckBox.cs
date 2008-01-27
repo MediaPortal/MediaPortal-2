@@ -28,12 +28,15 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
+using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
 {
   public class CheckBox : Button
   {
     Property _isCheckedProperty;
+    Command _checkedCommand;
+    Command _unCheckedCommand;
     public CheckBox()
     {
       Init();
@@ -69,6 +72,29 @@ namespace SkinEngine.Controls.Visuals
         _isCheckedProperty = value;
       }
     }
+    public Command Checked
+    {
+      get
+      {
+        return _checkedCommand;
+      }
+      set
+      {
+        _checkedCommand = value;
+      }
+    }
+
+    public Command Unchecked
+    {
+      get
+      {
+        return _unCheckedCommand;
+      }
+      set
+      {
+        _unCheckedCommand = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance is pressed.
@@ -97,6 +123,20 @@ namespace SkinEngine.Controls.Visuals
       {
         IsChecked = !IsChecked;
         key = MediaPortal.Core.InputManager.Key.None;
+        if (IsChecked)
+        {
+          if (Checked != null)
+          {
+            Checked.Execute();
+          }
+        }
+        else
+        {
+          if (Unchecked != null)
+          {
+            Unchecked.Execute();
+          }
+        }
         return;
       }
     }

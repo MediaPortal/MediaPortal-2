@@ -251,37 +251,44 @@ namespace Pictures
       msg.MetaData["fullpath"] = currentPicture.LocalPath;
       queue.Send(msg);
       ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
 
     }
     #endregion
 
-    public void EnableCropping(bool yesNo)
+    public void DisableCropping()
     {
-      CroppingEnabled = yesNo;
-      if (yesNo == false)
-      {
-        _croppingRect = new Rectangle(0, 0, 0, 0);
-      }
-      else
-      {
-        int xoff = _scaledImageSize.Width / 5;
-        int yoff = _scaledImageSize.Height / 5;
+      _croppingRect = new Rectangle(0, 0, 0, 0);
+      CroppingEnabled = false;
+      TransformImage();
+    }
+    public void EnableCropping()
+    {
+      CroppingEnabled = true;
+      int xoff = _scaledImageSize.Width / 5;
+      int yoff = _scaledImageSize.Height / 5;
 
-        _croppingRect = new Rectangle(xoff, yoff, _scaledImageSize.Width - 2 * xoff, _scaledImageSize.Height - 2 * yoff);
-      }
+      _croppingRect = new Rectangle(xoff, yoff, _scaledImageSize.Width - 2 * xoff, _scaledImageSize.Height - 2 * yoff);
+
+    }
+    public void DisableRedEye()
+    {
+      _pixelOp = null;
       TransformImage();
     }
-    public void EnableRedEye(bool yesNo)
+    public void EnableRedEye()
     {
-      if (yesNo)
-        _pixelOp = new RedEye(70, 90);
-      else
-        _pixelOp = null;
+      _pixelOp = new RedEye(70, 90);
       TransformImage();
     }
-    public void EnableContrast(bool yesNo)
+    public void DisableContrast()
     {
-      _enableAutoLevel = yesNo;
+      _enableAutoLevel = false;
+      TransformImage();
+    }
+    public void EnableContrast()
+    {
+      _enableAutoLevel = true;
       TransformImage();
     }
 

@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<skin defaultfocus="cropButton" opencommand="model.Editor.Reset">
-  <models>
+<MyXaml>
+  <Canvas xmlns:local="clr-Namespace:PictureModel;assembly=mypicture"  History="False" FocusManager.FocusedElement="{Binding ElementName=cropButton}">
+
+    <models>
     <model name="model" assembly="mypicture" class="PictureModel"/>
   </models>
   <styles>

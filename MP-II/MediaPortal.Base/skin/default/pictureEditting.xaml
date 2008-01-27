@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyXaml>
+  <Canvas xmlns:local="clr-Namespace:PictureModel;assembly=mypicture"  History="False" FocusManager.FocusedElement="{Binding ElementName=cropButton}">
+    <Canvas.Resources>
+      <ResourceDictionary Source="XamlStyle.xml"/>
+    </Canvas.Resources>
+    <Canvas Loaded="{Binding Path=Editor.Reset}"  Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+
+      <Label Font="font13" Canvas.Left="230" Canvas.Top="100" Width="500" Height="30" Text="{Binding SlideShow.Info.ImgTitle}"/>
+      <Image Name="picture" Source="{Binding Path=Editor.CurrentPicture}"  Canvas.Left="230" Canvas.Top="130" Width="400" Height="300" Thumbnail="False" Stretch="Uniform"/>
+
+      <Button Style="{StaticResource MpArrowButtonLeft}" Width="32" Height="32"   Canvas.Left="230" Canvas.Top="435" Command="{Binding Path=Editor.MoveLeft}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+      <Button Style="{StaticResource MpArrowButtonRight}" Width="32" Height="32" Canvas.Left="264" Canvas.Top="435" Command="{Binding Path=Editor.MoveRight}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+
+      <Button Style="{StaticResource MpArrowButtonUp}" Width="32" Height="32" Canvas.Left="304" Canvas.Top="435" Command="{Binding Path=Editor.MoveUp}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+      <Button Style="{StaticResource MpArrowButtonDown}" Width="32" Height="32" Canvas.Left="338" Canvas.Top="435" Command="{Binding Path=Editor.MoveDown}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+
+      <Button Style="{StaticResource MpButtonZoomOut}" Width="32" Height="32" Canvas.Left="378" Canvas.Top="435" Command="{Binding Path=Editor.ZoomOut}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+      <Button Style="{StaticResource MpButtonZoomIn}" Width="32" Height="32" Canvas.Left="412" Canvas.Top="435" Command="{Binding Path=Editor.ZoomIn}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+
+      <Button Style="{StaticResource MpButtonRotateLeft}" Width="32" Height="32" Canvas.Left="454" Canvas.Top="435" Command="{Binding Path=Editor.RotateLeft}"/>
+      <Button Style="{StaticResource MpButtonRotateRight}" Width="32" Height="32" Canvas.Left="488" Canvas.Top="435" Command="{Binding Path=Editor.RotateRight}"/>
+      <StackPanel Name="menuPanel" Canvas.Left="30" Canvas.Top="120" Width="200">
+        <Button Style="{StaticResource MpButton}" Height="32"  Command="{Binding Path=Editor.SaveImage}">
+          <Label Font="font13" Text="[pictures.save]"/>
+        </Button>
+        <Button Style="{StaticResource MpButton}" Height="32" Command="{Binding Path=WindowManager.ShowPreviousWindow}">
+          <Label Font="font13" Text="[pictures.cancel]"/>
+        </Button>
+        <CheckBox Name="cropButton" Style="{StaticResource MpRadioButton}" Height="32" Command="{Binding Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
+          <Label Font="font13" Text="[pictures.crop]"/>
+        </CheckBox>
+        <CheckBox Style="{StaticResource MpRadioButton}" Height="32"  Command="{Binding Path=Editor.TransformImage}"  Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
+          <Label Font="font13" Text="[pictures.redeye]"/>
+        </CheckBox>
+        <CheckBox Style="{StaticResource MpRadioButton}" Height="32"  Command="{Binding Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
+          <Label Font="font13" Text="[pictures.contrast]"/>
+        </CheckBox>
+        <Button Style="{StaticResource MpButton}" Height="32" >
+          <Label Font="font13" Text="[pictures.print]"/>
+        </Button>
+      </StackPanel>
+    </Canvas>
+    <KeyBinding KeyPress="Left" Command="{Binding Path=SlideShow.ShowPreviousPicture}"/>
+    <KeyBinding KeyPress="Right" Command="{Binding Path=SlideShow.ShowNextPicture}"/>
+    <KeyBinding KeyPress="Space" Command="{Binding Path=SlideShow.Pause}"/>
+  </Canvas>
+</MyXaml>

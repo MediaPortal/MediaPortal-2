@@ -637,6 +637,7 @@ namespace SkinEngine.Controls.Visuals
       }
       set
       {
+        //Trace.WriteLine(String.Format("set {0} :{1}", this.Name, value));
         _visibilityProperty.SetValue(value);
       }
     }
@@ -1440,9 +1441,6 @@ namespace SkinEngine.Controls.Visuals
 
     public virtual void InitializeBindings()
     {
-      if (Name == "tst")
-      {
-      }
       if (!_bindingsInitialized)
       {
         _bindingsInitialized = true;
@@ -1451,6 +1449,9 @@ namespace SkinEngine.Controls.Visuals
           binding.Initialize(this);
         }
       }
+    }
+    public virtual void Reset()
+    {
       FireEvent("FrameworkElement.Loaded");
     }
     #endregion

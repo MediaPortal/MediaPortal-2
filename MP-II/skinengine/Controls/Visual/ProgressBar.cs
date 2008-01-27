@@ -193,6 +193,12 @@ namespace SkinEngine.Controls.Visuals
         _styleProperty.SetValue(value);
       }
     }
+    public override void Reset()
+    {
+      base.Reset();
+      if (Template != null)
+        Template.Reset();
+    }
 
 
     /// <summary>

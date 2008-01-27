@@ -454,6 +454,12 @@ namespace SkinEngine.Controls.Visuals
         SkinContext.RemoveTransform();
       }
     }
+    public override void Reset()
+    {
+      base.Reset();
+      if (Template != null)
+        Template.Reset();
+    }
 
     /// <summary>
     /// Animates any timelines for this uielement.
@@ -500,7 +506,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (Command != null)
         {
-          Command.Execute(CommandParameter,false);
+          Command.Execute(CommandParameter, false);
         }
         Commands.Execute(this);
       }

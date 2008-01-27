@@ -120,5 +120,14 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
       _isLayoutInvalid = false;
     }
+    public override void Reset()
+    {
+      base.Reset();
+
+      foreach (UIElement element in Children)
+      {
+        element.Reset();
+      }
+    }
   }
 }

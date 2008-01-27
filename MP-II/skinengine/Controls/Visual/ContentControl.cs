@@ -347,6 +347,12 @@ namespace SkinEngine.Controls.Visuals
       }
       return null;
     }
+    public override void Reset()
+    {
+      base.Reset();
+      if (Content!=null)
+        Content.Reset();
+    }
 
     #region focus prediction
 
