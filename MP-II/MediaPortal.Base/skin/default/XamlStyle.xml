@@ -1879,5 +1879,117 @@
       </Setter>
     </Style>
 
+    <Style Key="MpButtonZoomIn" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="focusedStoryBoard" >
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+                <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Grid>
+              <Image Name="Focused"   Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
+              <Image Name="Unfocused" Source="zoom_in_disabled.png" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard1" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard1"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="MpButtonZoomOut" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="focusedStoryBoard" >
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+                <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Grid>
+              <Image Name="Focused"   Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
+              <Image Name="Unfocused" Source="zoom_out_disabled.png" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard1" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard1"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="MpButtonRotateLeft" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="focusedStoryBoard" >
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+                <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Grid>
+              <Image Name="Focused"   Source="rotate_left_enabled.png" Width="32" Height="32" Opacity="0"/>
+              <Image Name="Unfocused" Source="rotate_left_disabled.png" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard1" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard1"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="MpButtonRotateRight" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  TargetType="{Type Button}">
+            <ControlTemplate.Resources>
+              <Storyboard Key="focusedStoryBoard" >
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+                <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+              </Storyboard>
+            </ControlTemplate.Resources>
+            <Grid>
+              <Image Name="Focused"   Source="rotate_right_enabled.png" Width="32" Height="32" Opacity="0"/>
+              <Image Name="Unfocused" Source="rotate_right_disabled.png" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard Name="Focused_BeginStoryboard1" Storyboard="{StaticResource focusedStoryBoard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard1"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </ResourceDictionary>
 </MyXaml>

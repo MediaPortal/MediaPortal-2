@@ -86,6 +86,7 @@ namespace SkinEngine.Controls.Visuals
     Command _loaded;
     bool _bindingsInitialized;
     bool _triggersInitialized;
+    bool _fireLoaded = true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -1449,10 +1450,15 @@ namespace SkinEngine.Controls.Visuals
           binding.Initialize(this);
         }
       }
+      if (_fireLoaded)
+      {
+        FireEvent("FrameworkElement.Loaded");
+        _fireLoaded = false;
+      }
     }
     public virtual void Reset()
     {
-      FireEvent("FrameworkElement.Loaded");
+      _fireLoaded = true;
     }
     #endregion
   }

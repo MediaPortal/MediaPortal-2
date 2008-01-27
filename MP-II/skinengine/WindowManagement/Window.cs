@@ -452,6 +452,7 @@ namespace SkinEngine
       VisualTreeHelper.Instance.SetRootElement(_visual);
       _visual.Invalidate();
       _visual.InitializeBindings();
+      _visual.Reset();
       _setFocusedElement = true;
 #else
       if (animate)
