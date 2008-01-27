@@ -78,7 +78,33 @@ namespace MediaPortal.Services.MPIManager
       }
       return list;
     }
-    
+
+    /// <summary>
+    /// Test if a files is locked(used).
+    /// </summary>
+    /// <param name="package">The package.</param>
+    /// <returns>True if found a locked file</returns>
+    public bool AreFilesLocked(MPIPackage package)
+    {
+      foreach(MPIFileItem items in package.Items)
+      {
+        string filename = _fileActions[items.Action].GetDirEntry(items);
+        if (File.Exists(filename))
+        {
+          try
+          {
+            FileStream stream = File.Open(filename, FileMode.Open, FileAccess.Write);
+            stream.Close();
+          }
+          catch (Exception)
+          {
+            return true;            
+          }
+        }
+      }
+      return false;
+    }
+
     /// <summary>
     /// Gets the unsolved dependencies.
     /// </summary>

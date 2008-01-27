@@ -113,56 +113,56 @@ namespace MyExtensions
       _dynamicContextMenuItems = new List<IMenuItem>();
       StringId menuText = new StringId("extensions", "install");
       MenuItem menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.SafeInstall";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.SafeInstall";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "uninstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.Uninstall";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.Uninstall";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "downloadinstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.DownloadInstall";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.DownloadInstall";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "cancelinstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.RemoveQueue";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.RemoveQueue";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "canceluninstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.RemoveQueue";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.RemoveQueue";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "cancelreinstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.RemoveQueue";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.RemoveQueue";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "reinstall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.Reinstall";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.Reinstall";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "update");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.SafeUpdate";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.SafeUpdate";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("extensions", "cancelupdate");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "model.CancelUpdate";
-      menuItem.CommandParameter = "model.SelectedItem";
+      menuItem.Command = "MyExtensions:Model.CancelUpdate";
+      menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
     }
 
@@ -284,6 +284,11 @@ namespace MyExtensions
         _selectedPackage.Set(((ExtensionItem)item).Item);
         ServiceScope.Get<IWindowManager>().ShowWindow("extensionsInfo");
       }
+    }
+
+    public void OnSelectionChange(ListItem item)
+    {
+      SelectedItem = item;
     }
 
     #endregion
@@ -701,7 +706,14 @@ namespace MyExtensions
         return ContextMenu;
       }
     }
-
+    public string LongNameProperty
+    {
+      get
+      {
+        return "Test";
+      }
+  
+    }
     #endregion
   }
 }

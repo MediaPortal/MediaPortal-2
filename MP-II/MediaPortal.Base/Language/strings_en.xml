@@ -259,6 +259,8 @@
   </Section>
   <Section name="extensions">
     <String name="myextensions" text="My extensions"/>
+	<String name="updateall" text="Update all"/>
+	<String name="settings" text="Settings"/>
     <String name="view" text="View"/>
     <String name="sort" text="Sort"/>
     <String name="views" text="Library"/>
