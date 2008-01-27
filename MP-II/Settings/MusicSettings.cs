@@ -84,9 +84,15 @@ namespace Settings
       get { return _settings.SoftStop; }
     }
 
-    public void EnableFadeOut(bool flag)
+    public void EnableFadeOut()
     {
-      _settings.SoftStop = flag;
+      _settings.SoftStop = true;
+      ServiceScope.Get<ISettingsManager>().Save(_settings);
+      NotifySettingsChanged();
+    }
+    public void DisableFadeOut()
+    {
+      _settings.SoftStop = false;
       ServiceScope.Get<ISettingsManager>().Save(_settings);
       NotifySettingsChanged();
     }
@@ -96,9 +102,15 @@ namespace Settings
       get { return _settings.GaplessPlayback; }
     }
 
-    public void EnableGapless(bool flag)
+    public void DisableGapless()
     {
-      _settings.GaplessPlayback = flag;
+      _settings.GaplessPlayback = false;
+      ServiceScope.Get<ISettingsManager>().Save(_settings);
+      NotifySettingsChanged();
+    }
+    public void EnableGapless()
+    {
+      _settings.GaplessPlayback = true;
       ServiceScope.Get<ISettingsManager>().Save(_settings);
       NotifySettingsChanged();
     }
