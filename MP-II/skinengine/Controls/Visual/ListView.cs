@@ -534,6 +534,8 @@ namespace SkinEngine.Controls.Visuals
         }
         else
         {
+          while (element.Context == null && element.VisualParent != null)
+            element = element.VisualParent;
           CurrentItem = element.Context;
         }
         if (SelectionChanged != null)

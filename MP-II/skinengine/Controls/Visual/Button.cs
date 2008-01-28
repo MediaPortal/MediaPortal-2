@@ -59,7 +59,7 @@ namespace SkinEngine.Controls.Visuals
       Style = b.Style;
 
       Command = b.Command;
-      CommandParameter = b._commandParameter;
+      CommandParameter = b.CommandParameter;
 
       ContextMenuCommand = b.ContextMenuCommand;
       ContextMenuCommandParameter = b.ContextMenuCommandParameter;

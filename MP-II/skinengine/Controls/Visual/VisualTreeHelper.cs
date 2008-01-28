@@ -58,6 +58,10 @@ namespace SkinEngine.Controls.Visuals
       {
         obj = visual.FindElement(parts[0]);
       }
+      if (obj == null)
+      {
+        obj = ModelManager.Instance.GetModelByName(parts[0]);
+      }
       if (obj == null) return null;
       if (parts.Length == 1)
       {
@@ -83,7 +87,7 @@ namespace SkinEngine.Controls.Visuals
         PropertyInfo propInfo = obj.GetType().GetProperty(parts[partNr],
                                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
                                    BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
-        if (propInfo==null)
+        if (propInfo == null)
           return null;
         MethodInfo info = propInfo.GetGetMethod();
         if (info == null)

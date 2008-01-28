@@ -120,13 +120,13 @@ namespace SkinEngine.Controls.Bindings
       // Value="{Binding Path=TopProgressBarRed,Mode=OneWay}"
 
       string elementName = "";
-      Regex regex = new Regex(@"[a-zA-Z0-9.\[\]\(\)]+=[a-zA-Z0-9.\[\]\(\)]+");
+      Regex regex = new Regex(@"[:a-zA-Z0-9.\[\]\(\)]+=[:a-zA-Z0-9.\[\]\(\)]+");
       MatchCollection matches = regex.Matches(Expression);
       for (int i = 0; i < matches.Count; ++i)
       {
         //setter format is : bindingPropertyName1=value
         string setter = matches[i].Value;
-        Regex regex2 = new Regex(@"[a-zA-Z0-9.\[\]\(\)]+");
+        Regex regex2 = new Regex(@"[:a-zA-Z0-9.\[\]\(\)]+");
         MatchCollection matches2 = regex2.Matches(setter);
         bool done = false;
         if (matches2.Count == 2)

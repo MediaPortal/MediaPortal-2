@@ -51,6 +51,7 @@ namespace MediaPortal.PlayList
       bool refreshAll = false;
       if (message.MetaData.ContainsKey("refreshAll") && (bool)message.MetaData["refreshAll"] == true)
         refreshAll = true;
+      Refresh();
       _playList.FireChange(refreshAll);
     }
 
@@ -109,25 +110,29 @@ namespace MediaPortal.PlayList
     {
       get
       {
-        _playList.Clear();
-        IPlaylistManager playlistMgr = ServiceScope.Get<IPlaylistManager>();
-        IMetaDataMappingCollection maps = ServiceScope.Get<IMetadataMappingProvider>().Get("music-playlist");
-        foreach (IMediaItem mediaItem in playlistMgr.PlayList.Queue)
-        {
-          PlayListItem item = new PlayListItem(mediaItem);
-          MapMetaData(maps, 0, new Dictionary<string, object>(), mediaItem, item);
-
-          if (playlistMgr.CurrentMediaItemPlaying == mediaItem)
-          {
-            item.Add("isplaying", "true");
-          }
-          else
-          {
-            item.Add("isplaying", "false");
-          }
-          _playList.Add(item);
-        }
+        Refresh();
         return _playList;
+      }
+    }
+    void Refresh()
+    {
+      _playList.Clear();
+      IPlaylistManager playlistMgr = ServiceScope.Get<IPlaylistManager>();
+      IMetaDataMappingCollection maps = ServiceScope.Get<IMetadataMappingProvider>().Get("music-playlist");
+      foreach (IMediaItem mediaItem in playlistMgr.PlayList.Queue)
+      {
+        PlayListItem item = new PlayListItem(mediaItem);
+        MapMetaData(maps, 0, new Dictionary<string, object>(), mediaItem, item);
+
+        if (playlistMgr.CurrentMediaItemPlaying == mediaItem)
+        {
+          item.Add("isplaying", "true");
+        }
+        else
+        {
+          item.Add("isplaying", "false");
+        }
+        _playList.Add(item);
       }
     }
 
@@ -160,6 +165,7 @@ namespace MediaPortal.PlayList
 
     public void OnSelectionChange(ListItem item)
     {
+      if (item == null) return;
       SelectedItem = item;
     }
     /// <summary>
