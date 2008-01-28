@@ -28,6 +28,8 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.PathManager;
+using MediaPortal.Core;
 using MediaPortal.Services.MPIManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
@@ -415,7 +417,7 @@ namespace MediaPortal.Services.MPIManager
       {
         try
         {
-          string fullFileName = String.Format(@"{0}\MediaPortal\Installer\{1}.mpi", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), package.PackageId);
+          string fullFileName = String.Format(@"{0}\{1}.mpi", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"), package.PackageId);
           if (!File.Exists(fullFileName) && File.Exists(package.FileName))
           {
             Directory.CreateDirectory(Path.GetDirectoryName(fullFileName));
@@ -530,7 +532,7 @@ namespace MediaPortal.Services.MPIManager
     {
       try
       {
-        string fullFileName = String.Format(@"{0}\MediaPortal\Installer\Mpiqueue.xml", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+        string fullFileName = String.Format(@"{0}\Mpiqueue.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
         if (File.Exists(fullFileName))
         {
           XmlSerializer serializer = new XmlSerializer(typeof(MPIQueue));
@@ -549,10 +551,8 @@ namespace MediaPortal.Services.MPIManager
       try
       {
         Directory.CreateDirectory(String.Format(@"{0}\MediaPortal\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-        Directory.CreateDirectory(
-          String.Format(@"{0}\MediaPortal\Installer\",
-                        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-        string fullFileName = String.Format(@"{0}\MediaPortal\Installer\Mpiqueue.xml", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+        Directory.CreateDirectory(ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
+        string fullFileName = String.Format(@"{0}\Mpiqueue.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
         if (Queue.Items.Count == 0)
         {
           File.Delete(fullFileName);

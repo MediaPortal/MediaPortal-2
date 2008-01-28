@@ -31,6 +31,7 @@ using System.Xml;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.MenuManager;
@@ -629,10 +630,11 @@ namespace MyExtensions
     /// </summary>
     public void DownloadList()
     {
-      Directory.CreateDirectory(String.Format(@"{0}\MediaPortal\Installer", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
+      string localdir = ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>");
+      Directory.CreateDirectory(localdir);
       IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       string url = String.Format("http://openmaid.team-mediaportal.com/xtern.php?sync");
-      string listFile = String.Format(@"{0}\MediaPortal\Installer\Mpilist.xml", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+      string listFile = String.Format(@"{0}\Mpilist.xml", localdir);
       if (_factory.DownloadFile(url, listFile))
       {
         Installer.Enumerator.UpdateList(listFile);

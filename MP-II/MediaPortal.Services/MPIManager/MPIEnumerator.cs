@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO;
+using MediaPortal.Core;
 using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.Services.MPIManager
 {
@@ -323,7 +325,7 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     public void Load()
     {
-      string fullFileName = String.Format(@"{0}\MediaPortal\Installer\MPIRegistry.xml", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+      string fullFileName = String.Format(@"{0}\MPIRegistry.xml",ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       if (File.Exists(fullFileName))
       {
         XmlDocument doc = new XmlDocument();
@@ -382,7 +384,7 @@ namespace MediaPortal.Services.MPIManager
             }
             if (string.IsNullOrEmpty(obj.FileName))
             {
-              obj.FileName = String.Format(@"{0}\MediaPortal\Installer\{1}.mpi", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), obj.PackageId);
+              obj.FileName = String.Format(@"{0}\{1}.mpi", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"), obj.PackageId);
             }
             if (obj.State == MPIPackageState.Local && !File.Exists(obj.FileName))
             {
@@ -409,8 +411,8 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     public void Save()
     {
-      Directory.CreateDirectory(String.Format(@"{0}\MediaPortal\Installer", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-      string fullFileName = String.Format(@"{0}\MediaPortal\Installer\MPIRegistry.xml", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+      Directory.CreateDirectory(ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
+      string fullFileName = String.Format(@"{0}\MPIRegistry.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       Stream myStream;
       if ((myStream = File.Open(fullFileName, FileMode.Create, FileAccess.Write, FileShare.None)) != null)
       {

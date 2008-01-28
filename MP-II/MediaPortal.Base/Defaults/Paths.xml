@@ -4,4 +4,5 @@
  <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
  <Path name="LOG" value="&lt;DATA&gt;\Log" />
  <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
+ <Path name="MPINSTALLER" value="&lt;DATA&gt;\Installer" />
 </Paths>
