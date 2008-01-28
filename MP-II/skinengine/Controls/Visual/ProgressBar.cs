@@ -45,7 +45,6 @@ namespace SkinEngine.Controls.Visuals
   public class ProgressBar : Control
   {
     Property _templateProperty;
-    Property _styleProperty;
     Property _valueProperty;
     FrameworkElement _partIndicator;
 
@@ -58,7 +57,6 @@ namespace SkinEngine.Controls.Visuals
       : base(b)
     {
       Init(); ;
-      Style = b.Style;
       Value = b.Value;
     }
 
@@ -70,15 +68,15 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _templateProperty = new Property(null);
-      _styleProperty = new Property(null);
       _valueProperty = new Property(0.0f);
       Focusable = false;
-      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
       _valueProperty.Attach(new PropertyChangedHandler(OnValueChanged));
     }
 
-    void OnStyleChanged(Property property)
+    protected override void OnStyleChanged(Property property)
     {
+      if (_templateProperty == null)
+        Init();
       Style.Set(this);
       this.Template.VisualParent = this;
       Invalidate();
@@ -162,37 +160,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    /// <summary>
-    /// Gets or sets the control style property.
-    /// </summary>
-    /// <value>The control style property.</value>
-    public Property StyleProperty
-    {
-      get
-      {
-        return _styleProperty;
-      }
-      set
-      {
-        _styleProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
-    public Style Style
-    {
-      get
-      {
-        return _styleProperty.GetValue() as Style;
-      }
-      set
-      {
-        _styleProperty.SetValue(value);
-      }
-    }
     public override void Reset()
     {
       base.Reset();

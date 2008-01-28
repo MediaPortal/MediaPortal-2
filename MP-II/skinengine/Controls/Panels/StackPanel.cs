@@ -538,9 +538,10 @@ namespace SkinEngine.Controls.Panels
         UpdateLayout();
       }
     }
-    public void Reset()
+    public override void Reset()
     {
       _startIndex = 0;
+      base.Reset();
     }
     #endregion
 

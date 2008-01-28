@@ -39,7 +39,6 @@ namespace SkinEngine.Controls.Visuals
 {
   public class ListView : ItemsControl
   {
-    Property _styleProperty;
     Property _templateProperty;
     Property _commandParameter;
     Command _command;
@@ -76,8 +75,6 @@ namespace SkinEngine.Controls.Visuals
       : base(c)
     {
       Init();
-      if (c.Style != null)
-        Style = c.Style;
 
       if (c.Template != null)
         Template = (UIElement)c.Template.Clone();
@@ -97,14 +94,12 @@ namespace SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _styleProperty = new Property(null);
       _templateProperty = new Property(null);
       _commandParameter = new Property(null);
       _commands = new Property(new CommandGroup());
       _command = null;
       _contextMenuCommandParameterProperty = new Property(null);
       _contextMenuCommand = null;
-      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
 
       //_items = new ArrayList();
       //_items.Add(new MyItem("defaultuser.png", "Item 1", "Item 1.1"));
@@ -115,8 +110,10 @@ namespace SkinEngine.Controls.Visuals
       //ItemsSource = _items;
     }
 
-    void OnStyleChanged(Property property)
+    protected override void OnStyleChanged(Property property)
     {
+      if (_templateProperty == null)
+        Init();
       Style.Set(this);
       this.Template.VisualParent = this;
       ItemsPanel = (Panel)this.Template.FindItemsHost();
@@ -167,37 +164,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the control style property.
-    /// </summary>
-    /// <value>The control style property.</value>
-    public Property StyleProperty
-    {
-      get
-      {
-        return _styleProperty;
-      }
-      set
-      {
-        _styleProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
-    public Style Style
-    {
-      get
-      {
-        return _styleProperty.GetValue() as Style;
-      }
-      set
-      {
-        _styleProperty.SetValue(value);
-      }
-    }
 
     public Property CommandsProperty
     {

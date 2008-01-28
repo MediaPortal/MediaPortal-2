@@ -58,8 +58,6 @@ namespace SkinEngine.Controls.Visuals
     Property _fallbackSourceProperty;
     Property _imageSourceProperty;
     Property _stretchDirectionProperty;
-    Property _stretchProperty;
-    Property _opacityProperty;
     Property _thumbnailProperty;
     private VertextBufferAsset _image;
     private VertextBufferAsset _fallbackImage;
@@ -79,9 +77,7 @@ namespace SkinEngine.Controls.Visuals
       Init();
       Source = img.Source;
       FallbackSource = img.FallbackSource;
-      Stretch = img.Stretch;
       StretchDirection = img.StretchDirection;
-      Opacity = img.Opacity;
       Thumbnail = img.Thumbnail;
     }
 
@@ -90,11 +86,8 @@ namespace SkinEngine.Controls.Visuals
       _imageSourceProperty = new Property(null);
       _fallbackSourceProperty = new Property(null);
       _stretchDirectionProperty = new Property(StretchDirection.Both);
-      _stretchProperty = new Property(Stretch.Fill);
-      _opacityProperty = new Property((double)1.0f);
       _thumbnailProperty = new Property(false);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnImageChanged));
-      _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
@@ -214,37 +207,7 @@ namespace SkinEngine.Controls.Visuals
         _fallbackSourceProperty.SetValue(value);
       }
     }
-    /// <summary>
-    /// Gets or sets the opacity property.
-    /// </summary>
-    /// <value>The opacity property.</value>
-    public Property OpacityProperty
-    {
-      get
-      {
-        return _opacityProperty;
-      }
-      set
-      {
-        _opacityProperty = value;
-      }
-    }
 
-    /// <summary>
-    /// Gets or sets the opacity.
-    /// </summary>
-    /// <value>The opacity.</value>
-    public double Opacity
-    {
-      get
-      {
-        return (double)_opacityProperty.GetValue();
-      }
-      set
-      {
-        _opacityProperty.SetValue(value);
-      }
-    }
 
 
 
@@ -281,37 +244,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    /// <summary>
-    /// Gets or sets the stretch property.
-    /// </summary>
-    /// <value>The stretch property.</value>
-    public Property StretchProperty
-    {
-      get
-      {
-        return _stretchProperty;
-      }
-      set
-      {
-        _stretchProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the stretch.
-    /// </summary>
-    /// <value>The stretch.</value>
-    public Stretch Stretch
-    {
-      get
-      {
-        return (Stretch)_stretchProperty.GetValue();
-      }
-      set
-      {
-        _stretchProperty.SetValue(value);
-      }
-    }
 
     /// <summary>
     /// Arranges the UI element

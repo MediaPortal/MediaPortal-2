@@ -37,7 +37,6 @@ namespace SkinEngine.Controls.Visuals
   public class Button : Border
   {
     Property _templateProperty;
-    Property _styleProperty;
     Property _isPressedProperty;
 
     Property _commandParameter;
@@ -56,7 +55,7 @@ namespace SkinEngine.Controls.Visuals
       Init();
       IsPressed = b.IsPressed;
       Template = (UIElement)b.Template.Clone();
-      Style = b.Style;
+
 
       Command = b.Command;
       CommandParameter = b.CommandParameter;
@@ -73,18 +72,18 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _templateProperty = new Property(null);
-      _styleProperty = new Property(null);
       _isPressedProperty = new Property(false);
       _commandParameter = new Property(null);
       _command = null;
       _contextMenuCommandParameterProperty = new Property(null);
       _contextMenuCommand = null;
       Focusable = true;
-      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
     }
 
-    void OnStyleChanged(Property property)
+    protected override void OnStyleChanged(Property property)
     {
+      if (_templateProperty == null)
+        Init();
       Style.Set(this);
       this.Template.VisualParent = this;
       Invalidate();
@@ -157,37 +156,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    /// <summary>
-    /// Gets or sets the control style property.
-    /// </summary>
-    /// <value>The control style property.</value>
-    public Property StyleProperty
-    {
-      get
-      {
-        return _styleProperty;
-      }
-      set
-      {
-        _styleProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
-    public Style Style
-    {
-      get
-      {
-        return _styleProperty.GetValue() as Style;
-      }
-      set
-      {
-        _styleProperty.SetValue(value);
-      }
-    }
 
 
     /// <summary>

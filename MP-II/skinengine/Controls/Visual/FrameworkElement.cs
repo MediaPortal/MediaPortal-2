@@ -33,6 +33,7 @@ using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
 using Rectangle = System.Drawing.Rectangle;
+using SkinEngine.Controls.Visuals.Styles;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -63,6 +64,7 @@ namespace SkinEngine.Controls.Visuals
     Property _verticalAlignmentProperty;
     VertexBuffer _vertexOpacityMaskBorder;
     Texture _textureOpacity;
+    Property _styleProperty;
     DateTime _lastTimeUsed;
     bool _updateOpacityMask;
     bool _mouseOver = false;
@@ -84,6 +86,7 @@ namespace SkinEngine.Controls.Visuals
       Height = el.Height;
       ActualWidth = el.ActualWidth;
       ActualHeight = el.ActualHeight;
+      Style = el.Style;
       this.HorizontalAlignment = el.HorizontalAlignment;
       this.VerticalAlignment = el.VerticalAlignment;
     }
@@ -95,6 +98,7 @@ namespace SkinEngine.Controls.Visuals
 
       _acutalWidthProperty = new Property((double)0.0f);
       _actualHeightProperty = new Property((double)0.0f);
+      _styleProperty = new Property(null);
       _horizontalAlignmentProperty = new Property(HorizontalAlignmentEnum.Center);
       _verticalAlignmentProperty = new Property(VerticalAlignmentEnum.Center);
 
@@ -105,6 +109,14 @@ namespace SkinEngine.Controls.Visuals
       _acutalWidthProperty.Attach(new PropertyChangedHandler(OnActualWidthChanged));
       ContentManager.Add(this);
 
+
+      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
+    }
+
+    protected virtual void OnStyleChanged(Property property)
+    {
+      Style.Set(this);
+      Invalidate();
     }
     void OnActualHeightChanged(Property property)
     {
@@ -114,6 +126,7 @@ namespace SkinEngine.Controls.Visuals
     {
       _updateOpacityMask = true;
     }
+
     /// <summary>
     /// Called when a property value has been changed
     /// Since all UIElement properties are layout properties
@@ -317,6 +330,38 @@ namespace SkinEngine.Controls.Visuals
       }
     }
     #endregion
+
+    /// <summary>
+    /// Gets or sets the control style property.
+    /// </summary>
+    /// <value>The control style property.</value>
+    public Property StyleProperty
+    {
+      get
+      {
+        return _styleProperty;
+      }
+      set
+      {
+        _styleProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the control style.
+    /// </summary>
+    /// <value>The control style.</value>
+    public Style Style
+    {
+      get
+      {
+        return _styleProperty.GetValue() as Style;
+      }
+      set
+      {
+        _styleProperty.SetValue(value);
+      }
+    }
 
 
     /// <summary>

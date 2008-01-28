@@ -115,7 +115,7 @@ namespace SkinEngine.Controls.Panels
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
-      int offset = 0;
+      
       _sizeCol.Clear();
       float w = 0.0f;
       float h = 0.0f;

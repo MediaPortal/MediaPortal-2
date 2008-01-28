@@ -34,7 +34,7 @@ using Control = SkinEngine.Controls.Control;
 using SkinEngine.Skin;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
-using MediaPortal.Core.Properties;
+
 
 namespace SkinEngine
 {
