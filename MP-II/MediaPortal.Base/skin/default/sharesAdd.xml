@@ -22,7 +22,7 @@
           <gradientstop offset="1.0" color="0" />
         </opacitymask>
       </label>
-      <label font="font13" label="[shares.selectsharetoremove]" width="600" height="32" position="70,65"/>
+      <label font="font13" label="[shares.selectsharestoadd]" width="600" height="32" position="70,65"/>
       <group name="menuPanel">
         <controls>
           <list name="mainMenu" position="30,97" style="style_list_menu" items="model.SharesAddMainMenu" >

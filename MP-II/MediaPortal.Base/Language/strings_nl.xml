@@ -36,10 +36,15 @@
     <String name="refresh" text="Ververs database"/>
   </Section>
   <Section name="shares">
-    <String name="shares" text="Folders"/>
-    <String name="add" text="Voeg toe"/>
-    <String name="done" text="Klaar"/>
-    <String name="description" text="Voeg folders toe of verwijder folders"/>
+    <String name="shares" text="Database Setup"/>
+    <String name="addnewshares" text="Voeg directories toe aan de database"/>
+    <String name="removeshares" text="Verwijder directories uit de database"/>
+    <String name="done" text="Done"/>
+    <String name="description" text="Voeg of verwijder directories van de database"/>
+    <String name="selectsharetoremove" text="Selecteer de directories welke verwijderd moeten worden"/>
+    <String name="selectsharestoadd" text="Selecteer de directories welke toegevoegd moeten worden"/>
+    <String name="back" text="Terug"/>
+    <String name="cancel" text="Annuleren"/>
   </Section>
   <Section name="playback">
     <String name="0" text="Zoom modes"/>
@@ -198,13 +203,13 @@
     <String name="0" text="Titel"/>
     <String name="1" text="Tags"/>
     <String name="2" text="Grootte"/>
-    <String name="3" text="My Fotos"/>
+    <String name="3" text="Mijn Foto's"/>
     <String name="4" text="Database"/>
     <String name="5" text="Sorteer"/>
     <String name="6" text="Slideshow"/>
     <String name="picinfo" text="Foto Info"/>
-    <String name="save"  text="Save"/>
-    <String name="cancel"    text="Cancel"/>
+    <String name="save"  text="Opslaan"/>
+    <String name="cancel"    text="Annuleren"/>
     <String name="crop"    text="Crop"/>
     <String name="print"   text="Print"/>
     <String name="redeye"  text="Rode Ogen"/>

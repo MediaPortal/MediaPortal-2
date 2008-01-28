@@ -20,10 +20,12 @@
           </LinearGradientBrush>
         </Label.OpacityMask>
       </Label>
+      <Label Margin="60,0,0,0" Font="font13" Text="[shares.selectsharestoadd]" Width="500" Height="32" DockPanel.Dock="Top"/>
       <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <ListView  Name="mainMenu" Height="300" Width="600"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
+        <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SharesAddMainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>
+      <TreeView Width="480" Height="476" Margin="10,0,10,0" ItemsSource="model.Folders" Style="{StaticResource MpTreeView}"/>
     </DockPanel>
   </Canvas>
 </MyXaml>

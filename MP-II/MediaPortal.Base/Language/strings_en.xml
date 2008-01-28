@@ -42,6 +42,7 @@
     <String name="done" text="Done"/>
     <String name="description" text="Add or remove folders to the library"/>
     <String name="selectsharetoremove" text="Select folders which you dont want to watch anymore"/>
+    <String name="selectsharestoadd" text="Select folders which you want to add to the library"/>
     <String name="back" text="Back"/>
     <String name="cancel" text="Cancel"/>
   </Section>
