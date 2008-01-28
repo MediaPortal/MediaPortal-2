@@ -1,3 +1,4 @@
+//#define NVIDIA_PERFHUD
 #region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
@@ -194,14 +195,32 @@ namespace SkinEngine.DirectX
     {
       // Get display mode of primary adapter (which is assumed to be where the window 
       // will appear)
-      DisplayMode primaryDesktopDisplayMode = Direct3D.Adapters[0].CurrentDisplayMode;
 
+      DisplayMode primaryDesktopDisplayMode = Direct3D.Adapters[0].CurrentDisplayMode;
+#if NVIDIA_PERFHUD
+      for (int i = 0; i < Direct3D.Adapters.Count; ++i)
+      {
+        string name = Direct3D.Adapters[i].Details.Description;
+        if (String.Compare(name, "NVIDIA PerfHUD", true) == 0)
+        {
+          ServiceScope.Get<ILogger>().Info("DirectX: found perfhud adapter:{0} {1} ",
+                  i, Direct3D.Adapters[i].Details.Description);
+          primaryDesktopDisplayMode = Direct3D.Adapters[i].CurrentDisplayMode;
+          break;
+        }
+
+      }
+#endif
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
       DeviceCombo bestDeviceCombo = null;
       foreach (GraphicsAdapterInfo adapterInfoIterate in _enumerationSettings.AdapterInfoList)
       {
         GraphicsAdapterInfo adapterInfo = adapterInfoIterate;
+#if NVIDIA_PERFHUD
+        string name = adapterInfo.AdapterDetails.Description;
+        if (String.Compare(name, "NVIDIA PerfHUD", true) != 0) continue;
+#endif
         /*
         if (GUIGraphicsContext._useScreenSelector)
         {
@@ -422,8 +441,13 @@ namespace SkinEngine.DirectX
     /// <returns>true if the settings were initialized</returns>
     public bool ChooseInitialSettings()
     {
+#if NVIDIA_PERFHUD
+      bool foundFullscreenMode = FindBestFullscreenMode(false, true);
+      bool foundWindowedMode = FindBestWindowedMode(false, true);
+#else
       bool foundFullscreenMode = FindBestFullscreenMode(false, false);
       bool foundWindowedMode = FindBestWindowedMode(false, false);
+#endif
       //if (startFullscreen && foundFullscreenMode)
       //{
       //  graphicsSettings.IsWindowed = false;
@@ -479,6 +503,10 @@ namespace SkinEngine.DirectX
       // Make sure to allow multithreaded apps if we need them
       //presentParams.ForceNoMultiThreadedFlag = !isMultiThreaded;
 
+      ServiceScope.Get<ILogger>().Info("DirectX: Using adapter:{0} {1} {2}",
+              _graphicsSettings.AdapterOrdinal,
+              Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
+              _graphicsSettings.DevType);
       try
       {
         // Create the device

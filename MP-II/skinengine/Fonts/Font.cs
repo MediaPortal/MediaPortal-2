@@ -292,7 +292,7 @@ namespace SkinEngine.Fonts
         }
 
         _texture = Texture.FromFile(device, fileName,
-                                          _charSet.Width, _charSet.Height, 0, Usage.None, Format.Dxt3, Pool.Default,
+                                          _charSet.Width, _charSet.Height, 1, Usage.None, Format.Dxt3, Pool.Default,
                                           Filter.Linear, Filter.Linear, 0);
         ContentManager.TextureReferences++;
       }

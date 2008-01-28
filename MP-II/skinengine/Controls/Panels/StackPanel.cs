@@ -56,6 +56,7 @@ namespace SkinEngine.Controls.Panels
       : base(v)
     {
       Init();
+      Orientation = v.Orientation;
     }
 
     void Init()

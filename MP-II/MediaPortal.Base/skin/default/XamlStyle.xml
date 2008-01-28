@@ -1780,10 +1780,14 @@
         </Setter.Value>
       </Setter>
     </Style>
-    <Style Key="itemCheckBoxListContainerStyle">
+    <Style Key="itemPlayListContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
-          <Button Height="46"  Style="{StaticResource MpButton}"/>
+          <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource MpButton}" Height="46" Width="360"/>
+            <Button Style="{StaticResource MpArrowButtonDown}" Height="46" Width="46"  />
+            <Button Style="{StaticResource MpArrowButtonUp}" Height="46" Width="46"  />
+          </StackPanel>
         </Setter.Value>
       </Setter>
     </Style>
@@ -1824,7 +1828,7 @@
         </Grid.Triggers>
       </Grid>
     </DataTemplate>
-    <DataTemplate Key="itemCheckBoxListTemplate" DataType="{Type local:DialogMenuItem}">
+    <DataTemplate Key="itemPlayListTemplate" DataType="{Type local:DialogMenuItem}">
       <Grid Height="46">
         <Grid.ColumnDefinitions>
           <ColumnDefinition/>
@@ -1844,8 +1848,6 @@
         </Grid.RowDefinitions>
         <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32"  FallbackSource="{Binding defaulticon}" Source="{Binding CoverArt}" />
         <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding Name}" Font="font13"/>
-        <Button Style="{StaticResource MpArrowButtonUp}" VerticalAlignment="Center" Height="30" Width="30" Margin="8,-2,8,0" Grid.Column="9" Grid.ColumnSpan="1"/>
-        <Button Style="{StaticResource MpArrowButtonDown}" VerticalAlignment="Center" Height="30" Width="30"  Margin="8,-2,8,0" Grid.Column="10" Grid.ColumnSpan="1"/>
         <Grid.Triggers>
           <Trigger Property="HasFocus" Value="True">
             <Setter TargetName="lbl11" Property="Scroll" Value="True" />
@@ -1886,7 +1888,7 @@
         </Setter.Value>
       </Setter>
     </Style>
-    <Style Key="MpCheckboxListView" TargetType="ListBox">
+    <Style Key="MpPlayListView" TargetType="ListBox">
       <Setter Property="SnapsToDevicePixels" Value="true"/>
       <Setter Property="OverridesDefaultStyle" Value="true"/>
       <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
@@ -1901,8 +1903,8 @@
       <Setter Property="MinHeight" Value="32"/>
       <Setter Property="HorizontalAlignment" Value="Left"/>
       <Setter Property="VerticalAlignment" Value="Top"/>
-      <Setter Property="ItemTemplate" Value="{StaticResource itemCheckBoxListTemplate}"/>
-      <Setter Property="ItemContainerStyle" Value="{StaticResource itemCheckBoxListContainerStyle}"/>
+      <Setter Property="ItemTemplate" Value="{StaticResource itemPlayListTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource itemPlayListContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ListBox">
