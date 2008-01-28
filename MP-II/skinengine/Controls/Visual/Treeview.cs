@@ -66,6 +66,11 @@ namespace SkinEngine.Controls.Visuals
       ContextMenuCommand = c.ContextMenuCommand;
       ContextMenuCommandParameter = c.ContextMenuCommandParameter;
       Commands = (CommandGroup)c.Commands.Clone();
+      if (c.Style != null)
+      {
+        Style = c.Style;
+        OnStyleChanged(StyleProperty);
+      }
     }
 
     public override object Clone()
@@ -87,7 +92,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void OnStyleChanged(Property property)
     {
       if (_templateProperty == null)
-        Init();
+        return;
       Style.Set(this);
       this.Template.VisualParent = this;
       ItemsPanel = (Panel)this.Template.FindItemsHost();

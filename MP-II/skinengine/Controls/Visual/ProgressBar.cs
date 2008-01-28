@@ -58,6 +58,11 @@ namespace SkinEngine.Controls.Visuals
     {
       Init(); ;
       Value = b.Value;
+      if (b.Style != null)
+      {
+        Style = b.Style;
+        OnStyleChanged(StyleProperty);
+      }
     }
 
     public override object Clone()
@@ -76,7 +81,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void OnStyleChanged(Property property)
     {
       if (_templateProperty == null)
-        Init();
+        return;
       Style.Set(this);
       this.Template.VisualParent = this;
       Invalidate();
