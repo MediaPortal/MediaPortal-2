@@ -43,6 +43,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     public CheckBox(CheckBox box)
+      :base(box)
     {
       Init();
       IsChecked = box.IsChecked;

@@ -50,7 +50,7 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _dataProperty;
     PrimitiveType _fillPrimitiveType;
-
+    bool _fillDisabled;
 
 
     public Path()
@@ -110,7 +110,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (String.IsNullOrEmpty(Data)) return;
       if (!IsVisible) return;
-      if ((Fill != null && _vertexBufferFill == null) ||
+      if ((Fill != null && _vertexBufferFill == null && !_fillDisabled) ||
            (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
@@ -119,7 +119,7 @@ namespace SkinEngine.Controls.Visuals
 
       ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
       SkinContext.AddTransform(m);
-      if (Fill != null)
+      if (Fill != null && !_fillDisabled)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -175,20 +175,23 @@ namespace SkinEngine.Controls.Visuals
         {
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, 0))
           {
-            CalcCentroid(path, out centerX, out centerY);
-            //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
-            if (Fill != null)
+            if (!_fillDisabled)
             {
-              _vertexBufferFill = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
-              if (_vertexBufferFill != null)
+              CalcCentroid(path, out centerX, out centerY);
+              //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
+              if (Fill != null)
               {
-                Fill.SetupBrush(this, ref verts);
+                _vertexBufferFill = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
+                if (_vertexBufferFill != null)
+                {
+                  Fill.SetupBrush(this, ref verts);
 
-                PositionColored2Textured.Set(_vertexBufferFill, ref verts);
-                if (_fillPrimitiveType == PrimitiveType.TriangleList)
-                  _verticesCountFill = (verts.Length / 3);
-                else
-                  _verticesCountFill = (verts.Length - 2);
+                  PositionColored2Textured.Set(_vertexBufferFill, ref verts);
+                  if (_fillPrimitiveType == PrimitiveType.TriangleList)
+                    _verticesCountFill = (verts.Length / 3);
+                  else
+                    _verticesCountFill = (verts.Length - 2);
+                }
               }
             }
           }
@@ -203,9 +206,10 @@ namespace SkinEngine.Controls.Visuals
             WidthMode mode = WidthMode.RightHanded;
             if (direction == PolygonDirection.Count_Clockwise)
               mode = WidthMode.LeftHanded;
-            //_vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts);
-
-            _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
+            if (_fillDisabled)
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness/2.0), isClosed, out verts);
+            else
+              _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
             if (_vertexBufferBorder != null)
             {
               Stroke.SetupBrush(this, ref verts);
@@ -434,6 +438,12 @@ namespace SkinEngine.Controls.Visuals
       }
       RectangleF bounds;
       System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      bounds = mPath.GetBounds();
+      _fillDisabled = false;
+      if (bounds.Width < StrokeThickness || bounds.Height < StrokeThickness)
+      {
+        _fillDisabled = true;
+      }
       if (Stretch == Stretch.Fill)
       {
         bounds = mPath.GetBounds();
@@ -446,7 +456,7 @@ namespace SkinEngine.Controls.Visuals
         float scaleH = baseRect.Height / bounds.Height;
         if (baseRect.Width == 0) scaleW = 1.0f;
         if (baseRect.Height == 0) scaleH = 1.0f;
-        if (StrokeThickness > 0)
+        if (StrokeThickness > 0 && !_fillDisabled)
         {
           if (baseRect.Width > 0)
           {
@@ -459,6 +469,8 @@ namespace SkinEngine.Controls.Visuals
             scaleH = (float)((baseRect.Height - StrokeThickness) / bounds.Height);
           }
         }
+        if (float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
+        if (float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
         m.Scale(scaleW, scaleH, MatrixOrder.Append);
         m.Translate(xoff, yoff, MatrixOrder.Append);
       }
@@ -494,7 +506,19 @@ namespace SkinEngine.Controls.Visuals
         float cx = bounds.X + (bounds.Width / 2.0f);
         float cy = bounds.Y + (bounds.Height / 2.0f);
         m.Translate(-cx, -cy, MatrixOrder.Append);
-        m.Scale(thicknessW / bounds.Width, thicknessH / bounds.Height, MatrixOrder.Append);
+        float scaleW = thicknessW / bounds.Width;
+        float scaleH = thicknessH / bounds.Height;
+        if (float.IsNaN(scaleW) || float.IsInfinity(scaleW))
+        {
+          m.Translate(thickNess / 2.0f, 0, MatrixOrder.Append);
+          scaleW = 1;
+        }
+        if (float.IsNaN(scaleH) || float.IsInfinity(scaleH))
+        {
+          m.Translate(0, thickNess / 2.0f, MatrixOrder.Append);
+          scaleH = 1;
+        }
+        m.Scale(scaleW, scaleH, MatrixOrder.Append);
         m.Translate(cx, cy, MatrixOrder.Append);
         mPath.Transform(m);
       }

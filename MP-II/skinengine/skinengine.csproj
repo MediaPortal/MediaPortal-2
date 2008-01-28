@@ -187,6 +187,7 @@
     <Compile Include="Controls\Visual\DataTemplate.cs" />
     <Compile Include="Controls\Visual\DataTemplateSelector.cs" />
     <Compile Include="Controls\Visual\FrameworkElement.cs" />
+    <Compile Include="Controls\Visual\HeaderedItemsControl.cs" />
     <Compile Include="Controls\Visual\Image.cs" />
     <Compile Include="Controls\Visual\ItemCollection.cs" />
     <Compile Include="Controls\Visual\ItemsControl.cs" />
@@ -214,6 +215,8 @@
     <Compile Include="Controls\Visual\Styles\Setter.cs" />
     <Compile Include="Controls\Visual\Styles\Style.cs" />
     <Compile Include="Controls\Visual\Styles\SetterCollection.cs" />
+    <Compile Include="Controls\Visual\Treeview.cs" />
+    <Compile Include="Controls\Visual\TreeViewItem.cs" />
     <Compile Include="Controls\Visual\Triggers\BeginStoryboard.cs" />
     <Compile Include="Controls\Visual\Triggers\EventTrigger.cs" />
     <Compile Include="Controls\Visual\Triggers\StopStoryboard.cs" />

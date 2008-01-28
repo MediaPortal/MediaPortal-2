@@ -462,6 +462,10 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "KeyBinding")
         return true;
+      else if (name == "TreeView")
+        return true;
+      else if (name == "TreeViewItem")
+        return true;
 
 
       //brushes
@@ -647,6 +651,16 @@ namespace SkinEngine.Skin
       else if (name == "KeyBinding")
       {
         return new SkinEngine.Controls.Visuals.KeyBinding();
+      }
+      else if (name == "TreeView")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.TreeView();
+        return _lastElement;
+      }
+      else if (name == "TreeViewItem")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.TreeViewItem();
+        return _lastElement;
       }
       else if (name == "DataTemplate")
         return new SkinEngine.Controls.Visuals.DataTemplate();
