@@ -49,6 +49,8 @@ namespace SkinEngine.Controls.Visuals
     Property _itemsPanelProperty;
     Property _currentItem;
     bool _prepare;
+    bool _templateApplied;
+    Panel _itemsHostPanel;
 
     #region ctor
     /// <summary>
@@ -93,10 +95,12 @@ namespace SkinEngine.Controls.Visuals
       _itemTemplateProperty.Attach(new PropertyChangedHandler(OnItemTemplateChanged));
       _itemsPanelProperty.Attach(new PropertyChangedHandler(OnItemsPanelChanged));
       _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnItemContainerStyleChanged));
+
     }
     #endregion
 
     #region event handlers
+
     void OnItemsSourceChanged(Property property)
     {
       if (ItemsSource is Property)
@@ -115,9 +119,16 @@ namespace SkinEngine.Controls.Visuals
 
     void OnCollectionChanged(bool refreshAll)
     {
-      Prepare();
+      _prepare = true;
     }
 
+    void OnHasFocusChanged(Property property)
+    {
+      if (HasFocus)
+      {
+        SetFocusOnFirstItem();
+      }
+    }
     void OnItemsSourcePropChanged(Property property)
     {
       _prepare = true;
@@ -130,6 +141,7 @@ namespace SkinEngine.Controls.Visuals
     }
     void OnItemsPanelChanged(Property property)
     {
+      _templateApplied = false;
       _prepare = true;
       Invalidate();
     }
@@ -372,15 +384,40 @@ namespace SkinEngine.Controls.Visuals
       Trace.WriteLine("ItemsControl.Prepare()");
       ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
       if (presenter == null) return false;
-      presenter.ApplyTemplate(ItemsPanel);
+      if (!_templateApplied)
+      {
+        presenter.ApplyTemplate(ItemsPanel);
+        _itemsHostPanel = null;
+        _templateApplied = true;
+      }
 
-      Panel panel = presenter.FindItemsHost() as Panel;
+      if (_itemsHostPanel == null)
+      {
+        _itemsHostPanel = presenter.FindItemsHost() as Panel;
+      }
+      if (_itemsHostPanel == null) return false;
+
+      int itemCount = _itemsHostPanel.Children.Count;
+      int focusedIndex = -1;
+      FrameworkElement focusedItem = null;
+      for (int i = 0; i < _itemsHostPanel.Children.Count; ++i)
+      {
+        focusedItem = _itemsHostPanel.Children[i].FindFocusedItem() as FrameworkElement;
+        if (focusedItem != null)
+        {
+          focusedIndex = i;
+          break;
+        }
+      }
+
+      int index = 0;
       UIElementCollection children = new UIElementCollection(null);
       IEnumerator enumer = ItemsSource.GetEnumerator();
       while (enumer.MoveNext())
       {
         FrameworkElement container = ItemContainerStyle.Get();
-        container.VisualParent = panel;
+        container.VisualParent = _itemsHostPanel;
+        container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
         FrameworkElement newItem = (FrameworkElement)ItemTemplate.LoadContent();
         newItem.VisualParent = container;
         newItem.Context = enumer.Current;
@@ -392,68 +429,35 @@ namespace SkinEngine.Controls.Visuals
         }
         children.Add(container);
       }
-      children.SetParent(panel);
-      panel.SetChildren(children);
-      panel.Invalidate();
+      children.SetParent(_itemsHostPanel);
+      _itemsHostPanel.SetChildren(children);
+      _itemsHostPanel.Invalidate();
 
-      /*
-
-      int itemCount = ItemsPanel.Children.Count;
-      int focusedIndex = -1;
-      FrameworkElement focusedItem = null;
-      for (int i = 0; i < ItemsPanel.Children.Count; ++i)
-      {
-        focusedItem = ItemsPanel.Children[i].FindFocusedItem() as FrameworkElement;
-        if (focusedItem != null)
-        {
-          focusedIndex = i;
-          break;
-        }
-      }
-
-      UIElementCollection children = new UIElementCollection(null);
-      IEnumerator enumer = ItemsSource.GetEnumerator();
-      while (enumer.MoveNext())
-      {
-        FrameworkElement container = ItemContainerStyle.Get();
-        container.VisualParent = ItemsPanel;
-        FrameworkElement newItem = (FrameworkElement)ItemTemplate.VisualTree.Clone();
-        newItem.VisualParent = container;
-        newItem.Context = enumer.Current;
-        container.Context = enumer.Current;
-        ContentPresenter presenter = container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-        if (presenter != null)
-        {
-          presenter.Content = newItem;
-        }
-        children.Add(container);
-      }
-      children.SetParent(ItemsPanel);
-      ItemsPanel.SetChildren(children);
-      ItemsPanel.Invalidate();
+      
       if (focusedItem != null)
       {
-        IScrollInfo info = ItemsPanel as IScrollInfo;
+        IScrollInfo info = _itemsHostPanel as IScrollInfo;
         if (info != null)
         {
-          info.Reset();
+          info.ResetScroll();
         }
         //        result = true;
-        ItemsPanel.UpdateLayout();
+        _itemsHostPanel.UpdateLayout();
         focusedItem.HasFocus = false;
-        if (ItemsPanel.Children.Count <= focusedIndex)
+        if (_itemsHostPanel.Children.Count <= focusedIndex)
         {
-          float x = (float)ItemsPanel.Children[0].ActualPosition.X;
-          float y = (float)ItemsPanel.Children[0].ActualPosition.Y;
-          ItemsPanel.OnMouseMove(x, y);
+          float x = (float)_itemsHostPanel.Children[0].ActualPosition.X;
+          float y = (float)_itemsHostPanel.Children[0].ActualPosition.Y;
+          _itemsHostPanel.OnMouseMove(x, y);
         }
         else
         {
-          float x = (float)ItemsPanel.Children[focusedIndex].ActualPosition.X;
-          float y = (float)ItemsPanel.Children[focusedIndex].ActualPosition.Y;
-          ItemsPanel.OnMouseMove(x, y);
+          float x = (float)_itemsHostPanel.Children[focusedIndex].ActualPosition.X;
+          float y = (float)_itemsHostPanel.Children[focusedIndex].ActualPosition.Y;
+          _itemsHostPanel.OnMouseMove(x, y);
         }
-      }*/
+      }
+
       return true;
     }
 
@@ -474,6 +478,44 @@ namespace SkinEngine.Controls.Visuals
       DoUpdateItems();
       base.DoRender();
     }
+    public override bool HasFocus
+    {
+      get
+      {
+        return (FindFocusedItem() != null);
+      }
+      set
+      {
+        if (value)
+        {
+          if (!HasFocus)
+            SetFocusOnFirstItem();
+        }
+        else
+        {
+          UIElement element = FindFocusedItem();
+          if (element != null)
+            element.HasFocus = false;
+        }
+      }
+    }
+    public void SetFocusOnFirstItem()
+    {
+      ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      if (presenter != null)
+      {
+        Panel panel = presenter.FindItemsHost() as Panel;
+        if (panel != null)
+        {
+          if (panel.Children != null && panel.Children.Count > 0)
+          {
+            FrameworkElement element = (FrameworkElement)panel.Children[0];
+            element.OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
+          }
+        }
+      }
+    }
     #endregion
+
   }
 }

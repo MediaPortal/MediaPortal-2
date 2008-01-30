@@ -240,11 +240,11 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
+      UpdateCurrentItem();
       bool executeCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.Enter);
       bool executeContextCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.ContextMenu);
       base.OnKeyPressed(ref key);
 
-      UpdateCurrentItem();
       if (executeCmd)
       {
         if (Command != null)

@@ -83,6 +83,6 @@ namespace SkinEngine.Controls.Visuals
 
     double LineWidth {get;}
 
-    void Reset();
+    void ResetScroll();
   }
 }

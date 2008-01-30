@@ -9,6 +9,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
   {
     public void Merge(TriggerCollection triggers)
     {
+      this.Clear();
       foreach(Trigger t in triggers)
       {
         this.Add(t);

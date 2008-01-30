@@ -533,7 +533,7 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
-      if (HasFocus) return this;
+      if (base.HasFocus) return this;
       if (_templateControl != null)
       {
         UIElement o = _templateControl.FindFocusedItem();

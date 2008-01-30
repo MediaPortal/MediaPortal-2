@@ -145,6 +145,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
 
     public virtual void Setup(UIElement element)
     {
+      Trace.WriteLine("Setup trigger for " + element.Name+" " + element.GetType().ToString() + " " + Property);
       if (_property != null)
       {
         _property.Detach(_handler);

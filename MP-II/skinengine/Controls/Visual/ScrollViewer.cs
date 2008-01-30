@@ -153,17 +153,18 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
-      FrameworkElement element = (FrameworkElement)info;
+      Panel element = (Panel)info;
       info.Home();
-      OnMouseMove((float)(element.ActualPosition.X), (float)(element.ActualPosition.Y));
+      element.OnMouseMove((float)(element.Children[0].ActualPosition.X), (float)(element.Children[0].ActualPosition.Y));
     }
     void OnEnd(float x, float y)
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
-      FrameworkElement element = (FrameworkElement)info;
+      Panel element = (Panel)info;
       info.End();
-      OnMouseMove((float)(element.ActualPosition.X), (float)(element.ActualPosition.Y + element.ActualHeight - info.LineHeight));
+      FrameworkElement child = (FrameworkElement)element.Children[element.Children.Count - 1];
+      element.OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
     }
 
     bool OnPageDown(float x, float y)
@@ -227,7 +228,7 @@ namespace SkinEngine.Controls.Visuals
       IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       FrameworkElement element = (FrameworkElement)info;
-      if (y + (info.LineHeight ) >= element.ActualPosition.Y + element.ActualHeight)
+      if (y + (info.LineHeight) >= element.ActualPosition.Y + element.ActualHeight)
       {
         if (info.LineDown())
         {
@@ -243,7 +244,7 @@ namespace SkinEngine.Controls.Visuals
       IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       FrameworkElement element = (FrameworkElement)info;
-      if (y <= element.ActualPosition.Y+info.LineHeight-1)
+      if (y <= element.ActualPosition.Y + info.LineHeight - 1)
       {
         if (info.LineUp())
         {

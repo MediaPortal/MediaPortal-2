@@ -105,9 +105,12 @@ namespace SkinEngine.Controls.Visuals.Triggers
     {
       if (Storyboard != null)
       {
-        //Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element).Name, this.Storyboard.Key));
-        element.StartStoryboard(this.Storyboard);
-        return;
+        if (Storyboard.IsStopped)
+        {
+          Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element).Name, this.Storyboard.Key));
+          element.StartStoryboard(this.Storyboard);
+          return;
+        }
       }
     }
     public override void Setup(UIElement element)
