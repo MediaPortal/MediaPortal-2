@@ -466,7 +466,9 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "TreeViewItem")
         return true;
-
+      else if (name == "ItemsPresenter")
+        return true;
+        
 
       //brushes
       else if (name == "SolidColorBrush")
@@ -660,6 +662,11 @@ namespace SkinEngine.Skin
       else if (name == "TreeViewItem")
       {
         _lastElement = new SkinEngine.Controls.Visuals.TreeViewItem();
+        return _lastElement;
+      }
+      else if (name == "ItemsPresenter")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.ItemsPresenter();
         return _lastElement;
       }
       else if (name == "DataTemplate")

@@ -35,6 +35,10 @@ using SkinEngine.Controls.Panels;
 
 namespace SkinEngine.Controls.Visuals
 {
+  /// <summary>
+  /// Represents a control that can be used to present a collection of items.
+  /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemscontrol.aspx
+  /// </summary>
   public class ItemsControl : Control
   {
     Property _itemsSourceProperty;
@@ -117,7 +121,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the items panel property.
+    /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
     /// </summary>
     /// <value>The items panel property.</value>
     public Property ItemsPanelProperty
@@ -133,7 +137,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the items panel.
+    /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
     /// </summary>
     /// <value>The items panel.</value>
     public Panel ItemsPanel
@@ -149,7 +153,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets the items source property.
+    /// Gets or sets a collection used to generate the content of the ItemsControl. This is a dependency property.
     /// </summary>
     /// <value>The items source property.</value>
     public Property ItemsSourceProperty
@@ -161,7 +165,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the items source.
+    /// Gets or sets a collection used to generate the content of the ItemsControl. This is a dependency property.
     /// </summary>
     /// <value>The items source.</value>
     public IEnumerable ItemsSource
@@ -177,7 +181,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item container style property.
+    /// Gets or sets the Style that is applied to the container element generated for each item. This is a dependency property.
     /// </summary>
     /// <value>The item container style property.</value>
     public Property ItemContainerStyleProperty
@@ -193,7 +197,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item container style.
+    /// Gets or sets the Style that is applied to the container element generated for each item. This is a dependency property.
     /// </summary>
     /// <value>The item container style.</value>
     public Style ItemContainerStyle
@@ -209,7 +213,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item container style selector property.
+    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element. This is a dependency property.
     /// </summary>
     /// <value>The item container style selector property.</value>
     public Property ItemContainerStyleSelectorProperty
@@ -225,7 +229,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item container style selector.
+    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element. This is a dependency property.
     /// </summary>
     /// <value>The item container style selector.</value>
     public StyleSelector ItemContainerStyleSelector
@@ -241,7 +245,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item template property.
+    /// Gets or sets the DataTemplate used to display each item. This is a dependency property.
     /// </summary>
     /// <value>The item template property.</value>
     public Property ItemTemplateProperty
@@ -257,7 +261,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item template.
+    /// Gets or sets the DataTemplate used to display each item. This is a dependency property.
     /// </summary>
     /// <value>The item template.</value>
     public DataTemplate ItemTemplate
@@ -273,7 +277,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item template selector property.
+    /// Gets or sets the custom logic for choosing a template used to display each item. This is a dependency property.
     /// </summary>
     /// <value>The item template selector property.</value>
     public Property ItemTemplateSelectorProperty
@@ -289,7 +293,7 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the item template selector.
+    /// Gets or sets the custom logic for choosing a template used to display each item. This is a dependency property.
     /// </summary>
     /// <value>The item template selector.</value>
     public DataTemplateSelector ItemTemplateSelector
