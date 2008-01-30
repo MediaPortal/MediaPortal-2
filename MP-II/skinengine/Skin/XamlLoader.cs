@@ -33,6 +33,7 @@ namespace SkinEngine.Skin
     /// <returns></returns>
     public object Load(string skinFile)
     {
+      DateTime dt = DateTime.Now;
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
       if (System.IO.File.Exists(skinFile))
       {
@@ -50,13 +51,17 @@ namespace SkinEngine.Skin
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
         parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
         parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
-        return parser.Instantiate(fullFileName, "*");
+        object obj = parser.Instantiate(fullFileName, "*");
+        TimeSpan ts = DateTime.Now - dt;
+        ServiceScope.Get<ILogger>().Info("Xaml loaded {0} msec:{1}", skinFile, ts.TotalMilliseconds);
+        return obj;
       }
     }
 
 
     public object Load(string skinFile, string tagName)
     {
+      Trace.WriteLine("---load:" + skinFile);
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
       if (System.IO.File.Exists(skinFile))
       {
@@ -74,7 +79,9 @@ namespace SkinEngine.Skin
         parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
         parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
         parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
-        return (UIElement)parser.Instantiate(fullFileName, tagName);
+        UIElement obj = (UIElement)parser.Instantiate(fullFileName, tagName);
+        Trace.WriteLine("---------");
+        return obj;
       }
     }
 
@@ -182,7 +189,7 @@ namespace SkinEngine.Skin
 
     object parser_OnGetResource(object parser, object obj, string resourceName)
     {
-      Trace.WriteLine(String.Format("Get resource:{0}", resourceName));
+      //Trace.WriteLine(String.Format("Get resource:{0}", resourceName));
       if (obj as UIElement != null)
       {
         UIElement elm = (UIElement)obj;
@@ -208,7 +215,7 @@ namespace SkinEngine.Skin
           if (result != null) break;
           element = element.VisualParent;
         } while (element != null);
-        
+
         ICloneable clone = result as ICloneable;
         if (clone != null)
         {
