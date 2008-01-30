@@ -550,13 +550,10 @@ namespace SkinEngine
         return;
       }
 
-#if TESTXAML
-#else
       if (_history.Count <= 1)
       {
         return;
       }
-#endif
       _previousWindow = _currentWindow;
       if (_previousWindow != null)
       {
