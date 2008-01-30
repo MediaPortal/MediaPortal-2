@@ -25,6 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Database.Implementation.Sql;
 using MediaPortal.Database.Implementation.SqlLite;
 
@@ -43,15 +44,16 @@ namespace MediaPortal.Database.Implementation
     /// </summary>
     public IDatabaseFactory Create(string connectionString)
     {
-      if (connectionString.StartsWith("sqlserver:"))
+      int pos;
+      if ((pos = connectionString.IndexOf(':')) > 0)
       {
-        IDatabaseBuilder builder = new SqlDatabaseBuilder(connectionString.Substring("sqlserver:".Length));
-        return new DatabaseFactory(builder);
-      }
-      if (connectionString.StartsWith("sqlite:"))
-      {
-        IDatabaseBuilder builder = new SqlLiteDatabaseBuilder(connectionString.Substring("sqlite:".Length));
-        return new DatabaseFactory(builder);
+        string database = connectionString.Substring(0, pos);
+        IDatabaseBuilder builder = (IDatabaseBuilder) ServiceScope.Get<IPluginManager>().GetPluginItem<IDatabaseBuilder>("/Databases", database);
+        if (builder != null)
+        {
+          builder.ConnectionString = connectionString.Substring(pos + 1);
+          return new DatabaseFactory(builder);
+        }
       }
       return null;
     }
@@ -63,7 +65,7 @@ namespace MediaPortal.Database.Implementation
     {
       // create database of default type
       string location = ServiceScope.Get<IPathManager>().GetPath("<DATABASE>");
-      string connection = string.Format(@"sqlite:Data Source={0}\{1}.db3", location, databaseId);
+      string connection = string.Format(@"SqlLite:Data Source={0}\{1}.db3", location, databaseId);
 
       return Create(connection);
     }

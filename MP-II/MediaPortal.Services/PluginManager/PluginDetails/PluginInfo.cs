@@ -291,7 +291,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
               ExtensionPath extensionPath = plugin.GetExtensionPath(location);
               if (!reader.IsEmptyElement)
               {
-                ExtensionPath.SetUp(extensionPath, reader, "Add");
+                ExtensionPath.SetUp(extensionPath, reader, "Register");
               }
               break;
             case "Manifest":

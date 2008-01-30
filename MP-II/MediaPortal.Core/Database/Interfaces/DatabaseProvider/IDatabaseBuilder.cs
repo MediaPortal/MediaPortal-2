@@ -27,6 +27,14 @@ namespace MediaPortal.Core.Database.Interfaces
   public interface IDatabaseBuilder
   {
     /// <summary>
+    /// Stores the database Connection String
+    /// </summary>
+    string ConnectionString
+    {
+      set;
+    }
+
+    /// <summary>
     /// Creates a new connection.
     /// </summary>
     /// <returns></returns>

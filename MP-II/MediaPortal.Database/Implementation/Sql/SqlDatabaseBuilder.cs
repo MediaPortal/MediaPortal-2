@@ -35,10 +35,17 @@ namespace MediaPortal.Database.Implementation.Sql
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlDatabaseBuilder"/> class.
     /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    public SqlDatabaseBuilder(string connectionString)
+    public SqlDatabaseBuilder()
     {
-      _connectionString = connectionString;
+    }
+
+    /// <summary>
+    /// Stores the database Connection String
+    /// </summary>
+    /// <value></value>
+    public string ConnectionString
+    {
+      set { _connectionString = value; }
     }
 
     /// <summary>

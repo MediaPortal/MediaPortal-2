@@ -104,7 +104,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     {
       foreach (NodeItem item in _items)
       {
-        if (item.Id == id)
+        if (item.Id.ToLower() == id.ToLower())
         {
           object result = item.BuildItem(caller, null);
           if (result == null)

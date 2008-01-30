@@ -36,15 +36,25 @@ namespace MediaPortal.Database.Implementation.SqlLite
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlDatabaseBuilder"/> class.
     /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    public SqlLiteDatabaseBuilder(string connectionString)
+    public SqlLiteDatabaseBuilder()
     {
-      _connectionString = connectionString;
+    }
 
-      // Create Database directory if it Doesn't exist
-      FileInfo databaseFile = new FileInfo(DatabaseName);
-      if (!databaseFile.Directory.Exists)
-        databaseFile.Directory.Create();
+    /// <summary>
+    /// Stores the database Connection String
+    /// </summary>
+    /// <value></value>
+    public string ConnectionString
+    {
+      set
+      {
+        _connectionString = value;
+
+        // Create Database directory if it Doesn't exist
+        FileInfo databaseFile = new FileInfo(DatabaseName);
+        if (!databaseFile.Directory.Exists)
+          databaseFile.Directory.Create();
+      }
     }
 
     /// <summary>
