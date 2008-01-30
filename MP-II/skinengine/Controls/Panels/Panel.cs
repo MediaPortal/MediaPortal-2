@@ -441,6 +441,24 @@ namespace SkinEngine.Controls.Panels
       return base.FindElement(name);
     }
 
+    public override bool ReplaceElementType(Type t, UIElement newElement)
+    {
+      for (int i=0; i < Children.Count;++i)
+      {
+        if (Children[i].GetType() == t)
+        {
+          Children[i] = newElement;
+          Children[i].VisualParent = this;
+          return true ;
+        }
+      } 
+      foreach (UIElement element in Children)
+      {
+        if (element.ReplaceElementType(t, newElement)) return true;
+      }
+      return false;
+    }
+
     /// <summary>
     /// Finds the element of type t.
     /// </summary>

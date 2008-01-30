@@ -1947,7 +1947,14 @@ namespace MyXaml.Core
     protected bool TestForCollection(object obj, object classInstance, XmlNode node)
     {
       bool ret = false;
-      if (obj is IList)													// If the parent implements IList...
+      if (obj is IAddChild)
+      {
+        IAddChild adder = (IAddChild)obj;
+        adder.AddChild(classInstance);
+        ProcessAttributes(classInstance, node);
+        ret = true;
+      }
+      else if (obj is IList)													// If the parent implements IList...
       {
         // MTC - 06/28/06 : Changed in the root caller.
         // MTC - 03/04/06 : Need to process attributes before adding a node to a collection.

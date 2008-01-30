@@ -46,7 +46,7 @@ namespace SkinEngine.Controls.Visuals
 
     public void Merge(ResourceDictionary dict)
     {
-      IDictionaryEnumerator enumer= dict.GetEnumerator();
+      IDictionaryEnumerator enumer = dict.GetEnumerator();
       while (enumer.MoveNext())
       {
         _dictionary[(string)enumer.Key] = enumer.Value;

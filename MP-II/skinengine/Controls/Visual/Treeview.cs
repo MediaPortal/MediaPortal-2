@@ -95,7 +95,6 @@ namespace SkinEngine.Controls.Visuals
         return;
       Style.Set(this);
       this.Template.VisualParent = this;
-      ItemsPanel = (Panel)this.Template.FindItemsHost();
       ArrayList l = new ArrayList();
       l.Add(new TreeViewItem());
       l.Add(new TreeViewItem());
@@ -509,11 +508,12 @@ namespace SkinEngine.Controls.Visuals
       }
       set
       {
+        /*
         if (ItemsPanel.Children.Count > 0)
         {
           ItemsPanel.Children[0].OnMouseMove((float)ItemsPanel.Children[0].ActualPosition.X, (float)ItemsPanel.Children[0].ActualPosition.Y);
           return;
-        }
+        }*/
         base.HasFocus = value;
       }
     }

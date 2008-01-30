@@ -7,5 +7,12 @@ namespace SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerCollection : ArrayList
   {
+    public void Merge(TriggerCollection triggers)
+    {
+      foreach(Trigger t in triggers)
+      {
+        this.Add(t);
+      }
+    }
   }
 }

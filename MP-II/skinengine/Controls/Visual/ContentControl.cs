@@ -29,17 +29,19 @@ using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
-
 using SkinEngine;
+using MyXaml.Core;
 
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class ContentControl : Control, IList
+  public class ContentControl : Control, IAddChild
   {
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
+
+    #region ctor
     public ContentControl()
     {
       Init();
@@ -71,14 +73,46 @@ namespace SkinEngine.Controls.Visuals
       _contentProperty = new Property(null);
       _contentTemplateProperty = new Property(null);
       _contentTemplateSelectorProperty = new Property(null);
+      _contentTemplateProperty.Attach(new PropertyChangedHandler(OnContentTemplateChanged));
+      _contentTemplateSelectorProperty.Attach(new PropertyChangedHandler(OnContentTemplateSelectorChanged));
       _contentProperty.Attach(new PropertyChangedHandler(OnContentChanged));
     }
+    #endregion
 
+    #region eventhandlers
     void OnContentChanged(Property property)
     {
-      Content.VisualParent = this;
+      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      if (presenter == null)
+        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+      if (presenter != null)
+      {
+        presenter.Content = Content;
+      }
     }
+    void OnContentTemplateChanged(Property property)
+    {
+      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      if (presenter == null)
+        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+      if (presenter != null)
+      {
+        presenter.ContentTemplate = ContentTemplate;
+      }
+    }
+    void OnContentTemplateSelectorChanged(Property property)
+    {
+      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      if (presenter == null)
+        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+      if (presenter != null)
+      {
+        presenter.ContentTemplateSelector = ContentTemplateSelector;
+      }
+    }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the content property.
     /// </summary>
@@ -143,7 +177,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-
     /// <summary>
     /// Gets or sets the content template selector property.
     /// </summary>
@@ -175,326 +208,29 @@ namespace SkinEngine.Controls.Visuals
         _contentTemplateSelectorProperty.SetValue(value);
       }
     }
+    #endregion
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(SizeF availableSize)
+
+    #region IAddChild Members
+
+    public void AddChild(object o)
     {
-      base.Measure(_desiredSize);
-      if (Content != null)
-      {
-        Content.Measure(_desiredSize);
-        //_desiredSize = Content.DesiredSize;
-      }
+      Content = (o as FrameworkElement);
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(System.Drawing.RectangleF finalRect)
-    {
-      base.Arrange(finalRect);
-      if (Content != null)
-      {
-        System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
-
-        layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-        layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-        layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-        layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
-
-
-        PointF p = layoutRect.Location;
-        ArrangeChild(Content, ref p, layoutRect.Width, layoutRect.Height);
-        Content.Arrange(new RectangleF(p, Content.DesiredSize));
-      }
-    }
-    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
-    {
-      if (VisualParent == null) return;
-
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-
-        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        p.X += (float)(widthPerCell - child.DesiredSize.Width);
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
-      }
-    }
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
-    public override void DoRender()
-    {
-      base.DoRender();
-      if (Content != null)
-      {
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
-        Content.DoRender();
-        SkinContext.RemoveTransform();
-      }
-
-    }
-
-    /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    public override void OnMouseMove(float x, float y)
-    {
-      if (!IsFocusScope) return;
-      if (Content != null)
-      {
-        Content.OnMouseMove(x, y);
-      }
-      base.OnMouseMove(x, y);
-    }
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
-    {
-      base.Animate();
-      if (Content != null)
-      {
-        Content.Animate();
-      }
-    }
-
-
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
-    {
-      if (Content != null)
-      {
-        Content.OnKeyPressed(ref key);
-      }
-    }
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public override UIElement FindElement(string name)
-    {
-      if (Content != null)
-      {
-        UIElement found = Content.FindElement(name);
-        if (found != null) return found;
-      }
-      return base.FindElement(name);
-    }
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
+    #region findXXX methods
     public override UIElement FindElementType(Type t)
     {
       if (Content != null)
       {
-        UIElement found = Content.FindElementType(t);
-        if (found != null) return found;
+        UIElement o = Content.FindElementType(t);
+        if (o != null) return o;
+        if (Content.GetType() == t) return Content;
       }
       return base.FindElementType(t);
     }
 
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
-    public override UIElement FindItemsHost()
-    {
-      if (Content != null)
-      {
-        UIElement found = Content.FindItemsHost();
-        if (found != null) return found;
-      }
-      return base.FindItemsHost();
-    }
-
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
-    public override UIElement FindFocusedItem()
-    {
-      if (HasFocus) return this;
-
-      if (Content != null)
-      {
-        UIElement found = Content.FindFocusedItem();
-        if (found != null) return found;
-      }
-      return null;
-    }
-    public override void Reset()
-    {
-      base.Reset();
-      if (Content!=null)
-        Content.Reset();
-    }
-
-    #region focus prediction
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      return ((FrameworkElement)Content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
-    /// <returns></returns>
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      return ((FrameworkElement)Content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
-    /// <returns></returns>
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      return ((FrameworkElement)Content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
-    /// <returns></returns>
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      return ((FrameworkElement)Content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
-    }
-
-
     #endregion
-
-    #region IList Members
-
-    public int Add(object value)
-    {
-      Content = (FrameworkElement)value;
-      return 1;
-    }
-
-    public void Clear()
-    {
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
     #endregion
   }
 }

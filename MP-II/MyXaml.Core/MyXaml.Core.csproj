@@ -139,6 +139,7 @@
     <Compile Include="Exceptions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IAddChild.cs" />
     <Compile Include="Interfaces.cs">
       <SubType>Code</SubType>
     </Compile>

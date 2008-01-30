@@ -50,6 +50,7 @@ namespace SkinEngine.Controls.Visuals
     Property _currentItem;
     bool _prepare;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemsControl"/> class.
     /// </summary>
@@ -88,18 +89,20 @@ namespace SkinEngine.Controls.Visuals
       _itemContainerStyleSelectorProperty = new Property(null);
       _itemsPanelProperty = new Property(null);
       _currentItem = new Property(null);
-      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnItemsChanged));
-      _itemTemplateProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _itemsPanelProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnItemsSourceChanged));
+      _itemTemplateProperty.Attach(new PropertyChangedHandler(OnItemTemplateChanged));
+      _itemsPanelProperty.Attach(new PropertyChangedHandler(OnItemsPanelChanged));
+      _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnItemContainerStyleChanged));
     }
+    #endregion
 
-    void OnItemsChanged(Property property)
+    #region event handlers
+    void OnItemsSourceChanged(Property property)
     {
       if (ItemsSource is Property)
       {
         Property p = (Property)ItemsSource;
-        p.Attach(new PropertyChangedHandler(OnPropertyChanged));
+        p.Attach(new PropertyChangedHandler(OnItemsSourcePropChanged));
       }
       else if (ItemsSource is ItemsCollection)
       {
@@ -114,12 +117,30 @@ namespace SkinEngine.Controls.Visuals
     {
       Prepare();
     }
-    void OnPropertyChanged(Property property)
+
+    void OnItemsSourcePropChanged(Property property)
     {
       _prepare = true;
       Invalidate();
     }
+    void OnItemTemplateChanged(Property property)
+    {
+      _prepare = true;
+      Invalidate();
+    }
+    void OnItemsPanelChanged(Property property)
+    {
+      _prepare = true;
+      Invalidate();
+    }
+    void OnItemContainerStyleChanged(Property property)
+    {
+      _prepare = true;
+      Invalidate();
+    }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
     /// </summary>
@@ -140,11 +161,11 @@ namespace SkinEngine.Controls.Visuals
     /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
     /// </summary>
     /// <value>The items panel.</value>
-    public Panel ItemsPanel
+    public ItemsPanelTemplate ItemsPanel
     {
       get
       {
-        return _itemsPanelProperty.GetValue() as Panel;
+        return _itemsPanelProperty.GetValue() as ItemsPanelTemplate;
       }
       set
       {
@@ -335,15 +356,47 @@ namespace SkinEngine.Controls.Visuals
         _currentItem.SetValue(value);
       }
     }
+    #endregion
 
+    #region item generation
+    /// <summary>
+    /// Prepares this instance.
+    /// </summary>
+    /// <returns></returns>
     bool Prepare()
     {
       if (ItemsSource == null) return false;
       if (ItemsPanel == null) return false;
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
-      if (ItemTemplate.VisualTree == null) return false;
-      //Trace.WriteLine("ItemsControl.Prepare()");
+      Trace.WriteLine("ItemsControl.Prepare()");
+      ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      if (presenter == null) return false;
+      presenter.ApplyTemplate(ItemsPanel);
+
+      Panel panel = presenter.FindItemsHost() as Panel;
+      UIElementCollection children = new UIElementCollection(null);
+      IEnumerator enumer = ItemsSource.GetEnumerator();
+      while (enumer.MoveNext())
+      {
+        FrameworkElement container = ItemContainerStyle.Get();
+        container.VisualParent = panel;
+        FrameworkElement newItem = (FrameworkElement)ItemTemplate.LoadContent();
+        newItem.VisualParent = container;
+        newItem.Context = enumer.Current;
+        container.Context = enumer.Current;
+        ContentPresenter cpresenter = container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+        if (cpresenter != null)
+        {
+          cpresenter.Content = newItem;
+        }
+        children.Add(container);
+      }
+      children.SetParent(panel);
+      panel.SetChildren(children);
+      panel.Invalidate();
+
+      /*
 
       int itemCount = ItemsPanel.Children.Count;
       int focusedIndex = -1;
@@ -400,10 +453,9 @@ namespace SkinEngine.Controls.Visuals
           float y = (float)ItemsPanel.Children[focusedIndex].ActualPosition.Y;
           ItemsPanel.OnMouseMove(x, y);
         }
-      }
+      }*/
       return true;
     }
-
 
     public bool DoUpdateItems()
     {
@@ -416,5 +468,12 @@ namespace SkinEngine.Controls.Visuals
       }
       return false;
     }
+
+    public override void DoRender()
+    {
+      DoUpdateItems();
+      base.DoRender();
+    }
+    #endregion
   }
 }

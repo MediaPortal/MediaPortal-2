@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.InputManager;
 using SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D;
@@ -37,16 +38,19 @@ using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = SlimDX.Matrix;
+using MyXaml.Core;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Border : Shape
+  public class Border : Shape, IAddChild
   {
     Property _backgroundProperty;
     Property _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
+    FrameworkElement _content;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="Border"/> class.
     /// </summary>
@@ -90,6 +94,7 @@ namespace SkinEngine.Controls.Visuals
     {
       Free();
     }
+    #endregion
 
     #region properties
     /// <summary>
@@ -221,6 +226,7 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    #region measure&arrange
     /// <summary>
     /// Arranges the UI element
     /// and positions it in the finalrect
@@ -251,8 +257,22 @@ namespace SkinEngine.Controls.Visuals
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
+      if (_content != null)
+      {
+        _content.Arrange(finalRect);
+      }
     }
+    public override void Measure(SizeF availableSize)
+    {
+      base.Measure(availableSize);
+      if (_content != null)
+      {
+        _content.Measure(availableSize);
+      }
+    }
+    #endregion
 
+    #region rendering
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -264,7 +284,7 @@ namespace SkinEngine.Controls.Visuals
       }
 
       ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
-      m.Matrix=Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       if (Background != null)
       {
@@ -289,9 +309,179 @@ namespace SkinEngine.Controls.Visuals
       }
       SkinContext.RemoveTransform();
 
+
+      if (_content != null)
+      {
+        _content.DoRender();
+      }
       _lastTimeUsed = SkinContext.Now;
     }
 
+    public override void Animate()
+    {
+      base.Animate();
+      if (_content != null)
+      {
+        _content.Animate();
+      }
+    }
+    #endregion
+
+    #region rendering
+    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
+    {
+      base.OnKeyPressed(ref key);
+      if (_content != null)
+      {
+        _content.OnKeyPressed(ref key);
+      }
+    }
+    public override void OnMouseMove(float x, float y)
+    {
+      base.OnMouseMove(x, y);
+      if (_content != null)
+      {
+        _content.OnMouseMove(x, y);
+      }
+    }
+    public override void Reset()
+    {
+      base.Reset();
+      if (_content != null)
+      {
+        _content.Reset();
+      }
+    }
+    #endregion
+
+
+    #region findXXX methods
+    /// <summary>
+    /// Fires an event.
+    /// </summary>
+    /// <param name="eventName">Name of the event.</param>
+    public override void FireEvent(string eventName)
+    {
+      if (_content != null)
+      {
+        _content.FireEvent(eventName);
+      }
+      base.FireEvent(eventName);
+    }
+
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public override UIElement FindElement(string name)
+    {
+      if (_content != null)
+      {
+        UIElement o = _content.FindElement(name);
+        if (o != null) return o;
+      }
+      return base.FindElement(name);
+    }
+
+    public override UIElement FindElementType(Type t)
+    {
+      if (_content != null)
+      {
+        UIElement o = _content.FindElementType(t);
+        if (o != null) return o;
+      }
+      return base.FindElementType(t);
+    }
+
+    public override UIElement FindItemsHost()
+    {
+      if (_content != null)
+      {
+        UIElement o = _content.FindItemsHost();
+        if (o != null) return o;
+      }
+      return base.FindItemsHost(); ;
+    }
+
+    /// <summary>
+    /// Finds the focused item.
+    /// </summary>
+    /// <returns></returns>
+    public override UIElement FindFocusedItem()
+    {
+      if (HasFocus) return this;
+      if (_content != null)
+      {
+        UIElement o = _content.FindFocusedItem();
+        if (o != null) return o;
+      }
+      return null;
+    }
+    #endregion
+
+    #region focus prediction
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position above this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (_content == null) return null;
+      FrameworkElement element = ((FrameworkElement)_content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      if (element != null) return element;
+      return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position below this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (_content == null) return null;
+      FrameworkElement element = ((FrameworkElement)_content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      if (element != null) return element;
+      return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (_content == null) return null;
+      FrameworkElement element = ((FrameworkElement)_content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      if (element != null) return element;
+      return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+    }
+
+    /// <summary>
+    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
+    /// </summary>
+    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
+    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <returns></returns>
+    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    {
+      if (_content == null) return null;
+      FrameworkElement element = ((FrameworkElement)_content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      if (element != null) return element;
+      return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+    }
+
+
+    #endregion
+
+    #region layouting
     /// <summary>
     /// Performs the layout.
     /// </summary>
@@ -350,8 +540,6 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
-
-
 
 
     #region Get the desired Rounded Rectangle path.
@@ -497,6 +685,16 @@ namespace SkinEngine.Controls.Visuals
     }
 
     #endregion
+    #endregion
 
+    #region IAddChild Members
+
+    public void AddChild(object o)
+    {
+      _content = (FrameworkElement)o;
+      _content.VisualParent = this;
+    }
+
+    #endregion
   }
 }

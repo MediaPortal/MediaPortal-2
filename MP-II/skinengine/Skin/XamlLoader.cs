@@ -147,7 +147,7 @@ namespace SkinEngine.Skin
     {
       if (obj is IBindingCollection)
       {
-        Visual element = (Visual)obj;;
+        Visual element = (Visual)obj; ;
         TemplateBinding b = new TemplateBinding();
         b.Expression = bindingExpression;
         b.PropertyInfo = info;
@@ -200,7 +200,15 @@ namespace SkinEngine.Skin
       }
       if (_lastElement != null)
       {
-        object result = _lastElement.FindResource(resourceName);
+        object result;
+        UIElement element = _lastElement;
+        do
+        {
+          result = element.FindResource(resourceName);
+          if (result != null) break;
+          element = element.VisualParent;
+        } while (element != null);
+        
         ICloneable clone = result as ICloneable;
         if (clone != null)
         {
@@ -229,6 +237,7 @@ namespace SkinEngine.Skin
           }
         }
       }
+      ServiceScope.Get<ILogger>().Error("Resource:{0} not found", resourceName);
       return null;
     }
 
@@ -452,6 +461,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ContentPresenter")
         return true;
+      else if (name == "ScrollContentPresenter")
+        return true;
       else if (name == "ScrollViewer")
         return true;
       else if (name == "Resources")
@@ -468,7 +479,7 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ItemsPresenter")
         return true;
-        
+
 
       //brushes
       else if (name == "SolidColorBrush")
@@ -537,6 +548,9 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "ControlTemplate")
         return true;
+      else if (name == "ItemsPanelTemplate")
+        return true;
+
       else if (name == "CommandGroup")
         return true;
       else if (name == "InvokeCommand")
@@ -587,7 +601,7 @@ namespace SkinEngine.Skin
       //visuals
       else if (name == "Border")
       {
-        _lastElement = new ContentControl();
+        _lastElement = new Border();
         return _lastElement;
       }
       else if (name == "Image")
@@ -643,6 +657,11 @@ namespace SkinEngine.Skin
       else if (name == "ContentPresenter")
       {
         _lastElement = new SkinEngine.Controls.Visuals.ContentPresenter();
+        return _lastElement;
+      }
+      else if (name == "ScrollContentPresenter")
+      {
+        _lastElement = new SkinEngine.Controls.Visuals.ScrollContentPresenter();
         return _lastElement;
       }
       else if (name == "ProgressBar")
@@ -752,6 +771,8 @@ namespace SkinEngine.Skin
         return new SkinEngine.Controls.Visuals.Styles.Setter();
       else if (name == "ControlTemplate")
         return new SkinEngine.Controls.Visuals.Styles.ControlTemplate();
+      else if (name == "ItemsPanelTemplate")
+        return new SkinEngine.Controls.Visuals.ItemsPanelTemplate();
       else if (name == "CommandGroup")
         return new SkinEngine.Controls.Bindings.CommandGroup();
       else if (name == "InvokeCommand")

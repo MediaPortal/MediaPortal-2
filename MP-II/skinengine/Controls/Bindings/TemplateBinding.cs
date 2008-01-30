@@ -73,9 +73,9 @@ namespace SkinEngine.Controls.Bindings
     public override void Initialize(object bindingDestinationObject)
     {
       Visual visual = bindingDestinationObject as Visual;
-      while (visual.VisualParent != null && !(visual is ControlTemplate))
+      while (visual.VisualParent != null && !(visual is SkinEngine.Controls.Visuals.Control))
         visual = visual.VisualParent;
-      visual = visual.VisualParent;
+      //visual = visual.VisualParent;
 
       object bindingSourceProperty = GetBindingSourceObject((UIElement)visual, Expression);
       if (bindingSourceProperty == null)

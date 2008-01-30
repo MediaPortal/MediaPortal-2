@@ -243,6 +243,10 @@ namespace SkinEngine.Controls.Visuals
         return _resources;
       }
     }
+    public void SetResources(ResourceDictionary resources)
+    {
+      _resources = resources;
+    }
 
     public ExtendedMatrix FinalLayoutTransform
     {
@@ -1389,7 +1393,10 @@ namespace SkinEngine.Controls.Visuals
     public virtual void OnKeyPressed(ref Key key)
     {
     }
-
+    public virtual bool ReplaceElementType(Type t, UIElement newElement)
+    {
+      return false;
+    }
     /// <summary>
     /// Find the element with name
     /// </summary>

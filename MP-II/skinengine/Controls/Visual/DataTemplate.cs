@@ -29,132 +29,50 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
+using SkinEngine.Controls.Visuals.Triggers;
 
 using SkinEngine;
 
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class DataTemplate : FrameworkElement, IList
+  public class DataTemplate : FrameworkTemplate
   {
-    Property _visualTree;
+    Property _triggerProperty;
+
+    #region ctor
+    /// <summary>
+    /// pecifies the visual structure and behavioral aspects of a Control that can be shared across multiple instances of the control.
+    /// </summary>
     public DataTemplate()
     {
       Init();
     }
-
-    public DataTemplate(DataTemplate template)
-      : base(template)
+    public DataTemplate(DataTemplate ct)
+      : base(ct)
     {
       Init();
-      if (template.VisualTree != null)
-        VisualTree = template.VisualTree;
+      foreach (Trigger t in ct.Triggers)
+      {
+        Triggers.Add((Trigger)t.Clone());
+      }
+    }
+    void Init()
+    {
+      _triggerProperty = new Property(new TriggerCollection());
     }
 
     public override object Clone()
     {
       return new DataTemplate(this);
     }
+    #endregion
 
-    void Init()
-    {
-      _visualTree = new Property(null);
-    }
-
+    #region properties
     /// <summary>
-    /// Gets or sets the visual tree property.
+    /// Gets or sets the type of the target (not used here, but required for real xaml)
     /// </summary>
-    /// <value>The visual tree property.</value>
-    public Property VisualTreeProperty
-    {
-      get
-      {
-        return _visualTree;
-      }
-      set
-      {
-        _visualTree = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the visual tree.
-    /// </summary>
-    /// <value>The visual tree.</value>
-    public FrameworkElement VisualTree
-    {
-      get
-      {
-        return _visualTree.GetValue() as FrameworkElement;
-      }
-      set
-      {
-        _visualTree.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public override UIElement FindElement(string name)
-    {
-      if (VisualTree != null)
-      {
-        UIElement element = VisualTree.FindElement(name);
-        if (element != null) return element;
-      }
-      return base.FindElement(name);
-    }
-
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
-    public override UIElement FindElementType(Type t)
-    {
-      if (VisualTree != null)
-      {
-        UIElement element = VisualTree.FindElementType(t);
-        if (element != null) return element;
-      }
-      return base.FindElementType(t);
-    }
-
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
-    public override UIElement FindItemsHost()
-    {
-      if (VisualTree != null)
-      {
-        UIElement element = VisualTree.FindItemsHost();
-        if (element != null) return element;
-      }
-      return base.FindItemsHost();
-    }
-
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
-    public override UIElement FindFocusedItem()
-    {
-      if (HasFocus) return this;
-      if (VisualTree != null)
-      {
-        UIElement element = VisualTree.FindFocusedItem();
-        return element;
-      }
-      return null;
-    }
-
-    /// <summary>
-    /// Gets or sets the type of the data. (not used in our xaml engine)
-    /// </summary>
-    /// <value>The type of the data.</value>
+    /// <value>The type of the target.</value>
     public string DataType
     {
       get
@@ -166,98 +84,34 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    #region IList Members
-
-    public int Add(object value)
-    {
-      VisualTree = (FrameworkElement)value;
-      return 1;
-    }
-
-    public void Clear()
-    {
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
+    /// <summary>
+    /// Gets or sets the triggers property.
+    /// </summary>
+    /// <value>The triggers property.</value>
+    public Property TriggersProperty
     {
       get
       {
-        throw new Exception("The method or operation is not implemented.");
+        return _triggerProperty;
       }
       set
       {
-        throw new Exception("The method or operation is not implemented.");
+        _triggerProperty = value;
       }
     }
 
+    /// <summary>
+    /// Gets or sets the triggers.
+    /// </summary>
+    /// <value>The triggers.</value>
+    public TriggerCollection Triggers
+    {
+      get
+      {
+        return (TriggerCollection)_triggerProperty.GetValue();
+      }
+    }
     #endregion
 
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    #endregion
   }
 }

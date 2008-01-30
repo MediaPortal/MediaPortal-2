@@ -21,47 +21,36 @@
 */
 
 #endregion
+
 using System;
-using System.Reflection;
+using System.Drawing;
 using System.Diagnostics;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.Properties;
-using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
 
-using SkinEngine;
-using SkinEngine.Controls.Panels;
-using SkinEngine.Controls.Bindings;
-using SkinEngine.Controls.Visuals.Styles;
 
 namespace SkinEngine.Controls.Visuals
 {
-  /// <summary>
-  /// Used within the template of an item control to specify the place in the control’s visual tree 
-  /// where the ItemsPanel defined by the ItemsControl is to be added.
-  /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemspresenter.aspx
-  /// </summary>
-  public class ItemsPresenter : Control
+  public class ScrollContentPresenter : ContentPresenter
   {
-    public ItemsPresenter()
+    public ScrollContentPresenter()
     {
-    }
-    public ItemsPresenter(ItemsPresenter p)
-      :base(p)
-    {
-    }
-    public override object Clone()
-    {
-      return new ItemsPresenter(this);
+      Init();
     }
 
-    public void ApplyTemplate(FrameworkTemplate template)
+    public ScrollContentPresenter(ScrollContentPresenter c)
+      : base(c)
     {
-      ControlTemplate ct = new ControlTemplate();
-      ct.AddChild(template.LoadContent());
-      this.Template = ct;
+      Init();
+    }
+
+    public override object Clone()
+    {
+      return new ScrollContentPresenter(this);
+    }
+
+    void Init()
+    {
     }
   }
 }

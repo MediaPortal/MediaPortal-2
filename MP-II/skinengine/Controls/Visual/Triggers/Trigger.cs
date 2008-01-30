@@ -153,7 +153,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       if (String.IsNullOrEmpty(Property))
       {
         return;
-      }
+      }/*
       if (element.VisualParent is ContentPresenter)
       {
         element = element.VisualParent;
@@ -166,7 +166,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       if (element as ControlTemplate != null)
       {
         element = element.VisualParent;
-      }
+      }*/
       _element = element;
       Type t = element.GetType();
       PropertyInfo pinfo = t.GetProperty(Property + "Property");

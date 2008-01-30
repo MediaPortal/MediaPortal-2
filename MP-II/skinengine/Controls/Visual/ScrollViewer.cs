@@ -32,6 +32,7 @@ using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SlimDX;
 using SlimDX.Direct3D9;
+using SkinEngine.Controls.Panels;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -68,86 +69,6 @@ namespace SkinEngine.Controls.Visuals
     {
     }
 
-    /// <summary>
-    /// Does the render.
-    /// </summary>
-    public override void DoRender()
-    {
-      //GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-      float x = (int)ActualPosition.X;
-      float y = (int)ActualPosition.Y;
-      float w = (int)ActualWidth;
-      float h = (int)ActualHeight;
-      x *= (((float)GraphicsDevice.Width) / ((float)SkinContext.Width));
-      w *= (((float)GraphicsDevice.Width) / ((float)SkinContext.Width));
-
-      y *= (((float)GraphicsDevice.Height) / ((float)SkinContext.Height));
-      h *= (((float)GraphicsDevice.Height) / ((float)SkinContext.Height));
-      if (x + w > (float)GraphicsDevice.Width)
-      {
-        w = (float)GraphicsDevice.Width - x;
-      }
-      if (y + h > (float)GraphicsDevice.Height)
-      {
-        h = (float)GraphicsDevice.Height - y;
-      }
-    //  GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
-      if (Content != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(m);
-        Content.DoRender();
-        SkinContext.RemoveTransform();
-      }
-   //   GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
-    }
-
-    /// <summary>
-    /// Measures the specified available size.
-    /// </summary>
-    /// <param name="availableSize">Size of the available.</param>
-    public override void Measure(System.Drawing.SizeF availableSize)
-    {
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
-      if (Height <= 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      if (Content != null)
-      {
-        Content.Measure(_desiredSize);
-        if (_desiredSize.Width < (availableSize.Width - (marginWidth)))
-          _desiredSize.Width = Content.DesiredSize.Width;
-        if (_desiredSize.Height < (availableSize.Height - (marginHeight)))
-          _desiredSize.Height = Content.DesiredSize.Height;
-      }
-      if (Width > 0)
-        _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0)
-        _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
-
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
-
-
-      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
-    }
 
     /// <summary>
     /// Handles keypresses
@@ -230,14 +151,14 @@ namespace SkinEngine.Controls.Visuals
 
     void OnHome(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return;
       info.Home();
       OnMouseMove((float)(Content.ActualPosition.X), (float)(Content.ActualPosition.Y));
     }
     void OnEnd(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return;
       info.End();
       OnMouseMove((float)(Content.ActualPosition.X), (float)(Content.ActualPosition.Y + Content.ActualHeight - info.LineHeight));
@@ -245,7 +166,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnPageDown(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (info.PageDown())
       {
@@ -257,7 +178,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnPageUp(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (info.PageUp())
       {
@@ -269,7 +190,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnLeft(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (x - info.LineWidth < Content.ActualPosition.X)
       {
@@ -284,7 +205,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnRight(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (x + (info.LineWidth * 2) >= Content.ActualPosition.X + Content.ActualWidth)
       {
@@ -299,7 +220,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnDown(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (y + (info.LineHeight * 2) >= Content.ActualPosition.Y + Content.ActualHeight)
       {
@@ -314,7 +235,7 @@ namespace SkinEngine.Controls.Visuals
 
     bool OnUp(float x, float y)
     {
-      IScrollInfo info = Content as IScrollInfo;
+      IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
       if (y <= Content.ActualPosition.Y)
       {
@@ -327,6 +248,18 @@ namespace SkinEngine.Controls.Visuals
       return false;
     }
 
+    public override void DoRender()
+    {
+      base.DoRender();
+    }
 
+    IScrollInfo GetScrollInfo()
+    {
+      IScrollInfo info = Content as IScrollInfo;
+      if (info != null) return info;
+      UIElement element = Content.FindItemsHost();
+      info = element as IScrollInfo;
+      return info;
+    }
   }
 }
