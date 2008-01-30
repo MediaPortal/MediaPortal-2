@@ -327,7 +327,7 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
-    #region rendering
+    #region input handling
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
       base.OnKeyPressed(ref key);
