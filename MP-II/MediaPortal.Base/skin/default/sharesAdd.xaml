@@ -25,7 +25,7 @@
         <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SharesAddMainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>
-      <TreeView Width="480" Height="476" Margin="10,0,10,0" ItemsSource="model.Folders" Style="{StaticResource MpTreeView}"/>
+      <TreeView Background="Yellow" Width="480" Height="476" Margin="10,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}" Command="{Binding GetSubItems}" CommandParameter="{Binding Path=this.CurrentItem}"/>
     </DockPanel>
   </Canvas>
 </MyXaml>

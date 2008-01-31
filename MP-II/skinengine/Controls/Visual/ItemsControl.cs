@@ -409,40 +409,73 @@ namespace SkinEngine.Controls.Visuals
           break;
         }
       }
-
+      if (this is TreeViewItem)
+      {
+      }
 
       int index = 0;
-      FrameworkElement focusedContainer=null;
+      FrameworkElement focusedContainer = null;
       UIElementCollection children = new UIElementCollection(null);
       IEnumerator enumer = ItemsSource.GetEnumerator();
       while (enumer.MoveNext())
       {
-        FrameworkElement container = ItemContainerStyle.Get();
-        container.VisualParent = _itemsHostPanel;
-        container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
-        FrameworkElement newItem = (FrameworkElement)ItemTemplate.LoadContent();
-        newItem.VisualParent = container;
-        newItem.Context = enumer.Current;
-        container.Context = enumer.Current;
-        if (enumer.Current is ListItem)
+        if (this is ListView)
         {
-          if (((ListItem)enumer.Current).Selected)
+          ListViewItem container = new ListViewItem();
+          container.Context = enumer.Current;
+          container.Style = ItemContainerStyle;
+          container.ContentTemplate = ItemTemplate;
+          container.ContentTemplateSelector = ItemTemplateSelector;
+          container.Content = (FrameworkElement) ItemTemplate.LoadContent();
+          container.VisualParent = _itemsHostPanel;
+          container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          if (enumer.Current is ListItem)
           {
-            focusedContainer = container;
+            if (((ListItem)enumer.Current).Selected)
+            {
+              focusedContainer = container;
+            }
           }
+          children.Add(container);
         }
-        ContentPresenter cpresenter = container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-        if (cpresenter != null)
+        else
         {
-          cpresenter.Content = newItem;
+          TreeViewItem container = new TreeViewItem();
+          container.Context = enumer.Current;
+          container.Style = ItemContainerStyle;
+          container.ItemContainerStyle = ItemContainerStyle;
+          container.ItemContainerStyleSelector = ItemContainerStyleSelector;
+          container.ItemTemplate = ItemTemplate;
+          container.ItemTemplateSelector = ItemTemplateSelector;
+          container.ItemsPanel = ItemsPanel;
+          if (enumer.Current is ListItem)
+          {
+            ListItem listItem = (ListItem)enumer.Current;
+            container.ItemsSource = listItem.SubItems;
+          }
+          FrameworkElement element= ItemContainerStyle.Get();
+          element.Context = enumer.Current;
+          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+          headerContentPresenter.Content = (FrameworkElement)ItemTemplate.LoadContent();
+          container.Header = (FrameworkElement)element;
+          container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          //if (index > 2) break;
+
+          if (enumer.Current is ListItem)
+          {
+            if (((ListItem)enumer.Current).Selected)
+            {
+              focusedContainer = container;
+            }
+          }
+          children.Add(container);
         }
-        children.Add(container);
       }
       children.SetParent(_itemsHostPanel);
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
-      
+
       if (focusedItem != null)
       {
         IScrollInfo info = _itemsHostPanel as IScrollInfo;
@@ -469,7 +502,7 @@ namespace SkinEngine.Controls.Visuals
       else if (focusedContainer != null)
       {
         _itemsHostPanel.UpdateLayout();
-        focusedContainer.HasFocus = true;
+        focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X,(float)focusedContainer.ActualPosition.Y);
       }
 
       return true;

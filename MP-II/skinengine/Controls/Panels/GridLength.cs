@@ -124,11 +124,51 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     /// <param name="totalLength">The total length.</param>
     /// <returns></returns>
-    public double GetLength(double totalLength, int maxItems, float scale)
+    public double GetLength(double totalLength,  ColumnDefinitionsCollection collection, float scale)
     {
       if (IsAbsolute) return _value * scale;
       if (IsStar) return ((_value / 100.0) * totalLength);
-      return totalLength / maxItems;
+      double lenLeft=totalLength;
+      int countLeft=0;
+      for (int i = 0; i < collection.Count; ++i)
+      {
+        ColumnDefinition def = (ColumnDefinition)collection[i];
+        if (def.Width.IsAbsolute)
+        {
+          lenLeft -= (def.Width.Value * scale);
+        }
+        else if (def.Width.IsStar)
+        {
+          lenLeft -=  ((_value / 100.0) * totalLength);
+        }
+        else countLeft++;
+      }
+      if (lenLeft <= 0) return 0.0;
+      return (lenLeft/ ((double)countLeft));
+    }
+
+    
+    public double GetLength(double totalLength,  RowDefinitionsCollection collection, float scale)
+    {
+      if (IsAbsolute) return _value * scale;
+      if (IsStar) return ((_value / 100.0) * totalLength);
+      double lenLeft=totalLength;
+      int countLeft=0;
+      for (int i = 0; i < collection.Count; ++i)
+      {
+        RowDefinition def = (RowDefinition)collection[i];
+        if (def.Height.IsAbsolute)
+        {
+          lenLeft -= (def.Height.Value * scale);
+        }
+        else if (def.Height.IsStar)
+        {
+          lenLeft -=  ((_value / 100.0) * totalLength);
+        }
+        else countLeft++;
+      }
+      if (lenLeft <= 0) return 0.0;
+      return (lenLeft/ ((double)countLeft));
     }
   }
 }

@@ -210,7 +210,13 @@ namespace SkinEngine.Controls.Visuals.Styles
       {
         if (setter.Property == "Template")
         {
-          FrameworkElement source = (FrameworkElement)setter.Value;
+          FrameworkElement source;
+          if (setter.Value is FrameworkTemplate)
+          {
+            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
+          }
+          else
+            source = (FrameworkElement)setter.Value;
           FrameworkElement element = (FrameworkElement)source.Clone();
 
           foreach (Setter setter2 in _setters)

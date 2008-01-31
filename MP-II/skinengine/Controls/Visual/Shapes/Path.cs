@@ -155,7 +155,8 @@ namespace SkinEngine.Controls.Visuals
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
+      if (_finalLayoutTransform != null)
+        m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
         ExtendedMatrix em;
@@ -207,7 +208,7 @@ namespace SkinEngine.Controls.Visuals
             if (direction == PolygonDirection.Count_Clockwise)
               mode = WidthMode.LeftHanded;
             if (_fillDisabled)
-              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness/2.0), isClosed, out verts);
+              _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts);
             else
               _vertexBufferBorder = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
             if (_vertexBufferBorder != null)

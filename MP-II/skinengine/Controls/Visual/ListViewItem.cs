@@ -37,38 +37,32 @@ using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
 {
-  /// <summary>
-  /// Used within the template of an item control to specify the place in the control’s visual tree 
-  /// where the ItemsPanel defined by the ItemsControl is to be added.
-  /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemspresenter.aspx
-  /// </summary>
-  public class ItemsPresenter : Control
+  public class ListViewItem : ContentControl
   {
-    
-    public ItemsPresenter()
+    #region ctor
+    public ListViewItem()
     {
-    }
-    public ItemsPresenter(ItemsPresenter p)
-      :base(p)
-    {
-    }
-    public override object Clone()
-    {
-      return new ItemsPresenter(this);
+      Init();
     }
 
-    public void ApplyTemplate(FrameworkTemplate template)
+    public ListViewItem(ListViewItem b)
+      : base(b)
     {
-      ControlTemplate ct = new ControlTemplate();
-      ct.AddChild(template.LoadContent());
-      this.Template = ct;
+      Init();
     }
-    public void SetControlTemplate(ControlTemplate template)
+
+    public override object Clone()
+    {
+      return new ListViewItem(this);
+    }
+
+    void Init()
     {
     }
-    public override void Measure(System.Drawing.SizeF availableSize)
+    #endregion
+    public override void DoRender()
     {
-      base.Measure(availableSize);
+      base.DoRender();
     }
   }
 }

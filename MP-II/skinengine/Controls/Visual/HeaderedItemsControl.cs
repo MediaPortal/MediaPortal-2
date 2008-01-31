@@ -46,7 +46,8 @@ namespace SkinEngine.Controls.Visuals
     private Property _headerProperty;
     private Property _headerTemplateProperty;
     private Property _headerTemplateSelectorProperty;
-    bool _isExpanded;
+    SizeF _baseDesiredSize;
+    bool _wasExpanded = false;
 
     public HeaderedItemsControl()
     {
@@ -193,11 +194,23 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _isExpanded;
-      }
-      set
-      {
-        _isExpanded = value;
+        if (Header == null)
+        {
+          _wasExpanded = false;
+          return false;
+        }
+        CheckBox expander = Header.FindElement("Expander") as CheckBox;
+        if (Header == null)
+        {
+          _wasExpanded = false;
+          return false;
+        }
+        if (_wasExpanded != expander.IsChecked)
+        {
+          Invalidate();
+        }
+        _wasExpanded = expander.IsChecked;
+        return _wasExpanded;
       }
     }
 
@@ -213,14 +226,19 @@ namespace SkinEngine.Controls.Visuals
         if (!IsExpanded)
         {
           _desiredSize = Header.DesiredSize;
+          _originalSize = _desiredSize;
+          _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
           return;
         }
       }
       base.Measure(availableSize);
+      _baseDesiredSize = _desiredSize;
       if (Header != null)
       {
         _desiredSize.Height += Header.DesiredSize.Height;
       }
+      _originalSize = _desiredSize;
+      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
     }
     /// <summary>
     /// Arranges the UI element
@@ -229,23 +247,42 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualWidth, (float)ActualHeight);
-
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
       layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
       layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
+      ActualWidth = layoutRect.Width;
+      ActualHeight = layoutRect.Height;
       PointF p = layoutRect.Location;
 
       if (Header != null)
       {
         //ArrangeChild(Header, ref p, layoutRect.Width, layoutRect.Height);
         Header.Arrange(new RectangleF(p, Header.DesiredSize));
+        if (!IsExpanded)
+        {
+
+          _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+          IsArrangeValid = true;
+          InitializeBindings();
+          InitializeTriggers();
+          _isLayoutInvalid = false;
+          if (!finalRect.IsEmpty)
+          {
+            if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+              _performLayout = true;
+            _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+          }
+          return;
+        }
         p.Y += Header.DesiredSize.Height;
+
       }
       if (IsExpanded)
       {
-        base.Arrange(new RectangleF(p, base.DesiredSize));
+        base.Arrange(new RectangleF(p, _baseDesiredSize));
       }
     }
     protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
@@ -281,7 +318,7 @@ namespace SkinEngine.Controls.Visuals
         ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
         SkinContext.AddTransform(em);
         Header.DoRender();
-       
+
         SkinContext.RemoveTransform();
       }
       if (IsExpanded)
@@ -394,7 +431,6 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
-      if (HasFocus) return this;
 
       if (Header != null)
       {
@@ -402,8 +438,9 @@ namespace SkinEngine.Controls.Visuals
         if (found != null) return found;
       }
       if (!IsExpanded) return null;
-      return base.FindFocusedItem(); 
+      return base.FindFocusedItem();
     }
+
     public override void Reset()
     {
       if (Header != null)

@@ -289,7 +289,8 @@ namespace SkinEngine.Controls.Panels
         System.Drawing.SizeF rectSize = new System.Drawing.SizeF((float)w, (float)h);
 
         ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix *= _finalLayoutTransform.Matrix;
+        if (_finalLayoutTransform != null)
+          m.Matrix *= _finalLayoutTransform.Matrix;
         if (LayoutTransform != null)
         {
           ExtendedMatrix em;
@@ -443,15 +444,15 @@ namespace SkinEngine.Controls.Panels
 
     public override bool ReplaceElementType(Type t, UIElement newElement)
     {
-      for (int i=0; i < Children.Count;++i)
+      for (int i = 0; i < Children.Count; ++i)
       {
         if (Children[i].GetType() == t)
         {
           Children[i] = newElement;
           Children[i].VisualParent = this;
-          return true ;
+          return true;
         }
-      } 
+      }
       foreach (UIElement element in Children)
       {
         if (element.ReplaceElementType(t, newElement)) return true;

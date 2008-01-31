@@ -1901,7 +1901,9 @@
     <Style Key="itemListContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
-          <Button Height="46"  Style="{StaticResource MpButton}"/>
+          <ControlTemplate>
+            <Button Height="46"  Style="{StaticResource MpButton}"/>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
@@ -1971,11 +1973,13 @@
     <Style Key="itemPlayListContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
-          <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource MpButton}" Height="46" Width="360"/>
-            <Button Style="{StaticResource MpArrowButtonDown}" Command="{Binding PlayList:PlayList.MoveDown}"  Height="46" Width="46"  />
-            <Button Style="{StaticResource MpArrowButtonUp}" Command="{Binding PlayList:PlayList.MoveUp}" Height="46" Width="46"  />
-          </StackPanel>
+          <ControlTemplate>
+            <StackPanel Orientation="Horizontal">
+              <Button Style="{StaticResource MpButton}" Height="46" Width="360"/>
+              <Button Style="{StaticResource MpArrowButtonDown}" Command="{Binding PlayList:PlayList.MoveDown}"  Height="46" Width="46"  />
+              <Button Style="{StaticResource MpArrowButtonUp}" Command="{Binding PlayList:PlayList.MoveUp}" Height="46" Width="46"  />
+            </StackPanel>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
@@ -2044,7 +2048,9 @@
     <Style Key="itemMenuContainerStyle">
       <Setter Property="Template">
         <Setter.Value>
-          <Button Height="32"  Style="{StaticResource MpButton}"/>
+          <ControlTemplate>
+            <Button Height="32"  Style="{StaticResource MpButton}"/>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
@@ -2053,6 +2059,7 @@
         <Label Name="lbl1" Margin="10,4,0,0" Text="{Binding Name}" Font="font13"/>
       </Grid>
     </DataTemplate>
+
     <Style Key="MpListViewMenu" TargetType="ListBox">
       <Setter Property="SnapsToDevicePixels" Value="true"/>
       <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -2091,7 +2098,7 @@
     <!-- data template for a dialog menu item in list mode-->
     <DataTemplate Key="TreeItemTemplate" DataType="{Type local:DialogMenuItem}">
       <Grid Background="Orange">
-        <Label Name="lbl11" Height="32" Text="hallodaar" Font="font13"/>
+        <Label Name="lbl11" Height="32" Text="{Binding Name}" Font="font13"/>
         <Grid.Triggers>
           <Trigger Property="HasFocus" Value="True">
             <Setter TargetName="lbl11" Property="Scroll" Value="True" />
@@ -2102,20 +2109,23 @@
     <Style Key="TreeItemContainerStyle" TargetType="{Type TreeViewItem}">
       <Setter Property="Template">
         <Setter.Value>
-          <Grid Background="Red" >
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="32"/>
-              <ColumnDefinition Width="32"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="32"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <CheckBox Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" Background="White"/>
-            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}"/>
-            <ContentPresenter Grid.Column="2" Grid.Row="1"  />
-          </Grid>
+          <ControlTemplate TargetType="TreeViewItem">
+            <Grid Background="Red" HorizontalAlignment="Left" VerticalAlignment="Top">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <CheckBox Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" Background="White" VerticalAlignment="Top"/>
+              <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}" VerticalAlignment="Top"/>
+              <ContentPresenter Grid.Column="2" Grid.Row="0"  HorizontalAlignment="Left" VerticalAlignment="Top"/>
+              <ItemsPresenter  Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </Grid>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
@@ -2139,12 +2149,17 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="TreeView" Background="Green">
-            <ScrollViewer>
-              <ItemsPresenter/>
-              <StackPanel  IsItemsHost="True" VerticalAlignment="Top"  Background="Yellow">
-              </StackPanel>
+            <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+              <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </ScrollViewer>
           </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="ItemsPanel">
+        <Setter.Value>
+          <ItemsPanelTemplate TargetType="TreeView">
+            <StackPanel  IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>
     </Style>

@@ -170,8 +170,8 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        double widthPerCell = ((ColumnDefinition)(ColumnDefinitions[col])).Width.GetLength(w, ColumnDefinitions.Count, SkinContext.Zoom.Width);
-        double heightPerCell = ((RowDefinition)(RowDefinitions[row])).Height.GetLength(h, RowDefinitions.Count, SkinContext.Zoom.Height);
+        double widthPerCell = ((ColumnDefinition)(ColumnDefinitions[col])).Width.GetLength(w, ColumnDefinitions, SkinContext.Zoom.Width);
+        double heightPerCell = ((RowDefinition)(RowDefinitions[row])).Height.GetLength(h, RowDefinitions, SkinContext.Zoom.Height);
         widthPerCell *= child.ColumnSpan;
         heightPerCell *= child.RowSpan;
 
@@ -223,7 +223,7 @@ namespace SkinEngine.Controls.Panels
       _desiredSize.Height = (float)totalHeight;
 
       if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) _desiredSize.Height = (float)Height* SkinContext.Zoom.Height;
+      if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
 
 
       if (LayoutTransform != null)
@@ -277,13 +277,13 @@ namespace SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
         PointF p = new PointF((float)(this.ActualPosition.X + _colOffset[col]), (float)(this.ActualPosition.Y + _rowOffset[row]));
-        if (child.Name == "lbl11")
+        if (child is Visuals.CheckBox)
         {
         }
         float ww = (float)_colWidth[col];
-        if (ww < w) ww = w;
+        //if (ww < w) ww = w;
         float hh = (float)_rowHeight[row];
-        if (hh < h) hh = h;
+        //if (hh < h) hh = h;
         ArrangeChild(child, ref p, (ww * child.ColumnSpan), (hh * child.RowSpan));
 
         child.Arrange(new RectangleF(p, child.DesiredSize));
