@@ -259,15 +259,47 @@ namespace SkinEngine.Controls.Visuals
       }
       if (_content != null)
       {
-        _content.Arrange(finalRect);
+        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
+        ArrangeContent(_content, ref location, layoutRect.Size);
+        _content.Arrange(new RectangleF(location, _content.DesiredSize));
       }
     }
+
+    protected virtual void ArrangeContent(FrameworkElement child, ref System.Drawing.PointF p, SizeF s)
+    {
+      if (VisualParent == null) return;
+
+      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      {
+        if (s.Width > 0)
+          p.X += ((s.Width - child.DesiredSize.Width) / 2);
+      }
+      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      {
+        if (s.Width > 0)
+          p.X += (s.Width - child.DesiredSize.Width);
+      }
+      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        if (s.Height > 0)
+          p.Y += ((s.Height - child.DesiredSize.Height) / 2);
+      }
+      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+      {
+        if (s.Height > 0)
+          p.Y += (s.Height - child.DesiredSize.Height);
+      }
+    }
+
     public override void Measure(SizeF availableSize)
     {
       base.Measure(availableSize);
       if (_content != null)
       {
-        _content.Measure(availableSize);
+        float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
+        float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+        SizeF size = new SizeF(_desiredSize.Width - marginWidth, _desiredSize.Height - marginHeight);
+        _content.Measure(size);
       }
     }
     #endregion
