@@ -410,6 +410,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
+
       int index = 0;
       FrameworkElement focusedContainer=null;
       UIElementCollection children = new UIElementCollection(null);
@@ -460,8 +461,8 @@ namespace SkinEngine.Controls.Visuals
         }
         else
         {
-          float x = (float)_itemsHostPanel.Children[focusedIndex].ActualPosition.X;
-          float y = (float)_itemsHostPanel.Children[focusedIndex].ActualPosition.Y;
+          float x = (float)focusedItem.ActualPosition.X;
+          float y = (float)focusedItem.ActualPosition.Y;
           _itemsHostPanel.OnMouseMove(x, y);
         }
       }

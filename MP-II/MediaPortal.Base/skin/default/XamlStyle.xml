@@ -1973,8 +1973,8 @@
         <Setter.Value>
           <StackPanel Orientation="Horizontal">
             <Button Style="{StaticResource MpButton}" Height="46" Width="360"/>
-            <Button Style="{StaticResource MpArrowButtonDown}" Height="46" Width="46"  />
-            <Button Style="{StaticResource MpArrowButtonUp}" Height="46" Width="46"  />
+            <Button Style="{StaticResource MpArrowButtonDown}" Command="{Binding PlayList:PlayList.MoveDown}"  Height="46" Width="46"  />
+            <Button Style="{StaticResource MpArrowButtonUp}" Command="{Binding PlayList:PlayList.MoveUp}" Height="46" Width="46"  />
           </StackPanel>
         </Setter.Value>
       </Setter>
