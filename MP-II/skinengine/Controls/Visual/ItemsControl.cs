@@ -411,6 +411,7 @@ namespace SkinEngine.Controls.Visuals
       }
 
       int index = 0;
+      FrameworkElement focusedContainer=null;
       UIElementCollection children = new UIElementCollection(null);
       IEnumerator enumer = ItemsSource.GetEnumerator();
       while (enumer.MoveNext())
@@ -422,6 +423,13 @@ namespace SkinEngine.Controls.Visuals
         newItem.VisualParent = container;
         newItem.Context = enumer.Current;
         container.Context = enumer.Current;
+        if (enumer.Current is ListItem)
+        {
+          if (((ListItem)enumer.Current).Selected)
+          {
+            focusedContainer = container;
+          }
+        }
         ContentPresenter cpresenter = container.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
         if (cpresenter != null)
         {
@@ -456,6 +464,11 @@ namespace SkinEngine.Controls.Visuals
           float y = (float)_itemsHostPanel.Children[focusedIndex].ActualPosition.Y;
           _itemsHostPanel.OnMouseMove(x, y);
         }
+      }
+      else if (focusedContainer != null)
+      {
+        _itemsHostPanel.UpdateLayout();
+        focusedContainer.HasFocus = true;
       }
 
       return true;
