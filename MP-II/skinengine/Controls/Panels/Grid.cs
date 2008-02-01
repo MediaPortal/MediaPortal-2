@@ -38,11 +38,7 @@ namespace SkinEngine.Controls.Panels
     Property _rowDefinitionsProperty;
     Property _columnDefinitionsProperty;
 
-    double[] _colWidth;
-    double[] _rowHeight;
-    double[] _colOffset;
-    double[] _rowOffset;
-
+    #region ctor
     public Grid()
     {
       Init();
@@ -72,7 +68,9 @@ namespace SkinEngine.Controls.Panels
       _rowDefinitionsProperty = new Property(new RowDefinitionsCollection());
       _columnDefinitionsProperty = new Property(new ColumnDefinitionsCollection());
     }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the row definitions property.
     /// </summary>
@@ -128,7 +126,9 @@ namespace SkinEngine.Controls.Panels
         return _columnDefinitionsProperty.GetValue() as ColumnDefinitionsCollection;
       }
     }
+    #endregion
 
+    #region measure & arrange
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -152,15 +152,13 @@ namespace SkinEngine.Controls.Panels
       double w = _desiredSize.Width;
       double h = _desiredSize.Height;
 
-
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
       if (RowDefinitions.Count == 0)
         RowDefinitions.Add(new RowDefinition());
-      _colOffset = new double[ColumnDefinitions.Count];
-      _rowOffset = new double[RowDefinitions.Count];
-      _colWidth = new double[ColumnDefinitions.Count];
-      _rowHeight = new double[RowDefinitions.Count];
+      ColumnDefinitions.SetAvailableSize(w);
+      RowDefinitions.SetAvailableSize(h);
+
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -170,57 +168,16 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        double widthPerCell = ((ColumnDefinition)(ColumnDefinitions[col])).Width.GetLength(w, ColumnDefinitions, SkinContext.Zoom.Width);
-        double heightPerCell = ((RowDefinition)(RowDefinitions[row])).Height.GetLength(h, RowDefinitions, SkinContext.Zoom.Height);
-        widthPerCell *= child.ColumnSpan;
-        heightPerCell *= child.RowSpan;
 
-        child.Measure(new SizeF((float)widthPerCell, (float)heightPerCell));
+        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, child.ColumnSpan), RowDefinitions.GetHeight(row, child.RowSpan)));
 
-        float cw = child.DesiredSize.Width;
-        cw /= ((float)child.ColumnSpan);
-        if (child.DesiredSize.Width > _colWidth[col])
-        {
-          for (int i = 0; i < child.ColumnSpan; ++i)
-            _colWidth[col + i] = cw;
-        }
-
-
-        float ch = child.DesiredSize.Height;
-        ch /= ((float)child.RowSpan);
-        if (child.DesiredSize.Height > _rowHeight[row])
-        {
-          for (int i = 0; i < child.RowSpan; ++i)
-            _rowHeight[row + i] = ch;
-        }
-
-
+        ColumnDefinitions.SetWidth(col, child.ColumnSpan, child.DesiredSize.Width);
+        RowDefinitions.SetHeight(row, child.RowSpan, child.DesiredSize.Height);
       }
-      double totalWidth = 0;
-      double totalHeight = 0;
-      for (int i = 0; i < RowDefinitions.Count; ++i)
-      {
-        _rowOffset[i] = totalHeight;
-        totalHeight += _rowHeight[i];
-      }
-      for (int i = 0; i < ColumnDefinitions.Count; ++i)
-      {
-        _colOffset[i] = totalWidth;
-        totalWidth += _colWidth[i];
-      }
-      foreach (FrameworkElement child in Children)
-      {
-        if (!child.IsVisible) continue;
-        int col = child.Column;
-        int row = child.Row;
-        if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
-        if (col < 0) col = 0;
-        if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
-        if (row < 0) row = 0;
-        child.Measure(new SizeF((float)(_colWidth[col] * child.ColumnSpan), (float)(_rowHeight[row] * child.RowSpan)));
-      }
-      _desiredSize.Width = (float)totalWidth;
-      _desiredSize.Height = (float)totalHeight;
+
+
+      _desiredSize.Width = (float)ColumnDefinitions.TotalWidth;
+      _desiredSize.Height = (float)RowDefinitions.TotalHeight;
 
       if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
       if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
@@ -265,8 +222,6 @@ namespace SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
-      float h = layoutRect.Height; h /= (float)(_rowHeight.Length);
-      float w = layoutRect.Width; w /= (float)(_colWidth.Length);
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
@@ -276,15 +231,11 @@ namespace SkinEngine.Controls.Panels
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
-        PointF p = new PointF((float)(this.ActualPosition.X + _colOffset[col]), (float)(this.ActualPosition.Y + _rowOffset[row]));
-        if (child is Visuals.CheckBox)
-        {
-        }
-        float ww = (float)_colWidth[col];
-        //if (ww < w) ww = w;
-        float hh = (float)_rowHeight[row];
-        //if (hh < h) hh = h;
-        ArrangeChild(child, ref p, (ww * child.ColumnSpan), (hh * child.RowSpan));
+
+        PointF p = new PointF((float)(this.ActualPosition.X + ColumnDefinitions.GetOffset(col)), (float)(this.ActualPosition.Y + RowDefinitions.GetOffset(row)));
+        float w = ColumnDefinitions.GetWidth(col, child.ColumnSpan);
+        float h = RowDefinitions.GetHeight(row, child.RowSpan);
+        ArrangeChild(child, ref p, w, h);
 
         child.Arrange(new RectangleF(p, child.DesiredSize));
       }
@@ -325,6 +276,7 @@ namespace SkinEngine.Controls.Panels
         p.Y += (float)(heightPerCell - child.DesiredSize.Height);
       }
     }
+    #endregion
   }
 }
 

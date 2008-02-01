@@ -362,7 +362,7 @@ namespace SkinEngine.Skin
         string text = e.Value.ToString();
         if (text == "Auto")
         {
-          e.Result = new GridLength();
+          e.Result = new GridLength(GridUnitType.Star,1.0);
         }
         else if (text.IndexOf('*') < 0)
         {
@@ -373,7 +373,7 @@ namespace SkinEngine.Skin
         {
           int pos = text.IndexOf('*');
           text = text.Substring(0, pos);
-          double percent = double.Parse(text);
+          double percent = GetDouble(text);
           e.Result = new GridLength(GridUnitType.Star, percent);
         }
       }
@@ -889,6 +889,23 @@ namespace SkinEngine.Skin
       }
       float f;
       float.TryParse(floatString, out f);
+      return f;
+    }
+    protected double GetDouble(string doubleString)
+    {
+      float test = 12.03f;
+      string comma = test.ToString();
+      bool replaceCommas = (comma.IndexOf(",") >= 0);
+      if (replaceCommas)
+      {
+        doubleString = doubleString.Replace(".", ",");
+      }
+      else
+      {
+        doubleString = doubleString.Replace(",", ".");
+      }
+      double f;
+      double.TryParse(doubleString, out f);
       return f;
     }
 

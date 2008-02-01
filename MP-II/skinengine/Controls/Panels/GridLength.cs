@@ -38,6 +38,7 @@ namespace SkinEngine.Controls.Panels
   {
     GridUnitType _unitType;
     double _value;
+    double _finalValue;
 
     public GridLength(double value)
     {
@@ -147,28 +148,18 @@ namespace SkinEngine.Controls.Panels
       return (lenLeft/ ((double)countLeft));
     }
 
-    
-    public double GetLength(double totalLength,  RowDefinitionsCollection collection, float scale)
+    public double Length
     {
-      if (IsAbsolute) return _value * scale;
-      if (IsStar) return ((_value / 100.0) * totalLength);
-      double lenLeft=totalLength;
-      int countLeft=0;
-      for (int i = 0; i < collection.Count; ++i)
+      get
       {
-        RowDefinition def = (RowDefinition)collection[i];
-        if (def.Height.IsAbsolute)
-        {
-          lenLeft -= (def.Height.Value * scale);
-        }
-        else if (def.Height.IsStar)
-        {
-          lenLeft -=  ((_value / 100.0) * totalLength);
-        }
-        else countLeft++;
+        return _finalValue;
       }
-      if (lenLeft <= 0) return 0.0;
-      return (lenLeft/ ((double)countLeft));
+      set
+      {
+        _finalValue = value;
+      }
     }
+
+    
   }
 }
