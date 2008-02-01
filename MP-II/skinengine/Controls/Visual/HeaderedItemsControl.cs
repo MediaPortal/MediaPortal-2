@@ -48,7 +48,7 @@ namespace SkinEngine.Controls.Visuals
     private Property _headerTemplateSelectorProperty;
     SizeF _baseDesiredSize;
     bool _wasExpanded = false;
-
+    #region ctor
     public HeaderedItemsControl()
     {
       Init();
@@ -74,7 +74,6 @@ namespace SkinEngine.Controls.Visuals
       return new HeaderedItemsControl(this);
     }
 
-
     void Init()
     {
       _headerProperty = new Property(null);
@@ -82,12 +81,16 @@ namespace SkinEngine.Controls.Visuals
       _headerTemplateSelectorProperty = new Property(null);
       _headerProperty.Attach(new PropertyChangedHandler(OnContentChanged));
     }
+    #endregion
 
+    #region event handlers
     void OnContentChanged(Property property)
     {
       Header.VisualParent = this;
     }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the header property.
     /// </summary>
@@ -152,7 +155,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-
     /// <summary>
     /// Gets or sets the header template selector property.
     /// </summary>
@@ -213,25 +215,27 @@ namespace SkinEngine.Controls.Visuals
         return _wasExpanded;
       }
     }
+    #endregion
 
+    #region measure&arrange
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
+      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       if (Header != null)
       {
-        Header.Measure(availableSize);
+        Header.Measure(new SizeF(availableSize.Width, 0));
         if (!IsExpanded)
         {
           _desiredSize = Header.DesiredSize;
           _originalSize = _desiredSize;
-          _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
           return;
         }
       }
-      base.Measure(availableSize);
+      base.Measure(new SizeF(availableSize.Width, 0));
       _baseDesiredSize = _desiredSize;
       if (Header != null)
       {
@@ -307,29 +311,50 @@ namespace SkinEngine.Controls.Visuals
         p.Y += (float)(heightPerCell - child.DesiredSize.Height);
       }
     }
+    #endregion
 
+    #region rendering
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
+      lock (_headerProperty)
+      {
+        if (Header != null)
+        {
+          ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
+          SkinContext.AddTransform(em);
+          Header.DoRender();
+
+          SkinContext.RemoveTransform();
+        }
+        if (IsExpanded)
+        {
+          ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
+          SkinContext.AddTransform(em);
+          base.DoRender();
+          SkinContext.RemoveTransform();
+        }
+      }
+    }
+    /// <summary>
+    /// Animates any timelines for this uielement.
+    /// </summary>
+    public override void Animate()
+    {
       if (Header != null)
       {
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
-        Header.DoRender();
-
-        SkinContext.RemoveTransform();
+        Header.Animate();
       }
       if (IsExpanded)
       {
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
-        base.DoRender();
-        SkinContext.RemoveTransform();
+        base.Animate();
       }
     }
+    #endregion
 
+    #region input handling
     /// <summary>
     /// Called when [mouse move].
     /// </summary>
@@ -349,35 +374,33 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
-    {
-      if (Header != null)
-      {
-        Header.Animate();
-      }
-      if (IsExpanded)
-      {
-        base.Animate();
-      }
-    }
-
-
-    /// <summary>
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
-      if (Header != null)
+      lock (_headerProperty)
       {
-        Header.OnKeyPressed(ref key);
+        if (Header != null)
+        {
+          Header.OnKeyPressed(ref key);
+        }
+        if (IsExpanded)
+        {
+          base.OnKeyPressed(ref key);
+        }
       }
-      if (IsExpanded)
+    }
+    #endregion
+
+    #region FindXXX methods
+    protected override ItemsPresenter FindItemsPresenter()
+    {
+      if (TemplateControl == null)
       {
-        base.OnKeyPressed(ref key);
+        return base.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
       }
+      return TemplateControl.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
     }
     /// <summary>
     /// Find the element with name
@@ -447,6 +470,7 @@ namespace SkinEngine.Controls.Visuals
         Header.Reset();
       base.Reset();
     }
+    #endregion
 
     #region focus prediction
 
@@ -458,6 +482,12 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
+      FrameworkElement element;
+      if (IsExpanded )
+      {
+        element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+        if (element != null) return element;
+      }
       return ((FrameworkElement)Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
@@ -469,6 +499,12 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
+      FrameworkElement element;
+      if (IsExpanded )
+      {
+        element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+        if (element != null) return element;
+      }
       return ((FrameworkElement)Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
@@ -480,6 +516,12 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
+      FrameworkElement element;
+      if (IsExpanded && base.FindFocusedItem() != null)
+      {
+        element = base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+        if (element != null) return element;
+      }
       return ((FrameworkElement)Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
@@ -491,8 +533,16 @@ namespace SkinEngine.Controls.Visuals
     /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
+      FrameworkElement element;
+      if (IsExpanded && base.FindFocusedItem() != null)
+      {
+        element = base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+        if (element != null) return element;
+      }
       return ((FrameworkElement)Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
     #endregion
+
+
   }
 }

@@ -234,13 +234,13 @@ namespace Shares
         string[] drives = Environment.GetLogicalDrives();
         for (int i = 0; i < drives.Length; ++i)
         {
-          folders.Add(new FolderItem(drives[i], drives[i], null));
+          AddItem(folders,new FolderItem(drives[i], drives[i], null));
         }
       }
       else
       {
         if (addParent)
-          folders.Add(new FolderItem("..", "..", folder.ParentFolder));
+          AddItem(folders, new FolderItem("..", "..", folder.ParentFolder));
 
         try
         {
@@ -254,7 +254,7 @@ namespace Shares
             else
               folderName = folderList[i];
 
-            folders.Add(new FolderItem(folderName, folderList[i], folder));
+            AddItem(folders, new FolderItem(folderName, folderList[i], folder));
           }
         }
         catch (Exception)
@@ -273,6 +273,11 @@ namespace Shares
         }
       }
       folders.FireChange(true);
+    }
+    void AddItem(ItemsCollection folders, FolderItem newItem)
+    {
+    //  if (folders.Count >= 3) return;
+      folders.Add(newItem);
     }
 
     /// <summary>

@@ -370,6 +370,10 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    protected virtual ItemsPresenter FindItemsPresenter()
+    {
+      return FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+    }
     #region item generation
     /// <summary>
     /// Prepares this instance.
@@ -379,10 +383,13 @@ namespace SkinEngine.Controls.Visuals
     {
       if (ItemsSource == null) return false;
       if (ItemsPanel == null) return false;
-      if (ItemContainerStyle == null) return false;
-      if (ItemTemplate == null) return false;
+      if (TemplateControl == null)
+      {
+        if (ItemContainerStyle == null) return false;
+        if (ItemTemplate == null) return false;
+      }
       Trace.WriteLine("ItemsControl.Prepare()");
-      ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
       if (!_templateApplied)
       {
@@ -409,9 +416,6 @@ namespace SkinEngine.Controls.Visuals
           break;
         }
       }
-      if (this is TreeViewItem)
-      {
-      }
 
       int index = 0;
       FrameworkElement focusedContainer = null;
@@ -426,9 +430,51 @@ namespace SkinEngine.Controls.Visuals
           container.Style = ItemContainerStyle;
           container.ContentTemplate = ItemTemplate;
           container.ContentTemplateSelector = ItemTemplateSelector;
-          container.Content = (FrameworkElement) ItemTemplate.LoadContent();
+          container.Content = (FrameworkElement)ItemTemplate.LoadContent();
           container.VisualParent = _itemsHostPanel;
           container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          if (enumer.Current is ListItem)
+          {
+            if (((ListItem)enumer.Current).Selected)
+            {
+              focusedContainer = container;
+            }
+          }
+          children.Add(container);
+        }
+        else if (this is TreeView)
+        {
+          TreeViewItem container = new TreeViewItem();
+          container.Context = enumer.Current;
+          container.Style = ItemContainerStyle;
+          container.TemplateControl = new ItemsPresenter();
+          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+          container.TemplateControl.VisualParent = this.VisualParent;
+          container.ItemsPanel = ItemsPanel;
+          if (enumer.Current is ListItem)
+          {
+            ListItem listItem = (ListItem)enumer.Current;
+            container.ItemsSource = listItem.SubItems;
+          }
+          //FrameworkElement element = ItemContainerStyle.Get();
+          //element.Context = enumer.Current;
+          //ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+          //headerContentPresenter.Content = (FrameworkElement)ItemTemplate.LoadContent();
+          //container.Header = (FrameworkElement)element;
+          //container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          container.Style = ItemContainerStyle;
+          container.HeaderTemplateSelector = this.ItemTemplateSelector;
+          container.HeaderTemplate = ItemTemplate;
+          FrameworkElement element = container.Style.Get();
+          element.Context = enumer.Current;
+          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+
+          container.Header = (FrameworkElement)element;
+
+          ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+          if (p != null) p.IsVisible = false;
+
           if (enumer.Current is ListItem)
           {
             if (((ListItem)enumer.Current).Selected)
@@ -441,25 +487,29 @@ namespace SkinEngine.Controls.Visuals
         else
         {
           TreeViewItem container = new TreeViewItem();
+          TreeViewItem item = (TreeViewItem)this;
           container.Context = enumer.Current;
           container.Style = ItemContainerStyle;
-          container.ItemContainerStyle = ItemContainerStyle;
-          container.ItemContainerStyleSelector = ItemContainerStyleSelector;
-          container.ItemTemplate = ItemTemplate;
-          container.ItemTemplateSelector = ItemTemplateSelector;
+          container.TemplateControl = new ItemsPresenter();
+          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+          container.TemplateControl.VisualParent = this.VisualParent;
           container.ItemsPanel = ItemsPanel;
+          container.Style = this.Style;
+          container.HeaderTemplateSelector = item.HeaderTemplateSelector;
+          container.HeaderTemplate = item.HeaderTemplate;
+          FrameworkElement element = container.Style.Get();
+          element.Context = enumer.Current;
+          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+
+          container.Header = (FrameworkElement)element;
+          ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+          if (p != null) p.IsVisible = false;
           if (enumer.Current is ListItem)
           {
             ListItem listItem = (ListItem)enumer.Current;
             container.ItemsSource = listItem.SubItems;
           }
-          FrameworkElement element= ItemContainerStyle.Get();
-          element.Context = enumer.Current;
-          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          headerContentPresenter.Content = (FrameworkElement)ItemTemplate.LoadContent();
-          container.Header = (FrameworkElement)element;
-          container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
-          //if (index > 2) break;
 
           if (enumer.Current is ListItem)
           {
@@ -502,7 +552,7 @@ namespace SkinEngine.Controls.Visuals
       else if (focusedContainer != null)
       {
         _itemsHostPanel.UpdateLayout();
-        focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X,(float)focusedContainer.ActualPosition.Y);
+        focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X, (float)focusedContainer.ActualPosition.Y);
       }
 
       return true;

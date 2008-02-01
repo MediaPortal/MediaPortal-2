@@ -89,6 +89,7 @@ namespace SkinEngine.Controls.Panels
         }
         else
         {
+          column.Width.Length = 0;
           if (column.Width.IsAuto)
             totalStar += 1.0;
           else

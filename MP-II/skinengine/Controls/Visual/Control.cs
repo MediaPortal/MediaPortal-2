@@ -135,6 +135,17 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
     #region properties
+    public FrameworkElement TemplateControl
+    {
+      get
+      {
+        return _templateControl;
+      }
+      set
+      {
+        _templateControl = value;
+      }
+    }
     /// <summary>
     /// Gets or sets the background property.
     /// </summary>
@@ -349,7 +360,7 @@ namespace SkinEngine.Controls.Visuals
       {
         ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
         SkinContext.AddTransform(em);
-        _templateControl.DoRender();
+        _templateControl.Render();
         SkinContext.RemoveTransform();
       }
     }
@@ -370,6 +381,13 @@ namespace SkinEngine.Controls.Visuals
     #region measure&arrange
     public override void Measure(System.Drawing.SizeF availableSize)
     {
+      if (!IsVisible)
+      {
+        _desiredSize = new SizeF(0, 0);
+        _originalSize = _desiredSize;
+        _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
+        return;
+      }
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       if (_templateControl == null)

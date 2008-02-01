@@ -221,6 +221,10 @@ namespace SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
+      if (ColumnDefinitions.Count == 0)
+        ColumnDefinitions.Add(new ColumnDefinition());
+      if (RowDefinitions.Count == 0)
+        RowDefinitions.Add(new RowDefinition());
 
       foreach (FrameworkElement child in Children)
       {
