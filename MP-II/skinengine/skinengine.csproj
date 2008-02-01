@@ -338,6 +338,7 @@
     <Compile Include="Skin\Layout\ILayout.cs" />
     <Compile Include="Skin\Layout\StackLayout.cs" />
     <Compile Include="Skin\Loader.cs" />
+    <Compile Include="Skin\ResourceDictionaryCache.cs" />
     <Compile Include="Skin\SkinLoaderContext.cs" />
     <Compile Include="Skin\Style.cs" />
     <Compile Include="Skin\StylesCollection.cs" />

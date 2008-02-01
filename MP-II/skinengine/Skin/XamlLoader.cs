@@ -255,8 +255,8 @@ namespace SkinEngine.Skin
         if ((e.Instance as ResourceDictionary) != null)
         {
           ResourceDictionary dictNew = (ResourceDictionary)e.Instance;
-          XamlLoader loader = new XamlLoader();
-          object o = loader.Load(dictNew.Source);
+          object o = ResourceDictionaryCache.Instance.Get(dictNew.Source);
+
 
           ResourceDictionary dict = (ResourceDictionary)e.Container;
           dict.Merge((ResourceDictionary)o);
@@ -362,7 +362,7 @@ namespace SkinEngine.Skin
         string text = e.Value.ToString();
         if (text == "Auto")
         {
-          e.Result = new GridLength(GridUnitType.Star,1.0);
+          e.Result = new GridLength(GridUnitType.Star, 1.0);
         }
         else if (text.IndexOf('*') < 0)
         {
