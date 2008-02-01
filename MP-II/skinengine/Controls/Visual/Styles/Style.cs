@@ -1,3 +1,25 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#endregion
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -5,10 +27,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-
+using MyXaml.Core;
 namespace SkinEngine.Controls.Visuals.Styles
 {
-  public class Style : ICloneable, IList
+  public class Style : ICloneable, IAddChild
   {
     SetterCollection _setters;
     Property _keyProperty;
@@ -100,109 +122,6 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
     }
 
-    #region IList Members
-
-    public int Add(object value)
-    {
-      _setters.Add((Setter)value);
-      return _setters.Count;
-    }
-
-    public void Clear()
-    {
-      _setters.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get
-      {
-        return _setters.Count;
-      }
-    }
-
-    public bool IsSynchronized
-    {
-      get
-      {
-        return true;
-      }
-    }
-
-    public object SyncRoot
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    #endregion
 
     public FrameworkElement Get()
     {
@@ -273,5 +192,14 @@ namespace SkinEngine.Controls.Visuals.Styles
         property.SetValue(obj);
       }
     }
+
+    #region IAddChild Members
+
+    public void AddChild(object o)
+    {
+      _setters.Add((Setter)o);
+    }
+
+    #endregion
   }
 }

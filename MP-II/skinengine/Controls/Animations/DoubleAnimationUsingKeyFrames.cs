@@ -28,10 +28,10 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
-
+using MyXaml.Core;
 namespace SkinEngine.Controls.Animations
 {
-  public class DoubleAnimationUsingKeyFrames : Timeline, IList
+  public class DoubleAnimationUsingKeyFrames : Timeline, IAddChild
   {
     Property _keyFramesProperty;
     Property _targetProperty;
@@ -253,99 +253,15 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-    #region IList Members
 
-    public int Add(object value)
-    {
-      KeyFrames.Add((DoubleKeyFrame)value);
-      return KeyFrames.Count;
-    }
 
-    public void Clear()
-    {
-      KeyFrames.Clear();
-    }
+    #region IAddChild Members
 
-    public bool Contains(object value)
+    public void AddChild(object o)
     {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        return KeyFrames[index];
-      }
-      set
-      {
-      }
+      KeyFrames.Add((DoubleKeyFrame)o);
     }
 
     #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    #endregion
-
   }
 }

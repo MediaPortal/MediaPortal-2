@@ -28,10 +28,10 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
-
+using MyXaml.Core;
 namespace SkinEngine.Controls.Transforms
 {
-  public class TransformGroup : Transform, IList
+  public class TransformGroup : Transform, IAddChild
   {
     Property _childrenProperty;
 
@@ -126,97 +126,11 @@ namespace SkinEngine.Controls.Transforms
     }
 
 
-    #region IList Members
+    #region IAddChild Members
 
-    public int Add(object value)
+    public void AddChild(object o)
     {
-      Children.Add((Transform)value);
-      return Children.Count;
-    }
-
-    public void Clear()
-    {
-      Children.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        return Children[index];
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { return Children.Count; }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      return Children.GetEnumerator();
+      Children.Add((Transform)o);
     }
 
     #endregion

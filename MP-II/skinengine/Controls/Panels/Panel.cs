@@ -36,10 +36,10 @@ using SkinEngine.Controls.Brushes;
 using SkinEngine;
 using MediaPortal.Core.InputManager;
 using Rectangle = System.Drawing.Rectangle;
-
+using MyXaml.Core;
 namespace SkinEngine.Controls.Panels
 {
-  public class Panel : FrameworkElement, IAsset, IList
+  public class Panel : FrameworkElement, IAsset, IAddChild
   {
     protected Property _alignmentXProperty;
     protected Property _alignmentYProperty;
@@ -503,110 +503,6 @@ namespace SkinEngine.Controls.Panels
       return null;
     }
 
-    #region IList Members
-
-    public int Add(object value)
-    {
-      Children.Add((UIElement)value);
-      return Children.Count;
-    }
-
-    public void Clear()
-    {
-      Children.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get
-      {
-        return Children.Count;
-      }
-    }
-
-    public bool IsSynchronized
-    {
-      get
-      {
-        return true;
-      }
-    }
-
-    public object SyncRoot
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    #endregion
-
 
     #region focus prediction
 
@@ -840,5 +736,14 @@ namespace SkinEngine.Controls.Panels
         element.Reset();
       }
     }
+
+    #region IAddChild Members
+
+    public void AddChild(object o)
+    {
+      Children.Add((UIElement)o);
+    }
+
+    #endregion
   }
 }

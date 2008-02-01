@@ -28,24 +28,20 @@ using System.Reflection;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
-
+using MyXaml.Core;
 namespace SkinEngine.Controls.Bindings
 {
-  public class CommandGroup : IList
+  public class CommandGroup : List<InvokeCommand>, IAddChild
   {
-    List<InvokeCommand> _commands;
-
     public CommandGroup()
     {
-      Init();
     }
 
     public CommandGroup(CommandGroup c)
     {
-      Init();
-      foreach (InvokeCommand cmd in c._commands)
+      foreach (InvokeCommand cmd in c)
       {
-        _commands.Add((InvokeCommand)cmd.Clone());
+        Add((InvokeCommand)cmd.Clone());
       }
     }
 
@@ -57,117 +53,22 @@ namespace SkinEngine.Controls.Bindings
 
     void Init()
     {
-      _commands = new List<InvokeCommand>();
     }
 
     public void Execute(UIElement element)
     {
-      foreach (InvokeCommand cmd in _commands)
+      foreach (InvokeCommand cmd in this)
       {
         cmd.Execute(element);
       }
     }
 
-    #region IList Members
 
-    public int Add(object value)
+    #region IAddChild Members
+
+    public void AddChild(object o)
     {
-      _commands.Add((InvokeCommand)value);
-      return _commands.Count;
-    }
-
-    public void Clear()
-    {
-      _commands.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      return _commands.Contains((InvokeCommand)value);
-    }
-
-    public int IndexOf(object value)
-    {
-      return _commands.IndexOf((InvokeCommand)value);
-    }
-
-    public void Insert(int index, object value)
-    {
-      _commands.Insert(index, (InvokeCommand)value);
-    }
-
-    public bool IsFixedSize
-    {
-      get
-      {
-        return false;
-      }
-    }
-
-    public bool IsReadOnly
-    {
-      get
-      {
-        return false;
-      }
-    }
-
-    public void Remove(object value)
-    {
-      _commands.Remove((InvokeCommand)value);
-    }
-
-    public void RemoveAt(int index)
-    {
-      _commands.RemoveAt(index);
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        return _commands[index];
-      }
-      set
-      {
-        _commands[index] = (InvokeCommand)value;
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get
-      {
-        return _commands.Count;
-      }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
+      Add((InvokeCommand)o);
     }
 
     #endregion

@@ -32,6 +32,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
+using MyXaml.Core;
 namespace SkinEngine.Controls.Brushes
 {
 
@@ -56,7 +57,7 @@ namespace SkinEngine.Controls.Brushes
   };
 
 
-  public class GradientBrush : Brush, IList
+  public class GradientBrush : Brush, IAddChild
   {
     protected Texture _gradientTexture;
     protected PositionColored2Textured[] _verts;
@@ -320,97 +321,12 @@ namespace SkinEngine.Controls.Brushes
 
     }
 
-    #region IList Members
 
-    public int Add(object value)
+    #region IAddChild Members
+
+    public void AddChild(object o)
     {
-      GradientStops.Add((GradientStop)value);
-      return GradientStops.Count;
-    }
-
-    public void Clear()
-    {
-      GradientStops.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
+      GradientStops.Add((GradientStop)o);
     }
 
     #endregion

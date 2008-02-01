@@ -1,3 +1,26 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -6,9 +29,11 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
+using MyXaml.Core;
+
 namespace SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger : ICloneable, IList
+  public class Trigger : ICloneable, IAddChild
   {
     Property _propertyProperty;
     Property _valueProperty;
@@ -145,7 +170,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
 
     public virtual void Setup(UIElement element)
     {
-      Trace.WriteLine("Setup trigger for " + element.Name+" " + element.GetType().ToString() + " " + Property);
+      Trace.WriteLine("Setup trigger for " + element.Name + " " + element.GetType().ToString() + " " + Property);
       if (_property != null)
       {
         _property.Detach(_handler);
@@ -219,98 +244,11 @@ namespace SkinEngine.Controls.Visuals.Triggers
       }
     }
 
-    #region IList Members
+    #region IAddChild Members
 
-    public int Add(object value)
+    public void AddChild(object o)
     {
-      EnterActions.Add(value);
-
-      return EnterActions.Count;
-    }
-
-    public void Clear()
-    {
-      EnterActions.Clear();
-    }
-
-    public bool Contains(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int IndexOf(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void Insert(int index, object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsReadOnly
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public void Remove(object value)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public void RemoveAt(int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public object this[int index]
-    {
-      get
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-      set
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
-    }
-
-    #endregion
-
-    #region ICollection Members
-
-    public void CopyTo(Array array, int index)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public int Count
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    public IEnumerator GetEnumerator()
-    {
-      throw new Exception("The method or operation is not implemented.");
+      EnterActions.Add((TriggerAction)o);
     }
 
     #endregion
