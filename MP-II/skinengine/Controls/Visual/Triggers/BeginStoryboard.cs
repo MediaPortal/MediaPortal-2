@@ -130,7 +130,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         if (Storyboard.IsStopped)
         {
-          Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element).Name, this.Storyboard.Key));
+          //Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element).Name, this.Storyboard.Key));
           element.StartStoryboard(this.Storyboard);
           return;
         }

@@ -490,9 +490,6 @@ namespace SkinEngine.Controls.Visuals
           TreeViewItem item = (TreeViewItem)this;
           container.Context = enumer.Current;
           container.Style = ItemContainerStyle;
-          container.TemplateControl = new ItemsPresenter();
-          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = this.VisualParent;
           container.ItemsPanel = ItemsPanel;
           container.Style = this.Style;
           container.HeaderTemplateSelector = item.HeaderTemplateSelector;
@@ -502,6 +499,9 @@ namespace SkinEngine.Controls.Visuals
           ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
           headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
+          container.TemplateControl = new ItemsPresenter();
+          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+          container.TemplateControl.VisualParent = this.VisualParent;
           container.Header = (FrameworkElement)element;
           ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
           if (p != null) p.IsVisible = false;

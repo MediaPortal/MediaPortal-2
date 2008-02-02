@@ -805,12 +805,12 @@ namespace SkinEngine.Controls.Visuals
           if (value)
           {
             FocusManager.FocusedElement = this;
-            Trace.WriteLine(String.Format("focus:{0}", this.GetType()));
+            //Trace.WriteLine(String.Format("focus:{0}", this.GetType()));
             FireEvent("OnGotFocus");
           }
           else
           {
-            Trace.WriteLine(String.Format("no focus:{0}", this.GetType()));
+            //Trace.WriteLine(String.Format("no focus:{0}", this.GetType()));
             FireEvent("OnLostFocus");
           }
         }

@@ -224,6 +224,10 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
+      MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
+      string name = listItem.Label("Name").Evaluate(null, null);
+      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
+
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       if (Header != null)
       {
@@ -232,17 +236,23 @@ namespace SkinEngine.Controls.Visuals
         {
           _desiredSize = Header.DesiredSize;
           _originalSize = _desiredSize;
+
+          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
+                name, Header.DesiredSize.Width, Header.DesiredSize.Height));
           return;
         }
       }
       base.Measure(new SizeF(availableSize.Width, 0));
-      _baseDesiredSize = _desiredSize;
+      _baseDesiredSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       if (Header != null)
       {
         _desiredSize.Height += Header.DesiredSize.Height;
       }
       _originalSize = _desiredSize;
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
+      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
+            name, Header.DesiredSize.Width, Header.DesiredSize.Height,
+            _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
     /// <summary>
     /// Arranges the UI element
@@ -260,6 +270,11 @@ namespace SkinEngine.Controls.Visuals
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       PointF p = layoutRect.Location;
+
+      MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
+      string name = listItem.Label("Name").Evaluate(null, null);
+      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2})", name, (int)p.X, (int)p.Y));
+
 
       if (Header != null)
       {
@@ -286,9 +301,11 @@ namespace SkinEngine.Controls.Visuals
       }
       if (IsExpanded)
       {
+        Trace.WriteLine(String.Format("TreeView Item:Arrange {0} childs at({1},{2})", name, (int)p.X, (int)p.Y));
         base.Arrange(new RectangleF(p, _baseDesiredSize));
       }
     }
+
     protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
     {
       if (VisualParent == null) return;
@@ -483,7 +500,7 @@ namespace SkinEngine.Controls.Visuals
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
-      if (IsExpanded )
+      if (IsExpanded)
       {
         element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
@@ -500,7 +517,7 @@ namespace SkinEngine.Controls.Visuals
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
-      if (IsExpanded )
+      if (IsExpanded)
       {
         element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;

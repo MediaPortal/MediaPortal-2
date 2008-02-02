@@ -95,7 +95,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
         {
           if (beginAction.Storyboard.IsStopped == false)
           {
-            Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
+            //Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
             element.StopStoryboard(beginAction.Storyboard);
             return;
           }
