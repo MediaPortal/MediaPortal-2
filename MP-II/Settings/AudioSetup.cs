@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -34,28 +34,14 @@ using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.MenuManager;
 namespace Settings
 {
-  public class General
+  public class AudioSetup
   {
-    ItemsCollection _mainMenu;
-
-    public General()
-    {
-    }
-
-    /// <summary>
-    /// exposes the main settings menu to the skin
-    /// </summary>
-    /// <value>The main menu.</value>
     public ItemsCollection MainMenu
     {
       get
       {
-        if (_mainMenu == null)
-        {
-          IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-main"));
-        }
-        return _mainMenu;
+        IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
+        return new ItemsCollection(menuCollect.GetMenu("settings-audio-setup"));
       }
     }
 

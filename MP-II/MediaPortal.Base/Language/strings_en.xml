@@ -243,6 +243,20 @@
     <String name="8" text="30 FPS"/>
     <String name="9" text="FPS Default"/>
     <String name="music" text="Music"/>
+    <String name="appearance" text="Appearance"/>
+    <String name="audiosetup" text="Audio setup"/>
+    <String name="speakersetup" text="Choose the speaker connection type"/>
+    <String name="buildin" text="Build-in (laptop)"/>
+    <String name="analog" text="Analog (RCA)"/>
+    <String name="digital" text="Digital (Toslink/coax)"/>
+    <String name="speakeramount" text="Choose the number of speakers"/>
+    <String name="speakers2" text="2 speakers (stereo)"/>
+    <String name="speakers51" text="5.1 speakers"/>
+    <String name="speakers71" text="7.1 speakers"/>
+    
+    <String name="next" text="Next"/>
+    <String name="back" text="Back"/>
+    <String name="finish" text="Finish"/>
   </Section>
   <Section name="radio">
     <String name="name" text="My Radio"/>
