@@ -1,6 +1,7 @@
 <menu>
   <items>
     <item text="[settings.appearance]" image="" command="WindowManager.ShowWindow" parameter="settingsAppearance"/>
+    <item text="[settings.tvsetup]" image="" command="WindowManager.ShowWindow" parameter="settingsMonitorSetup"/>
     <item text="[settings.audiosetup]" image="" command="WindowManager.ShowWindow" parameter="settingsAudioSetup"/>
     <item text="[settings.playback]" image="" command="WindowManager.ShowWindow" parameter="settingsPlayback"/>
     <item text="[settings.refreshrate]" image="" command="WindowManager.ShowWindow" parameter="settingsRefreshrate"/>

@@ -253,7 +253,16 @@
     <String name="speakers2" text="2 speakers (stereo)"/>
     <String name="speakers51" text="5.1 speakers"/>
     <String name="speakers71" text="7.1 speakers"/>
+    <String name="tvsetup" text="Tv/Monitor setup"/>
+    <String name="monitorsetup" text="Select your tv/monitor type"/>
+    <String name="monitorcrt" text="CRT"/>
+    <String name="monitorlcd" text="LCD/Plasma"/>
+    <String name="monitorprojector" text="Beamer"/>
+    <String name="monitorarsetup" text="Select your tv/monitor"/>
+    <String name="monitornormal" text="Normal (4:3)"/>
+    <String name="monitorwide" text="Wide (16:9)"/>
     
+
     <String name="next" text="Next"/>
     <String name="back" text="Back"/>
     <String name="finish" text="Finish"/>
