@@ -261,8 +261,7 @@
     <String name="monitorarsetup" text="Select your tv/monitor"/>
     <String name="monitornormal" text="Normal (4:3)"/>
     <String name="monitorwide" text="Wide (16:9)"/>
-    
-
+    <String name="monitorbuildin" text="Build-in"/>
     <String name="next" text="Next"/>
     <String name="back" text="Back"/>
     <String name="finish" text="Finish"/>
