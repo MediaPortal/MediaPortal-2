@@ -42,6 +42,7 @@
     <String name="done" text="Ferdig"/>
     <String name="description" text="Legg til eller fjern mapper fra Biblioteket"/>
     <String name="selectsharetoremove" text="Velg mapper du ikke vill overvåke lenger"/>
+    <String name="selectsharestoadd" text="Velg mapper som du vil legge til i biblioteket"/>
     <String name="back" text="Tilbake"/>
     <String name="cancel" text="Avbryt"/>
   </Section>
@@ -242,6 +243,28 @@
     <String name="8" text="30 FPS"/>
     <String name="9" text="Standard FPS"/>
     <String name="music" text="Musikk"/>
+    <String name="appearance" text="Utseende"/>
+    <String name="audiosetup" text="Lyd oppsett"/>
+    <String name="speakersetup" text="Velg hvordan høytalerene er tilkoblet"/>
+    <String name="buildin" text="Innebygd (laptop)"/>
+    <String name="analog" text="Analog (RCA)"/>
+    <String name="digital" text="Digital (Toslink/coax)"/>
+    <String name="speakeramount" text="Velg antall høytalere"/>
+    <String name="speakers2" text="2 høytalere (stereo)"/>
+    <String name="speakers51" text="5.1 høytalere"/>
+    <String name="speakers71" text="7.1 høytalere"/>
+    <String name="tvsetup" text="Tv/Monitor oppsett"/>
+    <String name="monitorsetup" text="Velg TV/monitor type"/>
+    <String name="monitorcrt" text="CRT"/>
+    <String name="monitorlcd" text="LCD/Plasma"/>
+    <String name="monitorprojector" text="Projektor"/>
+    <String name="monitorarsetup" text="Velg din tv/monitor"/>
+    <String name="monitornormal" text="Normal (4:3)"/>
+    <String name="monitorwide" text="Wide (16:9)"/>
+    <String name="monitorbuildin" text="Innebygd"/>
+    <String name="next" text="Neste"/>
+    <String name="back" text="Tilbake"/>
+    <String name="finish" text="Ferdig"/>
   </Section>
   <Section name="radio">
     <String name="name" text="Min Radio"/>
@@ -259,6 +282,8 @@
   </Section>
   <Section name="extensions">
     <String name="myextensions" text="Mine Tilegg"/>
+    <String name="updateall" text="Oppdater alle"/>
+    <String name="settings" text="Innstillinger"/>
     <String name="view" text="Vis"/>
     <String name="sort" text="Sorter"/>
     <String name="views" text="Velg visning"/>
