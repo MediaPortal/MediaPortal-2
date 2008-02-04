@@ -505,7 +505,7 @@ namespace SkinEngine.Controls.Visuals
 
           //container.Name = String.Format("{0}.{1}", item.Name, index++);
           container.Context = enumer.Current;
-          container.Style = ItemContainerStyle;
+          //container.Style = ItemContainerStyle;
           container.ItemsPanel = ItemsPanel;
           container.Style = this.Style;
           container.HeaderTemplateSelector = item.HeaderTemplateSelector;
