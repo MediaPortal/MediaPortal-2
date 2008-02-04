@@ -156,7 +156,6 @@ namespace SkinEngine.Controls.Visuals
       if (info == null) return;
       Panel element = (Panel)info;
       info.Home(new PointF(0, 0));
-      element.OnMouseMove((float)(element.Children[0].ActualPosition.X), (float)(element.Children[0].ActualPosition.Y));
     }
     void OnEnd(float x, float y)
     {
@@ -164,8 +163,6 @@ namespace SkinEngine.Controls.Visuals
       if (info == null) return;
       Panel element = (Panel)info;
       info.End(new PointF(0, 0));
-      FrameworkElement child = (FrameworkElement)element.Children[element.Children.Count - 1];
-      element.OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
     }
 
     bool OnPageDown(float x, float y)

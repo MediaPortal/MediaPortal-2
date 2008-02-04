@@ -40,6 +40,8 @@ namespace SkinEngine.Controls.Panels
   {
     Property _orientationProperty;
     bool _isScrolling;
+    float _totalHeight;
+    float _totalWidth;
     float _physicalScrollOffsetY = 0;
     #region ctor
     /// <summary>
@@ -111,7 +113,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-//      Trace.WriteLine(String.Format("StackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
+      //      Trace.WriteLine(String.Format("StackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
@@ -128,8 +130,8 @@ namespace SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
-      float totalHeight = 0.0f;
-      float totalWidth = 0.0f;
+      _totalHeight = 0.0f;
+      _totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       foreach (UIElement child in Children)
       {
@@ -140,23 +142,24 @@ namespace SkinEngine.Controls.Panels
           if (childSize.Height < 0) childSize.Height = 0;
           child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
-          totalHeight += child.DesiredSize.Height;
+          _totalHeight += child.DesiredSize.Height;
           child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
-          if (child.DesiredSize.Width > totalWidth)
-            totalWidth = child.DesiredSize.Width;
+          if (child.DesiredSize.Width > _totalWidth)
+            _totalWidth = child.DesiredSize.Width;
         }
         else
         {
           child.Measure(new SizeF(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
-          totalWidth += child.DesiredSize.Width;
+          _totalWidth += child.DesiredSize.Width;
 
           child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
-          if (child.DesiredSize.Height > totalHeight)
-            totalHeight = child.DesiredSize.Height;
+          if (child.DesiredSize.Height > _totalHeight)
+            _totalHeight = child.DesiredSize.Height;
         }
       }
-
+      float totalHeight = _totalHeight;
+      float totalWidth = _totalWidth;
       if (IsItemsHost)
       {
         if (totalHeight > availableSize.Height && availableSize.Height > 0)
@@ -185,8 +188,8 @@ namespace SkinEngine.Controls.Panels
 
 
       base.Measure(availableSize);
-//      Trace.WriteLine(String.Format("StackPanel.measure :{0} {1}x{2} returns {3}x{4}",
-//       this.Name, (int)availableSize.Width, (int)availableSize.Height,
+      //      Trace.WriteLine(String.Format("StackPanel.measure :{0} {1}x{2} returns {3}x{4}",
+      //       this.Name, (int)availableSize.Width, (int)availableSize.Height,
       //(int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
@@ -366,7 +369,7 @@ namespace SkinEngine.Controls.Panels
         FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
         if (focusedElement == null) return false;
         MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
-        FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, true);
+        FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
         if (nextElement == null) return false;
         float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
         if ((posY - _physicalScrollOffsetY) < ActualHeight) return false;
@@ -385,7 +388,7 @@ namespace SkinEngine.Controls.Panels
         FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
         if (focusedElement == null) return false;
         MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Up;
-        FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, true);
+        FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
         if (prevElement == null) return false;
         if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
         _physicalScrollOffsetY -= (focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
@@ -412,7 +415,40 @@ namespace SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
-      return false;
+      FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
+      if (focusedElement == null) return false;
+      float offsetEnd = (float)(_physicalScrollOffsetY + ActualHeight);
+      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
+      if (this.Orientation == Orientation.Vertical)
+      {
+        while (true)
+        {
+
+          if (this.Orientation == Orientation.Vertical)
+          {
+            focusedElement = (FrameworkElement)FindFocusedItem();
+            if (focusedElement == null) return false;
+            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
+            FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
+            if (nextElement == null) return false;
+            float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
+            if ((posY - _physicalScrollOffsetY) < ActualHeight)
+            {
+              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+            }
+            else
+            {
+              float diff = (float)(nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
+              if (_physicalScrollOffsetY + diff > offsetEnd) break;
+              _physicalScrollOffsetY += diff;
+              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+            }
+          }
+        }
+        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
+      }
+
+      return true;
     }
 
     public bool PageLeft(PointF point)
@@ -427,7 +463,41 @@ namespace SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
-      return false;
+      FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
+      if (focusedElement == null) return false;
+      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
+
+      float offsetEnd = (float)(_physicalScrollOffsetY - ActualHeight);
+      if (offsetEnd <= 0) offsetEnd = 0;
+      if (this.Orientation == Orientation.Vertical)
+      {
+        while (true)
+        {
+
+          if (this.Orientation == Orientation.Vertical)
+          {
+            focusedElement = (FrameworkElement)FindFocusedItem();
+            if (focusedElement == null) return false;
+            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Up;
+            FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
+            if (prevElement == null) return false;
+            if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY))
+            {
+              prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
+            }
+            else
+            {
+              float diff = (float)(focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
+              if ((_physicalScrollOffsetY - diff) < offsetEnd) break;
+              _physicalScrollOffsetY -= diff;
+              prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
+            }
+          }
+        }
+        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
+      }
+
+      return true;
     }
 
     public double LineHeight
@@ -447,13 +517,53 @@ namespace SkinEngine.Controls.Panels
     }
     public void Home(PointF point)
     {
+      FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
+      if (focusedElement == null) return;
       _physicalScrollOffsetY = 0;
+      OnMouseMove((float)ActualPosition.X + 5, (float)(ActualPosition.Y + 5));
     }
+
     public void End(PointF point)
     {
+      FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
+      if (focusedElement == null) return ;
+      float offsetEnd = (float)(_totalHeight - ActualHeight);
+      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
+      if (this.Orientation == Orientation.Vertical)
+      {
+        while (true)
+        {
+
+          if (this.Orientation == Orientation.Vertical)
+          {
+            focusedElement = (FrameworkElement)FindFocusedItem();
+            if (focusedElement == null) return ;
+            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
+            FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
+            if (nextElement == null) return ;
+            float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
+            if ((posY - _physicalScrollOffsetY) < ActualHeight)
+            {
+              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+            }
+            else
+            {
+              float diff = (float)(nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
+              if (_physicalScrollOffsetY + diff > offsetEnd) break;
+              _physicalScrollOffsetY += diff;
+              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+            }
+          }
+        }
+        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
+      }
+
+      return ;
     }
+
     public void ResetScroll()
     {
+      _physicalScrollOffsetY = 0;
     }
     #endregion
 

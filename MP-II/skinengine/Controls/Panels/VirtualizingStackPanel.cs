@@ -537,7 +537,7 @@ namespace SkinEngine.Controls.Panels
         _startIndex = 0;
         Invalidate();
         UpdateLayout();
-        OnMouseMove(point.X, point.Y);
+        OnMouseMove((float)(Children[0].ActualPosition.X), (float)(Children[0].ActualPosition.Y));
       }
     }
     public void End(PointF point)
@@ -547,7 +547,8 @@ namespace SkinEngine.Controls.Panels
         _startIndex = (Children.Count - _controlCount);
         Invalidate();
         UpdateLayout();
-        OnMouseMove(point.X, point.Y);
+        FrameworkElement child = (FrameworkElement)Children[Children.Count - 1];
+        OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
       }
     }
     public void ResetScroll()
