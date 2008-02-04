@@ -36,20 +36,23 @@ using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Panels
 {
-  public class StackPanel : Panel, IScrollInfo
+  public class VirtualizingStackPanel : Panel, IScrollInfo
   {
     Property _orientationProperty;
-    bool _isScrolling;
-    float _physicalScrollOffsetY = 0;
-    #region ctor
+    int _startIndex;
+    int _endIndex;
+    int _controlCount;
+    double _lineHeight;
+    double _lineWidth;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="StackPanel"/> class.
     /// </summary>
-    public StackPanel()
+    public VirtualizingStackPanel()
     {
       Init();
     }
-    public StackPanel(StackPanel v)
+    public VirtualizingStackPanel(VirtualizingStackPanel v)
       : base(v)
     {
       Init();
@@ -60,17 +63,19 @@ namespace SkinEngine.Controls.Panels
     {
       _orientationProperty = new Property(Orientation.Vertical);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
-
+      _startIndex = 0;
+      _endIndex = 0;
+      _lineWidth = 0.0;
+      _lineHeight = 0.0;
+      _controlCount = 0;
 
     }
 
     public override object Clone()
     {
-      return new StackPanel(this);
+      return new VirtualizingStackPanel(this);
     }
-    #endregion
 
-    #region properties
     /// <summary>
     /// Gets or sets the orientation property.
     /// </summary>
@@ -102,16 +107,14 @@ namespace SkinEngine.Controls.Panels
         _orientationProperty.SetValue(value);
       }
     }
-    #endregion
 
-    #region measure and arrange
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-//      Trace.WriteLine(String.Format("StackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
+      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
@@ -131,15 +134,24 @@ namespace SkinEngine.Controls.Panels
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
       SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      int index = 0;
+      _controlCount = 0;
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
         if (Orientation == Orientation.Vertical)
         {
           if (childSize.Width < 0) childSize.Width = 0;
           if (childSize.Height < 0) childSize.Height = 0;
           child.Measure(new SizeF(childSize.Width, 0));
           childSize.Height -= child.DesiredSize.Height;
+          if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > 5 + availableSize.Height)
+            break;
           totalHeight += child.DesiredSize.Height;
           child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
           if (child.DesiredSize.Width > totalWidth)
@@ -149,26 +161,27 @@ namespace SkinEngine.Controls.Panels
         {
           child.Measure(new SizeF(0, childSize.Height));
           childSize.Width -= child.DesiredSize.Width;
+          if (availableSize.Width > 0 & totalWidth + child.DesiredSize.Width > 5 + availableSize.Width)
+            break;
           totalWidth += child.DesiredSize.Width;
 
           child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
           if (child.DesiredSize.Height > totalHeight)
             totalHeight = child.DesiredSize.Height;
         }
+        index++;
+        _controlCount++;
       }
-
-      if (IsItemsHost)
+      _endIndex = index;
+      if (_controlCount > 0)
       {
-        if (totalHeight > availableSize.Height && availableSize.Height > 0)
-        {
-          totalHeight = availableSize.Height;
-          _isScrolling = true;
-        }
-        else
-        {
-          _isScrolling = false;
-          _physicalScrollOffsetY = 0;
-        }
+        _lineHeight = totalHeight / ((double)_controlCount);
+        _lineWidth = totalWidth / ((double)_controlCount);
+      }
+      else
+      {
+        _lineHeight = totalHeight;
+        _lineWidth = totalWidth;
       }
       if (Width > 0) totalWidth = (float)Width * SkinContext.Zoom.Width;
       if (Height > 0) totalHeight = (float)Height * SkinContext.Zoom.Height;
@@ -185,9 +198,7 @@ namespace SkinEngine.Controls.Panels
 
 
       base.Measure(availableSize);
-//      Trace.WriteLine(String.Format("StackPanel.measure :{0} {1}x{2} returns {3}x{4}",
-//       this.Name, (int)availableSize.Width, (int)availableSize.Height,
-      //(int)_desiredSize.Width, (int)_desiredSize.Height));
+      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
     /// <summary>
@@ -197,7 +208,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
-      //      Trace.WriteLine(String.Format("StackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
       layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
@@ -223,6 +234,11 @@ namespace SkinEngine.Controls.Panels
             {
               if (!child.IsVisible) continue;
 
+              if (index < _startIndex)
+              {
+                index++;
+                continue;
+              }
               PointF location = new PointF((float)(this.ActualPosition.X), (float)(this.ActualPosition.Y + totalHeight));
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -238,6 +254,8 @@ namespace SkinEngine.Controls.Panels
 
               child.Arrange(new RectangleF(location, size));
               totalHeight += child.DesiredSize.Height;
+              index++;
+              if (index == _endIndex) break;
             }
           }
           break;
@@ -248,6 +266,11 @@ namespace SkinEngine.Controls.Panels
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) continue;
+              if (index < _startIndex)
+              {
+                index++;
+                continue;
+              }
               PointF location = new PointF((float)(this.ActualPosition.X + totalWidth), (float)(this.ActualPosition.Y));
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
@@ -264,6 +287,8 @@ namespace SkinEngine.Controls.Panels
               //ArrangeChild(child, ref location);
               child.Arrange(new RectangleF(location, size));
               totalWidth += child.DesiredSize.Width;
+              index++;
+              if (index == _endIndex) break;
             }
           }
           break;
@@ -282,9 +307,6 @@ namespace SkinEngine.Controls.Panels
       }
       base.Arrange(layoutRect);
     }
-    #endregion
-
-    #region rendering
     /// <summary>
     /// Renders the visual
     /// </summary>
@@ -318,44 +340,27 @@ namespace SkinEngine.Controls.Panels
           }
           SkinContext.RemoveTransform();
         }
-        if (_isScrolling)
-        {
-          GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
-          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
 
-          ExtendedMatrix m = new ExtendedMatrix();
-          m.Matrix = Matrix.Translation(new Vector3(0, -_physicalScrollOffsetY, 0));
-          SkinContext.AddTransform(m);
-        }
-        foreach (FrameworkElement element in _renderOrder)
+        int index = 0;
+        foreach (UIElement element in _renderOrder)
         {
           if (!element.IsVisible) continue;
-          float posY = (float)(element.ActualPosition.Y - ActualPosition.Y);
+          if (index < _startIndex)
+          {
+            index++;
+            continue;
+          }
 
-          if (_isScrolling)
-          {
-            // if (posY < _physicalScrollOffsetY) continue;
-            // posY -= _physicalScrollOffsetY;
-            element.Render();
-            // posY += (float)(element.ActualHeight);
-            // if (posY > ActualHeight) break;
-          }
-          else
-          {
-            element.Render();
-          }
+          element.Render();
+
+
+          index++;
+          if (index >= _endIndex) break;
         }
         SkinContext.RemoveTransform();
-
-        if (_isScrolling)
-        {
-          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
-          SkinContext.RemoveTransform();
-        }
         _lastTimeUsed = SkinContext.Now;
       }
     }
-    #endregion
 
     #region IScrollInfo Members
 
@@ -363,45 +368,75 @@ namespace SkinEngine.Controls.Panels
     {
       if (this.Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
-        if (focusedElement == null) return false;
-        MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
-        FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, true);
-        if (nextElement == null) return false;
-        float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
-        if ((posY - _physicalScrollOffsetY) < ActualHeight) return false;
-        _physicalScrollOffsetY += (nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
-        nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
-        return true;
+        if (_startIndex + _controlCount < Children.Count)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex++;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
       }
       return false;
     }
 
     public bool LineUp(PointF point)
     {
-      if (_physicalScrollOffsetY <= 0) return false;
       if (this.Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
-        if (focusedElement == null) return false;
-        MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Up;
-        FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, true);
-        if (prevElement == null) return false;
-        if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
-        _physicalScrollOffsetY -= (focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
-        prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
-        return true;
+        if (_startIndex > 0)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex--;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
       }
       return false;
     }
 
     public bool LineLeft(PointF point)
     {
+      if (this.Orientation == Orientation.Horizontal)
+      {
+        if (_startIndex > 0)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex--;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+      }
       return false;
     }
 
     public bool LineRight(PointF point)
     {
+      if (this.Orientation == Orientation.Horizontal)
+      {
+        if (_startIndex + _controlCount < Children.Count)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex++;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+      }
       return false;
     }
 
@@ -412,6 +447,31 @@ namespace SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
+      if (this.Orientation == Orientation.Vertical)
+      {
+        if (_startIndex + 2 * _controlCount < Children.Count)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex += _controlCount;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+        else
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex = Children.Count - _controlCount;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+      }
       return false;
     }
 
@@ -427,6 +487,31 @@ namespace SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
+      if (this.Orientation == Orientation.Vertical)
+      {
+        if (_startIndex > _controlCount)
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex -= _controlCount;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+        else
+        {
+          lock (_orientationProperty)
+          {
+            _startIndex = 0;
+            Invalidate();
+            UpdateLayout();
+            OnMouseMove(point.X, point.Y);
+            return true;
+          }
+        }
+      }
       return false;
     }
 
@@ -434,7 +519,7 @@ namespace SkinEngine.Controls.Panels
     {
       get
       {
-        return 1000;
+        return _lineHeight;
       }
     }
 
@@ -442,33 +527,54 @@ namespace SkinEngine.Controls.Panels
     {
       get
       {
-        return 0;
+        return _lineWidth;
       }
     }
     public void Home(PointF point)
     {
-      _physicalScrollOffsetY = 0;
+      lock (_orientationProperty)
+      {
+        _startIndex = 0;
+        Invalidate();
+        UpdateLayout();
+        OnMouseMove(point.X, point.Y);
+      }
     }
     public void End(PointF point)
     {
+      lock (_orientationProperty)
+      {
+        _startIndex = (Children.Count - _controlCount);
+        Invalidate();
+        UpdateLayout();
+        OnMouseMove(point.X, point.Y);
+      }
     }
     public void ResetScroll()
     {
+      _startIndex = 0;
     }
     #endregion
 
-    #region input handling
     /// <summary>
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
     {
+      int index = 0;
       foreach (UIElement element in Children)
       {
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
         if (key == MediaPortal.Core.InputManager.Key.None) return;
+        index++;
+        if (index >= _endIndex) break;
       }
     }
 
@@ -479,15 +585,20 @@ namespace SkinEngine.Controls.Panels
     /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
-      if (y < ActualPosition.Y) return;
-      if (y > ActualHeight + ActualPosition.Y) return;
+      int index = 0;
       foreach (UIElement element in Children)
       {
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
         if (false == element.IsVisible) continue;
-        element.OnMouseMove(x, y + _physicalScrollOffsetY);
+        element.OnMouseMove(x, y);
+        index++;
+        if (index >= _endIndex) break;
       }
     }
-    #endregion
 
     #region focus prediction
 
@@ -501,9 +612,17 @@ namespace SkinEngine.Controls.Panels
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
+      int index = 0;
       foreach (FrameworkElement c in Children)
       {
         if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
@@ -551,9 +670,17 @@ namespace SkinEngine.Controls.Panels
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
+      int index = 0;
       foreach (FrameworkElement c in Children)
       {
         if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
@@ -601,9 +728,17 @@ namespace SkinEngine.Controls.Panels
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
+      int index = 0;
       foreach (FrameworkElement c in Children)
       {
         if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)
@@ -651,9 +786,17 @@ namespace SkinEngine.Controls.Panels
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
+      int index = 0;
       foreach (FrameworkElement c in Children)
       {
         if (!c.IsVisible) continue;
+        if (index < _startIndex)
+        {
+          index++;
+          continue;
+        }
+        index++;
+        if (index > _endIndex) break;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Core.InputManager.Key.None)

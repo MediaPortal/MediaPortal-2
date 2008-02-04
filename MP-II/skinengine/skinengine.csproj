@@ -159,6 +159,7 @@
     <Compile Include="Controls\Panels\RowDefinition.cs" />
     <Compile Include="Controls\Panels\RowDefinitionsCollection.cs" />
     <Compile Include="Controls\Panels\StackPanel.cs" />
+    <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
     <Compile Include="Controls\Panels\WrapPanel.cs" />
     <Compile Include="Controls\Panels\ZOrderComparer.cs" />
     <Compile Include="Controls\Progress.cs" />

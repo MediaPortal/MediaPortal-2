@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 
 namespace SkinEngine.Controls.Visuals
 {
@@ -33,23 +34,23 @@ namespace SkinEngine.Controls.Visuals
     /// Scrolls down within content by one logical unit.
     /// </summary>
     /// 
-    bool LineDown();
+    bool LineDown(PointF point);
 
     /// <summary>
     /// Scrolls left within content by one logical unit.
     /// </summary>
     /// 
-    bool LineLeft();
+    bool LineLeft(PointF point);
 
     /// <summary>
     /// Scrolls right within content by one logical unit.
     /// </summary>
-    bool LineRight();
+    bool LineRight(PointF point);
 
     /// <summary>
     /// Scrolls up within content by one logical unit.
     /// </summary>
-    bool LineUp();
+    bool LineUp(PointF point);
 
     /// <summary>
     /// Forces content to scroll until the coordinate space of a Visual object is visible.
@@ -59,25 +60,25 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Scrolls down within content by one page.
     /// </summary>
-    bool PageDown();
+    bool PageDown(PointF point);
 
     /// <summary>
     /// Scrolls left within content by one page.
     /// </summary>
-    bool PageLeft();
+    bool PageLeft(PointF point);
 
     /// <summary>
     /// Scrolls right within content by one page.
     /// </summary>
-    bool PageRight();
+    bool PageRight(PointF point);
 
     /// <summary>
     /// Scrolls up within content by one page.
     /// </summary>
-    bool PageUp();
+    bool PageUp(PointF point);
 
-    void Home();
-    void End();
+    void Home(PointF point);
+    void End(PointF point);
 
     double LineHeight {get;}
 

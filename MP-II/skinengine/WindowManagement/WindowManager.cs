@@ -120,8 +120,8 @@ namespace SkinEngine
       SkinContext.SkinName = settings.Skin;
       SkinContext.ThemeName = settings.Theme;
 #if TESTXAML
-      ShowWindow("homevista");
-     // ShowWindow("sharesAdd");
+     ShowWindow("homevista");
+      //ShowWindow("sharesAdd");
 #else
 
       PrepareWindow("homevista");

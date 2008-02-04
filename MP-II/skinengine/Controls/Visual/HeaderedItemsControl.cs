@@ -48,6 +48,7 @@ namespace SkinEngine.Controls.Visuals
     private Property _headerTemplateSelectorProperty;
     SizeF _baseDesiredSize;
     bool _wasExpanded = false;
+    public string TempName;
     #region ctor
     public HeaderedItemsControl()
     {
@@ -225,24 +226,24 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(SizeF availableSize)
     {
       MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
-      string name = listItem.Label("Name").Evaluate(null, null);
-      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
+      //      string name = listItem.Label("Name").Evaluate(null, null);
+      //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
 
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       if (Header != null)
       {
         Header.Measure(new SizeF(availableSize.Width, 0));
-        if (!IsExpanded)
+        if (!_wasExpanded)
         {
           _desiredSize = Header.DesiredSize;
           _originalSize = _desiredSize;
 
-          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
-                name, Header.DesiredSize.Width, Header.DesiredSize.Height));
+//          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
+          //              name, Header.DesiredSize.Width, Header.DesiredSize.Height));
           return;
         }
       }
-      base.Measure(new SizeF(availableSize.Width, (float)(availableSize.Height-Header.Height)));
+      base.Measure(new SizeF(availableSize.Width, 0));
       _baseDesiredSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       if (Header != null)
       {
@@ -250,9 +251,9 @@ namespace SkinEngine.Controls.Visuals
       }
       _originalSize = _desiredSize;
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
-      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
-            name, Header.DesiredSize.Width, Header.DesiredSize.Height,
-            _baseDesiredSize.Width, _baseDesiredSize.Height));
+//      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
+  //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
+      //        _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
     /// <summary>
     /// Arranges the UI element
@@ -272,15 +273,15 @@ namespace SkinEngine.Controls.Visuals
       PointF p = layoutRect.Location;
 
       MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
-      string name = listItem.Label("Name").Evaluate(null, null);
-      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //      string name = listItem.Label("Name").Evaluate(null, null);
+      //      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
 
       if (Header != null)
       {
         //ArrangeChild(Header, ref p, layoutRect.Width, layoutRect.Height);
         Header.Arrange(new RectangleF(p, Header.DesiredSize));
-        if (!IsExpanded)
+        if (!_wasExpanded)
         {
 
           _finalLayoutTransform = SkinContext.FinalLayoutTransform;
@@ -299,9 +300,9 @@ namespace SkinEngine.Controls.Visuals
         p.Y += Header.DesiredSize.Height;
 
       }
-      if (IsExpanded)
+      if (_wasExpanded)
       {
-        Trace.WriteLine(String.Format("TreeView Item:Arrange {0} childs at({1},{2})", name, (int)p.X, (int)p.Y));
+        //        Trace.WriteLine(String.Format("TreeView Item:Arrange {0} childs at({1},{2})", name, (int)p.X, (int)p.Y));
         base.Arrange(new RectangleF(p, _baseDesiredSize));
       }
     }

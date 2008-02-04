@@ -381,8 +381,8 @@ namespace SkinEngine.Controls.Visuals
     #region measure&arrange
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      if (this is TreeView)
-        Trace.WriteLine(String.Format("TreeView:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
+      //if (this is TreeView)
+        //Trace.WriteLine(String.Format("TreeView:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
 
       if (!IsVisible)
       {
@@ -451,15 +451,15 @@ namespace SkinEngine.Controls.Visuals
       _originalSize = _desiredSize;
 
 
-      if (this is TreeView)
-        Trace.WriteLine(String.Format("TreeView:Measure returns '{0}' {1}x{2}", this.Name, _desiredSize.Width, _desiredSize.Height));
+      //if (this is TreeView)
+        //        Trace.WriteLine(String.Format("TreeView:Measure returns '{0}' {1}x{2}", this.Name, _desiredSize.Width, _desiredSize.Height));
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      if (this is TreeView)
-        Trace.WriteLine(String.Format("TreeView:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //    if (this is TreeView)
+//        Trace.WriteLine(String.Format("TreeView:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 

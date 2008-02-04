@@ -634,7 +634,7 @@
                   </RadialGradientBrush>
                 </Rectangle.Fill>
               </Rectangle>
-              <Path Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Name="check" Width="12.016" Data="M22.645977,12.578536 L14.858618,23.864771 12.139105,20.117524 14.858041,23.864623 z"/>
+              <Path Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Name="check" Width="12.016" Data="M22.645977,12.578536L14.858618,23.864771L12.139105,20.117524"/>
             </Grid>
             <ControlTemplate.Triggers>
               <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
@@ -2106,7 +2106,7 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate TargetType="ListBox">
-            <StackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
+            <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>
@@ -2181,7 +2181,7 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate TargetType="ListBox">
-            <StackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
+            <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>
@@ -2231,7 +2231,7 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate TargetType="ListBox">
-            <StackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
+            <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>
@@ -2239,7 +2239,7 @@
 
     <!-- data template for a dialog menu item in list mode-->
     <DataTemplate Key="TreeItemTemplate" DataType="{Type local:DialogMenuItem}">
-      <Grid Background="Orange">
+      <Grid >
         <Label Name="lbl11" Height="32" Text="{Binding Name}" Font="font13"/>
         <Grid.Triggers>
           <Trigger Property="HasFocus" Value="True">
@@ -2252,7 +2252,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="TreeViewItem">
-            <Grid Background="Red" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="32"/>
                 <ColumnDefinition Width="32"/>
@@ -2262,7 +2262,7 @@
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <CheckBox Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" Background="White" VerticalAlignment="Top"/>
+              <CheckBox Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" VerticalAlignment="Top"/>
               <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}" VerticalAlignment="Top"/>
               <ContentPresenter Grid.Column="2" Grid.Row="0"  HorizontalAlignment="Left" VerticalAlignment="Top"/>
               <ItemsPresenter  Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
@@ -2271,7 +2271,7 @@
         </Setter.Value>
       </Setter>
     </Style>
-    <Style Key="MpTreeView" TargetType="TreeView">
+    <Style Key="MpTreeView" TargetType="TreeView" >
       <Setter Property="SnapsToDevicePixels" Value="true"/>
       <Setter Property="OverridesDefaultStyle" Value="true"/>
       <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
@@ -2290,7 +2290,7 @@
       <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
-          <ControlTemplate TargetType="TreeView" Background="Green">
+          <ControlTemplate TargetType="TreeView" >
             <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
               <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </ScrollViewer>
@@ -2300,7 +2300,7 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate TargetType="TreeView">
-            <StackPanel  IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <StackPanel  Name="treeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>

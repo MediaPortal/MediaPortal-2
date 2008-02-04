@@ -388,7 +388,7 @@ namespace SkinEngine.Controls.Visuals
         if (ItemContainerStyle == null) return false;
         if (ItemTemplate == null) return false;
       }
-      Trace.WriteLine("ItemsControl.Prepare()");
+      //      Trace.WriteLine("ItemsControl.Prepare()");
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
       if (!_templateApplied)
@@ -432,7 +432,7 @@ namespace SkinEngine.Controls.Visuals
           container.ContentTemplateSelector = ItemTemplateSelector;
           container.Content = (FrameworkElement)ItemTemplate.LoadContent();
           container.VisualParent = _itemsHostPanel;
-          container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          //container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
           if (enumer.Current is ListItem)
           {
             if (((ListItem)enumer.Current).Selected)
@@ -449,19 +449,16 @@ namespace SkinEngine.Controls.Visuals
           container.Style = ItemContainerStyle;
           container.TemplateControl = new ItemsPresenter();
           container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = this.VisualParent;
+          container.TemplateControl.VisualParent = container;
           container.ItemsPanel = ItemsPanel;
           if (enumer.Current is ListItem)
           {
             ListItem listItem = (ListItem)enumer.Current;
             container.ItemsSource = listItem.SubItems;
           }
-          //FrameworkElement element = ItemContainerStyle.Get();
-          //element.Context = enumer.Current;
-          //ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          //headerContentPresenter.Content = (FrameworkElement)ItemTemplate.LoadContent();
-          //container.Header = (FrameworkElement)element;
-          //container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
+          container.Name = String.Format("{0}.{1}", this.Name, index++);
+          //container.TemplateControl.Name = "itemspresenter for childs of :" + container.Name;
+
           container.Style = ItemContainerStyle;
           container.HeaderTemplateSelector = this.ItemTemplateSelector;
           container.HeaderTemplate = ItemTemplate;
@@ -486,8 +483,11 @@ namespace SkinEngine.Controls.Visuals
         }
         else
         {
+          _itemsHostPanel.IsItemsHost = false;
           TreeViewItem container = new TreeViewItem();
           TreeViewItem item = (TreeViewItem)this;
+
+          //container.Name = String.Format("{0}.{1}", item.Name, index++);
           container.Context = enumer.Current;
           container.Style = ItemContainerStyle;
           container.ItemsPanel = ItemsPanel;
@@ -495,13 +495,14 @@ namespace SkinEngine.Controls.Visuals
           container.HeaderTemplateSelector = item.HeaderTemplateSelector;
           container.HeaderTemplate = item.HeaderTemplate;
           FrameworkElement element = container.Style.Get();
+          //container.TemplateControl.Name = "itemspresenter for childs of :" + container.Name;
           element.Context = enumer.Current;
           ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
           headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
           container.TemplateControl = new ItemsPresenter();
           container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = this.VisualParent;
+          container.TemplateControl.VisualParent = container;
           container.Header = (FrameworkElement)element;
           ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
           if (p != null) p.IsVisible = false;
@@ -522,6 +523,8 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       children.SetParent(_itemsHostPanel);
+      //if (!(this is TreeView))
+        //_itemsHostPanel.Name = "ItemsPanel of :" + this.Name;
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
@@ -557,7 +560,11 @@ namespace SkinEngine.Controls.Visuals
 
       return true;
     }
-
+    public override  void UpdateLayout()
+    {
+      DoUpdateItems();
+      base.UpdateLayout();
+    }
     public bool DoUpdateItems()
     {
       if (_prepare)

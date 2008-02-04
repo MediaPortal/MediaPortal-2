@@ -1208,7 +1208,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Updates the layout.
     /// </summary>
-    public void UpdateLayout()
+    public virtual void UpdateLayout()
     {
       if (false == _isLayoutInvalid) return;
       //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());

@@ -424,6 +424,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "StackPanel")
         return true;
+      else if (name == "VirtualizingStackPanel")
+        return true;
       else if (name == "Canvas")
         return true;
       else if (name == "Grid")
@@ -580,6 +582,11 @@ namespace SkinEngine.Skin
       else if (name == "StackPanel")
       {
         _lastElement = new StackPanel();
+        return _lastElement;
+      }
+      else if (name == "VirtualizingStackPanel")
+      {
+        _lastElement = new VirtualizingStackPanel();
         return _lastElement;
       }
       else if (name == "Canvas")

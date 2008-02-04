@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Drawing;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
@@ -154,7 +155,7 @@ namespace SkinEngine.Controls.Visuals
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
       Panel element = (Panel)info;
-      info.Home();
+      info.Home(new PointF(0, 0));
       element.OnMouseMove((float)(element.Children[0].ActualPosition.X), (float)(element.Children[0].ActualPosition.Y));
     }
     void OnEnd(float x, float y)
@@ -162,7 +163,7 @@ namespace SkinEngine.Controls.Visuals
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
       Panel element = (Panel)info;
-      info.End();
+      info.End(new PointF(0, 0));
       FrameworkElement child = (FrameworkElement)element.Children[element.Children.Count - 1];
       element.OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
     }
@@ -171,9 +172,8 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
-      if (info.PageDown())
+      if (info.PageDown(new PointF(x, y)))
       {
-        OnMouseMove(x, y);
         return true;
       }
       return false;
@@ -183,9 +183,8 @@ namespace SkinEngine.Controls.Visuals
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return false;
-      if (info.PageUp())
+      if (info.PageUp(new PointF(x, y)))
       {
-        OnMouseMove(x, y);
         return true;
       }
       return false;
@@ -198,9 +197,8 @@ namespace SkinEngine.Controls.Visuals
       FrameworkElement element = (FrameworkElement)info;
       if (x - info.LineWidth < element.ActualPosition.X)
       {
-        if (info.LineLeft())
+        if (info.LineLeft(new PointF(x, y)))
         {
-          OnMouseMove(x, y);
           return true;
         }
       }
@@ -214,9 +212,8 @@ namespace SkinEngine.Controls.Visuals
       FrameworkElement element = (FrameworkElement)info;
       if (x + (info.LineWidth * 2) >= element.ActualPosition.X + element.ActualWidth)
       {
-        if (info.LineDown())
+        if (info.LineDown(new PointF(x, y)))
         {
-          OnMouseMove(x, y);
           return true;
         }
       }
@@ -230,9 +227,8 @@ namespace SkinEngine.Controls.Visuals
       FrameworkElement element = (FrameworkElement)info;
       if (y + (info.LineHeight) >= element.ActualPosition.Y + element.ActualHeight)
       {
-        if (info.LineDown())
+        if (info.LineDown(new PointF(x, y)))
         {
-          OnMouseMove(x, y);
           return true;
         }
       }
@@ -246,9 +242,8 @@ namespace SkinEngine.Controls.Visuals
       FrameworkElement element = (FrameworkElement)info;
       if (y <= element.ActualPosition.Y + info.LineHeight - 1)
       {
-        if (info.LineUp())
+        if (info.LineUp(new PointF(x, y)))
         {
-          OnMouseMove(x, y);
           return true;
         }
       }
