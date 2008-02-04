@@ -242,7 +242,7 @@ namespace SkinEngine.Controls.Visuals
           return;
         }
       }
-      base.Measure(new SizeF(availableSize.Width, 0));
+      base.Measure(new SizeF(availableSize.Width, (float)(availableSize.Height-Header.Height)));
       _baseDesiredSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       if (Header != null)
       {
@@ -273,7 +273,7 @@ namespace SkinEngine.Controls.Visuals
 
       MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
       string name = listItem.Label("Name").Evaluate(null, null);
-      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2})", name, (int)p.X, (int)p.Y));
+      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
 
       if (Header != null)

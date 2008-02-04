@@ -276,7 +276,7 @@ namespace Shares
     }
     void AddItem(ItemsCollection folders, FolderItem newItem)
     {
-      if (folders.Count >= 3) return;
+      if (folders.Count >= 5) return;
       folders.Add(newItem);
     }
 
