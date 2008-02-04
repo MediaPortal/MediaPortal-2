@@ -210,6 +210,13 @@ namespace SkinEngine.Controls.Visuals
         }
         if (_wasExpanded != expander.IsChecked)
         {
+          if (_wasExpanded)
+          {
+            if (_itemsHostPanel != null)
+            {
+              _itemsHostPanel.SetChildren(new UIElementCollection(_itemsHostPanel));
+            }
+          }
           Invalidate();
         }
         _wasExpanded = expander.IsChecked;
@@ -238,7 +245,7 @@ namespace SkinEngine.Controls.Visuals
           _desiredSize = Header.DesiredSize;
           _originalSize = _desiredSize;
 
-//          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
+          //          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
           //              name, Header.DesiredSize.Width, Header.DesiredSize.Height));
           return;
         }
@@ -251,8 +258,8 @@ namespace SkinEngine.Controls.Visuals
       }
       _originalSize = _desiredSize;
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
-//      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
-  //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
+      //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
+      //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
       //        _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
     /// <summary>

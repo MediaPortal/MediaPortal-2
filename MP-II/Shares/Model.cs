@@ -198,7 +198,7 @@ namespace Shares
       foreach (FolderItem item in items)
       {
         bool enabled = false;
-        if (item.Labels["selected"].Evaluate(null, null) == "true")
+        if (item.Selected)
         {
           mgr.AddShare(item.Folder);
           if (item.SubItems != null && item.SubItems.Count > 0)
@@ -234,7 +234,7 @@ namespace Shares
         string[] drives = Environment.GetLogicalDrives();
         for (int i = 0; i < drives.Length; ++i)
         {
-          AddItem(folders,new FolderItem(drives[i], drives[i], null));
+          AddItem(folders, new FolderItem(drives[i], drives[i], null));
         }
       }
       else
@@ -268,6 +268,7 @@ namespace Shares
         {
           if (share == item.Folder)
           {
+            item.Selected = true;
             item.Add("selected", "true");
           }
         }
@@ -276,7 +277,7 @@ namespace Shares
     }
     void AddItem(ItemsCollection folders, FolderItem newItem)
     {
-//      if (folders.Count >= 5) return;
+      //      if (folders.Count >= 5) return;
       folders.Add(newItem);
     }
 

@@ -2262,8 +2262,8 @@
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <CheckBox Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" VerticalAlignment="Top"/>
-              <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}" VerticalAlignment="Top"/>
+              <CheckBox Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" VerticalAlignment="Top" />
+              <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}" VerticalAlignment="Top" IsChecked="{Binding Selected}"/>
               <ContentPresenter Grid.Column="2" Grid.Row="0"  HorizontalAlignment="Left" VerticalAlignment="Top"/>
               <ItemsPresenter  Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </Grid>

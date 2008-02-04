@@ -37,12 +37,12 @@ namespace MediaPortal.Core.Collections
   {
     #region variables
 
-    private bool _selected;
     private ICommand _command;
     private ICommandParameter _parameter;
     private Dictionary<string, ILabelProperty> _labels;
     protected ItemsCollection _subItems;
     public event ListItemChangedHandler OnChanged;
+    Property _selectedProperty;
 
     #endregion
 
@@ -56,12 +56,14 @@ namespace MediaPortal.Core.Collections
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
       _labels[name] = new SimpleLabelProperty(stringvalue);
+      _selectedProperty = new Property(false);
     }
     public ListItem(string name, StringId stringvalue)
     {
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
       _labels[name] = new LocalizedLabelProperty(stringvalue);
+      _selectedProperty = new Property(false);
     }
 
     /// <summary>
@@ -71,6 +73,7 @@ namespace MediaPortal.Core.Collections
     {
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
+      _selectedProperty = new Property(false);
     }
 
     /// <summary>
@@ -170,8 +173,13 @@ namespace MediaPortal.Core.Collections
 
     public bool Selected
     {
-      get { return _selected; }
-      set { _selected = value; }
+      get { return (bool)_selectedProperty.GetValue(); }
+      set { _selectedProperty.SetValue(value); }
+    }
+    public Property SelectedProperty
+    {
+      get { return _selectedProperty; }
+      set { _selectedProperty = value; }
     }
 
     public ItemsCollection SubItems

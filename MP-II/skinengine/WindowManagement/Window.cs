@@ -450,9 +450,9 @@ namespace SkinEngine
 #if TESTXAML
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
+      _visual.Reset();
       _visual.Invalidate();
       _visual.InitializeBindings();
-      _visual.Reset();
       _setFocusedElement = true;
 #else
       if (animate)

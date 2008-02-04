@@ -50,7 +50,7 @@ namespace SkinEngine.Controls.Visuals
     Property _currentItem;
     bool _prepare;
     bool _templateApplied;
-    Panel _itemsHostPanel;
+    protected Panel _itemsHostPanel;
 
     #region ctor
     /// <summary>
@@ -370,6 +370,15 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    public override void Reset()
+    {
+      base.Reset();
+      _prepare = true;
+      if (_itemsHostPanel != null)
+      {
+        _itemsHostPanel.SetChildren( new UIElementCollection(_itemsHostPanel));
+      }
+    }
     protected virtual ItemsPresenter FindItemsPresenter()
     {
       return FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
@@ -387,6 +396,14 @@ namespace SkinEngine.Controls.Visuals
       {
         if (ItemContainerStyle == null) return false;
         if (ItemTemplate == null) return false;
+      }
+      IEnumerator enumer = ItemsSource.GetEnumerator();
+      if (enumer.MoveNext() == false) return true;
+      enumer.Reset();
+      if (this is TreeViewItem)
+      {
+        TreeViewItem item = (TreeViewItem)this;
+        if (!item.IsExpanded) return true;
       }
       //      Trace.WriteLine("ItemsControl.Prepare()");
       ItemsPresenter presenter = FindItemsPresenter();
@@ -416,11 +433,10 @@ namespace SkinEngine.Controls.Visuals
           break;
         }
       }
-
+      _itemsHostPanel.Children.Clear();
       int index = 0;
       FrameworkElement focusedContainer = null;
       UIElementCollection children = new UIElementCollection(null);
-      IEnumerator enumer = ItemsSource.GetEnumerator();
       while (enumer.MoveNext())
       {
         if (this is ListView)
@@ -528,36 +544,37 @@ namespace SkinEngine.Controls.Visuals
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
-
-      if (focusedItem != null)
+      if (this is ListView)
       {
-        IScrollInfo info = _itemsHostPanel as IScrollInfo;
-        if (info != null)
+        if (focusedItem != null)
         {
-          info.ResetScroll();
+          IScrollInfo info = _itemsHostPanel as IScrollInfo;
+          if (info != null)
+          {
+            info.ResetScroll();
+          }
+          //        result = true;
+          _itemsHostPanel.UpdateLayout();
+          focusedItem.HasFocus = false;
+          if (_itemsHostPanel.Children.Count <= focusedIndex)
+          {
+            float x = (float)_itemsHostPanel.Children[0].ActualPosition.X;
+            float y = (float)_itemsHostPanel.Children[0].ActualPosition.Y;
+            _itemsHostPanel.OnMouseMove(x, y);
+          }
+          else
+          {
+            float x = (float)focusedItem.ActualPosition.X;
+            float y = (float)focusedItem.ActualPosition.Y;
+            _itemsHostPanel.OnMouseMove(x, y);
+          }
         }
-        //        result = true;
-        _itemsHostPanel.UpdateLayout();
-        focusedItem.HasFocus = false;
-        if (_itemsHostPanel.Children.Count <= focusedIndex)
+        else if (focusedContainer != null)
         {
-          float x = (float)_itemsHostPanel.Children[0].ActualPosition.X;
-          float y = (float)_itemsHostPanel.Children[0].ActualPosition.Y;
-          _itemsHostPanel.OnMouseMove(x, y);
-        }
-        else
-        {
-          float x = (float)focusedItem.ActualPosition.X;
-          float y = (float)focusedItem.ActualPosition.Y;
-          _itemsHostPanel.OnMouseMove(x, y);
+          _itemsHostPanel.UpdateLayout();
+          focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X, (float)focusedContainer.ActualPosition.Y);
         }
       }
-      else if (focusedContainer != null)
-      {
-        _itemsHostPanel.UpdateLayout();
-        focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X, (float)focusedContainer.ActualPosition.Y);
-      }
-
       return true;
     }
     public override  void UpdateLayout()
