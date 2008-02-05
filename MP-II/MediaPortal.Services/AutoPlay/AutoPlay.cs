@@ -134,7 +134,7 @@ namespace MediaPortal.Services.AutoPlay
             IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
             try
             {
-              window.WaitCursorVisible = true;
+              //window.WaitCursorVisible = true;
               PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
               IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
               IMediaItem mediaItem = new AutoPlayMediaItem(strDrive + @"\VIDEO_TS\VIDEO_TS.IFO");
@@ -155,7 +155,7 @@ namespace MediaPortal.Services.AutoPlay
             }
             finally
             {
-              window.WaitCursorVisible = false;
+              //window.WaitCursorVisible = false;
             }
             IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
             // We need to show the movies window first, otherwise we'll have problems returning back from full screen on stop.
@@ -183,7 +183,7 @@ namespace MediaPortal.Services.AutoPlay
             IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
             try
             {
-              window.WaitCursorVisible = true;
+              //window.WaitCursorVisible = true;
               // Get the files of the Audio CD via the MediaManager
               // This does call the MusicImporter, which does a FreeDB Query
               IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
@@ -204,7 +204,7 @@ namespace MediaPortal.Services.AutoPlay
             }
             finally
             {
-              window.WaitCursorVisible = false;
+              //window.WaitCursorVisible = false;
             }
           }
           break;

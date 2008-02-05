@@ -689,6 +689,7 @@ namespace SkinEngine.Fonts
         firstCharOfLine = false;
 
         float u2, v2;
+        u2 = v2 = 1;
         Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
         Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
         Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
@@ -699,7 +700,7 @@ namespace SkinEngine.Fonts
         uvPos.X += finalTranslation.X;
         uvPos.Y += finalTranslation.Y;
         uvPos.Z += finalTranslation.Z;
-        SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         // Create the vertices
         PositionColored2Textured topLeft = new PositionColored2Textured(
           x + xOffset, y + yOffset, z,
@@ -715,7 +716,7 @@ namespace SkinEngine.Fonts
         uvPos.X += finalTranslation.X;
         uvPos.Y += finalTranslation.Y;
         uvPos.Z += finalTranslation.Z;
-        SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured topRight = new PositionColored2Textured(
           topLeft.X + width, y + yOffset, z,
           (c.X + c.Width) / (float)_charSet.Width,
@@ -730,7 +731,7 @@ namespace SkinEngine.Fonts
         uvPos.X += finalTranslation.X;
         uvPos.Y += finalTranslation.Y;
         uvPos.Z += finalTranslation.Z;
-        SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured bottomRight = new PositionColored2Textured(
           topLeft.X + width, topLeft.Y + height, z,
           (c.X + c.Width) / (float)_charSet.Width,
@@ -745,7 +746,7 @@ namespace SkinEngine.Fonts
         uvPos.X += finalTranslation.X;
         uvPos.Y += finalTranslation.Y;
         uvPos.Z += finalTranslation.Z;
-        SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured bottomLeft = new PositionColored2Textured(
           x + xOffset, topLeft.Y + height, z,
           c.X / (float)_charSet.Width,

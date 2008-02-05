@@ -30,7 +30,6 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using SkinEngine.Players;
 using SkinEngine.Players.Geometry;
-using Control = SkinEngine.Controls.Control;
 using SkinEngine.Skin;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
@@ -43,8 +42,6 @@ namespace SkinEngine
     #region variables
 
     private static string _skinName = "default";
-    private static string _themeName = "default";
-    private static Theme _theme;
     private static float _skinWidth = 720;
     private static float _skinHeight = 576;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
@@ -104,35 +101,6 @@ namespace SkinEngine
       }
     }
 
-    /// <summary>
-    /// Gets or sets the name of the skin currently in use
-    /// </summary>
-    /// <value>The name of the skin.</value>
-    public static string ThemeName
-    {
-      get
-      {
-        return _themeName;
-      }
-      set
-      {
-        _themeName = value;
-        ThemeLoader loader = new ThemeLoader();
-        Theme = loader.Load(_themeName);
-      }
-    }
-
-    public static Theme Theme
-    {
-      get
-      {
-        return _theme;
-      }
-      set
-      {
-        _theme = value;
-      }
-    }
     /// <summary>
     /// Gets or sets the width of the skin
     /// </summary>
@@ -286,71 +254,6 @@ namespace SkinEngine
       set { _tempTransform = value; }
     }
 
-    /// <summary>
-    /// Sets the alpha gradient.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    public static void SetAlphaGradient(Control control)
-    {
-      if (control == null)
-      {
-        _gradientInUse = false;
-        return;
-      }
-      _gradientInUse = true;
-      _gradientPosition = control.Position;
-      _gradientSize = new Vector2(control.Width, control.Height);
-    }
-
-    /// <summary>
-    /// Gets the alpha gradient UV.
-    /// </summary>
-    /// <param name="position">The position.</param>
-    /// <param name="u">The u.</param>
-    /// <param name="v">The v.</param>
-    public static void GetAlphaGradientUV(Vector3 position, out float u, out float v)
-    {
-      u = 0;
-      v = 0;
-      if (_gradientInUse)
-      {
-        Vector3 pos = position;
-        if (TemporaryTransform != null)
-        {
-          pos += (TemporaryTransform.Translation);
-        }
-
-        u = (pos.X - _gradientPosition.X) / (_gradientSize.X);
-        v = (pos.Y - _gradientPosition.Y) / (_gradientSize.Y);
-        if (v < 0)
-        {
-          v = 0;
-        }
-        if (v > 1)
-        {
-          v = 1;
-        }
-
-        if (u < 0)
-        {
-          u = 0;
-        }
-        if (u > 1)
-        {
-          u = 1;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether [gradient in use].
-    /// </summary>
-    /// <value><c>true</c> if [gradient in use]; otherwise, <c>false</c>.</value>
-    public static bool GradientInUse
-    {
-      get { return _gradientInUse; }
-      set { _gradientInUse = value; }
-    }
 
     /// <summary>
     /// Gets or sets a value indicating whether mouse was used used the last 5 seconds

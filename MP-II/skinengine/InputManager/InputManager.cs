@@ -136,7 +136,7 @@ namespace SkinEngine
         }
       }
     }
-
+#if NOTUSEDANYMORE
     /// <summary>
     /// Predicts which control should get the focus
     /// </summary>
@@ -414,7 +414,7 @@ namespace SkinEngine
       }
       return bestMatch;
     }
-
+#endif
     /// <summary>
     /// Gets or sets a value indicating whether skinengine needs raw key data (for a textbox for example)
     /// </summary>

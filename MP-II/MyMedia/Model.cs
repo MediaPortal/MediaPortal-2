@@ -157,7 +157,7 @@ namespace MyMedia
       try
       {
         //show waitcursor
-        window.WaitCursorVisible = true;
+        //window.WaitCursorVisible = true;
 
         //stop any other movies
         PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
@@ -178,7 +178,7 @@ namespace MyMedia
       finally
       {
         //hide waitcursor
-        window.WaitCursorVisible = false;
+        //window.WaitCursorVisible = false;
       }
     }
 

@@ -128,8 +128,8 @@ namespace dxEngine
       CheckForIllegalCrossThreadCalls = false;
 
       ServiceScope.Get<ILogger>().Debug("Application: load skin settings");
-      Loader loader = new Loader();
-      loader.LoadSkinSettings();
+      //Loader loader = new Loader();
+      //loader.LoadSkinSettings();
 
       Rectangle screen = Screen.PrimaryScreen.Bounds;
       float ar = screen.Width / ((float)screen.Height);

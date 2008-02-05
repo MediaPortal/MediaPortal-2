@@ -293,7 +293,7 @@ namespace MyMusic
           try
           {
             //show waitcursor
-            window.WaitCursorVisible = true;
+            //window.WaitCursorVisible = true;
 
             //stop any other movies
             PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
@@ -318,7 +318,7 @@ namespace MyMusic
           finally
           {
             //hide waitcursor
-            window.WaitCursorVisible = false;
+            //window.WaitCursorVisible = false;
           }
         }
       }

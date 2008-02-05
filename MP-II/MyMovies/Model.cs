@@ -352,7 +352,7 @@ namespace MyMovies
       IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       try
       {
-        window.WaitCursorVisible = true;
+        //window.WaitCursorVisible = true;
         PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
         IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
         IMediaItem mediaItem = new DvdMediaItem();
@@ -371,7 +371,7 @@ namespace MyMovies
       }
       finally
       {
-        window.WaitCursorVisible = false;
+        //window.WaitCursorVisible = false;
       }
       IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
       manager.ShowWindow("fullscreenvideo");
@@ -428,7 +428,7 @@ namespace MyMovies
         try
         {
           //show waitcursor
-          window.WaitCursorVisible = true;
+          //window.WaitCursorVisible = true;
 
           //stop any other movies
           PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
@@ -456,7 +456,7 @@ namespace MyMovies
         finally
         {
           //hide waitcursor
-          window.WaitCursorVisible = false;
+          //window.WaitCursorVisible = false;
         }
 
         // show fullscreen video window

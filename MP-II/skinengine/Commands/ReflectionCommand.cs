@@ -29,7 +29,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.WindowManager;
-using SkinEngine.Scripts;
+//using SkinEngine.Scripts;
 using SkinEngine.Commands.Expression;
 
 namespace SkinEngine.Commands
@@ -318,7 +318,7 @@ namespace SkinEngine.Commands
         {
           return param;
         }
-
+        /*
         if (parts[1].StartsWith("#script"))
         {
           string scriptName = parts[1].Substring("#script:".Length);
@@ -328,7 +328,7 @@ namespace SkinEngine.Commands
             return property.Evaluate(obj);
           }
         }
-        else
+        else*/
         {
           IWindowManager manager = ServiceScope.Get<IWindowManager>();
           IWindow window = manager.CurrentWindow;
@@ -388,7 +388,7 @@ namespace SkinEngine.Commands
         {
           return param;
         }
-
+        /*
         if (parts[1].StartsWith("#script"))
         {
           string scriptName = parts[1].Substring("#script:".Length);
@@ -398,7 +398,7 @@ namespace SkinEngine.Commands
             return property.Evaluate(obj);
           }
         }
-        else
+        else*/
         {
           IWindowManager manager = ServiceScope.Get<IWindowManager>();
           IWindow window = manager.CurrentWindow;

@@ -926,7 +926,7 @@ namespace SkinEngine.Players
       _previousAlphaMask = AlphaMask;
       return true;
     }
-
+#if NOTUSED
     /// <summary>
     /// Updates the vertex buffers with the new rendering attributes like size/position.
     /// </summary>
@@ -1097,7 +1097,7 @@ namespace SkinEngine.Players
       // Fill the vertex buffer
       PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
     }
-
+#endif
     /// <summary>
     /// Renders the texture.
     /// </summary>
@@ -1133,6 +1133,7 @@ namespace SkinEngine.Players
     /// </summary>
     public virtual void Render()
     {
+      /*
       if (_initialized == false) return;
       if (_vertexBuffer == null) return;
       lock (_fileName)
@@ -1148,7 +1149,7 @@ namespace SkinEngine.Players
           UpdateVertex();
         }
         RenderTexture();
-      }
+      }*/
     }
 
     /// <summary>

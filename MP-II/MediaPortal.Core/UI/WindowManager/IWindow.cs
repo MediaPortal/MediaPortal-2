@@ -33,7 +33,7 @@ namespace MediaPortal.Core.WindowManager
     /// Gets or sets a value indicating the wait cursor should be shown
     /// </summary>
     /// <value><c>true</c> if wait cursor should be shown; otherwise, <c>false</c>.</value>
-    bool WaitCursorVisible { get; set; }
+    //bool WaitCursorVisible { get; set; }
 
     /// <summary>
     /// Gets the name.

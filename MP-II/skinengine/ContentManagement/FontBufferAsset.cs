@@ -121,10 +121,10 @@ namespace SkinEngine.Fonts
       {
         return true;
       }
-      if (SkinContext.GradientInUse != _previousGradientUsed)
+      /*if (SkinContext.GradientInUse != _previousGradientUsed)
       {
         return true;
-      }
+      }*/
       if (color.ToArgb() != _previousColor.ToArgb())
       {
         return true;
@@ -171,7 +171,7 @@ namespace SkinEngine.Fonts
             _previousAlignment = alignment;
             _previousSize = size;
             _previousColor = color;
-            _previousGradientUsed = SkinContext.GradientInUse;
+            //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
             _previousMatrix = SkinContext.FinalMatrix.Matrix;
@@ -234,7 +234,7 @@ namespace SkinEngine.Fonts
         _previousAlignment = alignment;
         _previousSize = size;
         _previousColor = color;
-        _previousGradientUsed = SkinContext.GradientInUse;
+        //_previousGradientUsed = SkinContext.GradientInUse;
         _previousMatrix = SkinContext.FinalMatrix.Matrix;
 
         _font.AddString(text, textBox, alignment, size, color, true, false, out _textFits, out totalWidth);

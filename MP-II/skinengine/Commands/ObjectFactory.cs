@@ -76,7 +76,7 @@ namespace SkinEngine.Commands
       {
         return ServiceScope.Get<PlayerCollection>();
       }
-      object controlFound = ((Window)window).GetControlByName(name);
+      /*object controlFound = ((Window)window).GetControlByName(name);
       if (controlFound != null)
       {
         return controlFound;
@@ -86,8 +86,8 @@ namespace SkinEngine.Commands
       if (model != null)
       {
         return model.Instance;
-      }
-      model = ModelManager.Instance.GetModelByName(name);
+      }*/
+      Model model = ModelManager.Instance.GetModelByName(name);
       if (model != null)
       {
         return model.Instance;

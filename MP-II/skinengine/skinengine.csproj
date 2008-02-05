@@ -77,22 +77,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animations\Animations\AlphaAnimation.cs" />
-    <Compile Include="Animations\Animations\AnimationGroup.cs" />
-    <Compile Include="Animations\Animations\AnimationList.cs" />
-    <Compile Include="Animations\Animations\RotateAnimation.cs" />
-    <Compile Include="Animations\Animations\SlideAnimation.cs" />
-    <Compile Include="Animations\Triggers\FocusNamedControlTrigger.cs" />
-    <Compile Include="Animations\Triggers\MouseFocusTrigger.cs" />
-    <Compile Include="Animations\Triggers\ScriptTrigger.cs" />
-    <Compile Include="Animations\Triggers\FocusTrigger.cs" />
-    <Compile Include="Animations\Triggers\ITrigger.cs" />
-    <Compile Include="Animations\Animations\Tween.cs" />
-    <Compile Include="Animations\Animations\ZoomAnimation.cs" />
-    <Compile Include="Animations\Triggers\VisibleTrigger.cs" />
-    <Compile Include="Animations\Triggers\WindowOpenTrigger.cs" />
     <Compile Include="ColorConverter.cs" />
-    <Compile Include="Commands\CommandBuilder.cs" />
+    <Compile Include="Commands\CommandBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Commands\Expression\EventClasses.cs" />
     <Compile Include="Commands\Expression\ExprEval.cs" />
     <Compile Include="Commands\Expression\FunctionEval.cs" />
@@ -100,12 +88,12 @@
     <Compile Include="Commands\Expression\RegexObjects.cs" />
     <Compile Include="Commands\ObjectFactory.cs" />
     <Compile Include="Commands\ObjectParameter.cs" />
-    <Compile Include="Commands\ReflectionCommand.cs" />
-    <Compile Include="Commands\ReflectionCommandResult.cs" />
+    <Compile Include="Commands\ReflectionCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Commands\StringParameter.cs" />
     <Compile Include="ContentManagement\FontBufferAsset.cs" />
     <Compile Include="ContentManagement\VertextBufferAsset.cs" />
-    <Compile Include="Controls\AlphaMask.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
@@ -147,8 +135,9 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
-    <Compile Include="Controls\CheckBox.cs" />
-    <Compile Include="Controls\IScrollInfo.cs" />
+    <Compile Include="Controls\IScrollInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controls\Panels\Canvas.cs" />
     <Compile Include="Controls\Panels\ColumnDefinition.cs" />
     <Compile Include="Controls\Panels\ColumnDefinitionsCollection.cs" />
@@ -162,12 +151,6 @@
     <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
     <Compile Include="Controls\Panels\WrapPanel.cs" />
     <Compile Include="Controls\Panels\ZOrderComparer.cs" />
-    <Compile Include="Controls\Progress.cs" />
-    <Compile Include="Controls\Textbox.cs" />
-    <Compile Include="Controls\GradientStop.cs" />
-    <Compile Include="Controls\IControlExt.cs" />
-    <Compile Include="Controls\KeyBinding.cs" />
-    <Compile Include="Controls\Keyboard.cs" />
     <Compile Include="Controls\Transforms\RotateTransform.cs" />
     <Compile Include="Controls\Transforms\ScaleTransform.cs" />
     <Compile Include="Controls\Transforms\SkewTransform.cs" />
@@ -176,9 +159,6 @@
     <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
-    <Compile Include="Controls\TreeContainer.cs" />
-    <Compile Include="Controls\TreeItem.cs" />
-    <Compile Include="Controls\VisualBrush.cs" />
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\Button.cs" />
     <Compile Include="Controls\Visual\CheckBox.cs" />
@@ -234,8 +214,6 @@
     <Compile Include="Controls\Visual\UIElementCollection.cs" />
     <Compile Include="Controls\Visual\Visual.cs" />
     <Compile Include="Controls\Visual\VisualTreeHelper.cs" />
-    <Compile Include="Controls\WaitCursor.cs" />
-    <Compile Include="Animations\Animations\IAnimation.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />
     <Compile Include="DirectX\D3DSettingsForm.cs" />
     <Compile Include="DirectX\d3dSetup.cs" />
@@ -247,6 +225,9 @@
     <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="ExtendedMatrix.cs" />
     <Compile Include="InputManager\FocusManager.cs" />
+    <Compile Include="InputManager\InputManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
     <Compile Include="Players\CropSettings.cs" />
@@ -285,70 +266,18 @@
     <Compile Include="Players\TsVideoPlayer.cs" />
     <Compile Include="Players\VideoPlayer.cs" />
     <Compile Include="Players\Vmr9\Allocator.cs" />
-    <Compile Include="Property\PropertySystem\Dependency.cs" />
-    <Compile Include="Property\Implementations\BooleanProperty.cs" />
     <Compile Include="ContentManagement\ContentManager.cs" />
     <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\TextureAsset.cs" />
-    <Compile Include="Controls\Button.cs" />
-    <Compile Include="Controls\Control.cs" />
-    <Compile Include="Controls\Group.cs" />
-    <Compile Include="Controls\Image.cs" />
-    <Compile Include="Controls\Label.cs" />
-    <Compile Include="Controls\ListContainer.cs" />
-    <Compile Include="Controls\UpDown.cs" />
     <Compile Include="Fonts\Font.cs" />
     <Compile Include="Fonts\FontManager.cs" />
     <Compile Include="Fonts\FontQuad.cs" />
     <Compile Include="Fonts\Quad.cs" />
-    <Compile Include="Property\Implementations\BooleanPropertyControl.cs" />
-    <Compile Include="Property\Implementations\BooleanReflectionProperty.cs" />
-    <Compile Include="Property\Implementations\FloatProperty.cs" />
-    <Compile Include="Property\Implementations\FloatPropertyControl.cs" />
-    <Compile Include="Property\Implementations\FloatReflectionProperty.cs" />
-    <Compile Include="InputManager\InputManager.cs" />
-    <Compile Include="Property\Implementations\LabelProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property\Implementations\LabelReflectionProperty.cs" />
-    <Compile Include="Property\Implementations\Vector3Property.cs" />
-    <Compile Include="Property\interfaces\IVector3Property.cs" />
-    <Compile Include="Property\PropertySystem\DependencyAnd.cs" />
-    <Compile Include="Property\PropertySystem\IScriptProperty.cs" />
-    <Compile Include="Property\PropertySystem\PositionDependency.cs" />
-    <Compile Include="Property\PropertySystem\ReflectionDependency.cs" />
-    <Compile Include="Scripts\ScriptManager.cs" />
-    <Compile Include="ShowWaitCursor.cs" />
     <Compile Include="SkinContext.cs" />
-    <Compile Include="Skin\ControlBuilders\BuilderHelper.cs" />
-    <Compile Include="Skin\ControlBuilders\ButtonBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\CheckBoxBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\GroupBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\IControlBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\ImageBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\KeyBindingBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\KeyboardBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\LabelBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\ListBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\ProgressBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\RepeaterBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\TreeBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\TreeItemBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\UpDownBuilder.cs" />
-    <Compile Include="Skin\ControlBuilders\VisualBrushBuilder.cs" />
-    <Compile Include="Skin\ISkinLoader.cs" />
-    <Compile Include="Skin\Layout\FlowLayout.cs" />
-    <Compile Include="Skin\Layout\ILayout.cs" />
-    <Compile Include="Skin\Layout\StackLayout.cs" />
-    <Compile Include="Skin\Loader.cs" />
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
     <Compile Include="Skin\SkinLoaderContext.cs" />
-    <Compile Include="Skin\Style.cs" />
-    <Compile Include="Skin\StylesCollection.cs" />
-    <Compile Include="Skin\Themes\Theme.cs" />
-    <Compile Include="Skin\Themes\ThemeLoader.cs" />
     <Compile Include="Skin\XamlLoader.cs" />
-    <Compile Include="WindowManagement\nUnit\TestWindow.cs" />
-    <Compile Include="WindowManagement\nUnit\TestWindowManager.cs" />
     <Compile Include="WindowManagement\Utils.cs" />
     <Compile Include="WindowManagement\Window.cs" />
     <Compile Include="WindowManagement\WindowManager.cs" />
@@ -367,6 +296,9 @@
       <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
       <Name>ThumbnailGenerator</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="WindowManagement\nUnit\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

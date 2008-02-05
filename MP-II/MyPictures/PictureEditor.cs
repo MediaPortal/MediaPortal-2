@@ -209,7 +209,7 @@ namespace Pictures
 
     public void SaveImage()
     {
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
       Uri currentPicture = _slideShow.CurrentPictureUri;
       if (currentPicture == null) return;
       if (currentPicture.IsFile == false) return;
@@ -250,7 +250,7 @@ namespace Pictures
       msg.MetaData["action"] = "changed";
       msg.MetaData["fullpath"] = currentPicture.LocalPath;
       queue.Send(msg);
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
       ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
 
     }

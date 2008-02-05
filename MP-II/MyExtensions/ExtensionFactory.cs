@@ -73,7 +73,7 @@ namespace MyExtensions
       {
         try
         {
-          window.WaitCursorVisible = true;
+          //window.WaitCursorVisible = true;
           client.Credentials = new NetworkCredential("test", "testmaid5");
           client.DownloadFile(url, file);
         }
@@ -85,7 +85,7 @@ namespace MyExtensions
         }
         finally
         {
-          window.WaitCursorVisible = false;
+          //window.WaitCursorVisible = false;
         }
       }
       return x_ret;

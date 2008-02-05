@@ -185,7 +185,7 @@ namespace MyWeather
     /// <returns></returns>
     public void Refresh()
     {
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
       GetLocationsFromSettings(true);
       foreach (City loc in _locations)
       {
@@ -199,7 +199,7 @@ namespace MyWeather
           ServiceScope.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
         }
       }
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
 

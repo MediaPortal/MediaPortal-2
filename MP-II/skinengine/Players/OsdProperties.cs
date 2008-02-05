@@ -494,7 +494,7 @@ namespace SkinEngine.Players
             object v = enumer.Current.Value;
             if (v != null)
             {
-              _mediaItem.Labels[enumer.Current.Key] = new LabelProperty(v.ToString());
+              //_mediaItem.Labels[enumer.Current.Key] = v.ToString();
             }
           }
         }

@@ -38,7 +38,6 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Skin;
-using Control = SkinEngine.Controls.Control;
 namespace SkinEngine
 {
   public class Window : IWindow
@@ -59,25 +58,13 @@ namespace SkinEngine
     private string _name;
     private bool _hasFocus;
     private State _state = State.Running;
-    private List<IControlExt> _controls;
-    private Dictionary<string, IControlExt> _controlMap;
-    private Dictionary<string, Model> _models;
     private KeyPressedHandler _keyPressHandler;
     private MouseMoveHandler _mouseMoveHandler;
-    private WaitCursor _waitCursor;
     private Property _opened;
-    private Property _controlsProperty;
-    private Property _resultProperty;
     private bool _attachedInput = false;
     private string _defaultFocus;
     private Thread _thread;
-    private ICommand _openCommand;
-    private ICommandParameter _openCommandParameter;
-    private ICommand _closeCommand;
-    private ICommandParameter _closeCommandParameter;
     public event EventHandler OnClose;
-    private Control _focusedControl;
-    private Control _focusedMouseControl;
     private bool _history;
     UIElement _visual;
     bool _setFocusedElement = false;
@@ -100,19 +87,9 @@ namespace SkinEngine
 
       _history = true;
       _opened = new Property(true);
-      _waitCursor = new WaitCursor();
       _name = name;
-      _controls = new List<IControlExt>();
-      _controlMap = new Dictionary<string, IControlExt>();
-      _controlsProperty = new Property(_controls);
-      _models = new Dictionary<string, Model>();
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
-
-      //XamlLoader loader = new XamlLoader();
-      //_visual = (UIElement)loader.Load("test.xml");
-
-
     }
     public UIElement Visual
     {
@@ -130,29 +107,13 @@ namespace SkinEngine
         }
       }
     }
-    public Control FocusedControl
-    {
-      get { return _focusedControl; }
-      set { _focusedControl = value; }
-    }
     public FrameworkElement RootElement
     {
       get
       {
-#if TESTXAML
         return _visual as FrameworkElement;
-#else
-        return null;
-#endif
       }
     }
-
-    public Control FocusedMouseControl
-    {
-      get { return _focusedMouseControl; }
-      set { _focusedMouseControl = value; }
-    }
-
 
     public bool History
     {
@@ -175,154 +136,7 @@ namespace SkinEngine
       get { return _opened; }
       set { _opened = value; }
     }
-
-    public ICommand OpenCommand
-    {
-      get { return _openCommand; }
-      set { _openCommand = value; }
-    }
-    public ICommandParameter OpenCommandParameter
-    {
-      get { return _openCommandParameter; }
-      set { _openCommandParameter = value; }
-    }
-
-    public ICommand CloseCommand
-    {
-      get { return _closeCommand; }
-      set { _closeCommand = value; }
-    }
-
-    public ICommandParameter CloseCommandParameter
-    {
-      get { return _closeCommandParameter; }
-      set { _closeCommandParameter = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the result value (for dialogs).
-    /// </summary>
-    /// <value>The result.</value>
-    public Property Result
-    {
-      get { return _resultProperty; }
-      set { _resultProperty = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the name of the control which should receive focus when we open the window
-    /// </summary>
-    /// <value>The default focus.</value>
-    public string DefaultFocus
-    {
-      get { return _defaultFocus; }
-      set
-      {
-        if (value == null)
-        {
-          throw new ArgumentNullException("DefaultFocus");
-        }
-        _defaultFocus = value;
-      }
-    }
-
-
-    /// <summary>
-    /// Adds a model to the window.
-    /// </summary>
-    /// <param name="name">The model name.</param>
-    /// <param name="model">The model.</param>
-    public void AddModel(string name, Model model)
-    {
-      if (model == null)
-      {
-        throw new ArgumentNullException("model");
-      }
-      if (name == null)
-      {
-        throw new ArgumentNullException("name");
-      }
-      if (name.Length == 0)
-      {
-        throw new ArgumentOutOfRangeException("name");
-      }
-      _models[name] = model;
-    }
-
-    /// <summary>
-    /// adds a control to the window
-    /// </summary>
-    /// <param name="control">The control.</param>
-    public void AddControl(IControlExt control)
-    {
-      if (control == null)
-      {
-        throw new ArgumentNullException("control");
-      }
-      _controls.Add(control);
-      if (control.Name.Length > 0)
-      {
-        _controlMap[control.Name] = control;
-      }
-      _controlsProperty.SetValue(_controlMap.Count + _controls.Count + 1);
-    }
-
-    public Property ControlCountProperty
-    {
-      get { return _controlsProperty; }
-      set { _controlsProperty = value; }
-    }
-
-    /// <summary>
-    /// Adds a named-control to the window.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    public void AddNamedControl(IControlExt control)
-    {
-      if (control == null)
-      {
-        throw new ArgumentNullException("control");
-      }
-      if (control.Name == null)
-      {
-        throw new ArgumentNullException("control.Name");
-      }
-      if (control.Name.Length == 0)
-      {
-        throw new ArgumentOutOfRangeException("control.Name");
-      }
-      _controlMap[control.Name] = control;
-      _controlsProperty.SetValue(_controlMap.Count + _controls.Count + 1);
-    }
-
-    /// <summary>
-    /// returns the model with the specified name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public Model GetModelByName(string name)
-    {
-      if (_models.ContainsKey(name))
-      {
-        return _models[name];
-      }
-      return null;
-    }
-
-    /// <summary>
-    /// returns the control with the specified name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public Control GetControlByName(string name)
-    {
-      if (_controlMap.ContainsKey(name))
-      {
-        return (Control)_controlMap[name];
-      }
-      return null;
-    }
-
+     
     /// <summary>
     /// Gets the window-name.
     /// </summary>
@@ -353,28 +167,15 @@ namespace SkinEngine
       set
       {
         _hasFocus = value;
-        if (!_hasFocus)
-          FocusedControl = null;
       }
     }
 
-    /// <summary>
-    /// Gets or sets the controls.
-    /// </summary>
-    /// <value>The controls.</value>
-    public List<IControlExt> Controls
+    public bool IsAnimating
     {
-      get { return _controls; }
-      set { _controls = value; }
-    }
-
-    /// <summary>
-    /// Gets the wait cursor.
-    /// </summary>
-    /// <value>The wait cursor.</value>
-    public WaitCursor WaitCursor
-    {
-      get { return _waitCursor; }
+      get
+      {
+        return false;
+      }
     }
 
     /// <summary>
@@ -386,15 +187,7 @@ namespace SkinEngine
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
 
-#if TESTXAML
-#else
-      for (int i = 0; i < _controls.Count; ++i)
-      {
-        //_controls[i].UpdateProperties();
-        _controls[i].DoRender(time);
-      }
-      _waitCursor.Render(time);
-#endif
+
       if (!IsOpened && _thread == null && !IsAnimating)
       {
         //we cannot close the window from the render thread
@@ -404,7 +197,6 @@ namespace SkinEngine
         _thread.Start();
       }
 
-#if TESTXAML
       _visual.Render();
       _visual.Animate();
       if (_setFocusedElement)
@@ -415,7 +207,6 @@ namespace SkinEngine
           _setFocusedElement = !_visual.FocusedElement.HasFocus;
         }
       }
-#endif
     }
 
     /// <summary>
@@ -423,10 +214,6 @@ namespace SkinEngine
     /// </summary>
     private void CloseThisWindow()
     {
-      if (_closeCommand != null)
-      {
-        _closeCommand.Execute(_closeCommandParameter);
-      }
       WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
       if (manager.CurrentWindow == this)
       {
@@ -447,35 +234,13 @@ namespace SkinEngine
         ServiceScope.Get<IInputManager>().OnMouseMove += _mouseMoveHandler;
         _attachedInput = true;
       }
-#if TESTXAML
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
       _visual.Reset();
       _visual.Invalidate();
       _visual.InitializeBindings();
       _setFocusedElement = true;
-#else
-      if (animate)
-      {
-        for (int i = 0; i < _controls.Count; ++i)
-        {
-          _controls[i].Reset();
-        }
-
-        if (_defaultFocus != null)
-        {
-          IControlExt c = GetControlByName(_defaultFocus);
-          if (c != null)
-          {
-            c.HasFocus = true;
-          }
-        }
-      }
-#endif
-      if (_openCommand != null)
-      {
-        _openCommand.Execute(_openCommandParameter);
-      }
+ 
     }
 
     /// <summary>
@@ -488,25 +253,7 @@ namespace SkinEngine
       {
         return;
       }
-#if TESTXAML
       _visual.OnKeyPressed(ref key);
-#else
-      for (int i = 0; i < _controls.Count; ++i)
-      {
-        _controls[i].OnKeyPressed(ref key);
-      }
-      if (FocusedControl == null)
-      {
-        if (_defaultFocus != null)
-        {
-          IControlExt c = GetControlByName(_defaultFocus);
-          if (c != null)
-          {
-            c.HasFocus = true;
-          }
-        }
-      }
-#endif
     }
 
     /// <summary>
@@ -520,25 +267,7 @@ namespace SkinEngine
       {
         return;
       }
-#if TESTXAML
       _visual.OnMouseMove(x, y);
-#else
-      for (int i = 0; i < _controls.Count; ++i)
-      {
-        _controls[i].OnMouseMove(x, y);
-      }
-      if (FocusedControl == null)
-      {
-        if (_defaultFocus != null)
-        {
-          IControlExt c = GetControlByName(_defaultFocus);
-          if (c != null)
-          {
-            c.HasFocus = true;
-          }
-        }
-      }
-#endif
     }
 
     /// <summary>
@@ -558,53 +287,13 @@ namespace SkinEngine
       }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this window is animating.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this window is animating; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsAnimating
-    {
-      get
-      {
-        for (int i = 0; i < _controls.Count; ++i)
-        {
-          if (_controls[i].IsAnimating)
-          {
-            return true;
-          }
-        }
-        return false;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating the wait cursor should be shown
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if wait cursor should be shown; otherwise, <c>false</c>.
-    /// </value>
-    public bool WaitCursorVisible
-    {
-      get { return _waitCursor.Visible; }
-      set { _waitCursor.Visible = value; }
-    }
-
     public void Reset()
     {
-#if TESTXAML
 
       SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
       _visual.InitializeBindings();
       _visual.Reset();
-#else
-      for (int i = 0; i < _controls.Count; ++i)
-      {
-        _controls[i].Reset();
-      }
-#endif
     }
   }
 }

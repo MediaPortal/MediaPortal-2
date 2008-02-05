@@ -96,9 +96,9 @@ namespace MyWeather
     public void SearchLocations(string name)
     {
       // get a grabber to search for citys
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
       LocationsSearch = ServiceScope.Get<IWeatherCatcher>().FindLocationsByName(name);
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace MyWeather
     /// </summary>
     public void SaveSettings()
     {
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
       WeatherSettings settings = new WeatherSettings();
       // Load Settings
       ServiceScope.Get<ISettingsManager>().Load(settings);
@@ -114,7 +114,7 @@ namespace MyWeather
       settings.LocationsList = Locations;
       // save
       ServiceScope.Get<ISettingsManager>().Save(settings);
-      ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>

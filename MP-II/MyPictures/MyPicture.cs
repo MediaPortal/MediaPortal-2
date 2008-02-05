@@ -337,7 +337,7 @@ namespace Pictures
           try
           {
             //show waitcursor
-            window.WaitCursorVisible = true;
+            //window.WaitCursorVisible = true;
 
             //play it
             SlideShow.CurrentPictureUri = uri;
@@ -348,7 +348,7 @@ namespace Pictures
           finally
           {
             //hide waitcursor
-            window.WaitCursorVisible = false;
+            //window.WaitCursorVisible = false;
           }
 
           // show fullscreen video window

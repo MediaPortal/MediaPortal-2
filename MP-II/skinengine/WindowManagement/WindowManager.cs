@@ -76,7 +76,6 @@ namespace SkinEngine
     private Window _currentDialog;
     private Window _previousWindow = null;
     private List<Window> _history = new List<Window>();
-    private ISkinLoader _skinLoader;
     public Utils _utils = new Utils();
     #endregion
 
@@ -85,24 +84,10 @@ namespace SkinEngine
     /// </summary>
     public WindowManager()
     {
-      _skinLoader = new Loader();
       _windows = new List<Window>();
       ServiceScope.Get<IPlayerFactory>().Register(new SkinEngine.Players.PlayerFactory());
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WindowManager"/> class.
-    /// </summary>
-    /// <param name="loader">The loader.</param>
-    public WindowManager(ISkinLoader loader)
-    {
-      if (loader == null)
-      {
-        throw new ArgumentNullException("loader");
-      }
-      _skinLoader = loader;
-      _windows = new List<Window>();
-    }
 
     /// <summary>
     /// Loads the skin.
@@ -118,17 +103,21 @@ namespace SkinEngine
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }
       SkinContext.SkinName = settings.Skin;
-      SkinContext.ThemeName = settings.Theme;
-#if TESTXAML
+      //SkinContext.ThemeName = settings.Theme;
+
      ShowWindow("homevista");
-      //ShowWindow("sharesAdd");
-#else
-
-      PrepareWindow("homevista");
-      ShowWindow("homevista");
-#endif
     }
-
+    public void SwitchTheme(string newThemeName)
+    {
+    }
+    public string ThemeName
+    {
+      get
+      {
+        return "";
+      }
+    }
+#if NOTDEF
     public void SwitchTheme(string newThemeName)
     {
       if (newThemeName == SkinContext.ThemeName) return;
@@ -178,12 +167,14 @@ namespace SkinEngine
         return SkinContext.ThemeName;
       }
     }
+#endif
     /// <summary>
     /// Switches to the skin specified.
     /// </summary>
     /// <param name="newSkinName">name of the skin.</param>
     public void SwitchSkin(string newSkinName)
     {
+#if NOTUSED
       if (newSkinName == SkinContext.SkinName) return;
       CloseDialog();
       lock (_history)
@@ -226,6 +217,7 @@ namespace SkinEngine
       settings.Skin = newSkinName;
       settings.Theme = "default";
       ServiceScope.Get<ISettingsManager>().Save(settings);
+#endif
     }
 
     /// <summary>
@@ -252,15 +244,6 @@ namespace SkinEngine
           return _currentDialog;
         return _currentWindow;
       }
-    }
-
-    /// <summary>
-    /// Gets the skin loader.
-    /// </summary>
-    /// <value>The skin loader.</value>
-    public ISkinLoader SkinLoader
-    {
-      get { return _skinLoader; }
     }
 
     /// <summary>
@@ -322,7 +305,7 @@ namespace SkinEngine
         //show waitcursor while loading a new window
         if (_currentWindow != null)
         {
-          _currentWindow.WaitCursorVisible = true;
+          //_currentWindow.WaitCursorVisible = true;
         }
         foreach (Window window in _windows)
         {
@@ -352,7 +335,7 @@ namespace SkinEngine
         //hide the waitcursor again
         if (_currentWindow != null)
         {
-          _currentWindow.WaitCursorVisible = false;
+          //_currentWindow.WaitCursorVisible = false;
         }
       }
     }

@@ -176,8 +176,9 @@ namespace SkinEngine
 
 
       if (_state == State.Unknown)
-      {
+      {/*
         if (SkinContext.Theme.HasImage(_textureName))
+          
         {
           _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, SkinContext.Theme.GetImage(_textureName));
           if (File.Exists(_sourceFileName))
@@ -193,14 +194,15 @@ namespace SkinEngine
             }
           }
         }
-        else
+        else*/
         {
+          /*
           _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, _textureName);
           if (File.Exists(_sourceFileName))
           {
             _state = State.Created;
           }
-          else
+          else*/
           {
             _sourceFileName = String.Format(@"skin\{0}\media\{1}", SkinContext.SkinName, _textureName);
             if (File.Exists(_sourceFileName))

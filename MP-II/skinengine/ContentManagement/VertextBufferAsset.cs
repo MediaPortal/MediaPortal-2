@@ -47,7 +47,7 @@ namespace SkinEngine
     private float _previousColorBottomLeft;
     private float _previousColorBottomRight;
     private float _previousColorUpperRight;
-    private bool _previousGradientInUse = false;
+    //private bool _previousGradientInUse = false;
     private float _previousUoff;
     private float _previousVoff;
     private float _previousUmax;
@@ -96,7 +96,7 @@ namespace SkinEngine
         _previousColorBottomLeft = 0;
         _previousColorBottomRight = 0;
         _previousColorUpperRight = 0;
-        _previousGradientInUse = false;
+//        _previousGradientInUse = false;
         _texture = ContentManager.GetTexture(fileName, thumbnail);
         Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
       }
@@ -135,7 +135,7 @@ namespace SkinEngine
       {
         if (colorUpperLeft == _previousColorUpperLeft && colorBottomLeft == _previousColorBottomLeft &&
             colorBottomRight == _previousColorBottomRight && colorUpperRight == _previousColorUpperRight
-            && _previousGradientInUse == SkinContext.GradientInUse)
+            /*&& _previousGradientInUse == SkinContext.GradientInUse*/)
         {
           if (uoff == _previousUoff && voff == _previousVoff &&
               umax == _previousUmax && vmax == _previousVMax)
@@ -166,7 +166,7 @@ namespace SkinEngine
       _previousColorBottomLeft = colorBottomLeft;
       _previousColorBottomRight = colorBottomRight;
       _previousColorUpperRight = colorUpperRight;
-      _previousGradientInUse = SkinContext.GradientInUse;
+//      _previousGradientInUse = SkinContext.GradientInUse;
     }
 
     /// <summary>
@@ -202,6 +202,7 @@ namespace SkinEngine
       unchecked
       {
         float tu2, tv2;
+        tu2 = tv2 = 1;
         long colorUpperLeft = alphaUpperLeft;
         colorUpperLeft <<= 24;
         colorUpperLeft += 0xffffff;
@@ -219,7 +220,7 @@ namespace SkinEngine
         verts[0].Tv1 = v1;
         verts[0].Position = upperLeft;
         verts[0].Color = (int)colorUpperLeft;
-        SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
+        //SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
         verts[0].Tu2 = tu2;
         verts[0].Tv2 = tv2;
 
@@ -228,7 +229,7 @@ namespace SkinEngine
         verts[1].Tv1 = v2;
         verts[1].Position = bottomLeft;
         verts[1].Color = (int)colorBottomLeft;
-        SkinContext.GetAlphaGradientUV(bottomLeft, out tu2, out tv2);
+        //SkinContext.GetAlphaGradientUV(bottomLeft, out tu2, out tv2);
         verts[1].Tu2 = tu2;
         verts[1].Tv2 = tv2;
 
@@ -237,7 +238,7 @@ namespace SkinEngine
         verts[2].Tv1 = v2;
         verts[2].Position = bottomRight;
         verts[2].Color = (int)colorBottomRight;
-        SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
+        //SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
         verts[2].Tu2 = tu2;
         verts[2].Tv2 = tv2;
 
@@ -246,7 +247,7 @@ namespace SkinEngine
         verts[3].Tv1 = v1;
         verts[3].Position = upperRight;
         verts[3].Color = (int)colorUpperRight;
-        SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
+        //SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
         verts[3].Tu2 = tu2;
         verts[3].Tv2 = tv2;
       }
