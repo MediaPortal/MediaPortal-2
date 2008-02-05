@@ -30,10 +30,11 @@ using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Players
 {
-  public class PlaybackSettings
+  public class Settings
   {
     readonly ItemsCollection _mpeg2Codecs;
     readonly ItemsCollection _h264Codecs;
@@ -41,9 +42,59 @@ namespace SkinEngine.Players
     readonly ItemsCollection _audioCodecs;
     readonly ItemsCollection _defaultAudioLanguages;
     readonly ItemsCollection _defaultSubtitleLanguages;
+    AudioSettings _audioSettings;
+    Property _propertyIsDigital;
+    Property _propertyIsAnalog;
+    Property _propertyIsBuildIn;
+    Property _propertyIsStereo;
+    Property _propertyIs51;
+    Property _propertyIs71;
 
-    public PlaybackSettings()
+    public Settings()
     {
+
+      _propertyIsDigital = new Property(false);
+      _propertyIsAnalog = new Property(false);
+      _propertyIsBuildIn = new Property(false);
+      _propertyIsStereo = new Property(false);
+      _propertyIs51 = new Property(false);
+      _propertyIs71 = new Property(false);
+
+
+      _audioSettings = new AudioSettings();
+      ServiceScope.Get<ISettingsManager>().Load(_audioSettings);
+      switch (_audioSettings.ConnectionType)
+      {
+        case SpeakerConnectionType.Analog:
+          IsAnalog = true;
+          break;
+        case SpeakerConnectionType.BuildIn:
+          IsBuildIn = true;
+          break;
+        case SpeakerConnectionType.Digital:
+          IsDigital = true;
+          break;
+      }
+      switch (_audioSettings.Count)
+      {
+        case SpeakerAmount.Stereo:
+          IsStereo = true;
+          break;
+        case SpeakerAmount.Speakers_5_1:
+          Is51 = true;
+          break;
+        case SpeakerAmount.Speakers_7_1:
+          Is71 = true;
+          break;
+      }
+      _propertyIsDigital.Attach(OnSpeakerConnectionChanged);
+      _propertyIsAnalog.Attach(OnSpeakerConnectionChanged);
+      _propertyIsBuildIn.Attach(OnSpeakerConnectionChanged);
+
+      _propertyIsStereo.Attach(OnSpeakerAmountChanged);
+      _propertyIs51.Attach(OnSpeakerAmountChanged);
+      _propertyIs71.Attach(OnSpeakerAmountChanged);
+
       _mpeg2Codecs = new ItemsCollection();
       _h264Codecs = new ItemsCollection();
       _divxCodecs = new ItemsCollection();
@@ -62,7 +113,7 @@ namespace SkinEngine.Players
       AddCodec(_h264Codecs, "CyberLink H.264/AVC Decoder (PDVD7)", "{D12E285B-3B29-4416-BA8E-79BD81D193CC}");
       AddCodec(_h264Codecs, "CoreAVC Video Decoder", "{09571A4B-F1FE-4C60-9760-DE6D310C7C31}");
 
-      AddCodec(_audioCodecs, "CyberLink Audio Decode (PDVD7.x)", "{D5DBA1A7-61A0-437E-B6AB-C9C422F466B5}");
+      AddCodec(_audioCodecs, "CyberLink Audio Decoder (PDVD7.x)", "{D5DBA1A7-61A0-437E-B6AB-C9C422F466B5}");
       AddCodec(_audioCodecs, "CyberLink Audio Decoder (PDVD7 UPnP)", "{706E503A-EB19-4106-9D7C-0384359D511A}");
       AddCodec(_audioCodecs, "CyberLink Audio Decoder", "{B60C424E-AB7B-429F-9B9B-93684E51EA75}");
       AddCodec(_audioCodecs, "CyberLink Audio Decoder", "{03EC05EA-C2A7-49A8-971F-580D5891F2FB}");
@@ -300,5 +351,202 @@ namespace SkinEngine.Players
     }
     #endregion
 
+    #region speaker setup
+    public AudioSettings Speakers
+    {
+      get
+      {
+        return _audioSettings;
+      }
+    }
+
+
+    #region connection type properties
+    public bool IsDigital
+    {
+      get
+      {
+        return (bool)_propertyIsDigital.GetValue();
+      }
+      set
+      {
+        _propertyIsDigital.SetValue(value);
+      }
+    }
+    public Property IsDigitalProperty
+    {
+      get
+      {
+        return _propertyIsDigital;
+      }
+      set
+      {
+        _propertyIsDigital = value;
+      }
+    }
+    public bool IsAnalog
+    {
+      get
+      {
+        return (bool)_propertyIsAnalog.GetValue();
+      }
+      set
+      {
+        _propertyIsAnalog.SetValue(value);
+      }
+    }
+    public Property IsAnalogProperty
+    {
+      get
+      {
+        return _propertyIsAnalog;
+      }
+      set
+      {
+        _propertyIsAnalog = value;
+      }
+    }
+    public bool IsBuildIn
+    {
+      get
+      {
+        return (bool)_propertyIsBuildIn.GetValue();
+      }
+      set
+      {
+        _propertyIsBuildIn.SetValue(value);
+      }
+    }
+    public Property IsBuildInProperty
+    {
+      get
+      {
+        return _propertyIsBuildIn;
+      }
+      set
+      {
+        _propertyIsBuildIn = value;
+      }
+    }
+
+    #region speaker amount properties
+    public bool IsStereo
+    {
+      get
+      {
+        return (bool)_propertyIsStereo.GetValue();
+      }
+      set
+      {
+        _propertyIsStereo.SetValue(value);
+      }
+    }
+    public Property IsStereoProperty
+    {
+      get
+      {
+        return _propertyIsStereo;
+      }
+      set
+      {
+        _propertyIsStereo = value;
+      }
+    }
+    public bool Is51
+    {
+      get
+      {
+        return (bool)_propertyIs51.GetValue();
+      }
+      set
+      {
+        _propertyIs51.SetValue(value);
+      }
+    }
+    public Property Is51Property
+    {
+      get
+      {
+        return _propertyIs51;
+      }
+      set
+      {
+        _propertyIs51 = value;
+      }
+    }
+    public bool Is71
+    {
+      get
+      {
+        return (bool)_propertyIs71.GetValue();
+      }
+      set
+      {
+        _propertyIs71.SetValue(value);
+      }
+    }
+    public Property Is71Property
+    {
+      get
+      {
+        return _propertyIs71;
+      }
+      set
+      {
+        _propertyIs71 = value;
+      }
+    }
+    #endregion
+
+    #endregion
+
+    void OnSpeakerConnectionChanged(Property prop)
+    {
+      if ((bool)prop.GetValue() == false) return;
+      if (prop == IsBuildInProperty)
+      {
+        IsDigital = false;
+        IsAnalog = false;
+        _audioSettings.ConnectionType = SpeakerConnectionType.BuildIn;
+      }
+      else if (prop == IsDigitalProperty)
+      {
+        IsBuildIn = false;
+        IsAnalog = false;
+        _audioSettings.ConnectionType = SpeakerConnectionType.Digital;
+      }
+      else if (prop == IsAnalogProperty)
+      {
+        IsBuildIn = false;
+        IsDigital = false;
+        _audioSettings.ConnectionType = SpeakerConnectionType.Analog;
+      }
+      ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
+    }
+
+    void OnSpeakerAmountChanged(Property prop)
+    {
+      if ((bool)prop.GetValue() == false) return;
+      if (prop == IsStereoProperty)
+      {
+        Is51 = false;
+        Is71 = false;
+        _audioSettings.Count = SpeakerAmount.Stereo;
+      }
+      else if (prop == Is51Property)
+      {
+        IsStereo = false;
+        Is71 = false;
+        _audioSettings.Count = SpeakerAmount.Speakers_5_1;
+      }
+      else if (prop == Is71Property)
+      {
+        IsStereo = false;
+        Is51 = false;
+        _audioSettings.Count = SpeakerAmount.Speakers_7_1;
+      }
+      ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
+    }
+    #endregion
   }
 }

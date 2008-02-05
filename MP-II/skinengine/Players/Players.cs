@@ -59,7 +59,7 @@ namespace SkinEngine.Players
     private Property _videoPaused;
     private Property _videoPlaying;
     private Property _muted;
-    private PlaybackSettings _playbackSettings = new PlaybackSettings();
+    private Settings _playbackSettings = new Settings();
     private OsdProperties _osdProperties;
 
     #endregion
@@ -308,7 +308,7 @@ namespace SkinEngine.Players
     /// Gets the default settings.
     /// </summary>
     /// <value>The default settings.</value>
-    public PlaybackSettings Settings
+    public Settings Settings
     {
       get
       {

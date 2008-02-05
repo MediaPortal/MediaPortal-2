@@ -263,10 +263,12 @@
     <Compile Include="Players\Geometry\GeometryZoom.cs" />
     <Compile Include="Players\IPersistMemory.cs" />
     <Compile Include="Players\OsdProperties.cs" />
-    <Compile Include="Players\PlaybackSettings.cs" />
     <Compile Include="Players\PlayerFactory.cs" />
     <Compile Include="Players\Players.cs" />
     <Compile Include="Players\Seeking.cs" />
+    <Compile Include="Players\settings\Settings.cs" />
+    <Compile Include="Players\settings\AudioSettings.cs" />
+    <Compile Include="Players\settings\VideoSettings.cs" />
     <Compile Include="Players\StringTokenizer.cs" />
     <Compile Include="Players\Subtitles\SubtitleRenderer.cs" />
     <Compile Include="Players\Subtitles\SubtitleSelector.cs" />
@@ -282,7 +284,6 @@
     <Compile Include="Players\Teletext\TSHeader.cs" />
     <Compile Include="Players\TsVideoPlayer.cs" />
     <Compile Include="Players\VideoPlayer.cs" />
-    <Compile Include="Players\VideoSettings.cs" />
     <Compile Include="Players\Vmr9\Allocator.cs" />
     <Compile Include="Property\PropertySystem\Dependency.cs" />
     <Compile Include="Property\Implementations\BooleanProperty.cs" />

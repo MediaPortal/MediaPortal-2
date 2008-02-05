@@ -56,8 +56,11 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _isCheckedProperty = new Property(false);
+      _isCheckedProperty.Attach(new PropertyChangedHandler(onPropChanged));
     }
-
+    void onPropChanged(Property p)
+    {
+    }
     /// <summary>
     /// Gets or sets the is pressed property.
     /// </summary>
