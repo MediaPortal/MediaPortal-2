@@ -50,10 +50,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSScriptLibrary, Version=1.9.0.0, Culture=neutral, PublicKeyToken=70fcc3d18c749033">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxEngine\references\CSScriptLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\dxEngine\references\DirectShowLib-2005.dll</HintPath>
