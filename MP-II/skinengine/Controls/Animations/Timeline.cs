@@ -507,6 +507,7 @@ namespace SkinEngine.Controls.Animations
 
     protected Property GetProperty(string targetName, string targetProperty)
     {
+      ///@optimize
       string propertyname = "";
       Regex regex = new Regex(@"\([^\.]+\.[^\.]+");
       MatchCollection matches = regex.Matches(targetProperty);

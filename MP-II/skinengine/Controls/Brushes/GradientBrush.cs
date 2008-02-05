@@ -59,7 +59,6 @@ namespace SkinEngine.Controls.Brushes
 
   public class GradientBrush : Brush, IAddChild
   {
-    protected Texture _gradientTexture;
     protected PositionColored2Textured[] _verts;
     Property _colorInterpolationModeProperty;
     Property _gradientStopsProperty;
@@ -254,9 +253,10 @@ namespace SkinEngine.Controls.Brushes
 
       PositionColored2Textured.Set(vertexbuffer, ref _verts);
     }
-
+    /*
     protected void CreateGradient()
     {
+      ///@optimize: use brush-cache
       LockedRect rect = _gradientTexture.LockRectangle(0, LockFlags.None);
       //int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
       float width = 256.0f;
@@ -320,7 +320,7 @@ namespace SkinEngine.Controls.Brushes
       rect.Data.Dispose();
 
     }
-
+    */
 
     #region IAddChild Members
 

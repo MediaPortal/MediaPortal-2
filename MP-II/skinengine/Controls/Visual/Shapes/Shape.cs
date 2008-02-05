@@ -259,13 +259,13 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
+      if (Fill == null && Stroke == null) return;
       if ((Fill != null && _vertexBufferFill == null) ||
            (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
       }
-
       ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
       SkinContext.AddTransform(m);
       if (Fill != null)

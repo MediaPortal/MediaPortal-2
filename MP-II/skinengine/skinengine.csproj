@@ -121,6 +121,8 @@
     <Compile Include="Controls\Bindings\InvokeCommand.cs" />
     <Compile Include="Controls\Bindings\TemplateBinding.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
+    <Compile Include="Controls\Brushes\BrushCache.cs" />
+    <Compile Include="Controls\Brushes\BrushTexture.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />
     <Compile Include="Controls\Brushes\GradientStop.cs" />
     <Compile Include="Controls\Brushes\GradientStopCollection.cs" />

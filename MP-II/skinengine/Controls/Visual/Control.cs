@@ -100,6 +100,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (_templateProperty == null)
         Init();
+      ///@optimize: 
       Style.Set(this);
       Invalidate();
     }
@@ -107,6 +108,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (Template != null)
       {
+        ///@optimize: 
         FrameworkElement element = Template.LoadContent() as FrameworkElement;
         if (element != null)
         {
@@ -312,12 +314,15 @@ namespace SkinEngine.Controls.Visuals
     public void RenderBorder()
     {
       if (!IsVisible) return;
+      if (Background == null && BorderBrush == null) return;
+
       if ((Background != null && _vertexBufferFill == null) ||
-           (BorderBrush != null && _vertexBufferBorder == null) || _performLayout)
+          (BorderBrush != null && _vertexBufferBorder == null) || _performLayout)
       {
         PerformLayout();
         _performLayout = false;
       }
+
 
       ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
       m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
@@ -355,7 +360,6 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       RenderBorder();
-      base.DoRender();
       if (_templateControl != null)
       {
         ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
@@ -382,7 +386,7 @@ namespace SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       //if (this is TreeView)
-        //Trace.WriteLine(String.Format("TreeView:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
+      //Trace.WriteLine(String.Format("TreeView:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
 
       if (!IsVisible)
       {
@@ -452,14 +456,14 @@ namespace SkinEngine.Controls.Visuals
 
 
       //if (this is TreeView)
-        //        Trace.WriteLine(String.Format("TreeView:Measure returns '{0}' {1}x{2}", this.Name, _desiredSize.Width, _desiredSize.Height));
+      //        Trace.WriteLine(String.Format("TreeView:Measure returns '{0}' {1}x{2}", this.Name, _desiredSize.Width, _desiredSize.Height));
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       //    if (this is TreeView)
-//        Trace.WriteLine(String.Format("TreeView:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //        Trace.WriteLine(String.Format("TreeView:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 

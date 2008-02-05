@@ -116,6 +116,7 @@ namespace SkinEngine.Controls.Visuals
     #region methods
     public UIElement LoadContent()
     {
+      ///@optimize: 
       if (_templateElement == null) return null;
       return _templateElement.Clone() as UIElement;
     }

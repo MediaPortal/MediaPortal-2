@@ -115,6 +115,7 @@ namespace SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(Property property)
     {
+      ///@optimize: 
       Style.Set(this);
       Invalidate();
     }
