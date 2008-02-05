@@ -63,6 +63,7 @@
     <Compile Include="Cd\Utils.cs" />
     <Compile Include="CommandLine\CommandLine.cs" />
     <Compile Include="CommandLine\ICommandLineOptions.cs" />
+    <Compile Include="Files\FileUtils.cs" />
     <Compile Include="Localisation\LocalisationStrings.cs" />
     <Compile Include="Localisation\StringsFile\StringFile.cs" />
     <Compile Include="Localisation\StringsFile\StringLocalised.cs" />
@@ -103,6 +104,11 @@
     <Compile Include="Screens\YesNoDialogScreen.Designer.cs">
       <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </Compile>
+    <Compile Include="Strings\StringUtils.cs" />
+    <Compile Include="Win32\Internet.cs" />
+    <Compile Include="Win32\SpecialFolder.cs" />
+    <Compile Include="Win32\Win32API.cs" />
+    <Compile Include="Win32\Window.cs" />
     <Compile Include="Xml\XmlNoNamespaceWriter.cs" />
   </ItemGroup>
   <ItemGroup>
