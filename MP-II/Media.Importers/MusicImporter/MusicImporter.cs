@@ -168,8 +168,6 @@ namespace MusicImporter
         }
         IDbItem track = AddSong(file);
         if (track != null) track.Save();
-        //}
-
       }
       catch (Exception ex)
       {
@@ -202,8 +200,6 @@ namespace MusicImporter
           IDbItem track = AddSong(file);
           if (track != null) track.Save();
         }
-        //}
-
       }
       catch (Exception ex)
       {
@@ -380,6 +376,7 @@ namespace MusicImporter
               IDbItem dbItem = AddSong(mediaItem.ContentUri.LocalPath);
               if (dbItem != null)
               {
+                dbItem.Save();
                 Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
                 {
@@ -412,8 +409,9 @@ namespace MusicImporter
         if (cueFileItems.Count > 0)
           items.AddRange(cueFileItems);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+        ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
@@ -992,7 +990,7 @@ namespace MusicImporter
           track["musicBrainzID"] = String.Empty;
           track["dateLastPlayed"] = DateTime.MinValue;
           track["dateAdded"] = DateTime.Now;
-          track.Save();
+          return track;
         }
       }
       catch (Exception ex)

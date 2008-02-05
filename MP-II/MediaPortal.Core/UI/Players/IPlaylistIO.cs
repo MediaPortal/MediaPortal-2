@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,14 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using MediaPortal.Core.MediaManager;
+
 namespace MediaPortal.Core.Players
 {
-  public interface IPlaylistFactory
+  public interface IPlaylistIO
   {
-    /// <summary>
-    /// Creates a new playlist.
-    /// </summary>
-    /// <returns>new playlist</returns>
-    IPlaylist LoadPlayList(string fileName);
+    List<IAbstractMediaItem> Load(string fileName);
+    void Save(IPlaylist playlist, string fileName);
   }
 }

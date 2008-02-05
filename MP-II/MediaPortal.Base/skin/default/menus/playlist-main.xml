@@ -3,6 +3,7 @@
     <item text="[playlists.play]" image="" command="model.Play" parameter=""/>
     <item text="[playlists.clear]" image="" command="model.Clear" parameter=""/>
     <item text="[playlists.shuffle]" image="" command="model.Shuffle" parameter=""/>
+    <item text="[playlists.load]" image="" command="WindowManager.ShowDialog" parameter="dialogLoadPlayList"/>
   </items>
 
 </menu>

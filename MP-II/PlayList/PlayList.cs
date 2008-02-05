@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.MediaManager;
@@ -235,5 +237,40 @@ namespace MediaPortal.PlayList
         }
       }
     }
+
+    #region Load / Save Playlist
+
+    /// <summary>
+    /// Gets the available Playlists from the Playlist Directory and exposes them to the skin
+    /// </summary>
+    /// <value>The zoom modes.</value>
+    public ItemsCollection StoredPlayLists
+    {
+      get
+      {
+        ItemsCollection items = new ItemsCollection();
+        string playlistfolder = @"C:\My Playlists";
+        foreach (string file in Directory.GetFiles(playlistfolder, "*.*"))
+        {
+          ListItem item = new ListItem("Name", Path.GetFileNameWithoutExtension(file));
+          item.Add("FullPath", file);
+          items.Add(item);
+        }
+        return items;
+      }
+    }
+
+    /// <summary>
+    /// Loads the Selected Playlist
+    /// </summary>
+    /// <param name="item">The item.</param>
+    public void LoadPlayList(ListItem item)
+    {
+      string fullpath = item.Label("FullPath").Evaluate(null, null);
+      IPlaylistManager playlistMgr = ServiceScope.Get<IPlaylistManager>();
+      playlistMgr.Load(fullpath);
+    }
+
+    #endregion
   }
 }

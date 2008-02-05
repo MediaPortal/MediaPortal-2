@@ -279,6 +279,7 @@
     <String name="play" text="Play"/>
     <String name="clear" text="Clear"/>
     <String name="shuffle" text="Shuffle"/>
+    <String name="load" text="Load"/>
   </Section>
   <Section name="extensions">
     <String name="myextensions" text="My extensions"/>

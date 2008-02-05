@@ -170,6 +170,17 @@ namespace MediaPortal.Plugins.PlayerManager
     }
 
     /// <summary>
+    /// Loads a playlist.
+    /// </summary>
+    public void Load(string fileName)
+    {
+      _playlist.Clear();
+      PlaylistFactory factory = new PlaylistFactory();
+      _playlist = factory.LoadPlayList(fileName);
+      SendMsgCurrentItemChanged(true);
+    }
+
+    /// <summary>
     /// Plays this instance.
     /// </summary>
     void Play()

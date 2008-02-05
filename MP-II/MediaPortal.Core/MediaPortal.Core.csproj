@@ -144,6 +144,7 @@
     <Compile Include="UI\Players\IPlayerFactory.cs" />
     <Compile Include="UI\Players\IPlayList.cs" />
     <Compile Include="UI\Players\IPlayListFactory.cs" />
+    <Compile Include="UI\Players\IPlaylistIO.cs" />
     <Compile Include="UI\Players\IPlayListManager.cs" />
     <Compile Include="Core\PluginManager\IAutoStart.cs" />
     <Compile Include="Core\PluginManager\IPluginBuilder.cs" />

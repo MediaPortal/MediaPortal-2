@@ -69,5 +69,10 @@ namespace MediaPortal.Core.Players
     /// Shuffles the playlist.
     /// </summary>
     void Shuffle();
+
+    /// <summary>
+    /// Loads a playlist.
+    /// </summary>
+    void Load(string fileName);
   }
 }

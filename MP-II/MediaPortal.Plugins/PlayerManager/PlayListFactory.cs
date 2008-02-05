@@ -25,8 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Core;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.MediaManager;
+using MediaPortal.Core.Importers;
 
 namespace MediaPortal.Plugins.PlayerManager
 {
@@ -38,9 +40,44 @@ namespace MediaPortal.Plugins.PlayerManager
     /// Creates a new playlist.
     /// </summary>
     /// <returns>new playlist</returns>
-    public IPlaylist CreateNewPlayList()
+    public IPlaylist LoadPlayList(string fileName)
     {
-      return new PlayList();
+      PlayList playlist = new PlayList();
+      IPlaylistIO playlistio = null;
+      List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
+      string extension = System.IO.Path.GetExtension(fileName).ToLower();
+
+      switch (extension)
+      {
+        case ".m3u" :
+          playlistio = new PlayListM3uIO();
+          break;
+
+        case ".pls" :
+          playlistio = new PlayListPLSIO();
+          break;
+
+        case ".b4s" :
+          break;
+
+        case ".wpl" :
+          break;
+      }
+
+      if (playlistio != null)
+      {
+        if ((fileItems = playlistio.Load(fileName)) != null)
+        {
+          // Now let's get the tags of all the files found
+          IImporterManager mgr = ServiceScope.Get<IImporterManager>();
+          mgr.GetMetaDataFor("", ref fileItems);
+          foreach (IAbstractMediaItem item in fileItems)
+          {
+            playlist.Add((IMediaItem)item);
+          }
+        }
+      }
+      return playlist;
     }
 
     #endregion
