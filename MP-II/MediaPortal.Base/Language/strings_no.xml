@@ -279,6 +279,7 @@
     <String name="play" text="Spill av"/>
     <String name="clear" text="Slett"/>
     <String name="shuffle" text="Blande"/>
+    <String name="load" text="Hent"/>
   </Section>
   <Section name="extensions">
     <String name="myextensions" text="Mine Tilegg"/>
