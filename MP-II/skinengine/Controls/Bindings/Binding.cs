@@ -41,6 +41,7 @@ namespace SkinEngine.Controls.Bindings
     PropertyInfo _propertyInfo;
     UIElement _context;
     protected BindingDependency _dependency;
+    BindingMode _mode = BindingMode.OneWay;
 
     public Binding()
     {
@@ -122,6 +123,7 @@ namespace SkinEngine.Controls.Bindings
       string elementName = "";
       Regex regex = new Regex(@"[:a-zA-Z0-9.\[\]\(\)]+=[:a-zA-Z0-9.\[\]\(\)]+");
       MatchCollection matches = regex.Matches(Expression);
+      _mode = BindingMode.OneWay;
       for (int i = 0; i < matches.Count; ++i)
       {
         //setter format is : bindingPropertyName1=value
@@ -133,6 +135,11 @@ namespace SkinEngine.Controls.Bindings
         {
           string bindingPropertyName = matches2[0].Value;
           string bindingValue = matches2[1].Value;
+          if (bindingPropertyName == "Mode")
+          {
+            if (bindingValue == "OneWay") _mode = BindingMode.OneWay;
+            else if (bindingValue == "TwoWay") _mode = BindingMode.TwoWay;
+          }
           if (bindingPropertyName == "ElementName")
           {
             elementName = bindingValue;
@@ -225,7 +232,7 @@ namespace SkinEngine.Controls.Bindings
           Property destinationProperty = (Property)methodInfo.Invoke(obj, null);
 
           //create a new dependency..
-          _dependency = new BindingDependency(sourceProperty, destinationProperty);
+          _dependency = new BindingDependency(sourceProperty, destinationProperty, _mode);
 
 
         }
@@ -235,7 +242,7 @@ namespace SkinEngine.Controls.Bindings
           if (info == null) return;
           MethodInfo methodInfo = info.GetSetMethod();
           if (methodInfo == null) return;
-          _dependency = new BindingDependency(sourceProperty, methodInfo, obj);
+          _dependency = new BindingDependency(sourceProperty, methodInfo, obj, _mode);
         }
 
       }

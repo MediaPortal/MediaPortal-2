@@ -23,13 +23,13 @@
 
       <Label Margin="60,0,0,0" Font="font13" Text="[settings.speakeramount]" Width="500" Height="32" DockPanel.Dock="Top"/>
       <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <CheckBox  Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32"   IsChecked="{Binding Players.Settings.IsStereo}">
+        <CheckBox  Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32"   IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsStereo}">
           <Label Font="font13" Text="[settings.speakers2]"/>
         </CheckBox>
-        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32"     IsChecked="{Binding Players.Settings.Is51}">
+        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32"     IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.Is51}">
           <Label Font="font13"   Text="[settings.speakers51]"/>
         </CheckBox>
-        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32"     IsChecked="{Binding Players.Settings.Is71}">
+        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32"     IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.Is71}">
           <Label Font="font13"   Text="[settings.speakers71]"/>
         </CheckBox>
       </StackPanel>

@@ -19,17 +19,20 @@ namespace SkinEngine.Controls.Bindings
     object _destinationObject;
     BindingMode _mode = BindingMode.TwoWay;
 
-    public BindingDependency(Property source, Property dest)
+    public BindingDependency(Property source, Property dest, BindingMode mode)
     {
+      _mode = mode;
       _source = source;
       _destination = dest;
       _source.Attach(new PropertyChangedHandler(OnSourcePropertyChanged));
-      _destination.Attach(new PropertyChangedHandler(OnDestinationPropertyChanged));
+      if (mode == BindingMode.TwoWay)
+        _destination.Attach(new PropertyChangedHandler(OnDestinationPropertyChanged));
       OnSourcePropertyChanged(_source);
     }
 
-    public BindingDependency(Property source, MethodInfo info, object destobject)
+    public BindingDependency(Property source, MethodInfo info, object destobject, BindingMode mode)
     {
+      _mode = mode;
       _source = source;
       _destinationObject = destobject;
       _methodInfo = info;

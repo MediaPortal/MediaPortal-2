@@ -105,14 +105,14 @@ namespace SkinEngine.Controls.Bindings
             return;
           }
         }
-      
+
       }
 
 
       if (bindingSourceProperty is Property && bindingDestProperty is Property)
       {
         //create a new dependency..
-        _dependency = new BindingDependency((Property)bindingSourceProperty, (Property)bindingDestProperty);
+        _dependency = new BindingDependency((Property)bindingSourceProperty, (Property)bindingDestProperty,BindingMode.OneWay);
 
       }
     }
