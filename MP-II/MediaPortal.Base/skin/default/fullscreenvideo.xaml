@@ -8,6 +8,13 @@
     <Canvas.Background>
       <VideoBrush/>
     </Canvas.Background>
+    <Canvas.Triggers>
+      <Trigger Property="{Binding Players.OSD.IsVideo}" Value="False">
+        <Trigger.EnterActions>
+          <InvokeCommand Command="{Binding Path=WindowManager.ShowPreviousWindow}" />
+        </Trigger.EnterActions>
+      </Trigger>
+    </Canvas.Triggers>
     <Canvas Name="osd" Width="720" Height="576" IsVisible="{Binding Players.OSD.IsTopBarVisible}">
       <Border Canvas.Top="418" Width="720" Height="158" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
         <Border.Background>

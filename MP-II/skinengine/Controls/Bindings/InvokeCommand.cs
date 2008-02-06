@@ -28,10 +28,11 @@ using System.Reflection;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Controls.Visuals.Triggers;
 
 namespace SkinEngine.Controls.Bindings
 {
-  public class InvokeCommand : ICloneable, IBindingCollection
+  public class InvokeCommand : TriggerAction, IBindingCollection
   {
     Property _commandParameter;
     Command _command;
@@ -42,6 +43,7 @@ namespace SkinEngine.Controls.Bindings
     }
 
     public InvokeCommand(InvokeCommand c)
+      : base(c)
     {
       Init();
       Command = c.Command;
@@ -135,6 +137,12 @@ namespace SkinEngine.Controls.Bindings
         binding.Initialize(this, element);
       }
     }
+
+    public override  void Execute(UIElement element, Trigger trigger)
+    {
+      Execute(element);
+    }
+
     #endregion
   }
 }

@@ -30,10 +30,10 @@ using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MyXaml.Core;
-
+using SkinEngine.Controls.Bindings;
 namespace SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger : ICloneable, IAddChild
+  public class Trigger : ICloneable, IAddChild, IBindingCollection
   {
     Property _propertyProperty;
     Property _valueProperty;
@@ -42,6 +42,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
     Property _property;
     PropertyChangedHandler _handler;
     UIElement _element;
+    BindingCollection _bindings;
 
     public Trigger()
     {
@@ -61,6 +62,10 @@ namespace SkinEngine.Controls.Visuals.Triggers
       {
         ExitActions.Add((TriggerAction)ac.Clone());
       }
+      foreach (Binding binding in trig._bindings)
+      {
+        _bindings.Add((Binding)binding.Clone());
+      }
     }
 
     public virtual object Clone()
@@ -75,6 +80,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
       _enterActionsProperty = new Property(new TriggerActionCollection());
       _exitActionsProperty = new Property(new TriggerActionCollection());
       _handler = new PropertyChangedHandler(OnPropertyChanged);
+      _bindings = new BindingCollection();
+      _propertyProperty.Attach(new PropertyChangedHandler(OnPropChanged));
     }
 
     public Property PropertyProperty
@@ -93,7 +100,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
     {
       get
       {
-        return (string)_propertyProperty.GetValue();
+        return _propertyProperty.GetValue() as string;
       }
       set
       {
@@ -170,6 +177,8 @@ namespace SkinEngine.Controls.Visuals.Triggers
 
     public virtual void Setup(UIElement element)
     {
+      _element = element;
+      InitializeBindings(_element);
       //Trace.WriteLine("Setup trigger for " + element.Name + " " + element.GetType().ToString() + " " + Property);
       if (_property != null)
       {
@@ -216,6 +225,40 @@ namespace SkinEngine.Controls.Visuals.Triggers
       OnPropertyChanged(_property);
     }
 
+    void OnPropChanged(Property p)
+    {
+      if (_property != null) return;
+      if (_propertyProperty == null) return;
+      if (_propertyProperty.GetValue().GetType() != typeof(bool)) return;
+      if ((bool)_propertyProperty.GetValue() == Value)
+      {
+        //execute start actions
+        foreach (TriggerAction action in EnterActions)
+        {
+          if (action is Setter)
+          {
+          }
+          action.Execute(_element, this);
+        }
+      }
+      else
+      {
+        //execute stop actions
+        foreach (TriggerAction action in ExitActions)
+        {
+          action.Execute(_element, this);
+        }
+        foreach (TriggerAction action in EnterActions)
+        {
+          Setter s = action as Setter;
+          if (s != null)
+          {
+            s.Restore(_element, this);
+          }
+        }
+      }
+    }
+    
     void OnPropertyChanged(Property p)
     {
       if ((bool)_property.GetValue() == Value)
@@ -252,6 +295,24 @@ namespace SkinEngine.Controls.Visuals.Triggers
     public void AddChild(object o)
     {
       EnterActions.Add((TriggerAction)o);
+    }
+
+    #endregion
+
+    #region IBindingCollection Members
+
+    public void Add(Binding binding)
+    {
+      _bindings.Add(binding);
+    }
+
+    public virtual void InitializeBindings(UIElement element)
+    {
+      if (_bindings.Count == 0) return;
+      foreach (Binding binding in _bindings)
+      {
+        binding.Initialize(this, element);
+      }
     }
 
     #endregion
