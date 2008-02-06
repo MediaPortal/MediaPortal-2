@@ -223,7 +223,20 @@ namespace SkinEngine.Controls.Visuals.Styles
       {
         if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
         {
-          obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+          if (pinfo2.PropertyType == typeof(float))
+          {
+            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
+            obj = loader.GetFloat(obj.ToString());
+          }
+          else if (pinfo2.PropertyType == typeof(double))
+          {
+            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
+            obj = loader.GetDouble(obj.ToString());
+          }
+          else
+          {
+            obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+          }
         }
         else
         {

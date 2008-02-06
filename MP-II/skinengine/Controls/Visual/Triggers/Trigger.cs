@@ -185,35 +185,21 @@ namespace SkinEngine.Controls.Visuals.Triggers
         _property.Detach(_handler);
         _property = null;
       }
-      if (String.IsNullOrEmpty(Property))
+      if (!String.IsNullOrEmpty(Property))
       {
-        return;
-      }/*
-      if (element.VisualParent is ContentPresenter)
-      {
-        element = element.VisualParent;
-        while (element.VisualParent != null)
-        {
-          if (element is ControlTemplate) break;
-          element = element.VisualParent;
-        }
-      }
-      if (element as ControlTemplate != null)
-      {
-        element = element.VisualParent;
-      }*/
-      _element = element;
-      Type t = element.GetType();
-      PropertyInfo pinfo = t.GetProperty(Property + "Property");
-      if (pinfo == null)
-      {
-        Trace.WriteLine(String.Format("trigger property {0} not found on {1}", this.Property, element));
-        return;
-      }
-      MethodInfo minfo = pinfo.GetGetMethod();
-      _property = minfo.Invoke(element, null) as Property;
-      _property.Attach(_handler);
 
+        _element = element;
+        Type t = element.GetType();
+        PropertyInfo pinfo = t.GetProperty(Property + "Property");
+        if (pinfo == null)
+        {
+          Trace.WriteLine(String.Format("trigger property {0} not found on {1}", this.Property, element));
+          return;
+        }
+        MethodInfo minfo = pinfo.GetGetMethod();
+        _property = minfo.Invoke(element, null) as Property;
+        _property.Attach(_handler);
+      }
       foreach (TriggerAction action in EnterActions)
       {
         action.Setup(element);
@@ -261,6 +247,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
     
     void OnPropertyChanged(Property p)
     {
+      if (_property == null) return;
       if ((bool)_property.GetValue() == Value)
       {
         //execute start actions

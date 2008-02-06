@@ -888,7 +888,7 @@ namespace SkinEngine.Skin
     /// </summary>
     /// <param name="floatString">The  string.</param>
     /// <returns>float</returns>
-    protected float GetFloat(string floatString)
+    public float GetFloat(string floatString)
     {
       float test = 12.03f;
       string comma = test.ToString();
@@ -905,7 +905,7 @@ namespace SkinEngine.Skin
       float.TryParse(floatString, out f);
       return f;
     }
-    protected double GetDouble(string doubleString)
+    public double GetDouble(string doubleString)
     {
       float test = 12.03f;
       string comma = test.ToString();
