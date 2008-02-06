@@ -49,5 +49,7 @@ namespace MediaPortal.Core.Database.Interfaces
     IDatabaseCommand CreateCommand();
 
     string DatabaseName { get; }
+
+    IDatabaseBuilder CreateNew();
   }
 }

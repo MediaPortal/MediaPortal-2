@@ -48,9 +48,10 @@ namespace MediaPortal.Database.Implementation
       if ((pos = connectionString.IndexOf(':')) > 0)
       {
         string database = connectionString.Substring(0, pos);
-        IDatabaseBuilder builder = (IDatabaseBuilder) ServiceScope.Get<IPluginManager>().GetPluginItem<IDatabaseBuilder>("/Databases", database);
+        IDatabaseBuilder builder = (IDatabaseBuilder)ServiceScope.Get<IPluginManager>().GetPluginItem<IDatabaseBuilder>("/Databases", database);
         if (builder != null)
         {
+          builder = builder.CreateNew();
           builder.ConnectionString = connectionString.Substring(pos + 1);
           return new DatabaseFactory(builder);
         }

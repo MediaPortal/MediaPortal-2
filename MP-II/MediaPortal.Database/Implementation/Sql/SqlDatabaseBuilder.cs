@@ -39,6 +39,11 @@ namespace MediaPortal.Database.Implementation.Sql
     {
     }
 
+    public IDatabaseBuilder CreateNew()
+    {
+      return new SqlDatabaseBuilder();
+    }
+
     /// <summary>
     /// Stores the database Connection String
     /// </summary>

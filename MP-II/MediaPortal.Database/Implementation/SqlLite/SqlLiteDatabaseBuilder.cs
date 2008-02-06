@@ -40,6 +40,10 @@ namespace MediaPortal.Database.Implementation.SqlLite
     {
     }
 
+    public IDatabaseBuilder CreateNew()
+    {
+      return new SqlLiteDatabaseBuilder();
+    }
     /// <summary>
     /// Stores the database Connection String
     /// </summary>
