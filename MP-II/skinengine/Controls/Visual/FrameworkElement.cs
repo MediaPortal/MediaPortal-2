@@ -725,7 +725,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public virtual void Free()
+    public virtual void Free(bool force)
     {
       if (_inRender) return;
       if (_vertexOpacityMaskBorder != null)

@@ -74,7 +74,7 @@ namespace SkinEngine
       //      Trace.WriteLine(String.Format("  Alloc  vertex :{0}", _texture.Name));
       if (_vertexBuffer != null)
       {
-        Free();
+        Free(true);
       }
       //      ServiceScope.Get<ILogger>().Debug("VERTEXTBUFFERASSET alloc vertextbuffer {0}",_texture.Name);
       _vertexBuffer = PositionColored2Textured.Create(4);//writeonly
@@ -291,7 +291,7 @@ namespace SkinEngine
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public void Free(bool force)
     {
       if (_vertexBuffer != null)
       {

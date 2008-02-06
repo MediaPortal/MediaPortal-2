@@ -79,7 +79,7 @@ namespace SkinEngine.Fonts
     {
       if (_vertexBuffer != null)
       {
-        Free();
+        Free(true);
       }
 
       //ServiceScope.Get<ILogger>().Debug("FONTASSET alloc vertextbuffer");
@@ -288,7 +288,7 @@ namespace SkinEngine.Fonts
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public void Free(bool force)
     {
       if (_vertexBuffer != null)
       {

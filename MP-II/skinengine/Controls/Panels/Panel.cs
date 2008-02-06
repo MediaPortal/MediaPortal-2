@@ -101,7 +101,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="property">The property.</param>
     protected void OnPropertyChanged(Property property)
     {
-      Free();
+      Free(false);
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ namespace SkinEngine.Controls.Panels
     public void PerformLayout()
     {
       //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
-      Free();
+      Free(false);
       if (Background != null)
       {
         double w = ActualWidth;
@@ -335,14 +335,17 @@ namespace SkinEngine.Controls.Panels
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public override void Free()
+    public override void Free(bool force)
     {
       if (_vertexBufferBackground != null)
       {
         _vertexBufferBackground.Dispose();
         _vertexBufferBackground = null;
       }
-      base.Free();
+      if (base.CanBeDeleted || force)
+      {
+        base.Free(force);
+      }
     }
 
     #region IAsset Members

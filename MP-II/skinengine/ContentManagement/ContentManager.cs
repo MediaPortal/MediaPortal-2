@@ -63,7 +63,7 @@ namespace SkinEngine
             if (_assetsNormal.ContainsKey(fileName))
             {
               TextureAsset asset = (TextureAsset)_assetsNormal[fileName];
-              asset.Free();
+              asset.Free(true);
             }
           }
           lock (_assetsHigh)
@@ -71,7 +71,7 @@ namespace SkinEngine
             if (_assetsHigh.ContainsKey(fileName))
             {
               TextureAsset asset = (TextureAsset)_assetsHigh[fileName];
-              asset.Free();
+              asset.Free(true);
             }
           }
         }
@@ -202,7 +202,7 @@ namespace SkinEngine
           {
             if (img.CanBeDeleted)
             {
-              img.Free();
+              img.Free(false);
             }
           }
         }
@@ -218,7 +218,7 @@ namespace SkinEngine
           {
             if (img.CanBeDeleted)
             {
-              img.Free();
+              img.Free(false);
             }
           }
         }
@@ -232,7 +232,7 @@ namespace SkinEngine
           {
             if (img.CanBeDeleted)
             {
-              img.Free();
+              img.Free(false);
             }
           }
         }
@@ -244,7 +244,7 @@ namespace SkinEngine
         {
           if (asset.IsAllocated && asset.CanBeDeleted)
           {
-            asset.Free();
+            asset.Free(false);
           }
         }
       }
@@ -263,7 +263,7 @@ namespace SkinEngine
           IAsset img = en.Current.Value;
           if (img.IsAllocated)
           {
-            img.Free();
+            img.Free(true);
           }
         }
       }
@@ -275,7 +275,7 @@ namespace SkinEngine
           IAsset img = en.Current.Value;
           if (img.IsAllocated)
           {
-            img.Free();
+            img.Free(true);
           }
         }
       }
@@ -285,7 +285,7 @@ namespace SkinEngine
         {
           if (img.IsAllocated)
           {
-            img.Free();
+            img.Free(true);
           }
         }
       }
@@ -296,7 +296,7 @@ namespace SkinEngine
         {
           if (asset.IsAllocated)
           {
-            asset.Free();
+            asset.Free(true);
           }
         }
       }

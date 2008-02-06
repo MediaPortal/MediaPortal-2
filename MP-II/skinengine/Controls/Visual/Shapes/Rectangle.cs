@@ -227,7 +227,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Rectangle.PerformLayout() " + this.Name + "  " + this._performLayout);
-      Free();
+      Free(false);
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;

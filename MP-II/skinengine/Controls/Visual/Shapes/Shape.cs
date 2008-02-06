@@ -297,7 +297,7 @@ namespace SkinEngine.Controls.Visuals
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public override void Free()
+    public override void Free(bool force)
     {
       if (_vertexBufferFill != null)
       {
@@ -309,9 +309,10 @@ namespace SkinEngine.Controls.Visuals
         _vertexBufferBorder.Dispose();
         _vertexBufferBorder = null;
       }
-      if (base.CanBeDeleted)
+
+      if (base.CanBeDeleted || force)
       {
-        base.Free();
+        base.Free(force);
       }
     }
     /// <summary>

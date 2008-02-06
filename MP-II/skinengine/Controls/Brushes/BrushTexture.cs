@@ -197,7 +197,7 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public void Free()
+    public void Free(bool force)
     {
       if (_texture != null)
       {

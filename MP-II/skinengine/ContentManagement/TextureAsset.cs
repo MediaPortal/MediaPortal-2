@@ -312,7 +312,7 @@ namespace SkinEngine
 
       if (_texture != null)
       {
-        Free();
+        Free(true);
       }
       if (thumbData != null)
       {
@@ -502,7 +502,7 @@ namespace SkinEngine
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public void Free(bool force)
     {
       //      Trace.WriteLine(String.Format("  Dispose texture:{0}", _textureName));
       if (_texture != null)

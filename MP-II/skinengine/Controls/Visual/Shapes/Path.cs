@@ -149,7 +149,7 @@ namespace SkinEngine.Controls.Visuals
     {
       TimeSpan ts;
       DateTime now = DateTime.Now;
-      Free();
+      Free(false);
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;

@@ -507,7 +507,7 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free()
+    public void Free(bool force)
     {
       if (_cacheTexture != null)
       {

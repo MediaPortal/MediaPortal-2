@@ -92,7 +92,7 @@ namespace SkinEngine.Controls.Visuals
 
     void OnPropertyChanged(Property property)
     {
-      Free();
+      Free(false);
     }
     #endregion
 
@@ -520,7 +520,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Border.PerformLayout() " + this.Name);
-      Free();
+      Free(false);
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;
