@@ -223,6 +223,9 @@ namespace SkinEngine.Controls.Visuals.Triggers
         //execute start actions
         foreach (TriggerAction action in EnterActions)
         {
+          if (action is Setter)
+          {
+          }
           action.Execute(_element, this);
         }
       }

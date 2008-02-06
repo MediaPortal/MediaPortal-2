@@ -192,5 +192,17 @@ namespace MediaPortal.Core.Collections
       if (OnChanged != null)
         OnChanged(this);
     }
+
+    public string this[string label]
+    {
+      get
+      {
+        if (_labels.ContainsKey(label))
+        {
+          return _labels[label].Evaluate(null, null).ToString();
+        }
+        return "";
+      }
+    }
   }
 }

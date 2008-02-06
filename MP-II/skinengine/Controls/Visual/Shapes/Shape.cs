@@ -309,7 +309,10 @@ namespace SkinEngine.Controls.Visuals
         _vertexBufferBorder.Dispose();
         _vertexBufferBorder = null;
       }
-      base.Free();
+      if (base.CanBeDeleted)
+      {
+        base.Free();
+      }
     }
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglefan.

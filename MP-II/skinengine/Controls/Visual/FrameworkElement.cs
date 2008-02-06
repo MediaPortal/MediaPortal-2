@@ -646,7 +646,7 @@ namespace SkinEngine.Controls.Visuals
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
           OpacityMask.EndRender();
 
-          _lastTimeUsed = DateTime.Now;
+          _lastTimeUsed = SkinContext.Now;
         }
         else
         {
@@ -757,7 +757,7 @@ namespace SkinEngine.Controls.Visuals
       }
       if (!_updateOpacityMask) return;
       Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
-      _lastTimeUsed = DateTime.Now;
+      _lastTimeUsed = SkinContext.Now;
       if (_textureOpacity != null)
       {
         _textureOpacity.Dispose();

@@ -167,7 +167,7 @@ namespace MyXaml.Core
     /// </summary>
     public Parser()
     {
-      Trace.WriteLine("!!ut=*Unit Test Info");
+      //Trace.WriteLine("!!ut=*Unit Test Info");
       specialPrefixes = new ArrayList();
       specialPrefixes.AddRange(corePrefixes);
       extenderInstances = new ArrayList();
@@ -180,7 +180,7 @@ namespace MyXaml.Core
       AddReference("MyXamlDefs", nameToInstanceMap);						// For backward compatibility.
       AddReference("MyXamlParser", this);									// Add ourselves to the reference list.  Also useful in workflows, for example.
 
-      Trace.WriteLine("CLR Version: " + Environment.Version.ToString());
+      //Trace.WriteLine("CLR Version: " + Environment.Version.ToString());
 
       foreach (Type t in extenders)
       {

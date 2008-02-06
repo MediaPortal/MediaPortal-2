@@ -227,9 +227,7 @@
               </Rectangle>
               <Image Canvas.Left="48" Canvas.Top="20"  Source="logo_pause.png" Width="64" Height="64" IsVisible="{Binding Players.Paused}"/>
               <Label Canvas.Left="170" Canvas.Top="10" Name="label1" Font="font13"  Width="400" Height="32" Text="{Binding Players.OSD.Title}" Color="White"  IsVisible="False"/>
-              <!--
-              <Label Canvas.Left="170" Canvas.Top="42" Name="label2" Font="font12"  Width="400" Height="32" Text="{Binding Players.OSD.MediaItem}"  label="#script:ListItemLabel(artist)" Color="#A0FFFFFF"  IsVisible="False"/>
-              -->
+              <Label Canvas.Left="170" Canvas.Top="42" Name="label2" Font="font12"  Width="400" Height="32" Text="{Binding Players.OSD.MediaItem[artist]}"  Color="#A0FFFFFF"  IsVisible="False"/>
               <Label Canvas.Left="170" Canvas.Top="72" Name="label3" Font="font12"  Width="104" Height="32" Text="{Binding Players.OSD.CurrentTime}" Color="#A0FFFFFF" IsVisible="False"/>
             </Canvas>
             <ControlTemplate.Triggers>
