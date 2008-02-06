@@ -229,6 +229,20 @@ namespace SkinEngine.Controls.Visuals
       }
       return base.FindElementType(t);
     }
+    /// <summary>
+    /// Find the element with name
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public override UIElement FindElement(string name)
+    {
+      if (Content != null)
+      {
+        UIElement o = Content.FindElement(name);
+        if (o != null) return o;
+      }
+      return base.FindElement(name);
+    }
 
     #endregion
     #endregion

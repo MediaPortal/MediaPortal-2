@@ -311,6 +311,13 @@ namespace SkinEngine.Skin
           e.Result = matrix;
         }
       }
+      if (e.PropertyType == typeof(VisibilityEnum))
+      {
+        string v = e.Value.ToString();
+        if (v == "Collapsed") e.Result = VisibilityEnum.Collapsed;
+        if (v == "Hidden") e.Result = VisibilityEnum.Hidden;
+        if (v == "Visible") e.Result = VisibilityEnum.Visible;
+      }
       if (e.PropertyType == typeof(HorizontalAlignmentEnum))
       {
         string v = e.Value.ToString();

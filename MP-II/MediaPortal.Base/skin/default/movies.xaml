@@ -4,29 +4,31 @@
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
-    <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50"/>
+    <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+      <Button Canvas.Left="10" Canvas.Top="462"  Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
+      <DockPanel >
+        <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50"/>
 
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-        <Label.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-          </TransformGroup>
-        </Label.RenderTransform>
-        <Label.OpacityMask>
-          <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-            <GradientStop Offset="0.0" Color="#FF000000" />
-            <GradientStop Offset="1.0" Color="#00000000" />
-          </LinearGradientBrush>
-        </Label.OpacityMask>
-      </Label>
-      <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
-        <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
-      </StackPanel>
-      <ListView  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu" SelectionChanged="{Binding Path=OnSelectionChange}"/>
+        <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
+          <Label.RenderTransform>
+            <TransformGroup>
+              <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+            </TransformGroup>
+          </Label.RenderTransform>
+          <Label.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#FF000000" />
+              <GradientStop Offset="1.0" Color="#00000000" />
+            </LinearGradientBrush>
+          </Label.OpacityMask>
+        </Label>
+        <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
+          <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
+        </StackPanel>
+        <ListView  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu" SelectionChanged="{Binding Path=OnSelectionChange}"/>
 
-    </DockPanel>
+      </DockPanel>
+    </Canvas>
     <!--
     <Canvas Left="200" Top="100" LayoutTransform="8,0,0,8,0,0" >
       <Canvas Width="44.6638426184654" Height="41.0901996187121">
