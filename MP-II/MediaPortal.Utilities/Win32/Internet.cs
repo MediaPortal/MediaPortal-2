@@ -42,7 +42,8 @@ namespace MediaPortal.Utilities.Win32
       return true;
 #else
       int Desc;
-      return InternetGetConnectedState(out Desc, 0);
+      //return InternetGetConnectedState(out Desc, 0);
+      return true;
 #endif
     }
 
@@ -51,7 +52,8 @@ namespace MediaPortal.Utilities.Win32
 #if DEBUG
       return true;
 #else
-      return InternetGetConnectedState(out code, 0);
+      //return InternetGetConnectedState(out code, 0);
+      return true;
 #endif
     }
 
