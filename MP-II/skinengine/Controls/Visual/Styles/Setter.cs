@@ -37,6 +37,9 @@ namespace SkinEngine.Controls.Visuals.Styles
     Property _valueProperty;
     Property _targetNameProperty;
     Object _originalValue = null;
+    MethodInfo _methodInfo;
+    bool _isSet = false;
+    object _value;
 
     public Setter()
     {
@@ -257,5 +260,39 @@ namespace SkinEngine.Controls.Visuals.Styles
       }
     }
 
+
+    public MethodInfo MethodInfo
+    {
+      get
+      {
+        return _methodInfo;
+      }
+      set
+      {
+        _methodInfo = value;
+      }
+    }
+    public bool IsSet
+    {
+      get
+      {
+        return _isSet;
+      }
+      set
+      {
+        _isSet = value;
+      }
+    }
+    public object SetterValue
+    {
+      get
+      {
+        return _value;
+      }
+      set
+      {
+        _value = value;
+      }
+    }
   }
 }

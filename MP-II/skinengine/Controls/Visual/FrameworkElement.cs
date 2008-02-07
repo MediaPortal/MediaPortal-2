@@ -76,6 +76,7 @@ namespace SkinEngine.Controls.Visuals
     public FrameworkElement()
     {
       Init();
+      Attach();
     }
 
     public FrameworkElement(FrameworkElement el)
@@ -89,6 +90,7 @@ namespace SkinEngine.Controls.Visuals
       Style = el.Style;
       this.HorizontalAlignment = el.HorizontalAlignment;
       this.VerticalAlignment = el.VerticalAlignment;
+      Attach();
     }
     void Init()
     {
@@ -101,13 +103,14 @@ namespace SkinEngine.Controls.Visuals
       _styleProperty = new Property(null);
       _horizontalAlignmentProperty = new Property(HorizontalAlignmentEnum.Center);
       _verticalAlignmentProperty = new Property(VerticalAlignmentEnum.Center);
-
-
+      ContentManager.Add(this);
+    }
+    void Attach()
+    {
       _widthProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _actualHeightProperty.Attach(new PropertyChangedHandler(OnActualHeightChanged));
       _acutalWidthProperty.Attach(new PropertyChangedHandler(OnActualWidthChanged));
-      ContentManager.Add(this);
 
 
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));

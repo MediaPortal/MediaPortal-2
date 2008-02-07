@@ -376,7 +376,7 @@ namespace SkinEngine.Controls.Visuals
       _prepare = true;
       if (_itemsHostPanel != null)
       {
-        _itemsHostPanel.SetChildren( new UIElementCollection(_itemsHostPanel));
+        _itemsHostPanel.SetChildren(new UIElementCollection(_itemsHostPanel));
       }
     }
     protected virtual ItemsPresenter FindItemsPresenter()
@@ -405,7 +405,7 @@ namespace SkinEngine.Controls.Visuals
         TreeViewItem item = (TreeViewItem)this;
         if (!item.IsExpanded) return true;
       }
-      //      Trace.WriteLine("ItemsControl.Prepare()");
+      DateTime dtStart = DateTime.Now;
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
       if (!_templateApplied)
@@ -502,7 +502,6 @@ namespace SkinEngine.Controls.Visuals
           _itemsHostPanel.IsItemsHost = false;
           TreeViewItem container = new TreeViewItem();
           TreeViewItem item = (TreeViewItem)this;
-
           //container.Name = String.Format("{0}.{1}", item.Name, index++);
           container.Context = enumer.Current;
           //container.Style = ItemContainerStyle;
@@ -522,6 +521,7 @@ namespace SkinEngine.Controls.Visuals
           container.Header = (FrameworkElement)element;
           ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
           if (p != null) p.IsVisible = false;
+          
           if (enumer.Current is ListItem)
           {
             ListItem listItem = (ListItem)enumer.Current;
@@ -540,7 +540,7 @@ namespace SkinEngine.Controls.Visuals
       }
       children.SetParent(_itemsHostPanel);
       //if (!(this is TreeView))
-        //_itemsHostPanel.Name = "ItemsPanel of :" + this.Name;
+      //_itemsHostPanel.Name = "ItemsPanel of :" + this.Name;
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
@@ -575,9 +575,11 @@ namespace SkinEngine.Controls.Visuals
           focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X, (float)focusedContainer.ActualPosition.Y);
         }
       }
+      TimeSpan ts = DateTime.Now - dtStart;
+      Trace.WriteLine(String.Format("ItemsControl.Prepare:{0} {1} msec {2}", this.Name, ts.TotalMilliseconds, _itemsHostPanel.Children.Count));
       return true;
     }
-    public override  void UpdateLayout()
+    public override void UpdateLayout()
     {
       DoUpdateItems();
       base.UpdateLayout();

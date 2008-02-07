@@ -30,7 +30,7 @@ using MediaPortal.Core.Properties;
 using MyXaml.Core;
 namespace SkinEngine.Controls.Visuals.Styles
 {
-  public class Style : ICloneable, IAddChild
+  public class Style :  IAddChild
   {
     SetterCollection _setters;
     Property _keyProperty;
@@ -44,16 +44,14 @@ namespace SkinEngine.Controls.Visuals.Styles
     {
       Init();
       Key = s.Key;
+      _setters = s._setters;
+      /*
       foreach (Setter set in s._setters)
       {
         _setters.Add((Setter)set.Clone());
-      }
+      }*/
     }
 
-    public object Clone()
-    {
-      return new Style(this);
-    }
     void Init()
     {
       _setters = new SetterCollection();
@@ -162,37 +160,45 @@ namespace SkinEngine.Controls.Visuals.Styles
 
     void Set(UIElement element, Setter setter)
     {
-      Type t = element.GetType();
-      PropertyInfo pinfo = t.GetProperty(setter.Property + "Property");
-      if (pinfo == null) return;
-      MethodInfo minfo = pinfo.GetGetMethod();
-      Property property = minfo.Invoke(element, null) as Property;
-
-      object obj = setter.Value;
-      if (obj as String != null)
+      if (setter.IsSet == false)
       {
-        PropertyInfo pinfo2 = t.GetProperty(setter.Property);
-        if (pinfo2 != null)
+        setter.IsSet = true;
+        Type t = element.GetType();
+        PropertyInfo pinfo = t.GetProperty(setter.Property + "Property");
+        if (pinfo == null) return;
+        setter.MethodInfo = pinfo.GetGetMethod();
+
+        object obj = setter.Value;
+        if (obj as String != null)
         {
-          if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
+          PropertyInfo pinfo2 = t.GetProperty(setter.Property);
+          if (pinfo2 != null)
           {
-            obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
-          }
-          else
-          {
-            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-            obj = loader.ConvertType(pinfo2.PropertyType, obj);
+            if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
+            {
+              obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
+            }
+            else
+            {
+              SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
+              obj = loader.ConvertType(pinfo2.PropertyType, obj);
+            }
           }
         }
+        setter.SetterValue = obj;
       }
-      ICloneable clone = obj as ICloneable;
+      MethodInfo info = setter.MethodInfo;
+      if (info == null) return;
+      Property property = info.Invoke(element, null) as Property;
+
+      ICloneable clone = setter.SetterValue as ICloneable;
       if (clone != null)
       {
         property.SetValue(clone.Clone());
       }
       else
       {
-        property.SetValue(obj);
+        property.SetValue(setter.SetterValue);
       }
     }
 

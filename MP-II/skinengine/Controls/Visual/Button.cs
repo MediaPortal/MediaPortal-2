@@ -61,11 +61,11 @@ namespace SkinEngine.Controls.Visuals
 
       ContextMenuCommand = b.ContextMenuCommand;
       ContextMenuCommandParameter = b.ContextMenuCommandParameter;
-      if (b.Style != null)
+      /*if (b.Style != null)
       {
         Style = b.Style;
         OnStyleChanged(StyleProperty);
-      }
+      }*/
     }
 
     public override object Clone()

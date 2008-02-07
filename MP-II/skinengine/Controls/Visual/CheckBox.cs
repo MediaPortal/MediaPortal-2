@@ -46,7 +46,9 @@ namespace SkinEngine.Controls.Visuals
       :base(box)
     {
       Init();
-      IsChecked = box.IsChecked;
+      //IsChecked = box.IsChecked;
+      Checked = Checked;
+      Unchecked = Unchecked;
     }
     public override object Clone()
     {
