@@ -40,6 +40,7 @@ namespace SkinEngine.Controls.Animations
     Property _property;
     Vector2 _originalValue;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="PointAnimation"/> class.
     /// </summary>
@@ -54,10 +55,11 @@ namespace SkinEngine.Controls.Animations
       Init();
       TargetProperty = a.TargetProperty;
       TargetName = a.TargetName;
-      foreach (PointKeyFrame k in a.KeyFrames)
-      {
-        KeyFrames.Add((PointKeyFrame)k.Clone());
-      }
+      //foreach (PointKeyFrame k in a.KeyFrames)
+      //{
+      //  KeyFrames.Add((PointKeyFrame)k.Clone());
+      //}
+      _keyFramesProperty.SetValue(a.KeyFrames);
     }
 
     public override object Clone()
@@ -70,12 +72,10 @@ namespace SkinEngine.Controls.Animations
       _targetProperty = new Property("");
       _targetNameProperty = new Property("");
       _keyFramesProperty = new Property(new PointKeyFrameCollection());
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
+
+    #region properties
     /// <summary>
     /// Gets or sets the target property.
     /// </summary>
@@ -163,8 +163,9 @@ namespace SkinEngine.Controls.Animations
         return _keyFramesProperty.GetValue() as PointKeyFrameCollection;
       }
     }
+    #endregion
 
-
+    #region animation methods
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -246,7 +247,7 @@ namespace SkinEngine.Controls.Animations
         _property.SetValue(_originalValue);
       }
     }
-
+    #endregion
 
 
 

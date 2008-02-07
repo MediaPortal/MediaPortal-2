@@ -56,7 +56,7 @@ namespace SkinEngine.Controls.Animations
 
     protected uint _timeStarted;
     protected State _state = State.Idle;
-
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="Timeline"/> class.
     /// </summary>
@@ -94,7 +94,9 @@ namespace SkinEngine.Controls.Animations
       _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
       _visualParentProperty = new Property(null);
     }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the key property.
     /// </summary>
@@ -381,6 +383,10 @@ namespace SkinEngine.Controls.Animations
         _visualParentProperty.SetValue(value);
       }
     }
+
+    #endregion
+
+    #region animation
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -552,5 +558,7 @@ namespace SkinEngine.Controls.Animations
     public virtual void Setup(UIElement element)
     {
     }
+
+    #endregion
   }
 }

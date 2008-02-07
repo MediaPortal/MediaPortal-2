@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Animations
     Property _property;
     double _originalValue;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
     /// </summary>
@@ -53,10 +54,11 @@ namespace SkinEngine.Controls.Animations
       Init();
       TargetProperty = a.TargetProperty;
       TargetName = a.TargetName;
-      foreach (DoubleKeyFrame k in a.KeyFrames)
-      {
-        KeyFrames.Add((DoubleKeyFrame)k.Clone());
-      }
+      //foreach (DoubleKeyFrame k in a.KeyFrames)
+      //{
+      //  KeyFrames.Add((DoubleKeyFrame)k.Clone());
+      //}
+      _keyFramesProperty.SetValue(a.KeyFrames);
     }
 
     public override object Clone()
@@ -69,12 +71,10 @@ namespace SkinEngine.Controls.Animations
       _targetProperty = new Property("");
       _targetNameProperty = new Property("");
       _keyFramesProperty = new Property(new DoubleKeyFrameCollection());
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
+
+    #region properties
     /// <summary>
     /// Gets or sets the target property.
     /// </summary>
@@ -162,7 +162,9 @@ namespace SkinEngine.Controls.Animations
         return _keyFramesProperty.GetValue() as DoubleKeyFrameCollection;
       }
     }
+    #endregion
 
+    #region animation methods
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -254,7 +256,7 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
-
+    #endregion
 
     #region IAddChild Members
 

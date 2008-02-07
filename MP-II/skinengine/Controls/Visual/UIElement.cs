@@ -137,6 +137,8 @@ namespace SkinEngine.Controls.Visuals
         RenderTransform = (Transform)el.RenderTransform.Clone();
 
       RenderTransformOrigin = el.RenderTransformOrigin;
+      _resources=el.Resources;
+      /*
       IDictionaryEnumerator enumer = el.Resources.GetEnumerator();
       while (enumer.MoveNext())
       {
@@ -150,7 +152,7 @@ namespace SkinEngine.Controls.Visuals
           Resources[enumer.Key] = enumer.Value;
           //Trace.WriteLine(String.Format("resource type:{0} is not clonable", enumer.Value));
         }
-      }
+      }*/
 
       foreach (Trigger t in el.Triggers)
       {

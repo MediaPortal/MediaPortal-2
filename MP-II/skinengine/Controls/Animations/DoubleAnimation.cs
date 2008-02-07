@@ -38,6 +38,8 @@ namespace SkinEngine.Controls.Animations
     Property _targetNameProperty;
     Property _property;
     double _originalValue;
+
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
     /// </summary>
@@ -67,13 +69,10 @@ namespace SkinEngine.Controls.Animations
       _toProperty = new Property(1.0);
       _byProperty = new Property(0.1);
 
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -232,6 +231,9 @@ namespace SkinEngine.Controls.Animations
         _targetNameProperty.SetValue(value);
       }
     }
+    #endregion
+
+    #region animation properties
     protected override void AnimateProperty(uint timepassed)
     {
       if (_property == null) return;
@@ -276,12 +278,10 @@ namespace SkinEngine.Controls.Animations
     public override void Setup(UIElement element)
     {
       VisualParent = element;
-      if (TargetName == "picture1")
-      {
-      }
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (double)_property.GetValue();
     }
+    #endregion
   }
 }

@@ -190,7 +190,8 @@ namespace SkinEngine.Controls.Visuals.Styles
       ICloneable clone = _originalValue as ICloneable;
       if (clone != null)
       {
-        property.SetValue(clone.Clone());
+        object obj = clone.Clone();
+        property.SetValue(obj);
       }
       else
       {
@@ -247,7 +248,8 @@ namespace SkinEngine.Controls.Visuals.Styles
       ICloneable clone = obj as ICloneable;
       if (clone != null)
       {
-        property.SetValue(clone.Clone());
+        obj = clone.Clone();
+        property.SetValue(obj);
       }
       else
       {

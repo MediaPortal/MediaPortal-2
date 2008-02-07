@@ -34,6 +34,7 @@ namespace SkinEngine.Controls.Animations
     Property _keyTimeProperty;
     Property _keyValueProperty;
 
+    #region ctor
     public DoubleKeyFrame()
     {
       Init();
@@ -57,6 +58,9 @@ namespace SkinEngine.Controls.Animations
     {
       return new DoubleKeyFrame(this);
     }
+    #endregion
+
+    #region properties
 
     public Property KeyTimeProperty
     {
@@ -122,6 +126,7 @@ namespace SkinEngine.Controls.Animations
     {
       return 0;
     }
+    #endregion
 
 
   }

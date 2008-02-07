@@ -41,6 +41,7 @@ namespace SkinEngine.Controls.Animations
     Property _property;
     Color _originalValue;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
     /// </summary>
@@ -71,13 +72,10 @@ namespace SkinEngine.Controls.Animations
       _fromProperty = new Property(Color.Black);
       _toProperty = new Property(Color.White);
       _byProperty = new Property(Color.Beige);
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -236,7 +234,9 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    #endregion
 
+    #region animation methods
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -306,6 +306,7 @@ namespace SkinEngine.Controls.Animations
       _property = GetProperty(TargetName, TargetProperty);
       _originalValue = (Color)_property.GetValue();
     }
+    #endregion
   }
 }
 

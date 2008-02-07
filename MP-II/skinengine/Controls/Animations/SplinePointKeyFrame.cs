@@ -37,6 +37,7 @@ namespace SkinEngine.Controls.Animations
     public SplinePointKeyFrame()
     {
       Init();
+      Attach();
     }
 
     public SplinePointKeyFrame(SplinePointKeyFrame k)
@@ -44,6 +45,7 @@ namespace SkinEngine.Controls.Animations
     {
       Init();
       this.KeySpline = k.KeySpline;
+      Attach();
       OnSplineChanged(null);
     }
 
@@ -51,9 +53,11 @@ namespace SkinEngine.Controls.Animations
     {
       _spline = new KeySpline();
       _keySplineProperty = new Property(new Vector4());
+    }
+    void Attach()
+    {
       _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
     }
-
 
     void OnSplineChanged(Property prop)
     {

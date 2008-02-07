@@ -41,6 +41,7 @@ namespace SkinEngine.Controls.Animations
     Property _property;
     Vector2 _originalValue;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="PointAnimation"/> class.
     /// </summary>
@@ -62,6 +63,7 @@ namespace SkinEngine.Controls.Animations
     {
       return new PointAnimation(this);
     }
+
     void Init()
     {
       _targetNameProperty = new Property("");
@@ -70,13 +72,10 @@ namespace SkinEngine.Controls.Animations
       _toProperty = new Property(new Vector2(0, 0));
       _byProperty = new Property(new Vector2(0, 0));
 
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -235,6 +234,9 @@ namespace SkinEngine.Controls.Animations
         _targetNameProperty.SetValue(value);
       }
     }
+    #endregion
+
+    #region animation methods
     protected override void AnimateProperty(uint timepassed)
     {
       if (_property == null) return;
@@ -321,5 +323,6 @@ namespace SkinEngine.Controls.Animations
       }
 
     }
+    #endregion
   }
 }

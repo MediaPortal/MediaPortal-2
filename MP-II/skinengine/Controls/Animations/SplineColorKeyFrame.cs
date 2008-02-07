@@ -33,10 +33,11 @@ namespace SkinEngine.Controls.Animations
   {
     KeySpline _spline;
     Property _keySplineProperty;
-
+    #region ctor
     public SplineColorKeyFrame()
     {
       Init();
+      Attach();
     }
 
     public SplineColorKeyFrame(SplineColorKeyFrame k)
@@ -45,12 +46,17 @@ namespace SkinEngine.Controls.Animations
       Init();
       this.KeySpline = k.KeySpline;
       OnSplineChanged(null);
+      Attach();
     }
 
     void Init()
     {
       _spline = new KeySpline();
       _keySplineProperty = new Property(new Vector4());
+      _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
+    }
+    void Attach()
+    {
       _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
     }
 
@@ -68,7 +74,9 @@ namespace SkinEngine.Controls.Animations
     {
       return new SplineColorKeyFrame(this);
     }
+    #endregion
 
+    #region properties
     public Property KeySplineProperty
     {
       get
@@ -92,6 +100,7 @@ namespace SkinEngine.Controls.Animations
         _keySplineProperty.SetValue(value);
       }
     }
+    #endregion
 
 
     public override Color Interpolate(Color start, double keyframe)

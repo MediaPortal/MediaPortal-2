@@ -34,6 +34,7 @@ namespace SkinEngine.Controls.Animations
     Property _keyTimeProperty;
     Property _keyValueProperty;
 
+    #region ctor
     public PointKeyFrame()
     {
       Init();
@@ -57,7 +58,9 @@ namespace SkinEngine.Controls.Animations
     {
       return new PointKeyFrame(this);
     }
+    #endregion
 
+    #region properties
     public Property KeyTimeProperty
     {
       get
@@ -122,5 +125,6 @@ namespace SkinEngine.Controls.Animations
     {
       return start;
     }
+    #endregion
   }
 }

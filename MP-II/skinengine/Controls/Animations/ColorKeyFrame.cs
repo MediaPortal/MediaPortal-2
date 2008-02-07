@@ -33,6 +33,7 @@ namespace SkinEngine.Controls.Animations
     Property _keyTimeProperty;
     Property _keyValueProperty;
 
+    #region ctor
     public ColorKeyFrame()
     {
       Init();
@@ -56,6 +57,9 @@ namespace SkinEngine.Controls.Animations
     {
       return new ColorKeyFrame(this);
     }
+    #endregion
+
+    #region properties
     public Property KeyTimeProperty
     {
       get
@@ -120,5 +124,6 @@ namespace SkinEngine.Controls.Animations
     {
       return start;
     }
+    #endregion
   }
 }

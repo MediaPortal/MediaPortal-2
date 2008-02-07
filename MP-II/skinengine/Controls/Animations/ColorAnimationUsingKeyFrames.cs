@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Animations
     Property _property;
     Color _originalValue;
 
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
     /// </summary>
@@ -53,10 +54,11 @@ namespace SkinEngine.Controls.Animations
       Init();
       TargetProperty = a.TargetProperty;
       TargetName = a.TargetName;
-      foreach (ColorKeyFrame k in a.KeyFrames)
-      {
-        KeyFrames.Add((ColorKeyFrame)k.Clone());
-      }
+      //foreach (ColorKeyFrame k in a.KeyFrames)
+      //{
+      //  KeyFrames.Add((ColorKeyFrame)k.Clone());
+      //}
+      _keyFramesProperty.SetValue(a.KeyFrames);
     }
 
     public override object Clone()
@@ -69,12 +71,10 @@ namespace SkinEngine.Controls.Animations
       _targetProperty = new Property("");
       _targetNameProperty = new Property("");
       _keyFramesProperty = new Property(new ColorKeyFrameCollection());
-      _targetProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
-      _targetNameProperty.Attach(new PropertyChangedHandler(OnTargetChanged));
     }
-    void OnTargetChanged(Property prop)
-    {
-    }
+    #endregion
+
+    #region properties
     /// <summary>
     /// Gets or sets the target property.
     /// </summary>
@@ -163,9 +163,9 @@ namespace SkinEngine.Controls.Animations
       }
     }
 
+    #endregion
 
-
-
+    #region animation methods
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -251,6 +251,7 @@ namespace SkinEngine.Controls.Animations
       _originalValue = (Color)_property.GetValue();
 
     }
+    #endregion
 
     #region IAddChild Members
 
