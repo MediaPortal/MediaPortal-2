@@ -36,8 +36,6 @@ namespace SkinEngine.Controls.Animations
     Property _byProperty;
     Property _targetProperty;
     Property _targetNameProperty;
-    Property _property;
-    double _originalValue;
 
     #region ctor
     /// <summary>
@@ -234,53 +232,58 @@ namespace SkinEngine.Controls.Animations
     #endregion
 
     #region animation properties
-    protected override void AnimateProperty(uint timepassed)
+    protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (_property == null) return;
+      if (context.Property == null) return;
       double dist = (To - From) / Duration.TotalMilliseconds;
       dist *= timepassed;
       dist += From;
 
-      _property.SetValue((double)dist);
+      context.Property.SetValue((double)dist);
     }
 
-    public override void Ended()
+    public override void Ended(AnimationContext context)
     {
-      if (IsStopped) return;
-      if (_property != null)
+      if (IsStopped(context)) return;
+      if (context.Property != null)
       {
         if (FillBehaviour != FillBehaviour.HoldEnd)
         {
-          _property.SetValue(_originalValue);
+          context.Property.SetValue(OriginalValue);
         }
       }
     }
 
-    public override void Stop()
+    public override void Stop(AnimationContext context)
     {
-      if (IsStopped) return;
-      _state = State.Idle;
-      if (_property != null)
+      if (IsStopped(context)) return;
+      context.State = State.Idle;
+      if (context.Property != null)
       {
-        _property.SetValue(_originalValue);
+        context.Property.SetValue(OriginalValue);
       }
     }
-    public override void Start(uint timePassed)
+    public override void Start(AnimationContext context, uint timePassed)
     {
-      if (!IsStopped)
-        Stop();
+      if (!IsStopped(context))
+        Stop(context);
 
-      _state = State.Starting;
+      context.State = State.Starting;
       //find property
-      _timeStarted = timePassed;
-      _state = State.WaitBegin;
+      context.TimeStarted = timePassed;
+      context.State = State.WaitBegin;
     }
-    public override void Setup(UIElement element)
+    public override void Setup(AnimationContext context)
     {
-      VisualParent = element;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      _property = GetProperty(TargetName, TargetProperty);
-      _originalValue = (double)_property.GetValue();
+      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty);
+    }
+
+    public override void Initialize(UIElement element)
+    {
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      Property prop = GetProperty(element, TargetName, TargetProperty);
+      OriginalValue = prop.GetValue();
     }
     #endregion
   }

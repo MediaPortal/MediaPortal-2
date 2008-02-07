@@ -31,7 +31,7 @@ namespace SkinEngine.Controls.Animations
   public class TimelineGroup : Timeline, IList
   {
     Property _childrenProperty;
-
+    #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="TimelineGroup"/> class.
     /// </summary>
@@ -58,7 +58,9 @@ namespace SkinEngine.Controls.Animations
     {
       _childrenProperty = new Property(new TimelineCollection());
     }
+    #endregion
 
+    #region properties
     /// <summary>
     /// Gets or sets the children property.
     /// </summary>
@@ -86,68 +88,16 @@ namespace SkinEngine.Controls.Animations
         return (TimelineCollection)_childrenProperty.GetValue();
       }
     }
+    #endregion
 
-    /// <summary>
-    /// Animate
-    /// </summary>
-    /// <param name="timePassed">The time passed.</param>
-    public override void Animate(uint timePassed)
-    {
-      foreach (Timeline child in Children)
-      {
-        child.Animate(timePassed);
-      }
-    }
 
-    public override void Setup(UIElement element)
+    public override  void Initialize(UIElement element)
     {
-      foreach (Timeline child in Children)
+      foreach (Timeline line in Children)
       {
-        child.Setup(element);
+        line.Initialize(element);
       }
     }
-    /// <summary>
-    /// Starts the animation
-    /// </summary>
-    /// <param name="timePassed">The time passed.</param>
-    public override void Start(uint timePassed)
-    {
-      foreach (Timeline child in Children)
-      {
-        child.VisualParent = VisualParent;
-        child.Start(timePassed);
-      }
-    }
-
-    /// <summary>
-    /// Stops the animation.
-    /// </summary>
-    public override void Stop()
-    {
-      foreach (Timeline child in Children)
-      {
-        child.Stop();
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this timeline is stopped.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
-    /// </value>
-    public override bool IsStopped
-    {
-      get
-      {
-        foreach (Timeline child in Children)
-        {
-          if (!child.IsStopped) return false;
-        }
-        return true;
-      }
-    }
-    
 
     #region IList Members
 

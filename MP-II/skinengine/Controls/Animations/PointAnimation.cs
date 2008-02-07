@@ -38,8 +38,6 @@ namespace SkinEngine.Controls.Animations
     Property _byProperty;
     Property _targetProperty;
     Property _targetNameProperty;
-    Property _property;
-    Vector2 _originalValue;
 
     #region ctor
     /// <summary>
@@ -237,9 +235,9 @@ namespace SkinEngine.Controls.Animations
     #endregion
 
     #region animation methods
-    protected override void AnimateProperty(uint timepassed)
+    protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (_property == null) return;
+      if (context.Property == null) return;
       double distx = (To.X - From.X) / Duration.TotalMilliseconds;
       distx *= timepassed;
       distx += From.X;
@@ -248,55 +246,60 @@ namespace SkinEngine.Controls.Animations
       disty *= timepassed;
       disty += From.Y;
 
-      SetValue(new Vector2((float)distx, (float)disty));
+      SetValue(context,new Vector2((float)distx, (float)disty));
     }
 
-    public override void Ended()
+    public override void Ended(AnimationContext context)
     {
-      if (IsStopped) return;
-      if (_property != null)
+      if (IsStopped(context)) return;
+      if (context.Property != null)
       {
         if (FillBehaviour != FillBehaviour.HoldEnd)
         {
-          SetValue(_originalValue);
+          SetValue(context, (Vector2)OriginalValue);
         }
       }
     }
 
-    public override void Start(uint timePassed)
+    public override void Start(AnimationContext context, uint timePassed)
     {
-      if (!IsStopped)
-        Stop();
+      if (!IsStopped(context))
+        Stop(context);
 
-      _state = State.Starting;
+      context.State = State.Starting;
 
 
-      _timeStarted = timePassed;
-      _state = State.WaitBegin;
+      context.TimeStarted = timePassed;
+      context.State = State.WaitBegin;
     }
-    public override void Setup(UIElement element)
+    public override void Setup(AnimationContext context)
     {
-      VisualParent = element;
-      _property = null;
+      context.Property = null;
       if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      _property = GetProperty(TargetName, TargetProperty);
-      _originalValue = GetValue();
+      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty);
     }
 
-    public override void Stop()
+    public override void Initialize(UIElement element)
     {
-      if (IsStopped) return;
-      _state = State.Idle;
-      if (_property != null)
+      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
+      Property prop = GetProperty(element, TargetName, TargetProperty);
+      OriginalValue = prop.GetValue();
+    }
+
+    public override void Stop(AnimationContext context)
+    {
+      if (IsStopped(context)) return;
+      context.State = State.Idle;
+      if (context.Property != null)
       {
-        SetValue(_originalValue);
+        SetValue(context, (Vector2)OriginalValue);
       }
     }
 
-    Vector2 GetValue()
+    Vector2 GetValue(AnimationContext context)
     {
-      if (_property == null) return new Vector2(0, 0);
-      object o = _property.GetValue();
+      if (context.Property == null) return new Vector2(0, 0);
+      object o = context.Property.GetValue();
       if (o.GetType() == typeof(Vector2)) return (Vector2)o;
       if (o.GetType() == typeof(Vector3))
       {
@@ -306,19 +309,19 @@ namespace SkinEngine.Controls.Animations
       return new Vector2(0, 0);
 
     }
-    void SetValue(Vector2 vector)
+    void SetValue(AnimationContext context,Vector2 vector)
     {
-      if (_property == null) return ;
-      object o = _property.GetValue();
+      if (context.Property == null) return;
+      object o = context.Property.GetValue();
       if (o.GetType() == typeof(Vector2))
       {
-        _property.SetValue(vector);
+        context.Property.SetValue(vector);
         return;
       }
       if (o.GetType() == typeof(Vector3))
       {
         Vector3 v = new Vector3(vector.X, vector.Y, ((Vector3)o).Z);
-        _property.SetValue(v);
+        context.Property.SetValue(v);
         return;
       }
 

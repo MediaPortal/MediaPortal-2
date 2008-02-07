@@ -35,15 +35,6 @@ namespace SkinEngine.Controls.Animations
 
   public class Timeline : ICloneable
   {
-    protected enum State
-    {
-      Idle,
-      Starting,
-      WaitBegin,
-      Running,
-      Reverse,
-      Ended
-    };
     Property _keyProperty;
     Property _beginTimeProperty;
     Property _accellerationProperty;
@@ -53,9 +44,8 @@ namespace SkinEngine.Controls.Animations
     Property _repeatBehaviourProperty;
     Property _fillBehaviourProperty;
     Property _visualParentProperty;
+    protected object OriginalValue;
 
-    protected uint _timeStarted;
-    protected State _state = State.Idle;
     #region ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="Timeline"/> class.
@@ -391,7 +381,7 @@ namespace SkinEngine.Controls.Animations
     /// Animates the property.
     /// </summary>
     /// <param name="timepassed">The timepassed.</param>
-    protected virtual void AnimateProperty(uint timepassed)
+    protected virtual void AnimateProperty(AnimationContext context, uint timepassed)
     {
     }
 
@@ -399,19 +389,19 @@ namespace SkinEngine.Controls.Animations
     /// Animate
     /// </summary>
     /// <param name="timePassed">The time passed.</param>
-    public virtual void Animate(uint timePassed)
+    public virtual void Animate(AnimationContext context, uint timePassed)
     {
-      if (_state == State.Starting) return;
-      uint passed = (timePassed - _timeStarted);
+      if (context.State == State.Starting) return;
+      uint passed = (timePassed - context.TimeStarted);
 
-      switch (_state)
+      switch (context.State)
       {
         case State.WaitBegin:
           if (passed >= BeginTime.TotalMilliseconds)
           {
             passed = 0;
-            _timeStarted = timePassed;
-            _state = State.Running;
+            context.TimeStarted = timePassed;
+            context.State = State.Running;
             goto case State.Running;
           }
           break;
@@ -421,26 +411,26 @@ namespace SkinEngine.Controls.Animations
           {
             if (AutoReverse)
             {
-              _state = State.Reverse;
-              _timeStarted = timePassed;
+              context.State = State.Reverse;
+              context.TimeStarted = timePassed;
               passed = 0;
               goto case State.Reverse;
             }
             else if (RepeatBehavior == RepeatBehavior.Forever)
             {
-              _timeStarted = timePassed;
-              AnimateProperty(timePassed - _timeStarted);
+              context.TimeStarted = timePassed;
+              AnimateProperty(context, timePassed - context.TimeStarted);
             }
             else
             {
-              AnimateProperty((uint)Duration.TotalMilliseconds);
-              Ended();
-              _state = State.Ended;
+              AnimateProperty(context, (uint)Duration.TotalMilliseconds);
+              Ended(context);
+              context.State = State.Ended;
             }
           }
           else
           {
-            AnimateProperty(passed);
+            AnimateProperty(context, passed);
           }
           break;
 
@@ -450,51 +440,51 @@ namespace SkinEngine.Controls.Animations
           {
             if (RepeatBehavior == RepeatBehavior.Forever)
             {
-              _state = State.Running;
-              _timeStarted = timePassed;
-              AnimateProperty(timePassed - _timeStarted);
+              context.State = State.Running;
+              context.TimeStarted = timePassed;
+              AnimateProperty(context, timePassed - context.TimeStarted);
             }
             else
             {
-              AnimateProperty((uint)Duration.TotalMilliseconds);
-              Ended();
-              _state = State.Ended;
+              AnimateProperty(context, (uint)Duration.TotalMilliseconds);
+              Ended(context);
+              context.State = State.Ended;
             }
           }
           else
           {
-            AnimateProperty((uint)(Duration.TotalMilliseconds - (passed)));
+            AnimateProperty(context, (uint)(Duration.TotalMilliseconds - (passed)));
           }
           break;
       }
     }
 
-    public virtual void Ended()
+    public virtual void Ended(AnimationContext context)
     {
     }
     /// <summary>
     /// Starts the animation
     /// </summary>
     /// <param name="timePassed">The time passed.</param>
-    public virtual void Start(uint timePassed)
+    public virtual void Start(AnimationContext context, uint timePassed)
     {
-      if (!IsStopped)
-        Stop();
-      _timeStarted = timePassed;
-      _state = State.WaitBegin;
+      if (!IsStopped(context))
+        Stop(context);
+      context.TimeStarted = timePassed;
+      context.State = State.WaitBegin;
     }
 
     /// <summary>
     /// Stops the animation.
     /// </summary>
-    public virtual void Stop()
+    public virtual void Stop(AnimationContext context)
     {
-      if (IsStopped) return;
+      if (IsStopped(context)) return;
       if (FillBehaviour == FillBehaviour.Stop)
       {
-        AnimateProperty(0);
+        AnimateProperty(context, 0);
       }
-      _state = State.Idle;
+      context.State = State.Idle;
     }
 
     /// <summary>
@@ -503,15 +493,12 @@ namespace SkinEngine.Controls.Animations
     /// <value>
     /// 	<c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
     /// </value>
-    public virtual bool IsStopped
+    public virtual bool IsStopped(AnimationContext context)
     {
-      get
-      {
-        return (_state == State.Idle);
-      }
+      return (context.State == State.Idle);
     }
 
-    protected Property GetProperty(string targetName, string targetProperty)
+    protected Property GetProperty(UIElement visualParent,string targetName, string targetProperty)
     {
       ///@optimize
       string propertyname = "";
@@ -543,7 +530,7 @@ namespace SkinEngine.Controls.Animations
       string left = propertyName.Substring(0, posPoint);
       string right = propertyName.Substring(posPoint + 1);
 
-      object element = VisualTreeHelper.Instance.FindElement(VisualParent, left);
+      object element = VisualTreeHelper.Instance.FindElement(visualParent, left);
       if (element == null)
         element = VisualTreeHelper.Instance.FindElement(left);
       if (element == null) return null;
@@ -555,7 +542,10 @@ namespace SkinEngine.Controls.Animations
       return minfo.Invoke(element, null) as Property;
     }
 
-    public virtual void Setup(UIElement element)
+    public virtual void Setup(AnimationContext context)
+    {
+    }
+    public virtual void Initialize(UIElement element)
     {
     }
 

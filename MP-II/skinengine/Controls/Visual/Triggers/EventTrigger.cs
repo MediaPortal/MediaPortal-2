@@ -140,7 +140,7 @@ namespace SkinEngine.Controls.Visuals.Triggers
       }*/
       if (Storyboard != null)
       {
-        Storyboard.Setup(element);
+        Storyboard.Initialize(element);
       }
       base.Setup(element);
     }

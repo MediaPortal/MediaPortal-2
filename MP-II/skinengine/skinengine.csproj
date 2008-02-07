@@ -90,6 +90,7 @@
     <Compile Include="Commands\StringParameter.cs" />
     <Compile Include="ContentManagement\FontBufferAsset.cs" />
     <Compile Include="ContentManagement\VertextBufferAsset.cs" />
+    <Compile Include="Controls\Animations\AnimationContext.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Controls\Animations\SplineDoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\SplinePointKeyFrame.cs" />
     <Compile Include="Controls\Animations\Storyboard.cs" />
+    <Compile Include="Controls\Animations\StoryboardContext.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineCollection.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />

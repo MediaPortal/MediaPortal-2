@@ -79,7 +79,7 @@ namespace SkinEngine.Controls.Visuals
     protected System.Drawing.RectangleF _finalRect;
     bool _isArrangeValid;
     ResourceDictionary _resources;
-    List<Timeline> _runningAnimations;
+    List<StoryboardContext> _runningAnimations;
     BindingCollection _bindings;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
@@ -137,7 +137,7 @@ namespace SkinEngine.Controls.Visuals
         RenderTransform = (Transform)el.RenderTransform.Clone();
 
       RenderTransformOrigin = el.RenderTransformOrigin;
-      _resources=el.Resources;
+      _resources = el.Resources;
       /*
       IDictionaryEnumerator enumer = el.Resources.GetEnumerator();
       while (enumer.MoveNext())
@@ -162,7 +162,7 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _bindings = new BindingCollection();
-      _runningAnimations = new List<Timeline>();
+      _runningAnimations = new List<StoryboardContext>();
       _nameProperty = new Property("");
       _keyProperty = new Property("");
       _focusableProperty = new Property(false);
@@ -1315,7 +1315,7 @@ namespace SkinEngine.Controls.Visuals
           {
             if (eventTrig.Storyboard != null)
             {
-              StartStoryboard(eventTrig.Storyboard);
+              StartStoryboard(eventTrig.Storyboard as Storyboard);
             }
           }
         }
@@ -1329,19 +1329,29 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    StoryboardContext GetContext(Storyboard board)
+    {
+      foreach (StoryboardContext context in _runningAnimations)
+      {
+        if (context.Storyboard == board) return context;
+      }
+      return null;
+    }
     /// <summary>
     /// Starts the storyboard.
     /// </summary>
     /// <param name="board">The board.</param>
-    public void StartStoryboard(Timeline board)
+    public void StartStoryboard(Storyboard board)
     {
       lock (_runningAnimations)
       {
-        if (!_runningAnimations.Contains(board))
+
+        if (null == GetContext(board))
         {
-          _runningAnimations.Add(board);
-          board.VisualParent = this;
-          board.Start(SkinContext.TimePassed);
+          StoryboardContext context = new StoryboardContext(board);
+          _runningAnimations.Add(context);
+          context.Setup(this);
+          context.Start(SkinContext.TimePassed);
         }
       }
     }
@@ -1350,12 +1360,14 @@ namespace SkinEngine.Controls.Visuals
     /// Stops the storyboard.
     /// </summary>
     /// <param name="board">The board.</param>
-    public void StopStoryboard(Timeline board)
+    public void StopStoryboard(Storyboard board)
     {
       lock (_runningAnimations)
       {
-        board.Stop();
-        _runningAnimations.Remove(board);
+        StoryboardContext context = GetContext(board);
+        if (context == null) return;
+        context.Stop();
+        _runningAnimations.Remove(context);
       }
     }
 
@@ -1365,16 +1377,16 @@ namespace SkinEngine.Controls.Visuals
     public virtual void Animate()
     {
       if (_runningAnimations.Count == 0) return;
-      List<Timeline> stoppedAnimations = new List<Timeline>();
+      List<StoryboardContext> stoppedAnimations = new List<StoryboardContext>();
       lock (_runningAnimations)
       {
-        foreach (Timeline line in _runningAnimations)
+        foreach (StoryboardContext line in _runningAnimations)
         {
           line.Animate(SkinContext.TimePassed);
           if (line.IsStopped)
             stoppedAnimations.Add(line);
         }
-        foreach (Timeline line in stoppedAnimations)
+        foreach (StoryboardContext line in stoppedAnimations)
         {
           line.Stop();
           _runningAnimations.Remove(line);
