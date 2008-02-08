@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MediaPortal.Core.PluginManager
 {
@@ -33,7 +34,7 @@ namespace MediaPortal.Core.PluginManager
   /// </summary>
   /// <remarks>
   /// A plug-in manager is responsible for enumerating, starting and stopping plugins</remarks>
-  public interface IPluginManager
+	public interface IPluginManager : IServiceInfo
   {
     object GetPluginItem<T>(string location, string name);
 

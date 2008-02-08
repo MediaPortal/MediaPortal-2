@@ -44,7 +44,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  *  Code modified from SharpDevelop AddIn code
- *  Thanks goes to: Mike Krüger
+ *  Thanks goes to: Mike Krger
  */
 
 #endregion
@@ -82,6 +82,11 @@ namespace MediaPortal.Core.PluginManager
     {
       get;
     }
+
+  	bool Loaded
+  	{ 
+			get; set;
+  	}
     #endregion
 
     #region Public Methods

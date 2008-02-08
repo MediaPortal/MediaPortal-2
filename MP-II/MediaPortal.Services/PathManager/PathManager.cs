@@ -156,6 +156,17 @@ namespace MediaPortal.Services.PathManager
     }
     #endregion
 
+		#region IServiceInfo Implementation
+		public void ServiceInfo(TextWriter writer)
+		{
+			writer.WriteLine("=== PathManager");
+			foreach (KeyValuePair<string, string> pair in _paths)
+			{
+				writer.WriteLine("     {0} => {1}", pair.Key, pair.Value);
+			}
+		}
+		#endregion
+
     #region private
     private void LoadDefaults()
     {

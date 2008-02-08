@@ -26,6 +26,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -50,7 +51,12 @@ namespace MediaPortal.Services.PluginManager
       AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;     
     }
 
-		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+		~PluginManager()
+		{
+			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;     
+		}
+
+		public Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
 		{
 			int pos = args.Name.IndexOf(",");
 			if (pos >= 0)
@@ -62,6 +68,13 @@ namespace MediaPortal.Services.PluginManager
 					string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(), folders[i], dllName);
 					if (System.IO.File.Exists(fname))
 					{
+						if (_pluginTree != null)
+						{
+							foreach (PluginInfo info in _pluginTree.Plugins)
+							{
+								if (info.Name == dllName) info.Loaded = true;
+							}
+						}
 						return Assembly.LoadFile(fname);
 					}
 				}
@@ -197,7 +210,19 @@ namespace MediaPortal.Services.PluginManager
 			return false;
 		}
 
-
-    #endregion
-  }
+		#region IServiceInfo
+		public void ServiceInfo(TextWriter writer)
+		{
+			writer.WriteLine("=== PlugInManager");
+      if (_pluginTree != null)
+			{
+				foreach (PluginInfo info in _pluginTree.Plugins)
+				{
+					writer.WriteLine("     {0}, Running = {1}, Loaded = {2}", info.ToString(), info.Enabled, info.Loaded );
+				}
+			}
+		}
+		#endregion
+		#endregion
+	}
 }

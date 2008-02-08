@@ -46,8 +46,9 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     Dictionary<string, ExtensionPath> _paths;
     Dictionary<string, object> _instances;
     bool _enabled;
+  	bool _loaded;
 
-    //AddInAction _action = AddInAction.Disable;
+  	//AddInAction _action = AddInAction.Disable;
     //List<string> bitmapResources = new List<string>();
     //List<string> stringResources = new List<string>();
     //string customErrorMessage;
@@ -63,6 +64,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       _manifest = new PluginManifest();
       _paths = new Dictionary<string, ExtensionPath>();
       _instances = new Dictionary<string, object>();
+    	_loaded = false;
     }
     #endregion
 
@@ -168,6 +170,19 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         //this.Action = value ? AddInAction.Enable : AddInAction.Disable;
       }
     }
+
+		public bool Loaded
+		{
+			get
+			{
+				return _loaded;
+			}
+			set
+			{
+				_loaded = value;
+			}
+		}
+
     #endregion
 
     #region Public Methods
