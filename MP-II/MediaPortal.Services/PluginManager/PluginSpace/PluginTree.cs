@@ -280,8 +280,8 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     public void Load(List<string> pluginFiles, List<string> disabledPlugins)
     {
       List<PluginInfo> list = new List<PluginInfo>();
-      Dictionary<string, Version> dict = new Dictionary<string, Version>();
-      Dictionary<string, PluginInfo> pluginDict = new Dictionary<string, PluginInfo>();
+      Dictionary<string, Version> versionDict = new Dictionary<string, Version>();
+      Dictionary<string, PluginInfo> pluginInfoDict = new Dictionary<string, PluginInfo>();
 
       ServiceScope.Get<ILogger>().Debug("Loading Plugin files...");
       foreach (string fileName in pluginFiles)
@@ -327,7 +327,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         {
           foreach (KeyValuePair<string, Version> pair in plugin.Manifest.Identities)
           {
-            if (dict.ContainsKey(pair.Key))
+            if (versionDict.ContainsKey(pair.Key))
             {
               //MessageService.ShowError("Name '" + pair.Key + "' is used by " + "'" + PluginDict[pair.Key].FileName + "' and '" + fileName + "'");
               plugin.Enabled = false;
@@ -336,64 +336,70 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
             }
             else
             {
-              dict.Add(pair.Key, pair.Value);
-              pluginDict.Add(pair.Key, plugin);
+              versionDict.Add(pair.Key, pair.Value);
+              pluginInfoDict.Add(pair.Key, plugin);
             }
           }
         }
         list.Add(plugin);
       }
-    checkDependencies:
-      for (int i = 0; i < list.Count; i++)
-      {
-        PluginInfo plugin = list[i];
-        if (!plugin.Enabled) continue;
-
-        Version versionFound;
-
-        foreach (PluginReference reference in plugin.Manifest.Conflicts)
-        {
-          if (reference.Check(dict, out versionFound))
-          {
-            //MessageService.ShowError(Plugin.Name + " conflicts with " + reference.ToString() + " and has been disabled.");
-            DisablePlugin(plugin, dict, pluginDict);
-            goto checkDependencies; // after removing one Plugin, others could break
-          }
-        }
-        foreach (PluginReference reference in plugin.Manifest.Dependencies)
-        {
-          if (!reference.Check(dict, out versionFound))
-          {
-            if (versionFound != null)
-            {
-              //MessageService.ShowError(Plugin.Name + " has not been loaded because it requires " + reference.ToString() + ", but version " + versionFound.ToString() + " is installed.");
-            }
-            else
-            {
-              //MessageService.ShowError(Plugin.Name + " has not been loaded because it requires " + reference.ToString() + ".");
-            }
-            DisablePlugin(plugin, dict, pluginDict);
-            goto checkDependencies; // after removing one Plugin, others could break
-          }
-        }
-      }
-      foreach (PluginInfo plugin in list)
+      CheckDependencies(list, versionDict, pluginInfoDict);
+    	foreach (PluginInfo plugin in list)
       {
         InsertPlugin(plugin);
       }
     }
-    #endregion
+
+  	public void CheckDependencies(List<PluginInfo> list, Dictionary<string, Version> versionDict, Dictionary<string, PluginInfo> pluginInfoDict)
+  	{
+  		checkDependencies:
+  		for (int i = 0; i < list.Count; i++)
+  		{
+  			PluginInfo plugin = list[i];
+  			if (!plugin.Enabled) continue;
+
+  			Version versionFound;
+
+  			foreach (PluginReference reference in plugin.Manifest.Conflicts)
+  			{
+  				if (reference.Check(versionDict, out versionFound))
+  				{
+  					//MessageService.ShowError(Plugin.Name + " conflicts with " + reference.ToString() + " and has been disabled.");
+  					DisablePlugin(plugin, versionDict, pluginInfoDict);
+  					goto checkDependencies; // after removing one Plugin, others could break
+  				}
+  			}
+  			foreach (PluginReference reference in plugin.Manifest.Dependencies)
+  			{
+  				if (!reference.Check(versionDict, out versionFound))
+  				{
+  					if (versionFound != null)
+  					{
+  						//MessageService.ShowError(Plugin.Name + " has not been loaded because it requires " + reference.ToString() + ", but version " + versionFound.ToString() + " is installed.");
+  					}
+  					else
+  					{
+  						//MessageService.ShowError(Plugin.Name + " has not been loaded because it requires " + reference.ToString() + ".");
+  					}
+  					DisablePlugin(plugin, versionDict, pluginInfoDict);
+  					goto checkDependencies; // after removing one Plugin, others could break
+  				}
+  			}
+  		}
+  	}
+
+  	#endregion
 
     #region Private Methods
     // used by Load(): disables a Plugin and removes it from the dictionaries.
-    private void DisablePlugin(PluginInfo Plugin, Dictionary<string, Version> dict, Dictionary<string, PluginInfo> PluginDict)
+    private void DisablePlugin(PluginInfo Plugin, Dictionary<string, Version> versionDict, Dictionary<string, PluginInfo> pluginInfoDict)
     {
       Plugin.Enabled = false;
       //Plugin.Action = PluginAction.DependencyError;
       foreach (string name in Plugin.Manifest.Identities.Keys)
       {
-        dict.Remove(name);
-        PluginDict.Remove(name);
+        versionDict.Remove(name);
+        pluginInfoDict.Remove(name);
       }
     }
 

@@ -55,5 +55,20 @@ namespace MediaPortal.Core.PluginManager
     /// Starts all plug-ins that are in the /AutoStart path.
     /// </summary>
     void Startup();
+
+		/// <summary>
+		/// Starts a PlugIn by name
+		/// </summary>
+		/// <param name="name">PlugIn Name</param>
+		/// <returns>true if PlugIn was started</returns>
+		bool StartPlugIn(string name);
+
+		/// <summary>
+		/// Stops PlugIn by name.
+		/// </summary>
+		/// <param name="name">PlugIn Name</param>
+		/// <returns>true if PlugIn was stopped</returns>
+		bool StopPlugIn(string name);
+
   }
 }

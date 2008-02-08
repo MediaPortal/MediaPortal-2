@@ -30,6 +30,7 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Services.PluginManager.PluginDetails;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
 namespace MediaPortal.Services.PluginManager
@@ -142,6 +143,60 @@ namespace MediaPortal.Services.PluginManager
       //}
       //runningPlugins.Clear();
     }
+
+		/// <summary>
+		/// Starts a PlugIn by name
+		/// </summary>
+		/// <param name="name">PlugIn Name</param>
+		/// <returns>true if PlugIn was started</returns>
+		public bool StartPlugIn(string name)
+		{
+			ServiceScope.Get<ILogger>().Debug("Plugin Manager: StartPlugIn({0})", name);
+			// let us check if plugin is already existing and loaded
+			if (_pluginTree != null)
+			{
+				foreach (PluginInfo info in _pluginTree.Plugins)
+				{
+					if (info.Name == name)
+					{
+						if (info.Enabled) return true;     // nothing to do for us 
+						else
+						{
+							// to be started
+							info.Enabled = true;
+							return true;
+						}
+					}
+				}
+				// plugin not loaded up to now => what to do?
+			}
+			
+			return false;
+		}
+
+		/// <summary>
+		/// Stops PlugIn by name.
+		/// </summary>
+		/// <param name="name">PlugIn Name</param>
+		/// <returns>true if PlugIn was stopped</returns>
+		public bool StopPlugIn(string name)
+		{
+			ServiceScope.Get<ILogger>().Debug("Plugin Manager: StopPlugIn({0})", name);
+			if (_pluginTree != null)
+			{
+				foreach (PluginInfo info in _pluginTree.Plugins)
+				{
+					if (info.Name == name)
+					{
+						info.Enabled = false;
+						_pluginTree.RemovePlugin(info);
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
 
     #endregion
   }
