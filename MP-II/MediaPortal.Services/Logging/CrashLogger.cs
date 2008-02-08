@@ -30,6 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Management;
+using MediaPortal.Core;
 using Microsoft.Win32;
 
 namespace MediaPortal.Services.Logging
@@ -81,6 +82,9 @@ namespace MediaPortal.Services.Logging
 
           writer.WriteLine("= Exception Information");
           writer.Write(ExceptionInfo(ex));
+
+					writer.WriteLine("= MediaPortal Information");
+					ServiceScope.Current.CreateLog(writer);
 
           // add more information here
           //writer.WriteLine("= MediaPortal Information");

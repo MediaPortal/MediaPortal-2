@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core
@@ -349,5 +350,14 @@ namespace MediaPortal.Core
       global = null;
       isRunning = false;
     }
+
+		public void CreateLog(TextWriter writer)
+		{
+			writer.WriteLine("== ServiceScope List");
+			foreach (KeyValuePair<Type, object> service in services)
+			{
+				writer.WriteLine("   - Service = {0}, {1}", service.Key.Name, service.Value.ToString() );				
+			}
+		}
   }
 }
