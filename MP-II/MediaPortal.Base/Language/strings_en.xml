@@ -247,7 +247,7 @@
     <String name="audiosetup" text="Audio setup"/>
     <String name="speakersetup" text="Choose the speaker connection type"/>
     <String name="buildin" text="Build-in (laptop)"/>
-    <String name="analog" text="Analog (RCA)"/>
+    <String name="analog" text="Analog"/>
     <String name="digital" text="Digital (Toslink/coax)"/>
     <String name="speakeramount" text="Choose the number of speakers"/>
     <String name="speakers2" text="2 speakers (stereo)"/>

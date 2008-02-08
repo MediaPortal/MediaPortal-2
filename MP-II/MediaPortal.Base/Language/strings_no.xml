@@ -247,7 +247,7 @@
     <String name="audiosetup" text="Lyd oppsett"/>
     <String name="speakersetup" text="Velg hvordan høytalerene er tilkoblet"/>
     <String name="buildin" text="Innebygd (laptop)"/>
-    <String name="analog" text="Analog (RCA)"/>
+    <String name="analog" text="Analog"/>
     <String name="digital" text="Digital (Toslink/coax)"/>
     <String name="speakeramount" text="Velg antall høytalere"/>
     <String name="speakers2" text="2 høytalere (stereo)"/>
