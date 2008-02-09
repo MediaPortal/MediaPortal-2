@@ -26,7 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
+using MediaPortal.Core;
 using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.Services.MPIManager
 {
@@ -115,6 +117,10 @@ namespace MediaPortal.Services.MPIManager
     {
       get
       {
+        if (_fileName == null)
+        {
+          _fileName = String.Format(@"{0}\{1}.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"),PackageId);
+        }
         return _fileName;
       }
       set

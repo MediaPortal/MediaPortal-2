@@ -67,5 +67,10 @@ namespace MediaPortal.Core.MPIManager
     void LoadQueue();
 
     void SaveQueue();
+
+    bool IsUpdateWaiting(string extensionId);
+
+    void Update(string extensionId);
+
   }
 }

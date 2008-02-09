@@ -572,6 +572,57 @@ namespace MediaPortal.Services.MPIManager
     }
     #endregion
 
+    /// <summary>
+    /// Determines whether [is update waiting] [the specified extension id].
+    /// </summary>
+    /// <param name="extensionId">The extension id.</param>
+    /// <returns>
+    /// 	<c>true</c> if [is update waiting] [the specified extension id]; otherwise, <c>false</c>.
+    /// </returns>
+    public bool IsUpdateWaiting(string extensionId)
+    {
+      MPIEnumeratorObject obj = Enumerator.GetInstalledExtesion(extensionId);
+      if (obj != null)
+      {
+        return Enumerator.HaveUpdate(obj);
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Updates the specified extension 
+    /// </summary>
+    /// <param name="extensionId">The extension GUID</param>
+    public void Update(string extensionId)
+    {
+      MPIEnumeratorObject latestObj = Enumerator.GetExtensions(extensionId);
+      MPIEnumeratorObject installedObj = Enumerator.GetInstalledExtesion(extensionId);
+      if (installedObj != null)
+      {
+        AddToQueue(installedObj, "Uninstall");
+        foreach (MPIEnumeratorObject obj in GetUnsolvedDependencies(latestObj))
+        {
+          AddToQueue(obj, "Install");
+        }
+        AddToQueue(latestObj as IMPIPackage, "Install");
+      }
+    }
+
+    /// <summary>
+    /// Updates all.
+    /// </summary>
+    public void UpdateAll()
+    {
+
+      foreach(MPIEnumeratorObject obj in GetAllKnowExtensions())
+      {
+        if(IsUpdateWaiting(obj.ExtensionId))
+        {
+          Update(obj.ExtensionId);
+        }
+      }
+    }
+
     #region Events
 
     /// <summary>

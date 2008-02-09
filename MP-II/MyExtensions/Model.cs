@@ -56,6 +56,7 @@ namespace MyExtensions
     private readonly ExtensionFactory _factory;
     private ItemsCollection _sortMenu;
     private ItemsCollection _mainMenu;
+    private ItemsCollection _contextMenu;
     //private ItemsCollection _mainMenuInfo;
     private readonly ExtensionSettings _settings;
     private ListItem _selectedItem;
@@ -109,7 +110,6 @@ namespace MyExtensions
       _items = new ItemsCollection();
 
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      //_extensionsViews = mediaManager.GetView("/Pictures");
 
       _dynamicContextMenuItems = new List<IMenuItem>();
       StringId menuText = new StringId("extensions", "install");
@@ -218,9 +218,12 @@ namespace MyExtensions
     {
       get
       {
-        IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("myextensions-contextmenu"));
-
+        if (_contextMenu == null)
+        {
+          IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
+          _contextMenu = new ItemsCollection(menuCollect.GetMenu("myextensions-contextmenu"));
+        }
+        return _contextMenu;
       }
     }
 
@@ -622,6 +625,9 @@ namespace MyExtensions
             }
           }
         }
+        //_contextMenu.AddRange(new ItemsCollection(menu));
+        _contextMenu = new ItemsCollection(menu);
+        _contextMenu.FireChange();
       }
     }
 

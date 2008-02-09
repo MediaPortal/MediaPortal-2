@@ -129,7 +129,7 @@ namespace MediaPortal.Services.TaskScheduler
     public List<Task> Clone()
     {
       List<Task> tasks = new List<Task>();
-      foreach (Task t in tasks)
+      foreach (Task t in _tasks)
         tasks.Add(t.Clone() as Task);
       return tasks;
     }
