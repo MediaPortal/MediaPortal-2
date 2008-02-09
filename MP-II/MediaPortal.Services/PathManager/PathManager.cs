@@ -156,14 +156,16 @@ namespace MediaPortal.Services.PathManager
     }
     #endregion
 
-		#region IServiceInfo Implementation
-		public void ServiceInfo(TextWriter writer)
+		#region IStatus Implementation
+		public List<string> GetStatus()
 		{
-			writer.WriteLine("=== PathManager");
+			List<string> status = new List<string>();
+			status.Add("=== PathManager");
 			foreach (KeyValuePair<string, string> pair in _paths)
 			{
-				writer.WriteLine("     {0} => {1}", pair.Key, pair.Value);
+				status.Add(String.Format("     {0} => {1}", pair.Key, pair.Value));
 			}
+			return status;
 		}
 		#endregion
 

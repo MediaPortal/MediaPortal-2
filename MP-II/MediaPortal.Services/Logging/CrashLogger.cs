@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -88,15 +89,11 @@ namespace MediaPortal.Services.Logging
 
 					writer.WriteLine("= MediaPortal Information");
 					writer.WriteLine();
-					ServiceScope.Current.ServiceInfo(writer);
-          // add more information here
-          //writer.WriteLine("= MediaPortal Information");
-          // List of Services
-          // Get status of every service
-          // new Interface IStatus
-          // new method on ServiceScope to get the Service Dictionary.
-          // -> of Plugins (State=Running,etc)
-          // -> of Path
+        	List<string> statusList = ServiceScope.Current.GetStatus();
+        	foreach (string status in statusList)
+        	{
+        		writer.WriteLine(status);
+        	}
         }
       }
       catch (Exception)

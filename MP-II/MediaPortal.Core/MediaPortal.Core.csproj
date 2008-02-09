@@ -63,7 +63,7 @@
     <Compile Include="Commands\ICommandResult.cs" />
     <Compile Include="Core\ApplicationCore.cs" />
     <Compile Include="Core\AutoPlay\IAutoPlay.cs" />
-    <Compile Include="Core\IServiceInfo.cs" />
+    <Compile Include="Core\IStatus.cs" />
     <Compile Include="Database\Interfaces\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\Interfaces\DatabaseProvider\IDatabaseCommand.cs" />
     <Compile Include="Database\Interfaces\DatabaseProvider\IDatabaseConnection.cs" />

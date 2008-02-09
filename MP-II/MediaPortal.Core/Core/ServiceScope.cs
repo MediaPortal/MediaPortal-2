@@ -97,7 +97,7 @@ namespace MediaPortal.Core
   /// }
   /// </code>
   /// </example>
-	public sealed class ServiceScope : IDisposable, IServiceInfo
+	public sealed class ServiceScope : IDisposable, IStatus
   {
     private static readonly object syncObject = new object();
 
@@ -351,20 +351,22 @@ namespace MediaPortal.Core
       isRunning = false;
 		}
 
-		#region IServiceInfo
-		public void ServiceInfo(TextWriter writer)
+		#region IStatus
+		public List<string> GetStatus()
 		{
-			writer.WriteLine("== ServiceScope List Start");
+			List<string> status = new List<string>();
+			status.Add("== ServiceScope List Start");
 			foreach (KeyValuePair<Type, object> service in services)
 			{
-				writer.WriteLine();
-				writer.WriteLine("=== Service = {0}, {1}", service.Key.Name, service.Value.ToString());
-				IServiceInfo info = service.Value as IServiceInfo;
-				if (info != null) info.ServiceInfo(writer);
+				status.Add(String.Format("=== Service = {0}, {1}", service.Key.Name, service.Value.ToString()));
+				IStatus info = service.Value as IStatus;
+				if (info != null)
+				{
+					status.AddRange(info.GetStatus());
+				}
 			}
-			writer.WriteLine();
-			writer.WriteLine("== ServiceScope List End");
-
+			status.Add("== ServiceScope List End");
+			return status;
 		}
 		#endregion
 	}

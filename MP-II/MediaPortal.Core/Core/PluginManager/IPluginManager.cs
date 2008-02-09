@@ -34,7 +34,7 @@ namespace MediaPortal.Core.PluginManager
   /// </summary>
   /// <remarks>
   /// A plug-in manager is responsible for enumerating, starting and stopping plugins</remarks>
-	public interface IPluginManager : IServiceInfo
+	public interface IPluginManager : IStatus
   {
     object GetPluginItem<T>(string location, string name);
 

@@ -210,17 +210,19 @@ namespace MediaPortal.Services.PluginManager
 			return false;
 		}
 
-		#region IServiceInfo
-		public void ServiceInfo(TextWriter writer)
+		#region IStatus Implementation
+		public List<string> GetStatus()
 		{
-			writer.WriteLine("=== PlugInManager");
+			List<string> status = new List<string>();
+			status.Add("=== PlugInManager");
       if (_pluginTree != null)
 			{
 				foreach (PluginInfo info in _pluginTree.Plugins)
 				{
-					writer.WriteLine("     {0}, Running = {1}, Loaded = {2}", info.ToString(), info.Enabled, info.Loaded );
+					status.Add(String.Format("     {0}, Running = {1}, Loaded = {2}", info.ToString(), info.Enabled, info.Loaded));
 				}
 			}
+			return status;
 		}
 		#endregion
 		#endregion

@@ -29,7 +29,7 @@ using System.Text;
 
 namespace MediaPortal.Core.PathManager
 {
-  public interface IPathManager : IServiceInfo
+  public interface IPathManager : IStatus
   {
     /// <summary>
     /// Checks if a directory with the specified label exists.

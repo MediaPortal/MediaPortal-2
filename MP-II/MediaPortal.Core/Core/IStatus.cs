@@ -5,12 +5,12 @@ using System.Text;
 
 namespace MediaPortal.Core
 {
-	public interface IServiceInfo
+	public interface IStatus
 	{
 		/// <summary>
-		/// Log Service Informations in case of a Crash 
+		/// Show the actual status of the service 
 		/// </summary>
-		/// <param name="writer"></param>
-		void ServiceInfo(TextWriter writer);
+		/// <returns></returns>
+		List<string> GetStatus();
 	}
 }
