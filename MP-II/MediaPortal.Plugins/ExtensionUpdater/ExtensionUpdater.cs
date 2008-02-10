@@ -34,8 +34,9 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Services.MPIManager;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Core.Threading;
+using MediaPortal.Services.MPIManager;
 
 namespace MediaPortal.Plugins.ExtensionUpdater
 {
@@ -50,6 +51,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     string _tempfile;
     string _finalfile;
     string listFile;
+    private IQueue _queue;
 
     #endregion
 
@@ -58,6 +60,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       installer = (MPInstaller)ServiceScope.Get<IMPInstaller>();
       listFile = String.Format(@"{0}\Mpilist.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       _settings = new ExtensionUpdaterSettings();
+      _queue = ServiceScope.Get<IMessageBroker>().Get("extensionupdater");
       client = new WebClient();
       updaterClient = new WebClient();
       client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
@@ -109,6 +112,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       ServiceScope.Get<IMessageBroker>().Get("taskscheduler").OnMessageReceive +=
           new MessageReceivedHandler(OnMessageReceive);
       _settings.TaskId = task.ID;
+      _settings.UpdaterTaskId = updatertask.ID;
       ServiceScope.Get<ISettingsManager>().Save(_settings);
       ServiceScope.Get<ILogger>().Info("Extension Updater Started");
     }
@@ -181,6 +185,11 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     {
     }
 
+    /// <summary>
+    /// Updaters the download end.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">The <see cref="System.ComponentModel.AsyncCompletedEventArgs"/> instance containing the event data.</param>
     private void UpdaterDownloadEnd(object sender, AsyncCompletedEventArgs e)
     {
       if (e.Error == null)
@@ -194,6 +203,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
             installer.Enumerator.Save();
             installer.UpdateAll();
             ServiceScope.Get<ILogger>().Info("Updating all extensions");
+            SendMessage("listupdated");
           }
           catch (Exception)
           {
@@ -242,5 +252,13 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       _client.DownloadFileAsync(new Uri(source), dest);
     }
 
+    private void SendMessage(string action)
+    {
+      // create message
+      MPMessage msg = new MPMessage();
+      msg.MetaData["message"] = action;
+      // asynchronously send message through queue
+      ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));
+    }
   }
 }

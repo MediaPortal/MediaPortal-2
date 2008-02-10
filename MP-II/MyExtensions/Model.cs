@@ -39,9 +39,9 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-
+using MediaPortal.Services.MPIManager;
 namespace MyExtensions
 {
   /// <summary>
@@ -96,6 +96,10 @@ namespace MyExtensions
       _factory = new ExtensionFactory();
 
       _settings = new ExtensionSettings();
+
+      ServiceScope.Get<IMessageBroker>().Get("extensionupdater").OnMessageReceive +=
+          new MessageReceivedHandler(OnMessageReceive);
+
       ServiceScope.Get<ISettingsManager>().Load(_settings);
       if (_settings.Folder == "")
       {
@@ -247,8 +251,8 @@ namespace MyExtensions
     private void Refresh()
     {
       _factory.LoadExtensions(ref _items, _folder);
-      //sort them
       _items.Sort(new ExtensionComparer(_settings.SortOption));
+      _items.FireChange();
     }
 
     private void NotifyAction()
@@ -714,6 +718,7 @@ namespace MyExtensions
         return ContextMenu;
       }
     }
+
     public string LongNameProperty
     {
       get
@@ -721,6 +726,21 @@ namespace MyExtensions
         return "Test";
       }
   
+    }
+
+    void OnMessageReceive(MPMessage message)
+    {
+      string mes = message.MetaData["message"] as string;
+      switch (mes)
+      {
+        case "listupdated":
+          ServiceScope.Get<ILogger>().Debug("List update message received");
+          Refresh();
+          break;
+        default:
+          break;
+      }
+      
     }
     #endregion
   }
