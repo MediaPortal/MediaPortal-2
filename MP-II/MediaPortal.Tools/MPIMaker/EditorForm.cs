@@ -34,6 +34,9 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Windows.Forms;
 using MediaPortal.Services.MPIManager;
+using MediaPortal.Core;
+using MediaPortal.Services.PathManager;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.MPIManager;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -51,6 +54,7 @@ namespace MPIMaker
 
     public EditorForm()
     {
+      ServiceScope.Add<IPathManager>(new PathManager());
       InitializeComponent();
       foreach(KeyValuePair<string, IMPIFileAction> kpv in Installer.GetAllFileActions())
       {
