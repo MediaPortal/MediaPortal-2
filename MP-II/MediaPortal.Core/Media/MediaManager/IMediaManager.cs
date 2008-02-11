@@ -28,7 +28,7 @@ using MediaPortal.Core.MediaManager.Views;
 
 namespace MediaPortal.Core.MediaManager
 {
-  public interface IMediaManager
+	public interface IMediaManager : IStatus
   {
     List<IProvider> Providers { get;}
     List<IRootContainer> Views { get;}

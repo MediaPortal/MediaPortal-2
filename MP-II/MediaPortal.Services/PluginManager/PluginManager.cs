@@ -209,13 +209,14 @@ namespace MediaPortal.Services.PluginManager
 			}
 			return false;
 		}
+		#endregion
 
 		#region IStatus Implementation
 		public List<string> GetStatus()
 		{
 			List<string> status = new List<string>();
 			status.Add("=== PlugInManager");
-      if (_pluginTree != null)
+			if (_pluginTree != null)
 			{
 				foreach (PluginInfo info in _pluginTree.Plugins)
 				{
@@ -224,7 +225,6 @@ namespace MediaPortal.Services.PluginManager
 			}
 			return status;
 		}
-		#endregion
 		#endregion
 	}
 }

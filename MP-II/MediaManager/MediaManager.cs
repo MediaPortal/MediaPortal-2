@@ -34,42 +34,33 @@ using MediaPortal.Core.PluginManager;
 namespace MediaManager
 {
   public class MediaManager : IPlugin, IAutoStart, IMediaManager
-  {
-    private readonly List<IProvider> _providers;
+	{
+		#region Variables
+		private readonly List<IProvider> _providers;
     private readonly List<IRootContainer> _views;
+		#endregion
 
-    /// <summary>
+		#region Constructors
+		/// <summary>
     /// Initializes a new instance of the <see cref="MediaManager"/> class.
     /// </summary>
     public MediaManager()
     {
       _providers = new List<IProvider>();
       _views = new List<IRootContainer>();
-    }
-
-
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    private void Initialize()
-    {
-
-      ViewLoader loader = new ViewLoader();
-      string[] files = System.IO.Directory.GetFiles("Views");
-      for (int i = 0; i < files.Length; ++i)
-      {
-        MediaContainer cont = loader.Load(files[i]);
-        Register(cont);
-      }
-    }
-
-    /// <summary>
+		}
+		#endregion
+		
+		#region IPlugin Implementation
+		/// <summary>
     /// Initializes the specified id.
     /// </summary>
     /// <param name="id">The id.</param>
     public void Initialize(string id) { }
+		#endregion
 
-    /// <summary>
+		#region IAutoStart Implementation
+		/// <summary>
     /// Startups this instance.
     /// </summary>
     public void Startup()
@@ -80,14 +71,32 @@ namespace MediaManager
         ServiceScope.Get<IMediaManager>().Register(provider);
       }
       Initialize();
-    }
+		}
 
-    /// <summary>
+		/// <summary>
+		/// Initializes this instance.
+		/// </summary>
+		private void Initialize()
+		{
+
+			ViewLoader loader = new ViewLoader();
+			string[] files = System.IO.Directory.GetFiles("Views");
+			for (int i = 0; i < files.Length; ++i)
+			{
+				MediaContainer cont = loader.Load(files[i]);
+				Register(cont);
+			}
+		}
+		#endregion
+
+		/// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose() { }
 
-    /// <summary>
+		#region IMediaManager Implementation
+		#region Properties
+		/// <summary>
     /// Gets the providers.
     /// </summary>
     /// <value>The providers.</value>
@@ -109,9 +118,10 @@ namespace MediaManager
       {
         return _views;
       }
-    }
+		}
+		#endregion
 
-    /// <summary>
+		/// <summary>
     /// Registers the specified provider.
     /// </summary>
     /// <param name="provider">The provider.</param>
@@ -215,9 +225,11 @@ namespace MediaManager
         return GetRoot().Items;
       }
       return parentItem.Items;
-    }
+		}
+		#endregion
 
-    /// <summary>
+		#region Private methods
+		/// <summary>
     /// Finds the item.
     /// </summary>
     /// <param name="parent">The parent.</param>
@@ -262,7 +274,26 @@ namespace MediaManager
         }
       }
       return root;
-    }
+		}
+		#endregion
 
-  }
+		#region IStatus Implementation
+		public List<string> GetStatus()
+		{
+			List<string> status = new List<string>();
+			status.Add("=== MediaManager - Providers");
+			foreach (IProvider provider in _providers)
+			{
+				status.Add(string.Format("     Provider = {0}", provider.Title));
+			}
+			status.Add("=== MediaManager - Views");
+			foreach (IRootContainer _view in _views)
+			{
+				status.Add(string.Format("     View = {0}", _view.Title));
+			}
+
+			return status;
+		}
+		#endregion
+	}
 }

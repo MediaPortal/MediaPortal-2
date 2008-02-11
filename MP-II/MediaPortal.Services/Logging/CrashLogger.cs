@@ -94,6 +94,7 @@ namespace MediaPortal.Services.Logging
         	{
         		writer.WriteLine(status);
         	}
+
         }
       }
       catch (Exception)

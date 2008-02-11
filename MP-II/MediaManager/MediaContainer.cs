@@ -66,7 +66,17 @@ namespace MediaManager
       _parent = parent;
       _metaData = new Dictionary<string, object>();
       _metaData["title"] = Title;
-    }
+		}
+
+		#region IRootContainer Implementation
+		/// <summary>
+		/// gets the media items
+		/// </summary>
+		/// <value></value>
+		public List<IAbstractMediaItem> Items
+		{
+			get { return _items; }
+		}
 
     /// <summary>
     /// Gets the root.
@@ -80,9 +90,13 @@ namespace MediaManager
           return this;
         return _parent.Root;
       }
-    }
+		}
 
-    /// <summary>
+		#endregion
+
+		#region IAbstractMediaItem Implementation
+
+		/// <summary>
     /// Gets or sets the mapping for the metadata.
     /// </summary>
     /// <value>The mapping for the metadata.</value>
@@ -114,16 +128,7 @@ namespace MediaManager
       }
     }
 
-    /// <summary>
-    /// gets the media items
-    /// </summary>
-    /// <value></value>
-    public List<IAbstractMediaItem> Items
-    {
-      get { return _items; }
-    }
-
-
+    
     /// <summary>
     /// Returns the title of the media item.
     /// </summary>
@@ -172,10 +177,7 @@ namespace MediaManager
       }
       set { }
     }
-    public string ParentPath
-    {
-      get { return _parentPath; }
-    }
+		
     /// <summary>
     /// Returns the metadata of the media item.
     /// </summary>
@@ -183,7 +185,13 @@ namespace MediaManager
     public Dictionary<string, object> MetaData
     {
       get { return _metaData; }
-    }
+		}
+		#endregion
+
+		public string ParentPath
+		{
+			get { return _parentPath; }
+		}
 
   }
 }
