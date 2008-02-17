@@ -53,13 +53,13 @@ namespace SkinEngine.Controls.Visuals
     Property _focusableProperty;
     Property _isFocusScopeProperty;
     Property _hasFocusProperty;
-    Property _acutalPositionProperty;
+    Vector3 _acutalPosition;
     Property _positionProperty;
     Property _dockProperty;
     Property _marginProperty;
     Property _triggerProperty;
-    Property _renderTransformProperty;
-    Property _renderTransformOriginProperty;
+    Transform _renderTransform;
+    Vector2 _renderTransformOrigin;
     Property _layoutTransformProperty;
     Property _visibilityProperty;
     Property _isEnabledProperty;
@@ -87,6 +87,7 @@ namespace SkinEngine.Controls.Visuals
     bool _bindingsInitialized;
     bool _triggersInitialized;
     bool _fireLoaded = true;
+    bool _isVisible=true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -168,15 +169,15 @@ namespace SkinEngine.Controls.Visuals
       _focusableProperty = new Property(false);
       _isFocusScopeProperty = new Property(true);
       _hasFocusProperty = new Property(false);
-      _acutalPositionProperty = new Property(new Vector3(0, 0, 1));
+      _acutalPosition = new Vector3(0, 0, 1);
       _positionProperty = new Property(new Vector3(0, 0, 1));
       _dockProperty = new Property(Dock.Left);
       _marginProperty = new Property(new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(new TriggerCollection());
-      _renderTransformProperty = new Property(null);
+      _renderTransform = null;
       _layoutTransformProperty = new Property(null);
-      _renderTransformOriginProperty = new Property(new Vector2(0, 0));
+      _renderTransformOrigin = new Vector2(0, 0);
       _visibilityProperty = new Property(VisibilityEnum.Visible);
       _isEnabledProperty = new Property(true);
       _isItemsHostProperty = new Property(false);
@@ -221,6 +222,7 @@ namespace SkinEngine.Controls.Visuals
       {
         VisualParent.Invalidate();
       }
+      _isVisible = (this.Visibility == VisibilityEnum.Visible);
     }
 
     /// <summary>
@@ -677,21 +679,6 @@ namespace SkinEngine.Controls.Visuals
         return (TriggerCollection)_triggerProperty.GetValue();
       }
     }
-    /// <summary>
-    /// Gets or sets the actual position property.
-    /// </summary>
-    /// <value>The actual position property.</value>
-    public Property ActualPositionProperty
-    {
-      get
-      {
-        return _acutalPositionProperty;
-      }
-      set
-      {
-        _acutalPositionProperty = value;
-      }
-    }
 
     /// <summary>
     /// Gets or sets the actual position.
@@ -701,11 +688,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (Vector3)_acutalPositionProperty.GetValue();
+        return _acutalPosition;
       }
       set
       {
-        _acutalPositionProperty.SetValue(value);
+        _acutalPosition = value;
       }
     }
 
@@ -992,7 +979,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (this.Visibility == VisibilityEnum.Visible);
+        return _isVisible;
       }
       set
       {
@@ -1067,21 +1054,7 @@ namespace SkinEngine.Controls.Visuals
         _layoutTransformProperty.SetValue(value);
       }
     }
-    /// <summary>
-    /// Gets or sets the render transform property.
-    /// </summary>
-    /// <value>The render transform property.</value>
-    public Property RenderTransformProperty
-    {
-      get
-      {
-        return _renderTransformProperty;
-      }
-      set
-      {
-        _renderTransformProperty = value;
-      }
-    }
+
 
     /// <summary>
     /// Gets or sets the render transform.
@@ -1091,26 +1064,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _renderTransformProperty.GetValue() as Transform;
+        return _renderTransform;
       }
       set
       {
-        _renderTransformProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the render transform origin property.
-    /// </summary>
-    /// <value>The render transform origin property.</value>
-    public Property RenderTransformOriginProperty
-    {
-      get
-      {
-        return _renderTransformOriginProperty;
-      }
-      set
-      {
-        _renderTransformOriginProperty = value;
+        _renderTransform = value;
       }
     }
 
@@ -1122,11 +1080,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (Vector2)_renderTransformOriginProperty.GetValue();
+        return _renderTransformOrigin;
       }
       set
       {
-        _renderTransformOriginProperty.SetValue(value);
+        _renderTransformOrigin = value;
       }
     }
 
