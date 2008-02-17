@@ -221,8 +221,6 @@ namespace SkinEngine
         verts[0].Position = upperLeft;
         verts[0].Color = (int)colorUpperLeft;
         //SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
-        verts[0].Tu2 = tu2;
-        verts[0].Tv2 = tv2;
 
         //bottom left
         verts[1].Tu1 = u1;
@@ -230,17 +228,12 @@ namespace SkinEngine
         verts[1].Position = bottomLeft;
         verts[1].Color = (int)colorBottomLeft;
         //SkinContext.GetAlphaGradientUV(bottomLeft, out tu2, out tv2);
-        verts[1].Tu2 = tu2;
-        verts[1].Tv2 = tv2;
-
         //bottom right
         verts[2].Tu1 = u2;
         verts[2].Tv1 = v2;
         verts[2].Position = bottomRight;
         verts[2].Color = (int)colorBottomRight;
         //SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
-        verts[2].Tu2 = tu2;
-        verts[2].Tv2 = tv2;
 
         //upper right
         verts[3].Tu1 = u2;
@@ -248,8 +241,6 @@ namespace SkinEngine
         verts[3].Position = upperRight;
         verts[3].Color = (int)colorUpperRight;
         //SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
-        verts[3].Tu2 = tu2;
-        verts[3].Tv2 = tv2;
       }
       PositionColored2Textured.Set(_vertexBuffer, ref verts);
     }

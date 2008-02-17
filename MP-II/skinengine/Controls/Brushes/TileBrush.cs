@@ -325,8 +325,6 @@ namespace SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Tu2 = u;
-        verts[i].Tv2 = v;
       }
     }
 

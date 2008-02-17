@@ -20,7 +20,6 @@ struct a2v
     float4 Position  : POSITION0;
     float4 Color     : COLOR0;
     float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
-    float2 Texcoord1 : TEXCOORD1;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
@@ -29,7 +28,6 @@ struct v2p
   float4 Position   : POSITION;
   float4 Color      : COLOR0;
   float2 Texcoord   : TEXCOORD0;
-  float2 Texcoord1 : TEXCOORD1;  // vertex texture coords 
 };
 // pixel shader to frame
 struct p2f 
@@ -53,7 +51,6 @@ void renderVertexShader( in a2v IN, out v2p OUT )
   OUT.Position = mul(IN.Position, worldViewProj);
   OUT.Color = IN.Color;
   OUT.Texcoord = IN.Texcoord;
-  OUT.Texcoord1 = IN.Texcoord1;
 }
 
 void renderPixelShader( in v2p IN, out p2f OUT) 

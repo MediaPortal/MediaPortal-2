@@ -68,8 +68,6 @@ namespace SkinEngine.DirectX
     public int Color; //12..15
     public float Tu1; //16..19
     public float Tv1; //20..23
-    public float Tu2; //24..27
-    public float Tv2; //28..31
 
     public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture2 | VertexFormat.Diffuse;
 
@@ -79,22 +77,18 @@ namespace SkinEngine.DirectX
         new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0),
         new VertexElement(0, 16, DeclarationType.Float2, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate,
                           0),
-        new VertexElement(0, 24, DeclarationType.Float2, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate,
-                          0),
         VertexElement.VertexDeclarationEnd
       };
 
-    public static readonly int StrideSize = 32;
+    public static readonly int StrideSize = 24;
 
-    public PositionColored2Textured(float x, float y, float z, float u1, float v1, float u2, float v2, int color)
+    public PositionColored2Textured(float x, float y, float z, float u1, float v1,  int color)
     {
       X = x;
       Y = y;
       Z = z;
       Tu1 = u1;
       Tv1 = v1;
-      Tu2 = u2;
-      Tv2 = v2;
       Color = color;
     }
 
@@ -104,15 +98,13 @@ namespace SkinEngine.DirectX
     /// <param name="v1">First texture coordinate V</param>
     /// <param name="u2">Second texture coordinate U</param>
     /// <param name="v2">Second texture coordinate V</param>
-    public PositionColored2Textured(Vector3 position, float u1, float v1, float u2, float v2, int color)
+    public PositionColored2Textured(Vector3 position, float u1, float v1,  int color)
     {
       X = position.X;
       Y = position.Y;
       Z = position.Z;
       Tu1 = u1;
       Tv1 = v1;
-      Tu2 = u2;
-      Tv2 = v2;
       Color = color;
     }
 

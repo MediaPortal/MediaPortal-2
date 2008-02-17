@@ -787,8 +787,6 @@ namespace SkinEngine.Controls.Visuals
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
-      verts[0].Tu2 = 0;
-      verts[0].Tv2 = 0;
 
       //bottom left
       verts[1].X = (float)(this.ActualPosition.X);
@@ -797,8 +795,6 @@ namespace SkinEngine.Controls.Visuals
       verts[1].Color = color;
       verts[1].Tu1 = 0;
       verts[1].Tv1 = maxV;
-      verts[1].Tu2 = 0;
-      verts[1].Tv2 = maxV;
 
       //bottomright
       verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth);
@@ -807,8 +803,6 @@ namespace SkinEngine.Controls.Visuals
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
-      verts[2].Tu2 = maxU;
-      verts[2].Tv2 = maxV;
 
       //upper right
       verts[3].X = (float)(this.ActualPosition.X + this.ActualWidth);
@@ -817,8 +811,6 @@ namespace SkinEngine.Controls.Visuals
       verts[3].Color = color;
       verts[3].Tu1 = maxU;
       verts[3].Tv1 = 0;
-      verts[3].Tu2 = maxU;
-      verts[3].Tv2 = 0;
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;

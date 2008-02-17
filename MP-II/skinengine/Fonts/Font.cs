@@ -706,7 +706,7 @@ namespace SkinEngine.Fonts
           x + xOffset, y + yOffset, z,
           c.X / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
-          u2, v2, b.Color.ToArgb());
+           b.Color.ToArgb());
 
 
         uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
@@ -721,7 +721,7 @@ namespace SkinEngine.Fonts
           topLeft.X + width, y + yOffset, z,
           (c.X + c.Width) / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
-          u2, v2, b.Color.ToArgb());
+           b.Color.ToArgb());
 
 
         uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
@@ -736,7 +736,7 @@ namespace SkinEngine.Fonts
           topLeft.X + width, topLeft.Y + height, z,
           (c.X + c.Width) / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
-          u2, v2, b.Color.ToArgb());
+           b.Color.ToArgb());
 
 
         uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
@@ -751,7 +751,7 @@ namespace SkinEngine.Fonts
           x + xOffset, topLeft.Y + height, z,
           c.X / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
-          u2, v2, b.Color.ToArgb());
+           b.Color.ToArgb());
 
         // Create the quad
         FontQuad q = new FontQuad(topLeft, topRight, bottomLeft, bottomRight);

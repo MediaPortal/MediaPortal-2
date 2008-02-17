@@ -193,8 +193,6 @@ namespace SkinEngine.Controls.Brushes
         float v = _verts[i].Tv1 * diffV + minV;
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Tu2 = verts[i].Tu1;
-        verts[i].Tv2 = verts[i].Tv1;
         verts[i].Color = _verts[i].Color;
       }
       PositionColored2Textured.Set(vertexBuffer, ref verts);

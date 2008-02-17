@@ -543,8 +543,9 @@ namespace SkinEngine.DirectX
           this.ClientSize = currentClientSize;
           this.TopMost = alwaysOnTop;*/
         }
-        /*
+        
         StringBuilder sb = new StringBuilder();
+
 
         // Store device description
         if (deviceInfo.DevType == DeviceType.Reference)
@@ -560,6 +561,7 @@ namespace SkinEngine.DirectX
           sb.Append("SW");
         }
 
+        /*
         if ((behaviorFlags.HardwareVertexProcessing) &&
             (behaviorFlags.PureDevice))
         {
@@ -598,7 +600,7 @@ namespace SkinEngine.DirectX
         {
           sb.Append(" (sw vp)");
         }
-
+        */
         if (deviceInfo.DevType == DeviceType.Hardware)
         {
           sb.Append(": ");
@@ -606,8 +608,8 @@ namespace SkinEngine.DirectX
         }
 
         // Set device stats string
-        _deviceStats = sb.ToString();*/
-
+        _deviceStats = sb.ToString();
+        ServiceScope.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
         // Set up the fullscreen cursor
         /*if (showCursorWhenFullscreen && !windowed)
         {
