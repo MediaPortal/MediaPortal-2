@@ -32,8 +32,6 @@ namespace SkinEngine
     #region variables
 
     public Matrix Matrix;
-    public Vector4 Alpha;
-    public Vector3 Translation;
     public double Opacity;
     #endregion
 
@@ -44,13 +42,11 @@ namespace SkinEngine
     {
       Matrix = Matrix.Identity;
       Opacity = 1.0;
-      Alpha = new Vector4(1, 1, 1, 1);
     }
     public ExtendedMatrix(double opacity)
     {
       Matrix = Matrix.Identity;
       Opacity = opacity;
-      Alpha = new Vector4(1, 1, 1, 1);
     }
 
     /// <summary>
@@ -62,83 +58,9 @@ namespace SkinEngine
     {
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix * matrix.Matrix;
-      m.Alpha.X = Alpha.X * matrix.Alpha.X;
-      m.Alpha.Y = Alpha.Y * matrix.Alpha.Y;
-      m.Alpha.Z = Alpha.Z * matrix.Alpha.Z;
-      m.Alpha.W = Alpha.W * matrix.Alpha.W;
       m.Opacity = Opacity * matrix.Opacity;
       return m;
     }
-
-    /// <summary>
-    /// decomposes the matrix.
-    /// </summary>
-    /// <param name="mat">The mat.</param>
-    /// <param name="vTrans">The v trans.</param>
-    /// <param name="vScale">The v scale.</param>
-    /// <param name="mRot">The m rot.</param>
-    public void MatrixDecompose(Matrix mat,
-                                out Vector3 vTrans,
-                                out Vector3 vScale,
-                                out Matrix mRot)
-    {
-      vTrans = new Vector3();
-      vScale = new Vector3();
-      mRot = Matrix.Identity;
-
-      Vector3[] vCols = new Vector3[]
-        {
-          new Vector3(mat.M11, mat.M12, mat.M13),
-          new Vector3(mat.M21, mat.M22, mat.M23),
-          new Vector3(mat.M31, mat.M32, mat.M33)
-        };
-
-      vScale.X = vCols[0].Length();
-      vScale.Y = vCols[1].Length();
-      vScale.Z = vCols[2].Length();
-
-
-      vTrans.X = mat.M41 / (vScale.X == 0 ? 1 : vScale.X);
-      vTrans.Y = mat.M42 / (vScale.Y == 0 ? 1 : vScale.Y);
-      vTrans.Z = mat.M43 / (vScale.Z == 0 ? 1 : vScale.Z);
-
-      if (vScale.X != 0)
-      {
-        vCols[0].X /= vScale.X;
-        vCols[0].Y /= vScale.X;
-        vCols[0].Z /= vScale.X;
-      }
-      if (vScale.Y != 0)
-      {
-        vCols[1].X /= vScale.Y;
-        vCols[1].Y /= vScale.Y;
-        vCols[1].Z /= vScale.Y;
-      }
-      if (vScale.Z != 0)
-      {
-        vCols[2].X /= vScale.Z;
-        vCols[2].Y /= vScale.Z;
-        vCols[2].Z /= vScale.Z;
-      }
-
-      mRot.M11 = vCols[0].X;
-      mRot.M12 = vCols[0].Y;
-      mRot.M13 = vCols[0].Z;
-      mRot.M14 = 0;
-      mRot.M41 = 0;
-      mRot.M21 = vCols[1].X;
-      mRot.M22 = vCols[1].Y;
-      mRot.M23 = vCols[1].Z;
-      mRot.M24 = 0;
-      mRot.M42 = 0;
-      mRot.M31 = vCols[2].X;
-      mRot.M32 = vCols[2].Y;
-      mRot.M33 = vCols[2].Z;
-      mRot.M34 = 0;
-      mRot.M43 = 0;
-      mRot.M44 = 1;
-    }
-
 
     public void TransformPoint(ref System.Drawing.PointF p)
     {
