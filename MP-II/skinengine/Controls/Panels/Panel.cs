@@ -422,7 +422,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public override void Animate()
     {
-      foreach (UIElement element in Children)
+      foreach (UIElement element in _renderOrder)
       {
         if (false == element.IsVisible) continue;
         element.Animate();
