@@ -60,9 +60,6 @@ namespace SkinEngine.Controls.Visuals
     {
     }
     #endregion
-    public override void DoRender()
-    {
-      base.DoRender();
-    }
+
   }
 }

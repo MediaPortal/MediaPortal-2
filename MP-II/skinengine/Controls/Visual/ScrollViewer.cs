@@ -247,10 +247,6 @@ namespace SkinEngine.Controls.Visuals
       return false;
     }
 
-    public override void DoRender()
-    {
-      base.DoRender();
-    }
 
     IScrollInfo GetScrollInfo()
     {
