@@ -52,7 +52,7 @@ namespace SkinEngine.Controls.Brushes
   {
     Property _opacityProperty;
     Property _relativeTransformProperty;
-    Property _transformProperty;
+    Transform _transformProperty;
     Property _keyProperty;
     Property _freezableProperty;
     bool _isOpacity;
@@ -85,7 +85,7 @@ namespace SkinEngine.Controls.Brushes
       _keyProperty = new Property("");
       _opacityProperty = new Property((double)1.0f);
       _relativeTransformProperty = new Property(new TransformGroup());
-      _transformProperty = new Property(null);
+      _transformProperty = null;
       _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _freezableProperty = new Property(false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
@@ -242,22 +242,7 @@ namespace SkinEngine.Controls.Brushes
         _relativeTransformProperty.SetValue(value);
       }
     }
-
-    /// <summary>
-    /// Gets or sets the transform property.
-    /// </summary>
-    /// <value>The transform property.</value>
-    public Property TransformProperty
-    {
-      get
-      {
-        return _transformProperty;
-      }
-      set
-      {
-        _transformProperty = value;
-      }
-    }
+     
 
     /// <summary>
     /// Gets or sets the transform.
@@ -267,11 +252,11 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return _transformProperty.GetValue() as Transform;
+        return _transformProperty;
       }
       set
       {
-        _transformProperty.SetValue(value);
+        _transformProperty = value;
       }
     }
 

@@ -391,17 +391,19 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       base.DoRender();
-      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+      SkinContext.AddOpacity(this.Opacity);
+      ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      float opacity = (float)SkinContext.FinalMatrix.Opacity;
+      float opacity = (float)SkinContext.Opacity;
       if (_image != null)
       {
         _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity,opacity,opacity,opacity);
         if (_image.Texture.IsAllocated)
         {
           SkinContext.RemoveTransform();
+          SkinContext.RemoveOpacity();
           return;
         }
       }
@@ -410,6 +412,7 @@ namespace SkinEngine.Controls.Visuals
         _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
       }
       SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
     }
 
     /// <summary>

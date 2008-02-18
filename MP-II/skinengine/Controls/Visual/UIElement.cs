@@ -69,7 +69,7 @@ namespace SkinEngine.Controls.Visuals
     Property _columnSpanProperty;
     Property _isItemsHostProperty;
     Property _contextProperty;
-    Property _opacityMask;
+    SkinEngine.Controls.Brushes.Brush _opacityMask;
     Property _opacityProperty;
     Property _freezableProperty;
     Property _zIndexProperty;
@@ -87,7 +87,8 @@ namespace SkinEngine.Controls.Visuals
     bool _bindingsInitialized;
     bool _triggersInitialized;
     bool _fireLoaded = true;
-    bool _isVisible=true;
+    bool _isVisible = true;
+    double _opacityCache=1.0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -189,7 +190,7 @@ namespace SkinEngine.Controls.Visuals
       _columnProperty = new Property(1);
       _rowSpanProperty = new Property(1);
       _columnSpanProperty = new Property(1);
-      _opacityMask = new Property(null);
+      _opacityMask = null;
       _zIndexProperty = new Property(-1.0);
 
       _positionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -197,6 +198,7 @@ namespace SkinEngine.Controls.Visuals
       _marginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       //_zIndexProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _visibilityProperty.Attach(new PropertyChangedHandler(OnVisibilityPropertyChanged));
+      _opacityProperty.Attach(new PropertyChangedHandler(OnOpacityPropertyChanged));
     }
 
 
@@ -214,6 +216,10 @@ namespace SkinEngine.Controls.Visuals
       {
         _loaded = value;
       }
+    }
+    void OnOpacityPropertyChanged(Property property)
+    {
+      _opacityCache = (double)_opacityProperty.GetValue();
     }
 
     void OnVisibilityPropertyChanged(Property property)
@@ -317,7 +323,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (double)_opacityProperty.GetValue();
+        return _opacityCache;// (double)_opacityProperty.GetValue();
       }
       set
       {
@@ -389,21 +395,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    /// <summary>
-    /// Gets or sets the opacity mask property.
-    /// </summary>
-    /// <value>The opacity mask property.</value>
-    public Property OpacityMaskProperty
-    {
-      get
-      {
-        return _opacityMask;
-      }
-      set
-      {
-        _opacityMask = value;
-      }
-    }
 
     /// <summary>
     /// Gets or sets the opacity mask.
@@ -413,11 +404,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _opacityMask.GetValue() as SkinEngine.Controls.Brushes.Brush;
+        return _opacityMask;
       }
       set
       {
-        _opacityMask.SetValue(value);
+        _opacityMask=value;
       }
     }
 

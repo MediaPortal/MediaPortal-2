@@ -301,8 +301,7 @@ namespace SkinEngine.Controls.Panels
           PerformLayout();
         }
 
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
+        SkinContext.AddOpacity(this.Opacity);
         if (Background != null)
         {
           ExtendedMatrix m = new ExtendedMatrix();
@@ -348,7 +347,7 @@ namespace SkinEngine.Controls.Panels
             element.Render();
           }
         }
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveOpacity();
 
         if (_isScrolling)
         {

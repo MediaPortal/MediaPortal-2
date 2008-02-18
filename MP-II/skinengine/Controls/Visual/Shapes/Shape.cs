@@ -71,8 +71,8 @@ namespace SkinEngine.Controls.Visuals
   public class Shape : FrameworkElement, IAsset
   {
     Property _stretchProperty;
-    Property _fillProperty;
-    Property _strokeProperty;
+    Brush _fillProperty;
+    Brush _strokeProperty;
     Property _strokeThicknessProperty;
     protected VertexBuffer _vertexBufferFill;
     protected int _verticesCountFill;
@@ -105,13 +105,13 @@ namespace SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _fillProperty = new Property(null);
-      _strokeProperty = new Property(null);
+      _fillProperty = null;
+      _strokeProperty = null;
       _strokeThicknessProperty = new Property(1.0);
       _stretchProperty = new Property(Stretch.None);
       ContentManager.Add(this);
       _strokeThicknessProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
-      _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
+     // _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
     }
 
     void OnStrokeThicknessChanged(Property property)
@@ -151,12 +151,13 @@ namespace SkinEngine.Controls.Visuals
         _stretchProperty.SetValue(value);
       }
     }
+ 
 
     /// <summary>
-    /// Gets or sets the fill property.
+    /// Gets or sets the fill.
     /// </summary>
-    /// <value>The fill property.</value>
-    public Property FillProperty
+    /// <value>The fill.</value>
+    public Brush Fill
     {
       get
       {
@@ -167,38 +168,7 @@ namespace SkinEngine.Controls.Visuals
         _fillProperty = value;
       }
     }
-
-    /// <summary>
-    /// Gets or sets the fill.
-    /// </summary>
-    /// <value>The fill.</value>
-    public Brush Fill
-    {
-      get
-      {
-        return _fillProperty.GetValue() as Brush;
-      }
-      set
-      {
-        _fillProperty.SetValue(value);
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the stroke property.
-    /// </summary>
-    /// <value>The stroke property.</value>
-    public Property StrokeProperty
-    {
-      get
-      {
-        return _strokeProperty;
-      }
-      set
-      {
-        _strokeProperty = value;
-      }
-    }
+ 
 
     /// <summary>
     /// Gets or sets the stroke.
@@ -208,11 +178,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _strokeProperty.GetValue() as Brush;
+        return _strokeProperty;
       }
       set
       {
-        _strokeProperty.SetValue(value);
+        _strokeProperty = value;
       }
     }
 
@@ -266,7 +236,9 @@ namespace SkinEngine.Controls.Visuals
         PerformLayout();
         _performLayout = false;
       }
-      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+
+      SkinContext.AddOpacity(this.Opacity);
+      ExtendedMatrix m = new ExtendedMatrix();
       SkinContext.AddTransform(m);
       if (Fill != null)
       {
@@ -290,6 +262,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
 
       _lastTimeUsed = SkinContext.Now;
     }

@@ -33,6 +33,8 @@ namespace SkinEngine.Controls.Brushes
   {
     Property _colorProperty;
     Property _offsetProperty;
+    double _offsetCache = 0;
+    Color _colorCache = Color.White;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GradientStop"/> class.
@@ -52,8 +54,8 @@ namespace SkinEngine.Controls.Brushes
     {
       _colorProperty = new Property(Color.White);
       _offsetProperty = new Property((double)0.0f);
-      _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _offsetProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _colorProperty.Attach(new PropertyChangedHandler(OnColorChanged));
+      _offsetProperty.Attach(new PropertyChangedHandler(OnOffsetChanged));
     }
     public virtual object Clone()
     {
@@ -69,14 +71,18 @@ namespace SkinEngine.Controls.Brushes
     {
       _colorProperty = new Property(color);
       _offsetProperty = new Property((double)offset);
+      _colorCache = color;
+      _offsetCache=offset;
     }
 
-    /// <summary>
-    /// Called when [property changed].
-    /// </summary>
-    /// <param name="prop">The prop.</param>
-    public void OnPropertyChanged(Property prop)
+    public void OnColorChanged(Property prop)
     {
+      _colorCache = (Color)_colorProperty.GetValue() ;
+      Fire();
+    }
+    public void OnOffsetChanged(Property prop)
+    {
+      _offsetCache = (double)_offsetProperty.GetValue();
       Fire();
     }
 
@@ -104,7 +110,7 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return (Color)_colorProperty.GetValue();
+        return _colorCache;
       }
       set
       {
@@ -136,7 +142,7 @@ namespace SkinEngine.Controls.Brushes
     {
       get
       {
-        return (double)_offsetProperty.GetValue();
+        return _offsetCache;
       }
       set
       {

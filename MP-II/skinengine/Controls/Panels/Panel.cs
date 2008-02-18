@@ -44,7 +44,7 @@ namespace SkinEngine.Controls.Panels
     protected Property _alignmentXProperty;
     protected Property _alignmentYProperty;
     protected Property _childrenProperty;
-    protected Property _backgroundProperty;
+    protected Brush _backgroundProperty;
     protected VertexBuffer _vertexBufferBackground;
     protected DateTime _lastTimeUsed;
     protected bool _performLayout = true;
@@ -76,12 +76,12 @@ namespace SkinEngine.Controls.Panels
       _childrenProperty = new Property(new UIElementCollection(this));
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Top);
-      _backgroundProperty = new Property(null);
+      _backgroundProperty = null;
       ContentManager.Add(this);
 
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
-      _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      //_backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _renderOrder = new List<UIElement>();
     }
 
@@ -103,22 +103,7 @@ namespace SkinEngine.Controls.Panels
     {
       Free(false);
     }
-
-    /// <summary>
-    /// Gets or sets the background property.
-    /// </summary>
-    /// <value>The background property.</value>
-    public Property BackgroundProperty
-    {
-      get
-      {
-        return _backgroundProperty;
-      }
-      set
-      {
-        _backgroundProperty = value;
-      }
-    }
+     
 
     /// <summary>
     /// Gets or sets the background brush
@@ -128,11 +113,11 @@ namespace SkinEngine.Controls.Panels
     {
       get
       {
-        return _backgroundProperty.GetValue() as Brush;
+        return _backgroundProperty;
       }
       set
       {
-        _backgroundProperty.SetValue(value);
+        _backgroundProperty = value;
       }
     }
 
@@ -248,8 +233,8 @@ namespace SkinEngine.Controls.Panels
       {
         PerformLayout();
       }
-      ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-      SkinContext.AddTransform(em);
+
+      SkinContext.AddOpacity(this.Opacity);
       if (Background != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
@@ -271,7 +256,7 @@ namespace SkinEngine.Controls.Panels
           element.Render();
         }
       }
-      SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
       _lastTimeUsed = SkinContext.Now;
     }
 

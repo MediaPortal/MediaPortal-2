@@ -69,6 +69,10 @@ namespace SkinEngine.Controls.Visuals
     bool _updateOpacityMask;
     bool _mouseOver = false;
     bool _inRender = false;
+    VerticalAlignmentEnum _verticalAlignmentCache = VerticalAlignmentEnum.Center;
+    HorizontalAlignmentEnum _horizontalAlignmentCache = HorizontalAlignmentEnum.Center;
+    double _actualWidthCache;
+    double _actualHeightCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
@@ -85,12 +89,12 @@ namespace SkinEngine.Controls.Visuals
       Init();
       Width = el.Width;
       Height = el.Height;
+      Style = el.Style;
+      Attach();
       ActualWidth = el.ActualWidth;
       ActualHeight = el.ActualHeight;
-      Style = el.Style;
       this.HorizontalAlignment = el.HorizontalAlignment;
       this.VerticalAlignment = el.VerticalAlignment;
-      Attach();
     }
     void Init()
     {
@@ -111,9 +115,18 @@ namespace SkinEngine.Controls.Visuals
       _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _actualHeightProperty.Attach(new PropertyChangedHandler(OnActualHeightChanged));
       _acutalWidthProperty.Attach(new PropertyChangedHandler(OnActualWidthChanged));
-
-
       _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
+      _horizontalAlignmentProperty.Attach(new PropertyChangedHandler(OnHorizontalAlignmentChanged));
+      _verticalAlignmentProperty.Attach(new PropertyChangedHandler(OnVerticalAlignmentChanged));
+    }
+
+    protected void OnHorizontalAlignmentChanged(Property property)
+    {
+      _horizontalAlignmentCache = (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue();
+    }
+    protected void OnVerticalAlignmentChanged(Property property)
+    {
+      _verticalAlignmentCache = (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue();
     }
 
     protected virtual void OnStyleChanged(Property property)
@@ -124,10 +137,12 @@ namespace SkinEngine.Controls.Visuals
     }
     void OnActualHeightChanged(Property property)
     {
+      _actualHeightCache = (double)_actualHeightProperty.GetValue();
       _updateOpacityMask = true;
     }
     void OnActualWidthChanged(Property property)
     {
+      _actualWidthCache = (double)_acutalWidthProperty.GetValue();
       _updateOpacityMask = true;
     }
 
@@ -231,7 +246,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (double)_acutalWidthProperty.GetValue();
+        return _actualWidthCache;
       }
       set
       {
@@ -262,7 +277,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (double)_actualHeightProperty.GetValue();
+        return _actualHeightCache;
       }
       set
       {
@@ -294,7 +309,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue();
+        return _horizontalAlignmentCache;
       }
       set
       {
@@ -326,7 +341,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue();
+        return _verticalAlignmentCache;
       }
       set
       {

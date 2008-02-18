@@ -36,7 +36,7 @@ namespace SkinEngine.Controls.Visuals
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
-
+    FrameworkElement _contentCache;
     public ContentPresenter()
     {
       Init();
@@ -71,6 +71,7 @@ namespace SkinEngine.Controls.Visuals
     }
     void OnContentChanged(Property property)
     {
+      _contentCache = _contentProperty.GetValue() as FrameworkElement;
       Content.VisualParent = this;
     }
 
@@ -98,7 +99,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _contentProperty.GetValue() as FrameworkElement;
+        return _contentCache;
       }
       set
       {
@@ -284,10 +285,9 @@ namespace SkinEngine.Controls.Visuals
       base.DoRender();
       if (Content != null)
       {
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
+        SkinContext.AddOpacity(this.Opacity);
         Content.DoRender();
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveOpacity();
       }
     }
 

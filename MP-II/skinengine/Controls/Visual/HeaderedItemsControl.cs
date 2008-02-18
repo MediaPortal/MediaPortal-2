@@ -348,18 +348,16 @@ namespace SkinEngine.Controls.Visuals
       {
         if (Header != null)
         {
-          ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-          SkinContext.AddTransform(em);
+          SkinContext.AddOpacity(this.Opacity);
           Header.DoRender();
+          SkinContext.RemoveOpacity();
 
-          SkinContext.RemoveTransform();
         }
         if (IsExpanded)
         {
-          ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-          SkinContext.AddTransform(em);
+          SkinContext.AddOpacity(this.Opacity);
           base.DoRender();
-          SkinContext.RemoveTransform();
+          SkinContext.RemoveOpacity();
         }
       }
     }

@@ -147,7 +147,7 @@ namespace SkinEngine.Controls.Brushes
 
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       ColorValue v = ColorConverter.FromColor(this.Color);
-      v.Alpha *= (float)SkinContext.FinalMatrix.Opacity;
+      v.Alpha *= (float)SkinContext.Opacity;
       _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
       GraphicsDevice.Device.SetTexture(0, null);

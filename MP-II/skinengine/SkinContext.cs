@@ -46,6 +46,8 @@ namespace SkinEngine
     private static float _skinHeight = 576;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
+    private static List<double> _opacity = new List<double>();
+    private static double _finalOpacity = 1.0;
     private static ExtendedMatrix _finalTransform = new ExtendedMatrix();
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
     private static ExtendedMatrix _tempTransform = null;
@@ -70,6 +72,30 @@ namespace SkinEngine
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
     internal extern static Int32 ShowCursor(bool bShow);
 
+    static public void AddOpacity(double opacity)
+    {
+      _finalOpacity *= opacity;
+      _opacity.Add(_finalOpacity);
+    }
+
+    static public void RemoveOpacity()
+    {
+      _opacity.RemoveAt(_opacity.Count - 1);
+      if (_opacity.Count > 0)
+      {
+        _finalOpacity = _opacity[_opacity.Count - 1];
+      }
+      else
+        _finalOpacity = 1.0;
+    }
+
+    static public double Opacity
+    {
+      get
+      {
+        return _finalOpacity;
+      }
+    }
     /// <summary>
     /// Gets or sets the Applications' main windows form.
     /// </summary>

@@ -32,7 +32,6 @@ namespace SkinEngine
     #region variables
 
     public Matrix Matrix;
-    public double Opacity;
     #endregion
 
     /// <summary>
@@ -41,12 +40,6 @@ namespace SkinEngine
     public ExtendedMatrix()
     {
       Matrix = Matrix.Identity;
-      Opacity = 1.0;
-    }
-    public ExtendedMatrix(double opacity)
-    {
-      Matrix = Matrix.Identity;
-      Opacity = opacity;
     }
 
     /// <summary>
@@ -58,7 +51,6 @@ namespace SkinEngine
     {
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix * matrix.Matrix;
-      m.Opacity = Opacity * matrix.Opacity;
       return m;
     }
 

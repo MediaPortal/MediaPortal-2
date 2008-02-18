@@ -118,7 +118,8 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
-      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+      SkinContext.AddOpacity(this.Opacity);
+      ExtendedMatrix m = new ExtendedMatrix();
       SkinContext.AddTransform(m);
       if (Fill != null && !_fillDisabled)
       {
@@ -142,6 +143,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
 
       _lastTimeUsed = SkinContext.Now;
     }

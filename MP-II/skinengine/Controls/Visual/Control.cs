@@ -47,8 +47,8 @@ namespace SkinEngine.Controls.Visuals
   {
     Property _templateProperty;
     FrameworkElement _templateControl;
-    Property _backgroundProperty;
-    Property _borderProperty;
+    Brush _backgroundProperty;
+    Brush _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
 
@@ -84,15 +84,15 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty = new Property(null);
       _templateProperty.Attach(new PropertyChangedHandler(OnTemplateChanged));
 
-      _borderProperty = new Property(null);
-      _backgroundProperty = new Property(null);
+      _borderProperty = null;
+      _backgroundProperty = null;
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)0);
       ContentManager.Add(this);
 
-      _borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      //_borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      //_backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      //_borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
@@ -149,10 +149,10 @@ namespace SkinEngine.Controls.Visuals
       }
     }
     /// <summary>
-    /// Gets or sets the background property.
+    /// Gets or sets the background brush
     /// </summary>
-    /// <value>The background property.</value>
-    public Property BackgroundProperty
+    /// <value>The background.</value>
+    public Brush Background
     {
       get
       {
@@ -165,38 +165,6 @@ namespace SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
-    public Brush Background
-    {
-      get
-      {
-        return _backgroundProperty.GetValue() as Brush;
-      }
-      set
-      {
-        _backgroundProperty.SetValue(value);
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the Border property.
-    /// </summary>
-    /// <value>The Border property.</value>
-    public Property BorderBrushProperty
-    {
-      get
-      {
-        return _borderProperty;
-      }
-      set
-      {
-        _borderProperty = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the Border brush
     /// </summary>
     /// <value>The Border.</value>
@@ -204,11 +172,11 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return _borderProperty.GetValue() as Brush;
+        return _borderProperty;
       }
       set
       {
-        _borderProperty.SetValue(value);
+        _borderProperty=value;
       }
     }
 
@@ -324,7 +292,8 @@ namespace SkinEngine.Controls.Visuals
       }
 
 
-      ExtendedMatrix m = new ExtendedMatrix(this.Opacity);
+      SkinContext.AddOpacity(this.Opacity);
+      ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
       if (Background != null)
@@ -349,6 +318,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
       SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
 
       _lastTimeUsed = SkinContext.Now;
     }
@@ -362,10 +332,9 @@ namespace SkinEngine.Controls.Visuals
       RenderBorder();
       if (_templateControl != null)
       {
-        ExtendedMatrix em = new ExtendedMatrix(this.Opacity);
-        SkinContext.AddTransform(em);
+        SkinContext.AddOpacity(this.Opacity);
         _templateControl.Render();
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveOpacity();
       }
     }
 

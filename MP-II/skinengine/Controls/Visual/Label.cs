@@ -45,6 +45,8 @@ namespace SkinEngine.Controls.Visuals
     Property _fontProperty;
     FontBufferAsset _asset;
     StringId _label;
+    bool _scrollCache;
+    Color _colorCache = Color.White;
     public Label()
     {
       Init();
@@ -69,6 +71,8 @@ namespace SkinEngine.Controls.Visuals
       _fontProperty = new Property("");
       _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
       _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
+      _scrollProperty.Attach(new PropertyChangedHandler(OnScrollChanged));
+      _colorProperty.Attach(new PropertyChangedHandler(OnColorChanged));
     }
 
     public override object Clone()
@@ -76,10 +80,18 @@ namespace SkinEngine.Controls.Visuals
       return new Label(this);
     }
 
+    void OnColorChanged(Property prop)
+    {
+      _colorCache = (Color)_colorProperty.GetValue();
+    }
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
       // Invalidate();
+    }
+    void OnScrollChanged(Property prop)
+    {
+      _scrollCache = (bool)_scrollProperty.GetValue();
     }
     void OnFontChanged(Property prop)
     {
@@ -171,7 +183,7 @@ namespace SkinEngine.Controls.Visuals
     {
       get
       {
-        return (Color)_colorProperty.GetValue();
+        return _colorCache;
       }
       set
       {
@@ -191,7 +203,7 @@ namespace SkinEngine.Controls.Visuals
 
     public bool Scroll
     {
-      get { return (bool)_scrollProperty.GetValue(); }
+      get { return _scrollCache; }
       set { _scrollProperty.SetValue(value); }
     }
 
@@ -321,7 +333,7 @@ namespace SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
       SkinContext.AddTransform(m);
-      color.Alpha *= (float)SkinContext.FinalMatrix.Opacity;
+      color.Alpha *= (float)SkinContext.Opacity;
       color.Alpha *= (float)this.Opacity;
       if (_label != null)
         _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
