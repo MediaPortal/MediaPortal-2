@@ -217,7 +217,7 @@ namespace SkinEngine.Effects
         _effect.End();
         _lastUsed = SkinContext.Now;
       }
-      GraphicsDevice.Device.SetTexture(0, null);
+      //GraphicsDevice.Device.SetTexture(0, null);
     }
 
     public void StartRender(Texture tex, int stream)

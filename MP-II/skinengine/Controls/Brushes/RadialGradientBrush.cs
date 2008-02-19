@@ -63,6 +63,10 @@ namespace SkinEngine.Controls.Brushes
     EffectHandleAsset _handleColor;
     EffectHandleAsset _handleAlphaTexture;
     BrushTexture _brushTexture;
+    float[] g_focus;
+    float[] g_center;
+    float[] g_radius;
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
@@ -268,7 +272,7 @@ namespace SkinEngine.Controls.Brushes
 
         if (_brushTexture == null)
         {
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops,IsOpacityBrush);
+          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         }
         if (_cacheTexture != null)
         {
@@ -333,22 +337,23 @@ namespace SkinEngine.Controls.Brushes
           _cacheTexture.Dispose();
           _cacheTexture = null;
         }
+        g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+        g_center = new float[2] { Center.X, Center.Y };
+        g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
+
+        if (MappingMode == BrushMappingMode.Absolute)
+        {
+          g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
+          g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
+        }
       }
 
-      float[] g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-      float[] g_center = new float[2] { Center.X, Center.Y };
-      float[] g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
-      if (MappingMode == BrushMappingMode.Absolute)
-      {
-        g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-        g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
-
-        g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-        g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
-
-        g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
-        g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
-      }
 
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
@@ -510,7 +515,7 @@ namespace SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops,IsOpacityBrush);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
           //SetColor(vertexBuffer);
@@ -522,23 +527,24 @@ namespace SkinEngine.Controls.Brushes
         _handleRadius = _effect.GetParameterHandle("g_radius");
         _handleOpacity = _effect.GetParameterHandle("g_opacity");
         _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
+
+        g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+        g_center = new float[2] { Center.X, Center.Y };
+        g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
+
+        if (MappingMode == BrushMappingMode.Absolute)
+        {
+          g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
+          g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
+        }
       }
 
-      float[] g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
-      float[] g_center = new float[2] { Center.X, Center.Y };
-      float[] g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
-
-      if (MappingMode == BrushMappingMode.Absolute)
-      {
-        g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-        g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
-
-        g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-        g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
-
-        g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
-        g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
-      }
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (!_singleColor)
       {

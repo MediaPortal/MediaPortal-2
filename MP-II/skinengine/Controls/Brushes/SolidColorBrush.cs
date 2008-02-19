@@ -150,7 +150,7 @@ namespace SkinEngine.Controls.Brushes
       v.Alpha *= (float)SkinContext.Opacity;
       _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
-      GraphicsDevice.Device.SetTexture(0, null);
+      //GraphicsDevice.Device.SetTexture(0, null);
       _lastTimeUsed = SkinContext.Now;
       return true;
     }

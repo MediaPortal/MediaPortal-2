@@ -381,6 +381,7 @@ namespace MediaPortal.Services.Threading
     /// </summary>
     private void Init()
     {
+      return;
       LogInfo("ThreadPool.Init()");
       _cancelWaitHandle.Reset();
       ThreadPoolStartInfo.Validate(_startInfo);

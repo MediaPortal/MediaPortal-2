@@ -189,7 +189,7 @@ namespace SkinEngine.Controls.Brushes
     /// </summary>
     public override void EndRender()
     {
-      GraphicsDevice.Device.SetTexture(0, null);
+      //GraphicsDevice.Device.SetTexture(0, null);
     }
 
     /// <summary>
