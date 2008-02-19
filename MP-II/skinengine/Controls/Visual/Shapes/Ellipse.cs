@@ -73,7 +73,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
-      Free(false);
+      
 
       double w = ActualWidth;
       double h = ActualHeight;
@@ -103,24 +103,34 @@ namespace SkinEngine.Controls.Visuals
           CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            _vertexBufferFill = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-            if (_vertexBufferFill != null)
+            if (_fillContext == null)
+            {
+              _fillContext = new VisualAssetContext();
+              ContentManager.Add(_fillContext);
+            }
+            _fillContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+            if (_fillContext.VertexBuffer != null)
             {
               Fill.SetupBrush(this, ref verts);
 
 
-              PositionColored2Textured.Set(_vertexBufferFill, ref verts);
+              PositionColored2Textured.Set(_fillContext.VertexBuffer, ref verts);
               _verticesCountFill = (verts.Length - 2);
             }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            _vertexBufferBorder = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts);
-            if (_vertexBufferBorder != null)
+            if (_borderContext == null)
+            {
+              _borderContext = new VisualAssetContext();
+              ContentManager.Add(_borderContext);
+            }
+            _borderContext.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts,_finalLayoutTransform);
+            if (_borderContext.VertexBuffer != null)
             {
               Stroke.SetupBrush(this, ref verts);
-              PositionColored2Textured.Set(_vertexBufferBorder, ref verts);
+              PositionColored2Textured.Set(_borderContext.VertexBuffer, ref verts);
               _verticesCountBorder = (verts.Length / 3);
             }
 

@@ -39,17 +39,17 @@ using Rectangle = System.Drawing.Rectangle;
 using MyXaml.Core;
 namespace SkinEngine.Controls.Panels
 {
-  public class Panel : FrameworkElement, IAsset, IAddChild
+  public class Panel : FrameworkElement, IAddChild
   {
     protected Property _alignmentXProperty;
     protected Property _alignmentYProperty;
     protected Property _childrenProperty;
     protected Brush _backgroundProperty;
-    protected VertexBuffer _vertexBufferBackground;
-    protected DateTime _lastTimeUsed;
     protected bool _performLayout = true;
     protected List<UIElement> _renderOrder;
     bool _updateRenderOrder = true;
+    protected VisualAssetContext _backgroundAsset;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
     /// </summary>
@@ -77,7 +77,6 @@ namespace SkinEngine.Controls.Panels
       _alignmentXProperty = new Property(AlignmentX.Center);
       _alignmentYProperty = new Property(AlignmentY.Top);
       _backgroundProperty = null;
-      ContentManager.Add(this);
 
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
@@ -101,9 +100,12 @@ namespace SkinEngine.Controls.Panels
     /// <param name="property">The property.</param>
     protected void OnPropertyChanged(Property property)
     {
-      Free(false);
+      if (_backgroundAsset != null)
+      {
+        _backgroundAsset.Free(false);
+      }
     }
-     
+
 
     /// <summary>
     /// Gets or sets the background brush
@@ -229,25 +231,27 @@ namespace SkinEngine.Controls.Panels
     public override void DoRender()
     {
       UpdateRenderOrder();
-      if (_performLayout || (Background != null && _vertexBufferBackground == null))
-      {
-        PerformLayout();
-      }
-
       SkinContext.AddOpacity(this.Opacity);
       if (Background != null)
       {
+        if (_performLayout || (_backgroundAsset == null))
+        {
+          PerformLayout();
+        }
+
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan))
+        if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleFan))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
           Background.EndRender();
         }
         SkinContext.RemoveTransform();
+
+        _backgroundAsset.LastTimeUsed = SkinContext.Now;
       }
       foreach (UIElement element in _renderOrder)
       {
@@ -257,7 +261,6 @@ namespace SkinEngine.Controls.Panels
         }
       }
       SkinContext.RemoveOpacity();
-      _lastTimeUsed = SkinContext.Now;
     }
 
     /// <summary>
@@ -266,9 +269,14 @@ namespace SkinEngine.Controls.Panels
     public void PerformLayout()
     {
       //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
-      Free(false);
+
       if (Background != null)
       {
+        if (_backgroundAsset == null)
+        {
+          _backgroundAsset = new VisualAssetContext();
+          ContentManager.Add(_backgroundAsset);
+        }
         double w = ActualWidth;
         double h = ActualHeight;
         System.Drawing.SizeF rectSize = new System.Drawing.SizeF((float)w, (float)h);
@@ -284,7 +292,7 @@ namespace SkinEngine.Controls.Panels
         }
         m.InvertSize(ref rectSize);
         System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
-        _vertexBufferBackground = PositionColored2Textured.Create(4);
+        _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(4);
         PositionColored2Textured[] verts = new PositionColored2Textured[4];
         unchecked
         {
@@ -296,7 +304,7 @@ namespace SkinEngine.Controls.Panels
         }
         Background.SetupBrush(this, ref verts);
 
-        PositionColored2Textured.Set(_vertexBufferBackground, ref verts);
+        PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
       }
 
       _performLayout = false;
@@ -317,62 +325,6 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
-    public override void Free(bool force)
-    {
-      if (_vertexBufferBackground != null)
-      {
-        _vertexBufferBackground.Dispose();
-        _vertexBufferBackground = null;
-      }
-      if (base.CanBeDeleted || force)
-      {
-        base.Free(force);
-      }
-    }
-
-    #region IAsset Members
-
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public override bool IsAllocated
-    {
-      get
-      {
-        return (_vertexBufferBackground != null || base.IsAllocated);
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
-    public override bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-        {
-          return false;
-        }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-        {
-          return true;
-        }
-
-        return false;
-      }
-    }
-
-
-    #endregion
 
     /// <summary>
     /// Called when the mouse moves
@@ -723,6 +675,36 @@ namespace SkinEngine.Controls.Panels
       {
         element.Reset();
       }
+    }
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      foreach (FrameworkElement child in Children)
+      {
+        child.Deallocate();
+      }
+      if (_backgroundAsset != null)
+      {
+        _backgroundAsset.Free(true);
+        ContentManager.Remove(_backgroundAsset);
+        _backgroundAsset = null;
+      }
+      if (Background != null)
+        Background.Deallocate();
+    }
+    public override void Allocate()
+    {
+      base.Allocate();
+      foreach (FrameworkElement child in Children)
+      {
+        child.Allocate();
+      }
+      if (_backgroundAsset != null)
+      {
+        ContentManager.Add(_backgroundAsset);
+      }
+      if (Background != null)
+        Background.Allocate();
     }
 
     #region IAddChild Members

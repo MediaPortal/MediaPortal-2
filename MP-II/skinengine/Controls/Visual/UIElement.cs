@@ -1432,6 +1432,12 @@ namespace SkinEngine.Controls.Visuals
     {
       _fireLoaded = true;
     }
+    public virtual void Allocate()
+    {
+    }
+    public virtual void Deallocate()
+    {
+    }
     #endregion
   }
 }

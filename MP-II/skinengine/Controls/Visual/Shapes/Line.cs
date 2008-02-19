@@ -217,7 +217,7 @@ namespace SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Line.PerformLayout() " + this.Name);
-      Free(false);
+
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;
@@ -242,14 +242,19 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
+        if (_borderContext == null)
+        {
+          _borderContext = new VisualAssetContext();
+          ContentManager.Add(_borderContext);
+        }
         using (path = GetLine(rect))
         {
           CalcCentroid(path, out centerX, out centerY);
-          _vertexBufferBorder = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-          if (_vertexBufferBorder != null)
+          _borderContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+          if (_borderContext.VertexBuffer != null)
           {
             Stroke.SetupBrush(this, ref verts);
-            PositionColored2Textured.Set(_vertexBufferBorder, ref verts);
+            PositionColored2Textured.Set(_borderContext.VertexBuffer, ref verts);
             _verticesCountBorder = (verts.Length / 3);
           }
         }
@@ -262,8 +267,11 @@ namespace SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (!IsVisible) return;
-      if ( Stroke == null) return;
-      if ((Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
+      if (Stroke == null) return;
+
+      if ((_borderContext != null && !_borderContext.IsAllocated) || _borderContext == null)
+        _performLayout = true;
+      if (_performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -272,19 +280,19 @@ namespace SkinEngine.Controls.Visuals
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       SkinContext.AddTransform(m);
-      if (Stroke != null && StrokeThickness > 0)
+      if (_borderContext != null)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleFan))
+        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleFan))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
+        _borderContext.LastTimeUsed = SkinContext.Now;
       }
       SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
-      _lastTimeUsed = SkinContext.Now;
     }
     public override void Measure(SizeF availableSize)
     {

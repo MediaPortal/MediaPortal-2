@@ -61,6 +61,7 @@ namespace SkinEngine.Controls.Visuals
     Property _thumbnailProperty;
     private VertextBufferAsset _image;
     private VertextBufferAsset _fallbackImage;
+    Property _stretchProperty;
 
     float _u, _v, _uoff, _voff, _w, _h;
     Vector3 _pos;
@@ -87,6 +88,7 @@ namespace SkinEngine.Controls.Visuals
       _fallbackSourceProperty = new Property(null);
       _stretchDirectionProperty = new Property(StretchDirection.Both);
       _thumbnailProperty = new Property(false);
+      _stretchProperty = new Property(Stretch.None);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnImageChanged));
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
@@ -114,6 +116,38 @@ namespace SkinEngine.Controls.Visuals
     void OnImageChanged(Property property)
     {
       _image = null;
+    }
+
+    /// <summary>
+    /// Gets or sets the stretch property.
+    /// </summary>
+    /// <value>The stretch property.</value>
+    public Property StretchProperty
+    {
+      get
+      {
+        return _stretchProperty;
+      }
+      set
+      {
+        _stretchProperty = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the stretch.
+    /// </summary>
+    /// <value>The stretch.</value>
+    public Stretch Stretch
+    {
+      get
+      {
+        return (Stretch)_stretchProperty.GetValue();
+      }
+      set
+      {
+        _stretchProperty.SetValue(value);
+      }
     }
 
     /// <summary>
@@ -445,10 +479,10 @@ namespace SkinEngine.Controls.Visuals
         float pixelRatio = 1.0f;
         float fSourceFrameRatio = ((float)asset.Texture.Width) / ((float)asset.Texture.Height);
         float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-        if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
+        if (this.Stretch == Stretch.Uniform || this.Stretch == Stretch.UniformToFill)
         {
 
-          if (Stretch == Stretch.Uniform)
+          if (this.Stretch == Stretch.Uniform)
           {
             float fNewWidth = (float)width;
             float fNewHeight = fNewWidth / fOutputFrameRatio;

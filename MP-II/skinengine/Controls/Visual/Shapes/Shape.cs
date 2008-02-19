@@ -68,17 +68,16 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     RightHanded
   }
-  public class Shape : FrameworkElement, IAsset
+  public class Shape : FrameworkElement
   {
     Property _stretchProperty;
     Brush _fillProperty;
     Brush _strokeProperty;
     Property _strokeThicknessProperty;
-    protected VertexBuffer _vertexBufferFill;
+    protected VisualAssetContext _fillContext;
     protected int _verticesCountFill;
-    protected VertexBuffer _vertexBufferBorder;
+    protected VisualAssetContext _borderContext;
     protected int _verticesCountBorder;
-    protected DateTime _lastTimeUsed;
     protected bool _performLayout;
 
     public Shape()
@@ -109,9 +108,8 @@ namespace SkinEngine.Controls.Visuals
       _strokeProperty = null;
       _strokeThicknessProperty = new Property(1.0);
       _stretchProperty = new Property(Stretch.None);
-      ContentManager.Add(this);
       _strokeThicknessProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
-     // _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
+      // _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
     }
 
     void OnStrokeThicknessChanged(Property property)
@@ -151,7 +149,7 @@ namespace SkinEngine.Controls.Visuals
         _stretchProperty.SetValue(value);
       }
     }
- 
+
 
     /// <summary>
     /// Gets or sets the fill.
@@ -168,7 +166,7 @@ namespace SkinEngine.Controls.Visuals
         _fillProperty = value;
       }
     }
- 
+
 
     /// <summary>
     /// Gets or sets the stroke.
@@ -230,8 +228,17 @@ namespace SkinEngine.Controls.Visuals
     {
       if (!IsVisible) return;
       if (Fill == null && Stroke == null) return;
-      if ((Fill != null && _vertexBufferFill == null) ||
-           (Stroke != null && _vertexBufferBorder == null && StrokeThickness > 0) || _performLayout)
+      if (Fill != null)
+      {
+        if ((_fillContext != null && !_fillContext.IsAllocated) || _fillContext == null)
+          _performLayout = true;
+      }
+      if (Stroke != null)
+      {
+        if ((_borderContext != null && !_borderContext.IsAllocated) || _borderContext == null)
+          _performLayout = true;
+      }
+      if (_performLayout)
       {
         PerformLayout();
         _performLayout = false;
@@ -240,54 +247,34 @@ namespace SkinEngine.Controls.Visuals
       SkinContext.AddOpacity(this.Opacity);
       ExtendedMatrix m = new ExtendedMatrix();
       SkinContext.AddTransform(m);
-      if (Fill != null)
+      if (_fillContext != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_vertexBufferFill, _verticesCountFill, PrimitiveType.TriangleFan))
+        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleFan))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferFill, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
           Fill.EndRender();
         }
+        _fillContext.LastTimeUsed = SkinContext.Now;
       }
-      if (Stroke != null && StrokeThickness > 0)
+      if (_borderContext != null)
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_vertexBufferBorder, _verticesCountBorder, PrimitiveType.TriangleList))
+        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBorder, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
+        _borderContext.LastTimeUsed = SkinContext.Now;
       }
       SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
 
-      _lastTimeUsed = SkinContext.Now;
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
-    public override void Free(bool force)
-    {
-      if (_vertexBufferFill != null)
-      {
-        _vertexBufferFill.Dispose();
-        _vertexBufferFill = null;
-      }
-      if (_vertexBufferBorder != null)
-      {
-        _vertexBufferBorder.Dispose();
-        _vertexBufferBorder = null;
-      }
-
-      if (base.CanBeDeleted || force)
-      {
-        base.Free(force);
-      }
-    }
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglefan.
     /// </summary>
@@ -295,7 +282,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cx">The cx.</param>
     /// <param name="cy">The cy.</param>
     /// <returns></returns>
-    protected VertexBuffer ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
+    static public VertexBuffer ConvertPathToTriangleFan(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
     {
       verts = null;
       int pointCount = path.PointCount;
@@ -338,7 +325,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     /// <param name="thickNess">The thick ness.</param>
-    void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction)
+    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction, ExtendedMatrix finalTransLayoutform)
     {
       double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
       double pi2 = Math.PI / 2.0; //90gr
@@ -348,8 +335,8 @@ namespace SkinEngine.Controls.Visuals
         ang -= pi2;
       x = (float)(Math.Cos(ang) * thickNessW); //radians
       y = (float)(Math.Sin(ang) * thickNessH);
-      if (_finalLayoutTransform != null)
-        _finalLayoutTransform.TransformXY(ref x, ref y);
+      if (finalTransLayoutform != null)
+        finalTransLayoutform.TransformXY(ref x, ref y);
       x += point.X;
       y += point.Y;
     }
@@ -360,7 +347,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="points">The points.</param>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    PointF GetNextPoint(PointF[] points, int i, int max)
+    static PointF GetNextPoint(PointF[] points, int i, int max)
     {
       i++;
       while (i >= max) i -= max;
@@ -374,16 +361,13 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts)
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
     {
       PolygonDirection direction = PointsDirection(path);
-      return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts);
+      return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
     }
-    protected VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts)
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
-      if (Name == "path5146")
-      {
-      }
       verts = null;
       if (path.PointCount <= 0) return null;
       // thickNess /= 2.0f;
@@ -401,7 +385,7 @@ namespace SkinEngine.Controls.Visuals
       {
         int offset = i * 6;
         PointF nextpoint = GetNextPoint(points, i, pointCount);
-        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction);
+        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction, finalLayoutTransform);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 2].Position = new Vector3(x, y, 1);
@@ -507,11 +491,11 @@ namespace SkinEngine.Controls.Visuals
     }
 
 
-    protected void ZCross(ref PointF left, ref PointF right, out double result)
+    static protected void ZCross(ref PointF left, ref PointF right, out double result)
     {
       result = left.X * right.Y - left.Y * right.X;
     }
-    protected void CalcCentroid(GraphicsPath path, out float cx, out float cy)
+    static public void CalcCentroid(GraphicsPath path, out float cx, out float cy)
     {
       int pointCount = path.PointCount;
       if (pointCount == 0)
@@ -541,7 +525,7 @@ namespace SkinEngine.Controls.Visuals
       cx = (float)(Math.Abs(centroid.X));
       cy = (float)(Math.Abs(centroid.Y));
     }
-    public PolygonDirection PointsDirection(GraphicsPath points)
+    static public PolygonDirection PointsDirection(GraphicsPath points)
     {
       int nCount = 0, j = 0, k = 0;
       int nPoints = points.PointCount;
@@ -570,46 +554,6 @@ namespace SkinEngine.Controls.Visuals
       else
         return PolygonDirection.Unknown;
     }
-    #region IAsset Members
-
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public override bool IsAllocated
-    {
-      get
-      {
-        return (_vertexBufferFill != null || _vertexBufferBorder != null || base.IsAllocated);
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
-    public override bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-        {
-          return false;
-        }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-        {
-          return true;
-        }
-
-        return false;
-      }
-    }
-
-
-    #endregion
 
 
     #region math helpers
@@ -860,5 +804,37 @@ namespace SkinEngine.Controls.Visuals
       return vertexBuffer;
     }
     #endregion
+
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      if (Fill != null)
+        Fill.Deallocate();
+      if (Stroke != null)
+        Stroke.Deallocate();
+      if (_fillContext != null)
+      {
+        _fillContext.Free(true);
+        ContentManager.Remove(_fillContext);
+        _fillContext = null;
+      }
+      if (_borderContext != null)
+      {
+        _borderContext.Free(true);
+        ContentManager.Remove(_borderContext);
+        _borderContext = null;
+      }
+
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      if (Fill != null)
+        Fill.Allocate();
+      if (Stroke != null)
+        Stroke.Allocate();
+      _performLayout = true;
+    }
   }
 }

@@ -296,30 +296,29 @@ namespace SkinEngine.Controls.Panels
       lock (_orientationProperty)
       {
         UpdateRenderOrder();
-        if (_performLayout || (Background != null && _vertexBufferBackground == null))
-        {
-          PerformLayout();
-        }
-
         SkinContext.AddOpacity(this.Opacity);
         if (Background != null)
         {
+          if (_performLayout || (_backgroundAsset == null))
+          {
+            PerformLayout();
+          }
+
           ExtendedMatrix m = new ExtendedMatrix();
           m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
           SkinContext.AddTransform(m);
-          //Matrix mrel, mt;
-          //Background.RelativeTransform.GetTransform(out mrel);
-          //Background.Transform.GetTransform(out mt);
-          //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix * mrel * mt;
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          if (Background.BeginRender(_vertexBufferBackground, 2, PrimitiveType.TriangleFan))
+          if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleFan))
           {
-            GraphicsDevice.Device.SetStreamSource(0, _vertexBufferBackground, 0, PositionColored2Textured.StrideSize);
+            GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
             GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
             Background.EndRender();
           }
           SkinContext.RemoveTransform();
+
+          _backgroundAsset.LastTimeUsed = SkinContext.Now;
         }
+
         if (_isScrolling)
         {
           GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
@@ -354,7 +353,6 @@ namespace SkinEngine.Controls.Panels
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
           SkinContext.RemoveTransform();
         }
-        _lastTimeUsed = SkinContext.Now;
       }
     }
     #endregion

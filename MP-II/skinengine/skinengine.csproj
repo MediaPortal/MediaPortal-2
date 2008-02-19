@@ -159,6 +159,7 @@
     <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
+    <Compile Include="Controls\Visual\VisualAssetContext.cs" />
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\Button.cs" />
     <Compile Include="Controls\Visual\CheckBox.cs" />

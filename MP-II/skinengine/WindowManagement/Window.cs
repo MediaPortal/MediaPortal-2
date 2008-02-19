@@ -222,25 +222,36 @@ namespace SkinEngine
       _thread = null;
     }
 
-    /// <summary>
-    /// Called when window should be shown
-    /// </summary>
-    /// <param name="animate">if set to <c>true</c> [animate].</param>
-    public void Show(bool animate)
+    public void AttachInput()
     {
       if (!_attachedInput)
       {
         ServiceScope.Get<IInputManager>().OnKeyPressed += _keyPressHandler;
         ServiceScope.Get<IInputManager>().OnMouseMove += _mouseMoveHandler;
         _attachedInput = true;
+        HasFocus = true;
       }
+    }
+
+    /// <summary>
+    /// Called when window should be shown
+    /// </summary>
+    public void Show()
+    {
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
+      _visual.Allocate();
       _visual.Reset();
       _visual.Invalidate();
       _visual.InitializeBindings();
       _setFocusedElement = true;
- 
+    }
+    /// <summary>
+    /// Called when window should be hidden
+    /// </summary>
+    public void Hide()
+    {
+      _visual.Deallocate();
     }
 
     /// <summary>
@@ -273,7 +284,7 @@ namespace SkinEngine
     /// <summary>
     /// called when the window should close
     /// </summary>
-    public void Hide()
+    public void DetachInput()
     {
       if (_attachedInput)
       {
@@ -289,7 +300,7 @@ namespace SkinEngine
 
     public void Reset()
     {
-
+      HasFocus = false;
       SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
       _visual.InitializeBindings();

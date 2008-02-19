@@ -125,6 +125,10 @@ namespace SkinEngine.Controls.Visuals
 
     public void Clear()
     {
+      foreach (UIElement element in _elements)
+      {
+        element.Deallocate();
+      }
       _elements.Clear();
       if (_parent != null)
         _parent.Invalidate();

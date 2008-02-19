@@ -99,7 +99,7 @@ namespace SkinEngine.Controls.Brushes
       _gradientOriginProperty = new Property(new Vector2(0.5f, 0.5f));
       _radiusXProperty = new Property((double)0.5f);
       _radiusYProperty = new Property((double)0.5f);
-      ContentManager.Add(this);
+      
       _centerProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _gradientOriginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _radiusXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -278,6 +278,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _cacheTexture.Dispose();
           _cacheTexture = null;
+          ContentManager.Remove(this);
         }
         _refresh = true;
       }
@@ -336,6 +337,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _cacheTexture.Dispose();
           _cacheTexture = null;
+          ContentManager.Remove(this);
         }
         g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[2] { Center.X, Center.Y };
@@ -444,6 +446,8 @@ namespace SkinEngine.Controls.Brushes
               }
               //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
               _effect = ContentManager.GetEffect("normal");
+              ContentManager.Add(this);
+
 
             }
             GraphicsDevice.Device.BeginScene();
@@ -631,6 +635,7 @@ namespace SkinEngine.Controls.Brushes
       {
         _cacheTexture.Dispose();
         _cacheTexture = null;
+        ContentManager.Remove(this);
       }
     }
 
@@ -646,6 +651,15 @@ namespace SkinEngine.Controls.Brushes
       {
         return _brushTexture.Texture;
       }
+    }
+    public override void Deallocate()
+    {
+      ContentManager.Remove(this);
+    }
+
+    public override void Allocate()
+    {
+      
     }
   }
 }

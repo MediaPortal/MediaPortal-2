@@ -389,6 +389,14 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
+    public virtual void Allocate()
+    {
+    }
+
+
+    public virtual void Deallocate()
+    {
+    }
 
 
   }

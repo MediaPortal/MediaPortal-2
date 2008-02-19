@@ -394,6 +394,22 @@ namespace SkinEngine.Controls.Visuals
       if (Content != null)
         Content.Reset();
     }
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      if (Content != null)
+      {
+        Content.Deallocate();
+      }
+    }
+    public override void Allocate()
+    {
+      base.Allocate();
+      if (Content != null)
+      {
+        Content.Allocate();
+      }
+    }
     #region focus prediction
 
     /// <summary>

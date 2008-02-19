@@ -53,8 +53,9 @@ namespace SkinEngine.Controls.Visuals
     Stretch = 3,
   };
 
-  public class FrameworkElement : UIElement, IAsset
+  public class FrameworkElement : UIElement
   {
+
     Property _widthProperty;
     Property _heightProperty;
 
@@ -62,10 +63,7 @@ namespace SkinEngine.Controls.Visuals
     Property _actualHeightProperty;
     Property _horizontalAlignmentProperty;
     Property _verticalAlignmentProperty;
-    VertexBuffer _vertexOpacityMaskBorder;
-    Texture _textureOpacity;
     Property _styleProperty;
-    DateTime _lastTimeUsed;
     bool _updateOpacityMask;
     bool _mouseOver = false;
     bool _inRender = false;
@@ -73,6 +71,7 @@ namespace SkinEngine.Controls.Visuals
     HorizontalAlignmentEnum _horizontalAlignmentCache = HorizontalAlignmentEnum.Center;
     double _actualWidthCache;
     double _actualHeightCache;
+    VisualAssetContext _opacityMaskContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
@@ -107,7 +106,6 @@ namespace SkinEngine.Controls.Visuals
       _styleProperty = new Property(null);
       _horizontalAlignmentProperty = new Property(HorizontalAlignmentEnum.Center);
       _verticalAlignmentProperty = new Property(VerticalAlignmentEnum.Center);
-      ContentManager.Add(this);
     }
     void Attach()
     {
@@ -612,7 +610,7 @@ namespace SkinEngine.Controls.Visuals
           {
             SurfaceDescription desc = backBuffer.Description;
             //get the surface of our opacity texture
-            using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
+            using (Surface textureOpacitySurface = _opacityMaskContext.Texture.GetSurfaceLevel(0))
             {
               //copy the correct rectangle from the backbuffer in the opacitytexture
               if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
@@ -659,12 +657,12 @@ namespace SkinEngine.Controls.Visuals
           //now render the opacitytexture with the opacitymask brush
           GraphicsDevice.Device.BeginScene();
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          OpacityMask.BeginRender(_textureOpacity);
-          GraphicsDevice.Device.SetStreamSource(0, _vertexOpacityMaskBorder, 0, PositionColored2Textured.StrideSize);
+          OpacityMask.BeginRender(_opacityMaskContext.Texture);
+          GraphicsDevice.Device.SetStreamSource(0, _opacityMaskContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
           OpacityMask.EndRender();
 
-          _lastTimeUsed = SkinContext.Now;
+          _opacityMaskContext.LastTimeUsed = SkinContext.Now;
         }
         else
         {
@@ -704,60 +702,8 @@ namespace SkinEngine.Controls.Visuals
 
     #region IAsset Members
 
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public virtual bool IsAllocated
-    {
-      get
-      {
-        return (_vertexOpacityMaskBorder != null || _textureOpacity != null);
-      }
-    }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
-    public virtual bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-        {
-          return false;
-        }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-        {
-          return true;
-        }
 
-        return false;
-      }
-    }
-
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
-    public virtual void Free(bool force)
-    {
-      if (_inRender) return;
-      if (_vertexOpacityMaskBorder != null)
-      {
-        _vertexOpacityMaskBorder.Dispose();
-        _vertexOpacityMaskBorder = null;
-      }
-
-      if (_textureOpacity != null)
-      {
-        _textureOpacity.Dispose();
-        _textureOpacity = null;
-      }
-    }
 
     #endregion
 
@@ -767,31 +713,36 @@ namespace SkinEngine.Controls.Visuals
     void UpdateOpacityMask()
     {
       if (OpacityMask == null) return;
-      if (_vertexOpacityMaskBorder == null)
+      if (_opacityMaskContext == null)
+      {
+        _opacityMaskContext = new VisualAssetContext();
+        ContentManager.Add(_opacityMaskContext);
+      }
+      if (_opacityMaskContext.VertexBuffer == null)
       {
         _updateOpacityMask = true;
 
-        _vertexOpacityMaskBorder = PositionColored2Textured.Create(4);
+        _opacityMaskContext.VertexBuffer = PositionColored2Textured.Create(4);
       }
       if (!_updateOpacityMask) return;
       Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
-      _lastTimeUsed = SkinContext.Now;
-      if (_textureOpacity != null)
+      _opacityMaskContext.LastTimeUsed = SkinContext.Now;
+      if (_opacityMaskContext.Texture != null)
       {
-        _textureOpacity.Dispose();
-        _textureOpacity = null;
+        _opacityMaskContext.Texture.Dispose();
+        _opacityMaskContext.Texture = null;
       }
 
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
-      _textureOpacity = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      _opacityMaskContext.Texture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
       PositionColored2Textured[] verts = new PositionColored2Textured[4];
 
       ColorValue col = ColorConverter.FromColor(System.Drawing.Color.White);
       col.Alpha *= (float)Opacity;
       int color = (int)col.ToArgb();
-      SurfaceDescription desc = _textureOpacity.GetLevelDescription(0);
+      SurfaceDescription desc = _opacityMaskContext.Texture.GetLevelDescription(0);
 
       float maxU = w / ((float)desc.Width);
       float maxV = h / ((float)desc.Height);
@@ -830,10 +781,28 @@ namespace SkinEngine.Controls.Visuals
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;
       OpacityMask.SetupBrush(this, ref verts);
-      PositionColored2Textured.Set(_vertexOpacityMaskBorder, ref verts);
+      PositionColored2Textured.Set(_opacityMaskContext.VertexBuffer, ref verts);
 
       _updateOpacityMask = false;
     }
     #endregion
+
+    public override void Allocate()
+    {
+      if (_opacityMaskContext != null)
+      {
+        ContentManager.Add(_opacityMaskContext);
+      }
+    }
+
+    public override void Deallocate()
+    {
+      if (_opacityMaskContext != null)
+      {
+        _opacityMaskContext.Free(true);
+        ContentManager.Remove(_opacityMaskContext);
+        _opacityMaskContext = null;
+      }
+    }
   }
 }

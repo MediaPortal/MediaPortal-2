@@ -77,7 +77,6 @@ namespace SkinEngine.Controls.Brushes
     {
       _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
-      ContentManager.Add(this);
       _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
@@ -183,6 +182,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _cacheTexture.Dispose();
           _cacheTexture = null;
+          ContentManager.Remove(this);
         }
         _refresh = true;
       }
@@ -242,6 +242,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _cacheTexture.Dispose();
           _cacheTexture = null;
+          ContentManager.Remove(this);
         }
       }
 
@@ -342,6 +343,7 @@ namespace SkinEngine.Controls.Brushes
 
 
               //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
+              ContentManager.Add(this);
             }
             GraphicsDevice.Device.BeginScene();
           }
@@ -513,6 +515,7 @@ namespace SkinEngine.Controls.Brushes
       {
         _cacheTexture.Dispose();
         _cacheTexture = null;
+        ContentManager.Remove(this);
       }
     }
 
@@ -524,6 +527,15 @@ namespace SkinEngine.Controls.Brushes
       {
         return _brushTexture.Texture;
       }
+    }
+
+    public override void Deallocate()
+    {
+      ContentManager.Remove(this);
+    }
+
+    public override void Allocate()
+    {
     }
   }
 }
