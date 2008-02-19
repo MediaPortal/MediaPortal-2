@@ -234,7 +234,7 @@ namespace SkinEngine.Controls.Panels
       SkinContext.AddOpacity(this.Opacity);
       if (Background != null)
       {
-        if (_performLayout || (_backgroundAsset == null))
+        if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
         {
           PerformLayout();
         }

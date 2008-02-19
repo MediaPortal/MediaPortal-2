@@ -507,11 +507,11 @@ namespace dxEngine
         if (WindowState != FormWindowState.Minimized)
         {
           GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), string.Empty);
-          //ServiceScope.Get<ILogger>().Debug("Application: allocate fonts");
+          ServiceScope.Get<ILogger>().Debug("Application: allocate fonts");
           FontManager.Alloc();
           ServiceScope.Get<IWindowManager>().CurrentWindow.Reset();
 
-          //ServiceScope.Get<ILogger>().Debug("Application: start render thread");
+          ServiceScope.Get<ILogger>().Debug("Application: start render thread");
           _renderThread = new Thread(RenderLoop);
           _renderThread.Start();
         }

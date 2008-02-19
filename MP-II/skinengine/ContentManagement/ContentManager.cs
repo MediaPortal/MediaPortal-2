@@ -54,7 +54,7 @@ namespace SkinEngine
     {
       if (message.MetaData.ContainsKey("action") && message.MetaData.ContainsKey("fullpath"))
       {
-        string action=(string)message.MetaData["action"];
+        string action = (string)message.MetaData["action"];
         if (action == "changed")
         {
           string fileName = (string)message.MetaData["fullpath"];
@@ -281,11 +281,11 @@ namespace SkinEngine
       }
       lock (_unnamedAssets)
       {
-        foreach (IAsset img in _unnamedAssets)
+        for (int i = 0; i < _unnamedAssets.Count; ++i)
         {
-          if (img.IsAllocated)
+          if (_unnamedAssets[i].IsAllocated)
           {
-            img.Free(true);
+            _unnamedAssets[i].Free(true);
           }
         }
       }

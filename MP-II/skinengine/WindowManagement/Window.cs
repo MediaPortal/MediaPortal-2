@@ -300,7 +300,6 @@ namespace SkinEngine
 
     public void Reset()
     {
-      HasFocus = false;
       SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
       _visual.InitializeBindings();
