@@ -639,7 +639,7 @@ namespace SkinEngine.Controls.Visuals
 
               //render the control (will be rendered into the opacitytexture)
               GraphicsDevice.Device.BeginScene();
-              GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+              //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
               //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
               DoRender();
               GraphicsDevice.Device.EndScene();
@@ -656,7 +656,7 @@ namespace SkinEngine.Controls.Visuals
           SkinContext.Transforms = originalTransforms;
           //now render the opacitytexture with the opacitymask brush
           GraphicsDevice.Device.BeginScene();
-          GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           OpacityMask.BeginRender(_opacityMaskContext.Texture);
           GraphicsDevice.Device.SetStreamSource(0, _opacityMaskContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
@@ -747,32 +747,32 @@ namespace SkinEngine.Controls.Visuals
       float maxU = w / ((float)desc.Width);
       float maxV = h / ((float)desc.Height);
       //upperleft
-      verts[0].X = (float)this.ActualPosition.X;
-      verts[0].Y = (float)this.ActualPosition.Y;
+      verts[0].X = (float)this.ActualPosition.X - 0.5f;
+      verts[0].Y = (float)this.ActualPosition.Y - 0.5f;
       verts[0].Z = 1.0f;
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
 
       //bottom left
-      verts[1].X = (float)(this.ActualPosition.X);
-      verts[1].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
+      verts[1].X = (float)(this.ActualPosition.X) - 0.5f;
+      verts[1].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
       verts[1].Z = 1.0f;
       verts[1].Color = color;
       verts[1].Tu1 = 0;
       verts[1].Tv1 = maxV;
 
       //bottomright
-      verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth);
-      verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight);
+      verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
+      verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
       verts[2].Z = 1.0f;
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
 
       //upper right
-      verts[3].X = (float)(this.ActualPosition.X + this.ActualWidth);
-      verts[3].Y = (float)(this.ActualPosition.Y);
+      verts[3].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
+      verts[3].Y = (float)(this.ActualPosition.Y) - 0.5f;
       verts[3].Z = 1.0f;
       verts[3].Color = color;
       verts[3].Tu1 = maxU;

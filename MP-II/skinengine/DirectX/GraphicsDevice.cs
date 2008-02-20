@@ -419,13 +419,14 @@ namespace SkinEngine
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
           //Dont remove this, MP-II uses the Z-buffer for some styles
           //rendering goes wrong when zbuffer is not cleared
-          _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+          //_device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
           SetRenderState();
 
           //Begin the scene
           _device.BeginScene();
 
+          GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           //render the window(s)
           if (!SkinContext.ScreenSaverActive)
           {

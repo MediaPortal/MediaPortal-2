@@ -336,7 +336,7 @@ namespace SkinEngine
 
       Set(x, y, z, width, height, 0, 0, 1, 1, (int)alpha, (int)alpha, (int)alpha, (int)alpha);
 
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       _effect.Render(_texture, streamNumber);
       _lastTimeUsed = SkinContext.Now;
@@ -421,7 +421,7 @@ namespace SkinEngine
           (int)alphaBottomLeft,
           (int)alphaBottomRight,
           (int)alphaUpperRight);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       _effect.Render(_texture, 0);
@@ -497,7 +497,7 @@ namespace SkinEngine
           (int)alphaBottomRight,
           (int)alphaUpperRight);
 
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       effect.Render(_texture,0);
       _lastTimeUsed = SkinContext.Now;

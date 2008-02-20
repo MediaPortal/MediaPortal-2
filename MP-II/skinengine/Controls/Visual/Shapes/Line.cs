@@ -282,7 +282,7 @@ namespace SkinEngine.Controls.Visuals
       SkinContext.AddTransform(m);
       if (_borderContext != null)
       {
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleFan))
         {
           GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);

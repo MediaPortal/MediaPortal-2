@@ -170,7 +170,7 @@ namespace SkinEngine.Controls.Brushes
 
           //render the control (will be rendered into the opacitytexture)
           GraphicsDevice.Device.BeginScene();
-          GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           Visual.DoRender();
           GraphicsDevice.Device.EndScene();
           SkinContext.RemoveTransform();
@@ -190,7 +190,7 @@ namespace SkinEngine.Controls.Brushes
       }
       //now render the opacitytexture with the opacitymask brush
       GraphicsDevice.Device.BeginScene();
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       _effect.StartRender(_textureOpacity);
 
       return true;

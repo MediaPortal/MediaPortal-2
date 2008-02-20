@@ -371,7 +371,7 @@ namespace SkinEngine.Fonts
     {
       // Render
       _effect.StartRender(_texture);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
       _effect.EndRender();
     }
@@ -403,7 +403,7 @@ namespace SkinEngine.Fonts
       buffer.Unlock();
 
       _effect.StartRender(_texture);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
 
       GraphicsDevice.Device.SetTexture(0, _texture);
       GraphicsDevice.Device.SetStreamSource(0, buffer, 0, PositionColored2Textured.StrideSize);

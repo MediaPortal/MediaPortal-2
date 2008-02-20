@@ -761,6 +761,7 @@ namespace SkinEngine.Players.Subtitles
         effect.StartRender(subTexture);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
         effect.EndRender();
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       }
       catch (Exception e)
       {

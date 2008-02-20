@@ -250,7 +250,7 @@ namespace SkinEngine.Controls.Visuals
       if (_fillContext != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleFan))
         {
           GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -261,7 +261,7 @@ namespace SkinEngine.Controls.Visuals
       }
       if (_borderContext != null)
       {
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);

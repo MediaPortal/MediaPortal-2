@@ -90,7 +90,7 @@ namespace SkinEngine.Controls.Visuals
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X - 0.5f, (float)ActualPosition.Y - 0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
 
 
       //Fill brush

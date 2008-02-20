@@ -242,7 +242,7 @@ namespace SkinEngine.Controls.Panels
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleFan))
         {
           GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -291,7 +291,7 @@ namespace SkinEngine.Controls.Panels
           m.Matrix *= em.Matrix;
         }
         m.InvertSize(ref rectSize);
-        System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
+        System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
         _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(4);
         PositionColored2Textured[] verts = new PositionColored2Textured[4];
         unchecked

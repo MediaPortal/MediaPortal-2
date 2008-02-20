@@ -1105,7 +1105,7 @@ namespace SkinEngine.Players
     {
       // Attach the vertex buffer to the Direct3D Device
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
 
       _allocator.Render(_effect);
 

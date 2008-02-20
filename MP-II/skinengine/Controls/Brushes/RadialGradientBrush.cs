@@ -418,7 +418,7 @@ namespace SkinEngine.Controls.Brushes
 
                 //render the control (will be rendered into the opacitytexture)
                 GraphicsDevice.Device.BeginScene();
-                GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+                //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
                 //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
 

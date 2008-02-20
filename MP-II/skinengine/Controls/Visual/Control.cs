@@ -306,7 +306,7 @@ namespace SkinEngine.Controls.Visuals
       if (Background != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Background.BeginRender(_backgroundAsset.VertexBuffer, _verticesCountBackground, PrimitiveType.TriangleFan))
         {
           GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -317,7 +317,7 @@ namespace SkinEngine.Controls.Visuals
       }
       if (BorderBrush != null && BorderThickness > 0)
       {
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (BorderBrush.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -700,7 +700,7 @@ namespace SkinEngine.Controls.Visuals
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
 
       PositionColored2Textured[] verts;
       GraphicsPath path;
