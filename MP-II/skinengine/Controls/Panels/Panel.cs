@@ -268,7 +268,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public void PerformLayout()
     {
-      //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
+      Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
 
       if (Background != null)
       {
@@ -705,6 +705,7 @@ namespace SkinEngine.Controls.Panels
       }
       if (Background != null)
         Background.Allocate();
+      _performLayout = true;
     }
 
     #region IAddChild Members
