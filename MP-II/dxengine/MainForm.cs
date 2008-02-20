@@ -148,7 +148,8 @@ namespace dxEngine
       }
       else
       {
-        ClientSize = new Size((int)SkinContext.Width, (int)SkinContext.Height);
+       // ClientSize = new Size(1200, 980);// new Size((int)SkinContext.Width, (int)SkinContext.Height);
+        ClientSize =  new Size((int)SkinContext.Width, (int)SkinContext.Height);
         fixed_aspect_ratio = 3.0f / 4.0f;
       }
       // this.ClientSize = new Size(SkinContext.Width, SkinContext.Height);

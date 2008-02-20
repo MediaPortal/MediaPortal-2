@@ -1,4 +1,4 @@
-float4x4 worldViewProj : WORLDVIEWPROJ; //our world view projection matrix
+half4x4 worldViewProj : WORLDVIEWPROJ; //our world view projection matrix
 texture g_texture;                      // Color texture 
 float    appTime;                   // App's time in seconds
  
@@ -14,23 +14,23 @@ sampler_state
 //application to vertex structure
 struct a2v
 {
-    float4 Position  : POSITION0;
-    float4 Color     : COLOR0;
-    float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
+    half4 Position  : POSITION0;
+    half4 Color     : COLOR0;
+    half2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
 struct v2p 
 {
-  float4 Position   : POSITION;
-  float4 Color      : COLOR0;
-  float2 Texcoord   : TEXCOORD0;
+  half4 Position   : POSITION;
+  half4 Color      : COLOR0;
+  half2 Texcoord   : TEXCOORD0;
 };
 
 // pixel shader to frame
 struct p2f 
 {
-  float4 Color : COLOR0;
+  half4 Color : COLOR0;
 };
   
 // the vertex shader
