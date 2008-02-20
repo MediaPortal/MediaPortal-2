@@ -121,7 +121,7 @@ namespace SkinEngine.Effects
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (_handleTechnique != null)
         _handleTechnique.Dispose();
@@ -145,6 +145,7 @@ namespace SkinEngine.Effects
         _effect.Dispose();
         _effect = null;
       }
+      return false;
     }
 
     #endregion

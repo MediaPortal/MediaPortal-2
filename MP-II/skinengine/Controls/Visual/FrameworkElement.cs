@@ -715,6 +715,7 @@ namespace SkinEngine.Controls.Visuals
       if (OpacityMask == null) return;
       if (_opacityMaskContext == null)
       {
+        Trace.WriteLine("FrameworkElement:allocate _opacityMaskContext");
         _opacityMaskContext = new VisualAssetContext();
         ContentManager.Add(_opacityMaskContext);
       }
@@ -799,6 +800,7 @@ namespace SkinEngine.Controls.Visuals
     {
       if (_opacityMaskContext != null)
       {
+        Trace.WriteLine("FrameworkElement:deallocate _opacityMaskContext");
         _opacityMaskContext.Free(true);
         ContentManager.Remove(_opacityMaskContext);
         _opacityMaskContext = null;

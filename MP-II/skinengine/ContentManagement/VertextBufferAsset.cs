@@ -282,7 +282,7 @@ namespace SkinEngine
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (_vertexBuffer != null)
       {
@@ -292,6 +292,7 @@ namespace SkinEngine
         _vertexBuffer = null;
         ContentManager.VertexReferences--;
       }
+      return false;
     }
 
     #endregion

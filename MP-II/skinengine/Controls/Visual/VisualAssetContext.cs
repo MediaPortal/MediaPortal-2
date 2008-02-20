@@ -107,7 +107,7 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (VertexBuffer != null)
       {
@@ -120,6 +120,7 @@ namespace SkinEngine.Controls.Visuals
         Texture.Dispose();
         Texture = null;
       }
+      return false;
     }
 
     #endregion

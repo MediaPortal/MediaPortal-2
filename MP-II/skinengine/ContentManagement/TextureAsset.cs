@@ -502,7 +502,7 @@ namespace SkinEngine
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       //      Trace.WriteLine(String.Format("  Dispose texture:{0}", _textureName));
       if (_texture != null)
@@ -517,6 +517,7 @@ namespace SkinEngine
         }
       }
       _state = State.Unknown;
+      return false;
     }
 
     #endregion

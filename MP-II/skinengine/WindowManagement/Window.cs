@@ -197,14 +197,17 @@ namespace SkinEngine
         _thread.Start();
       }
 
-      _visual.Render();
-      _visual.Animate();
-      if (_setFocusedElement)
+      lock (_visual)
       {
-        if (_visual.FocusedElement != null)
+        _visual.Render();
+        _visual.Animate();
+        if (_setFocusedElement)
         {
-          _visual.FocusedElement.HasFocus = true;
-          _setFocusedElement = !_visual.FocusedElement.HasFocus;
+          if (_visual.FocusedElement != null)
+          {
+            _visual.FocusedElement.HasFocus = true;
+            _setFocusedElement = !_visual.FocusedElement.HasFocus;
+          }
         }
       }
     }
@@ -251,7 +254,10 @@ namespace SkinEngine
     /// </summary>
     public void Hide()
     {
-      _visual.Deallocate();
+      lock (_visual)
+      {
+        _visual.Deallocate();
+      }
     }
 
     /// <summary>

@@ -180,9 +180,7 @@ namespace SkinEngine.Controls.Brushes
         }
         if (_cacheTexture != null)
         {
-          _cacheTexture.Dispose();
-          _cacheTexture = null;
-          ContentManager.Remove(this);
+          Free(true);
         }
         _refresh = true;
       }
@@ -240,9 +238,7 @@ namespace SkinEngine.Controls.Brushes
         }
         if (_cacheTexture != null)
         {
-          _cacheTexture.Dispose();
-          _cacheTexture = null;
-          ContentManager.Remove(this);
+          Free(true);
         }
       }
 
@@ -263,6 +259,7 @@ namespace SkinEngine.Controls.Brushes
         {
           if (_cacheTexture == null)
           {
+            Trace.WriteLine("LinearGradientBrush:Create cached texture");
             _effect = ContentManager.GetEffect("lineargradient");
             _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
             _handleOpacity = _effect.GetParameterHandle("g_opacity");
@@ -509,14 +506,16 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (_cacheTexture != null)
       {
+        Trace.WriteLine("LinearGradientBrush:free cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
-        ContentManager.Remove(this);
+        return true;
       }
+      return false;
     }
 
     #endregion
@@ -531,7 +530,13 @@ namespace SkinEngine.Controls.Brushes
 
     public override void Deallocate()
     {
-      ContentManager.Remove(this);
+      if (_cacheTexture != null)
+      {
+        Trace.WriteLine("LinearGradientBrush:Deallocate cached texture");
+        _cacheTexture.Dispose();
+        _cacheTexture = null;
+        ContentManager.Remove(this);
+      }
     }
 
     public override void Allocate()

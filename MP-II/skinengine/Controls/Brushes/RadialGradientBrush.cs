@@ -274,12 +274,7 @@ namespace SkinEngine.Controls.Brushes
         {
           _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         }
-        if (_cacheTexture != null)
-        {
-          _cacheTexture.Dispose();
-          _cacheTexture = null;
-          ContentManager.Remove(this);
-        }
+        Free(true);
         _refresh = true;
       }
     }
@@ -333,12 +328,7 @@ namespace SkinEngine.Controls.Brushes
           _handleRadius = _effect.GetParameterHandle("g_radius");
           _handleOpacity = _effect.GetParameterHandle("g_opacity");
         }
-        if (_cacheTexture != null)
-        {
-          _cacheTexture.Dispose();
-          _cacheTexture = null;
-          ContentManager.Remove(this);
-        }
+        Free(true);
         g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[2] { Center.X, Center.Y };
         g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
@@ -629,14 +619,16 @@ namespace SkinEngine.Controls.Brushes
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (_cacheTexture != null)
       {
+        Trace.WriteLine("RadialGradientBrush:free cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
-        ContentManager.Remove(this);
+        return true;
       }
+      return false;
     }
 
     #endregion
@@ -654,7 +646,13 @@ namespace SkinEngine.Controls.Brushes
     }
     public override void Deallocate()
     {
-      ContentManager.Remove(this);
+      if (_cacheTexture != null)
+      {
+        Trace.WriteLine("RadialGradientBrush:Deallocate cached texture");
+        _cacheTexture.Dispose();
+        _cacheTexture = null;
+        ContentManager.Remove(this);
+      }
     }
 
     public override void Allocate()

@@ -45,6 +45,6 @@ namespace SkinEngine
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    void Free(bool force);
+    bool Free(bool force);
   }
 }

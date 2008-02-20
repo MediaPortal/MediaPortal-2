@@ -197,13 +197,14 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-    public void Free(bool force)
+    public bool Free(bool force)
     {
       if (_texture != null)
       {
         _texture.Dispose();
         _texture = null;
       }
+      return false;
     }
 
 
