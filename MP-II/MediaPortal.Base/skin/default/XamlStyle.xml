@@ -2050,7 +2050,13 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate>
-            <Button Height="46"  Style="{StaticResource MpButton}"/>
+            <Button Height="46"  Style="{StaticResource MpButton}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="lbl11" Property="Scroll" Value="True" />
+                </Trigger>
+              </Button.Triggers>
+            </Button>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
@@ -2076,11 +2082,7 @@
         <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32"  FallbackSource="{Binding defaulticon}" Source="{Binding CoverArt}" />
         <Label Name="lbl11"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="6" Text="{Binding Name}" Font="font13"/>
         <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Size}" Font="font12"/>
-        <Grid.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Setter TargetName="lbl11" Property="Scroll" Value="True" />
-          </Trigger>
-        </Grid.Triggers>
+
       </Grid>
     </DataTemplate>
     <Style Key="MpListView" TargetType="ListBox">

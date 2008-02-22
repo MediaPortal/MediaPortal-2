@@ -202,6 +202,13 @@ namespace SkinEngine.Controls.Visuals.Triggers
       }
       foreach (TriggerAction action in EnterActions)
       {
+        if (action is Setter)
+        {
+          Setter s = (Setter)action;
+          if (s.TargetName == "lbl11")
+          {
+          }
+        }
         action.Setup(element);
       }
       foreach (TriggerAction action in ExitActions)
@@ -281,6 +288,13 @@ namespace SkinEngine.Controls.Visuals.Triggers
 
     public void AddChild(object o)
     {
+      if (o is Setter)
+      {
+        Setter s = (Setter)o;
+        if (s.TargetName == "lbl11")
+        {
+        }
+      }
       EnterActions.Add((TriggerAction)o);
     }
 

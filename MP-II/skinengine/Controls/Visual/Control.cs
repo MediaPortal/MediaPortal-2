@@ -61,22 +61,32 @@ namespace SkinEngine.Controls.Visuals
     public Control()
     {
       Init();
+      Attach();
     }
 
     public Control(Control c)
       : base(c)
     {
       Init();
+
       if (c.Template != null)
+      {
         Template = (ControlTemplate)c.Template.Clone();
-
-
+        FrameworkElement element = Template.LoadContent() as FrameworkElement;
+        if (element != null)
+        {
+          element.VisualParent = this;
+          _templateControl = element;
+          _templateControl.Context = this.Context;
+        }
+      }
       if (c.BorderBrush != null)
         this.BorderBrush = (Brush)c.BorderBrush.Clone();
       if (c.Background != null)
         this.Background = (Brush)c.Background.Clone();
       BorderThickness = c.BorderThickness;
       CornerRadius = c.CornerRadius;
+      Attach();
     }
 
     public override object Clone()
@@ -87,19 +97,21 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _templateProperty = new Property(null);
-      _templateProperty.Attach(new PropertyChangedHandler(OnTemplateChanged));
 
       _borderProperty = null;
       _backgroundProperty = null;
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)0);
 
+    }
+    void Attach()
+    {
       //_borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       //_backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       //_borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _templateProperty.Attach(new PropertyChangedHandler(OnTemplateChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
-
     protected override void OnStyleChanged(Property property)
     {
       if (_templateProperty == null)
