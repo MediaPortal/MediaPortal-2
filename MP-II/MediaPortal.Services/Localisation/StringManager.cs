@@ -161,5 +161,10 @@ namespace MediaPortal.Services.Localisation
     {
       return _strings.GetBestLanguage();
     }
+
+    public void AddDirectory(string stringsDirectory)
+    {
+      _strings.AddDirectory(stringsDirectory);
+    }
   }
 }

@@ -30,6 +30,8 @@ using System.IO;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PathManager;
+using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginDetails;
 using MediaPortal.Services.PluginManager.PluginSpace;
@@ -95,13 +97,20 @@ namespace MediaPortal.Services.PluginManager
       //Test data -> get from config in future
       _pluginFiles = new List<string>();
       _disabledPlugins = new List<string>();
-      string[] subFolders = System.IO.Directory.GetDirectories("Plugins");
-      for (int i = 0; i < subFolders.Length; ++i)
+
+      DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo(@"<APPLICATION_ROOT>\Plugins");
+      foreach(DirectoryInfo pluginDirectory in plugins.GetDirectories())
       {
-        string[] files = System.IO.Directory.GetFiles(subFolders[i], "*.plugin");
-        for (int x = 0; x < files.Length; ++x)
+        foreach(FileInfo pluginFile in pluginDirectory.GetFiles("*.plugin"))
         {
-          _pluginFiles.Add(files[x]);
+          _pluginFiles.Add(pluginFile.FullName);
+        }
+       
+        // should be moved to better location in plugintree.load
+        // add resources section to .plugin file?
+        if (System.IO.Directory.Exists(Path.Combine(pluginDirectory.FullName, "Language")))
+        {
+          ServiceScope.Get<ILocalisation>().AddDirectory(Path.Combine(pluginDirectory.FullName, "Language"));
         }
       }
 
