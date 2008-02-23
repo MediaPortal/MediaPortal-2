@@ -91,5 +91,9 @@ namespace MediaPortal.Core.Localisation
     {
       return CultureInfo.CurrentUICulture;
     }
+
+    public void AddDirectory(string stringsDirectory)
+    {
+    }
   }
 }

@@ -102,6 +102,8 @@ namespace MediaPortal.Core.Localisation
 
     CultureInfo GetBestLanguage();
 
+    void AddDirectory(string stringsDirectory);
+
     #endregion
   }
 }
