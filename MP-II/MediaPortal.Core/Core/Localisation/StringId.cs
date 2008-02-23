@@ -63,6 +63,12 @@ namespace MediaPortal.Core.Localisation
     private string _name;
     private string _localised;
 
+    public StringId()
+    {
+      _section = "system";
+      _name = "invalid";
+    }
+
     public StringId(string section, string name)
     {
       _section = section;
@@ -76,22 +82,10 @@ namespace MediaPortal.Core.Localisation
       // Parse string example [section.name]
       if (IsString(skinLabel))
       {
-        Regex label = new Regex(@"\[(?<section>[a-z^\.]+)\.(?<name>[a-z0-9\.]+)\]");
+        int pos = skinLabel.IndexOf('.');
+        _section = skinLabel.Substring(1, pos - 1).ToLower();
+        _name = skinLabel.Substring(pos + 1, skinLabel.Length - pos - 2).ToLower();
 
-        Match combineString = label.Match(skinLabel);
-
-        if (combineString.Success)
-        {
-          _section = combineString.Groups["section"].Value;
-          _name = combineString.Groups["name"].Value;
-        }
-        else
-        {
-          // invalid string
-          //ServiceScope.Get<ILogger>().Error("String Manager - Invalid string Id: {0}", skinLabel);
-          _section = "system";
-          _name = "invalid";
-        }
         ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
       }
       else
@@ -125,7 +119,10 @@ namespace MediaPortal.Core.Localisation
       if (_localised == null)
         _localised = ServiceScope.Get<ILocalisation>().ToString(this);
 
-      return _localised;
+      if (_localised == null)
+        return _section + "." + _name;
+      else
+        return _localised;
     }
 
     public static bool IsString(string testString)
