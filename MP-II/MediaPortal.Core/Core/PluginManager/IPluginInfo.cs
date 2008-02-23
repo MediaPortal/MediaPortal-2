@@ -68,6 +68,11 @@ namespace MediaPortal.Core.PluginManager
       get;
     }
 
+    string PluginPath
+    {
+      get;
+    }
+
     string Name
     {
       get;

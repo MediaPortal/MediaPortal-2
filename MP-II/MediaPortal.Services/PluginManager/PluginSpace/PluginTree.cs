@@ -94,18 +94,18 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         return true;
       }
 
-      string[] splittedPath = path.Split('/');
+      string[] splitPath = path.ToLower().Split('/');
       PluginTreeNode curPath = _rootNode;
       int i = 0;
-      while (i < splittedPath.Length)
+      while (i < splitPath.Length)
       {
-        if (splittedPath[i] != string.Empty)
+        if (splitPath[i] != string.Empty)
         {
-          if (!curPath.ChildNodes.ContainsKey(splittedPath[i]))
+          if (!curPath.ChildNodes.ContainsKey(splitPath[i]))
           {
             return false;
           }
-          curPath = curPath.ChildNodes[splittedPath[i]];
+          curPath = curPath.ChildNodes[splitPath[i]];
           ++i;
         }
       }
@@ -123,21 +123,21 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       {
         return _rootNode;
       }
-      string[] splittedPath = path.Split('/');
+      string[] splitPath = path.ToLower().Split('/');
       PluginTreeNode curPath = _rootNode;
       int i = 0;
-      while (i < splittedPath.Length)
+      while (i < splitPath.Length)
       {
-        if (splittedPath[i] != string.Empty)
+        if (splitPath[i] != string.Empty)
         {
-          if (!curPath.ChildNodes.ContainsKey(splittedPath[i]))
+          if (!curPath.ChildNodes.ContainsKey(splitPath[i]))
           {
             if (throwOnNotFound)
               throw new TreePathNotFoundException(path);
             else
               return null;
           }
-          curPath = curPath.ChildNodes[splittedPath[i]];
+          curPath = curPath.ChildNodes[splitPath[i]];
         }
         ++i;
       }
@@ -222,7 +222,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     {
       if (Plugin.Enabled)
       {
-        foreach (ExtensionPath path in Plugin.Paths.Values)
+        foreach (ExtensionPath path in Plugin.ExtensionPaths.Values)
         {
           AddExtensionPath(path);
         }
@@ -409,18 +409,18 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       {
         return localRoot;
       }
-      string[] splittedPath = path.Split('/');
+      string[] splitPath = path.ToLower().Split('/');
       PluginTreeNode curPath = localRoot;
       int i = 0;
-      while (i < splittedPath.Length)
+      while (i < splitPath.Length)
       {
-        if (splittedPath[i] != string.Empty)
+        if (splitPath[i] != string.Empty)
         {
-          if (!curPath.ChildNodes.ContainsKey(splittedPath[i]))
+          if (!curPath.ChildNodes.ContainsKey(splitPath[i]))
           {
-            curPath.ChildNodes[splittedPath[i]] = new PluginTreeNode();
+            curPath.ChildNodes[splitPath[i]] = new PluginTreeNode();
           }
-          curPath = curPath.ChildNodes[splittedPath[i]];
+          curPath = curPath.ChildNodes[splitPath[i]];
         }
         ++i;
       }

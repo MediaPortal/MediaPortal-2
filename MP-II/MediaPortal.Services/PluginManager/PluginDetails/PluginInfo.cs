@@ -43,7 +43,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     List<PluginRuntime> _runtimes;
     string _fileName;
     PluginManifest _manifest;
-    Dictionary<string, ExtensionPath> _paths;
+    Dictionary<string, ExtensionPath> _extensionPaths;
     Dictionary<string, object> _instances;
     bool _enabled;
   	bool _loaded;
@@ -62,7 +62,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       _runtimes = new List<PluginRuntime>();
       _fileName = null;
       _manifest = new PluginManifest();
-      _paths = new Dictionary<string, ExtensionPath>();
+      _extensionPaths = new Dictionary<string, ExtensionPath>();
       _instances = new Dictionary<string, object>();
     	_loaded = false;
     }
@@ -115,6 +115,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       get { return _fileName; }
     }
 
+    public string PluginPath
+    {
+      get { return Path.GetDirectoryName(_fileName); }
+    }
+
     public string Name
     {
       get { return _properties["name"]; }
@@ -130,9 +135,9 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       get { return _manifest; }
     }
 
-    public Dictionary<string, ExtensionPath> Paths
+    public Dictionary<string, ExtensionPath> ExtensionPaths
     {
-      get { return _paths; }
+      get { return _extensionPaths; }
     }
 
     public PluginProperties Properties
@@ -213,11 +218,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
 
     public ExtensionPath GetExtensionPath(string pathName)
     {
-      if (!_paths.ContainsKey(pathName))
+      if (!_extensionPaths.ContainsKey(pathName))
       {
-        return _paths[pathName] = new ExtensionPath(pathName, this);
+        return _extensionPaths[pathName] = new ExtensionPath(pathName, this);
       }
-      return _paths[pathName];
+      return _extensionPaths[pathName];
     }
     #endregion
 

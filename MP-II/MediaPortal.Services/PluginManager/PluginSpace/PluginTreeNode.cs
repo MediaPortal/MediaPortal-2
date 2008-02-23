@@ -86,14 +86,15 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         //if (mod != null) {
         //  mod.Apply(items);
         //} else 
-        if (result is T)
+ 
+        if(result is T)
         {
-          items.Add((T)result);
+          items.Add((T) result);
         }
         else
         {
           throw new InvalidCastException("The PluginTreeNode <" + item.Name + " id='" + item.Id
-                                         + "' returned an instance of " + result.GetType().FullName
+                                         + "' ... /> returned an instance of " + result.GetType().FullName
                                          + " but the type " + typeof(T).FullName + " is expected.");
         }
       }
