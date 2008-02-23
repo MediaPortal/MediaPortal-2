@@ -63,6 +63,10 @@
     <Compile Include="Commands\ICommandResult.cs" />
     <Compile Include="Core\ApplicationCore.cs" />
     <Compile Include="Core\AutoPlay\IAutoPlay.cs" />
+    <Compile Include="Configuration\Settings\OnOff.cs" />
+    <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
+    <Compile Include="Configuration\SettingBase.cs" />
+    <Compile Include="Configuration\SettingType.cs" />
     <Compile Include="Core\IStatus.cs" />
     <Compile Include="Database\Interfaces\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\Interfaces\DatabaseProvider\IDatabaseCommand.cs" />

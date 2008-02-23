@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section name="configuration">
+    <String name="areas.settings" text="Settings"/>
+    <String name="areas.logs" text="Logs"/>
+    <String name="system" text="System"/>
+    <String name="system.fullscreen" text="Always start MediaPortal in fullscreen mode"/>
+    <String name="system.fullscreen.help" text="Each time MediaPortal starts it will be in full screen mode"/>
+    <String name="settings.button.save" text="Save"/>
+    <String name="settings.general" text="General"/>
+    <String name="settings.regional" text="Regional"/>
+    <String name="settings.folders" text="Folders"/>
+    <String name="settings.hardware" text="Hardware"/>
+    <String name="language" text="Language"/>
+    <String name="language.main" text="Main Language"/>
+    <String name="language.main.help" text="Sets the main language used"/>
+    <String name="location" text="Location"/>
+    <String name="location.country" text="Country"/>
+    <String name="location.country.help" text="Your country, used to localise other setting (tv guide, weather, etc)"/>
+    <String name="location.region" text="Region"/>
+    <String name="location.region.help" text="Your Region"/>
+    <String name="location.city" text="City"/>
+    <String name="location.city.help" text="Your City"/>
+  </Section>
+</Language>

@@ -1,0 +1,80 @@
+<Plugin name        = "Configuration"
+        author      = "James"
+        copyright   = "GPL"
+        description = "Configuration">
+
+  <Manifest>
+    <Identity name = "MediaPortal.Configuration.ConfigurationPlugin"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MediaPortal.Configuration.dll">
+      <Builder name = "Setting" class = "MediaPortal.Configuration.Builders.SettingBuilder"/>
+    </Import>
+  </Runtime>
+
+  <Register location = "/Configuration/Settings">
+    <Setting id = "general"
+             text = "[configuration.settings.general]"
+             iconsmall ="images\general-22.png"
+             iconlarge ="images\general-48.png"
+             type = "Section" />
+    <Setting id = "regional"
+             text = "[configuration.settings.regional]"
+             iconsmall = "images\globe-22.png"
+             iconlarge = "images\globe-48.png"
+             type = "Section" />
+    <Setting id = "folders"
+             text = "[configuration.settings.folders]"
+             iconsmall = "images\folders-22.png"
+             iconlarge = "images\folders-48.png"
+             type = "Section" />
+    <Setting id = "hardware"
+             text = "[configuration.settings.hardware]"
+             iconsmall = "images\hardware-22.png"
+             iconlarge = "images\hardware-48.png"
+             type = "Section" />
+  </Register>
+
+  <Register location = "/Configuration/Settings/General">
+    <Setting id= "system"
+         text = "[configuration.system]"
+         type = "Heading"/>
+    <Setting id= "fullscreen"
+             text = "[configuration.system.fullscreen]"
+             help = "[configuration.system.fullscreen.help]"
+             type = "YesNo"
+             class = "MediaPortal.Configuration.Settings.Fullscreen"/>
+  </Register>
+  
+  <Register location = "/Configuration/Settings/Regional">
+    <Setting id= "language"
+         text = "[configuration.language]"
+         type = "Heading"/>
+    <Setting id= "language.main"
+             text = "[configuration.language.main]"
+             help = "[configuration.language.main.help]"
+             type = "SingleSelectionList"
+             class = "MediaPortal.Configuration.Settings.MainLanguage"/>
+    <Setting id= "location"
+             text = "[configuration.location]"
+             type = "Heading"/>
+    <Setting id= "country"
+             text = "[configuration.location.country]"
+             help = "[configuration.location.country.help]"
+             type = "SingleSelectionList"
+             class = "MediaPortal.Configuration.Settings.Country"/>
+    <Setting id= "region"
+             text = "[configuration.location.region]"
+             help = "[configuration.location.region.help]"
+             type = "SingleSelectionList"
+             class = "MediaPortal.Configuration.Settings.Region"
+             dependency = "country"/>
+    <Setting id= "city"
+             text = "[configuration.location.city]"
+             help = "[configuration.location.city.help]"
+             type = "SingleSelectionList"
+             class = "MediaPortal.Configuration.Settings.City"
+             dependency = "region"/>
+  </Register>
+</Plugin>
