@@ -65,6 +65,12 @@ namespace MediaPortal.Manager
       sections.ImageList.TransparentColor = System.Drawing.Color.Transparent;
       sections.ImageList.ImageSize = new System.Drawing.Size(22, 22);
 
+      LoadConfigData();
+    }
+
+    #region private methods
+    private void LoadConfigData()
+    {
       foreach (SettingBase setting in ServiceScope.Get<IPluginManager>().GetAllPluginItems<SettingBase>("/Configuration/Settings"))
       {
         if (setting.Type == SettingType.Section)
@@ -103,11 +109,6 @@ namespace MediaPortal.Manager
           sections.Nodes.Add(node);
         }
       }
-    }
-
-    private void sections_AfterSelect(object sender, TreeViewEventArgs e)
-    {
-      DrawSettings();
     }
 
     private void DrawSettings()
@@ -195,6 +196,8 @@ namespace MediaPortal.Manager
                 yesno.TabIndex = 1;
                 yesno.UseVisualStyleBackColor = true;
                 yesno.Checked = ((YesNo)setting).Yes;
+                yesno.Tag = setting;
+                yesno.CheckedChanged += new System.EventHandler(this.YesNoChange);
                 help.SetToolTip(yesno, setting.Help.ToString());
                 sectionTag.Controls.Add(yesno);
               }
@@ -271,15 +274,20 @@ namespace MediaPortal.Manager
               }
               break;
           }
-
         }
 
         sections.SelectedNode.Tag = sectionTag;
       }
     }
+    #endregion
 
     #region events
-    #region buttons
+    #region static controls
+    private void sections_AfterSelect(object sender, TreeViewEventArgs e)
+    {
+      DrawSettings();
+    }
+
     private void buttonSave_Click(object sender, EventArgs e)
     {
       foreach (TreeNode node in sections.Nodes)
@@ -306,6 +314,17 @@ namespace MediaPortal.Manager
     #endregion
 
     #region settings
+    private void YesNoChange(object sender, EventArgs e)
+    {
+      if (sender != null
+        && sender is CheckBox
+        && ((CheckBox)sender).Tag != null
+        && ((CheckBox)sender).Tag is YesNo)
+      {
+        ((YesNo)((CheckBox)sender).Tag).Yes = ((CheckBox)sender).Checked;
+      }
+    }
+
     private void SingleSelectionListChange(object sender, EventArgs e)
     {
       if (sender != null)
@@ -317,6 +336,7 @@ namespace MediaPortal.Manager
         }
 
         if (sender is RadioButton
+          && ((RadioButton)sender).Enabled == true
           && ((RadioButton)sender).Tag is int
           && ((RadioButton)sender).Parent != null
           && ((RadioButton)sender).Parent is FlowLayoutPanel)
