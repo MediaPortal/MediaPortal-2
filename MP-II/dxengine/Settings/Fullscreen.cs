@@ -28,17 +28,26 @@ using System.Collections.Generic;
 using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Localisation;
-using MediaPortal.Configuration;
+using MediaPortal.Core.Settings;
+using MediaPortal.Configuration.Settings;
 
-namespace MediaPortal.Configuration.Settings
+namespace dxEngine.Settings
 {
   public class Fullscreen : YesNo
   {
+    AppSettings _settings;
+
     public Fullscreen()
     {
-      // test data
-      _yes = true;
+      _settings = new AppSettings();
+      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _yes = _settings.FullScreen;
+    }
+
+    public override void Save()
+    {
+      _settings.FullScreen = _yes;
+      ServiceScope.Get<ISettingsManager>().Save(_settings);
     }
   }
 }

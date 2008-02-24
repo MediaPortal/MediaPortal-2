@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
@@ -37,7 +37,6 @@ using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Collections;
-
 using MediaPortal.Core.UserManagement;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.WindowManager;
@@ -55,6 +54,8 @@ using SkinEngine.Commands;
 using SkinEngine.Fonts;
 using SkinEngine.Players;
 using SkinEngine.Skin;
+
+using dxEngine.Settings;
 
 namespace dxEngine
 {
@@ -763,109 +764,4 @@ namespace dxEngine
     public int Right;
     public int Bottom;
   } ;
-
-  public class AppSettings
-  {
-    private bool _fullScreen;
-    private bool _refreshRateControl;
-    private string _FPS24;
-    private string _FPS25;
-    private string _FPS30;
-    private string _FPSDefault;
-
-    [Setting(SettingScope.User, false)]
-    public bool FullScreen
-    {
-      get { return _fullScreen; }
-      set { _fullScreen = value; }
-    }
-    [Setting(SettingScope.User, false)]
-    public bool RefreshRateControl
-    {
-      get { return _refreshRateControl; }
-      set { _refreshRateControl = value; }
-    }
-    [Setting(SettingScope.Global, "")]
-    public string FPS24
-    {
-      get { return _FPS24; }
-      set { _FPS24 = value; }
-    }
-    [Setting(SettingScope.Global, "")]
-    public string FPS25
-    {
-      get { return _FPS25; }
-      set { _FPS25 = value; }
-    }
-    [Setting(SettingScope.Global, "")]
-    public string FPS30
-    {
-      get { return _FPS30; }
-      set { _FPS30 = value; }
-    }
-    [Setting(SettingScope.Global, "")]
-    public string FPSDefault
-    {
-      get { return _FPSDefault; }
-      set { _FPSDefault = value; }
-    }
-  }
-
-  public static class Win32API
-  {
-
-
-    public static void Show(string className, string windowName, bool visible)
-    {
-      uint i = FindWindow(ref className, ref windowName);
-      if (visible)
-      {
-        ShowWindow(i, 5);
-      }
-      else
-      {
-        ShowWindow(i, 0);
-      }
-    }
-
-    public static void Enable(string className, string windowName, bool enable)
-    {
-      uint i = FindWindow(ref className, ref windowName);
-      if (enable)
-      {
-        EnableWindow(i, -1);
-      }
-      else
-      {
-        EnableWindow(i, 0);
-      }
-    }
-
-    public static void ShowStartBar(bool visible)
-    {
-      try
-      {
-        Show("Shell_TrayWnd", "", visible);
-      }
-      catch (Exception) { }
-    }
-
-    public static void EnableStartBar(bool enable)
-    {
-      try
-      {
-        Enable("Shell_TrayWnd", "", enable);
-      }
-      catch (Exception) { }
-    }
-
-    [DllImportAttribute("user32", EntryPoint = "FindWindowA", ExactSpelling = true, CharSet = CharSet.Ansi, SetLastError = true)]
-    public static extern uint FindWindow([MarshalAs(UnmanagedType.VBByRefStr)] ref string lpclassName, [MarshalAs(UnmanagedType.VBByRefStr)] ref string lpwindowName);
-
-    [DllImport("user32", SetLastError = true)]
-    private static extern uint ShowWindow(uint _hwnd, int _showCommand);
-
-    [DllImportAttribute("user32", ExactSpelling = true, CharSet = CharSet.Ansi, SetLastError = true)]
-    public static extern int EnableWindow(uint hwnd, int fEnable);
-  }
 }

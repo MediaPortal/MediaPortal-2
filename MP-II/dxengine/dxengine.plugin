@@ -15,4 +15,15 @@
   <Register location = "/AutoStart">
     <Class id = "DirectxGui" class = "dxEngine.DirectxGui"/>
   </Register>
+
+  <Register location = "/Configuration/Settings/General">
+    <Setting id= "system"
+         text = "[configuration.system]"
+         type = "Heading"/>
+    <Setting id= "fullscreen"
+             text = "[configuration.system.fullscreen]"
+             help = "[configuration.system.fullscreen.help]"
+             type = "YesNo"
+             class = "dxEngine.Settings.Fullscreen"/>
+  </Register>
 </Plugin>

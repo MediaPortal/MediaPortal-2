@@ -52,7 +52,6 @@
     <Compile Include="Builders\SettingBuilder.cs" />
     <Compile Include="ConfigurationPlugin.cs" />
     <Compile Include="Settings\City.cs" />
-    <Compile Include="Settings\Fullscreen.cs" />
     <Compile Include="Settings\MainLanguage.cs" />
     <Compile Include="Settings\Country.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

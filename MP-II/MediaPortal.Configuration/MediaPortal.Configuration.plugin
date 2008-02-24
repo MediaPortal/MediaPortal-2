@@ -35,17 +35,6 @@
              iconlarge = "images\hardware-48.png"
              type = "Section" />
   </Register>
-
-  <Register location = "/Configuration/Settings/General">
-    <Setting id= "system"
-         text = "[configuration.system]"
-         type = "Heading"/>
-    <Setting id= "fullscreen"
-             text = "[configuration.system.fullscreen]"
-             help = "[configuration.system.fullscreen.help]"
-             type = "YesNo"
-             class = "MediaPortal.Configuration.Settings.Fullscreen"/>
-  </Register>
   
   <Register location = "/Configuration/Settings/Regional">
     <Setting id= "language"

@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="AspectRatio.cs" />
     <Compile Include="DirectxGui.cs" />
     <Compile Include="MainForm.cs">
@@ -93,6 +94,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Settings\Fullscreen.cs" />
+    <Compile Include="Win32API.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
