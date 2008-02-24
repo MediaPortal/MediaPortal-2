@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section name="system">
     <String name="0" text="Avsluta"/>
@@ -106,6 +106,10 @@
     <String name="6" text="Spela CD"/>
     <String name="7" text="Mata ut"/>
     <String name="8" text="Bibliotek"/>
+	<String name="settings" text="Inställningar"/>
+    <String name="settingsgeneral" text="Generella"/>
+    <String name="settingsfade" text="Tona bort vid Stopp"/>
+    <String name="settingsgapless" text="Uppspeling utan mellanrum"/>
   </Section>
   <Section name="media">
     <String name="name" text="Min Media"/>
@@ -234,6 +238,28 @@
     <String name="8" text="30 BPS"/>
     <String name="9" text="Standard BPS"/>
     <String name="music" text="Music"/>
+    <String name="appearance" text="Framträdande"/>
+    <String name="audiosetup" text="Ljud inställningar"/>
+    <String name="speakersetup" text="Välj anslutingstyp för hötalare"/>
+    <String name="buildin" text="Inbyggd (laptop)"/>
+    <String name="analog" text="Analog"/>
+    <String name="digital" text="Digital (Toslink/coax)"/>
+    <String name="speakeramount" text="Välj antal högtalare"/>
+    <String name="speakers2" text="2 högtalare (stereo)"/>
+    <String name="speakers51" text="5.1 högtalare"/>
+    <String name="speakers71" text="7.1 högtalare"/>
+    <String name="tvsetup" text="Tv/Monitor inställningar"/>
+    <String name="monitorsetup" text="Välj din typ av tv/monitor"/>
+    <String name="monitorcrt" text="CRT"/>
+    <String name="monitorlcd" text="LCD/Plasma"/>
+    <String name="monitorprojector" text="Projektor"/>
+    <String name="monitorarsetup" text="Välj din tv/monitor"/>
+    <String name="monitornormal" text="Normal (4:3)"/>
+    <String name="monitorwide" text="Wide (16:9)"/>
+    <String name="monitorbuildin" text="Inbyggd"/>
+    <String name="next" text="Nästa"/>
+    <String name="back" text="Tillbaka"/>
+    <String name="finish" text="Färdig"/>
   </Section>
   <Section name="radio">
     <String name="name" text="Min Radio"/>
@@ -248,5 +274,41 @@
     <String name="play" text="Spela"/>
     <String name="clear" text="Rensa"/>
     <String name="shuffle" text="Blanda"/>
+	<String name="load" text="Ladda"/>
+  </Section>
+  <Section name="extensions">
+    <String name="myextensions" text="Mina tillägg"/>
+	<String name="updateall" text="Uppdatera alla"/>
+	<String name="settings" text="Installningar"/>
+    <String name="view" text="Vy"/>
+    <String name="sort" text="Sotera"/>
+    <String name="views" text="Bibliotek"/>
+    <String name="install" text="Installera"/>
+    <String name="uninstall" text="Avinstallera"/>
+    <String name="downloadinstall" text="Ladda ner &amp; Installera"/>
+    <String name="downloadlist" text="Uppdatera lista"/>
+    <String name="cancelinstall" text="Avbryt installationen"/>
+    <String name="canceluninstall" text="Avbryt avinstallationen"/>
+    <String name="cancelreinstall" text="Avbryt ominsatllationen"/>
+    <String name="cancelupdate" text="Avbryt utdatering"/>
+    <String name="name" text="Namn"/>
+    <String name="downloads" text="Nerladdat"/>
+	<String name="size" text="Storlek"/>
+	<String name="date" text="Datum"/>
+    <String name="reinstall" text="Ominstallation"/>
+    <String name="installinfo" text="Denna handlig kommer att bli utförd vid nästa omstart av MediaPortal"/>
+    <String name="dependecyinfo" text="Detta tillägg förlitar sig på en eller flera tillägg, ävrn dessa kommer att installeras. Vill du fortsätta ?"/>
+    <String name="notification" text="Meddelande"/>
+    <String name="dependon" text="Förlitar sig på"/>
+    <String name="flatview" text="Platt"/>
+    <String name="collection" text="Sammling"/>
+    <String name="update" text="Uppdatera"/>
+  </Section>
+  <Section name="list">
+    <String name="small" text="Liten lista"/>
+    <String name="big" text="Stor lista"/>
+    <String name="thumbs" text="Miniatyrer"/>
+    <String name="coverthrow" text="Coverthrow"/>
+    <String name="coverflow" text="Coverflow"/>
   </Section>
 </Language>
