@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section name="configuration">
+    <String name="save_on_exit" text="World you like to save the changes before closing?"/>
+    <String name="unsaved_warning" text="Warning: Unsaved Changes"/>
     <String name="areas.settings" text="Settings"/>
     <String name="areas.logs" text="Logs"/>
     <String name="system" text="System"/>

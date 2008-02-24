@@ -59,6 +59,7 @@ namespace MediaPortal.Manager
       StringId save = new StringId("configuration", "settings.button.save");
       this.buttonSave.Tag = save;
       this.buttonSave.Text = save.ToString();
+      this.buttonSave.Enabled = false;
 
       sections.ImageList = new ImageList();
       sections.ImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
@@ -66,6 +67,28 @@ namespace MediaPortal.Manager
       sections.ImageList.ImageSize = new System.Drawing.Size(22, 22);
 
       LoadConfigData();
+    }
+
+    public bool Closing()
+    {
+      if (this.buttonSave.Enabled)
+      {
+        StringId message = new StringId("configuration", "save_on_exit");
+        StringId title = new StringId("configuration", "unsaved_warning");
+        DialogResult result = MessageBox.Show(message.ToString(), title.ToString(), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+
+        switch (result)
+        {
+          case DialogResult.Yes:
+            SaveAll();
+            break;
+          case DialogResult.Cancel:
+            return false;
+          default:
+            break;
+        }
+      }
+      return true;
     }
 
     #region private methods
@@ -279,16 +302,8 @@ namespace MediaPortal.Manager
         sections.SelectedNode.Tag = sectionTag;
       }
     }
-    #endregion
 
-    #region events
-    #region static controls
-    private void sections_AfterSelect(object sender, TreeViewEventArgs e)
-    {
-      DrawSettings();
-    }
-
-    private void buttonSave_Click(object sender, EventArgs e)
+    private void SaveAll()
     {
       foreach (TreeNode node in sections.Nodes)
       {
@@ -313,6 +328,21 @@ namespace MediaPortal.Manager
     }
     #endregion
 
+    #region events
+    #region static controls
+    private void sections_AfterSelect(object sender, TreeViewEventArgs e)
+    {
+      DrawSettings();
+    }
+
+    private void buttonSave_Click(object sender, EventArgs e)
+    {
+      SaveAll();
+  
+      this.buttonSave.Enabled = false;
+    }
+    #endregion
+
     #region settings
     private void YesNoChange(object sender, EventArgs e)
     {
@@ -322,6 +352,7 @@ namespace MediaPortal.Manager
         && ((CheckBox)sender).Tag is YesNo)
       {
         ((YesNo)((CheckBox)sender).Tag).Yes = ((CheckBox)sender).Checked;
+        this.buttonSave.Enabled = true;
       }
     }
 
@@ -333,6 +364,7 @@ namespace MediaPortal.Manager
           && ((ComboBox)sender).Tag is SingleSelectionList)
         {
           ((SingleSelectionList)((ComboBox)sender).Tag).Selected = ((ComboBox)sender).SelectedIndex;
+          this.buttonSave.Enabled = true;
         }
 
         if (sender is RadioButton
@@ -342,6 +374,7 @@ namespace MediaPortal.Manager
           && ((RadioButton)sender).Parent is FlowLayoutPanel)
         {
           ((SingleSelectionList)((FlowLayoutPanel)((RadioButton)sender).Parent).Tag).Selected = (int)((RadioButton)sender).Tag;
+          this.buttonSave.Enabled = true;
         }
       }
     }

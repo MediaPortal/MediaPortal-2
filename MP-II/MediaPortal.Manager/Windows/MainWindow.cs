@@ -39,6 +39,8 @@ namespace MediaPortal.Manager
 {
   public partial class MainWindow : Form
   {
+    SettingsControl _settingsArea;
+
     public MainWindow()
     {
       InitializeComponent();
@@ -46,14 +48,19 @@ namespace MediaPortal.Manager
       // Load plugins
       ServiceScope.Get<IPluginManager>().Startup();
 
-      SettingsControl settingsArea = new SettingsControl();
+      _settingsArea = new SettingsControl();
 
-      settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top 
+      _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top 
         | System.Windows.Forms.AnchorStyles.Bottom)
         | System.Windows.Forms.AnchorStyles.Left)
         | System.Windows.Forms.AnchorStyles.Right)));
 
-      areaControls.Controls.Add(settingsArea);
+      areaControls.Controls.Add(_settingsArea);
+    }
+
+    private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      e.Cancel = !_settingsArea.Closing();
     }
   }
 }
