@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using MediaPortal.Utilities.Win32;
 using Un4seen.Bass.AddOn.Cd;
 
 namespace MediaPortal.Utilities.CD
@@ -45,6 +46,44 @@ namespace MediaPortal.Utilities.CD
           return i;
       }
       return -1;
+    }
+
+    /// <summary>
+    /// Eject the given CD Drive
+    /// </summary>
+    /// <param name="strDrive"></param>
+    /// <returns></returns>
+    public static bool EjectCDROM(string strDrive)
+    {
+      bool result = false;
+      strDrive = @"\\.\" + strDrive;
+
+      try
+      {
+        IntPtr fHandle = Win32API.CreateFile(strDrive, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite, 0, System.IO.FileMode.Open, 0x80, IntPtr.Zero);
+        if (fHandle.ToInt64() != -1) //INVALID_HANDLE_VALUE)
+        {
+          uint Result;
+          if (Win32API.DeviceIoControl(fHandle, 0x002d4808, IntPtr.Zero, 0, IntPtr.Zero, 0, out Result, IntPtr.Zero) == true)
+          {
+            result = true;
+          }
+          Win32API.CloseHandle(fHandle);
+        }
+      }
+      catch (Exception)
+      {
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Ejects the CD Drive
+    /// </summary>
+    public static void EjectCDROM()
+    {
+      Win32API.mciSendString("set cdaudio door open", null, 0, IntPtr.Zero);
     }
   }
 }
