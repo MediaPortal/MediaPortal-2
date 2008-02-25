@@ -9,6 +9,7 @@
     <String name="system.fullscreen" text="Always start MediaPortal in fullscreen mode"/>
     <String name="system.fullscreen.help" text="Each time MediaPortal starts it will be in full screen mode"/>
     <String name="settings.button.save" text="Save"/>
+    <String name="settings.button.apply" text="Apply"/>
     <String name="settings.general" text="General"/>
     <String name="settings.regional" text="Regional"/>
     <String name="settings.folders" text="Folders"/>

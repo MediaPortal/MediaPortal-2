@@ -36,27 +36,36 @@ namespace MediaPortal.Configuration.Settings
 {
   public class MainLanguage : SingleSelectionList
   {
+    CultureInfo[] _cultures;
+
     public MainLanguage()
     {
-      CultureInfo[] cultures = ServiceScope.Get<ILocalisation>().AvailableLanguages();
+      _cultures = ServiceScope.Get<ILocalisation>().AvailableLanguages();
+      CultureInfo current = ServiceScope.Get<ILocalisation>().CurrentCulture;
 
       base._items = new List<StringId>();
 
-      foreach (CultureInfo culture in cultures)
+      int index = 0;
+      foreach (CultureInfo culture in _cultures)
       {
         StringId languageName = new StringId(culture.DisplayName);
         base._items.Add(languageName);
+        if (culture.Name == current.Name)
+          base._selected = index;
+        index++;
       }
 
       //base._items.Sort();
-
-      CultureInfo current = ServiceScope.Get<ILocalisation>().CurrentCulture;
-
-      base._selected = base._items.IndexOf(new StringId(current.DisplayName));
     }
 
     public override void Save()
     {
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
+    }
+
+    public override void Apply()
+    {
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
     }
   }
 }

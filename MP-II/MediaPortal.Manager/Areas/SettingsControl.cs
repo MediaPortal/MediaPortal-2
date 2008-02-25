@@ -51,6 +51,8 @@ namespace MediaPortal.Manager
       public List<Control> Controls;
     }
 
+    private bool _languageChange = false;
+
     public SettingsControl()
     {
       InitializeComponent();
@@ -61,12 +63,19 @@ namespace MediaPortal.Manager
       this.buttonSave.Text = save.ToString();
       this.buttonSave.Enabled = false;
 
+      StringId apply = new StringId("configuration", "settings.button.apply");
+      this.buttonApply.Tag = apply;
+      this.buttonApply.Text = apply.ToString();
+      this.buttonApply.Enabled = false;
+
       sections.ImageList = new ImageList();
       sections.ImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
       sections.ImageList.TransparentColor = System.Drawing.Color.Transparent;
       sections.ImageList.ImageSize = new System.Drawing.Size(22, 22);
 
       LoadConfigData();
+
+      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
     }
 
     public bool Closing()
@@ -326,9 +335,85 @@ namespace MediaPortal.Manager
         }
       }
     }
+
+    private void ApplyAll()
+    {
+      foreach (TreeNode node in sections.Nodes)
+      {
+        // Apply on all settings in this node
+        if (node.Tag != null
+          && node.Tag is SectionDetails
+          && ((SectionDetails)node.Tag).Settings != null)
+        {
+          foreach (SettingBase setting in ((SectionDetails)node.Tag).Settings)
+            setting.Apply();
+        }
+
+        // Apply on all settings in subnodes
+        foreach (TreeNode subnode in node.Nodes)
+        {
+          if (subnode.Tag != null
+            && subnode.Tag is SectionDetails
+            && ((SectionDetails)subnode.Tag).Settings != null)
+          {
+            foreach (SettingBase setting in ((SectionDetails)subnode.Tag).Settings)
+              setting.Apply();
+          }
+        }
+      }
+
+      // Redraw language strings on all controls
+      if (_languageChange)
+      {
+        // update text on buttons
+        if (this.buttonSave.Tag is StringId)
+          this.buttonSave.Text = ((StringId)this.buttonSave.Tag).ToString();
+
+        if (this.buttonApply.Tag is StringId)
+          this.buttonApply.Text = ((StringId)this.buttonApply.Tag).ToString();
+
+
+        // update text in section tree
+        // all section details controls need to be cleared and redrawn
+        foreach (TreeNode node in sections.Nodes)
+        {
+          if (node.Tag is SectionDetails)
+          {
+            SectionDetails details = (SectionDetails)node.Tag;
+            node.Text = details.Section.Text.ToString();
+            details.Controls = null;
+            node.Tag = details;
+          }
+
+          foreach (TreeNode subnode in node.Nodes)
+          {
+            if (subnode.Tag is SectionDetails)
+            {
+              SectionDetails details = (SectionDetails)subnode.Tag;
+              subnode.Text = details.Section.Text.ToString();
+              details.Controls = null;
+              subnode.Tag = details;
+            }
+          }
+        }
+
+        // Clear all help text
+        help.RemoveAll();
+
+        // redraw currently selected section details
+        DrawSettings();
+
+        _languageChange = false;
+      }
+    }
     #endregion
 
     #region events
+    private void LangageChange(object o)
+    {
+      _languageChange = true;
+    }
+
     #region static controls
     private void sections_AfterSelect(object sender, TreeViewEventArgs e)
     {
@@ -338,8 +423,15 @@ namespace MediaPortal.Manager
     private void buttonSave_Click(object sender, EventArgs e)
     {
       SaveAll();
-  
+
       this.buttonSave.Enabled = false;
+    }
+
+    private void buttonApply_Click(object sender, EventArgs e)
+    {
+      ApplyAll();
+
+      this.buttonApply.Enabled = false;
     }
     #endregion
 
@@ -353,6 +445,7 @@ namespace MediaPortal.Manager
       {
         ((YesNo)((CheckBox)sender).Tag).Yes = ((CheckBox)sender).Checked;
         this.buttonSave.Enabled = true;
+        this.buttonApply.Enabled = true;
       }
     }
 
@@ -365,6 +458,7 @@ namespace MediaPortal.Manager
         {
           ((SingleSelectionList)((ComboBox)sender).Tag).Selected = ((ComboBox)sender).SelectedIndex;
           this.buttonSave.Enabled = true;
+          this.buttonApply.Enabled = true;
         }
 
         if (sender is RadioButton
@@ -375,6 +469,7 @@ namespace MediaPortal.Manager
         {
           ((SingleSelectionList)((FlowLayoutPanel)((RadioButton)sender).Parent).Tag).Selected = (int)((RadioButton)sender).Tag;
           this.buttonSave.Enabled = true;
+          this.buttonApply.Enabled = true;
         }
       }
     }

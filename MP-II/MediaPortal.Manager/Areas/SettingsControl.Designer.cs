@@ -143,7 +143,6 @@ namespace MediaPortal.Manager
       // buttonApply
       // 
       this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonApply.Enabled = false;
       this.buttonApply.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.buttonApply.Location = new System.Drawing.Point(522, 487);
       this.buttonApply.Name = "buttonApply";
@@ -151,6 +150,7 @@ namespace MediaPortal.Manager
       this.buttonApply.TabIndex = 6;
       this.buttonApply.Text = "Apply";
       this.buttonApply.UseVisualStyleBackColor = true;
+      this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
       // 
       // sectionSettings
       // 

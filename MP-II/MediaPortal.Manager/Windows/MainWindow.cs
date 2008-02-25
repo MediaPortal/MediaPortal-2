@@ -32,6 +32,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using MediaPortal.Core;
+using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Configuration;
 
@@ -48,6 +49,18 @@ namespace MediaPortal.Manager
       // Load plugins
       ServiceScope.Get<IPluginManager>().Startup();
 
+      // localise buttons
+      StringId settings = new StringId("configuration", "areas.settings");
+      this.areaSettings.Tag = settings;
+      this.areaSettings.Text = settings.ToString();
+
+      StringId logs = new StringId("configuration", "areas.logs");
+      this.areaLogs.Tag = logs;
+      this.areaLogs.Text = logs.ToString();
+      this.areaLogs.Enabled = false;
+
+      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
+
       _settingsArea = new SettingsControl();
 
       _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top 
@@ -56,6 +69,15 @@ namespace MediaPortal.Manager
         | System.Windows.Forms.AnchorStyles.Right)));
 
       areaControls.Controls.Add(_settingsArea);
+    }
+
+    private void LangageChange(object o)
+    {
+      if (areaSettings.Tag is StringId)
+        areaSettings.Text = ((StringId)areaSettings.Tag).ToString();
+
+      if (areaLogs.Tag is StringId)
+        areaLogs.Text = ((StringId)areaLogs.Tag).ToString();
     }
 
     private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)

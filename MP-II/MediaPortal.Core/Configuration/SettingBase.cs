@@ -44,7 +44,7 @@ namespace MediaPortal.Configuration
     protected string _iconLarge;
     #endregion
 
-    #region ISettings methods
+    #region methods
     public string Id
     {
       get { return _id; }
@@ -92,6 +92,10 @@ namespace MediaPortal.Configuration
     }
 
     public virtual void Save() 
+    {
+    }
+
+    public virtual void Apply()
     {
     }
     #endregion
