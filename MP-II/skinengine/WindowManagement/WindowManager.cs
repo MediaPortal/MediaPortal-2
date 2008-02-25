@@ -347,13 +347,16 @@ namespace SkinEngine
     {
       if (_currentDialog != null)
       {
-        _currentDialog.WindowState = Window.State.Closing;
-        _currentDialog.DetachInput();
-        _currentDialog.Hide();
-        _currentDialog = null;
+        lock (_history)
+        {
+          _currentDialog.WindowState = Window.State.Closing;
+          _currentDialog.DetachInput();
+          _currentDialog.Hide();
+          _currentDialog = null;
 
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
+          _currentWindow.AttachInput();
+          _currentWindow.Show();
+        }
       }
     }
 
@@ -489,36 +492,39 @@ namespace SkinEngine
       {
         return;
       }
-      ServiceScope.Get<ILogger>().Debug("WindowManager:Show previous window");
-      Window window = _history[_history.Count - 1];
-      if (_currentDialog != null)
+      lock (_history)
       {
-        CloseDialog();
-        return;
-      }
+        ServiceScope.Get<ILogger>().Debug("WindowManager:Show previous window");
+        Window window = _history[_history.Count - 1];
+        if (_currentDialog != null)
+        {
+          CloseDialog();
+          return;
+        }
 
-      if (_history.Count <= 1)
-      {
-        return;
-      }
-      _previousWindow = _currentWindow;
-      if (_previousWindow != null)
-      {
-        _previousWindow.WindowState = Window.State.Closing;
-        _previousWindow.DetachInput();
-      }
-      if (_currentWindow.History)
-      {
-        _history.RemoveAt(_history.Count - 1);
-      }
-      _currentWindow = _history[_history.Count - 1];
-      _currentWindow.WindowState = Window.State.Running;
-      _currentWindow.AttachInput();
-      _currentWindow.Show();
+        if (_history.Count <= 1)
+        {
+          return;
+        }
+        _previousWindow = _currentWindow;
+        if (_previousWindow != null)
+        {
+          _previousWindow.WindowState = Window.State.Closing;
+          _previousWindow.DetachInput();
+        }
+        if (_currentWindow.History)
+        {
+          _history.RemoveAt(_history.Count - 1);
+        }
+        _currentWindow = _history[_history.Count - 1];
+        _currentWindow.WindowState = Window.State.Running;
+        _currentWindow.AttachInput();
+        _currentWindow.Show();
 
-      if (_previousWindow != null)
-        _previousWindow.Hide();
-      _previousWindow = null;
+        if (_previousWindow != null)
+          _previousWindow.Hide();
+        _previousWindow = null;
+      }
     }
 
     public Utils Utils

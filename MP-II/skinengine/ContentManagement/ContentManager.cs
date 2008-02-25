@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using SkinEngine.Effects;
 using SkinEngine.Fonts;
@@ -98,7 +99,41 @@ namespace SkinEngine
     {
       lock (_unnamedAssets)
       {
-        _unnamedAssets.Remove(unknownAsset);
+        if (_unnamedAssets.Remove(unknownAsset)) return;
+      }
+      lock (_vertexBuffers)
+      {
+        if (_vertexBuffers.Remove(unknownAsset)) return;
+      }
+      lock (_assetsNormal)
+      {
+        if (_assetsNormal.ContainsValue(unknownAsset))
+        {
+          Dictionary<string, IAsset>.Enumerator enumer = _assetsNormal.GetEnumerator();
+          while (enumer.MoveNext())
+          {
+            if (enumer.Current.Value == unknownAsset)
+            {
+              _assetsNormal.Remove(enumer.Current.Key);
+              break;
+            }
+          }
+        }
+      }
+      lock (_assetsHigh)
+      {
+        if (_assetsHigh.ContainsValue(unknownAsset))
+        {
+          Dictionary<string, IAsset>.Enumerator enumer = _assetsHigh.GetEnumerator();
+          while (enumer.MoveNext())
+          {
+            if (enumer.Current.Value == unknownAsset)
+            {
+              _assetsHigh.Remove(enumer.Current.Key);
+              break;
+            }
+          }
+        }
       }
     }
 
@@ -248,6 +283,8 @@ namespace SkinEngine
           }
         }
       }
+      //Trace.WriteLine(String.Format("Mgr: normal:{0} high:{1} unnamed:{2} vertex:{3}",
+            //_assetsNormal.Count, _assetsHigh.Count, _unnamedAssets.Count, _vertexBuffers.Count));
     }
 
     /// <summary>

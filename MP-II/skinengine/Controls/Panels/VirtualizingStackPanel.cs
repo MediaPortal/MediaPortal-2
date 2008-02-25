@@ -359,7 +359,11 @@ namespace SkinEngine.Controls.Panels
     }
 
     #region IScrollInfo Members
-
+    public override void Reset()
+    {
+      _startIndex = 0;
+      base.Reset();
+    }
     public bool LineDown(PointF point)
     {
       if (this.Orientation == Orientation.Vertical)
@@ -396,6 +400,40 @@ namespace SkinEngine.Controls.Panels
         }
       }
       return false;
+    }
+
+    public void ScrollToItemWhichStartsWith(char key)
+    {
+      lock (_orientationProperty)
+      {
+        int firstItem = 0;
+        FrameworkElement element = null;
+        for (int i = 0; i < Children.Count; ++i)
+        {
+          element = (FrameworkElement)Children[i];
+          if (element.Context != null)
+          {
+            if (element.Context.ToString().ToLower().StartsWith(key.ToString()))
+            {
+              firstItem = i;
+              break;
+            }
+          }
+        }
+        if (element == null) return;
+        _startIndex = 0;
+        while (firstItem > _controlCount)
+        {
+          _startIndex += _controlCount;
+          firstItem -= _controlCount;
+        }
+        _startIndex += firstItem;
+        while (_startIndex + _controlCount > Children.Count)
+          _startIndex--;
+        Invalidate();
+        UpdateLayout();
+        OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
+      }
     }
 
     public bool LineLeft(PointF point)

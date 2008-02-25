@@ -105,7 +105,7 @@ namespace SkinEngine.Controls.Visuals
           {
             if (_fillContext == null)
             {
-              _fillContext = new VisualAssetContext();
+              _fillContext = new VisualAssetContext("Ellipse._fillContext:" + this.Name);
               ContentManager.Add(_fillContext);
             }
             _fillContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
@@ -123,7 +123,7 @@ namespace SkinEngine.Controls.Visuals
           {
             if (_borderContext == null)
             {
-              _borderContext = new VisualAssetContext();
+              _borderContext = new VisualAssetContext("Ellipse._borderContext:" + this.Name);
               ContentManager.Add(_borderContext);
             }
             _borderContext.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts,_finalLayoutTransform);

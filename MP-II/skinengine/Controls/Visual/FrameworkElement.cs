@@ -716,7 +716,7 @@ namespace SkinEngine.Controls.Visuals
       if (_opacityMaskContext == null)
       {
         Trace.WriteLine("FrameworkElement:allocate _opacityMaskContext");
-        _opacityMaskContext = new VisualAssetContext();
+        _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + this.Name);
         ContentManager.Add(_opacityMaskContext);
       }
       if (_opacityMaskContext.VertexBuffer == null)

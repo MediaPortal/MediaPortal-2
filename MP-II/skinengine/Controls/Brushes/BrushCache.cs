@@ -58,7 +58,7 @@ namespace SkinEngine.Controls.Brushes
       _cache = new List<BrushTexture>();
     }
 
-    public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush)
+    public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush,string name)
     {
       for (int i = 0; i < _cache.Count; ++i)
       {
@@ -67,7 +67,7 @@ namespace SkinEngine.Controls.Brushes
           return _cache[i];
         }
       }
-      BrushTexture brush = new BrushTexture(stops, opacitybrush);
+      BrushTexture brush = new BrushTexture(stops, opacitybrush,name);
       _cache.Add(brush);
 //      Trace.WriteLine(String.Format("brushes:{0}", _cache.Count));
       return brush;

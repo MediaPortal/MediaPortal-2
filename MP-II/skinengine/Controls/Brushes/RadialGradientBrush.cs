@@ -99,7 +99,7 @@ namespace SkinEngine.Controls.Brushes
       _gradientOriginProperty = new Property(new Vector2(0.5f, 0.5f));
       _radiusXProperty = new Property((double)0.5f);
       _radiusYProperty = new Property((double)0.5f);
-      
+
       _centerProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _gradientOriginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _radiusXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -272,7 +272,7 @@ namespace SkinEngine.Controls.Brushes
 
         if (_brushTexture == null)
         {
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
         }
         Free(true);
         _refresh = true;
@@ -312,7 +312,7 @@ namespace SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
         if (_singleColor)
         {
           SetColor(vertexBuffer);
@@ -509,7 +509,7 @@ namespace SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
         if (_singleColor)
         {
           //SetColor(vertexBuffer);
@@ -657,7 +657,7 @@ namespace SkinEngine.Controls.Brushes
 
     public override void Allocate()
     {
-      
+
     }
   }
 }

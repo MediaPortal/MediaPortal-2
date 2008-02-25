@@ -725,7 +725,7 @@ namespace SkinEngine.Controls.Visuals
           {
             if (_backgroundAsset == null)
             {
-              _backgroundAsset = new VisualAssetContext();
+              _backgroundAsset = new VisualAssetContext("Control._backgroundAsset:" + this.Name);
               ContentManager.Add(_backgroundAsset);
             }
             _backgroundAsset.VertexBuffer = Shape.ConvertPathToTriangleFan(path, centerX, centerY, out verts);
@@ -743,7 +743,7 @@ namespace SkinEngine.Controls.Visuals
           {
             if (_borderAsset == null)
             {
-              _borderAsset = new VisualAssetContext();
+              _borderAsset = new VisualAssetContext("Control._borderAsset:" + this.Name);
               ContentManager.Add(_borderAsset);
             }
             _borderAsset.VertexBuffer = Shape.ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);

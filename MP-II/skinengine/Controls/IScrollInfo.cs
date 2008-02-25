@@ -85,5 +85,7 @@ namespace SkinEngine.Controls.Visuals
     double LineWidth {get;}
 
     void ResetScroll();
+
+    void ScrollToItemWhichStartsWith(char key);
   }
 }

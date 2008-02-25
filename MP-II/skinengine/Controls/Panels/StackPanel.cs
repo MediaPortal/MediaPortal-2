@@ -512,6 +512,10 @@ namespace SkinEngine.Controls.Panels
         return 0;
       }
     }
+
+    public void ScrollToItemWhichStartsWith(char key)
+    {
+    }
     public void Home(PointF point)
     {
       FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();

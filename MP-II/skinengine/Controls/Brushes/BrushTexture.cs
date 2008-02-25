@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -42,12 +43,17 @@ namespace SkinEngine.Controls.Brushes
     DateTime _lastTimeUsed;
     GradientStopCollection _stops;
     bool _opacityBrush;
+    string _name;
+    static int _assetId = 0;
 
-    public BrushTexture(GradientStopCollection stops, bool opacityBrush)
+    public BrushTexture(GradientStopCollection stops, bool opacityBrush, string name)
     {
       _opacityBrush = opacityBrush;
       _stops = (GradientStopCollection)stops.Clone();
       Allocate();
+      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.CurrentWindow.Name, name);
+      _assetId++;
       ContentManager.Add(this);
     }
 
@@ -208,6 +214,10 @@ namespace SkinEngine.Controls.Brushes
     }
 
 
+    public override string ToString()
+    {
+      return _name;
+    }
     #endregion
   }
 }

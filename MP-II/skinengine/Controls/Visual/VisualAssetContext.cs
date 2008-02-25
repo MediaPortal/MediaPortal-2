@@ -25,7 +25,9 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Core;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -42,9 +44,14 @@ namespace SkinEngine.Controls.Visuals
     public VertexBuffer _vertexBuffer;
     public Texture _texture;
     public DateTime LastTimeUsed;
+    string _name;
+    static int _assetId = 0;
 
-    public VisualAssetContext()
+    public VisualAssetContext(string name)
     {
+      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.CurrentWindow.Name, name);
+      _assetId++;
       LastTimeUsed = SkinContext.Now;
     }
     #region IAsset Members
@@ -123,6 +130,10 @@ namespace SkinEngine.Controls.Visuals
       return false;
     }
 
+    public override string ToString()
+    {
+      return _name;
+    }
     #endregion
   }
 }

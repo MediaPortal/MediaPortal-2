@@ -95,12 +95,13 @@ namespace SkinEngine.Controls.Visuals
     }
     void OnFontChanged(Property prop)
     {
-      _asset = null;
-      Font font = FontManager.GetScript(Font);
-      if (font != null)
+      if (_asset != null)
       {
-        _asset = ContentManager.GetFont(font);
+        _asset.Free(true);
+        ContentManager.Remove(_asset);
       }
+
+      _asset = null;
     }
 
     public Property FontProperty
@@ -207,12 +208,23 @@ namespace SkinEngine.Controls.Visuals
       set { _scrollProperty.SetValue(value); }
     }
 
+    void AllocFont()
+    {
+      if (_asset != null) return;
+      Font font = FontManager.GetScript(Font);
+      if (font != null)
+      {
+        _asset = ContentManager.GetFont(font);
+      }
+    }
+
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
+      AllocFont();
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
       if (_label != null)
       {
@@ -260,6 +272,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
+      AllocFont();
       _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
@@ -338,6 +351,17 @@ namespace SkinEngine.Controls.Visuals
       if (_label != null)
         _asset.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();
+    }
+
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      if (_asset != null)
+      {
+        ContentManager.Remove(_asset);
+        _asset.Free(true);
+        _asset = null;
+      }
     }
   }
 }

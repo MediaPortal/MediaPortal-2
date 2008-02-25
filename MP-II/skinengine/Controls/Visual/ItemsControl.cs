@@ -372,10 +372,12 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Reset()
     {
+      Trace.WriteLine("Reset:" + this.Name);
       base.Reset();
       _prepare = true;
       if (_itemsHostPanel != null)
       {
+        _itemsHostPanel.Reset();
         _itemsHostPanel.SetChildren(new UIElementCollection(_itemsHostPanel));
       }
     }
@@ -521,7 +523,7 @@ namespace SkinEngine.Controls.Visuals
           container.Header = (FrameworkElement)element;
           ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
           if (p != null) p.IsVisible = false;
-          
+
           if (enumer.Current is ListItem)
           {
             ListItem listItem = (ListItem)enumer.Current;
@@ -640,5 +642,15 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+    public override void OnKeyPressed(ref Key key)
+    {
+      base.OnKeyPressed(ref key);
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      _prepare = true;
+    }
   }
 }

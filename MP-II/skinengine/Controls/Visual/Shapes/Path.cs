@@ -201,7 +201,7 @@ namespace SkinEngine.Controls.Visuals
               {
                 if (_fillContext == null)
                 {
-                  _fillContext = new VisualAssetContext();
+                  _fillContext = new VisualAssetContext("Path._fillContext:" + this.Name);
                   ContentManager.Add(_fillContext);
                 }
                 _fillContext.VertexBuffer = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
@@ -225,7 +225,7 @@ namespace SkinEngine.Controls.Visuals
         {
           if (_borderContext == null)
           {
-            _borderContext = new VisualAssetContext();
+            _borderContext = new VisualAssetContext("Path._borderContext:" + this.Name);
             ContentManager.Add(_borderContext);
           }
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)(StrokeThickness)))

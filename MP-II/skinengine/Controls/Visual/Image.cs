@@ -115,7 +115,12 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="property">The property.</param>
     void OnImageChanged(Property property)
     {
-      _image = null;
+      if (_image != null)
+      {
+        _image.Free(true);
+        ContentManager.Remove(_image);
+        _image = null;
+      }
     }
 
     /// <summary>
@@ -582,6 +587,25 @@ namespace SkinEngine.Controls.Visuals
         _h = height;
         _pos = pos;
       }
+    }
+
+    public override void Deallocate()
+    {
+      if (_image != null)
+      {
+        _image.Free(true);
+        ContentManager.Remove(_image);
+        _image = null;
+      }
+
+      if (_fallbackImage != null)
+      {
+        _fallbackImage.Free(true);
+        ContentManager.Remove(_fallbackImage);
+        _fallbackImage = null;
+      }
+
+      base.Deallocate();
     }
   }
 }

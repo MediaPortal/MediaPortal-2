@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Core;
@@ -241,8 +242,10 @@ namespace SkinEngine
     /// </summary>
     public void Show()
     {
+      Trace.WriteLine("Window Show:" + Name);
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
+      _visual.Deallocate();
       _visual.Allocate();
       _visual.Reset();
       _visual.Invalidate();
@@ -254,6 +257,7 @@ namespace SkinEngine
     /// </summary>
     public void Hide()
     {
+      Trace.WriteLine("Window Hide:" + Name);
       lock (_visual)
       {
         _visual.Deallocate();
@@ -306,6 +310,7 @@ namespace SkinEngine
 
     public void Reset()
     {
+      Trace.WriteLine("Window Reset:" + Name);
       SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
       _visual.InitializeBindings();

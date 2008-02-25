@@ -147,9 +147,21 @@ namespace SkinEngine.Controls.Visuals
         key = MediaPortal.Core.InputManager.Key.None;
         return;
       }
+      if (Char.IsLetterOrDigit(key.RawCode))
+      {
+        ScrollToItemWhichStartsWith(key.RawCode);
+        key = MediaPortal.Core.InputManager.Key.None;
+        return;
+      }
       Content.OnKeyPressed(ref key);
     }
 
+    void ScrollToItemWhichStartsWith(char key)
+    {
+      IScrollInfo info = GetScrollInfo();
+      if (info == null) return;
+      info.ScrollToItemWhichStartsWith(key);
+    }
     void OnHome(float x, float y)
     {
       IScrollInfo info = GetScrollInfo();

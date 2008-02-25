@@ -244,7 +244,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (_borderContext == null)
         {
-          _borderContext = new VisualAssetContext();
+          _borderContext = new VisualAssetContext("Line._borderContext:" + this.Name);
           ContentManager.Add(_borderContext);
         }
         using (path = GetLine(rect))

@@ -176,7 +176,7 @@ namespace SkinEngine.Controls.Brushes
         _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
         if (_brushTexture == null)
         {
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
         }
         if (_cacheTexture != null)
         {
@@ -221,7 +221,7 @@ namespace SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
         if (_singleColor)
         {
           SetColor(vertexBuffer);
@@ -404,7 +404,7 @@ namespace SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
         if (_singleColor)
         {
           //SetColor(vertexBuffer);

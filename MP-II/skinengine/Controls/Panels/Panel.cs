@@ -274,7 +274,7 @@ namespace SkinEngine.Controls.Panels
       {
         if (_backgroundAsset == null)
         {
-          _backgroundAsset = new VisualAssetContext();
+          _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + this.Name);
           ContentManager.Add(_backgroundAsset);
         }
         double w = ActualWidth;
