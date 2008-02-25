@@ -95,7 +95,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\Fullscreen.cs" />
-    <Compile Include="Win32API.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
@@ -109,6 +108,10 @@
     <ProjectReference Include="..\MediaPortal.Services\MediaPortal.Services.csproj">
       <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
       <Name>MediaPortal.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\skinengine\skinengine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>

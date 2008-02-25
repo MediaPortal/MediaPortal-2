@@ -177,8 +177,8 @@ namespace dxEngine
         _mode = ScreenMode.ExclusiveMode;
         _displaySetting = GraphicsDevice.DesktopDisplayMode;
 
-        Win32API.EnableStartBar(false);
-        Win32API.ShowStartBar(false);
+        MediaPortal.Utilities.Win32.Window.EnableStartBar(false);
+        MediaPortal.Utilities.Win32.Window.ShowStartBar(false);
       }
       _windowState = WindowState;
     }
@@ -222,8 +222,8 @@ namespace dxEngine
       _directX.Dispose();
       _directX = null;
       _renderThread = null;
-      Win32API.EnableStartBar(true);
-      Win32API.ShowStartBar(true);
+      MediaPortal.Utilities.Win32.Window.EnableStartBar(true);
+      MediaPortal.Utilities.Win32.Window.ShowStartBar(true);
       ServiceScope.Get<ILogger>().Debug("Application: stopping.");
     }
 
@@ -598,8 +598,8 @@ namespace dxEngine
         ShowInTaskbar = false;
 
         // Hide start menu
-        Win32API.EnableStartBar(false);
-        Win32API.ShowStartBar(false);
+        MediaPortal.Utilities.Win32.Window.EnableStartBar(false);
+        MediaPortal.Utilities.Win32.Window.ShowStartBar(false);
       }
       else
       {
@@ -612,8 +612,8 @@ namespace dxEngine
         Location = _previousPosition;
 
         // Show start menu
-        Win32API.EnableStartBar(true);
-        Win32API.ShowStartBar(true);
+        MediaPortal.Utilities.Win32.Window.EnableStartBar(true);
+        MediaPortal.Utilities.Win32.Window.ShowStartBar(true);
 
         Update();
         Activate();

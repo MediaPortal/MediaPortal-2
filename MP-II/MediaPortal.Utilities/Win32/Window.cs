@@ -30,7 +30,7 @@ namespace MediaPortal.Utilities.Win32
   /// <summary>
   /// Contains Window Releated Win32 Methods
   /// </summary>
-  class Window
+  public class Window
   {
     /// <summary>
     /// Shows the specified window
