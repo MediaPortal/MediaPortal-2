@@ -39,6 +39,8 @@ namespace SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {
+    string _startsWith = "";
+    int _searchOffset = 0;
     /// <summary>
     /// Initializes a new instance of the <see cref="ScrollViewer"/> class.
     /// </summary>
@@ -80,13 +82,19 @@ namespace SkinEngine.Controls.Visuals
       if (Content == null) return;
       UIElement element = (UIElement)Content;
       FrameworkElement focusedElement = element.FindFocusedItem() as FrameworkElement;
-      if (focusedElement == null) return;
-
+      if (focusedElement == null)
+      {
+        _startsWith = "";
+        _searchOffset = 0;
+        return;
+      }
       if (key == MediaPortal.Core.InputManager.Key.PageDown)
       {
         if (OnPageDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -96,6 +104,8 @@ namespace SkinEngine.Controls.Visuals
         if (OnPageUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -105,6 +115,8 @@ namespace SkinEngine.Controls.Visuals
         if (OnDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -114,6 +126,8 @@ namespace SkinEngine.Controls.Visuals
         if (OnUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -123,6 +137,8 @@ namespace SkinEngine.Controls.Visuals
         if (OnLeft(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -132,6 +148,8 @@ namespace SkinEngine.Controls.Visuals
         if (OnRight(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Core.InputManager.Key.None;
+          _startsWith = "";
+          _searchOffset = 0;
           return;
         }
       }
@@ -139,28 +157,47 @@ namespace SkinEngine.Controls.Visuals
       {
         OnHome(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
         key = MediaPortal.Core.InputManager.Key.None;
+        _startsWith = "";
+        _searchOffset = 0;
         return;
       }
       if (key == MediaPortal.Core.InputManager.Key.End)
       {
         OnEnd(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
         key = MediaPortal.Core.InputManager.Key.None;
+        _startsWith = "";
+        _searchOffset = 0;
         return;
       }
       if (Char.IsLetterOrDigit(key.RawCode))
       {
-        ScrollToItemWhichStartsWith(key.RawCode);
+        if (_startsWith.Length == 1 && key.RawCode == _startsWith[0])
+        {
+          _searchOffset++;
+          ScrollToItemWhichStartsWith();
+        }
+        else
+        {
+          _searchOffset=0;
+          _startsWith += key.RawCode;
+          ScrollToItemWhichStartsWith();
+        }
         key = MediaPortal.Core.InputManager.Key.None;
         return;
       }
       Content.OnKeyPressed(ref key);
     }
 
-    void ScrollToItemWhichStartsWith(char key)
+    void ScrollToItemWhichStartsWith()
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
-      info.ScrollToItemWhichStartsWith(key);
+      bool found = info.ScrollToItemWhichStartsWith(_startsWith, _searchOffset);
+      if (!found)
+      {
+        _startsWith = "";
+        _searchOffset = 0;
+      }
     }
     void OnHome(float x, float y)
     {

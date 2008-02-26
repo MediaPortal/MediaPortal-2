@@ -513,8 +513,9 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
-    public void ScrollToItemWhichStartsWith(char key)
+    public bool ScrollToItemWhichStartsWith(string text, int offset)
     {
+      return false;
     }
     public void Home(PointF point)
     {

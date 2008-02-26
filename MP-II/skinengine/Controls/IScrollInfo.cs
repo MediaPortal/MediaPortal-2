@@ -86,6 +86,6 @@ namespace SkinEngine.Controls.Visuals
 
     void ResetScroll();
 
-    void ScrollToItemWhichStartsWith(char key);
+    bool ScrollToItemWhichStartsWith(string text, int offset);
   }
 }

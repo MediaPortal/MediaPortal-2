@@ -402,7 +402,7 @@ namespace SkinEngine.Controls.Panels
       return false;
     }
 
-    public void ScrollToItemWhichStartsWith(char key)
+    public bool ScrollToItemWhichStartsWith(string text, int offset)
     {
       lock (_orientationProperty)
       {
@@ -413,27 +413,32 @@ namespace SkinEngine.Controls.Panels
           element = (FrameworkElement)Children[i];
           if (element.Context != null)
           {
-            if (element.Context.ToString().ToLower().StartsWith(key.ToString()))
+            if (element.Context.ToString().ToLower().StartsWith(text))
             {
-              firstItem = i;
-              break;
+              offset--;
+              if (offset < 0)
+              {
+                firstItem = i;
+                break;
+              }
             }
           }
         }
-        if (element == null) return;
+        if (element == null) return false;
         _startIndex = 0;
-        while (firstItem > _controlCount)
+        while (firstItem >= _controlCount)
         {
           _startIndex += _controlCount;
           firstItem -= _controlCount;
         }
         _startIndex += firstItem;
-        while (_startIndex + _controlCount > Children.Count)
+        while (_startIndex + _controlCount >= Children.Count)
           _startIndex--;
         Invalidate();
         UpdateLayout();
         OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
       }
+      return true;
     }
 
     public bool LineLeft(PointF point)
