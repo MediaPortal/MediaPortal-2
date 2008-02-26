@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <MyXaml>
   <Canvas xmlns:local="clr-namespace:RefreshrateSettings;assembly=settings"  History="False" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
     <Canvas.Resources>
@@ -10,7 +10,7 @@
         <Label Font="font13" Canvas.Left="25" Canvas.Top="0" Text="[system.5]" Width="100"  Color="#FFADADAD" VerticalAlignment="Top"/>
         <Label Font="font13" Canvas.Left="136" Canvas.Top="0" Text="[settings.9]" Width="300"  Color="#FFF1E994" VerticalAlignment="Top"/>
         <Button Name="closebtn" Canvas.Left="440" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Binding Path=WindowManager.CloseDialog}" />
-        <ListView Name="mainMenu" Canvas.Left="34" Canvas.Top="40" Height="380" Width="400" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding RefreshRateDefault}" >
+        <ListView Name="mainMenu" Canvas.Left="34" Canvas.Top="40" Height="300" Width="400" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding RefreshRateDefault}" >
           <ListView.Commands>
             <CommandGroup>
               <InvokeCommand Command="{Binding Path=SetRefreshRateDefault}" CommandParameter="{Binding Path=this.CurrentItem}"/>

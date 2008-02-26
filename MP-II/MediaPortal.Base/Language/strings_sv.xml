@@ -277,9 +277,9 @@
 	<String name="load" text="Ladda"/>
   </Section>
   <Section name="extensions">
-    <String name="myextensions" text="Mina tillägg"/>
+    <String name="myextensions" text="Mina Tillägg"/>
 	<String name="updateall" text="Uppdatera alla"/>
-	<String name="settings" text="Installningar"/>
+	<String name="settings" text="Inställningar"/>
     <String name="view" text="Vy"/>
     <String name="sort" text="Sotera"/>
     <String name="views" text="Bibliotek"/>
@@ -301,7 +301,7 @@
     <String name="notification" text="Meddelande"/>
     <String name="dependon" text="Förlitar sig på"/>
     <String name="flatview" text="Platt"/>
-    <String name="collection" text="Sammling"/>
+    <String name="collection" text="Samling"/>
     <String name="update" text="Uppdatera"/>
   </Section>
   <Section name="list">
