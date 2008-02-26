@@ -36,6 +36,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.MediaManager;
+using MediaPortal.Utilities.Scraper;
 namespace MovieImporter
 {
   public class Importer : IPlugin, IImporter
@@ -44,6 +45,7 @@ namespace MovieImporter
     //List<string> _extensions;
     IDatabase _movieDatabase;
     DateTime _lastImport = DateTime.MinValue;
+    Scraper scraper;
 
     public Importer()
     {
@@ -59,6 +61,8 @@ namespace MovieImporter
     public void Initialize(string id)
     {
       CreateMovieDatabase();
+      scraper = new Scraper();
+      scraper.Load(@"scrapers\video\imdb.xml");
     }
 
     #endregion
@@ -184,6 +188,29 @@ namespace MovieImporter
           movie["duration"] = playtimeSecs;
           mediaInfo.Close();
         }
+        //temporaly code testing the xbmc scraper 
+        if (scraper.IsLoaded)
+        {
+          scraper.CreateSearchUrl((string)movie["title"]);
+          ServiceScope.Get<ILogger>().Info("movieimporter: getting online info from: {0} ", scraper.SearchUrl);
+          scraper.GetSearchResults();
+          ServiceScope.Get<ILogger>().Info("movieimporter: result found {0} ", scraper.SearchResults.Count);
+          if (scraper.SearchResults.Count > 0)
+          {
+            ServiceScope.Get<ILogger>().Info("movieimporter: getting online info for: {0} ", scraper.SearchResults[0].Title);
+            scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
+            if (scraper.Metadata.ContainsKey("genre"))
+            {
+              movie["title"] = scraper.Metadata["title"];
+              movie["genre"] = scraper.Metadata["genre"];
+            }
+          }
+        }
+        else
+        {
+          ServiceScope.Get<ILogger>().Info("movieimporter: no online scraper are loaded ");
+        }
+        //----------------
         movie.Save();
 
         return true;
