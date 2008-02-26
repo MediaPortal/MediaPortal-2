@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MyXaml >
-  <Canvas xmlns:local="clr-namespace:Model;assembly=Shares" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
+  <Canvas xmlns:local="clr-namespace:Model;assembly=Shares" History="False" FocusManager.FocusedElement="{Binding ElementName=list}">
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
@@ -20,13 +20,18 @@
           </LinearGradientBrush>
         </Label.OpacityMask>
       </Label>
-      <Label Margin="60,0,0,0" Font="font13" Text="[shares.removeshares]" Width="500" Height="32" DockPanel.Dock="Top"/>
-      <Label Margin="60,0,0,0" Font="font12" Text="[shares.selectsharetoremove]" Width="500" Height="32" DockPanel.Dock="Top"/>
-      <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SharesRemoveMainMenu}" />
-        <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
+      <Label Margin="60,0,0,0" Font="font13" Text="[shares.removeshares]" Width="660" Height="32" DockPanel.Dock="Top"/>
+      <Label Margin="60,0,0,0" Font="font12" Text="[shares.selectsharetoremove]" Width="660" Height="32" DockPanel.Dock="Top"/>
+
+      <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+        <Button Style="{StaticResource MpButton}" Margin="0,0,10,0"   Width="160" Height="32" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="sharescancel">
+          <Label Font="font13" Text="[settings.cancel]" Height="32" />
+        </Button>
+        <Button Style="{StaticResource MpButton}" Margin="10,0,10,10"  Width="160" Height="32" Command="{Binding Path=WindowManager.ShowPreviousWindow}" >
+          <Label Font="font13" Text="[settings.finish]" Height="32" />
+        </Button>
       </StackPanel>
-      <ListView  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Shares}" Command="{Binding Path=RemoveShare}" CommandParameter="{Binding Path=this.CurrentItem}"  SelectionChanged="{Binding Path=OnSelectionChange}"/>
+      <ListView Name="list"  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Shares}" Command="{Binding Path=RemoveShare}" CommandParameter="{Binding Path=this.CurrentItem}"  SelectionChanged="{Binding Path=OnSelectionChange}"/>
 
     </DockPanel>
   </Canvas>

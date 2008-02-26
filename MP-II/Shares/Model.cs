@@ -31,6 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.MenuManager;
+using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Logging;
 namespace Shares
 {
@@ -191,6 +192,7 @@ namespace Shares
     {
       SaveItems(_folders);
       RefreshShares();
+      ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
     }
     void SaveItems(ItemsCollection items)
     {

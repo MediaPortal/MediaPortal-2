@@ -1,6 +1,6 @@
 <menu>
   <items>
     <item text="[shares.done]" image="" command="Shares:Model.Save+WindowManager.ShowPreviousWindow" parameter=""/>
-    <item text="[shares.cancel]" image="" command="WindowManager.ShowPreviousWindow" parameter=""/>
+    <item text="[shares.cancel]" image="" command="WindowManager.ShowWindow" parameter="sharescancel"/>
   </items>
 </menu>
