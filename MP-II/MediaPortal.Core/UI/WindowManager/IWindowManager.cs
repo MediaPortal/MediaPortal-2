@@ -93,5 +93,37 @@ namespace MediaPortal.Core.WindowManager
     /// </summary>
     /// <value>The name of the current theme used.</value>
     string ThemeName { get;}
+
+    /// <summary>
+    /// Gets / Sets the Title of a Dialog
+    /// </summary>
+    string DialogTitle { get; set; }
+
+    /// <summary>
+    /// Gets / Sets Dialog Line 1
+    /// </summary>
+    string DialogLine1 { get; set; }
+
+    /// <summary>
+    /// Gets / Sets Dialog Line 2
+    /// </summary>
+    string DialogLine2 { get; set; }
+
+    /// <summary>
+    /// Gets / Sets Dialog Line 3
+    /// </summary>
+    string DialogLine3 { get; set; }
+
+    /// <summary>
+    /// Gets the Dialog Response (Yes/No)
+    /// </summary>
+    /// <returns></returns>
+    bool GetDialogResponse();
+
+    /// <summary>
+    /// Sets the Dialog Response
+    /// </summary>
+    /// <param name="response"></param>
+    void SetDialogResponse(string response);
   }
 }

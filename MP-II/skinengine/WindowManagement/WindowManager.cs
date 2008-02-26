@@ -77,6 +77,10 @@ namespace SkinEngine
     private Window _previousWindow = null;
     private List<Window> _history = new List<Window>();
     public Utils _utils = new Utils();
+
+    private string _dialogTitle;
+    private string[] _dialogLines = new string[3];
+    private bool _dialogResponse;  // Yes = true, No = false
     #endregion
 
     /// <summary>
@@ -536,6 +540,89 @@ namespace SkinEngine
       set
       {
         _utils = value;
+      }
+    }
+
+    /// <summary>
+    /// Sets a Dialog Response
+    /// </summary>
+    /// <param name="response"></param>
+    public void SetDialogResponse(string response)
+    {
+      if (response.ToLower() == "yes")
+        _dialogResponse = true;
+      else
+        _dialogResponse = false;
+
+      CloseDialog();
+    }
+
+    /// <summary>
+    /// Gets the Dialog Response
+    /// </summary>
+    /// <returns></returns>
+    public bool GetDialogResponse()
+    {
+      return _dialogResponse;
+    }
+
+    /// <summary>
+    /// Gets / Sets the Dialopg Title
+    /// </summary>
+    public string DialogTitle
+    {
+      get
+      {
+        return _dialogTitle;
+      }
+      set
+      {
+        _dialogTitle = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets / Sets Dialog LIne 1
+    /// </summary>
+    public string DialogLine1
+    {
+     get
+      {
+        return _dialogLines[0];
+      }
+      set
+      {
+        _dialogLines[0] = value;
+      }
+    }
+    
+    /// <summary>
+    /// Gets / Sets Dialog LIne 2
+    /// </summary>
+    public string DialogLine2
+    {
+     get
+      {
+        return _dialogLines[1];
+      }
+      set
+      {
+        _dialogLines[1] = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets / Sets Dialog LIne 3
+    /// </summary>
+    public string DialogLine3
+    {
+      get
+      {
+        return _dialogLines[2];
+      }
+      set
+      {
+        _dialogLines[2] = value;
       }
     }
   }
