@@ -221,11 +221,21 @@ namespace SharesProvider
     {
       try
       {
+        List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
         string[] folders = Directory.GetDirectories(_folder);
         for (int i = 0; i < folders.Length; ++i)
         {
           FolderContainer cont = new FolderContainer(folders[i], Root, this);
-          container.Add(cont);
+          fileItems.Add(cont);
+        }
+
+        // we need to collect any metadata imported to database
+        // for the files
+        IImporterManager mgr = ServiceScope.Get<IImporterManager>();
+        mgr.GetMetaDataFor(_folder, ref fileItems);
+        foreach (IAbstractMediaItem item in fileItems)
+        {
+          container.Add(item);
         }
       }
       catch (IOException) { }

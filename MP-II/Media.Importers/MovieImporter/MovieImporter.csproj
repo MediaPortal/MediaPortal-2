@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DvdMediaItem.cs" />
     <Compile Include="Importer.cs" />
     <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,6 +76,7 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)movieimporter.pdb"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 xcopy /Y "$(ProjectDir)References\*.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>

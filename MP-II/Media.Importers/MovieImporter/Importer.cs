@@ -76,7 +76,7 @@ namespace MovieImporter
 
     //public void Startup()
     //{
-      
+
     //  ServiceScope.Get<IImporterManager>().Register(this);
     //}
 
@@ -118,10 +118,18 @@ namespace MovieImporter
       {
         string ext = System.IO.Path.GetExtension(file).ToLower();
         bool isDvd = (ext == ".ifo");
+        DirectoryInfo dvdFolder = null;
+        string fileOrg = file;
         if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return false;
+        if (isDvd)
+        {
+          string folder = System.IO.Path.GetDirectoryName(file);
+          dvdFolder = System.IO.Directory.GetParent(folder);//video_ts
+          fileOrg = dvdFolder.FullName;
+        }
         try
         {
-          Query movieByFilename = new Query("contentURI", Operator.Same, file);
+          Query movieByFilename = new Query("contentURI", Operator.Same, fileOrg);
           List<IDbItem> result = _movieDatabase.Query(movieByFilename);
           if (result.Count > 0) return false;
         }
@@ -140,22 +148,23 @@ namespace MovieImporter
           mediaInfo = null;
         }
         IDbItem movie = _movieDatabase.CreateNew(); ;
-        movie["contentURI"] = file;
         movie["CoverArt"] = file;
         movie["size"] = info.Length;
         if (!isDvd)
         {
+          movie["contentURI"] = file;
           movie["title"] = Path.GetFileNameWithoutExtension(file);
+          movie["path"] = Path.GetDirectoryName(file);
         }
         else
         {
-          string videoTsdir = System.IO.Path.GetDirectoryName(file);
-          DirectoryInfo dirInfo = System.IO.Directory.GetParent(videoTsdir);
-          movie["title"] = dirInfo.Name;
+          movie["title"] = dvdFolder.Name;
+          movie["contentURI"] = dvdFolder.FullName;
+          DirectoryInfo parent = System.IO.Directory.GetParent(dvdFolder.FullName);//video_ts
+          movie["path"] = parent.FullName;
         }
         movie["date"] = info.CreationTime;
-        movie["path"] = Path.GetDirectoryName(file);
-        movie["isDVD"] = isDvd;
+        movie["isDVD"] = isDvd ? 1 : 0;
         movie["dateAdded"] = info.CreationTime;
         if (mediaInfo != null)
         {
@@ -363,12 +372,14 @@ namespace MovieImporter
         foreach (IDbItem dbItem in results)
         {
           string contentUri = dbItem.Attributes["contentURI"].Value.ToString();
-          foreach (IAbstractMediaItem item in items)
+          for (int i = 0; i < items.Count; ++i)
           {
+            IAbstractMediaItem item = items[i];
             IMediaItem mediaItem = item as IMediaItem;
-            if (mediaItem != null)
+            IRootContainer container = item as IRootContainer;
+            if (container == null)
             {
-              if (mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
+              if (mediaItem != null && mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
               {
                 Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
@@ -376,6 +387,25 @@ namespace MovieImporter
                   mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
                 }
                 mediaItem.Title = dbItem.Attributes["title"].Value as string;
+                break;
+              }
+            }
+            else if (((int)dbItem.Attributes["isDVD"].Value) == 1)
+            {
+              string dvdPath = (string)dbItem.Attributes["contentURI"].Value;
+              Uri uri = container.ContentUri;
+              string containerPath = uri.LocalPath;
+
+              if (String.Compare(containerPath, dvdPath, true) == 0)
+              {
+                DvdMediaItem dvditem = new DvdMediaItem(dvdPath, (string)dbItem.Attributes["title"].Value, container.Parent);
+
+                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                while (enumer.MoveNext())
+                {
+                  dvditem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
+                }
+                items[i] = dvditem;
                 break;
               }
             }
