@@ -33,16 +33,19 @@
   <Section name="importers">
     <String name="addshare" text="Voeg folder toe"/>
     <String name="removeshare" text="Verwijder folder"/>
-    <String name="refresh" text="Ververs database"/>
+    <String name="refresh" text="Ververs bibliotheek"/>
   </Section>
   <Section name="shares">
-    <String name="shares" text="Database Setup"/>
-    <String name="addnewshares" text="Voeg directories toe aan de database"/>
-    <String name="removeshares" text="Verwijder directories uit de database"/>
+    <String name="shares" text="Bibliotheek"/>
+    <String name="addnewshares" text="Voeg directories toe aan de bibliotheek"/>
+    <String name="removeshares" text="Verwijder directories uit de bibliotheek"/>
     <String name="done" text="Done"/>
-    <String name="description" text="Voeg of verwijder directories van de database"/>
+    <String name="description" text="Voeg of verwijder directories van de bibliotheek"/>
     <String name="selectsharetoremove" text="Selecteer de directories welke verwijderd moeten worden"/>
     <String name="selectsharestoadd" text="Selecteer de directories welke toegevoegd moeten worden"/>
+    <String name="canceled" text="Er zijn geen wijzigingen gedaan."/>
+    <String name="pressfinish" text="Selecteer klaar om verder te gaan."/>
+    <String name="refreshing" text="The bibliotheek wordt ververst."/>
     <String name="back" text="Terug"/>
     <String name="cancel" text="Annuleren"/>
   </Section>
@@ -98,7 +101,7 @@
     <String name="5" text="Sorteer"/>
     <String name="6" text="Speel DVD"/>
     <String name="7" text="Uitwerpen"/>
-    <String name="8" text="Database"/>
+    <String name="8" text="Bibliotheek"/>
     <String name="dvd" text="DVD Collectie"/>
   </Section>
   <Section name="music">
@@ -110,7 +113,7 @@
     <String name="5" text="Sorteer"/>
     <String name="6" text="Speel CD"/>
     <String name="7" text="Uitwerpen"/>
-    <String name="8" text="Database"/>
+    <String name="8" text="Bibliotheek"/>
     <String name="settings" text="Instellingen"/>
     <String name="settingsgeneral" text="Globaal"/>
     <String name="settingsfade" text="Fade uit"/>
@@ -204,7 +207,7 @@
     <String name="1" text="Tags"/>
     <String name="2" text="Grootte"/>
     <String name="3" text="Mijn Foto's"/>
-    <String name="4" text="Database"/>
+    <String name="4" text="Bibliotheek"/>
     <String name="5" text="Sorteer"/>
     <String name="6" text="Slideshow"/>
     <String name="picinfo" text="Foto Info"/>
@@ -244,6 +247,29 @@
     <String name="8" text="30 FPS"/>
     <String name="9" text="FPS Default"/>
     <String name="music" text="Muziek"/>
+    <String name="appearance" text="Beeld"/>
+    <String name="audiosetup" text="Geluid"/>
+    <String name="speakersetup" text="Selecteer de audio aansluiting"/>
+    <String name="buildin" text="Intern (laptop)"/>
+    <String name="analog" text="Analoog"/>
+    <String name="digital" text="Digitaal (Toslink/coax)"/>
+    <String name="speakeramount" text="Selecteer het aantal speakers"/>
+    <String name="speakers2" text="2 speakers (stereo)"/>
+    <String name="speakers51" text="5.1 speakers"/>
+    <String name="speakers71" text="7.1 speakers"/>
+    <String name="tvsetup" text="Tv/Monitor"/>
+    <String name="monitorsetup" text="Selecteer tv/monitor type"/>
+    <String name="monitorcrt" text="CRT"/>
+    <String name="monitorlcd" text="LCD/Plasma"/>
+    <String name="monitorprojector" text="Beamer"/>
+    <String name="monitorarsetup" text="Selecteer tv/monitor"/>
+    <String name="monitornormal" text="Normaal (4:3)"/>
+    <String name="monitorwide" text="Breedbuild (16:9)"/>
+    <String name="monitorbuildin" text="Intern"/>
+    <String name="next" text="Volgende"/>
+    <String name="back" text="Terug"/>
+    <String name="cancel" text="Annuleren"/>
+    <String name="finish" text="Klaar"/>
   </Section>
   <Section name="radio">
     <String name="name" text="Mijn Radio"/>
@@ -263,11 +289,11 @@
     <String name="myextensions" text="Mijn extenties"/>
     <String name="view" text="Stijl"/>
     <String name="sort" text="Sorteer"/>
-    <String name="views" text="Database"/>
+    <String name="views" text="Bibliotheek"/>
     <String name="install" text="Install"/>
     <String name="uninstall" text="Uninstall"/>
     <String name="downloadinstall" text="Download &amp; Install"/>
-    <String name="downloadlist" text="Ververs lisjt"/>
+    <String name="downloadlist" text="Ververs lijst"/>
     <String name="cancelinstall" text="Cancel install"/>
     <String name="canceluninstall" text="Cancel uninstall"/>
     <String name="cancelreinstall" text="Cancel reinstall"/>
