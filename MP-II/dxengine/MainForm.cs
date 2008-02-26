@@ -1,3 +1,4 @@
+//#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
@@ -118,10 +119,10 @@ namespace dxEngine
       ServiceScope.Add<IUserService>(userservice);
 
       ServiceScope.Get<ILogger>().Debug("Application: create AutoPlay service");
-      AutoPlay autoplayservice = new AutoPlay();    
+      AutoPlay autoplayservice = new AutoPlay();
       ServiceScope.Add<IAutoPlay>(autoplayservice);
 
-      
+
       //**********************************************************
 
       _previousMousePosition = new Point(-1, -1);
@@ -149,8 +150,8 @@ namespace dxEngine
       }
       else
       {
-       // ClientSize = new Size(1200, 980);// new Size((int)SkinContext.Width, (int)SkinContext.Height);
-        ClientSize =  new Size((int)SkinContext.Width, (int)SkinContext.Height);
+        // ClientSize = new Size(1200, 980);// new Size((int)SkinContext.Width, (int)SkinContext.Height);
+        ClientSize = new Size((int)SkinContext.Width, (int)SkinContext.Height);
         fixed_aspect_ratio = 3.0f / 4.0f;
       }
       // this.ClientSize = new Size(SkinContext.Width, SkinContext.Height);
@@ -262,7 +263,10 @@ namespace dxEngine
       bool shouldWait = GraphicsDevice.Render(true);
       if (shouldWait || !_hasFocus)
       {
+#if PROFILE_PERFORMANCE
+#else
         Thread.Sleep(100);
+#endif
       }
       _fpsCounter += 1.0f;
     }
