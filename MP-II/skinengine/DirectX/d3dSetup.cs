@@ -1,4 +1,5 @@
 //#define NVIDIA_PERFHUD
+//#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
@@ -1241,7 +1242,7 @@ namespace SkinEngine.DirectX
     {
       _presentParams.Windowed = _graphicsSettings.IsWindowed;
       _presentParams.BackBufferCount = 2;
-      _presentParams.EnableAutoDepthStencil = true;
+      _presentParams.EnableAutoDepthStencil = false;
       //_presentParams.ForceNoMultiThreadedFlag = false;
 
       ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
@@ -1249,13 +1250,17 @@ namespace SkinEngine.DirectX
 
       if (_graphicsSettings.IsWindowed)
       {
-        _presentParams.Multisample = _graphicsSettings.WindowedMultisampleType;
-        _presentParams.MultisampleQuality = _graphicsSettings.WindowedMultisampleQuality;
+        _presentParams.Multisample = MultisampleType.None;// _graphicsSettings.WindowedMultisampleType;
+        _presentParams.MultisampleQuality = 0;// _graphicsSettings.WindowedMultisampleQuality;
         _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
+#if PROFILE_PERFORMANCE
+        _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
+#else
         _presentParams.PresentationInterval = PresentInterval.Default; // Immediate.Default;
+#endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = SwapEffect.Discard;
         _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
@@ -1272,7 +1277,12 @@ namespace SkinEngine.DirectX
         _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
         _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.DeviceCombo.BackBufferFormat;
+        
+#if PROFILE_PERFORMANCE
+        _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
+#else
         _presentParams.PresentationInterval = PresentInterval.Default;
+#endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
         _presentParams.SwapEffect = SwapEffect.Discard;
         _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;

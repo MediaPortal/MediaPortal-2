@@ -681,10 +681,8 @@ namespace SkinEngine.Controls.Visuals
             matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
             SkinContext.AddTransform(matrix);
           }
-
           //render the control
           DoRender();
-
           //remove the rendertransform
           if (RenderTransform != null)
           {

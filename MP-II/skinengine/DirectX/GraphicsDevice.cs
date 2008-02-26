@@ -270,12 +270,12 @@ namespace SkinEngine
       Device.SetTextureStageState(0, TextureStage.AlphaArg0, TextureArgument.Texture);
       Device.SetTextureStageState(0, TextureStage.AlphaArg1, TextureArgument.Diffuse);
 
-      Device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
-      Device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
-      Device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
-      Device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
-      Device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
-      Device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
+      //Device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
+      //Device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
+      //Device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
+      //Device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
+      //Device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
+      //Device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
 
 
       if (_supportsAlphaBlend)
@@ -284,7 +284,6 @@ namespace SkinEngine
         Device.SetRenderState(RenderState.AlphaRef, 0x01);
         Device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
-
       if (_supportsFiltering)
       {
         /* DX9 supports the following filter combinations
@@ -419,7 +418,8 @@ namespace SkinEngine
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
           //Dont remove this, MP-II uses the Z-buffer for some styles
           //rendering goes wrong when zbuffer is not cleared
-          _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+          //_device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+          _device.Clear(ClearFlags.Target , Color.Black, 1.0f, 0);
 
           SetRenderState();
 
