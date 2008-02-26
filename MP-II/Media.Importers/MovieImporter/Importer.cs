@@ -148,13 +148,13 @@ namespace MovieImporter
           mediaInfo = null;
         }
         IDbItem movie = _movieDatabase.CreateNew(); ;
-        movie["CoverArt"] = file;
         movie["size"] = info.Length;
         if (!isDvd)
         {
           movie["contentURI"] = file;
           movie["title"] = Path.GetFileNameWithoutExtension(file);
           movie["path"] = Path.GetDirectoryName(file);
+          movie["CoverArt"] = file;
         }
         else
         {
@@ -162,6 +162,7 @@ namespace MovieImporter
           movie["contentURI"] = dvdFolder.FullName;
           DirectoryInfo parent = System.IO.Directory.GetParent(dvdFolder.FullName);//video_ts
           movie["path"] = parent.FullName;
+          movie["CoverArt"] = "";
         }
         movie["date"] = info.CreationTime;
         movie["isDVD"] = isDvd ? 1 : 0;
@@ -404,6 +405,10 @@ namespace MovieImporter
                 while (enumer.MoveNext())
                 {
                   dvditem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
+                }
+                if (String.IsNullOrEmpty(dbItem.Attributes["CoverArt"].Value as String))
+                {
+                  dvditem.MetaData["CoverArt"] = "dvd_logo.png";
                 }
                 items[i] = dvditem;
                 break;

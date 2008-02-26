@@ -90,7 +90,7 @@ namespace MediaPortal.Core.Importers
     /// the folder should already be added via AddShare()
     /// </remarks>
     /// <param name="folder">The folder.</param>
-    void ForceImport(string folder);
+    void ForceImport(string folder,bool refresh);
 
     /// <summary>
     /// Gets the meta data for a folder

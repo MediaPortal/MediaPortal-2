@@ -40,6 +40,21 @@ namespace MediaPortal.Plugins.Services.Importers
 {
   public class ImporterManager : IImporterManager, IPlugin
   {
+    class ImporterContext
+    {
+      public WatchedFolder Folder;
+      public bool Refresh;
+      public ImporterContext(WatchedFolder folder)
+      {
+        Folder = folder;
+        Refresh = false;
+      }
+      public ImporterContext(WatchedFolder folder, bool refresh)
+      {
+        Folder = folder;
+        Refresh = refresh;
+      }
+    }
     #region variables
     List<ImporterBuilder> _importers;
     List<WatchedFolder> _folders;
@@ -206,7 +221,7 @@ namespace MediaPortal.Plugins.Services.Importers
       _settings.Shares.Add(share);
       ServiceScope.Get<ISettingsManager>().Save(_settings);
 
-      ForceImport(folder);
+      ForceImport(folder, false);
       IQueue queue = ServiceScope.Get<IMessageBroker>().Get("importers");
       MPMessage msg = new MPMessage();
       msg.MetaData["action"] = "shareadded";
@@ -277,7 +292,7 @@ namespace MediaPortal.Plugins.Services.Importers
     /// Forces a complete import to be done on the folder
     /// </summary>
     /// <param name="folder">The folder.</param>
-    public void ForceImport(string folder)
+    public void ForceImport(string folder, bool refresh)
     {
       //check if folder is already monitored.
       for (int i = 0; i < _folders.Count; ++i)
@@ -286,11 +301,12 @@ namespace MediaPortal.Plugins.Services.Importers
         if (String.Compare(folder, watchedFolder.Folder, true) == 0)
         {
           ServiceScope.Get<ILogger>().Info("importer: force import from {0}", folder);
+          ImporterContext context = new ImporterContext(watchedFolder, refresh);
           //do a complete fresh import of the new folder
           Thread t = new Thread(new ParameterizedThreadStart(DoImportFolder));
           t.IsBackground = true;
           t.Priority = ThreadPriority.BelowNormal;
-          t.Start(watchedFolder);
+          t.Start(context);
           return;
         }
       }
@@ -380,16 +396,19 @@ namespace MediaPortal.Plugins.Services.Importers
       {
         try
         {
-          WatchedFolder watchedFolder = (WatchedFolder)obj;
-          ServiceScope.Get<ILogger>().Info("importer:import {0}", watchedFolder.Folder);
+          ImporterContext context = (ImporterContext)obj;
+          ServiceScope.Get<ILogger>().Info("importer:import {0}", context.Folder.Folder);
           for (int i = 0; i < _settings.Shares.Count; ++i)
           {
             Share share = _settings.Shares[i];
-            if (share.Folder == watchedFolder.Folder)
+            if (share.Folder == context.Folder.Folder)
             {
+              DateTime dt = share.LastImport;
+              if (context.Refresh)
+                dt = DateTime.MinValue;
               foreach (ImporterBuilder importer in _importers)
               {
-                importer.ImportFolder(watchedFolder.Folder, share.LastImport);
+                importer.ImportFolder(context.Folder.Folder, dt);
               }
               share.LastImport = DateTime.Now;
               ServiceScope.Get<ISettingsManager>().Save(_settings);

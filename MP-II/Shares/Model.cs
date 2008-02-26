@@ -289,7 +289,7 @@ namespace Shares
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
       foreach (string share in mgr.Shares)
       {
-        mgr.ForceImport(share);
+        mgr.ForceImport(share,true);
       }
     }
   }
