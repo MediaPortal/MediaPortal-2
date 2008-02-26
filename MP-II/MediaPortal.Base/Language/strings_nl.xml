@@ -264,7 +264,7 @@
     <String name="monitorprojector" text="Beamer"/>
     <String name="monitorarsetup" text="Selecteer tv/monitor"/>
     <String name="monitornormal" text="Normaal (4:3)"/>
-    <String name="monitorwide" text="Breedbuild (16:9)"/>
+    <String name="monitorwide" text="Breedbeeld (16:9)"/>
     <String name="monitorbuildin" text="Intern"/>
     <String name="next" text="Volgende"/>
     <String name="back" text="Terug"/>
