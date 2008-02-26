@@ -38,8 +38,9 @@ using MediaPortal.Core.Properties;
 namespace MyHelloWorld
 {
   /// <summary>
-  /// Model which exposes a movie collection
-  /// The movie collection are just movies & folders on the HDD
+  /// Example for a Viewmodel
+  /// the screenfile to this model is located at:
+  /// /Skins/default/helloworld.xaml
   /// </summary>
   public class Model
   {
