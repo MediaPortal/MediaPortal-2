@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyXaml >
+  <Canvas xmlns:local="clr-namespace:Model;assembly=myhelloworld" FocusManager.FocusedElement="{Binding ElementName=BtnChangeText}">
+    <Canvas.Resources>
+      <ResourceDictionary Source="XamlStyle.xml"/>
+    </Canvas.Resources>
+    <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+      <StackPanel Width="Auto" Height="Auto">
+        <Button Margin="0,10,0,0" Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource MpButton}" Command="{Binding Path=ChangeHelloWorldString}">Click Me!</Button>
+        <Label Margin="0,0,0,0" Font="font13" Text="{Binding Path=HelloString}" Width="500" Height="50"/>
+      </StackPanel>
+    </Canvas>
+  </Canvas>
+</MyXaml>

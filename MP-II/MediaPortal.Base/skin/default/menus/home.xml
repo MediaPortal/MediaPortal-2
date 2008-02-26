@@ -22,7 +22,8 @@
     <item text="[media.name]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="media"/>
     <item text="[pictures.3]" image="hover_my pictures.png" command="WindowManager.ShowWindow" parameter="Pictures"/>
     <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsSkin"/>
-	<item text="[extensions.myextensions]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="extensions">
+    <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="helloworld"/>
+    <item text="[extensions.myextensions]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="extensions">
       <items>
         <item text="[extensions.updateall]" image="hover_playlist.png" command="WindowManager.ShowWindow" parameter="playlist"/>
         <item text="[extensions.settings]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsMusic"/>

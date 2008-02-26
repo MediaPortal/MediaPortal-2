@@ -9,6 +9,7 @@ del /Q models\*.*
 del /Q skin\default\Scripts\*.* 
 del /Q skin\default\Scripts\Precompiled\*.* 
 xcopy %1\MediaPortal.Base\*.* . /E /Y /D
+copy %1\myhelloworld\bin\x86\%2\myhelloworld*.* models
 copy %1\mymovies\bin\x86\%2\mymovies*.* models
 copy %1\mypictures\bin\x86\%2\mypic*.* models
 copy %1\mymusic\bin\x86\%2\mymusic*.* models

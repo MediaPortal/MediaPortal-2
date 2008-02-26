@@ -1,0 +1,107 @@
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using MediaPortal.Core;
+using MediaPortal.Core.Collections;
+using MediaPortal.Core.WindowManager;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Localisation;
+using MediaPortal.Core.Importers;
+using MediaPortal.Core.Properties;
+
+namespace MyHelloWorld
+{
+  /// <summary>
+  /// Model which exposes a movie collection
+  /// The movie collection are just movies & folders on the HDD
+  /// </summary>
+  public class Model
+  {
+    /// <summary>
+    ///  this property holds a string that we will modify 
+    ///  later on in this tutorial
+    /// </summary>
+    private Property _helloStringProperty = null;
+
+    /// <summary>
+    /// Constructor... this one is called by the ModelManager when access from the screenfiles
+    /// to the model is needed (via reflection)
+    /// </summary>
+    public Model()
+    {
+      _helloStringProperty = new Property("Hello World!");
+    }
+
+    /// <summary>
+    /// some property that can be accessed
+    /// </summary>
+    public String HelloString
+    {
+      get
+      {
+        return (String)HelloStringProperty.GetValue();
+      }
+      set
+      {
+        HelloStringProperty.SetValue(value);
+      }
+    }
+
+    /// <summary>
+    /// Dependency Property for our string... this is needed
+    /// if our string shouldn't be static, so the skinning engine knows
+    /// that it should update the display when the string has changed
+    /// 
+    /// NOTE: when databinding from the XAML to this a property it will always first look for "XYZProperty"
+    /// if that one is not found, it will bind to "XYZ"... so in our case if you databind to "HelloString" it will
+    /// first try to find a "HelloStringProperty" property to bind to, if that doesn't succeed it will bind to the
+    /// "HelloString" String property...
+    /// </summary>
+    public Property HelloStringProperty
+    {
+      get
+      {
+        if (_helloStringProperty == null)
+        {
+          _helloStringProperty = new Property("");
+        }
+        return _helloStringProperty;
+      }
+    }
+
+
+    /// <summary>
+    /// this will change the HelloWorld Property string
+    /// </summary>
+    public void ChangeHelloWorldString()
+    {
+      HelloString = "Congrats, you just triggered a Command!";
+    }
+  }
+}
