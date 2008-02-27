@@ -30,6 +30,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.AutoPlay;
 using MediaPortal.Core.Collections;
+using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
@@ -330,12 +331,36 @@ namespace MediaPortal.Services.AutoPlay
 
     private bool ShouldWeAutoPlay(MediaType iMedia)
     {
-      YesNoDialogScreen screen = new YesNoDialogScreen("AutoPlay", "title", "details", BaseScreen.Image.info);
-      System.Windows.Forms.DialogResult dialogResult = screen.ShowDialog();
-      if (dialogResult == System.Windows.Forms.DialogResult.Yes)
-        return true;
-      else
-        return false;
+      string line;
+
+      ServiceScope.Get<IWindowManager>().DialogTitle = ServiceScope.Get<ILocalisation>().ToString("autoplay", "autoplay");
+      
+      switch (iMedia)
+      {
+        case MediaType.AUDIO:
+        case MediaType.AUDIO_CD:
+          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "audio");
+          break;
+
+        case MediaType.DVD:
+          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "dvd");
+          break;
+
+        case MediaType.PHOTOS:
+          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "photo");
+          break;
+
+        case MediaType.VIDEOS:
+          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "video");
+          break;
+
+        default:
+          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "disc");
+          break;
+      }
+      ServiceScope.Get<IWindowManager>().DialogLine1 = line;
+      ServiceScope.Get<IWindowManager>().ShowDialog("dialogYesNo");
+      return ServiceScope.Get<IWindowManager>().GetDialogResponse();
     }
 
 

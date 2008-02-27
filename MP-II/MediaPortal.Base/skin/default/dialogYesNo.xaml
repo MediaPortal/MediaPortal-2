@@ -5,12 +5,12 @@
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
 
-    <Border Canvas.Left="106" Canvas.Top="44" Width="520" Height="365" Background="#AFFFFFFF" CornerRadius="10">
+    <Border Canvas.Left="106" Canvas.Top="44" Width="540" Height="365" Background="#AFFFFFFF" CornerRadius="10">
       <Canvas Width="500" Height="345" Background="{StaticResource dialogBackGroundBrush}" >
-        <Label Font="font13" Canvas.Left="34" Canvas.Top="10" Text="{Binding Path=WindowManager.DialogTitle}" Width="480"  Color="#FFF1E994" VerticalAlignment="Top"/>
-        <Label Font="font13" Canvas.Left="34" Canvas.Top="60" Text="{Binding Path=WindowManager.DialogLine1}" Width="480"  Color="#FFF1E994" VerticalAlignment="Top"/>
-        <Label Font="font13" Canvas.Left="34" Canvas.Top="90" Text="{Binding Path=WindowManager.DialogLine2}" Width="480"  Color="#FFF1E994" VerticalAlignment="Top"/>
-        <Label Font="font13" Canvas.Left="34" Canvas.Top="120" Text="{Binding Path=WindowManager.DialogLine3}" Width="480"  Color="#FFF1E994" VerticalAlignment="Top"/>
+        <Label Font="font13" Canvas.Left="34" Canvas.Top="10" Text="{Binding Path=WindowManager.DialogTitle}" Width="490"  Color="#FFF1E994" VerticalAlignment="Top"/>
+        <Label Font="font13" Canvas.Left="34" Canvas.Top="60" Text="{Binding Path=WindowManager.DialogLine1}" Width="490"  Color="#FFF1E994" VerticalAlignment="Top"/>
+        <Label Font="font13" Canvas.Left="34" Canvas.Top="90" Text="{Binding Path=WindowManager.DialogLine2}" Width="490"  Color="#FFF1E994" VerticalAlignment="Top"/>
+        <Label Font="font13" Canvas.Left="34" Canvas.Top="120" Text="{Binding Path=WindowManager.DialogLine3}" Width="490"  Color="#FFF1E994" VerticalAlignment="Top"/>
         <Button Canvas.Left="50" Canvas.Top="150" Width="50" Height="40" Style="{StaticResource MpButton}" Command="{Binding Path=WindowManager.SetDialogResponse}" CommandParameter="Yes">[system.yes]</Button>
         <Button Canvas.Left="150" Canvas.Top="150" Width="50" Height="40" Style="{StaticResource MpButton}" Command="{Binding Path=WindowManager.SetDialogResponse}" CommandParameter="No">[system.no]</Button>
       </Canvas>

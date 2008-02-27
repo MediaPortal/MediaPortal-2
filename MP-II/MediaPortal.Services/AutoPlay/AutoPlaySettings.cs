@@ -37,7 +37,7 @@ namespace MediaPortal.Services.AutoPlay
     /// <summary>
     /// AutoPlayDVD
     /// </summary>
-    [Setting(SettingScope.User, "Yes")]
+    [Setting(SettingScope.User, "Ask")]
     public string AutoPlayDVD
     {
       get { return _autoPlayDVD; }
@@ -47,7 +47,7 @@ namespace MediaPortal.Services.AutoPlay
     /// <summary>
     /// AutoPlayCD
     /// </summary>
-    [Setting(SettingScope.User, "Yes")]
+    [Setting(SettingScope.User, "Ask")]
     public string AutoPlayCD
     {
       get { return _autoPlayCD; }

@@ -8,8 +8,8 @@
     <String name="4" text="secs"/>
     <String name="5" text="Menu"/>
     <String name="eject" text="Eject"/>
-    <String name="yes" text="yes"/>
-    <String name="no" text="no"/>
+    <String name="yes" text="Yes"/>
+    <String name="no" text="No"/>
   </Section>
   <Section name="general">
     <String name="name" text="Name"/>
@@ -319,5 +319,13 @@
     <String name="thumbs" text="Thumbs"/>
     <String name="coverthrow" text="Coverthrow"/>
     <String name="coverflow" text="Coverflow"/>
+  </Section>
+	<Section name="autoplay">
+    <String name="autoplay" text="AutoPlay"/>
+    <String name="audio" text="Audio disc inserted - do you want to open it?"/>
+    <String name="dvd" text="DVD inserted - do you want to open it?"/>
+    <String name="video" text="Video disc inserted - do you want to open it?"/>
+    <String name="photo" text="Photo disc inserted - do you want to open it?"/>
+    <String name="disc" text="Disc inserted - do you want to open it?"/>
   </Section>
 </Language>
