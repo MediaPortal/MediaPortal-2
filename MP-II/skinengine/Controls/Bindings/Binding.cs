@@ -121,14 +121,14 @@ namespace SkinEngine.Controls.Bindings
       // Value="{Binding Path=TopProgressBarRed,Mode=OneWay}"
 
       string elementName = "";
-      Regex regex = new Regex(@"[:a-zA-Z0-9.\[\]\(\)]+=[:a-zA-Z0-9.\[\]\(\)]+");
+      Regex regex = new Regex(@"[:!a-zA-Z0-9.\[\]\(\)]+=[:!a-zA-Z0-9.\[\]\(\)]+");
       MatchCollection matches = regex.Matches(Expression);
       _mode = BindingMode.OneWay;
       for (int i = 0; i < matches.Count; ++i)
       {
         //setter format is : bindingPropertyName1=value
         string setter = matches[i].Value;
-        Regex regex2 = new Regex(@"[:a-zA-Z0-9.\[\]\(\)]+");
+        Regex regex2 = new Regex(@"[:!a-zA-Z0-9.\[\]\(\)]+");
         MatchCollection matches2 = regex2.Matches(setter);
         bool done = false;
         if (matches2.Count == 2)
@@ -179,6 +179,12 @@ namespace SkinEngine.Controls.Bindings
 
     void SetupDatabinding(object bindingDestinationObject, string bindingSourcePropertyName)
     {
+      bool negate = false;
+      if (bindingSourcePropertyName.StartsWith("!"))
+      {
+        negate = true;
+        bindingSourcePropertyName = bindingSourcePropertyName.Substring(1);
+      }
       object bindingSourceProperty;
       UIElement sourceElement = bindingDestinationObject as UIElement;
       if (sourceElement != null)
@@ -232,7 +238,7 @@ namespace SkinEngine.Controls.Bindings
           Property destinationProperty = (Property)methodInfo.Invoke(obj, null);
 
           //create a new dependency..
-          _dependency = new BindingDependency(sourceProperty, destinationProperty, _mode);
+          _dependency = new BindingDependency(sourceProperty, destinationProperty, _mode, negate);
 
 
         }
@@ -242,7 +248,7 @@ namespace SkinEngine.Controls.Bindings
           if (info == null) return;
           MethodInfo methodInfo = info.GetSetMethod();
           if (methodInfo == null) return;
-          _dependency = new BindingDependency(sourceProperty, methodInfo, obj, _mode);
+          _dependency = new BindingDependency(sourceProperty, methodInfo, obj, _mode,negate);
         }
 
       }

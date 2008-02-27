@@ -112,7 +112,7 @@ namespace SkinEngine.Controls.Bindings
       if (bindingSourceProperty is Property && bindingDestProperty is Property)
       {
         //create a new dependency..
-        _dependency = new BindingDependency((Property)bindingSourceProperty, (Property)bindingDestProperty,BindingMode.OneWay);
+        _dependency = new BindingDependency((Property)bindingSourceProperty, (Property)bindingDestProperty,BindingMode.OneWay,false);
 
       }
     }

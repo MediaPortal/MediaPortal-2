@@ -107,6 +107,14 @@ namespace SkinEngine.Players
     }
     #endregion
 
+    public Property IsMouseUsed
+    {
+      get
+      {
+        return SkinContext.MouseUsedProperty;
+      }
+    }
+
     /// <summary>
     /// Gets or sets the title of current media.
     /// </summary>

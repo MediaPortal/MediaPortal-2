@@ -25,5 +25,6 @@
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>
     </DockPanel>
+    <Include Source="osd.xaml"/>
   </Canvas>
 </MyXaml>

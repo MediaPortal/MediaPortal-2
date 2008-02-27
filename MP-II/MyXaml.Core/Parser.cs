@@ -1260,7 +1260,7 @@ namespace MyXaml.Core
               StringHelpers.Between(propertyValue, '{', '}');
             if (!ContainsReference(refName))						// Verify that it already exists.  Embedded references must be immediately resolvable.
             {
-              ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " Cannot make a forward reference to :" + propertyValue + " on:" + obj.GetType().ToString());
+              ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Cannot make a forward reference to :{1} on:{2}", CurrentFile, propertyValue, obj.GetType().ToString());
               return;
             }
 
@@ -1291,7 +1291,7 @@ namespace MyXaml.Core
               {
                 if (!OnCustomProperty(obj, propertyName, propertyValue))
                 {
-                  ServiceScope.Get<ILogger>().Warn("XamlParser:" + CurrentFile + " The property " + propertyName + " does not exist. on:" + obj.GetType().ToString());
+                  ServiceScope.Get<ILogger>().Warn("XamlParser:{0} The property {1} does not exist. on:{2}", CurrentFile, propertyName , obj.GetType().ToString());
                 }
               }
             }

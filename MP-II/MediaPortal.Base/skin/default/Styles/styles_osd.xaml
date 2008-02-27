@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyXaml >
+  <ResourceDictionary>
+
+    <Style Key="Style_button_pause" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  >
+            <Grid Width="32" Height="32">
+              <Canvas IsVisible="{Binding Path=!Players.Paused}">
+                <Image Name="imgFocus" Source="osd_pause_focus.png" Margin="-10,0,0,0"  Width="32" Height="32"/>
+                <Image Name="imgNoFocus" Source="osd_pause_nofocus.png"  Margin="-10,0,0,0" Width="32" Height="32"/>
+              </Canvas>
+              <Canvas IsVisible="{Binding Path=Players.Paused}">
+                <Image Name="imgFocus2" Source="play_enabled.png" Margin="-10,0,0,0"  Width="32" Height="32"/>
+                <Image Name="imgNoFocus2" Source="play_disabled.png" Margin="-10,0,0,0" Width="32" Height="32"/>
+              </Canvas>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="imgFocus" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgFocus2" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus" Property="Visibility" Value="Hidden" />
+                <Setter TargetName="imgNoFocus2" Property="Visibility" Value="Hidden" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="Style_button_stop" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Grid>
+              <Image Name="imgFocus" Source="stop_enabled.png"  Margin="-10,0,0,0"  Width="32" Height="32"/>
+              <Image Name="imgNoFocus" Source="stop_disabled.png"  Margin="-10,0,0,0" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="imgFocus" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus" Property="Visibility" Value="Hidden" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="Style_button_rewind" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  >
+            <Grid>
+              <Image Name="imgFocus" Source="rew_enabled.png"  Margin="-10,0,0,0"  Width="32" Height="32"/>
+              <Image Name="imgNoFocus" Source="rew_disabled.png" Margin="-10,0,0,0" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="imgFocus" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus" Property="Visibility" Value="Hidden" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="Style_button_forward" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  >
+            <Grid>
+              <Image Name="imgFocus" Source="fastforward_enabled.png"  Margin="-10,0,0,0"  Width="32" Height="32"/>
+              <Image Name="imgNoFocus" Source="fastforward_disabled.png"  Margin="-10,0,0,0" Width="32" Height="32"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="imgFocus" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus" Property="Visibility" Value="Hidden" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Key="Style_button_mute" BasedOn="{Null}" TargetType="{Type Button}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate  >
+            <Grid Width="32" Height="32">
+              <Canvas IsVisible="{Binding Path=Players.IsMuted}">
+                <Image Name="imgFocus" Source="mute_Offenabled.png"  Margin="-10,0,0,0"  Width="32" Height="32"/>
+                <Image Name="imgNoFocus" Source="mute_Offdisabled.png"  Margin="-10,0,0,0" Width="32" Height="32"/>
+              </Canvas>
+              <Canvas IsVisible="{Binding Path=!Players.IsMuted}">
+                <Image Name="imgFocus2" Source="mute_enabled.png"  Margin="-10,0,0,0"  Width="32" Height="32"/>
+                <Image Name="imgNoFocus2" Source="mute_disabled.png"  Margin="-10,0,0,0" Width="32" Height="32"/>
+              </Canvas>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="imgFocus" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus" Property="Visibility" Value="Hidden" />
+                <Setter TargetName="imgFocus2" Property="Visibility" Value="Visible" />
+                <Setter TargetName="imgNoFocus2" Property="Visibility" Value="Hidden" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </ResourceDictionary>
+</MyXaml>

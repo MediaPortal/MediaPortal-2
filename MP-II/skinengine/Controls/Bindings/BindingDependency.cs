@@ -18,9 +18,11 @@ namespace SkinEngine.Controls.Bindings
     MethodInfo _methodInfo;
     object _destinationObject;
     BindingMode _mode = BindingMode.TwoWay;
+    bool _negate = false;
 
-    public BindingDependency(Property source, Property dest, BindingMode mode)
+    public BindingDependency(Property source, Property dest, BindingMode mode, bool negate)
     {
+      _negate = negate;
       _mode = mode;
       _source = source;
       _destination = dest;
@@ -30,8 +32,9 @@ namespace SkinEngine.Controls.Bindings
       OnSourcePropertyChanged(_source);
     }
 
-    public BindingDependency(Property source, MethodInfo info, object destobject, BindingMode mode)
+    public BindingDependency(Property source, MethodInfo info, object destobject, BindingMode mode, bool negate)
     {
+      _negate = negate;
       _mode = mode;
       _source = source;
       _destinationObject = destobject;
@@ -39,16 +42,43 @@ namespace SkinEngine.Controls.Bindings
       _source.Attach(new PropertyChangedHandler(OnSourcePropertyChanged));
       OnSourcePropertyChanged(_source);
     }
+    public bool Negate
+    {
+      get
+      {
+        return _negate;
+      }
+      set
+      {
+        _negate = value;
+      }
+    }
     void OnSourcePropertyChanged(Property property)
     {
       if (_destination != null)
       {
-        _destination.SetValue(property.GetValue());
+        if (Negate)
+        {
+          bool v = (bool)property.GetValue();
+          _destination.SetValue(!v);
+        }
+        else
+        {
+          _destination.SetValue(property.GetValue());
+        }
       }
       else
       {
 
-        _methodInfo.Invoke(_destinationObject, new object[] { property.GetValue() });
+        if (Negate)
+        {
+          bool v = (bool)property.GetValue();
+          _methodInfo.Invoke(_destinationObject, new object[] { !v });
+        }
+        else
+        {
+          _methodInfo.Invoke(_destinationObject, new object[] { property.GetValue() });
+        }
       }
     }
 
