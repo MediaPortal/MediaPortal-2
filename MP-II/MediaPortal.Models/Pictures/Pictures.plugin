@@ -1,0 +1,17 @@
+<Plugin name        = "Pictures"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Pictures Plugin">
+
+  <Manifest>
+    <Identity name = "Pictures"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyPicture.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "MyPicture" class = "Pictures.PictureModel"/>
+  </Register>
+</Plugin>

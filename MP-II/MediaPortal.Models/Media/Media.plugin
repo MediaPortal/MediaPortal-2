@@ -1,0 +1,17 @@
+<Plugin name        = "Media"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Media Plugin">
+
+  <Manifest>
+    <Identity name = "Media"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyMedia.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "MyMedia" class = "MyMedia.Model"/>
+  </Register>
+</Plugin>

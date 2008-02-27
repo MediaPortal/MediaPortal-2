@@ -1,0 +1,17 @@
+<Plugin name        = "Hello World"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Sample Plugin">
+
+  <Manifest>
+    <Identity name = "HelloWorld"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyHelloWorld.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "MyHelloworld" class = "MyHelloWorld.Model"/>
+  </Register>
+</Plugin>

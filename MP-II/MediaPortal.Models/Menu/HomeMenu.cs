@@ -27,16 +27,27 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.WindowManager;
+using MediaPortal.Core.PluginManager;
 
 namespace Home
 {
-  public class HomeMenu
+  public class HomeMenu : IPlugin
   {
     public ItemsCollection _pluginMenu;
 
+    #region IPlugin Members
     public HomeMenu()
     {
     }
+
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
 
     public ItemsCollection Plugins
     {

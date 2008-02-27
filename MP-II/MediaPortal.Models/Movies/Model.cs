@@ -40,13 +40,15 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.PluginManager;
+
 namespace MyMovies
 {
   /// <summary>
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model
+  public class Model : IPlugin
   {
     #region imports
 
@@ -79,14 +81,20 @@ namespace MyMovies
     }
     #endregion
 
-    #region ctor
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.
     /// </summary>
     public Model()
     {
-
       _movies = new ItemsCollection();
       _factory = new MovieFactory();
 

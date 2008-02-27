@@ -32,15 +32,27 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.MenuManager;
+using MediaPortal.Core.PluginManager;
+
 namespace Settings
 {
-  public class General
+  public class General : IPlugin
   {
     ItemsCollection _mainMenu;
 
+    #region IPlugin Members
     public General()
     {
     }
+
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
 
     /// <summary>
     /// exposes the main settings menu to the skin

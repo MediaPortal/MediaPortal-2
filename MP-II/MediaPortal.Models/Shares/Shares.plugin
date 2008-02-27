@@ -1,0 +1,17 @@
+<Plugin name        = "Shares"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Shares Plugin">
+
+  <Manifest>
+    <Identity name = "Shares"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Shares.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "Shares" class = "Shares.Model"/>
+  </Register>
+</Plugin>

@@ -34,6 +34,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Importers;
 using MediaPortal.Core.Properties;
+using MediaPortal.Core.PluginManager;
 
 namespace MyHelloWorld
 {
@@ -42,7 +43,7 @@ namespace MyHelloWorld
   /// the screenfile to this model is located at:
   /// /Skins/default/helloworld.xaml
   /// </summary>
-  public class Model
+  public class Model : IPlugin
   {
     /// <summary>
     ///  this property holds a string that we will modify 
@@ -50,6 +51,8 @@ namespace MyHelloWorld
     /// </summary>
     private Property _helloStringProperty = null;
 
+    
+    #region IPlugin Members
     /// <summary>
     /// Constructor... this one is called by the ModelManager when access from the screenfiles
     /// to the model is needed (via reflection)
@@ -58,6 +61,15 @@ namespace MyHelloWorld
     {
       _helloStringProperty = new Property("Hello World!");
     }
+
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
 
     /// <summary>
     /// some property that can be accessed

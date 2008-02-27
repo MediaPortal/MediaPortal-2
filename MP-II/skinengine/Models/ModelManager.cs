@@ -28,6 +28,7 @@ using System.IO;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
 
 namespace SkinEngine
 {
@@ -124,7 +125,27 @@ namespace SkinEngine
     /// <param name="className">Name of the class.</param>
     public void Load(string assemblyName, string className)
     {
-      ServiceScope.Get<ILogger>().Debug("ModelManager:load model assembly:{0} class:{1}", assemblyName, className);
+      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model plugin: {0} class:{1}", assemblyName, className);
+
+      
+      try
+      {
+        object model =  ServiceScope.Get<IPluginManager>().GetPluginItem<IPlugin>("/Models", assemblyName);
+        Type exportedType = model.GetType();
+        if (exportedType.IsClass && exportedType.Name == className)
+        {
+          _models.Add(new Model(assemblyName, className, exportedType, model));
+          return;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Debug("ModelManager: failed to load model plugin:{0} class:{1}", assemblyName,
+                                          className);
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
+      
+      /*
       try
       {
         string assemblyFileName = String.Format(@"{0}\models\{1}.dll", Directory.GetCurrentDirectory(), assemblyName);
@@ -146,6 +167,7 @@ namespace SkinEngine
                                           className);
         ServiceScope.Get<ILogger>().Error(ex);
       }
+      */
     }
   }
 }

@@ -22,31 +22,6 @@
 
 #endregion
 
-﻿#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
-
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
@@ -54,6 +29,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
+using MediaPortal.Core.PluginManager;
 using MyWeather.Grabbers;
 
 namespace MyWeather
@@ -61,7 +37,7 @@ namespace MyWeather
   /// <summary>
   /// ViewModel Class for weather.xml
   /// </summary>
-  public class WeatherViewModel
+  public class WeatherViewModel : IPlugin
   {
     //City _currentLocation = new City("No Data", "No Data");
     private Property _currentLocation;
@@ -73,6 +49,15 @@ namespace MyWeather
     private readonly ItemsCollection _forecastCollection = new ItemsCollection();
     // Used to display the 4day Forecast for the currently selected Location
 
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+
     public WeatherViewModel()
     {
       _currentLocation = new Property(new City("No Data", "No Data"));
@@ -82,6 +67,7 @@ namespace MyWeather
       GetLocationsFromSettings(true);
       Refresh();
     }
+    #endregion
 
     /// <summary>
     /// this gets the locations from settings
@@ -120,7 +106,7 @@ namespace MyWeather
         {
           CurrentLocation = _locations[0];
         }
-          // no locations have been setup yet, guide to setup
+        // no locations have been setup yet, guide to setup
         else
         {
           AddDummyCity(settings);
@@ -250,7 +236,7 @@ namespace MyWeather
           _currentLocation.SetValue(value);
         }
       }
-      get { return (City) _currentLocation.GetValue(); }
+      get { return (City)_currentLocation.GetValue(); }
     }
 
     public Property CurrentLocationProperty

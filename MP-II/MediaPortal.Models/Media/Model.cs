@@ -33,6 +33,7 @@ using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.PluginManager;
 
 namespace MyMedia
 {
@@ -40,7 +41,7 @@ namespace MyMedia
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model
+  public class Model : IPlugin
   {
     #region variables
     private ItemsCollection _sortMenu;
@@ -50,7 +51,14 @@ namespace MyMedia
 
     #endregion
 
-    #region ctor
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.

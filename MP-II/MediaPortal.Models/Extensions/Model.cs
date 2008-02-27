@@ -41,14 +41,16 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.MPIManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.MPIManager;
+
 namespace MyExtensions
 {
   /// <summary>
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model
+  public class Model : IPlugin
   {
     #region variables
 
@@ -84,11 +86,7 @@ namespace MyExtensions
     }
     #endregion
 
-    #region ctor
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Model"/> class.
-    /// </summary>
+    #region IPlugin Members
     public Model()
     {
       //load our settings
@@ -171,6 +169,16 @@ namespace MyExtensions
       _dynamicContextMenuItems.Add(menuItem);
     }
 
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
+
+    #region ctor
     private void _factory_OnChanged()
     {
       _items.FireChange();

@@ -1,0 +1,17 @@
+<Plugin name        = "Extensions"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Plugins, that installs MediaPortal Extensions">
+
+  <Manifest>
+    <Identity name = "Extensions"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyExtensions.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "MyExtensions" class = "MyExtensions.Model"/>
+  </Register>
+</Plugin>

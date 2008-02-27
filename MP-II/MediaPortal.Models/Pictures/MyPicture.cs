@@ -45,6 +45,7 @@ using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Importers;
+using MediaPortal.Core.PluginManager;
 
 namespace Pictures
 {
@@ -52,7 +53,7 @@ namespace Pictures
   /// Model which exposes a pictures collection
   /// The movie collection are just pictures & folders on the HDD
   /// </summary>
-  public class PictureModel
+  public class PictureModel : IPlugin
   {
     #region imports
 
@@ -88,7 +89,15 @@ namespace Pictures
 
     #endregion
 
-    #region ctor
+    #region IPlugin Members
+
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PictureModel"/> class.

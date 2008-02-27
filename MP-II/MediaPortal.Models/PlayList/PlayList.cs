@@ -33,13 +33,23 @@ using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.MetaData;
+using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.PlayList
 {
-  public class PlayList
+  public class PlayList : IPlugin
   {
     private readonly ItemsCollection _playList;
     ListItem _selectedItem;
+
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     public PlayList()
     {
@@ -47,6 +57,7 @@ namespace MediaPortal.PlayList
       IQueue queue = ServiceScope.Get<IMessageBroker>().Get("playlist");
       queue.OnMessageReceive += new MessageReceivedHandler(onPlayListMessage);
     }
+    #endregion
 
     void onPlayListMessage(MPMessage message)
     {

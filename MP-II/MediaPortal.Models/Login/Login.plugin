@@ -1,0 +1,17 @@
+<Plugin name        = "Login"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Login Plugin">
+
+  <Manifest>
+    <Identity name = "Login"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "MyLogin.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "MyLogin" class = "MyLogin.LoginModel"/>
+  </Register>
+</Plugin>

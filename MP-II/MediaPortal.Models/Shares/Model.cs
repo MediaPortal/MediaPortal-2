@@ -33,19 +33,31 @@ using MediaPortal.Core.Importers;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
+
 namespace Shares
 {
-  public class Model
+  public class Model : IPlugin
   {
     ItemsCollection _folders = new ItemsCollection();
     ItemsCollection _shares = new ItemsCollection();
     ListItem _selectedItem;
+
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     public Model()
     {
       Refresh(_folders, null, true);
       RefreshShares();
     }
+    #endregion
 
     public ItemsCollection Shares
     {

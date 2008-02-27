@@ -1,0 +1,17 @@
+<Plugin name        = "Menu"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Provides Menu Services">
+
+  <Manifest>
+    <Identity name = "Menu"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Menu.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "Menu" class = "Home.HomeMenu"/>
+  </Register>
+</Plugin>

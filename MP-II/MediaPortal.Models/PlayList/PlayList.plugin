@@ -1,0 +1,17 @@
+<Plugin name        = "Playlist"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "Playlist Plugin">
+
+  <Manifest>
+    <Identity name = "Playlist"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Playlist.dll"/>
+  </Runtime>
+
+  <Register location = "/Models">
+    <Class id = "PlayList" class = "MediaPortal.PlayList.PlayList"/>
+  </Register>
+</Plugin>

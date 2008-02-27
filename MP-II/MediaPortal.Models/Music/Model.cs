@@ -38,6 +38,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.PluginManager;
 
 namespace MyMusic
 {
@@ -45,7 +46,7 @@ namespace MyMusic
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model
+  public class Model : IPlugin
   {
     #region variables
 
@@ -68,7 +69,14 @@ namespace MyMusic
     }
     #endregion
 
-    #region ctor
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.
