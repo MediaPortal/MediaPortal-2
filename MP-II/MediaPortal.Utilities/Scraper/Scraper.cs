@@ -210,6 +210,11 @@ namespace MediaPortal.Utilities.Scraper
       }
     }
 
+    /// <summary>
+    /// Gets the details.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    /// <param name="id">The id.</param>
     public void GetDetails(string url, string id)
     {
       string web = client.DownloadString(url);
@@ -219,19 +224,57 @@ namespace MediaPortal.Utilities.Scraper
       XmlDocument doc = new XmlDocument();
       XmlDetails = xml;
       doc.LoadXml(xml);
-      XmlNodeList nodes = doc.SelectSingleNode("details").ChildNodes;
       Metadata.Clear();
-      foreach (XmlNode node in nodes)
+ 
+      XmlNode node;
+      XmlNodeList nodelist;
+
+      node = doc.SelectSingleNode("details/title");
+      if (node != null)
+        Metadata.Add("title", node.InnerText);
+
+      node = doc.SelectSingleNode("details/year");
+      if (node != null)
+        Metadata.Add("year", node.InnerText);
+
+      node = doc.SelectSingleNode("details/rating");
+      if (node != null)
+        Metadata.Add("rating", node.InnerText);
+
+      nodelist = doc.SelectNodes("details/genre");
+      foreach (XmlNode n in nodelist)
       {
-        if (!Metadata.ContainsKey(node.Name))
-        {
-          Metadata.Add(node.Name, node.InnerText);
-        }
-        else
-        {
-          Metadata[node.Name] += "|" + node.InnerText;
-        }
+        AddMetadata("genre", n.InnerText);
       }
+
+      node = doc.SelectSingleNode("details/details/thumbs/thumb");
+      if (node != null)
+        Metadata.Add("thumb", node.InnerText);
+
+      nodelist = doc.SelectNodes("details/details/actor/name");
+      foreach (XmlNode n in nodelist)
+      {
+        AddMetadata("actors", n.InnerText);
+      }
+
+    }
+
+    /// <summary>
+    /// Adds the metadata.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    private void AddMetadata(string key, string value)
+    {
+      if (!Metadata.ContainsKey(key))
+      {
+        Metadata.Add(key, value);
+      }
+      else
+      {
+        Metadata[key] += "|" + value;
+      }
+
     }
 
     public string  ParseCustomFunction(string str)

@@ -203,6 +203,11 @@ namespace MovieImporter
             {
               movie["title"] = scraper.Metadata["title"];
               movie["genre"] = scraper.Metadata["genre"];
+              if (scraper.Metadata.ContainsKey("thumb"))
+                movie["CoverArt"] = scraper.Metadata["thumb"];
+              if (scraper.Metadata.ContainsKey("actors"))
+                movie["actors"] = scraper.Metadata["actors"];
+
             }
           }
         }

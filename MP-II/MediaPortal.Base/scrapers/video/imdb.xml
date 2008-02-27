@@ -201,8 +201,8 @@
 	</GetTrailerLink>
 	<GetIMDBPoster dest="5">
 		<RegExp input="$$8$$9" output="&lt;details&gt;&lt;thumbs&gt;\1&lt;/thumbs&gt;&lt;/details&gt;" dest="5">
-                        <RegExp input="$$1" output="&lt;thumb&gt;\2\3&lt;/thumb&gt;" dest="9">
-	                        <expression noclean="1,2,3">&lt;div class=&quot;photo&quot;&gt;[^&lt;]*&lt;a[^&lt;]*&lt;img border=&quot;0&quot; alt=&quot;[^&quot;]*&quot; title=&quot;[^&quot;]*&quot; src=&quot;(([^&quot;]*)_SX[^&quot;]*(jpg))?</expression>
+                        <RegExp input="$$1" output="&lt;thumb&gt;\2_SY400_SX600_.\3&lt;/thumb&gt;" dest="9">
+	                        <expression noclean="1,2,3">&lt;div class=&quot;photo&quot;&gt;[^&lt;]*&lt;a[^&lt;]*&lt;img border=&quot;0&quot; alt=&quot;[^&quot;]*&quot; title=&quot;[^&quot;]*&quot; src=&quot;(([^&quot;]*)_SY[^&quot;]*(jpg))?</expression>
                         </RegExp>
 			<expression noclean="1"></expression>
 		</RegExp>

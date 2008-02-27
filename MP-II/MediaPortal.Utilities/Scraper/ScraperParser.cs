@@ -820,7 +820,7 @@ namespace MediaPortal.Utilities.Scraper
             if (szConditional[0] == '!')
             {
               bInverse = true;
-              szConditional = szConditional.Substring(2);
+              szConditional = szConditional.Substring(1);
             }
             ScraperSetting strSetting = GetSetting(szConditional);
             if (strSetting != null)
