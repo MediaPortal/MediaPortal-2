@@ -43,6 +43,9 @@
     <String name="description" text="Legg til eller fjern mapper fra Biblioteket"/>
     <String name="selectsharetoremove" text="Velg mapper du ikke vill overvåke lenger"/>
     <String name="selectsharestoadd" text="Velg mapper som du vil legge til i biblioteket"/>
+    <String name="canceled" text="Ingen forandringer ble gjort."/>
+    <String name="pressfinish" text="Trykk ferdig for å fortsette å jobbe."/>
+    <String name="refreshing" text="Biblioteket blir oppdatert i bakgrunnen."/>
     <String name="back" text="Tilbake"/>
     <String name="cancel" text="Avbryt"/>
   </Section>
@@ -264,6 +267,7 @@
     <String name="monitorbuildin" text="Innebygd"/>
     <String name="next" text="Neste"/>
     <String name="back" text="Tilbake"/>
+    <String name="cancel" text="Avbryt"/>
     <String name="finish" text="Ferdig"/>
   </Section>
   <Section name="radio">
@@ -315,5 +319,16 @@
     <String name="thumbs" text="Ikoner"/>
     <String name="coverthrow" text="Coverthrow"/>
     <String name="coverflow" text="Coverflow"/>
+  </Section>
+  	<Section name="autoplay">
+    <String name="autoplay" text="AutoPlay"/>
+    <String name="audio" text="Lyd CD oppdaget - vil du åpne den?"/>
+    <String name="dvd" text="DVD oppdaget - vil du åpne den?"/>
+    <String name="video" text="Video CD oppdaget - vil du åpne den?"/>
+    <String name="photo" text="Foto CD oppdaget - vil du åpne den?"/>
+    <String name="disc" text="CD oppdaget - vil du åpne den?"/>
+  </Section>
+	<Section name="hello">
+    <String name="menu" text="Hallo Verden"/>
   </Section>
 </Language>
