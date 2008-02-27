@@ -571,6 +571,8 @@ namespace SkinEngine.Skin
         return true;
       else if (name == "InvokeCommand")
         return true;
+      else if (name == "Include")
+        return true;
       return false;
     }
     /// <summary>
@@ -798,6 +800,8 @@ namespace SkinEngine.Skin
         return new SkinEngine.Controls.Bindings.CommandGroup();
       else if (name == "InvokeCommand")
         return new SkinEngine.Controls.Bindings.InvokeCommand();
+      else if (name == "Include")
+        return new Include();
       return null;
     }
 

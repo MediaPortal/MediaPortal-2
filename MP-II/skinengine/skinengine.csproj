@@ -276,6 +276,7 @@
     <Compile Include="Fonts\Quad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SkinContext.cs" />
+    <Compile Include="Skin\Include.cs" />
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
     <Compile Include="Skin\SkinLoaderContext.cs" />
     <Compile Include="Skin\XamlLoader.cs" />

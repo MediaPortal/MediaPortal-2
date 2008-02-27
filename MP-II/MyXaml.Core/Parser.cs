@@ -1950,9 +1950,19 @@ namespace MyXaml.Core
       if (obj is IAddChild)
       {
         IAddChild adder = (IAddChild)obj;
-        adder.AddChild(classInstance);
-        ProcessAttributes(classInstance, node);
-        ret = true;
+        if (classInstance as IInclude != null)
+        {
+          IInclude includer = (IInclude)classInstance;
+          ProcessAttributes(classInstance, node);
+          adder.AddChild(includer.Content);
+          ret = true;
+        }
+        else
+        {
+          adder.AddChild(classInstance);
+          ProcessAttributes(classInstance, node);
+          ret = true;
+        }
       }
       else if (obj is IList)													// If the parent implements IList...
       {
