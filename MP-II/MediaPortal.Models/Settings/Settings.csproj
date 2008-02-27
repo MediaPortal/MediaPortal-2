@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B11ADC46-B4CA-4BCD-A995-83E87D9C6DE2}</ProjectGuid>
+    <ProjectGuid>{F3ADA862-5671-49DC-B04A-2975221603CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Settings</RootNamespace>
@@ -64,11 +64,11 @@
     <Compile Include="VideoSettings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Media.Players\BassPlayer\BassPlayer.csproj">
+    <ProjectReference Include="..\..\Media.Players\BassPlayer\BassPlayer.csproj">
       <Project>{DA3A7694-8ACC-4CAA-B797-BE0C4A879AC1}</Project>
       <Name>BassPlayer</Name>
     </ProjectReference>

@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{00B91D15-47AB-4CDA-85F6-CE38295877FE}</ProjectGuid>
+    <ProjectGuid>{51B5C6FD-C2A2-4702-B698-21E369410E32}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MyExtensions</RootNamespace>
@@ -66,11 +66,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Services\MediaPortal.Services.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Services\MediaPortal.Services.csproj">
       <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
       <Name>MediaPortal.Services</Name>
     </ProjectReference>

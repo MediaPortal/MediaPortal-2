@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D8296516-D04B-466F-B171-5F5ECBEF8872}</ProjectGuid>
+    <ProjectGuid>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MyMedia</RootNamespace>
@@ -60,11 +60,11 @@
     <Compile Include="SortOption.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaManager\MediaManager.csproj">
+    <ProjectReference Include="..\..\MediaManager\MediaManager.csproj">
       <Project>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</Project>
       <Name>MediaManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>

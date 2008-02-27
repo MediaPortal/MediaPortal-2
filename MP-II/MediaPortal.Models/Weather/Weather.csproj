@@ -22,7 +22,7 @@
     <PublishUrl>Publish\</PublishUrl>
     <StartupObject>
     </StartupObject>
-    <ProjectGuid>{5A9B4F5E-5BF0-4190-8982-40B6A9D5AFE1}</ProjectGuid>
+    <ProjectGuid>{E618785B-A7E1-4E70-A8F3-DB22F93B9088}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -101,7 +101,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
