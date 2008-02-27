@@ -328,4 +328,7 @@
     <String name="photo" text="Photo disc inserted - do you want to open it?"/>
     <String name="disc" text="Disc inserted - do you want to open it?"/>
   </Section>
+	<Section name="hello">
+    <String name="menu" text="Hello World"/>
+  </Section>
 </Language>
