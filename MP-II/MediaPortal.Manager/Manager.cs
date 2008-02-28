@@ -95,13 +95,13 @@ namespace MediaPortal.Manager
         ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
         ServiceScope.Add(logger);
 
-        logger.Debug("MPApplication: Registering Plugin Manager");
+        logger.Debug("Manager: Registering Plugin Manager");
         ServiceScope.Add<IPluginManager>(new PluginManager());
 
-        logger.Debug("MPApplication: Registering Settings Manager");
+        logger.Debug("Manager: Registering Settings Manager");
         ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
-        logger.Debug("MPApplication: Registering Strings Manager");
+        logger.Debug("Manager: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
 
 #if !DEBUG
