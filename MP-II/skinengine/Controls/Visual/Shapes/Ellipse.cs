@@ -115,7 +115,7 @@ namespace SkinEngine.Controls.Visuals
 
 
               PositionColored2Textured.Set(_fillContext.VertexBuffer, ref verts);
-              _verticesCountFill = (verts.Length - 2);
+              _verticesCountFill = (verts.Length / 3);
             }
           }
 

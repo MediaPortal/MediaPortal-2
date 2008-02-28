@@ -659,7 +659,7 @@ namespace SkinEngine.Controls.Visuals
           //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           OpacityMask.BeginRender(_opacityMaskContext.Texture);
           GraphicsDevice.Device.SetStreamSource(0, _opacityMaskContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
           OpacityMask.EndRender();
 
           _opacityMaskContext.LastTimeUsed = SkinContext.Now;
@@ -721,7 +721,7 @@ namespace SkinEngine.Controls.Visuals
       {
         _updateOpacityMask = true;
 
-        _opacityMaskContext.VertexBuffer = PositionColored2Textured.Create(4);
+        _opacityMaskContext.VertexBuffer = PositionColored2Textured.Create(6);
       }
       if (!_updateOpacityMask) return;
       Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
@@ -736,7 +736,7 @@ namespace SkinEngine.Controls.Visuals
       float h = (float)ActualHeight;
       _opacityMaskContext.Texture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
-      PositionColored2Textured[] verts = new PositionColored2Textured[4];
+      PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
       ColorValue col = ColorConverter.FromColor(System.Drawing.Color.White);
       col.Alpha *= (float)Opacity;
@@ -769,13 +769,29 @@ namespace SkinEngine.Controls.Visuals
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
 
-      //upper right
-      verts[3].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
-      verts[3].Y = (float)(this.ActualPosition.Y) - 0.5f;
+      //upperleft
+      verts[3].X = (float)this.ActualPosition.X - 0.5f;
+      verts[3].Y = (float)this.ActualPosition.Y - 0.5f;
       verts[3].Z = 1.0f;
       verts[3].Color = color;
-      verts[3].Tu1 = maxU;
+      verts[3].Tu1 = 0;
       verts[3].Tv1 = 0;
+
+      //upper right
+      verts[4].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
+      verts[4].Y = (float)(this.ActualPosition.Y) - 0.5f;
+      verts[4].Z = 1.0f;
+      verts[4].Color = color;
+      verts[4].Tu1 = maxU;
+      verts[4].Tv1 = 0;
+
+      //bottomright
+      verts[5].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
+      verts[5].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
+      verts[5].Z = 1.0f;
+      verts[5].Color = color;
+      verts[5].Tu1 = maxU;
+      verts[5].Tv1 = maxV;
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;

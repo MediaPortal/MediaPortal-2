@@ -243,10 +243,10 @@ namespace SkinEngine.Controls.Panels
         m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         SkinContext.AddTransform(m);
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleFan))
+        if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
           Background.EndRender();
         }
         SkinContext.RemoveTransform();
@@ -292,14 +292,16 @@ namespace SkinEngine.Controls.Panels
         }
         m.InvertSize(ref rectSize);
         System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-        _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(4);
-        PositionColored2Textured[] verts = new PositionColored2Textured[4];
+        _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
+        PositionColored2Textured[] verts = new PositionColored2Textured[6];
         unchecked
         {
           verts[0].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
           verts[1].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Bottom, 1.0f));
           verts[2].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
-          verts[3].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
+          verts[3].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
+          verts[4].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
+          verts[5].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
 
         }
         Background.SetupBrush(this, ref verts);

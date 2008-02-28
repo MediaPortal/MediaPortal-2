@@ -308,10 +308,10 @@ namespace SkinEngine.Controls.Panels
           m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
           SkinContext.AddTransform(m);
           //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleFan))
+          if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
           {
             GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
+            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
             Background.EndRender();
           }
           SkinContext.RemoveTransform();

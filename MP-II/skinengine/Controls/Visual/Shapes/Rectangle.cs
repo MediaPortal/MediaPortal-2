@@ -209,10 +209,10 @@ namespace SkinEngine.Controls.Visuals
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleFan))
+        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
           Fill.EndRender();
         }
         _fillContext.LastTimeUsed = SkinContext.Now;
@@ -280,7 +280,7 @@ namespace SkinEngine.Controls.Visuals
               Fill.SetupBrush(this, ref verts);
 
               PositionColored2Textured.Set(_fillContext.VertexBuffer, ref verts);
-              _verticesCountFill = (verts.Length - 2);
+              _verticesCountFill = (verts.Length / 3);
             }
           }
 

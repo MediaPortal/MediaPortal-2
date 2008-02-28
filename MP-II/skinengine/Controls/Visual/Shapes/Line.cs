@@ -283,10 +283,10 @@ namespace SkinEngine.Controls.Visuals
       if (_borderContext != null)
       {
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleFan))
+        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountBorder);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
         _borderContext.LastTimeUsed = SkinContext.Now;

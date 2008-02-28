@@ -251,10 +251,10 @@ namespace SkinEngine.Controls.Visuals
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleFan))
+        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
         {
           GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, _verticesCountFill);
+          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
           Fill.EndRender();
         }
         _fillContext.LastTimeUsed = SkinContext.Now;
@@ -300,6 +300,21 @@ namespace SkinEngine.Controls.Visuals
       }
       else
       {
+        int verticeCount = (pointCount) * 3;
+        VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
+        verts = new PositionColored2Textured[verticeCount];
+        for (int i = 0; i < pointCount; ++i)
+        {
+          verts[i * 3 + 0].Position = new Vector3(cx, cy, 1);
+          verts[i * 3 + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
+          if (i + 1 < pointCount)
+            verts[i * 3 + 2].Position = new Vector3(pathPoints[i + 1].X, pathPoints[i + 1].Y, 1);
+          else
+            verts[i * 3 + 2].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        }
+
+        /*
+         * convert to trianglefan
         int verticeCount = pointCount + 2;
 
         VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
@@ -312,7 +327,7 @@ namespace SkinEngine.Controls.Visuals
         {
           verts[i + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
         }
-        verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);*/
         return vertexBuffer;
       }
     }
@@ -411,7 +426,7 @@ namespace SkinEngine.Controls.Visuals
       verts = null;
       if (path.PointCount <= 3)
       {
-        primitive = PrimitiveType.TriangleFan;
+        primitive = PrimitiveType.TriangleList;
         return ConvertPathToTriangleFan(path, cx, cy, out verts);
       }
       if (Name == "path134")
