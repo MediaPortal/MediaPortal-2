@@ -104,12 +104,12 @@ namespace MediaPortal
         }
         ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), level, logMethods);
         ServiceScope.Add(logger);
-        logger.Info("MPApplication: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+        logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
         //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
         //             "Some code change has caused MP2 to load in the wrong AppDomain.  Crash recovery will fail now...");
 
         //register core service implementations
-        logger.Debug("MPApplication: Registering ThreadPool");
+        logger.Debug("ApplicationLauncher: Registering ThreadPool");
         MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
         pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
         pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
@@ -117,27 +117,27 @@ namespace MediaPortal
         pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
         ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
 
-        logger.Debug("MPApplication: Registering Message Broker");
+        logger.Debug("ApplicationLauncher: Registering Message Broker");
         ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
-        logger.Debug("MPApplication: Registering Plugin Manager");
+        logger.Debug("ApplicationLauncher: Registering Plugin Manager");
         ServiceScope.Add<IPluginManager>(new PluginManager());
 
-        logger.Debug("MPApplication: Registering Settings Manager");
+        logger.Debug("ApplicationLauncher: Registering Settings Manager");
         ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
-        logger.Debug("MPApplication: Registering Strings Manager");
+        logger.Debug("ApplicationLauncher: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
 
-        logger.Debug("MPApplication: Registering TaskScheduler");
+        logger.Debug("ApplicationLauncher: Registering TaskScheduler");
         ServiceScope.Add<ITaskScheduler>(new TaskScheduler());
-        
-        logger.Debug("MPApplication: Registering BurnManager");
+
+        logger.Debug("ApplicationLauncher: Registering BurnManager");
         ServiceScope.Add<IBurnManager>(new BurnManager());
         EventHelper.Init(); // only for quick test simulating a plugin
 
         //MPInstaller - for testing only 
-        logger.Debug("MPApplication: Executing MPInstaller");
+        logger.Debug("ApplicationLauncher: Executing MPInstaller");
         MPInstaller Installer = new MPInstaller();
         ServiceScope.Add<IMPInstaller>(Installer);
         Installer.LoadQueue();
@@ -156,7 +156,7 @@ namespace MediaPortal
       {
 #endif
         // Start the core
-        logger.Debug("MPApplication: Starting core");
+        logger.Debug("ApplicationLauncher: Starting core");
         ApplicationCore core = new ApplicationCore();
         core.Start();
         //throw new ArgumentException("Test Execption");
