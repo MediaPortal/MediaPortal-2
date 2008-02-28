@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.MediaManager;
 
-namespace MyMusic
+namespace Music
 {
   public class MusicItem : ListItem
   {

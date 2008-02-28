@@ -31,7 +31,7 @@ using MediaPortal.Core.MetaData;
 using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.MediaManager.Views;
 
-namespace MyMusic
+namespace Music
 {
   public class MusicFactory
   {

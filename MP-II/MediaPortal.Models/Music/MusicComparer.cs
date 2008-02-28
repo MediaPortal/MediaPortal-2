@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.MetaData;
 
-namespace MyMusic
+namespace Music
 {
   public enum SortOption
   {

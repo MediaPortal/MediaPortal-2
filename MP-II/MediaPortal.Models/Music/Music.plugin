@@ -4,14 +4,14 @@
         description = "Music Plugin">
 
   <Manifest>
-    <Identity name = "Music"/>
+    <Identity name = "Music.Model"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyMusic.dll"/>
+    <Import assembly = "Music.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyMusic" class = "MyMusic.Model"/>
+    <Class id = "Music" class = "Music.Model"/>
   </Register>
 </Plugin>

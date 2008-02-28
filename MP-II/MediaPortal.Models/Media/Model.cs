@@ -215,7 +215,7 @@ namespace MyMedia
         if (_sortMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _sortMenu = new ItemsCollection(menuCollect.GetMenu("mymusic-sort"));
+          _sortMenu = new ItemsCollection(menuCollect.GetMenu("music-sort"));
         }
 
         SetSelectedSortMode();

@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace MyMusic
+namespace Music
 {
   public class FileUtil
   {

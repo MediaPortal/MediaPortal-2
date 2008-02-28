@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MyMusic
+namespace Music
 {
   public class MusicSettings
   {

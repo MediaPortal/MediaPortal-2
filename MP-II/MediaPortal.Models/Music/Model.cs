@@ -40,7 +40,7 @@ using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 
-namespace MyMusic
+namespace Music
 {
   /// <summary>
   /// Model which exposes a movie collection
@@ -139,12 +139,12 @@ namespace MyMusic
 
       StringId menuText = new StringId("playlists", "add");
       MenuItem menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "mymusic:Model.AddToPlayList+WindowManager.CloseDialog";
+      menuItem.Command = "music:Model.AddToPlayList+WindowManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("playlists", "addall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "mymusic:Model.AddAllToPlayList+WindowManager.CloseDialog";
+      menuItem.Command = "music:Model.AddAllToPlayList+WindowManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
     }
 
@@ -166,7 +166,7 @@ namespace MyMusic
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        _mainMenu = new ItemsCollection(menuCollect.GetMenu("mymusic-main"));
+        _mainMenu = new ItemsCollection(menuCollect.GetMenu("music-main"));
 
         return _mainMenu;
       }
@@ -181,7 +181,7 @@ namespace MyMusic
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymusic-contextmenu"));
+        return new ItemsCollection(menuCollect.GetMenu("music-contextmenu"));
 
       }
     }
@@ -482,7 +482,7 @@ namespace MyMusic
     /// </summary>
     void UpdateContextMenu()
     {
-      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("mymusic-contextmenu");
+      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("music-contextmenu");
       foreach (IMenuItem menuItem in _dynamicContextMenuItems)
       {
         menu.Items.Remove(menuItem);
