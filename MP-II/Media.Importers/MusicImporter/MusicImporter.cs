@@ -275,7 +275,7 @@ namespace MusicImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error FileRenamed:{0}", file);
+        ServiceScope.Get<ILogger>().Info("Musicimporter: Error FileRenamed: {0}", file);
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
