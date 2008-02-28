@@ -36,6 +36,7 @@ using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Fonts;
+using SkinEngine.Rendering;
 
 namespace SkinEngine
 {
@@ -432,6 +433,7 @@ namespace SkinEngine
           {
             WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
             manager.Render();
+            RenderPipeline.Instance.Render();
           }
           //End the scene
           _device.EndScene();

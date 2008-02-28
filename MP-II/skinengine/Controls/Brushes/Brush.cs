@@ -33,6 +33,7 @@ using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -398,6 +399,9 @@ namespace SkinEngine.Controls.Brushes
     {
     }
 
+    public virtual void SetupPrimitive(PrimitiveContext context)
+    {
+    }
 
   }
 }

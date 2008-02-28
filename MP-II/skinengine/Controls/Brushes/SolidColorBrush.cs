@@ -31,6 +31,7 @@ using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D;
@@ -153,6 +154,14 @@ namespace SkinEngine.Controls.Brushes
       //GraphicsDevice.Device.SetTexture(0, null);
       _lastTimeUsed = SkinContext.Now;
       return true;
+    }
+    public override  void SetupPrimitive(PrimitiveContext context)
+    {
+      ColorValue v = ColorConverter.FromColor(this.Color);
+      v.Alpha *= (float)SkinContext.Opacity;
+      context.Effect = _effect;
+      context.Parameters = new EffectParameters();
+      context.Parameters.Add(_effectHandleColor, v);
     }
 
     /// <summary>

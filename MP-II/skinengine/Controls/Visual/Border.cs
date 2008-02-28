@@ -349,13 +349,15 @@ namespace SkinEngine.Controls.Visuals
           _borderAsset.LastTimeUsed = SkinContext.Now;
         }
         SkinContext.RemoveTransform();
+        SkinContext.RemoveOpacity();
       }
 
       if (_content != null)
       {
+        SkinContext.AddOpacity(this.Opacity);
         _content.DoRender();
+        SkinContext.RemoveOpacity();
       }
-      SkinContext.RemoveOpacity();
     }
 
     public override void Animate()

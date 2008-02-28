@@ -224,6 +224,7 @@
     <Compile Include="DirectX\Vertex.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="Effects\EffectHandleAsset.cs" />
+    <Compile Include="Effects\EffectParameters.cs" />
     <Compile Include="ExtendedMatrix.cs" />
     <Compile Include="InputManager\FocusManager.cs" />
     <Compile Include="InputManager\InputManager.cs">
@@ -275,6 +276,9 @@
     <Compile Include="Fonts\FontQuad.cs" />
     <Compile Include="Fonts\Quad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\PrimitiveContext.cs" />
+    <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="SkinContext.cs" />
     <Compile Include="Skin\Include.cs" />
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
