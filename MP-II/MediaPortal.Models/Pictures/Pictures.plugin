@@ -4,7 +4,7 @@
         description = "Pictures Plugin">
 
   <Manifest>
-    <Identity name = "Pictures"/>
+    <Identity name = "Pictures.PictureModel"/>
   </Manifest>
 
   <Runtime>

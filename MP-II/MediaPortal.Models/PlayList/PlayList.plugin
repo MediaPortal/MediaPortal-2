@@ -4,7 +4,7 @@
         description = "Playlist Plugin">
 
   <Manifest>
-    <Identity name = "Playlist"/>
+    <Identity name = "MediaPortal.PlayList.PlayList"/>
   </Manifest>
 
   <Runtime>

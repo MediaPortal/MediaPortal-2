@@ -4,7 +4,7 @@
         description = "Provides Menu Services">
 
   <Manifest>
-    <Identity name = "Menu"/>
+    <Identity name = "Home.HomeMenu"/>
   </Manifest>
 
   <Runtime>

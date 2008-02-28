@@ -4,7 +4,7 @@
         description = "Movies Plugin">
 
   <Manifest>
-    <Identity name = "Movies"/>
+    <Identity name = "MyMovies.Model"/>
   </Manifest>
 
   <Runtime>

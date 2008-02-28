@@ -4,7 +4,7 @@
         description = "Plugins, that installs MediaPortal Extensions">
 
   <Manifest>
-    <Identity name = "Extensions"/>
+    <Identity name = "MyExtensions.Model"/>
   </Manifest>
 
   <Runtime>

@@ -4,7 +4,7 @@
         description = "Login Plugin">
 
   <Manifest>
-    <Identity name = "Login"/>
+    <Identity name = "MyLogin.LoginModel"/>
   </Manifest>
 
   <Runtime>

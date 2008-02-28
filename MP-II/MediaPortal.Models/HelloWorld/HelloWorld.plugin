@@ -4,7 +4,7 @@
         description = "Sample Plugin">
 
   <Manifest>
-    <Identity name = "HelloWorld"/>
+    <Identity name = "MyHelloWorld.Model"/>
   </Manifest>
 
   <Runtime>

@@ -4,7 +4,7 @@
         description = "Shares Plugin">
 
   <Manifest>
-    <Identity name = "Shares"/>
+    <Identity name = "Shares.Model"/>
   </Manifest>
 
   <Runtime>

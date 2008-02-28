@@ -4,7 +4,7 @@
         description = "Weather Plugin">
 
   <Manifest>
-    <Identity name = "Weather"/>
+    <Identity name = "MyWeather.WeatherViewModel"/>
   </Manifest>
 
   <Runtime>

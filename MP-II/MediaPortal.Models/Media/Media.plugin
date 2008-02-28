@@ -4,7 +4,7 @@
         description = "Media Plugin">
 
   <Manifest>
-    <Identity name = "Media"/>
+    <Identity name = "MyMedia.Model"/>
   </Manifest>
 
   <Runtime>
