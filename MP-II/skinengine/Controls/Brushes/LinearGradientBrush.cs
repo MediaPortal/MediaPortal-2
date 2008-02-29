@@ -542,5 +542,65 @@ namespace SkinEngine.Controls.Brushes
     public override void Allocate()
     {
     }
+
+    public override void SetupPrimitive(SkinEngine.Rendering.PrimitiveContext context)
+    {
+      context.Parameters = new EffectParameters();
+      int index = 0;
+      foreach (GradientStop stop in GradientStops)
+      {
+        _offsets[index] = (float)stop.Offset;
+        _colors[index] = ColorConverter.FromColor(stop.Color);
+        _colors[index].Alpha *= (float)Opacity;
+        index++;
+      }
+      _singleColor = true;
+      for (int i = 0; i < GradientStops.Count - 1; ++i)
+      {
+        if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+        {
+          _singleColor = false;
+          break;
+        }
+      }
+      _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
+      if (_singleColor)
+      {
+        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        v.Alpha *= (float)SkinContext.Opacity;
+        context.Effect = ContentManager.GetEffect("solidbrush");
+        context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);
+        return;
+      }
+      else
+      {
+        context.Effect = ContentManager.GetEffect("lineargradient");
+        _handleRelativeTransform = context.Effect.GetParameterHandle("RelativeTransform");
+        _handleOpacity = context.Effect.GetParameterHandle("g_opacity");
+        _handleStartPoint = context.Effect.GetParameterHandle("g_StartPoint");
+        _handleEndPoint = context.Effect.GetParameterHandle("g_EndPoint");
+      }
+
+      float[] g_startpoint = new float[2] { StartPoint.X, StartPoint.Y };
+      float[] g_endpoint = new float[2] { EndPoint.X, EndPoint.Y };
+      if (MappingMode == BrushMappingMode.Absolute)
+      {
+        g_startpoint[0] = (float)(((StartPoint.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+        g_startpoint[1] = (float)(((StartPoint.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+        g_endpoint[0] = (float)(((EndPoint.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+        g_endpoint[1] = (float)(((EndPoint.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+      }
+
+      Matrix m = Matrix.Identity;
+      RelativeTransform.GetTransformRel(out m);
+      m = Matrix.Invert(m);
+
+      context.Parameters.Add(_handleRelativeTransform, m);
+      context.Parameters.Add(_handleOpacity, (float)(Opacity * SkinContext.Opacity));
+      context.Parameters.Add(_handleStartPoint, g_startpoint);
+      context.Parameters.Add(_handleEndPoint, g_endpoint);
+      context.Texture = _brushTexture;
+    }
   }
 }

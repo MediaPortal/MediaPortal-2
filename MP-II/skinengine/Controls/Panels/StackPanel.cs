@@ -304,9 +304,9 @@ namespace SkinEngine.Controls.Panels
             PerformLayout();
           }
 
-          ExtendedMatrix m = new ExtendedMatrix();
-          m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-          SkinContext.AddTransform(m);
+          //ExtendedMatrix m = new ExtendedMatrix();
+          //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+         // SkinContext.AddTransform(m);
           //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
           {
@@ -314,7 +314,7 @@ namespace SkinEngine.Controls.Panels
             GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
             Background.EndRender();
           }
-          SkinContext.RemoveTransform();
+          //SkinContext.RemoveTransform();
 
           _backgroundAsset.LastTimeUsed = SkinContext.Now;
         }

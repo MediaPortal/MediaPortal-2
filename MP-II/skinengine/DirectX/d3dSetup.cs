@@ -1,4 +1,4 @@
-//#define NVIDIA_PERFHUD
+//#define NVIDIA_PERFHUD//
 //#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 
@@ -198,7 +198,7 @@ namespace SkinEngine.DirectX
       // will appear)
 
       DisplayMode primaryDesktopDisplayMode = Direct3D.Adapters[0].CurrentDisplayMode;
-#if NVIDIA_PERFHUD
+      bool perfHudFound = false;
       for (int i = 0; i < Direct3D.Adapters.Count; ++i)
       {
         string name = Direct3D.Adapters[i].Details.Description;
@@ -207,21 +207,24 @@ namespace SkinEngine.DirectX
           ServiceScope.Get<ILogger>().Info("DirectX: found perfhud adapter:{0} {1} ",
                   i, Direct3D.Adapters[i].Details.Description);
           primaryDesktopDisplayMode = Direct3D.Adapters[i].CurrentDisplayMode;
+          perfHudFound = true;
+          doesRequireReference = true;
           break;
         }
 
       }
-#endif
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
       DeviceCombo bestDeviceCombo = null;
       foreach (GraphicsAdapterInfo adapterInfoIterate in _enumerationSettings.AdapterInfoList)
       {
         GraphicsAdapterInfo adapterInfo = adapterInfoIterate;
-#if NVIDIA_PERFHUD
-        string name = adapterInfo.AdapterDetails.Description;
-        if (String.Compare(name, "NVIDIA PerfHUD", true) != 0) continue;
-#endif
+
+        if (perfHudFound)
+        {
+          string name = adapterInfo.AdapterDetails.Description;
+          if (String.Compare(name, "NVIDIA PerfHUD", true) != 0) continue;
+        }
         /*
         if (GUIGraphicsContext._useScreenSelector)
         {
@@ -442,13 +445,9 @@ namespace SkinEngine.DirectX
     /// <returns>true if the settings were initialized</returns>
     public bool ChooseInitialSettings()
     {
-#if NVIDIA_PERFHUD
-      bool foundFullscreenMode = FindBestFullscreenMode(false, true);
-      bool foundWindowedMode = FindBestWindowedMode(false, true);
-#else
+
       bool foundFullscreenMode = FindBestFullscreenMode(false, false);
       bool foundWindowedMode = FindBestWindowedMode(false, false);
-#endif
       //if (startFullscreen && foundFullscreenMode)
       //{
       //  graphicsSettings.IsWindowed = false;

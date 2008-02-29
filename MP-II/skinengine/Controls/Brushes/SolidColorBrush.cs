@@ -105,6 +105,7 @@ namespace SkinEngine.Controls.Brushes
         _colorProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Called when a property changed.
     /// </summary>
@@ -155,6 +156,7 @@ namespace SkinEngine.Controls.Brushes
       _lastTimeUsed = SkinContext.Now;
       return true;
     }
+
     public override  void SetupPrimitive(PrimitiveContext context)
     {
       ColorValue v = ColorConverter.FromColor(this.Color);
@@ -175,65 +177,5 @@ namespace SkinEngine.Controls.Brushes
       }
     }
 
-#if NOTUSED
-    #region IAsset Members
-
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
-    public bool IsAllocated
-    {
-      get
-      {
-        return (_texture != null);
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
-    public bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-        {
-          return false;
-        }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-        {
-          return true;
-        }
-
-        return false;
-      }
-    }
-
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
-    public void Free(bool force)
-    {
-      if (_texture != null)
-      {
-        _texture.Dispose();
-        _texture = null;
-      }
-    }
-
-    public override Texture Texture
-    {
-      get
-      {
-        return _texture;
-      }
-    }
-    #endregion
-#endif
   }
 }

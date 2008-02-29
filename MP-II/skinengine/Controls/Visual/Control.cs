@@ -312,9 +312,9 @@ namespace SkinEngine.Controls.Visuals
 
 
       SkinContext.AddOpacity(this.Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-      SkinContext.AddTransform(m);
+      //ExtendedMatrix m = new ExtendedMatrix();
+      //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      //SkinContext.AddTransform(m);
       if (Background != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -338,7 +338,7 @@ namespace SkinEngine.Controls.Visuals
         }
         _borderAsset.LastTimeUsed = SkinContext.Now;
       }
-      SkinContext.RemoveTransform();
+      //SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
 
     }
@@ -562,6 +562,12 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
     #region input handling
+
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+      if (_templateControl != null)
+        _templateControl.FireUIEvent(eventType, source);
+    }
     /// <summary>
     /// Called when [mouse move].
     /// </summary>
@@ -713,7 +719,8 @@ namespace SkinEngine.Controls.Visuals
       }
       m.InvertSize(ref rectSize);
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-
+      rect.X += (float)ActualPosition.X;
+      rect.Y += (float)ActualPosition.Y;
       PositionColored2Textured[] verts;
       GraphicsPath path;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))

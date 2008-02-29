@@ -39,6 +39,7 @@ namespace SkinEngine
 {
   public class SkinContext
   {
+    public static bool UseBatching=false;
     #region variables
 
     private static string _skinName = "default";

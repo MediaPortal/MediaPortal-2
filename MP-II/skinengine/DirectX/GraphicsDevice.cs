@@ -320,7 +320,7 @@ namespace SkinEngine
       int gh = (int)Height;
       gw = (int)Width;
       gh = (int)Height;
-      SkinContext.Zoom = new SizeF( ((float)Width) / SkinContext.Width,((float)Height) / SkinContext.Height);
+      SkinContext.Zoom = new SizeF(((float)Width) / SkinContext.Width, ((float)Height) / SkinContext.Height);
 
       WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
       mgr.Utils.Zoom = SkinContext.Zoom;
@@ -329,7 +329,7 @@ namespace SkinEngine
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
 
       // grab the viewport dimensions and location
-      Viewport viewport =  Device.Viewport;
+      Viewport viewport = Device.Viewport;
       float w = Width * 0.5f; // viewport.Width * 0.5f;
       float h = Height * 0.5f; // viewport.Height * 0.5f;
 
@@ -371,6 +371,7 @@ namespace SkinEngine
     /// set to true when our own render thread called this method. 
     /// False when called from a EVR/VMR9 thread</param>
     /// <returns></returns>
+    /// 
     public static bool Render(bool calledFromOurRenderThread)
     {
       if (_device == null)
@@ -420,7 +421,7 @@ namespace SkinEngine
           //Dont remove this, MP-II uses the Z-buffer for some styles
           //rendering goes wrong when zbuffer is not cleared
           //_device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-          _device.Clear(ClearFlags.Target , Color.Black, 1.0f, 0);
+          _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
 
           SetRenderState();
 
@@ -431,9 +432,20 @@ namespace SkinEngine
           //render the window(s)
           if (!SkinContext.ScreenSaverActive)
           {
-            WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-            manager.Render();
-            RenderPipeline.Instance.Render();
+            if (SkinContext.UseBatching)
+            {
+              RenderPipeline.Instance.Render();
+
+                WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+                manager.Render();
+
+
+            }
+            else
+            {
+              WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+              manager.Render();
+            }
           }
           //End the scene
           _device.EndScene();

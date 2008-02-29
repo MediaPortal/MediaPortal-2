@@ -318,6 +318,11 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+      if (Content != null)
+        Content.FireUIEvent(eventType,  source);
+    }
     /// <summary>
     /// Handles keypresses
     /// </summary>

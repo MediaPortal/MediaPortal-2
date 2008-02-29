@@ -37,7 +37,7 @@ using SkinEngine.DirectX;
 using MyXaml.Core;
 namespace SkinEngine.Controls.Brushes
 {
-  public class BrushTexture : IAsset
+  public class BrushTexture : ITextureAsset
   {
     Texture _texture;
     DateTime _lastTimeUsed;

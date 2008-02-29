@@ -30,6 +30,7 @@ using MediaPortal.Core.Properties;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -658,6 +659,70 @@ namespace SkinEngine.Controls.Brushes
     public override void Allocate()
     {
 
+    }
+    public override void SetupPrimitive(PrimitiveContext context)
+    {
+      context.Parameters = new EffectParameters();
+      int index = 0;
+      foreach (GradientStop stop in GradientStops)
+      {
+        _offsets[index] = (float)stop.Offset;
+        _colors[index] = ColorConverter.FromColor(stop.Color);
+        _colors[index].Alpha *= (float)Opacity;
+        index++;
+      }
+      _singleColor = true;
+      for (int i = 0; i < GradientStops.Count - 1; ++i)
+      {
+        if (_colors[i].ToArgb() != _colors[i + 1].ToArgb())
+        {
+          _singleColor = false;
+          break;
+        }
+      }
+
+      context.Texture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
+      if (_singleColor)
+      {
+        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        v.Alpha *= (float)SkinContext.Opacity;
+        context.Effect = ContentManager.GetEffect("solidbrush");
+        context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);
+        return;
+      }
+      else
+      {
+        context.Effect = ContentManager.GetEffect("radialgradient");
+        _handleRelativeTransform = context.Effect.GetParameterHandle("RelativeTransform");
+        _handleFocus = context.Effect.GetParameterHandle("g_focus");
+        _handleCenter = context.Effect.GetParameterHandle("g_center");
+        _handleRadius = context.Effect.GetParameterHandle("g_radius");
+        _handleOpacity = context.Effect.GetParameterHandle("g_opacity");
+
+        g_focus = new float[2] { GradientOrigin.X, GradientOrigin.Y };
+        g_center = new float[2] { Center.X, Center.Y };
+        g_radius = new float[2] { (float)RadiusX, (float)RadiusY };
+
+        if (MappingMode == BrushMappingMode.Absolute)
+        {
+          g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
+          g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+
+          g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
+          g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
+        }
+        Matrix mrel = Matrix.Identity;
+        RelativeTransform.GetTransformRel(out mrel);
+        mrel = Matrix.Invert(mrel);
+        context.Parameters.Add(_handleRelativeTransform, mrel);
+        context.Parameters.Add(_handleFocus, g_focus);
+        context.Parameters.Add(_handleCenter, g_center);
+        context.Parameters.Add(_handleRadius, g_radius);
+        context.Parameters.Add(_handleOpacity, (float)(Opacity * SkinContext.Opacity));
+      }
     }
   }
 }

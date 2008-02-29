@@ -10,14 +10,34 @@ namespace SkinEngine.Rendering
   {
     EffectAsset _effect;
     EffectParameters _parameters;
-    TextureAsset _texture;
+    ITextureAsset _texture;
     PositionColored2Textured[] _vertices;
     int _primitiveCount;
+    RenderContext _renderContext;
 
     public PrimitiveContext()
     {
     }
+
+    public PrimitiveContext( int primitiveCount, ref PositionColored2Textured[] vertices)
+    {
+      _primitiveCount = primitiveCount;
+      _vertices = vertices;
+    }
+
     #region properties
+
+    public RenderContext RenderContext
+    {
+      get
+      {
+        return _renderContext;
+      }
+      set
+      {
+        _renderContext = value;
+      }
+    }
 
     public EffectAsset Effect
     {
@@ -43,7 +63,7 @@ namespace SkinEngine.Rendering
       }
     }
 
-    public TextureAsset Texture
+    public ITextureAsset Texture
     {
       get
       {
@@ -80,5 +100,15 @@ namespace SkinEngine.Rendering
     }
     #endregion
 
+
+    public void OnVerticesChanged(int primitiveCount, ref PositionColored2Textured[] vertices)
+    {
+      _primitiveCount = primitiveCount;
+      _vertices = vertices;
+      if (_renderContext != null)
+      {
+        _renderContext.UpdateVertices = true;
+      }
+    }
   }
 }

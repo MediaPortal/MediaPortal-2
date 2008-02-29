@@ -133,8 +133,8 @@ namespace SkinEngine.Controls.Visuals
       }
 
       SkinContext.AddOpacity(this.Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      SkinContext.AddTransform(m);
+      //ExtendedMatrix m = new ExtendedMatrix();
+      //SkinContext.AddTransform(m);
       if (_fillContext != null && !_fillDisabled)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -158,7 +158,7 @@ namespace SkinEngine.Controls.Visuals
         }
         _borderContext.LastTimeUsed = SkinContext.Now;
       }
-      SkinContext.RemoveTransform();
+      //SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
 
     }

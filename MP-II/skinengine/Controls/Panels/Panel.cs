@@ -239,9 +239,9 @@ namespace SkinEngine.Controls.Panels
           PerformLayout();
         }
 
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-        SkinContext.AddTransform(m);
+        // ExtendedMatrix m = new ExtendedMatrix();
+        //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+        //SkinContext.AddTransform(m);
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
         {
@@ -249,7 +249,7 @@ namespace SkinEngine.Controls.Panels
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
           Background.EndRender();
         }
-        SkinContext.RemoveTransform();
+        // SkinContext.RemoveTransform();
 
         _backgroundAsset.LastTimeUsed = SkinContext.Now;
       }
@@ -292,6 +292,8 @@ namespace SkinEngine.Controls.Panels
         }
         m.InvertSize(ref rectSize);
         System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+        rect.X += (float)ActualPosition.X;
+        rect.Y += (float)ActualPosition.Y;
         _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
         PositionColored2Textured[] verts = new PositionColored2Textured[6];
         unchecked
@@ -342,12 +344,64 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+      foreach (UIElement element in Children)
+      {
+        element.FireUIEvent(eventType, source);
+      }
+    }
+
     /// <summary>
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
+      ///@DEBUGTEST
+      if (SkinContext.UseBatching)
+      {
+        if (key.RawCode == 'v')
+        {
+          foreach (UIElement element in Children)
+          {
+            if (element.Name == "testPanel")
+            {
+              if (element.IsVisible)
+                element.Visibility = VisibilityEnum.Hidden;
+              else
+                element.Visibility = VisibilityEnum.Visible;
+            }
+          }
+        }
+        if (key.RawCode == 'c')
+        {
+          foreach (UIElement element in Children)
+          {
+            if (element.Name == "testBorder")
+            {
+              if (element.IsVisible)
+                element.Visibility = VisibilityEnum.Hidden;
+              else
+                element.Visibility = VisibilityEnum.Visible;
+            }
+          }
+
+        }
+        if (key.RawCode == 'o')
+        {
+          foreach (UIElement element in Children)
+          {
+            if (element.Name == "testPanel")
+            {
+              if (element.Opacity == 1.0)
+                element.Opacity = 0.5;
+              else
+                element.Opacity = 1.0;
+            }
+          }
+        }
+      }
       foreach (UIElement element in Children)
       {
         if (false == element.IsVisible) continue;

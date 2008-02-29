@@ -41,7 +41,7 @@ using Geometry = SkinEngine.Players.Geometry.Geometry;
 
 namespace SkinEngine
 {
-  public class TextureAsset : IAsset
+  public class TextureAsset : ITextureAsset
   {
     #region variables
 

@@ -89,6 +89,7 @@
     </Compile>
     <Compile Include="Commands\StringParameter.cs" />
     <Compile Include="ContentManagement\FontBufferAsset.cs" />
+    <Compile Include="ContentManagement\ITextureAsset.cs" />
     <Compile Include="ContentManagement\VertextBufferAsset.cs" />
     <Compile Include="Controls\Animations\AnimationContext.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />

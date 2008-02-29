@@ -46,6 +46,14 @@ namespace SkinEngine.Controls.Visuals
     Collapsed = 2,
   }
 
+  public enum UIEvent : int
+  {
+    None = 0,
+    Hidden = 1,
+    Visible = 2,
+    OpacityChange = 4
+  }
+
   public class UIElement : Visual, IBindingCollection
   {
     Property _nameProperty;
@@ -88,7 +96,7 @@ namespace SkinEngine.Controls.Visuals
     bool _triggersInitialized;
     bool _fireLoaded = true;
     bool _isVisible = true;
-    double _opacityCache=1.0;
+    double _opacityCache = 1.0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -220,6 +228,7 @@ namespace SkinEngine.Controls.Visuals
     void OnOpacityPropertyChanged(Property property)
     {
       _opacityCache = (double)_opacityProperty.GetValue();
+      FireUIEvent(UIEvent.OpacityChange, this);
     }
 
     void OnVisibilityPropertyChanged(Property property)
@@ -229,6 +238,14 @@ namespace SkinEngine.Controls.Visuals
         VisualParent.Invalidate();
       }
       _isVisible = (this.Visibility == VisibilityEnum.Visible);
+      if (!_isVisible)
+        FireUIEvent(UIEvent.Hidden, this);
+      else
+        FireUIEvent(UIEvent.Visible, this);
+    }
+
+    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
+    {
     }
 
     /// <summary>
@@ -408,7 +425,7 @@ namespace SkinEngine.Controls.Visuals
       }
       set
       {
-        _opacityMask=value;
+        _opacityMask = value;
       }
     }
 

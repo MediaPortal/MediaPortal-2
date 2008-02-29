@@ -202,9 +202,9 @@ namespace SkinEngine.Controls.Visuals
       }
 
       SkinContext.AddOpacity(this.Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-      SkinContext.AddTransform(m);
+      //ExtendedMatrix m = new ExtendedMatrix();
+      //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      //SkinContext.AddTransform(m);
       if (_fillContext != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -229,7 +229,7 @@ namespace SkinEngine.Controls.Visuals
         _borderContext.LastTimeUsed = SkinContext.Now;
       }
 
-      SkinContext.RemoveTransform();
+     // SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
     }
 
@@ -257,7 +257,8 @@ namespace SkinEngine.Controls.Visuals
       }
       m.InvertSize(ref rectSize);
       System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
-
+      rect.X += (float)ActualPosition.X;
+      rect.Y += (float)ActualPosition.Y;
       PositionColored2Textured[] verts;
       GraphicsPath path;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))

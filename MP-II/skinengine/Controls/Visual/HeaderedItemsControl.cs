@@ -377,6 +377,12 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
+
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+      if (Header != null)
+        Header.FireUIEvent(eventType, source);
+    }
     #region input handling
     /// <summary>
     /// Called when [mouse move].

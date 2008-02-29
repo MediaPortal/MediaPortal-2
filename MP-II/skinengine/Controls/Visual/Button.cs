@@ -237,7 +237,7 @@ namespace SkinEngine.Controls.Visuals
 
     #endregion
     #endregion
-
+    
     /// <summary>
     /// Handles keypresses
     /// </summary>

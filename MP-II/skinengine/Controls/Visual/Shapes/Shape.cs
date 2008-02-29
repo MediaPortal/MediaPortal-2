@@ -244,9 +244,7 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
-      SkinContext.AddOpacity(this.Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      SkinContext.AddTransform(m);
+      SkinContext.AddOpacity(this.Opacity); 
       if (_fillContext != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -269,8 +267,7 @@ namespace SkinEngine.Controls.Visuals
           Stroke.EndRender();
         }
         _borderContext.LastTimeUsed = SkinContext.Now;
-      }
-      SkinContext.RemoveTransform();
+      } 
       SkinContext.RemoveOpacity();
 
     }
