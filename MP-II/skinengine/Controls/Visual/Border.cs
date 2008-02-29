@@ -91,20 +91,32 @@ namespace SkinEngine.Controls.Visuals
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)0);
 
-      _borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _borderThicknessProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _borderProperty.Attach(new PropertyChangedHandler(OnBrushChanged));
+      _backgroundProperty.Attach(new PropertyChangedHandler(OnBrushChanged));
+      _borderThicknessProperty.Attach(new PropertyChangedHandler(OnLayoutPropertyChanged));
+      _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnLayoutPropertyChanged));
     }
 
     public override object Clone()
     {
       return new Border(this);
     }
-
-    void OnPropertyChanged(Property property)
+    void OnBrushChanged(Property property)
     {
-      //Free(false);
+      Brush brush = property.GetValue() as Brush;
+      if (brush != null)
+      {
+        brush.ClearAttachedEvents();
+        brush.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+      }
+    }
+    void OnBrushPropertyChanged(Property property)
+    {
+      _lastEvent = UIEvent.OpacityChange;
+    }
+    void OnLayoutPropertyChanged(Property property)
+    {
+      _performLayout = true;
     }
     #endregion
 
@@ -338,13 +350,15 @@ namespace SkinEngine.Controls.Visuals
     {
       if (SkinContext.UseBatching)
       {
+
         SkinContext.AddOpacity(this.Opacity);
         if (_performLayout)
         {
           PerformLayout();
           _performLayout = false;
+          _lastEvent = UIEvent.None;
         }
-        if (_lastEvent != UIEvent.None)
+        else if (_lastEvent != UIEvent.None)
         {
           if ((_lastEvent & UIEvent.OpacityChange) != 0)
           {
@@ -630,62 +644,75 @@ namespace SkinEngine.Controls.Visuals
           CalcCentroid(path, out centerX, out centerY);
           if (Background != null)
           {
-            if (_backgroundAsset == null)
+            if (SkinContext.UseBatching == false)
             {
-              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + this.Name);
-              ContentManager.Add(_backgroundAsset);
-            }
-            _backgroundAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-            if (_backgroundAsset.VertexBuffer != null)
-            {
-              Background.SetupBrush(this, ref verts);
-
-
-              PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-              _verticesCountFill = (verts.Length / 3);
-              if (SkinContext.UseBatching)
+              if (_backgroundAsset == null)
               {
-                if (_backgroundContext == null)
-                {
-                  _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
-                  Background.SetupPrimitive(_backgroundContext);
-                  RenderPipeline.Instance.Add(_backgroundContext);
-                }
-                else
-                {
-                  _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
-                }
+                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + this.Name);
+                ContentManager.Add(_backgroundAsset);
+              }
+              _backgroundAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              if (_backgroundAsset.VertexBuffer != null)
+              {
+                Background.SetupBrush(this, ref verts);
+
+
+                PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
+
+              }
+            }
+            else
+            {
+              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              _verticesCountFill = (verts.Length / 3);
+              Background.SetupBrush(this, ref verts);
+              if (_backgroundContext == null)
+              {
+                _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
+                Background.SetupPrimitive(_backgroundContext);
+                RenderPipeline.Instance.Add(_backgroundContext);
+              }
+              else
+              {
+                _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
               }
             }
           }
 
           if (BorderBrush != null && BorderThickness > 0)
           {
-            if (_borderAsset == null)
+            if (SkinContext.UseBatching == false)
             {
-              _borderAsset = new VisualAssetContext("Border._borderAsset:" + this.Name);
-              ContentManager.Add(_borderAsset);
-            }
-            _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
-            if (_borderAsset.VertexBuffer != null)
-            {
-              BorderBrush.SetupBrush(this, ref verts);
-
-              PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-              _verticesCountBorder = (verts.Length / 3);
-
-              if (SkinContext.UseBatching)
+              if (_borderAsset == null)
               {
-                if (_borderContext == null)
-                {
-                  _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-                  BorderBrush.SetupPrimitive(_borderContext);
-                  RenderPipeline.Instance.Add(_borderContext);
-                }
-                else
-                {
-                  _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-                }
+                _borderAsset = new VisualAssetContext("Border._borderAsset:" + this.Name);
+                ContentManager.Add(_borderAsset);
+              }
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+              if (_borderAsset.VertexBuffer != null)
+              {
+                BorderBrush.SetupBrush(this, ref verts);
+
+                PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+                _verticesCountBorder = (verts.Length / 3);
+
+              }
+            }
+            else
+            {
+              Shape.PathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+              BorderBrush.SetupBrush(this, ref verts);
+              _verticesCountBorder = (verts.Length / 3);
+              if (_borderContext == null)
+              {
+                _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+                BorderBrush.SetupPrimitive(_borderContext);
+                RenderPipeline.Instance.Add(_borderContext);
+              }
+              else
+              {
+                _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
               }
             }
           }

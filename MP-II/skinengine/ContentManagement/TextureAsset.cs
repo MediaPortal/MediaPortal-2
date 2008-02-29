@@ -459,6 +459,10 @@ namespace SkinEngine
 
     #region IAsset Members
 
+    public void KeepAlive()
+    {
+      _lastTimeUsed = SkinContext.Now;
+    }
     /// <summary>
     /// Gets a value indicating the asset is allocated
     /// </summary>

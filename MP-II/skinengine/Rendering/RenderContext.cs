@@ -156,6 +156,7 @@ namespace SkinEngine.Rendering
         GraphicsDevice.Device.SetStreamSource(0, _vertices, 0, PositionColored2Textured.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _primitiveCount);
         _effect.EndRender();
+        _texture.KeepAlive();
       }
       else
       {

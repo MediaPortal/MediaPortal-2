@@ -10,5 +10,6 @@ namespace SkinEngine
   {
     Texture Texture { get;}
     void Allocate();
+    void KeepAlive();
   }
 }

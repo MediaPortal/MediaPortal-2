@@ -251,6 +251,7 @@ namespace SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(Property prop)
     {
       _refresh = true;
+      Fire();
     }
 
     /// <summary>

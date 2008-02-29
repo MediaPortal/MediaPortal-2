@@ -112,6 +112,7 @@ namespace SkinEngine.Controls.Brushes
     /// <param name="prop">The prop.</param>
     protected override void OnPropertyChanged(Property prop)
     {
+      Fire();
     }
 
     /// <summary>

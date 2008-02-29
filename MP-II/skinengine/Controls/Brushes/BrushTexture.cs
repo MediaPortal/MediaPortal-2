@@ -81,10 +81,6 @@ namespace SkinEngine.Controls.Brushes
       return true;
     }
 
-    public void KeepAlive()
-    {
-      _lastTimeUsed = SkinContext.Now;
-    }
     public bool OpacityBrush
     {
       get
@@ -176,6 +172,10 @@ namespace SkinEngine.Controls.Brushes
 
     #region IAsset Members
 
+    public void KeepAlive()
+    {
+      _lastTimeUsed = SkinContext.Now;
+    }
     public bool IsAllocated
     {
       get

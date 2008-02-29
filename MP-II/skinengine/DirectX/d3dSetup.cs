@@ -1,4 +1,4 @@
-//#define NVIDIA_PERFHUD//
+
 //#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 
@@ -67,6 +67,7 @@ namespace SkinEngine.DirectX
     protected string _deviceStats; // String to hold D3D device stats
     private Form _window;
     private CancelEventHandler _cancelEventHandler;
+    bool _usingPerfHud = false;
 
     protected Control RenderTarget
     {
@@ -208,6 +209,7 @@ namespace SkinEngine.DirectX
                   i, Direct3D.Adapters[i].Details.Description);
           primaryDesktopDisplayMode = Direct3D.Adapters[i].CurrentDisplayMode;
           perfHudFound = true;
+          _usingPerfHud = true;
           doesRequireReference = true;
           break;
         }
@@ -543,7 +545,7 @@ namespace SkinEngine.DirectX
           this.ClientSize = currentClientSize;
           this.TopMost = alwaysOnTop;*/
         }
-        
+
         StringBuilder sb = new StringBuilder();
 
 
@@ -1258,6 +1260,9 @@ namespace SkinEngine.DirectX
 #if PROFILE_PERFORMANCE
         _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
 #else
+        if (_usingPerfHud)
+          _presentParams.PresentationInterval = PresentInterval.Immediate;
+        else
         _presentParams.PresentationInterval = PresentInterval.Default; // Immediate.Default;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
@@ -1280,7 +1285,10 @@ namespace SkinEngine.DirectX
 #if PROFILE_PERFORMANCE
         _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
 #else
-        _presentParams.PresentationInterval = PresentInterval.Default;
+        if (_usingPerfHud)
+          _presentParams.PresentationInterval = PresentInterval.Immediate;
+        else
+          _presentParams.PresentationInterval = PresentInterval.Default;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
         _presentParams.SwapEffect = SwapEffect.Discard;

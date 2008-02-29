@@ -103,7 +103,10 @@ namespace MediaPortal.Core.Properties
     {
       PropertyChanged += handler;
     }
-
+    public void ClearAttachedEvents()
+    {
+      PropertyChanged = null;
+    }
     /// <summary>
     /// Detaches the specified event handler.
     /// </summary>

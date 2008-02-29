@@ -244,7 +244,7 @@ namespace SkinEngine.Controls.Visuals
         _performLayout = false;
       }
 
-      SkinContext.AddOpacity(this.Opacity); 
+      SkinContext.AddOpacity(this.Opacity);
       if (_fillContext != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -267,10 +267,52 @@ namespace SkinEngine.Controls.Visuals
           Stroke.EndRender();
         }
         _borderContext.LastTimeUsed = SkinContext.Now;
-      } 
+      }
       SkinContext.RemoveOpacity();
 
     }
+    /// <summary>
+    /// Converts the graphicspath to an array of vertices using trianglist.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="cx">The cx.</param>
+    /// <param name="cy">The cy.</param>
+    /// <returns></returns>
+    static public void PathToTriangleList(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
+    {
+      verts = null;
+      int pointCount = path.PointCount;
+      if (pointCount <= 0) return;
+      PointF[] pathPoints = path.PathPoints;
+      if (pointCount == 3)
+      {
+        verts = new PositionColored2Textured[3];
+
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
+        return;
+      }
+      else
+      {
+        int verticeCount = (pointCount) * 3;
+        verts = new PositionColored2Textured[verticeCount];
+        for (int i = 0; i < pointCount; ++i)
+        {
+          verts[i * 3 + 0].Position = new Vector3(cx, cy, 1);
+          verts[i * 3 + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
+          if (i + 1 < pointCount)
+            verts[i * 3 + 2].Position = new Vector3(pathPoints[i + 1].X, pathPoints[i + 1].Y, 1);
+          else
+            verts[i * 3 + 2].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        }
+
+        return;
+      }
+    }
+
+
+
 
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglefan.
@@ -365,6 +407,43 @@ namespace SkinEngine.Controls.Visuals
       while (i >= max) i -= max;
       return points[i];
     }
+    static public void PathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
+    {
+      PolygonDirection direction = PointsDirection(path);
+      PathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
+    }
+    static public void PathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
+    {
+      verts = null;
+      if (path.PointCount <= 0) return ;
+      // thickNess /= 2.0f;
+      float thicknessW = thickNess * SkinContext.Zoom.Width;
+      float thicknessH = thickNess * SkinContext.Zoom.Height;
+      PointF[] points = path.PathPoints;
+      int pointCount = points.Length;
+      int verticeCount = (pointCount) * 2 * 3;
+
+      verts = new PositionColored2Textured[verticeCount];
+
+      float x, y;
+      for (int i = 0; i < (pointCount); ++i)
+      {
+        int offset = i * 6;
+        PointF nextpoint = GetNextPoint(points, i, pointCount);
+        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction, finalLayoutTransform);
+        verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
+        verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 2].Position = new Vector3(x, y, 1);
+
+        verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 4].Position = new Vector3(x, y, 1);
+
+        verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
+
+
+      }
+    }
+
     /// <summary>
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
