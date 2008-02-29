@@ -66,11 +66,24 @@ namespace SkinEngine.Effects
       string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
       if (File.Exists(effectFile))
       {
-        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 ;//| ShaderFlags.NoPreshader;
+        string effectShader = "";
+        using (System.IO.FileStream stream = new FileStream(effectFile, FileMode.Open, FileAccess.Read))
+        {
+          using (StreamReader reader = new StreamReader(stream))
+          {
+            effectShader = reader.ReadToEnd();
+          }
+        }
+        Version vertexShaderVersion = GraphicsDevice.Device.GetDeviceCaps().VertexShaderVersion;
+        Version pixelShaderVersion = GraphicsDevice.Device.GetDeviceCaps().PixelShaderVersion;
+
+        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3;//| ShaderFlags.NoPreshader;
         //ShaderFlags shaderFlags =  ShaderFlags.NoPreshader;
+        effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
+        effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
 
         string errors = "";
-        _effect = Effect.FromFile(GraphicsDevice.Device, effectFile, null, null, null, shaderFlags, null, out errors);
+        _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
         if (_effect == null)
         {
           ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
