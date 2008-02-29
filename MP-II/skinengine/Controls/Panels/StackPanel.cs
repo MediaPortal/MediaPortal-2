@@ -291,39 +291,14 @@ namespace SkinEngine.Controls.Panels
     /// <summary>
     /// Renders the visual
     /// </summary>
-    public override void DoRender()
+    protected override void RenderChilds()
     {
       lock (_orientationProperty)
       {
-        UpdateRenderOrder();
-        SkinContext.AddOpacity(this.Opacity);
-        if (Background != null)
-        {
-          if (_performLayout || (_backgroundAsset == null))
-          {
-            PerformLayout();
-          }
-
-          //ExtendedMatrix m = new ExtendedMatrix();
-          //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-         // SkinContext.AddTransform(m);
-          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
-          {
-            GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
-            Background.EndRender();
-          }
-          //SkinContext.RemoveTransform();
-
-          _backgroundAsset.LastTimeUsed = SkinContext.Now;
-        }
-
         if (_isScrolling)
         {
           GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-
           ExtendedMatrix m = new ExtendedMatrix();
           m.Matrix = Matrix.Translation(new Vector3(0, -_physicalScrollOffsetY, 0));
           SkinContext.AddTransform(m);
@@ -346,7 +321,6 @@ namespace SkinEngine.Controls.Panels
             element.Render();
           }
         }
-        SkinContext.RemoveOpacity();
 
         if (_isScrolling)
         {
@@ -528,7 +502,7 @@ namespace SkinEngine.Controls.Panels
     public void End(PointF point)
     {
       FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
-      if (focusedElement == null) return ;
+      if (focusedElement == null) return;
       float offsetEnd = (float)(_totalHeight - ActualHeight);
       float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
       if (this.Orientation == Orientation.Vertical)
@@ -539,10 +513,10 @@ namespace SkinEngine.Controls.Panels
           if (this.Orientation == Orientation.Vertical)
           {
             focusedElement = (FrameworkElement)FindFocusedItem();
-            if (focusedElement == null) return ;
+            if (focusedElement == null) return;
             MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
             FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
-            if (nextElement == null) return ;
+            if (nextElement == null) return;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
             if ((posY - _physicalScrollOffsetY) < ActualHeight)
             {
@@ -560,7 +534,7 @@ namespace SkinEngine.Controls.Panels
         //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
       }
 
-      return ;
+      return;
     }
 
     public void ResetScroll()

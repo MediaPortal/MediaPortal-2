@@ -32,6 +32,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 using SkinEngine.Controls.Brushes;
 using SkinEngine;
 using MediaPortal.Core.InputManager;
@@ -49,6 +50,8 @@ namespace SkinEngine.Controls.Panels
     protected List<UIElement> _renderOrder;
     bool _updateRenderOrder = true;
     protected VisualAssetContext _backgroundAsset;
+    protected PrimitiveContext _backgroundContext;
+    UIEvent _lastEvent = UIEvent.None;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Panel"/> class.
@@ -80,8 +83,12 @@ namespace SkinEngine.Controls.Panels
 
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
-      //_backgroundProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _renderOrder = new List<UIElement>();
+    }
+   
+    void OnBrushPropertyChanged(Property property)
+    {
+      _lastEvent = UIEvent.OpacityChange;
     }
 
     /// <summary>
@@ -120,6 +127,11 @@ namespace SkinEngine.Controls.Panels
       set
       {
         _backgroundProperty = value;
+        if (value != null)
+        {
+          _backgroundProperty.ClearAttachedEvents();
+          _backgroundProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+        }
       }
     }
 
@@ -225,12 +237,56 @@ namespace SkinEngine.Controls.Panels
       _updateRenderOrder = true;
     }
 
+    void SetupBrush()
+    {
+      if (Background != null && _backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        Background.SetupPrimitive(_backgroundContext);
+        RenderPipeline.Instance.Add(_backgroundContext);
+      }
+    }
+
+    protected virtual void RenderChilds()
+    {
+      foreach (UIElement element in _renderOrder)
+      {
+        if (element.IsVisible)
+        {
+          element.Render();
+        }
+      }
+    }
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
       UpdateRenderOrder();
+
+      if (SkinContext.UseBatching)
+      {
+
+        SkinContext.AddOpacity(this.Opacity);
+        if (_performLayout)
+        {
+          PerformLayout();
+          _performLayout = false;
+          _lastEvent = UIEvent.None;
+        }
+        else if (_lastEvent != UIEvent.None)
+        {
+          if ((_lastEvent & UIEvent.OpacityChange) != 0)
+          {
+            SetupBrush();
+          }
+          _lastEvent = UIEvent.None;
+        }
+        RenderChilds();
+        SkinContext.RemoveOpacity();
+        return;
+      }
+
       SkinContext.AddOpacity(this.Opacity);
       if (Background != null)
       {
@@ -253,13 +309,7 @@ namespace SkinEngine.Controls.Panels
 
         _backgroundAsset.LastTimeUsed = SkinContext.Now;
       }
-      foreach (UIElement element in _renderOrder)
-      {
-        if (element.IsVisible)
-        {
-          element.Render();
-        }
-      }
+      RenderChilds();
       SkinContext.RemoveOpacity();
     }
 
@@ -272,11 +322,6 @@ namespace SkinEngine.Controls.Panels
 
       if (Background != null)
       {
-        if (_backgroundAsset == null)
-        {
-          _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + this.Name);
-          ContentManager.Add(_backgroundAsset);
-        }
         double w = ActualWidth;
         double h = ActualHeight;
         System.Drawing.SizeF rectSize = new System.Drawing.SizeF((float)w, (float)h);
@@ -294,7 +339,6 @@ namespace SkinEngine.Controls.Panels
         System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
         rect.X += (float)ActualPosition.X;
         rect.Y += (float)ActualPosition.Y;
-        _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
         PositionColored2Textured[] verts = new PositionColored2Textured[6];
         unchecked
         {
@@ -307,8 +351,29 @@ namespace SkinEngine.Controls.Panels
 
         }
         Background.SetupBrush(this, ref verts);
-
-        PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+        if (SkinContext.UseBatching == false)
+        {
+          if (_backgroundAsset == null)
+          {
+            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + this.Name);
+            ContentManager.Add(_backgroundAsset);
+          }
+          _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
+          PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+        }
+        else
+        {
+          if (_backgroundContext == null)
+          {
+            _backgroundContext = new PrimitiveContext(2, ref verts);
+            Background.SetupPrimitive(_backgroundContext);
+            RenderPipeline.Instance.Add(_backgroundContext);
+          }
+          else
+          {
+            _backgroundContext.OnVerticesChanged(2, ref verts);
+          }
+        }
       }
 
       _performLayout = false;
@@ -349,6 +414,20 @@ namespace SkinEngine.Controls.Panels
       foreach (UIElement element in Children)
       {
         element.FireUIEvent(eventType, source);
+      }
+      if (SkinContext.UseBatching)
+      {
+        switch (eventType)
+        {
+          case UIEvent.Hidden:
+            RenderPipeline.Instance.Remove(_backgroundContext);
+            _backgroundContext = null;
+            _performLayout = true;
+            break;
+          case UIEvent.OpacityChange:
+            _lastEvent |= eventType;
+            break;
+        }
       }
     }
 
