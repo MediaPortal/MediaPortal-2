@@ -49,19 +49,10 @@ namespace MediaPortal.Utilities.Files
       while (strFileName.StartsWith(@"..\") || strFileName.StartsWith("../"))
       {
         strFileName = strFileName.Substring(3);
-        int pos = strBasePath.LastIndexOf(@"\");
+        // Find the last / or \ character, then trim the base path
+        int pos = Math.Max(strBasePath.LastIndexOf(@"\"), strBasePath.LastIndexOf(@"/"));
         if (pos > 0)
-        {
-          strBasePath = strBasePath.Substring(0, pos);
-        }
-        else
-        {
-          pos = strBasePath.LastIndexOf(@"/");
-          if (pos > 0)
-          {
-            strBasePath = strBasePath.Substring(0, pos);
-          }
-        }
+          strBasePath = strBasePath.Remove(pos);
       }
       if (strBasePath.Length == 2 && strBasePath[1] == ':')
         strBasePath += @"\";
