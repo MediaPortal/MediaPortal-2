@@ -45,6 +45,13 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|AnyCPU' ">
+    <OutputPath>bin\Xml Documentation\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
+    <OutputPath>bin\x86\Xml Documentation\</OutputPath>
+    <DocumentationFile>bin\x86\Xml Documentation\Menu.XML</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
