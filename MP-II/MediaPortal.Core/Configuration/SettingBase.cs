@@ -33,7 +33,7 @@ namespace MediaPortal.Configuration
 {
   public class SettingBase
   {
-    #region varibles
+    #region variables
     protected string _id;
     protected bool _hidden = false;
     protected bool _enabled = true;
@@ -44,7 +44,7 @@ namespace MediaPortal.Configuration
     protected string _iconLarge;
     #endregion
 
-    #region methods
+    #region properties
     public string Id
     {
       get { return _id; }
@@ -90,7 +90,9 @@ namespace MediaPortal.Configuration
       get { return _iconLarge; }
       set { _iconLarge = value; }
     }
+    #endregion
 
+    #region methods
     public virtual void Save() 
     {
     }

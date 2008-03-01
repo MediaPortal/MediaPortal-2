@@ -33,14 +33,16 @@ namespace MediaPortal.Configuration.Settings
 {
   public class YesNo : SettingBase
   {
-    #region varibles
+    #region variables
     protected bool _yes;
     #endregion
 
+    #region properties
     public bool Yes
     {
       get { return _yes; }
       set { _yes = value; }
     }
+    #endregion
   }
 }

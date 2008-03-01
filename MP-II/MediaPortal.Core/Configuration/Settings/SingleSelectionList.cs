@@ -33,11 +33,12 @@ namespace MediaPortal.Configuration.Settings
 {
   public class SingleSelectionList : SettingBase
   {
-    #region varibles
+    #region variables
     protected List<StringId> _items;
     protected int _selected;
     #endregion
 
+    #region properties
     public List<StringId> Items
     {
       get { return _items; }
@@ -48,5 +49,6 @@ namespace MediaPortal.Configuration.Settings
       get { return _selected; }
       set { _selected = value; }
     }
+    #endregion
   }
 }
