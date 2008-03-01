@@ -28,6 +28,9 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Services.PathManager
 {
+  /// <summary>
+  /// Holds a named path. This class helps to deserialize a path from an XML file.
+  /// </summary>
   public class PathDefinition
   {
     #region Variables

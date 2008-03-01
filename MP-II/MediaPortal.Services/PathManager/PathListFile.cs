@@ -31,7 +31,7 @@ using MediaPortal.Core.PathManager;
 namespace MediaPortal.Services.PathManager
 { 
   /// <summary>
-  /// Holds a list of configured paths
+  /// Holds a list of configured paths. This class helps to deserialize paths from an XML file.
   /// </summary>
   [XmlRoot("Paths")]
   public class PathListFile
