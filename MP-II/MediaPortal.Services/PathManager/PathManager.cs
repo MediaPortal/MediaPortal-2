@@ -34,7 +34,10 @@ using MediaPortal.Core.PathManager;
 namespace MediaPortal.Services.PathManager
 {
   /// <summary>
-  /// Managers local path locations
+  /// Registration for local file path locations, like specified in <see cref="IPathManager"/>.
+  /// Some general path registrations will be initialized in the constructor, other
+  /// path registrations will be added from a file Paths.xml, located in the applications
+  /// DEFAULTS directory.
   /// </summary>
   public class PathManager : IPathManager
   {
@@ -56,34 +59,16 @@ namespace MediaPortal.Services.PathManager
     #endregion
 
     #region IDictionary Implementations
-    /// <summary>
-    /// Checks if a path with the specified label exists.
-    /// </summary>
-    /// <param name="label">The label.</param>
-    /// <returns>true/false the label exists</returns>
+
     public bool Exists(string label)
     {
-      label = label.ToUpper();
-      if (!label.StartsWith("<"))
-        label = "<" + label;
-      if (!label.EndsWith(">"))
-        label = label + ">";
-
+      label = CheckFormat(label);
       return _paths.ContainsKey(label);
     }
 
-    /// <summary>
-    /// Sets the path.
-    /// </summary>
-    /// <param name="label">The label.</param>
-    /// <param name="pathPattern">The path pattern.</param>
     public void SetPath(string label, string pathPattern)
     {
-      label = label.ToUpper();
-      if (!label.StartsWith("<"))
-        label = "<" + label;
-      if (!label.EndsWith(">"))
-        label = label + ">";
+      label = CheckFormat(label);
 
       if (pathPattern.EndsWith("\\"))
         pathPattern = pathPattern.Substring(0, pathPattern.Length - 1);
@@ -91,11 +76,6 @@ namespace MediaPortal.Services.PathManager
       _paths.Add(label, pathPattern);
     }
 
-    /// <summary>
-    /// Gets the path.
-    /// </summary>
-    /// <param name="pathPattern">The path pattern.</param>
-    /// <returns></returns>
     public string GetPath(string pathPattern)
     {
       Regex label = new Regex(@"\<[a-zA-Z_]+\>");
@@ -118,38 +98,20 @@ namespace MediaPortal.Services.PathManager
       return pathPattern;
     }
 
-    /// <summary>
-    /// Replaces an existing path.
-    /// </summary>
-    /// <param name="label">The label.</param>
-    /// <param name="pathPattern">The path pattern.</param>
     public void ReplacePath(string label, string pathPattern)
     {
       RemovePath(label);
       SetPath(label, pathPattern);
     }
 
-    /// <summary>
-    /// Removes a path.
-    /// </summary>
-    /// <param name="label">The path label.</param>
     public void RemovePath(string label)
     {
-      label = label.ToUpper();
-      if (!label.StartsWith("<"))
-        label = "<" + label;
-      if (!label.EndsWith(">"))
-        label = label + ">";
+      label = CheckFormat(label);
 
       if (_paths.ContainsKey(label))
         _paths.Remove(label);
     }
 
-    /// <summary>
-    /// Gets a path as DirectoryInfo.
-    /// </summary>
-    /// <param name="path">The path.</param>
-    /// <returns></returns>
     public DirectoryInfo GetDirectoryInfo(string path)
     {
       return new DirectoryInfo(GetPath(path));
@@ -170,6 +132,10 @@ namespace MediaPortal.Services.PathManager
 		#endregion
 
     #region private
+
+    /// <summary>
+    /// Loads default path values from the defaults Path.xml file.
+    /// </summary>
     private void LoadDefaults()
     {
       try
@@ -185,6 +151,7 @@ namespace MediaPortal.Services.PathManager
       }
       catch (Exception)
       {
+        // FIXME Albert78, 30.2.08: Do a log output here?
         // If something is wrong with the defaults file use the following defaults
         if (!Exists("USER_DATA"))
           SetPath("USER_DATA", @"<COMMON_APPLICATION_DATA>\MediaPortal");
@@ -194,6 +161,24 @@ namespace MediaPortal.Services.PathManager
           SetPath("LOG", @"<USER_DATA>\Log");
       }
     }
+
+    /// <summary>
+    /// Brings the specified label in the correct form to be used as lookup value in our
+    /// registration dictionary.
+    /// </summary>
+    /// <param name="label">The original label to be formatted.</param>
+    /// <returns>Formattet label. This label will be in upper case and will have
+    /// a leading <c>&lt;</c> and an ending <c>&gt;</c></returns>
+    private string CheckFormat(string label)
+    {
+      label = label.ToUpper();
+      if (!label.StartsWith("<"))
+        label = "<" + label;
+      if (!label.EndsWith(">"))
+        label = label + ">";
+      return label;
+    }
+
     #endregion
   }
 }
