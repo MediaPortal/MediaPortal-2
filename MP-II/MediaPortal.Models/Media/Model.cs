@@ -27,13 +27,14 @@ using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.MediaManager;
 
 namespace MyMedia
 {

@@ -40,7 +40,8 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Core.MetaData;
+
+using MediaPortal.Media.MetaData;
 
 using MediaPortal.Services.PathManager;
 using MediaPortal.Services.Threading;

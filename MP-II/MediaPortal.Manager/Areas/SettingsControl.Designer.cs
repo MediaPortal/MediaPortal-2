@@ -193,6 +193,7 @@ namespace MediaPortal.Manager
       this.Controls.Add(this.sectionHeader);
       this.Controls.Add(this.sections);
       this.Name = "SettingsControl";
+      this.RightToLeft = System.Windows.Forms.RightToLeft.No;
       this.Size = new System.Drawing.Size(608, 513);
       this.sectionHeader.ResumeLayout(false);
       this.sectionHeader.PerformLayout();

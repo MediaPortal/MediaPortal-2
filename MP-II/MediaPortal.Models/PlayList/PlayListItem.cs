@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
+using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.PlayList
 {

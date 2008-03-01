@@ -30,11 +30,11 @@ using System.Threading;
 using Intel.UPNP.AV.CdsMetadata;
 using Intel.UPNP.AV.MediaServer.CP;
 using MediaPortal.Core;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MetaData;
 
-using IRootContainer = MediaPortal.Core.MediaManager.IRootContainer;
+using IRootContainer = MediaPortal.Media.MediaManager.IRootContainer;
 
 namespace UpNpProvider
 {

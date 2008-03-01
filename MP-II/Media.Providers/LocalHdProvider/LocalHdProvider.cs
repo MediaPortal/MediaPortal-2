@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace LocalHdProvider
 {

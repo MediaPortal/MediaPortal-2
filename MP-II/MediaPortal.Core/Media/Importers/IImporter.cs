@@ -25,9 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MediaManager;
 
-namespace MediaPortal.Core.Importers
+using MediaPortal.Media.MediaManager;
+
+namespace MediaPortal.Media.Importers
 {
   public interface IImporter
   {

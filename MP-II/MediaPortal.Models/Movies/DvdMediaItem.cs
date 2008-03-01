@@ -25,8 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MetaData;
+
 namespace MyMovies
 {
   public class DvdMediaItem : IMediaItem

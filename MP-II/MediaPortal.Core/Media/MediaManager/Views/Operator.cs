@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.MediaManager.Views
+namespace MediaPortal.Media.MediaManager.Views
 {
   public enum SortOrder
   {

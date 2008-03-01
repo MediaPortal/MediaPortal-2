@@ -28,12 +28,13 @@ using System.IO;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.MetaData;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.MetaData;
+using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.PlayList
 {

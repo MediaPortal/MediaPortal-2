@@ -24,7 +24,8 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MetaData;
+
+using MediaPortal.Media.MetaData;
 
 namespace MyMovies
 {

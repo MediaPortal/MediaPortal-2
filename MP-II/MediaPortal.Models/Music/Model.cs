@@ -27,18 +27,19 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace Music
 {

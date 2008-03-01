@@ -27,9 +27,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.Importers;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MetaData;
 
 
 namespace SharesProvider

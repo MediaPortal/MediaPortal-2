@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManager.Views
+namespace MediaPortal.Media.MediaManager.Views
 {
   public interface IView 
   {

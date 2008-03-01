@@ -24,9 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Core;
+using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaPortal.Core.MediaManager
+namespace MediaPortal.Media.MediaManager
 {
 	public interface IMediaManager : IStatus
   {

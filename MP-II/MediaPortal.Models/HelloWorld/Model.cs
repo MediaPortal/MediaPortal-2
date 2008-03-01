@@ -32,9 +32,10 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.Importers;
 
 namespace MyHelloWorld
 {

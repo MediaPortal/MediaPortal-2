@@ -26,9 +26,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.Importers;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MetaData;
 
 namespace LocalHdProvider
 {

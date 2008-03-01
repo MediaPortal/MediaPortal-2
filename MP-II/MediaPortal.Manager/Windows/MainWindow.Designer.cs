@@ -101,6 +101,7 @@ namespace MediaPortal.Manager
       this.Controls.Add(this.areaLogs);
       this.Controls.Add(this.areaSettings);
       this.Name = "MainWindow";
+      this.RightToLeft = System.Windows.Forms.RightToLeft.No;
       this.Text = "MediaPortal II - Manager";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
       this.ResumeLayout(false);

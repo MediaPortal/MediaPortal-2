@@ -24,9 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManager.Views;
 
-namespace MediaPortal.Core.MediaManager.Views
+namespace MediaPortal.Media.MediaManager.Views
 {
   public class Query : IQuery
   {

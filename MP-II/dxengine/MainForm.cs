@@ -39,10 +39,11 @@ using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.AutoPlay;
+
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.Importers;
 
 using MediaPortal.Services.ExifReader;
 using MediaPortal.Services.InputManager;

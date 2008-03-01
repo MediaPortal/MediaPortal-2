@@ -26,9 +26,10 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.MetaData;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
+
 namespace MediaManager.Views
 {
   public class ViewNavigator

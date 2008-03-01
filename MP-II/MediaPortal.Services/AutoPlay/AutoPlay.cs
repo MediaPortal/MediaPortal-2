@@ -32,12 +32,13 @@ using MediaPortal.Core.AutoPlay;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
+
+using MediaPortal.Media.MediaManager;
 
 using MediaPortal.Utilities.CD;
 using MediaPortal.Utilities.Screens;

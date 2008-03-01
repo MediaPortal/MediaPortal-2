@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaPortal.Core.MediaManager
+namespace MediaPortal.Media.MediaManager
 {
   /// <summary>
   /// interface for a provider

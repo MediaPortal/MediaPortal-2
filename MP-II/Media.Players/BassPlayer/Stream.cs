@@ -29,9 +29,10 @@ using System.Threading;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Players;
+
+using MediaPortal.Media.MediaManager;
 
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Cd;

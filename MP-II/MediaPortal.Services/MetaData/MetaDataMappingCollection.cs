@@ -25,7 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MetaData;
+
 namespace MediaPortal.Services.MetaData
 {
   public class MetaDataMappingCollection : IMetaDataMappingCollection

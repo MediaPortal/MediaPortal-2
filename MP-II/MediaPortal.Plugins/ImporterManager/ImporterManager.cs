@@ -30,11 +30,12 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Plugins.Services.Importers
 {

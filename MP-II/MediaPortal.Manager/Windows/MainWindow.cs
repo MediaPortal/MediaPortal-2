@@ -61,6 +61,8 @@ namespace MediaPortal.Manager
 
       ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
 
+      CheckRightToLeft();
+
       _settingsArea = new SettingsControl();
 
       _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top 
@@ -78,6 +80,22 @@ namespace MediaPortal.Manager
 
       if (areaLogs.Tag is StringId)
         areaLogs.Text = ((StringId)areaLogs.Tag).ToString();
+
+      CheckRightToLeft();
+    }
+
+    private void CheckRightToLeft()
+    {
+      if (ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft)
+      {
+        this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+        this.RightToLeftLayout = true;
+      }
+      else
+      {
+        this.RightToLeft = System.Windows.Forms.RightToLeft.No;
+        this.RightToLeftLayout = false;
+      }
     }
 
     private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)

@@ -30,7 +30,7 @@ using System.Data.SQLite;
 using MediaPortal.Core;
 using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager.Views;
 
 
 namespace MediaPortal.Database.Implementation.SqlLite

@@ -27,8 +27,8 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Database;
 using MediaPortal.Core.Database.Interfaces;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace DatabaseProvider
 {

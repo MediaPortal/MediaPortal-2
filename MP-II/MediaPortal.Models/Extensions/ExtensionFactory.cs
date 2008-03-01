@@ -31,10 +31,12 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Core.MediaManager.Views;
+
 using MediaPortal.Services.MPIManager;
+
+using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
 
 namespace MyExtensions
 {

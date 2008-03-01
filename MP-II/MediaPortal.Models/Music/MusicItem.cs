@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
+using MediaPortal.Media.MediaManager;
 
 namespace Music
 {

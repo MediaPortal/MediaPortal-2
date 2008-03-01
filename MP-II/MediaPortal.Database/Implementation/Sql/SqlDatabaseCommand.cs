@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using MediaPortal.Core.Database.Interfaces;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace MediaPortal.Database.Implementation.Sql
 {
@@ -328,7 +328,7 @@ namespace MediaPortal.Database.Implementation.Sql
             if (att.Value != null)
             {
               string attrValue = att.Value.ToString();
-              // For List fields we need to insert the ²|" in order to be able to find multiple entries on search
+              // For List fields we need to insert the |" in order to be able to find multiple entries on search
               if (att.IsList)
               {
                 attrValue = String.Format("|{0}|", attrValue);
@@ -367,7 +367,7 @@ namespace MediaPortal.Database.Implementation.Sql
             if (att.Value != null)
             {
               string attrValue = att.Value.ToString();
-              // For List fields we need to insert the ²|" in order to be able to find multiple entries on search
+              // For List fields we need to insert the |" in order to be able to find multiple entries on search
               if (att.IsList)
               {
                 attrValue = String.Format("|{0}|", attrValue);

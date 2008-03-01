@@ -27,16 +27,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-//using MediaManager.Views;
+
 using MediaPortal.Core;
 using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.MediaManager;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Utilities.Scraper;
+
 namespace MovieImporter
 {
   public class Importer : IPlugin, IImporter

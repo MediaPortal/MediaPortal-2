@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.MetaData
+namespace MediaPortal.Media.MetaData
 {
   public interface IMetaDataMappingCollection
   {

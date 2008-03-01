@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Core.MediaManager
+namespace MediaPortal.Media.MediaManager
 {
   /// <summary>
   /// interface to the root container of a provider

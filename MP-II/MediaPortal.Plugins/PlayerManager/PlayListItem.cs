@@ -26,8 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MetaData;
 
 namespace MediaPortal.Plugins.PlayerManager
 {

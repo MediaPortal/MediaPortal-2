@@ -30,10 +30,11 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
+
+using MediaPortal.Media.MediaManager;
 
 namespace PicturePlayer
 {

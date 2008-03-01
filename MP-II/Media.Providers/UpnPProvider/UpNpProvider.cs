@@ -33,8 +33,8 @@ using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace UpNpProvider
 {

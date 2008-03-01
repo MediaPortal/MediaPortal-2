@@ -24,7 +24,8 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Core.MediaManager;
+using MediaPortal.Media.MediaManager;
+
 namespace MediaPortal.Core.Players
 {
   public enum PlaybackState

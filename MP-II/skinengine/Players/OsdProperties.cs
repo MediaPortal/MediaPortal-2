@@ -39,8 +39,9 @@ using MediaPortal.Core.Players;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Messaging;
+
+using MediaPortal.Media.MediaManager;
 
 using SkinEngine.Commands;
 

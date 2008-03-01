@@ -26,7 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Localisation;
-namespace MediaPortal.Core.MetaData
+
+namespace MediaPortal.Media.MetaData
 {
   /// <summary>
   /// interface for the metadata mapping collection service

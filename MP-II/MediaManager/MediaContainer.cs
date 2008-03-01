@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MetaData;
 
 namespace MediaManager
 {

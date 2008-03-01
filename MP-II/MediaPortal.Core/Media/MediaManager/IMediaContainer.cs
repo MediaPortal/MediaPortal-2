@@ -22,7 +22,7 @@
 
 #endregion
 
-//namespace MediaPortal.Core.MediaManager
+//namespace MediaPortal.Media.MediaManager
 //{
 //  /// <summary>
 //  /// interface for a container which contains

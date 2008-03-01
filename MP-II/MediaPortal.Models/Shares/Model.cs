@@ -29,11 +29,12 @@ using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.Importers;
 
 namespace Shares
 {

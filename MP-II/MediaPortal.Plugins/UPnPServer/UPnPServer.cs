@@ -31,13 +31,13 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Database.Interfaces;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
-using IMediaItem = MediaPortal.Core.MediaManager.IMediaItem;
+using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
 
 namespace MediaPortal.UPnPServer
 {

@@ -25,10 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MetaData;
+
 using MediaManager.Views;
-using MediaPortal.Core.MetaData;
 
 namespace MediaManager
 {

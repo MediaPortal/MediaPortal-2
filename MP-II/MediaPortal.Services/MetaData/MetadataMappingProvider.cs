@@ -28,8 +28,9 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Localisation;
+
+using MediaPortal.Media.MetaData;
 
 namespace MediaPortal.Services.MetaData
 {

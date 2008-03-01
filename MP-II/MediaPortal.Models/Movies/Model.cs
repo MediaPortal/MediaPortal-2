@@ -29,18 +29,19 @@ using System.Runtime.InteropServices;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MetaData;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace MyMovies
 {

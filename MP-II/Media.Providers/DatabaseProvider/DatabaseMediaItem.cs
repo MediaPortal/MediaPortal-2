@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Database.Interfaces;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MetaData;
 
 namespace DatabaseProvider
 {

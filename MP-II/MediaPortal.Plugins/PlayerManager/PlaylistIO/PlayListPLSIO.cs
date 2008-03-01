@@ -30,7 +30,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Players;
-using MediaPortal.Core.MediaManager;
+using MediaPortal.Media.MediaManager;
 
 using MediaPortal.Utilities.Files;
 

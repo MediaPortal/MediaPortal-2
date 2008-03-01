@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MetaData;
+using MediaPortal.Media.MetaData;
 using MediaPortal.Core.Localisation;
 
 namespace MediaPortal.Services.MetaData

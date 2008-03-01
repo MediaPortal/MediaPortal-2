@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MediaManager;
+using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Core.Players
 {

@@ -35,17 +35,18 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.MediaManager.Views;
 using MediaPortal.Core.MenuManager;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.MetaData;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Importers;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MetaData;
+using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManager.Views;
 
 namespace Pictures
 {

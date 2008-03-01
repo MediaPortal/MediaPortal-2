@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MediaManager;
 using MediaPortal.Core.Logging;
+using MediaPortal.Media.MediaManager;
 
 namespace MyMedia
 {

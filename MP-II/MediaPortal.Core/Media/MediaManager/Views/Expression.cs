@@ -23,9 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManager.Views;
 
-namespace MediaPortal.Core.MediaManager.Views
+namespace MediaPortal.Media.MediaManager.Views
 {
   public class Expression : IExpression
   {

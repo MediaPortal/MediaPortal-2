@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManager
+namespace MediaPortal.Media.MediaManager
 {
   /// <summary>
   /// interface for a media item

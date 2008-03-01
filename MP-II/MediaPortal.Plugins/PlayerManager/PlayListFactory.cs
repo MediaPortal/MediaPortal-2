@@ -27,8 +27,9 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Players;
-using MediaPortal.Core.MediaManager;
-using MediaPortal.Core.Importers;
+
+using MediaPortal.Media.Importers;
+using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Plugins.PlayerManager
 {
