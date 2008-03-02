@@ -27,9 +27,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Xml.Serialization;
+using MediaPortal.Core;
 using MediaPortal.Core.MPIManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core;
+using MediaPortal.Core.Settings;
 using MediaPortal.Services.MPIManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
@@ -46,6 +47,7 @@ namespace MediaPortal.Services.MPIManager
     private Dictionary<string, IMPIFileAction> _fileActions;
     private MPIQueue Queue;
     public MPIEnumerator Enumerator;
+    private MPIManagerSettings _settings;
 
     #endregion
 
@@ -58,6 +60,7 @@ namespace MediaPortal.Services.MPIManager
       Queue = new MPIQueue();
       Enumerator = new MPIEnumerator();
       _fileActions = new Dictionary<string, IMPIFileAction>();
+      _settings = new MPIManagerSettings();
       RegisterAction("CopyFile", new CopyFile());
       RegisterAction("ScreenShots", new ScreenShot());
       RegisterAction("CopyMenu", new CopyMenu());
@@ -630,6 +633,25 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     public event OnNextFileEventHandler OnNextFile;
     
+    #endregion
+
+    #region Properties
+    /// <summary>
+    /// Gets or sets the settings.
+    /// This setting isn't loaded automaticaly, this should loadede mamualy
+    /// </summary>
+    /// <value>The settings.</value>
+    public MPIManagerSettings Settings
+    {
+      get
+      {
+        return _settings;
+      }
+      set
+      {
+        _settings = value;
+      }
+    }
     #endregion
   }
 }

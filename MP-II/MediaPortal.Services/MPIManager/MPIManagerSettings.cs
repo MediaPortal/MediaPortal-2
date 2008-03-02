@@ -21,51 +21,36 @@
 */
 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Plugins.ExtensionUpdater
+namespace MediaPortal.Services.MPIManager
 {
-  [Serializable]
-  class ExtensionUpdaterSettings
+  public class MPIManagerSettings
   {
-    private int _myTaskID;
-    private int _updaterTaskID;
-    private string _updateUrl = "";
+    #region variables
 
-    [Setting(SettingScope.Global, 0)]
-    public int TaskId
+    private string _updateUrl = "";
+    private string _baseUrl = "";
+
+    #endregion
+
+    #region Ctor
+    public MPIManagerSettings()
     {
-      get
-      {
-        return _myTaskID;
-      }
-      set
-      {
-        _myTaskID = value;
-      }
+
     }
-    
-    [Setting(SettingScope.Global, 0)]
-    public int UpdaterTaskId
-    {
-      get
-      {
-        return _updaterTaskID;
-      }
-      set
-      {
-        _updaterTaskID = value;
-      }
-    }
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// Gets or sets the update URL.
     /// </summary>
     /// <value>The update URL.</value>
-    /// http://openmaid.team-mediaportal.com/xtern.php?sync
     [Setting(SettingScope.Global, "http://openmaid.team-mediaportal.com/xtern.php?sync")]
     public string UpdateUrl
     {
@@ -79,5 +64,20 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       }
     }
 
+    [Setting(SettingScope.Global, "http://openmaid.team-mediaportal.com")]
+    public string BaseUrl
+    {
+      get
+      {
+        return _baseUrl;
+      }
+      set
+      {
+        _baseUrl = value;
+      }
+    }
+
+
+    #endregion
   }
 }

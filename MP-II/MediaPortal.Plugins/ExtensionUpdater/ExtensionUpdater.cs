@@ -67,10 +67,6 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadEnd);
       updaterClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(UpdaterDownloadProgressCallback);
       updaterClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdaterDownloadEnd);
-      if (!File.Exists(listFile))
-      {
-        StartUpdate();
-      }
     }
 
     #region IPlugin Members
@@ -115,6 +111,12 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       _settings.UpdaterTaskId = updatertask.ID;
       ServiceScope.Get<ISettingsManager>().Save(_settings);
       ServiceScope.Get<ILogger>().Info("Extension Updater Started");
+      installer.Settings.UpdateUrl = _settings.UpdateUrl;
+      if (!File.Exists(listFile))
+      {
+        StartUpdate();
+      }
+
     }
 
     #endregion
@@ -141,7 +143,6 @@ namespace MediaPortal.Plugins.ExtensionUpdater
               if (!updaterClient.IsBusy)
               {
                 StartUpdate();
-                //GetNextPendingExtension();
               }
             }
             break;
@@ -235,9 +236,9 @@ namespace MediaPortal.Plugins.ExtensionUpdater
 
     private void StartUpdate()
     {
-      string url = String.Format("http://openmaid.team-mediaportal.com/xtern.php?sync");
-      DownloadFile(updaterClient,url, listFile);
+      string url = _settings.UpdateUrl;
       ServiceScope.Get<ILogger>().Info("Get updates from : {0}", url);
+      DownloadFile(updaterClient,url, listFile);
     }
 
     /// <summary>

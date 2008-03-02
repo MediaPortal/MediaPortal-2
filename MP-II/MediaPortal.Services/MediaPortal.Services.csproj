@@ -115,6 +115,7 @@
     <Compile Include="MPIManager\MPIEnumerator.cs" />
     <Compile Include="MPIManager\MPIEnumeratorObject.cs" />
     <Compile Include="MPIManager\MPIFileItem.cs" />
+    <Compile Include="MPIManager\MPIManagerSettings.cs" />
     <Compile Include="MPIManager\MPInstaller.cs" />
     <Compile Include="MPIManager\MPIPackage.cs" />
     <Compile Include="MPIManager\MPIPackageState.cs" />

@@ -652,7 +652,7 @@ namespace MyExtensions
       string localdir = ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>");
       Directory.CreateDirectory(localdir);
       IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
-      string url = String.Format("http://openmaid.team-mediaportal.com/xtern.php?sync");
+      string url = Installer.Settings.UpdateUrl;
       string listFile = String.Format(@"{0}\Mpilist.xml", localdir);
       if (_factory.DownloadFile(url, listFile))
       {

@@ -58,7 +58,7 @@ namespace MyExtensions
 
     public void DownloadExtraInfo(MPIEnumeratorObject obj)
     {
-      string source = string.Format("http://openmaid.team-mediaportal.com/plugins/{0}/{1}/{2}/plugin.xml",obj.ExtensionId,obj.Version,obj.VersionType);
+      string source = string.Format("{3}/plugins/{0}/{1}/{2}/plugin.xml",obj.ExtensionId,obj.Version,obj.VersionType,Installer.Settings.BaseUrl);
       string dest = Path.GetTempFileName();
       DownloadFile(source, dest);
       IMPIPackage pak = Installer.LoadPackageFromXML(dest);
