@@ -237,10 +237,10 @@
     <String name="7" text="25 BPS"/>
     <String name="8" text="30 BPS"/>
     <String name="9" text="Standard BPS"/>
-    <String name="music" text="Music"/>
-    <String name="appearance" text="Framträdande"/>
-    <String name="audiosetup" text="Ljud inställningar"/>
-    <String name="speakersetup" text="Välj anslutingstyp för hötalare"/>
+    <String name="music" text="Musik"/>
+    <String name="appearance" text="Utseende"/>
+    <String name="audiosetup" text="Ljudinställningar"/>
+    <String name="speakersetup" text="Välj anslutningstyp för högtalare"/>
     <String name="buildin" text="Inbyggd (laptop)"/>
     <String name="analog" text="Analog"/>
     <String name="digital" text="Digital (Toslink/coax)"/>
@@ -248,12 +248,12 @@
     <String name="speakers2" text="2 högtalare (stereo)"/>
     <String name="speakers51" text="5.1 högtalare"/>
     <String name="speakers71" text="7.1 högtalare"/>
-    <String name="tvsetup" text="Tv/Monitor inställningar"/>
-    <String name="monitorsetup" text="Välj din typ av tv/monitor"/>
+    <String name="tvsetup" text="Skärminställningar"/>
+    <String name="monitorsetup" text="Välj typ av skärm"/>
     <String name="monitorcrt" text="CRT"/>
     <String name="monitorlcd" text="LCD/Plasma"/>
     <String name="monitorprojector" text="Projektor"/>
-    <String name="monitorarsetup" text="Välj din tv/monitor"/>
+    <String name="monitorarsetup" text="Välj skärmformat"/>
     <String name="monitornormal" text="Normal (4:3)"/>
     <String name="monitorwide" text="Wide (16:9)"/>
     <String name="monitorbuildin" text="Inbyggd"/>
