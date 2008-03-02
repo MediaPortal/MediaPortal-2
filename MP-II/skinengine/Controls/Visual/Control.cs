@@ -691,6 +691,16 @@ namespace SkinEngine.Controls.Visuals
         ContentManager.Remove(_backgroundAsset);
         _backgroundAsset = null;
       }
+      if (_backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        _backgroundContext = null;
+      }
+      if (_borderContext != null)
+      {
+        RenderPipeline.Instance.Remove(_borderContext);
+        _borderContext = null;
+      }
       _performLayout = true;
     }
     public override void Allocate()

@@ -259,6 +259,7 @@ namespace SkinEngine
       Device.SetRenderState(RenderState.CullMode, Cull.None);
       Device.SetRenderState(RenderState.Lighting, false);
       Device.SetRenderState(RenderState.ZEnable, false);
+      Device.SetRenderState(RenderState.ZWriteEnable, false);
 
       Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       Device.SetRenderState(RenderState.AlphaBlendEnable, true);

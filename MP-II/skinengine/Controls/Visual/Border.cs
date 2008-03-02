@@ -900,6 +900,16 @@ namespace SkinEngine.Controls.Visuals
         _backgroundAsset = null;
       }
       _performLayout = true;
+      if (_backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        _backgroundContext = null;
+      }
+      if (_borderContext != null)
+      {
+        RenderPipeline.Instance.Remove(_borderContext);
+        _borderContext = null;
+      }
     }
     public override void Allocate()
     {

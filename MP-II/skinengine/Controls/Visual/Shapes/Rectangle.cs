@@ -31,6 +31,7 @@ using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -176,7 +177,7 @@ namespace SkinEngine.Controls.Visuals
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
     }
-
+    /*
     /// <summary>
     /// Renders the visual
     /// </summary>
@@ -187,12 +188,12 @@ namespace SkinEngine.Controls.Visuals
 
       if (Fill != null)
       {
-        if ((_fillContext != null && !_fillContext.IsAllocated) || _fillContext == null)
+        if ((_fillAsset != null && !_fillAsset.IsAllocated) || _fillAsset == null)
           _performLayout = true;
       }
       if (Stroke != null)
       {
-        if ((_borderContext != null && !_borderContext.IsAllocated) || _borderContext == null)
+        if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
           _performLayout = true;
       }
       if (_performLayout)
@@ -205,34 +206,34 @@ namespace SkinEngine.Controls.Visuals
       //ExtendedMatrix m = new ExtendedMatrix();
       //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       //SkinContext.AddTransform(m);
-      if (_fillContext != null)
+      if (_fillAsset != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
+        if (Fill.BeginRender(_fillAsset.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _fillAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
           Fill.EndRender();
         }
-        _fillContext.LastTimeUsed = SkinContext.Now;
+        _fillAsset.LastTimeUsed = SkinContext.Now;
       }
-      if (_borderContext != null)
+      if (_borderAsset != null)
       {
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
+        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
-        _borderContext.LastTimeUsed = SkinContext.Now;
+        _borderAsset.LastTimeUsed = SkinContext.Now;
       }
 
      // SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
     }
-
+*/
 
     /// <summary>
     /// Performs the layout.
@@ -270,38 +271,76 @@ namespace SkinEngine.Controls.Visuals
           //CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            if (_fillContext == null)
+            if (SkinContext.UseBatching == false)
             {
-              _fillContext = new VisualAssetContext("Rectangle._fillContext:" + this.Name);
-              ContentManager.Add(_fillContext);
-            }
-            _fillContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-            if (_fillContext.VertexBuffer != null)
-            {
-              Fill.SetupBrush(this, ref verts);
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + this.Name);
+                ContentManager.Add(_fillAsset);
+              }
+              _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              if (_fillAsset.VertexBuffer != null)
+              {
+                Fill.SetupBrush(this, ref verts);
 
-              PositionColored2Textured.Set(_fillContext.VertexBuffer, ref verts);
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
+              }
+            }
+            else
+            {
+              Shape.PathToTriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
+              Fill.SetupBrush(this, ref verts);
+              if (_fillContext == null)
+              {
+                _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
+                Fill.SetupPrimitive(_fillContext);
+                RenderPipeline.Instance.Add(_fillContext);
+              }
+              else
+              {
+                _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+              }
             }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            if (_borderContext == null)
+            if (SkinContext.UseBatching == false)
             {
-              _borderContext = new VisualAssetContext("Rectangle._borderContext:" + this.Name);
-              ContentManager.Add(_borderContext);
-            }
-            using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
-            {
-              _borderContext.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, GeometryUtility.PolygonDirection.Clockwise, out verts, _finalLayoutTransform);
-              if (_borderContext.VertexBuffer != null)
+              if (_borderAsset == null)
               {
+                _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + this.Name);
+                ContentManager.Add(_borderAsset);
+              }
+              using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
+              {
+                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, GeometryUtility.PolygonDirection.Clockwise, out verts, _finalLayoutTransform);
+                if (_borderAsset.VertexBuffer != null)
+                {
 
-                Stroke.SetupBrush(this, ref verts);
+                  Stroke.SetupBrush(this, ref verts);
 
-                PositionColored2Textured.Set(_borderContext.VertexBuffer, ref verts);
-                _verticesCountBorder = (verts.Length / 3);
+                  PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+                  _verticesCountBorder = (verts.Length / 3);
+                }
+              }
+            }
+            else
+            {
+              Shape.StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              _verticesCountBorder = (verts.Length / 3);
+              Stroke.SetupBrush(this, ref verts);
+              if (_borderContext == null)
+              {
+                _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+                Stroke.SetupPrimitive(_borderContext);
+                RenderPipeline.Instance.Add(_borderContext);
+              }
+              else
+              {
+                _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
               }
             }
           }

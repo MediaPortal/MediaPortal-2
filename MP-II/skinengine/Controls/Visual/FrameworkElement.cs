@@ -559,6 +559,7 @@ namespace SkinEngine.Controls.Visuals
     {
       try
       {
+        SkinContext.Z -= 0.1f;
         _inRender = true;
         UpdateLayout();
         ExtendedMatrix matrix;
@@ -748,47 +749,46 @@ namespace SkinEngine.Controls.Visuals
       //upperleft
       verts[0].X = (float)this.ActualPosition.X - 0.5f;
       verts[0].Y = (float)this.ActualPosition.Y - 0.5f;
-      verts[0].Z = 1.0f;
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
+      verts[0].Z=SkinContext.Z;
 
       //bottom left
       verts[1].X = (float)(this.ActualPosition.X) - 0.5f;
       verts[1].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
-      verts[1].Z = 1.0f;
       verts[1].Color = color;
       verts[1].Tu1 = 0;
       verts[1].Tv1 = maxV;
+      verts[1].Z = SkinContext.Z;
 
       //bottomright
       verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
       verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
-      verts[2].Z = 1.0f;
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
+      verts[2].Z = SkinContext.Z;
 
       //upperleft
       verts[3].X = (float)this.ActualPosition.X - 0.5f;
       verts[3].Y = (float)this.ActualPosition.Y - 0.5f;
-      verts[3].Z = 1.0f;
       verts[3].Color = color;
       verts[3].Tu1 = 0;
       verts[3].Tv1 = 0;
+      verts[3].Z = SkinContext.Z;
 
       //upper right
       verts[4].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
       verts[4].Y = (float)(this.ActualPosition.Y) - 0.5f;
-      verts[4].Z = 1.0f;
       verts[4].Color = color;
       verts[4].Tu1 = maxU;
       verts[4].Tv1 = 0;
+      verts[4].Z = SkinContext.Z;
 
       //bottomright
       verts[5].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
       verts[5].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
-      verts[5].Z = 1.0f;
       verts[5].Color = color;
       verts[5].Tu1 = maxU;
       verts[5].Tv1 = maxV;

@@ -39,7 +39,7 @@ namespace SkinEngine
 {
   public class SkinContext
   {
-    public static bool UseBatching=false;
+    public static bool UseBatching = false;
     #region variables
 
     private static string _skinName = "default";
@@ -68,6 +68,7 @@ namespace SkinEngine
     private static DateTime _lastAction = DateTime.Now;
     public static uint TimePassed;
     public static System.Drawing.SizeF _skinZoom = new System.Drawing.SizeF(1, 1);
+    public static float Z = 0.0f;
     #endregion
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]

@@ -194,6 +194,7 @@ namespace SkinEngine.Controls.Brushes
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
         verts[i].Color = _verts[i].Color;
+        verts[i].Z = SkinContext.Z;
       }
       PositionColored2Textured.Set(vertexBuffer, ref verts);
     }

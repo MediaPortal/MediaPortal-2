@@ -31,6 +31,7 @@ using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -243,25 +244,45 @@ namespace SkinEngine.Controls.Visuals
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        if (_borderContext == null)
-        {
-          _borderContext = new VisualAssetContext("Line._borderContext:" + this.Name);
-          ContentManager.Add(_borderContext);
-        }
         using (path = GetLine(rect))
         {
           CalcCentroid(path, out centerX, out centerY);
-          _borderContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-          if (_borderContext.VertexBuffer != null)
+          if (_borderAsset == null)
           {
-            Stroke.SetupBrush(this, ref verts);
-            PositionColored2Textured.Set(_borderContext.VertexBuffer, ref verts);
+            _borderAsset = new VisualAssetContext("Line._borderContext:" + this.Name);
+            ContentManager.Add(_borderAsset);
+          }
+          if (SkinContext.UseBatching == false)
+          {
+            _borderAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+            if (_borderAsset.VertexBuffer != null)
+            {
+              Stroke.SetupBrush(this, ref verts);
+              PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+              _verticesCountBorder = (verts.Length / 3);
+            }
+          }
+          else
+          {
+            Shape.PathToTriangleList(path, centerX, centerY, out verts);
             _verticesCountBorder = (verts.Length / 3);
+            Stroke.SetupBrush(this, ref verts);
+            if (_borderContext == null)
+            {
+              _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+              Stroke.SetupPrimitive(_borderContext);
+              RenderPipeline.Instance.Add(_borderContext);
+            }
+            else
+            {
+              _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+            }
           }
         }
       }
 
     }
+    /*
     /// <summary>
     /// Renders the visual
     /// </summary>
@@ -270,7 +291,7 @@ namespace SkinEngine.Controls.Visuals
       if (!IsVisible) return;
       if (Stroke == null) return;
 
-      if ((_borderContext != null && !_borderContext.IsAllocated) || _borderContext == null)
+      if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
         _performLayout = true;
       if (_performLayout)
       {
@@ -281,20 +302,20 @@ namespace SkinEngine.Controls.Visuals
       //ExtendedMatrix m = new ExtendedMatrix();
       //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
       //SkinContext.AddTransform(m);
-      if (_borderContext != null)
+      if (_borderAsset != null)
       {
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
+        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
-        _borderContext.LastTimeUsed = SkinContext.Now;
+        _borderAsset.LastTimeUsed = SkinContext.Now;
       }
       //SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
-    }
+    }*/
     public override void Measure(SizeF availableSize)
     {
       using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))

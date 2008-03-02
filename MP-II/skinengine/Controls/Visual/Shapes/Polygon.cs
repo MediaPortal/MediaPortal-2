@@ -31,6 +31,7 @@ using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
+using SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -135,37 +136,75 @@ namespace SkinEngine.Controls.Visuals
           CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            if (_fillContext == null)
+            if (SkinContext.UseBatching == false)
             {
-              _fillContext = new VisualAssetContext("Polygon._fillContext:" + this.Name);
-              ContentManager.Add(_fillContext);
-            }
-            _fillContext.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-            if (_fillContext.VertexBuffer != null)
-            {
-              Fill.SetupBrush(this, ref verts);
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Polygon._fillContext:" + this.Name);
+                ContentManager.Add(_fillAsset);
+              }
+              _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              if (_fillAsset.VertexBuffer != null)
+              {
+                Fill.SetupBrush(this, ref verts);
 
-              PositionColored2Textured.Set(_fillContext.VertexBuffer, ref verts);
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
+              }
+            }
+            else
+            {
+              Shape.PathToTriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
+              Fill.SetupBrush(this, ref verts);
+              if (_fillContext == null)
+              {
+                _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
+                Fill.SetupPrimitive(_fillContext);
+                RenderPipeline.Instance.Add(_fillContext);
+              }
+              else
+              {
+                _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+              }
             }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            if (_borderContext == null)
+            if (SkinContext.UseBatching == false)
             {
-              _borderContext = new VisualAssetContext("Polygon._borderContext:" + this.Name);
-              ContentManager.Add(_borderContext);
-            }
-            using (path = GetPolygon(rect))
-            {
-              _borderContext.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
-              if (_borderContext.VertexBuffer != null)
+              if (_borderAsset == null)
               {
-                Stroke.SetupBrush(this, ref verts);
+                _borderAsset = new VisualAssetContext("Polygon._borderContext:" + this.Name);
+                ContentManager.Add(_borderAsset);
+              }
+              using (path = GetPolygon(rect))
+              {
+                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+                if (_borderAsset.VertexBuffer != null)
+                {
+                  Stroke.SetupBrush(this, ref verts);
 
-                PositionColored2Textured.Set(_borderContext.VertexBuffer, ref verts);
-                _verticesCountBorder = (verts.Length / 3);
+                  PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+                  _verticesCountBorder = (verts.Length / 3);
+                }
+              }
+            }
+            else
+            {
+              Shape.StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              _verticesCountBorder = (verts.Length / 3);
+              Stroke.SetupBrush(this, ref verts);
+              if (_borderContext == null)
+              {
+                _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+                Stroke.SetupPrimitive(_borderContext);
+                RenderPipeline.Instance.Add(_borderContext);
+              }
+              else
+              {
+                _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
               }
             }
           }

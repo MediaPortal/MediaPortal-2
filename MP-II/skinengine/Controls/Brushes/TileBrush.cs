@@ -325,6 +325,8 @@ namespace SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
+        verts[i].Z = SkinContext.Z;
+
       }
     }
 

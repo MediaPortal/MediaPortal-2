@@ -34,7 +34,7 @@ using SkinEngine.DirectX;
 
 namespace SkinEngine.Fonts
 {
-  public class Font
+  public class Font : ITextureAsset
   {
     public enum Align
     {
@@ -376,6 +376,33 @@ namespace SkinEngine.Fonts
       _effect.EndRender();
     }
 
+    public PositionColored2Textured[] Vertices
+    {
+      get
+      {
+        PositionColored2Textured[] verts = new PositionColored2Textured[6 * _quads.Count];
+        int x = 0;
+        foreach (FontQuad q in _quads)
+        {
+          verts[x++] = q.Vertices[0];
+          verts[x++] = q.Vertices[1];
+          verts[x++] = q.Vertices[2];
+          verts[x++] = q.Vertices[3];
+          verts[x++] = q.Vertices[4];
+          verts[x++] = q.Vertices[5];
+        }
+        return verts;
+      }
+    }
+
+    public int PrimitiveCount
+    {
+      get
+      {
+        return (_quads.Count * 2);
+      }
+    }
+
     public void Render(Device device, VertexBuffer buffer, out int count)
     {
       count = _quads.Count;
@@ -703,7 +730,7 @@ namespace SkinEngine.Fonts
         //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         // Create the vertices
         PositionColored2Textured topLeft = new PositionColored2Textured(
-          x + xOffset, y + yOffset, z,
+          x + xOffset, y + yOffset, z + SkinContext.Z,
           c.X / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
            b.Color.ToArgb());
@@ -718,7 +745,7 @@ namespace SkinEngine.Fonts
         uvPos.Z += finalTranslation.Z;
         //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured topRight = new PositionColored2Textured(
-          topLeft.X + width, y + yOffset, z,
+          topLeft.X + width, y + yOffset, z + SkinContext.Z,
           (c.X + c.Width) / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
            b.Color.ToArgb());
@@ -733,7 +760,7 @@ namespace SkinEngine.Fonts
         uvPos.Z += finalTranslation.Z;
         //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured bottomRight = new PositionColored2Textured(
-          topLeft.X + width, topLeft.Y + height, z,
+          topLeft.X + width, topLeft.Y + height, z + SkinContext.Z,
           (c.X + c.Width) / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
            b.Color.ToArgb());
@@ -748,7 +775,7 @@ namespace SkinEngine.Fonts
         uvPos.Z += finalTranslation.Z;
         //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
         PositionColored2Textured bottomLeft = new PositionColored2Textured(
-          x + xOffset, topLeft.Y + height, z,
+          x + xOffset, topLeft.Y + height, z + SkinContext.Z,
           c.X / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
            b.Color.ToArgb());
@@ -892,6 +919,38 @@ namespace SkinEngine.Fonts
     {
       get { return _texture; }
     }
+
+    #region ITextureAsset Members
+
+
+    public void Allocate()
+    {
+    }
+
+    public void KeepAlive()
+    {
+    }
+
+    #endregion
+
+    #region IAsset Members
+
+    public bool IsAllocated
+    {
+      get { return _texture != null; }
+    }
+
+    public bool CanBeDeleted
+    {
+      get { return false; }
+    }
+
+    public bool Free(bool force)
+    {
+      return false;
+    }
+
+    #endregion
   } ;
 
   /// <summary>Represents a single bitmap character set.</summary>
@@ -944,7 +1003,7 @@ namespace SkinEngine.Fonts
             count++;
           }
         }
-        _averageWidth = (w / count)*1.5f;
+        _averageWidth = (w / count) * 1.5f;
         return _averageWidth;
       }
     }

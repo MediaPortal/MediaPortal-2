@@ -62,6 +62,8 @@ namespace SkinEngine.Controls.Visuals
     private VertextBufferAsset _image;
     private VertextBufferAsset _fallbackImage;
     Property _stretchProperty;
+    TextureRender _renderImage;
+    TextureRender _renderFallback;
 
     float _u, _v, _uoff, _voff, _w, _h;
     Vector3 _pos;
@@ -120,6 +122,9 @@ namespace SkinEngine.Controls.Visuals
         _image.Free(true);
         ContentManager.Remove(_image);
         _image = null;
+
+        _renderImage.Free();
+        _renderImage = null;
       }
     }
 
@@ -384,12 +389,18 @@ namespace SkinEngine.Controls.Visuals
       {
         _image = ContentManager.Load(Source, Thumbnail);
         _image.Texture.UseThumbNail = Thumbnail;
+
+        if (SkinContext.UseBatching)
+          _renderImage = new TextureRender(_image.Texture);
         _performImageLayout = true;
       }
       if (_fallbackImage == null && FallbackSource != null)
       {
         _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
         _fallbackImage.Texture.UseThumbNail = Thumbnail;
+
+        if (SkinContext.UseBatching)
+          _renderFallback = new TextureRender(_fallbackImage.Texture);
         _performImageLayout = true;
       }
 
@@ -429,29 +440,54 @@ namespace SkinEngine.Controls.Visuals
           }
         }
       }
-      base.DoRender();
-      SkinContext.AddOpacity(this.Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-      SkinContext.AddTransform(m);
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      float opacity = (float)SkinContext.Opacity;
-      if (_image != null)
+      if (SkinContext.UseBatching == false)
       {
-        _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity,opacity,opacity,opacity);
-        if (_image.Texture.IsAllocated)
+        base.DoRender();
+        SkinContext.AddOpacity(this.Opacity);
+        ExtendedMatrix m = new ExtendedMatrix();
+        m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+        SkinContext.AddTransform(m);
+        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+        float opacity = (float)SkinContext.Opacity;
+        if (_image != null)
         {
-          SkinContext.RemoveTransform();
-          SkinContext.RemoveOpacity();
-          return;
+          _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          if (_image.Texture.IsAllocated)
+          {
+            SkinContext.RemoveTransform();
+            SkinContext.RemoveOpacity();
+            return;
+          }
         }
+        if (_fallbackImage != null)
+        {
+          _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        }
+        SkinContext.RemoveTransform();
+        SkinContext.RemoveOpacity();
       }
-      if (_fallbackImage != null)
+      else
       {
-        _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        base.DoRender();
+        SkinContext.AddOpacity(this.Opacity);
+        float opacity = (float)SkinContext.Opacity;
+        float posx = _pos.X + (float)ActualPosition.X;
+        float posy = _pos.Y + (float)ActualPosition.Y;
+        if (_renderImage != null)
+        {
+          _renderImage.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          if (_renderImage.Texture.IsAllocated)
+          {
+            SkinContext.RemoveOpacity();
+            return;
+          }
+        }
+        if (_renderFallback != null)
+        {
+          _renderFallback.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        }
+        SkinContext.RemoveOpacity();
       }
-      SkinContext.RemoveTransform();
-      SkinContext.RemoveOpacity();
     }
 
     /// <summary>
@@ -605,6 +641,16 @@ namespace SkinEngine.Controls.Visuals
         _fallbackImage = null;
       }
 
+      if (_renderImage != null)
+      {
+        _renderImage.Free();
+        _renderImage = null;
+      }
+      if (_renderFallback != null)
+      {
+        _renderFallback.Free();
+        _renderFallback = null;
+      }
       base.Deallocate();
     }
   }

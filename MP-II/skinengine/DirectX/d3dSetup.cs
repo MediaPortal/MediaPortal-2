@@ -1,4 +1,3 @@
-
 //#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 

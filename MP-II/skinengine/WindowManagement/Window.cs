@@ -187,6 +187,7 @@ namespace SkinEngine
       uint time = (uint)Environment.TickCount;
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
+      SkinContext.Z = 0;
 
 
       if (!IsOpened && _thread == null && !IsAnimating)

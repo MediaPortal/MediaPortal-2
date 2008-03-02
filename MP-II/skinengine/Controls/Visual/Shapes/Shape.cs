@@ -32,6 +32,7 @@ using MediaPortal.Core.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Brushes;
+using SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -74,11 +75,14 @@ namespace SkinEngine.Controls.Visuals
     Brush _fillProperty;
     Brush _strokeProperty;
     Property _strokeThicknessProperty;
-    protected VisualAssetContext _fillContext;
+    protected VisualAssetContext _fillAsset;
     protected int _verticesCountFill;
-    protected VisualAssetContext _borderContext;
+    protected VisualAssetContext _borderAsset;
     protected int _verticesCountBorder;
     protected bool _performLayout;
+    protected PrimitiveContext _fillContext;
+    protected PrimitiveContext _borderContext;
+    protected UIEvent _lastEvent;
 
     public Shape()
     {
@@ -115,6 +119,10 @@ namespace SkinEngine.Controls.Visuals
     void OnStrokeThicknessChanged(Property property)
     {
       _performLayout = true;
+    }
+    void OnBrushPropertyChanged(Property property)
+    {
+      _lastEvent = UIEvent.OpacityChange;
     }
 
 
@@ -164,6 +172,10 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _fillProperty = value;
+        if (value != null)
+        {
+          _fillProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+        }
       }
     }
 
@@ -181,6 +193,10 @@ namespace SkinEngine.Controls.Visuals
       set
       {
         _strokeProperty = value;
+        if (value != null)
+        {
+          _strokeProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+        }
       }
     }
 
@@ -221,21 +237,57 @@ namespace SkinEngine.Controls.Visuals
     {
     }
 
+    void SetupBrush()
+    {
+      if (Fill != null && _fillContext != null)
+      {
+        RenderPipeline.Instance.Remove(_fillContext);
+        Fill.SetupPrimitive(_fillContext);
+        RenderPipeline.Instance.Add(_fillContext);
+      }
+      if (Stroke != null && _borderContext != null)
+      {
+        RenderPipeline.Instance.Remove(_borderContext);
+        Stroke.SetupPrimitive(_borderContext);
+        RenderPipeline.Instance.Add(_borderContext);
+      }
+    }
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
+      if (SkinContext.UseBatching)
+      {
+
+        SkinContext.AddOpacity(this.Opacity);
+        if (_performLayout)
+        {
+          PerformLayout();
+          _performLayout = false;
+          _lastEvent = UIEvent.None;
+        }
+        else if (_lastEvent != UIEvent.None)
+        {
+          if ((_lastEvent & UIEvent.OpacityChange) != 0)
+          {
+            SetupBrush();
+          }
+          _lastEvent = UIEvent.None;
+        }
+        SkinContext.RemoveOpacity();
+        return;
+      }
       if (!IsVisible) return;
       if (Fill == null && Stroke == null) return;
       if (Fill != null)
       {
-        if ((_fillContext != null && !_fillContext.IsAllocated) || _fillContext == null)
+        if ((_fillAsset != null && !_fillAsset.IsAllocated) || _fillAsset == null)
           _performLayout = true;
       }
       if (Stroke != null)
       {
-        if ((_borderContext != null && !_borderContext.IsAllocated) || _borderContext == null)
+        if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
           _performLayout = true;
       }
       if (_performLayout)
@@ -245,31 +297,52 @@ namespace SkinEngine.Controls.Visuals
       }
 
       SkinContext.AddOpacity(this.Opacity);
-      if (_fillContext != null)
+      if (_fillAsset != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillContext.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
+        if (Fill.BeginRender(_fillAsset.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _fillAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
           Fill.EndRender();
         }
-        _fillContext.LastTimeUsed = SkinContext.Now;
+        _fillAsset.LastTimeUsed = SkinContext.Now;
       }
-      if (_borderContext != null)
+      if (_borderAsset != null)
       {
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderContext.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
+        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, PositionColored2Textured.StrideSize);
+          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
           GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
           Stroke.EndRender();
         }
-        _borderContext.LastTimeUsed = SkinContext.Now;
+        _borderAsset.LastTimeUsed = SkinContext.Now;
       }
       SkinContext.RemoveOpacity();
 
+    }
+
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+
+      if (SkinContext.UseBatching)
+      {
+        switch (eventType)
+        {
+          case UIEvent.Hidden:
+            RenderPipeline.Instance.Remove(_fillContext);
+            RenderPipeline.Instance.Remove(_borderContext);
+            _fillContext = null;
+            _borderContext = null;
+            _performLayout = true;
+            break;
+          case UIEvent.OpacityChange:
+            _lastEvent |= eventType;
+            break;
+        }
+      }
     }
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglist.
@@ -415,7 +488,43 @@ namespace SkinEngine.Controls.Visuals
     static public void PathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
       verts = null;
-      if (path.PointCount <= 0) return ;
+      if (path.PointCount <= 0) return;
+      // thickNess /= 2.0f;
+      float thicknessW = thickNess * SkinContext.Zoom.Width;
+      float thicknessH = thickNess * SkinContext.Zoom.Height;
+      PointF[] points = path.PathPoints;
+      int pointCount = points.Length;
+      int verticeCount = (pointCount) * 2 * 3;
+
+      verts = new PositionColored2Textured[verticeCount];
+
+      float x, y;
+      for (int i = 0; i < (pointCount); ++i)
+      {
+        int offset = i * 6;
+        PointF nextpoint = GetNextPoint(points, i, pointCount);
+        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction, finalLayoutTransform);
+        verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
+        verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 2].Position = new Vector3(x, y, 1);
+
+        verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
+        verts[offset + 4].Position = new Vector3(x, y, 1);
+
+        verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
+
+
+      }
+    }
+    static public void StrokePathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
+    {
+      PolygonDirection direction = PointsDirection(path);
+      StrokePathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
+    }
+    static public void StrokePathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
+    {
+      verts = null;
+      if (path.PointCount <= 0) return;
       // thickNess /= 2.0f;
       float thicknessW = thickNess * SkinContext.Zoom.Width;
       float thicknessH = thickNess * SkinContext.Zoom.Height;
@@ -903,16 +1012,26 @@ namespace SkinEngine.Controls.Visuals
         Fill.Deallocate();
       if (Stroke != null)
         Stroke.Deallocate();
+      if (_fillAsset != null)
+      {
+        _fillAsset.Free(true);
+        ContentManager.Remove(_fillAsset);
+        _fillAsset = null;
+      }
+      if (_borderAsset != null)
+      {
+        _borderAsset.Free(true);
+        ContentManager.Remove(_borderAsset);
+        _borderAsset = null;
+      }
       if (_fillContext != null)
       {
-        _fillContext.Free(true);
-        ContentManager.Remove(_fillContext);
+        RenderPipeline.Instance.Remove(_fillContext);
         _fillContext = null;
       }
       if (_borderContext != null)
       {
-        _borderContext.Free(true);
-        ContentManager.Remove(_borderContext);
+        RenderPipeline.Instance.Remove(_borderContext);
         _borderContext = null;
       }
 

@@ -243,7 +243,7 @@ namespace SkinEngine.Controls.Brushes
         _relativeTransformProperty.SetValue(value);
       }
     }
-     
+
 
     /// <summary>
     /// Gets or sets the transform.
@@ -302,6 +302,7 @@ namespace SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
+        verts[i].Z = SkinContext.Z;
       }
     }
 
