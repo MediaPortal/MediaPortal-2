@@ -7,7 +7,7 @@
       <SubView Name="movies" key="" operator="" map="movies-shares"/>
     </View>
     <View Name="Years" type="databases">
-      <SubView Name="show unique years" key="date" operator="distinct" map="movies-database-search"/>
+      <SubView Name="show unique years" key="year" operator="distinct" map="movies-database-search"/>
       <SubView Name="movies" key="" operator="" map="movies-shares"/>
     </View>
     <View Name="Genres" type="databases">
@@ -27,11 +27,11 @@
           <Expression operator="or">
             <Query>
               <Expression operator="and">
-                <Query key="date" operator="greaterorsame" value="1980"/>
-                <Query key="date" operator="lessorsame" value="2000"/>
+                <Query key="year" operator="greaterorsame" value="1980"/>
+                <Query key="year" operator="lessorsame" value="2000"/>
               </Expression>
             </Query>
-            <Query key="date" operator="==" value="2007"/>
+            <Query key="year" operator="==" value="2007"/>
           </Expression>
         </Query>
       </SubView>

@@ -209,6 +209,8 @@ namespace MovieImporter
                 movie["CoverArt"] = scraper.Metadata["thumb"];
               if (scraper.Metadata.ContainsKey("actors"))
                 movie["actors"] = scraper.Metadata["actors"];
+              if (scraper.Metadata.ContainsKey("year"))
+                movie["year"] = scraper.Metadata["year"];
 
             }
           }
@@ -580,6 +582,7 @@ namespace MovieImporter
         _movieDatabase.Add("size", typeof(int));
         _movieDatabase.Add("dateAdded", typeof(DateTime));
         _movieDatabase.Add("isDVD", typeof(int));
+        _movieDatabase.Add("year", typeof(string), 4);
 
         //get date/time of last import done....
         Query lastDateQuery = new Query();
