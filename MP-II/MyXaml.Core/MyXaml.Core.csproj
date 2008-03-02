@@ -108,7 +108,7 @@
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <BaseAddress>285212672</BaseAddress>
-    <DocumentationFile>MyXamlCore.xml</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\MyXaml.Core.XML</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>

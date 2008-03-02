@@ -48,6 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
+    <DocumentationFile>bin\x86\Xml Documentation\MyInput.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IrssComms, Version=1.0.3.5, Culture=neutral, processorArchitecture=x86">
