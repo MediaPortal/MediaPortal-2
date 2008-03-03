@@ -176,10 +176,9 @@ namespace SkinEngine.Controls.Visuals
         if (_finalRect != finalRect)
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-        if (_finalRect.Width == 0 && _finalRect.Height == 0)
-        {
 
-        }
+        if (Window != null)
+          Window.Invalidate(this);
       }
     }
     /*

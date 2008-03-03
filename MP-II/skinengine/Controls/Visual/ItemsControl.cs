@@ -663,9 +663,8 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Update()
     {
-      UpdateLayout();
-      DoUpdateItems();
       base.Update();
+      DoUpdateItems();
     }
   }
 }
