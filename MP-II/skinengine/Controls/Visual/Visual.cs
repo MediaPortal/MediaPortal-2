@@ -39,6 +39,7 @@ namespace SkinEngine.Controls.Visuals
     Property _visualParentProperty;
     Property _focusedElement;
     bool _history;
+    public Window Window;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Visual"/> class.
@@ -52,6 +53,7 @@ namespace SkinEngine.Controls.Visuals
       Init();
       History = v.History;
       VisualParent = v.VisualParent;
+      Window = v.Window;
     }
     void Init()
     {
@@ -169,6 +171,15 @@ namespace SkinEngine.Controls.Visuals
       throw new Exception("The method or operation is not implemented.");
     }
 
+    public virtual void DoBuildRenderTree()
+    {
+    }
+    public virtual void BuildRenderTree()
+    {
+    }
+    public virtual void DestroyRenderTree()
+    {
+    }
     #endregion
   }
 }

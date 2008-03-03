@@ -34,6 +34,7 @@ using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using SkinEngine;
 using SkinEngine.Rendering;
+using SkinEngine.Controls.Visuals;
 using SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -50,7 +51,7 @@ using MyXaml.Core;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Border : Shape, IAddChild
+  public class Border : Shape, IAddChild, IUpdateEventHandler
   {
     Property _backgroundProperty;
     Property _borderProperty;
@@ -91,8 +92,8 @@ namespace SkinEngine.Controls.Visuals
       _borderThicknessProperty = new Property((double)1.0);
       _cornerRadiusProperty = new Property((double)0);
 
-      _borderProperty.Attach(new PropertyChangedHandler(OnBrushChanged));
-      _backgroundProperty.Attach(new PropertyChangedHandler(OnBrushChanged));
+      _borderProperty.Attach(new PropertyChangedHandler(OnBorderBrushChanged));
+      _backgroundProperty.Attach(new PropertyChangedHandler(OnBackgroundBrushChanged));
       _borderThicknessProperty.Attach(new PropertyChangedHandler(OnLayoutPropertyChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnLayoutPropertyChanged));
     }
@@ -101,22 +102,38 @@ namespace SkinEngine.Controls.Visuals
     {
       return new Border(this);
     }
-    void OnBrushChanged(Property property)
+    void OnBackgroundBrushChanged(Property property)
     {
       Brush brush = property.GetValue() as Brush;
       if (brush != null)
       {
         brush.ClearAttachedEvents();
-        brush.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+        brush.Attach(new PropertyChangedHandler(OnBackgroundBrushPropertyChanged));
       }
     }
-    void OnBrushPropertyChanged(Property property)
+    void OnBorderBrushChanged(Property property)
     {
-      _lastEvent = UIEvent.OpacityChange;
+      Brush brush = property.GetValue() as Brush;
+      if (brush != null)
+      {
+        brush.ClearAttachedEvents();
+        brush.Attach(new PropertyChangedHandler(OnBorderBrushPropertyChanged));
+      }
+    }
+    void OnBackgroundBrushPropertyChanged(Property property)
+    {
+      _lastEvent |= UIEvent.FillChange;
+      if (Window!=null) Window.Invalidate(this);
+    }
+    void OnBorderBrushPropertyChanged(Property property)
+    {
+      _lastEvent |= UIEvent.StrokeChange;
+      if (Window!=null) Window.Invalidate(this);
     }
     void OnLayoutPropertyChanged(Property property)
     {
       _performLayout = true;
+      if (Window!=null) Window.Invalidate(this);
     }
     #endregion
 
@@ -330,49 +347,58 @@ namespace SkinEngine.Controls.Visuals
 
     #region rendering
 
-    void SetupBrush()
+    void SetupBrush(UIEvent uiEvent)
     {
-      if (Background != null && _backgroundContext != null)
+      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.FillChange) != 0)
       {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        Background.SetupPrimitive(_backgroundContext);
-        RenderPipeline.Instance.Add(_backgroundContext);
+        if (Background != null && _backgroundContext != null)
+        {
+          RenderPipeline.Instance.Remove(_backgroundContext);
+          Background.SetupPrimitive(_backgroundContext);
+          RenderPipeline.Instance.Add(_backgroundContext);
+        }
       }
-      if (BorderBrush != null && _borderContext != null)
+
+      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.StrokeChange) != 0)
       {
-        RenderPipeline.Instance.Remove(_borderContext);
-        BorderBrush.SetupPrimitive(_borderContext);
-        RenderPipeline.Instance.Add(_borderContext);
+        if (BorderBrush != null && _borderContext != null)
+        {
+          RenderPipeline.Instance.Remove(_borderContext);
+          BorderBrush.SetupPrimitive(_borderContext);
+          RenderPipeline.Instance.Add(_borderContext);
+        }
+      }
+    }
+
+    public new void Update()
+    {
+      UpdateLayout();
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      else if (_lastEvent != UIEvent.None)
+      {
+        if ((_lastEvent & UIEvent.Hidden) != 0)
+        {
+          RenderPipeline.Instance.Remove(_backgroundContext);
+          RenderPipeline.Instance.Remove(_borderContext);
+          _backgroundContext = null;
+          _borderContext = null;
+          _performLayout = true;
+        }
+        else
+        {
+          SetupBrush(_lastEvent);
+        }
+        _lastEvent = UIEvent.None;
       }
     }
 
     public override void DoRender()
     {
-      if (SkinContext.UseBatching)
-      {
-
-        SkinContext.AddOpacity(this.Opacity);
-        if (_performLayout)
-        {
-          PerformLayout();
-          _performLayout = false;
-          _lastEvent = UIEvent.None;
-        }
-        else if (_lastEvent != UIEvent.None)
-        {
-          if ((_lastEvent & UIEvent.OpacityChange) != 0)
-          {
-            SetupBrush();
-          }
-          _lastEvent = UIEvent.None;
-        }
-        if (_content != null)
-        {
-          _content.DoRender();
-        }
-        SkinContext.RemoveOpacity();
-        return;
-      }
 
       if (!IsVisible) return;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
@@ -426,14 +452,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    public override void Animate()
-    {
-      base.Animate();
-      if (_content != null)
-      {
-        _content.Animate();
-      }
-    }
     #endregion
 
     #region input handling
@@ -443,19 +461,8 @@ namespace SkinEngine.Controls.Visuals
         _content.FireUIEvent(eventType, source);
       if (SkinContext.UseBatching)
       {
-        switch (eventType)
-        {
-          case UIEvent.Hidden:
-            RenderPipeline.Instance.Remove(_backgroundContext);
-            RenderPipeline.Instance.Remove(_borderContext);
-            _backgroundContext = null;
-            _borderContext = null;
-            _performLayout = true;
-            break;
-          case UIEvent.OpacityChange:
-            _lastEvent |= eventType;
-            break;
-        }
+        _lastEvent |= eventType;
+        if (Window!=null) Window.Invalidate(this);
       }
     }
     public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
@@ -921,6 +928,44 @@ namespace SkinEngine.Controls.Visuals
       if (_content != null)
       {
         _content.Allocate();
+      }
+    }
+
+
+    public override void DoBuildRenderTree()
+    {
+      if (!IsVisible) return;
+      PerformLayout();
+      _performLayout = false;
+      _lastEvent = UIEvent.None;
+      if (_content != null)
+      {
+        _content.BuildRenderTree();
+      }
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        _backgroundContext = null;
+      }
+      if (_borderContext != null)
+      {
+        RenderPipeline.Instance.Remove(_borderContext);
+        _borderContext = null;
+      }
+      if (_content != null)
+      {
+        _content.DestroyRenderTree();
+      }
+    }
+    public override void SetWindow(Window window)
+    {
+      base.SetWindow(window);
+      if (_content != null)
+      {
+        _content.SetWindow(window);
       }
     }
   }

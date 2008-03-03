@@ -63,6 +63,7 @@ namespace SkinEngine.Controls.Visuals
       {
         Header = (FrameworkElement)c.Header.Clone();
         Header.VisualParent = this;
+        Header.SetWindow(Window);
       }
       if (c.HeaderTemplate != null)
         HeaderTemplate = (DataTemplate)c.HeaderTemplate.Clone();
@@ -88,6 +89,7 @@ namespace SkinEngine.Controls.Visuals
     void OnContentChanged(Property property)
     {
       Header.VisualParent = this;
+      Header.SetWindow(Window);
     }
     #endregion
 
@@ -361,19 +363,26 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
+
+    public override void DoBuildRenderTree()
     {
+      if (!IsVisible) return;
       if (Header != null)
       {
-        Header.Animate();
+        Header.BuildRenderTree();
       }
       if (IsExpanded)
       {
-        base.Animate();
+        base.DoBuildRenderTree();
       }
+    }
+    public override void DestroyRenderTree()
+    {
+      if (Header != null)
+      {
+        Header.DestroyRenderTree();
+      }
+      base.DestroyRenderTree();
     }
     #endregion
 
@@ -589,5 +598,13 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
 
+    public override void SetWindow(Window window)
+    {
+      base.SetWindow(window);
+      if (Header != null)
+      {
+        Header.SetWindow(window);
+      }
+    }
   }
 }

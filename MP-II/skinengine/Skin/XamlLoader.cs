@@ -239,7 +239,7 @@ namespace SkinEngine.Skin
           }
           if (result != null)
           {
-           // Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
+            // Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
             return result;
           }
         }

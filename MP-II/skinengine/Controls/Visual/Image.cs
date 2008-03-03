@@ -29,6 +29,7 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine;
+using SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 
@@ -108,6 +109,7 @@ namespace SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performImageLayout = true;
+      if (Window!=null) Window.Invalidate(this);
     }
     /// <summary>
     /// Called when the imagesource has been changed
@@ -126,6 +128,8 @@ namespace SkinEngine.Controls.Visuals
         _renderImage.Free();
         _renderImage = null;
       }
+      _performImageLayout = true;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -377,6 +381,110 @@ namespace SkinEngine.Controls.Visuals
 
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+    }
+
+
+    public override void DoBuildRenderTree()
+    {
+      if (_renderImage != null)
+        _renderImage.Free();
+      _renderImage = null;
+
+      if (_renderFallback != null)
+        _renderFallback.Free();
+      _renderFallback = null;
+
+      if (!IsVisible) return;
+      if (!IsEnabled && Opacity == 0.0) return;
+      if (_image == null && Source != null)
+      {
+        _image = ContentManager.Load(Source, Thumbnail);
+        _image.Texture.UseThumbNail = Thumbnail;
+        _image.Texture.Allocate();
+
+        if (SkinContext.UseBatching)
+          _renderImage = new TextureRender(_image.Texture);
+        _performImageLayout = true;
+      }
+      if (_fallbackImage == null && FallbackSource != null)
+      {
+        _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
+        _fallbackImage.Texture.UseThumbNail = Thumbnail;
+        _fallbackImage.Texture.Allocate();
+
+        if (SkinContext.UseBatching)
+          _renderFallback = new TextureRender(_fallbackImage.Texture);
+        _performImageLayout = true;
+      }
+
+      if (_performImageLayout)
+      {
+        if (_image != null)
+        {
+          if (_image.Texture.IsAllocated)
+          {
+            _performImageLayout = false;
+            if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
+            {
+              Invalidate();
+            }
+            else
+            {
+              PerformLayout(_image);
+            }
+          }
+        }
+        if (_performImageLayout)
+        {
+          if (_fallbackImage != null)
+          {
+            if (_fallbackImage.Texture.IsAllocated)
+            {
+              _performImageLayout = false;
+              if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
+              {
+                Invalidate();
+              }
+              else
+              {
+                PerformLayout(_fallbackImage);
+              }
+            }
+          }
+        }
+      }
+
+      SkinContext.AddOpacity(this.Opacity);
+      float opacity = (float)SkinContext.Opacity;
+      float posx = _pos.X + (float)ActualPosition.X;
+      float posy = _pos.Y + (float)ActualPosition.Y;
+      if (_renderImage != null)
+      {
+        _renderImage.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        if (_renderImage.Texture.IsAllocated)
+        {
+          SkinContext.RemoveOpacity();
+          return;
+        }
+      }
+      if (_renderFallback != null)
+      {
+        _renderFallback.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+      }
+      SkinContext.RemoveOpacity();
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_renderImage != null)
+      {
+        _renderImage.Free();
+        _renderImage = null;
+      }
+      if (_renderFallback != null)
+      {
+        _renderFallback.Free();
+        _renderFallback = null;
+      }
     }
 
     /// <summary>
@@ -652,6 +760,15 @@ namespace SkinEngine.Controls.Visuals
         _renderFallback = null;
       }
       base.Deallocate();
+    }
+
+    public override void Update()
+    {
+      base.Update();
+
+      if (_performImageLayout)
+        DoBuildRenderTree();
+      _performImageLayout = false;
     }
   }
 }

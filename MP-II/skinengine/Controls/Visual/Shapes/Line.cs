@@ -87,6 +87,7 @@ namespace SkinEngine.Controls.Visuals
     void OnCoordinateChanged(Property property)
     {
       Invalidate();
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -267,15 +268,15 @@ namespace SkinEngine.Controls.Visuals
             Shape.PathToTriangleList(path, centerX, centerY, out verts);
             _verticesCountBorder = (verts.Length / 3);
             Stroke.SetupBrush(this, ref verts);
-            if (_borderContext == null)
+            if (_strokeContext == null)
             {
-              _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-              Stroke.SetupPrimitive(_borderContext);
-              RenderPipeline.Instance.Add(_borderContext);
+              _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+              Stroke.SetupPrimitive(_strokeContext);
+              RenderPipeline.Instance.Add(_strokeContext);
             }
             else
             {
-              _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+              _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
             }
           }
         }

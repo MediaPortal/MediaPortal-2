@@ -30,8 +30,10 @@ using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
+using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.InputManager;
+using MediaPortal.Core.WindowManager;
 using SkinEngine.Controls.Visuals.Triggers;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Controls.Transforms;
@@ -51,7 +53,9 @@ namespace SkinEngine.Controls.Visuals
     None = 0,
     Hidden = 1,
     Visible = 2,
-    OpacityChange = 4
+    OpacityChange = 4,
+    StrokeChange=8,
+    FillChange=16,
   }
 
   public class UIElement : Visual, IBindingCollection
@@ -87,7 +91,6 @@ namespace SkinEngine.Controls.Visuals
     protected System.Drawing.RectangleF _finalRect;
     bool _isArrangeValid;
     ResourceDictionary _resources;
-    List<StoryboardContext> _runningAnimations;
     BindingCollection _bindings;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
@@ -172,7 +175,6 @@ namespace SkinEngine.Controls.Visuals
     void Init()
     {
       _bindings = new BindingCollection();
-      _runningAnimations = new List<StoryboardContext>();
       _nameProperty = new Property("");
       _keyProperty = new Property("");
       _focusableProperty = new Property(false);
@@ -1295,31 +1297,13 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    StoryboardContext GetContext(Storyboard board)
-    {
-      foreach (StoryboardContext context in _runningAnimations)
-      {
-        if (context.Storyboard == board) return context;
-      }
-      return null;
-    }
     /// <summary>
     /// Starts the storyboard.
     /// </summary>
     /// <param name="board">The board.</param>
     public void StartStoryboard(Storyboard board)
     {
-      lock (_runningAnimations)
-      {
-
-        if (null == GetContext(board))
-        {
-          StoryboardContext context = new StoryboardContext(board);
-          _runningAnimations.Add(context);
-          context.Setup(this);
-          context.Start(SkinContext.TimePassed);
-        }
-      }
+      Window.Animator.StartStoryboard(board, this);
     }
 
     /// <summary>
@@ -1328,36 +1312,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="board">The board.</param>
     public void StopStoryboard(Storyboard board)
     {
-      lock (_runningAnimations)
-      {
-        StoryboardContext context = GetContext(board);
-        if (context == null) return;
-        context.Stop();
-        _runningAnimations.Remove(context);
-      }
-    }
-
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public virtual void Animate()
-    {
-      if (_runningAnimations.Count == 0) return;
-      List<StoryboardContext> stoppedAnimations = new List<StoryboardContext>();
-      lock (_runningAnimations)
-      {
-        foreach (StoryboardContext line in _runningAnimations)
-        {
-          line.Animate(SkinContext.TimePassed);
-          if (line.IsStopped)
-            stoppedAnimations.Add(line);
-        }
-        foreach (StoryboardContext line in stoppedAnimations)
-        {
-          line.Stop();
-          _runningAnimations.Remove(line);
-        }
-      }
+      Window.Animator.StopStoryboard(board);
     }
     /// <summary>
     /// Called when the mouse moves
@@ -1454,6 +1409,10 @@ namespace SkinEngine.Controls.Visuals
     }
     public virtual void Deallocate()
     {
+    }
+    public virtual void SetWindow(Window window)
+    {
+      Window = window;
     }
     #endregion
   }

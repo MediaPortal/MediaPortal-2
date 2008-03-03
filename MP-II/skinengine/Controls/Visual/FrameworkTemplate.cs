@@ -114,11 +114,13 @@ namespace SkinEngine.Controls.Visuals
     #endregion
 
     #region methods
-    public UIElement LoadContent()
+    public UIElement LoadContent(Window w)
     {
       ///@optimize: 
       if (_templateElement == null) return null;
-      return _templateElement.Clone() as UIElement;
+      UIElement element= _templateElement.Clone() as UIElement;
+      element.SetWindow(w);
+      return element;
     }
     #endregion
     

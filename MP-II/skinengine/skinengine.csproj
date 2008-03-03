@@ -170,6 +170,7 @@
     <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
+    <Compile Include="Controls\Visual\IUpdateEventHandler.cs" />
     <Compile Include="Controls\Visual\VisualAssetContext.cs" />
     <Compile Include="Controls\Visual\Border.cs" />
     <Compile Include="Controls\Visual\Button.cs" />
@@ -295,6 +296,7 @@
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
     <Compile Include="Skin\SkinLoaderContext.cs" />
     <Compile Include="Skin\XamlLoader.cs" />
+    <Compile Include="WindowManagement\Animator.cs" />
     <Compile Include="WindowManagement\Utils.cs" />
     <Compile Include="WindowManagement\Window.cs" />
     <Compile Include="WindowManagement\WindowManager.cs" />

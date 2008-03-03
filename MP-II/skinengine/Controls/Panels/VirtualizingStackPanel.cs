@@ -33,6 +33,7 @@ using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Rendering;
 
 namespace SkinEngine.Controls.Panels
 {
@@ -303,6 +304,7 @@ namespace SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
+        if (Window!=null) Window.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
       base.Arrange(layoutRect);

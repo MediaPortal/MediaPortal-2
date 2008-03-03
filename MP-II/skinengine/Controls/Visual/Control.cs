@@ -44,7 +44,7 @@ using SkinEngine.Controls.Brushes;
 
 namespace SkinEngine.Controls.Visuals
 {
-  public class Control : FrameworkElement
+  public class Control : FrameworkElement, IUpdateEventHandler
   {
     Property _templateProperty;
     FrameworkElement _templateControl;
@@ -76,7 +76,7 @@ namespace SkinEngine.Controls.Visuals
       if (c.Template != null)
       {
         Template = (ControlTemplate)c.Template.Clone();
-        FrameworkElement element = Template.LoadContent() as FrameworkElement;
+        FrameworkElement element = Template.LoadContent(Window) as FrameworkElement;
         if (element != null)
         {
           element.VisualParent = this;
@@ -116,9 +116,15 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty.Attach(new PropertyChangedHandler(OnTemplateChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
-    void OnBrushPropertyChanged(Property property)
+    void OnBorderBrushPropertyChanged(Property property)
     {
-      _lastEvent = UIEvent.OpacityChange;
+      _lastEvent |= UIEvent.StrokeChange;
+      if (Window!=null) Window.Invalidate(this);
+    }
+    void OnBackgroundBrushPropertyChanged(Property property)
+    {
+      _lastEvent |= UIEvent.FillChange;
+      if (Window!=null) Window.Invalidate(this);
     }
     protected override void OnStyleChanged(Property property)
     {
@@ -133,7 +139,7 @@ namespace SkinEngine.Controls.Visuals
       if (Template != null)
       {
         ///@optimize: 
-        FrameworkElement element = Template.LoadContent() as FrameworkElement;
+        FrameworkElement element = Template.LoadContent(Window) as FrameworkElement;
         if (element != null)
         {
           element.VisualParent = this;
@@ -141,6 +147,7 @@ namespace SkinEngine.Controls.Visuals
           _templateControl.Context = this.Context;
           this.Resources.Merge(Template.Resources);
           this.Triggers.Merge(Template.Triggers);
+          _templateControl.SetWindow(Window);
         }
         else
         {
@@ -157,6 +164,7 @@ namespace SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performLayout = true;
+      if (Window!=null) Window.Invalidate(this);
     }
     #endregion
 
@@ -188,7 +196,7 @@ namespace SkinEngine.Controls.Visuals
         if (value != null)
         {
           _backgroundProperty.ClearAttachedEvents();
-          _backgroundProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+          _backgroundProperty.Attach(new PropertyChangedHandler(OnBackgroundBrushPropertyChanged));
         }
       }
     }
@@ -209,7 +217,7 @@ namespace SkinEngine.Controls.Visuals
         if (value != null)
         {
           _borderProperty.ClearAttachedEvents();
-          _borderProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+          _borderProperty.Attach(new PropertyChangedHandler(OnBorderBrushPropertyChanged));
         }
       }
     }
@@ -314,45 +322,56 @@ namespace SkinEngine.Controls.Visuals
     #region rendering
 
 
-    void SetupBrush()
+    void SetupBrush(UIEvent uiEvent)
     {
-      if (Background != null && _backgroundContext != null)
+      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.FillChange) != 0)
       {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        Background.SetupPrimitive(_backgroundContext);
-        RenderPipeline.Instance.Add(_backgroundContext);
+        if (Background != null && _backgroundContext != null)
+        {
+          RenderPipeline.Instance.Remove(_backgroundContext);
+          Background.SetupPrimitive(_backgroundContext);
+          RenderPipeline.Instance.Add(_backgroundContext);
+        }
       }
-      if (BorderBrush != null && _borderContext != null)
+      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.StrokeChange) != 0)
       {
-        RenderPipeline.Instance.Remove(_borderContext);
-        BorderBrush.SetupPrimitive(_borderContext);
-        RenderPipeline.Instance.Add(_borderContext);
+        if (BorderBrush != null && _borderContext != null)
+        {
+          RenderPipeline.Instance.Remove(_borderContext);
+          BorderBrush.SetupPrimitive(_borderContext);
+          RenderPipeline.Instance.Add(_borderContext);
+        }
       }
     }
 
+    public virtual void Update()
+    {
+      UpdateLayout();
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      else if (_lastEvent != UIEvent.None)
+      {
+        if ((_lastEvent & UIEvent.Hidden) != 0)
+        {
+          RenderPipeline.Instance.Remove(_backgroundContext);
+          RenderPipeline.Instance.Remove(_borderContext);
+          _backgroundContext = null;
+          _borderContext = null;
+          _performLayout = true;
+        }
+        else
+        {
+          SetupBrush(_lastEvent);
+        }
+        _lastEvent = UIEvent.None;
+      }
+    }
     void RenderBorder()
     {
-      if (SkinContext.UseBatching)
-      {
-
-        SkinContext.AddOpacity(this.Opacity);
-        if (_performLayout)
-        {
-          PerformLayout();
-          _performLayout = false;
-          _lastEvent = UIEvent.None;
-        }
-        else if (_lastEvent != UIEvent.None)
-        {
-          if ((_lastEvent & UIEvent.OpacityChange) != 0)
-          {
-            SetupBrush();
-          }
-          _lastEvent = UIEvent.None;
-        }
-        SkinContext.RemoveOpacity();
-        return;
-      }
 
       if (!IsVisible) return;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
@@ -415,17 +434,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
-    {
-      if (_templateControl != null)
-      {
-        _templateControl.Animate();
-      }
-      base.Animate();
-    }
     #endregion
 
     #region measure&arrange
@@ -547,6 +555,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
+        if (Window!=null) Window.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
     }
@@ -627,19 +636,8 @@ namespace SkinEngine.Controls.Visuals
 
       if (SkinContext.UseBatching)
       {
-        switch (eventType)
-        {
-          case UIEvent.Hidden:
-            RenderPipeline.Instance.Remove(_backgroundContext);
-            RenderPipeline.Instance.Remove(_borderContext);
-            _backgroundContext = null;
-            _borderContext = null;
-            _performLayout = true;
-            break;
-          case UIEvent.OpacityChange:
-            _lastEvent |= eventType;
-            break;
-        }
+        _lastEvent |= eventType;
+        if (Window!=null) Window.Invalidate(this);
       }
     }
     /// <summary>
@@ -795,7 +793,8 @@ namespace SkinEngine.Controls.Visuals
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
+      if (_finalLayoutTransform != null)
+        m.Matrix *= _finalLayoutTransform.Matrix;
       if (LayoutTransform != null)
       {
         ExtendedMatrix em;
@@ -1036,5 +1035,37 @@ namespace SkinEngine.Controls.Visuals
 
     #endregion
     #endregion
+
+
+    public override void DoBuildRenderTree()
+    {
+      if (!IsVisible) return;
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      if (_templateControl != null)
+      {
+        _templateControl.BuildRenderTree();
+      }
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_templateControl != null)
+      {
+        _templateControl.DestroyRenderTree();
+      }
+      base.DestroyRenderTree();
+    }
+    public override void SetWindow(Window window)
+    {
+      base.SetWindow(window);
+      if (_templateControl != null)
+      {
+        _templateControl.SetWindow(window);
+      }
+    }
   }
 }

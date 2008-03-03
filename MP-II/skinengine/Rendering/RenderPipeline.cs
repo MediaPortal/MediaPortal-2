@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SkinEngine;
+using SkinEngine.Controls.Visuals;
 namespace SkinEngine.Rendering
 {
   /// <summary>
@@ -47,6 +48,10 @@ namespace SkinEngine.Rendering
     List<RenderContext> _renderList = new List<RenderContext>();
     bool _sort = false;
 
+    /// <summary>
+    /// Gets the instance.
+    /// </summary>
+    /// <value>The instance.</value>
     public static RenderPipeline Instance
     {
       get
@@ -55,18 +60,37 @@ namespace SkinEngine.Rendering
       }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RenderPipeline"/> class.
+    /// </summary>
     public RenderPipeline()
     {
       ContentManager.Add(this);
     }
 
+    /// <summary>
+    /// Adds the specified context.
+    /// </summary>
+    /// <param name="context">The context.</param>
     public void Add(PrimitiveContext context)
     {
+      if (SkinContext.UseBatching == false) return;
+      if (context == null) return;
+      if (context.Effect == null || context.Parameters == null)
+      {
+        return;
+      }
       _newPrimitives.Add(context);
     }
 
+
+    /// <summary>
+    /// Removes the specified primitive.
+    /// </summary>
+    /// <param name="primitive">The primitive.</param>
     public void Remove(PrimitiveContext primitive)
     {
+      if (SkinContext.UseBatching == false) return;
       if (primitive == null) return;
       if (primitive.RenderContext != null)
       {
@@ -77,15 +101,21 @@ namespace SkinEngine.Rendering
       _primitives.Remove(primitive);
     }
 
-    void Clear()
+    /// <summary>
+    /// Clears this instance.
+    /// </summary>
+    public void Clear()
     {
-      foreach (RenderContext context in _renderList)
+      for (int i = 0; i < _renderList.Count; ++i)
       {
-        context.Dispose();
+        _renderList[i].Dispose();
       }
       _renderList.Clear();
     }
 
+    /// <summary>
+    /// Creates the batches.
+    /// </summary>
     void CreateBatches()
     {
       _sort = false;
@@ -116,6 +146,9 @@ namespace SkinEngine.Rendering
       }
     }
 
+    /// <summary>
+    /// Places the new primitives in batches.
+    /// </summary>
     void PlaceNewPrimitivesInBatches()
     {
       foreach (PrimitiveContext primitive in _newPrimitives)
@@ -147,6 +180,9 @@ namespace SkinEngine.Rendering
       _newPrimitives.Clear();
     }
 
+    /// <summary>
+    /// Renders this instance.
+    /// </summary>
     public void Render()
     {
       if (_sort)

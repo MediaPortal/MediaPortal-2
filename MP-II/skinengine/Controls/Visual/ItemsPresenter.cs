@@ -60,7 +60,7 @@ namespace SkinEngine.Controls.Visuals
     public void ApplyTemplate(FrameworkTemplate template)
     {
       ControlTemplate ct = new ControlTemplate();
-      ct.AddChild(template.LoadContent());
+      ct.AddChild(template.LoadContent(Window));
       this.Template = ct;
     }
     public void SetControlTemplate(ControlTemplate template)

@@ -69,7 +69,7 @@ namespace SkinEngine.Controls.Visuals
     /// </summary>
     RightHanded
   }
-  public class Shape : FrameworkElement
+  public class Shape : FrameworkElement, IUpdateEventHandler
   {
     Property _stretchProperty;
     Brush _fillProperty;
@@ -81,7 +81,7 @@ namespace SkinEngine.Controls.Visuals
     protected int _verticesCountBorder;
     protected bool _performLayout;
     protected PrimitiveContext _fillContext;
-    protected PrimitiveContext _borderContext;
+    protected PrimitiveContext _strokeContext;
     protected UIEvent _lastEvent;
 
     public Shape()
@@ -119,10 +119,17 @@ namespace SkinEngine.Controls.Visuals
     void OnStrokeThicknessChanged(Property property)
     {
       _performLayout = true;
+      if (Window!=null) Window.Invalidate(this);
     }
-    void OnBrushPropertyChanged(Property property)
+    void OnFillBrushPropertyChanged(Property property)
     {
-      _lastEvent = UIEvent.OpacityChange;
+      _lastEvent |= UIEvent.FillChange;
+      if (Window!=null) Window.Invalidate(this);
+    }
+    void OnStrokeBrushPropertyChanged(Property property)
+    {
+      _lastEvent |= UIEvent.StrokeChange;
+      if (Window!=null) Window.Invalidate(this);
     }
 
 
@@ -174,7 +181,7 @@ namespace SkinEngine.Controls.Visuals
         _fillProperty = value;
         if (value != null)
         {
-          _fillProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+          _fillProperty.Attach(new PropertyChangedHandler(OnFillBrushPropertyChanged));
         }
       }
     }
@@ -195,7 +202,7 @@ namespace SkinEngine.Controls.Visuals
         _strokeProperty = value;
         if (value != null)
         {
-          _strokeProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+          _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeBrushPropertyChanged));
         }
       }
     }
@@ -236,48 +243,80 @@ namespace SkinEngine.Controls.Visuals
     protected virtual void PerformLayout()
     {
     }
-
-    void SetupBrush()
+    public override void DoBuildRenderTree()
     {
-      if (Fill != null && _fillContext != null)
+      if (!IsVisible) return;
+      PerformLayout();
+      _performLayout = false;
+      _lastEvent = UIEvent.None;
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_fillContext != null)
       {
         RenderPipeline.Instance.Remove(_fillContext);
-        Fill.SetupPrimitive(_fillContext);
-        RenderPipeline.Instance.Add(_fillContext);
+        _fillContext = null;
       }
-      if (Stroke != null && _borderContext != null)
+      if (_strokeContext != null)
       {
-        RenderPipeline.Instance.Remove(_borderContext);
-        Stroke.SetupPrimitive(_borderContext);
-        RenderPipeline.Instance.Add(_borderContext);
+        RenderPipeline.Instance.Remove(_strokeContext);
+        _strokeContext = null;
       }
     }
+
+    void SetupBrush(UIEvent uiEvent)
+    {
+      if ((uiEvent & UIEvent.FillChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
+      {
+        if (Fill != null && _fillContext != null)
+        {
+          RenderPipeline.Instance.Remove(_fillContext);
+          Fill.SetupPrimitive(_fillContext);
+          RenderPipeline.Instance.Add(_fillContext);
+        }
+      }
+      if ((uiEvent & UIEvent.StrokeChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
+      {
+        if (Stroke != null && _strokeContext != null)
+        {
+          RenderPipeline.Instance.Remove(_strokeContext);
+          Stroke.SetupPrimitive(_strokeContext);
+          RenderPipeline.Instance.Add(_strokeContext);
+        }
+      }
+    }
+
+    public void Update()
+    {
+      UpdateLayout();
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      else if (_lastEvent == UIEvent.Hidden)
+      {
+        if (_fillContext != null)
+          RenderPipeline.Instance.Remove(_fillContext);
+        if (_strokeContext != null)
+          RenderPipeline.Instance.Remove(_strokeContext);
+        _fillContext = null;
+        _strokeContext = null;
+        _performLayout = true;
+      }
+      else if (_lastEvent != UIEvent.None)
+      {
+        SetupBrush(_lastEvent);
+      }
+      _lastEvent = UIEvent.None;
+    }
+
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
-      if (SkinContext.UseBatching)
-      {
-
-        SkinContext.AddOpacity(this.Opacity);
-        if (_performLayout)
-        {
-          PerformLayout();
-          _performLayout = false;
-          _lastEvent = UIEvent.None;
-        }
-        else if (_lastEvent != UIEvent.None)
-        {
-          if ((_lastEvent & UIEvent.OpacityChange) != 0)
-          {
-            SetupBrush();
-          }
-          _lastEvent = UIEvent.None;
-        }
-        SkinContext.RemoveOpacity();
-        return;
-      }
       if (!IsVisible) return;
       if (Fill == null && Stroke == null) return;
       if (Fill != null)
@@ -329,19 +368,8 @@ namespace SkinEngine.Controls.Visuals
 
       if (SkinContext.UseBatching)
       {
-        switch (eventType)
-        {
-          case UIEvent.Hidden:
-            RenderPipeline.Instance.Remove(_fillContext);
-            RenderPipeline.Instance.Remove(_borderContext);
-            _fillContext = null;
-            _borderContext = null;
-            _performLayout = true;
-            break;
-          case UIEvent.OpacityChange:
-            _lastEvent |= eventType;
-            break;
-        }
+        _lastEvent |= eventType;
+        if (Window!=null) Window.Invalidate(this);
       }
     }
     /// <summary>
@@ -655,6 +683,7 @@ namespace SkinEngine.Controls.Visuals
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.Arrange(layoutRect);
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -1029,10 +1058,10 @@ namespace SkinEngine.Controls.Visuals
         RenderPipeline.Instance.Remove(_fillContext);
         _fillContext = null;
       }
-      if (_borderContext != null)
+      if (_strokeContext != null)
       {
-        RenderPipeline.Instance.Remove(_borderContext);
-        _borderContext = null;
+        RenderPipeline.Instance.Remove(_strokeContext);
+        _strokeContext = null;
       }
 
     }

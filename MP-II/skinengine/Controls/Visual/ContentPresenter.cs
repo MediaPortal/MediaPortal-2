@@ -73,6 +73,7 @@ namespace SkinEngine.Controls.Visuals
     {
       _contentCache = _contentProperty.GetValue() as FrameworkElement;
       Content.VisualParent = this;
+      Content.SetWindow(Window);
     }
 
     /// <summary>
@@ -291,6 +292,22 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
+    public override void DoBuildRenderTree()
+    {
+      if (!IsVisible) return;
+      if (Content != null)
+      {
+        Content.BuildRenderTree();
+      }
+    }
+    public override void DestroyRenderTree()
+    {
+      if (Content != null)
+      {
+        Content.DestroyRenderTree();
+      }
+    }
+
     /// <summary>
     /// Called when [mouse move].
     /// </summary>
@@ -306,17 +323,6 @@ namespace SkinEngine.Controls.Visuals
       base.OnMouseMove(x, y);
     }
 
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
-    {
-      base.Animate();
-      if (Content != null)
-      {
-        Content.Animate();
-      }
-    }
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
@@ -463,5 +469,13 @@ namespace SkinEngine.Controls.Visuals
 
 
     #endregion
+    public override void SetWindow(Window window)
+    {
+      base.SetWindow(window);
+      if (Content != null)
+      {
+        Content.SetWindow(window);
+      }
+    }
   }
 }

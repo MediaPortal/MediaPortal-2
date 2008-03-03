@@ -34,13 +34,14 @@ using SlimDX.Direct3D9;
 using SkinEngine.DirectX;
 using SkinEngine.Rendering;
 using SkinEngine.Controls.Brushes;
+using SkinEngine.Rendering;
 using SkinEngine;
 using MediaPortal.Core.InputManager;
 using Rectangle = System.Drawing.Rectangle;
 using MyXaml.Core;
 namespace SkinEngine.Controls.Panels
 {
-  public class Panel : FrameworkElement, IAddChild
+  public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
   {
     protected Property _alignmentXProperty;
     protected Property _alignmentYProperty;
@@ -85,10 +86,11 @@ namespace SkinEngine.Controls.Panels
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _renderOrder = new List<UIElement>();
     }
-   
+
     void OnBrushPropertyChanged(Property property)
     {
-      _lastEvent = UIEvent.OpacityChange;
+      _lastEvent |= UIEvent.OpacityChange;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -165,7 +167,9 @@ namespace SkinEngine.Controls.Panels
     public void SetChildren(UIElementCollection children)
     {
       _childrenProperty.SetValue(children);
+      SetWindow(Window);
       _updateRenderOrder = true;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -235,6 +239,7 @@ namespace SkinEngine.Controls.Panels
     {
       base.Invalidate();
       _updateRenderOrder = true;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     void SetupBrush()
@@ -257,35 +262,38 @@ namespace SkinEngine.Controls.Panels
         }
       }
     }
+
+    public void Update()
+    {
+      UpdateLayout();
+      UpdateRenderOrder();
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      else if (_lastEvent != UIEvent.None)
+      {
+        if ((_lastEvent & UIEvent.Hidden) != 0)
+        {
+          RenderPipeline.Instance.Remove(_backgroundContext);
+          _backgroundContext = null;
+          _performLayout = true;
+        }
+        if ((_lastEvent & UIEvent.OpacityChange) != 0)
+        {
+          SetupBrush();
+        }
+        _lastEvent = UIEvent.None;
+      }
+    }
     /// <summary>
     /// Renders the visual
     /// </summary>
     public override void DoRender()
     {
       UpdateRenderOrder();
-
-      if (SkinContext.UseBatching)
-      {
-
-        SkinContext.AddOpacity(this.Opacity);
-        if (_performLayout)
-        {
-          PerformLayout();
-          _performLayout = false;
-          _lastEvent = UIEvent.None;
-        }
-        else if (_lastEvent != UIEvent.None)
-        {
-          if ((_lastEvent & UIEvent.OpacityChange) != 0)
-          {
-            SetupBrush();
-          }
-          _lastEvent = UIEvent.None;
-        }
-        RenderChilds();
-        SkinContext.RemoveOpacity();
-        return;
-      }
 
       SkinContext.AddOpacity(this.Opacity);
       if (Background != null)
@@ -378,6 +386,7 @@ namespace SkinEngine.Controls.Panels
 
       _performLayout = false;
     }
+
     protected void UpdateRenderOrder()
     {
       if (!_updateRenderOrder) return;
@@ -415,20 +424,8 @@ namespace SkinEngine.Controls.Panels
       {
         element.FireUIEvent(eventType, source);
       }
-      if (SkinContext.UseBatching)
-      {
-        switch (eventType)
-        {
-          case UIEvent.Hidden:
-            RenderPipeline.Instance.Remove(_backgroundContext);
-            _backgroundContext = null;
-            _performLayout = true;
-            break;
-          case UIEvent.OpacityChange:
-            _lastEvent |= eventType;
-            break;
-        }
-      }
+      _lastEvent |= eventType;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -437,69 +434,12 @@ namespace SkinEngine.Controls.Panels
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
-      ///@DEBUGTEST
-      if (SkinContext.UseBatching)
-      {
-        if (key.RawCode == 'v')
-        {
-          foreach (UIElement element in Children)
-          {
-            if (element.Name == "testPanel")
-            {
-              if (element.IsVisible)
-                element.Visibility = VisibilityEnum.Hidden;
-              else
-                element.Visibility = VisibilityEnum.Visible;
-            }
-          }
-        }
-        if (key.RawCode == 'c')
-        {
-          foreach (UIElement element in Children)
-          {
-            if (element.Name == "testBorder")
-            {
-              if (element.IsVisible)
-                element.Visibility = VisibilityEnum.Hidden;
-              else
-                element.Visibility = VisibilityEnum.Visible;
-            }
-          }
-
-        }
-        if (key.RawCode == 'o')
-        {
-          foreach (UIElement element in Children)
-          {
-            if (element.Name == "testPanel")
-            {
-              if (element.Opacity == 1.0)
-                element.Opacity = 0.5;
-              else
-                element.Opacity = 1.0;
-            }
-          }
-        }
-      }
       foreach (UIElement element in Children)
       {
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
         if (key == MediaPortal.Core.InputManager.Key.None) return;
       }
-    }
-
-    /// <summary>
-    /// Animates any timelines for this uielement.
-    /// </summary>
-    public override void Animate()
-    {
-      foreach (UIElement element in _renderOrder)
-      {
-        if (false == element.IsVisible) continue;
-        element.Animate();
-      }
-      base.Animate();
     }
 
     /// <summary>
@@ -525,6 +465,7 @@ namespace SkinEngine.Controls.Panels
         {
           Children[i] = newElement;
           Children[i].VisualParent = this;
+          Children[i].SetWindow(Window);
           return true;
         }
       }
@@ -826,6 +767,12 @@ namespace SkinEngine.Controls.Panels
       }
       if (Background != null)
         Background.Deallocate();
+
+      if (_backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        _backgroundContext = null;
+      }
     }
     public override void Allocate()
     {
@@ -851,5 +798,41 @@ namespace SkinEngine.Controls.Panels
     }
 
     #endregion
+
+    public override void DoBuildRenderTree()
+    {
+      if (!IsVisible) return;
+      if (_performLayout)
+      {
+        PerformLayout();
+        _performLayout = false;
+        _lastEvent = UIEvent.None;
+      }
+      foreach (UIElement child in Children)
+      {
+        child.BuildRenderTree();
+      }
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_backgroundContext != null)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        _backgroundContext = null;
+      }
+      foreach (UIElement child in Children)
+      {
+        child.DestroyRenderTree();
+      }
+    }
+
+    public override void SetWindow(Window window)
+    {
+      base.SetWindow(window);
+      foreach (UIElement child in Children)
+      {
+        child.SetWindow(window);
+      }
+    }
   }
 }

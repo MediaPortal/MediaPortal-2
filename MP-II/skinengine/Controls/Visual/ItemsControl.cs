@@ -31,6 +31,7 @@ using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core.InputManager;
 using MediaPortal.Core.Collections;
 using SkinEngine;
+using SkinEngine.Rendering;
 using SkinEngine.Controls.Panels;
 
 namespace SkinEngine.Controls.Visuals
@@ -115,11 +116,13 @@ namespace SkinEngine.Controls.Visuals
       }
       _prepare = true;
       Invalidate();
+      if (Window!=null) Window.Invalidate(this);
     }
 
     void OnCollectionChanged(bool refreshAll)
     {
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     void OnHasFocusChanged(Property property)
@@ -132,22 +135,26 @@ namespace SkinEngine.Controls.Visuals
     void OnItemsSourcePropChanged(Property property)
     {
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
     void OnItemTemplateChanged(Property property)
     {
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
     void OnItemsPanelChanged(Property property)
     {
       _templateApplied = false;
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
     void OnItemContainerStyleChanged(Property property)
     {
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
     #endregion
@@ -375,6 +382,7 @@ namespace SkinEngine.Controls.Visuals
       Trace.WriteLine("Reset:" + this.Name);
       base.Reset();
       _prepare = true;
+      if (Window!=null) Window.Invalidate(this);
       if (_itemsHostPanel != null)
       {
         _itemsHostPanel.Reset();
@@ -448,7 +456,7 @@ namespace SkinEngine.Controls.Visuals
           container.Style = ItemContainerStyle;
           container.ContentTemplate = ItemTemplate;
           container.ContentTemplateSelector = ItemTemplateSelector;
-          container.Content = (FrameworkElement)ItemTemplate.LoadContent();
+          container.Content = (FrameworkElement)ItemTemplate.LoadContent(Window);
           container.VisualParent = _itemsHostPanel;
           //container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
           if (enumer.Current is ListItem)
@@ -467,7 +475,7 @@ namespace SkinEngine.Controls.Visuals
           container.Style = ItemContainerStyle;
           container.TemplateControl = new ItemsPresenter();
           container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = container;
+          container.TemplateControl.VisualParent = container; 
           container.ItemsPanel = ItemsPanel;
           if (enumer.Current is ListItem)
           {
@@ -480,10 +488,10 @@ namespace SkinEngine.Controls.Visuals
           container.Style = ItemContainerStyle;
           container.HeaderTemplateSelector = this.ItemTemplateSelector;
           container.HeaderTemplate = ItemTemplate;
-          FrameworkElement element = container.Style.Get();
+          FrameworkElement element = container.Style.Get(Window);
           element.Context = enumer.Current;
           ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent(Window);
 
           container.Header = (FrameworkElement)element;
 
@@ -511,15 +519,15 @@ namespace SkinEngine.Controls.Visuals
           container.Style = this.Style;
           container.HeaderTemplateSelector = item.HeaderTemplateSelector;
           container.HeaderTemplate = item.HeaderTemplate;
-          FrameworkElement element = container.Style.Get();
+          FrameworkElement element = container.Style.Get(Window);
           //container.TemplateControl.Name = "itemspresenter for childs of :" + container.Name;
           element.Context = enumer.Current;
           ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent(Window);
 
           container.TemplateControl = new ItemsPresenter();
           container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = container;
+          container.TemplateControl.VisualParent = container; 
           container.Header = (FrameworkElement)element;
           ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
           if (p != null) p.IsVisible = false;
@@ -651,6 +659,13 @@ namespace SkinEngine.Controls.Visuals
     {
       base.Allocate();
       _prepare = true;
+    }
+
+    public override void Update()
+    {
+      UpdateLayout();
+      DoUpdateItems();
+      base.Update();
     }
   }
 }

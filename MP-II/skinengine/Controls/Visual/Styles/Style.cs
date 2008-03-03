@@ -121,7 +121,7 @@ namespace SkinEngine.Controls.Visuals.Styles
     }
 
 
-    public FrameworkElement Get()
+    public FrameworkElement Get(Window window)
     {
       foreach (Setter setter in _setters)
       {
@@ -131,7 +131,7 @@ namespace SkinEngine.Controls.Visuals.Styles
           FrameworkElement element;
           if (setter.Value is FrameworkTemplate)
           {
-            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
+            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent(window);
             element = source;
           }
           else
@@ -144,6 +144,7 @@ namespace SkinEngine.Controls.Visuals.Styles
             if (setter2.Property != "Template")
               Set(element, setter2);
           }
+          element.SetWindow(window);
           return element;
         }
       }
@@ -152,10 +153,12 @@ namespace SkinEngine.Controls.Visuals.Styles
 
     public void Set(UIElement element)
     {
+      Window w = element.Window;
       foreach (Setter setter in _setters)
       {
         Set(element, setter);
       }
+      element.SetWindow(w);
     }
 
     void Set(UIElement element, Setter setter)

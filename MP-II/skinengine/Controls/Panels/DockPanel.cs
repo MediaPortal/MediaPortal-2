@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using SkinEngine.Controls.Visuals;
+using SkinEngine.Rendering;
 using MediaPortal.Core.Properties;
 using Rectangle = System.Drawing.Rectangle;
 namespace SkinEngine.Controls.Panels
@@ -259,6 +260,7 @@ namespace SkinEngine.Controls.Panels
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        if (Window!=null) Window.Invalidate(this);
       }
       base.Arrange(layoutRect);
     }

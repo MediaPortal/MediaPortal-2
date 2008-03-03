@@ -62,10 +62,6 @@ namespace SkinEngine.Controls.Visuals
 
     void Init()
     {
-    }
-    public override void DoRender()
-    {
-      base.DoRender();
-    }
+    } 
   }
 }

@@ -39,6 +39,7 @@ using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Skin;
+using SkinEngine.Rendering;
 namespace SkinEngine
 {
   public class Window : IWindow
@@ -69,6 +70,8 @@ namespace SkinEngine
     private bool _history;
     UIElement _visual;
     bool _setFocusedElement = false;
+    Animator _animator;
+    List<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
     #endregion
 
     /// <summary>
@@ -91,6 +94,14 @@ namespace SkinEngine
       _name = name;
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
+      _animator = new Animator();
+    }
+    public Animator Animator
+    {
+      get
+      {
+        return _animator;
+      }
     }
     public UIElement Visual
     {
@@ -105,6 +116,7 @@ namespace SkinEngine
         {
           _history = _visual.History;
           _visual.IsArrangeValid = true;
+          _visual.SetWindow(this);
         }
       }
     }
@@ -137,7 +149,7 @@ namespace SkinEngine
       get { return _opened; }
       set { _opened = value; }
     }
-     
+
     /// <summary>
     /// Gets the window-name.
     /// </summary>
@@ -188,8 +200,6 @@ namespace SkinEngine
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
       SkinContext.Z = 0;
-
-
       if (!IsOpened && _thread == null && !IsAnimating)
       {
         //we cannot close the window from the render thread
@@ -199,17 +209,30 @@ namespace SkinEngine
         _thread.Start();
       }
 
-      lock (_visual)
+      if (SkinContext.UseBatching)
       {
-        _visual.Render();
-        _visual.Animate();
-        if (_setFocusedElement)
+        lock (_visual)
         {
-          if (_visual.FocusedElement != null)
-          {
-            _visual.FocusedElement.HasFocus = true;
-            _setFocusedElement = !_visual.FocusedElement.HasFocus;
-          }
+          this._animator.Animate();
+          this.Update();
+        }
+        return;
+      }
+      else
+      {
+
+        lock (_visual)
+        {
+          _visual.Render();
+          this._animator.Animate();
+        }
+      }
+      if (_setFocusedElement)
+      {
+        if (_visual.FocusedElement != null)
+        {
+          _visual.FocusedElement.HasFocus = true;
+          _setFocusedElement = !_visual.FocusedElement.HasFocus;
         }
       }
     }
@@ -246,12 +269,22 @@ namespace SkinEngine
       Trace.WriteLine("Window Show:" + Name);
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
-      _visual.Deallocate();
-      _visual.Allocate();
-      _visual.Reset();
-      _visual.Invalidate();
-      _visual.InitializeBindings();
-      _setFocusedElement = true;
+      SkinContext.IsValid = false;
+      lock (_visual)
+      {
+        _invalidControls.Clear();
+        if (SkinContext.UseBatching)
+          _visual.DestroyRenderTree();
+        _visual.Deallocate();
+        _visual.Allocate();
+        _visual.Reset();
+        _visual.Invalidate();
+        _visual.InitializeBindings();
+        if (SkinContext.UseBatching)
+          _visual.BuildRenderTree();
+        _setFocusedElement = true;
+        SkinContext.IsValid = true;
+      }
     }
     /// <summary>
     /// Called when window should be hidden
@@ -261,7 +294,11 @@ namespace SkinEngine
       Trace.WriteLine("Window Hide:" + Name);
       lock (_visual)
       {
+        Animator.StopAll();
+        if (SkinContext.UseBatching)
+          _visual.DestroyRenderTree();
         _visual.Deallocate();
+        _invalidControls.Clear();
       }
     }
 
@@ -316,6 +353,28 @@ namespace SkinEngine
       _visual.Invalidate();
       _visual.InitializeBindings();
       _visual.Reset();
+    }
+
+    public void Invalidate(IUpdateEventHandler ctl)
+    {
+      if (SkinContext.UseBatching == false) return;
+      if (!SkinContext.IsValid) return;
+      FrameworkElement el = (FrameworkElement)ctl;
+      if (el.IsArrangeValid == false)
+      {
+        return;
+      }
+      if (!_invalidControls.Contains(ctl))
+        _invalidControls.Add(ctl);
+    }
+
+    void Update()
+    {
+      for (int i = 0; i < _invalidControls.Count; ++i)
+      {
+        _invalidControls[i].Update();
+      }
+      _invalidControls.Clear();
     }
   }
 }

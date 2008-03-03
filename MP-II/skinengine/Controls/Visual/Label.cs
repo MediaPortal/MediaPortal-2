@@ -28,6 +28,7 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Localisation;
+using SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -49,6 +50,7 @@ namespace SkinEngine.Controls.Visuals
     StringId _label;
     bool _scrollCache;
     Color _colorCache = Color.White;
+    bool _update = false;
 
     public Label()
     {
@@ -86,15 +88,21 @@ namespace SkinEngine.Controls.Visuals
     void OnColorChanged(Property prop)
     {
       _colorCache = (Color)_colorProperty.GetValue();
+      _update = true;
+      if (Window!=null) Window.Invalidate(this);
     }
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
+      _update = true;
+      if (Window!=null) Window.Invalidate(this);
       // Invalidate();
     }
     void OnScrollChanged(Property prop)
     {
       _scrollCache = (bool)_scrollProperty.GetValue();
+      _update = true;
+      if (Window!=null) Window.Invalidate(this);
     }
     void OnFontChanged(Property prop)
     {
@@ -105,6 +113,8 @@ namespace SkinEngine.Controls.Visuals
       }
 
       _asset = null;
+      _update = true;
+      if (Window!=null) Window.Invalidate(this);
     }
 
     public Property FontProperty
@@ -213,13 +223,17 @@ namespace SkinEngine.Controls.Visuals
 
     void AllocFont()
     {
-      if (_asset != null) return;
-      Font font = FontManager.GetScript(Font);
-      if (font != null)
+      if (_asset == null)
       {
-        _asset = ContentManager.GetFont(font);
+        Font font = FontManager.GetScript(Font);
+        if (font != null)
+        {
+          _asset = ContentManager.GetFont(font);
+        }
       }
-      _renderer = new FontRender(font);
+
+      if (_renderer == null)
+        _renderer = new FontRender(_asset.Font);
     }
 
     /// <summary>
@@ -302,6 +316,66 @@ namespace SkinEngine.Controls.Visuals
       InitializeBindings();
       InitializeTriggers();
       _isLayoutInvalid = false;
+      _update = true;
+    }
+
+    public override void DoBuildRenderTree()
+    {
+      if (!IsVisible) return;
+      if (_asset == null) return;
+      AllocFont();
+      ColorValue color = ColorConverter.FromColor(this.Color);
+
+      base.DoRender();
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      float totalWidth;
+      float size = _asset.Font.Size;
+      float x = (float)ActualPosition.X;
+      float y = (float)ActualPosition.Y;
+      float w = (float)ActualWidth;
+      float h = (float)ActualHeight;
+      if (_finalLayoutTransform != null)
+      {
+        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
+
+        _finalLayoutTransform.InvertXY(ref x, ref y);
+        _finalLayoutTransform.InvertXY(ref w, ref h);
+      }
+      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        align = SkinEngine.Fonts.Font.Align.Right;
+      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        align = SkinEngine.Fonts.Font.Align.Center;
+
+      if (rect.Height < _asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height)
+      {
+        rect.Height = (int)(_asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height);
+      }
+      if (VerticalAlignment == VerticalAlignmentEnum.Center)
+      {
+        rect.Y = (int)(y + (h - _asset.Font.LineHeight * SkinContext.Zoom.Height) / 2.0);
+      }
+
+      rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
+      rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
+      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      SkinContext.AddTransform(m);
+      color.Alpha *= (float)SkinContext.Opacity;
+      color.Alpha *= (float)this.Opacity;
+      if (_label != null)
+        _renderer.Draw(_label.ToString(), rect, align, size, color, Scroll, out totalWidth);
+      SkinContext.RemoveTransform();
+
+    }
+    public override void DestroyRenderTree()
+    {
+      if (_renderer != null)
+        _renderer.Free();
+      _renderer = null;
     }
 
     /// <summary>
@@ -421,6 +495,14 @@ namespace SkinEngine.Controls.Visuals
       if (_renderer != null)
         _renderer.Free();
       _renderer = null;
+    }
+
+    public override void Update()
+    {
+      base.Update();
+      if (_update && _renderer!=null)
+        DoBuildRenderTree();
+      _update = false;
     }
 
   }

@@ -696,6 +696,33 @@ namespace SkinEngine.Controls.Visuals
         _inRender = false;
       }
     }
+    public override void BuildRenderTree()
+    {
+      if (!IsVisible) return;
+      SkinContext.Z -= 0.1f;
+      UpdateLayout();
+      SkinContext.AddOpacity(this.Opacity);
+      if (RenderTransform != null)
+      {
+        ExtendedMatrix matrix = new ExtendedMatrix();
+        matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
+        Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+        matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
+        Matrix mNew;
+        RenderTransform.GetTransform(out mNew);
+        matrix.Matrix *= mNew;
+        matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+        SkinContext.AddTransform(matrix);
+      }
+      //render the control
+      DoBuildRenderTree();
+      //remove the rendertransform
+      if (RenderTransform != null)
+      {
+        SkinContext.RemoveTransform();
+      }
+      SkinContext.RemoveOpacity();
+    }
 
     #region opacitymask
 
