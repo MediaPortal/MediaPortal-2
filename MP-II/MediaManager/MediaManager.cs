@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaManager.Views;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 

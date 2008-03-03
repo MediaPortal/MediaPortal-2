@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,13 +23,14 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Database.Implementation.Sql;
-using MediaPortal.Database.Implementation.SqlLite;
+using Database.Sql;
+using Database.SqlLite;
+using MediaPortal.Database.Provider;
 
-namespace MediaPortal.Database.Implementation
+namespace Database
 {
   public class DatabaseBuilderFactory : IDatabaseBuilderFactory
   {

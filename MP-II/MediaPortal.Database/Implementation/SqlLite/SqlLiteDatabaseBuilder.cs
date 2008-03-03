@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,9 +23,10 @@
 #endregion
 
 using System.IO;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
+using MediaPortal.Database.Provider;
 
-namespace MediaPortal.Database.Implementation.SqlLite
+namespace Database.SqlLite
 {
   public class SqlLiteDatabaseBuilder : IDatabaseBuilder
   {

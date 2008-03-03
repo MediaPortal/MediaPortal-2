@@ -30,7 +30,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;

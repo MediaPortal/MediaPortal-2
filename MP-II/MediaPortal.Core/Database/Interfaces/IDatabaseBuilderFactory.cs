@@ -23,7 +23,7 @@
 #endregion
 using System;
 
-namespace MediaPortal.Core.Database.Interfaces
+namespace MediaPortal.Database
 {
   public interface IDatabaseBuilderFactory
   {

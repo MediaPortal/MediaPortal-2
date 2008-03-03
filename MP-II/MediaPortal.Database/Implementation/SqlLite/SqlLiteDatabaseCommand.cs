@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,12 +28,15 @@ using System.Data;
 using System.Data.SQLite;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Database.Interfaces;
 using MediaPortal.Core.Logging;
+
+using MediaPortal.Database;
+using MediaPortal.Database.Provider;
+
 using MediaPortal.Media.MediaManager.Views;
 
 
-namespace MediaPortal.Database.Implementation.SqlLite
+namespace Database.SqlLite
 {
   public class SqlLiteDatabaseCommand : IDatabaseCommand, IDisposable
   {
@@ -424,7 +427,7 @@ namespace MediaPortal.Database.Implementation.SqlLite
               {
                 attrValue = ((DateTime)att.Value).ToString("yyyy-MM-dd HH:mm:ss");
               }
-              // For List fields we need to insert the �|" in order to be able to find multiple entries on search
+              // For List fields we need to insert the ?|" in order to be able to find multiple entries on search
               if (att.IsList)
               {
                 attrValue = String.Format("|{0}|", attrValue);
@@ -470,7 +473,7 @@ namespace MediaPortal.Database.Implementation.SqlLite
               {
                 attrValue = ((DateTime)att.Value).ToString("yyyy-MM-dd HH:mm:ss");
               }
-              // For List fields we need to insert the �|" in order to be able to find multiple entries on search
+              // For List fields we need to insert the ?|" in order to be able to find multiple entries on search
               if (att.IsList)
               {
                 attrValue = String.Format("|{0}|", attrValue);

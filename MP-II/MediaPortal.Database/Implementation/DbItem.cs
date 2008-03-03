@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,9 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
+using MediaPortal.Database.Provider;
 
-namespace MediaPortal.Database.Implementation
+namespace Database
 {
   public class DbItem : IDbItem
   {

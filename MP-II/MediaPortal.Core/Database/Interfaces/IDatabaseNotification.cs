@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.Database.Interfaces
+namespace MediaPortal.Database
 {
   public enum DatabaseNotificationType
   {

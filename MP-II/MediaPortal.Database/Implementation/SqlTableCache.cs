@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace MediaPortal.Database.Implementation
+namespace Database
 {
   public class SqlTableCache
   {

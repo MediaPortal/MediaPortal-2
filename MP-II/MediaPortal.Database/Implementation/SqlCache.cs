@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Database.Implementation
+namespace Database
 {
   public class SqlCache
   {

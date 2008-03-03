@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaPortal.Core.Database.Interfaces
+namespace MediaPortal.Database.Provider
 {
   public interface IDatabaseCommand : IDisposable
   {

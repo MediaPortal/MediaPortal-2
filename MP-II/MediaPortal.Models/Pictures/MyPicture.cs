@@ -32,7 +32,7 @@ using System.Timers;
 using MediaManager.Views;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
 using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MenuManager;

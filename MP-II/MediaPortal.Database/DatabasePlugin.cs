@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,10 +24,9 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Database.Interfaces;
-using MediaPortal.Database.Implementation;
+using MediaPortal.Database;
 
-namespace MediaPortal.Database
+namespace Database
 {
   public class DatabasePlugin : IPlugin, IAutoStart
   {

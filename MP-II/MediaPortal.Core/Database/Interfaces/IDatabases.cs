@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.Database.Interfaces
+namespace MediaPortal.Database
 {
   /// <summary>
   /// service which returns all databases registered

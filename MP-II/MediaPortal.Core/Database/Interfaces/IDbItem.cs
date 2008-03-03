@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.Database.Interfaces
+namespace MediaPortal.Database
 {
   public interface IDbItem
   {

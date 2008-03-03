@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Database.Interfaces;
+using MediaPortal.Database;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
