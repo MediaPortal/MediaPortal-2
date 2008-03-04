@@ -59,7 +59,8 @@ namespace SkinEngine.Controls.Visuals
     int _verticesCountBorder;
     PrimitiveContext _backgroundContext;
     PrimitiveContext _borderContext;
-    UIEvent _lastEvent = UIEvent.None;
+    protected UIEvent _lastEvent = UIEvent.None;
+    protected bool _hidden = false;
 
     #region ctor
     public Control()
@@ -119,12 +120,12 @@ namespace SkinEngine.Controls.Visuals
     void OnBorderBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     void OnBackgroundBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     protected override void OnStyleChanged(Property property)
     {
@@ -164,7 +165,7 @@ namespace SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performLayout = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     #endregion
 
@@ -352,6 +353,7 @@ namespace SkinEngine.Controls.Visuals
         PerformLayout();
         _performLayout = false;
         _lastEvent = UIEvent.None;
+        _hidden = false;
       }
       else if (_lastEvent != UIEvent.None)
       {
@@ -362,8 +364,9 @@ namespace SkinEngine.Controls.Visuals
           _backgroundContext = null;
           _borderContext = null;
           _performLayout = true;
+          _hidden = true;
         }
-        else
+        else if (!_hidden)
         {
           SetupBrush(_lastEvent);
         }
@@ -555,7 +558,7 @@ namespace SkinEngine.Controls.Visuals
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        if (Window!=null) Window.Invalidate(this);
+        if (Window != null) Window.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
     }
@@ -637,7 +640,7 @@ namespace SkinEngine.Controls.Visuals
       if (SkinContext.UseBatching)
       {
         _lastEvent |= eventType;
-        if (Window!=null) Window.Invalidate(this);
+        if (Window != null) Window.Invalidate(this);
       }
     }
     /// <summary>

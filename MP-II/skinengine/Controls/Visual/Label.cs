@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -89,20 +90,20 @@ namespace SkinEngine.Controls.Visuals
     {
       _colorCache = (Color)_colorProperty.GetValue();
       _update = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
       _update = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
       // Invalidate();
     }
     void OnScrollChanged(Property prop)
     {
       _scrollCache = (bool)_scrollProperty.GetValue();
       _update = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     void OnFontChanged(Property prop)
     {
@@ -114,7 +115,7 @@ namespace SkinEngine.Controls.Visuals
 
       _asset = null;
       _update = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
 
     public Property FontProperty
@@ -500,8 +501,22 @@ namespace SkinEngine.Controls.Visuals
     public override void Update()
     {
       base.Update();
-      if (_update && _renderer!=null)
-        DoBuildRenderTree();
+      if (_hidden)
+      {
+        Trace.WriteLine("Free lbl:" + this.Text);
+        if (_renderer != null)
+          _renderer.Free();
+        return;
+      }
+      base.Update();
+      if (_update && _renderer != null)
+      {
+        if (!String.IsNullOrEmpty(Text))
+        {
+          _renderer.Alloc();
+          DoBuildRenderTree();
+        }
+      }
       _update = false;
     }
 

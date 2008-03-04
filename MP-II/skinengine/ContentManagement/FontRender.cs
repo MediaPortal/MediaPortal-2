@@ -142,12 +142,7 @@ namespace SkinEngine.Fonts
       {
         return;
       }
-      if (_isAdded == false)
-      {
-        _isAdded = true;
-        RenderPipeline.Instance.Add(_context);
-
-      }
+      Alloc();
       if (scroll)
       {
         if (false == _textFits)
@@ -249,7 +244,19 @@ namespace SkinEngine.Fonts
 
     public void Free()
     {
-      RenderPipeline.Instance.Remove(_context);
+      if (_isAdded)
+      {
+        RenderPipeline.Instance.Remove(_context);
+        _isAdded = false;
+      }
+    }
+    public void Alloc()
+    {
+      if (_isAdded == false)
+      {
+        RenderPipeline.Instance.Add(_context);
+        _isAdded = true;
+      }
     }
   }
 }

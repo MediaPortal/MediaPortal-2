@@ -145,8 +145,11 @@ namespace SkinEngine.Rendering
       _primitiveCount = 0;
       foreach (PrimitiveContext primitive in _primitives)
       {
-        verticeCount += primitive.Vertices.Length;
-        _primitiveCount += primitive.PrimitiveCount;
+        if (primitive.Vertices != null)
+        {
+          verticeCount += primitive.Vertices.Length;
+          _primitiveCount += primitive.PrimitiveCount;
+        }
       }
       if (verticeCount > 0)
       {
@@ -155,7 +158,8 @@ namespace SkinEngine.Rendering
         {
           foreach (PrimitiveContext primitive in _primitives)
           {
-            stream.WriteRange(primitive.Vertices);
+            if (primitive.Vertices != null)
+              stream.WriteRange(primitive.Vertices);
           }
         }
         _vertices.Unlock();

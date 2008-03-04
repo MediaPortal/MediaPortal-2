@@ -764,6 +764,20 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Update()
     {
+      if ((_lastEvent & UIEvent.Hidden) != 0)
+      {
+        if (_renderImage != null)
+        {
+          _renderImage.Free();
+          _renderImage = null;
+        }
+        if (_renderFallback != null)
+        {
+          _renderFallback.Free();
+          _renderFallback = null;
+        }
+        _performImageLayout = false;
+      }
       base.Update();
 
       if (_performImageLayout)
