@@ -685,6 +685,7 @@ namespace SkinEngine.Controls.Brushes
       context.Texture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
       if (_singleColor)
       {
+
         ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
         v.Alpha *= (float)SkinContext.Opacity;
         context.Effect = ContentManager.GetEffect("solidbrush");

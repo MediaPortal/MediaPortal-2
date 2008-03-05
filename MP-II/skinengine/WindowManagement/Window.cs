@@ -358,23 +358,36 @@ namespace SkinEngine
     public void Invalidate(IUpdateEventHandler ctl)
     {
       if (SkinContext.UseBatching == false) return;
-      if (!SkinContext.IsValid) return;
+      if (!SkinContext.IsValid)
+      {
+        return;
+      }
       FrameworkElement el = (FrameworkElement)ctl;
       if (el.IsArrangeValid == false)
       {
         return;
       }
-      if (!_invalidControls.Contains(ctl))
-        _invalidControls.Add(ctl);
+      lock (_invalidControls)
+      {
+        if (!_invalidControls.Contains(ctl))
+          _invalidControls.Add(ctl);
+      }
+
     }
 
     void Update()
     {
-      for (int i = 0; i < _invalidControls.Count; ++i)
+      List<IUpdateEventHandler> ctls;
+      lock (_invalidControls)
       {
-        _invalidControls[i].Update();
+        if (_invalidControls.Count == 0) return;
+         ctls = _invalidControls;
+        _invalidControls = new List<IUpdateEventHandler>();
       }
-      _invalidControls.Clear();
+      for (int i = 0; i < ctls.Count; ++i)
+      {
+        ctls[i].Update();
+      }
     }
   }
 }

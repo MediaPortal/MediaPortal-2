@@ -109,7 +109,7 @@ namespace SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performImageLayout = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     /// <summary>
     /// Called when the imagesource has been changed
@@ -129,7 +129,7 @@ namespace SkinEngine.Controls.Visuals
         _renderImage = null;
       }
       _performImageLayout = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -323,7 +323,7 @@ namespace SkinEngine.Controls.Visuals
 
       if (!finalRect.IsEmpty)
       {
-        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+        if (_finalRect!= finalRect)
           _performImageLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
@@ -332,6 +332,7 @@ namespace SkinEngine.Controls.Visuals
       InitializeBindings();
       InitializeTriggers();
       _isLayoutInvalid = false;
+      if (Window != null) Window.Invalidate(this);
     }
 
     /// <summary>
@@ -387,12 +388,16 @@ namespace SkinEngine.Controls.Visuals
     public override void DoBuildRenderTree()
     {
       if (_renderImage != null)
+      {
         _renderImage.Free();
-      _renderImage = null;
-
+        _renderImage = null;
+      }
       if (_renderFallback != null)
+      {
         _renderFallback.Free();
-      _renderFallback = null;
+        _renderFallback = null;
+      }
+      if (_hidden) return;
 
       if (!IsVisible) return;
       if (!IsEnabled && Opacity == 0.0) return;
@@ -402,20 +407,19 @@ namespace SkinEngine.Controls.Visuals
         _image.Texture.UseThumbNail = Thumbnail;
         _image.Texture.Allocate();
 
-        if (SkinContext.UseBatching)
-          _renderImage = new TextureRender(_image.Texture);
-        _performImageLayout = true;
       }
+      if (_image != null)
+        _renderImage = new TextureRender(_image.Texture);
       if (_fallbackImage == null && FallbackSource != null)
       {
         _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
         _fallbackImage.Texture.UseThumbNail = Thumbnail;
         _fallbackImage.Texture.Allocate();
 
-        if (SkinContext.UseBatching)
-          _renderFallback = new TextureRender(_fallbackImage.Texture);
-        _performImageLayout = true;
       }
+      if (_fallbackImage != null)
+        _renderFallback = new TextureRender(_fallbackImage.Texture);
+      _performImageLayout = true;
 
       if (_performImageLayout)
       {
@@ -761,28 +765,32 @@ namespace SkinEngine.Controls.Visuals
       }
       base.Deallocate();
     }
+    public override void BecomesHidden()
+    {
+      if (_renderImage != null)
+        _renderImage.Free();
+      if (_renderFallback != null)
+        _renderFallback.Free();
+    }
+    public override void BecomesVisible()
+    { 
 
+      if (_renderImage != null)
+        _renderImage.Alloc();
+      if (_renderFallback != null)
+        _renderFallback.Alloc();
+    }
     public override void Update()
     {
-      if ((_lastEvent & UIEvent.Hidden) != 0)
-      {
-        if (_renderImage != null)
-        {
-          _renderImage.Free();
-          _renderImage = null;
-        }
-        if (_renderFallback != null)
-        {
-          _renderFallback.Free();
-          _renderFallback = null;
-        }
-        _performImageLayout = false;
-      }
       base.Update();
-
-      if (_performImageLayout)
-        DoBuildRenderTree();
-      _performImageLayout = false;
+      if (_hidden == false)
+      {
+        if (_performImageLayout)
+        {
+          DoBuildRenderTree();
+          _performImageLayout = false;
+        }
+      }
     }
   }
 }

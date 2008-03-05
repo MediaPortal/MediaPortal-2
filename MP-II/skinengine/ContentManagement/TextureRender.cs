@@ -54,6 +54,7 @@ namespace SkinEngine
     PrimitiveContext _context;
     PositionColored2Textured[] _vertices;
     TextureAsset _texture;
+    bool _added = false;
     #endregion
 
     /// <summary>
@@ -70,6 +71,7 @@ namespace SkinEngine
       _vertices = new PositionColored2Textured[6];
       Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
       RenderPipeline.Instance.Add(_context);
+      _added = true;
     }
 
 
@@ -91,6 +93,7 @@ namespace SkinEngine
         _context.Texture = ContentManager.GetTexture(fileName, thumbnail);
         Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
         RenderPipeline.Instance.Add(_context);
+        _added = true;
       }
     }
 
@@ -329,7 +332,15 @@ namespace SkinEngine
 
     public void Free()
     {
-      RenderPipeline.Instance.Remove(_context);
+      if (_added)
+        RenderPipeline.Instance.Remove(_context);
+      _added = false;
+    }
+    public void Alloc()
+    {
+      if (!_added)
+        RenderPipeline.Instance.Add(_context);
+      _added = true;
     }
   }
 }

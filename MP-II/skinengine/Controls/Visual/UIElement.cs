@@ -100,6 +100,7 @@ namespace SkinEngine.Controls.Visuals
     bool _fireLoaded = true;
     bool _isVisible = true;
     double _opacityCache = 1.0;
+    public bool TraceThis = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UIElement"/> class.
@@ -1312,7 +1313,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="board">The board.</param>
     public void StopStoryboard(Storyboard board)
     {
-      Window.Animator.StopStoryboard(board);
+      Window.Animator.StopStoryboard(board, this);
     }
     /// <summary>
     /// Called when the mouse moves

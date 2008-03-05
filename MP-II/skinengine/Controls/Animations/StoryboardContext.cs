@@ -35,15 +35,24 @@ namespace SkinEngine.Controls.Animations
   {
     List<AnimationContext> _animationContext;
     Storyboard _storyboard;
-    public StoryboardContext(Storyboard group)
+    UIElement _element;
+    public StoryboardContext(Storyboard group,UIElement element)
     {
       _storyboard = group;
+      _element = element;
     }
     public Storyboard Storyboard
     {
       get
       {
         return _storyboard;
+      }
+    }
+    public UIElement Element
+    {
+      get
+      {
+        return _element;
       }
     }
     public void Setup(UIElement element)

@@ -326,7 +326,7 @@ namespace SkinEngine.Controls.Panels
     /// </summary>
     public void PerformLayout()
     {
-      Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
+      //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
 
       if (Background != null)
       {

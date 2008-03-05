@@ -22,6 +22,7 @@
 
 #endregion
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using SkinEngine;
@@ -80,7 +81,11 @@ namespace SkinEngine.Rendering
       {
         return;
       }
-      _newPrimitives.Add(context);
+
+      lock (_primitives)
+      {
+        _newPrimitives.Add(context);
+      }
     }
 
 
@@ -92,13 +97,18 @@ namespace SkinEngine.Rendering
     {
       if (SkinContext.UseBatching == false) return;
       if (primitive == null) return;
-      if (primitive.RenderContext != null)
+      
+      lock (_primitives)
       {
-        RenderContext renderContext = primitive.RenderContext;
-        renderContext.Remove(primitive);
-
+        if (primitive.RenderContext != null)
+        {
+          RenderContext renderContext = primitive.RenderContext;
+          renderContext.Remove(primitive);
+          primitive.RenderContext = null;
+        }
+        bool res1 = _primitives.Remove(primitive);
+        bool res2 = _newPrimitives.Remove(primitive);
       }
-      _primitives.Remove(primitive);
     }
 
     /// <summary>
@@ -185,28 +195,30 @@ namespace SkinEngine.Rendering
     /// </summary>
     public void Render()
     {
-      if (_sort)
+      lock (_primitives)
       {
-        CreateBatches();
-      }
-      if (_newPrimitives.Count > 0)
-      {
-        PlaceNewPrimitivesInBatches();
-      }
-      List<RenderContext> old = new List<RenderContext>();
-      foreach (RenderContext context in _renderList)
-      {
-        if (!context.Render())
+        if (_sort)
         {
-          old.Add(context);
+          CreateBatches();
+        }
+        if (_newPrimitives.Count > 0)
+        {
+          PlaceNewPrimitivesInBatches();
+        }
+        List<RenderContext> old = new List<RenderContext>();
+        foreach (RenderContext context in _renderList)
+        {
+          if (!context.Render())
+          {
+            old.Add(context);
+          }
+        }
+
+        foreach (RenderContext context in old)
+        {
+          _renderList.Remove(context);
         }
       }
-
-      foreach (RenderContext context in old)
-      {
-        _renderList.Remove(context);
-      }
-
     }
 
 

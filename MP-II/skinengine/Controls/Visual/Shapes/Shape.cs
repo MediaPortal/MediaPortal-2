@@ -83,6 +83,7 @@ namespace SkinEngine.Controls.Visuals
     protected PrimitiveContext _fillContext;
     protected PrimitiveContext _strokeContext;
     protected UIEvent _lastEvent;
+    protected bool _hidden;
 
     public Shape()
     {
@@ -119,17 +120,17 @@ namespace SkinEngine.Controls.Visuals
     void OnStrokeThicknessChanged(Property property)
     {
       _performLayout = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     void OnFillBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
     void OnStrokeBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
 
 
@@ -288,14 +289,22 @@ namespace SkinEngine.Controls.Visuals
 
     public void Update()
     {
+      if ((_lastEvent & UIEvent.Visible) != 0)
+      {
+        _hidden = false;
+      }
+      if (_hidden)
+      {
+        _lastEvent = UIEvent.None;
+        return;
+      }
       UpdateLayout();
       if (_performLayout)
       {
         PerformLayout();
         _performLayout = false;
-        _lastEvent = UIEvent.None;
       }
-      else if (_lastEvent == UIEvent.Hidden)
+      if ((_lastEvent & UIEvent.Hidden) != 0)
       {
         if (_fillContext != null)
           RenderPipeline.Instance.Remove(_fillContext);
@@ -304,6 +313,7 @@ namespace SkinEngine.Controls.Visuals
         _fillContext = null;
         _strokeContext = null;
         _performLayout = true;
+        _hidden = true;
       }
       else if (_lastEvent != UIEvent.None)
       {
@@ -368,8 +378,17 @@ namespace SkinEngine.Controls.Visuals
 
       if (SkinContext.UseBatching)
       {
+        if ((_lastEvent & UIEvent.Hidden) != 0 && eventType == UIEvent.Visible)
+        {
+          _lastEvent = UIEvent.None;
+        }
+        if ((_lastEvent & UIEvent.Visible) != 0 && eventType == UIEvent.Hidden)
+        {
+          _lastEvent = UIEvent.None;
+        }
+        if (_hidden && eventType != UIEvent.Visible) return;
         _lastEvent |= eventType;
-        if (Window!=null) Window.Invalidate(this);
+        if (Window != null) Window.Invalidate(this);
       }
     }
     /// <summary>
@@ -683,7 +702,7 @@ namespace SkinEngine.Controls.Visuals
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.Arrange(layoutRect);
-      if (Window!=null) Window.Invalidate(this);
+      if (Window != null) Window.Invalidate(this);
     }
 
     /// <summary>

@@ -318,6 +318,7 @@ namespace SkinEngine.Controls.Visuals
       InitializeTriggers();
       _isLayoutInvalid = false;
       _update = true;
+      if (Window != null) Window.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()
@@ -374,6 +375,7 @@ namespace SkinEngine.Controls.Visuals
     }
     public override void DestroyRenderTree()
     {
+      Trace.WriteLine("lbl DestroyRenderTree:" + Text);
       if (_renderer != null)
         _renderer.Free();
       _renderer = null;
@@ -486,6 +488,7 @@ namespace SkinEngine.Controls.Visuals
 
     public override void Deallocate()
     {
+      Trace.WriteLine("lbl Deallocate:" + Text);
       base.Deallocate();
       if (_asset != null)
       {
@@ -497,23 +500,37 @@ namespace SkinEngine.Controls.Visuals
         _renderer.Free();
       _renderer = null;
     }
-
+    public override void BecomesHidden()
+    {
+     // Trace.WriteLine("lbl BecomesHidden:" + Text);
+      if (_renderer != null)
+        _renderer.Free();
+    }
+    public override void BecomesVisible()
+    {
+      Trace.WriteLine("lbl BecomesVisible:" + Text);
+      if (_renderer != null)
+      {
+        _renderer.Alloc();
+        DoBuildRenderTree();
+      }
+    }
+    
+    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    {
+      
+     // if (_textProperty != null)
+      //   Trace.WriteLine("lbl FireUIEvent:" + eventType + " " + Text);
+      base.FireUIEvent(eventType, source);
+    }
+    
     public override void Update()
     {
       base.Update();
-      if (_hidden)
+      if (_hidden == false)
       {
-        Trace.WriteLine("Free lbl:" + this.Text);
-        if (_renderer != null)
-          _renderer.Free();
-        return;
-      }
-      base.Update();
-      if (_update && _renderer != null)
-      {
-        if (!String.IsNullOrEmpty(Text))
+        if (_update && _renderer != null)
         {
-          _renderer.Alloc();
           DoBuildRenderTree();
         }
       }

@@ -308,6 +308,7 @@ namespace SkinEngine.Controls.Panels
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
       base.Arrange(layoutRect);
+      FreeUnused();
     }
     /// <summary>
     /// Renders the visual
@@ -340,16 +341,26 @@ namespace SkinEngine.Controls.Panels
     #region IScrollInfo Members
     void FreeUnused()
     {
-      for (int i = 0; i < Children.Count; ++i)
+      UpdateRenderOrder(); 
+      int index = 0;
+      foreach (UIElement element in _renderOrder)
       {
-        if (i < _startIndex || i > _endIndex)
-          Children[i].FireUIEvent(UIEvent.Hidden, this);
+        if (!element.IsVisible) continue;
+        if (index < _startIndex || index >= _endIndex)
+        { 
+          element.FireUIEvent(UIEvent.Hidden, this);
+          index++;
+          continue;
+        }
+ 
+        element.FireUIEvent(UIEvent.Visible, this);
+
+        index++;
       }
     }
     public override void Reset()
     {
       _startIndex = 0;
-      FreeUnused();
       base.Reset();
     }
     public bool LineDown(PointF point)
@@ -364,7 +375,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -384,7 +394,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -428,7 +437,6 @@ namespace SkinEngine.Controls.Panels
         Invalidate();
         UpdateLayout();
         OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
-        FreeUnused();
       }
       return true;
     }
@@ -445,7 +453,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -465,7 +472,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -490,7 +496,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -502,7 +507,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -532,7 +536,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -544,7 +547,6 @@ namespace SkinEngine.Controls.Panels
             Invalidate();
             UpdateLayout();
             OnMouseMove(point.X, point.Y);
-            FreeUnused();
             return true;
           }
         }
@@ -575,7 +577,6 @@ namespace SkinEngine.Controls.Panels
         Invalidate();
         UpdateLayout();
         OnMouseMove((float)(Children[0].ActualPosition.X), (float)(Children[0].ActualPosition.Y));
-        FreeUnused();
       }
     }
     public void End(PointF point)
@@ -587,13 +588,12 @@ namespace SkinEngine.Controls.Panels
         UpdateLayout();
         FrameworkElement child = (FrameworkElement)Children[Children.Count - 1];
         OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
-        FreeUnused();
       }
     }
     public void ResetScroll()
     {
       _startIndex = 0;
-      FreeUnused();
+      //FreeUnused();
     }
     #endregion
 

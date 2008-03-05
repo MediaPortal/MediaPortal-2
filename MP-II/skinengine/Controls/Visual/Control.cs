@@ -347,26 +347,45 @@ namespace SkinEngine.Controls.Visuals
 
     public virtual void Update()
     {
+      if (_hidden)
+      {
+        if ((_lastEvent & UIEvent.Visible) != 0)
+        {
+          _hidden = false;
+          BecomesVisible();
+        }
+      }
+      if (_hidden)
+      {
+        _lastEvent = UIEvent.None;
+        return;
+      }
+      if ((_lastEvent & UIEvent.Hidden) != 0)
+      {
+        RenderPipeline.Instance.Remove(_backgroundContext);
+        RenderPipeline.Instance.Remove(_borderContext);
+        _backgroundContext = null;
+        _borderContext = null;
+        _performLayout = true;
+        if (_hidden == false)
+        {
+          _hidden = true;
+          BecomesHidden();
+        }
+        _lastEvent = UIEvent.None;
+        return;
+      }
+
       UpdateLayout();
       if (_performLayout)
       {
         PerformLayout();
         _performLayout = false;
         _lastEvent = UIEvent.None;
-        _hidden = false;
       }
       else if (_lastEvent != UIEvent.None)
       {
-        if ((_lastEvent & UIEvent.Hidden) != 0)
-        {
-          RenderPipeline.Instance.Remove(_backgroundContext);
-          RenderPipeline.Instance.Remove(_borderContext);
-          _backgroundContext = null;
-          _borderContext = null;
-          _performLayout = true;
-          _hidden = true;
-        }
-        else if (!_hidden)
+        if (!_hidden)
         {
           SetupBrush(_lastEvent);
         }
@@ -634,6 +653,14 @@ namespace SkinEngine.Controls.Visuals
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
+      if ((_lastEvent & UIEvent.Hidden) != 0 && eventType == UIEvent.Visible)
+      {
+        _lastEvent = UIEvent.None;
+      }
+      if ((_lastEvent & UIEvent.Visible) != 0 && eventType == UIEvent.Hidden)
+      {
+        _lastEvent = UIEvent.None;
+      }
       if (_templateControl != null)
         _templateControl.FireUIEvent(eventType, source);
 
@@ -1070,5 +1097,13 @@ namespace SkinEngine.Controls.Visuals
         _templateControl.SetWindow(window);
       }
     }
+
+    public virtual void BecomesVisible()
+    {
+    }
+    public virtual void BecomesHidden()
+    {
+    }
+
   }
 }

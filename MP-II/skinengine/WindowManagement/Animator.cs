@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using SkinEngine;
@@ -24,11 +25,11 @@ namespace SkinEngine
     /// </summary>
     /// <param name="board">The board.</param>
     /// <returns></returns>
-    StoryboardContext GetContext(Storyboard board)
+    StoryboardContext GetContext(Storyboard board, UIElement element)
     {
       foreach (StoryboardContext context in _runningAnimations)
       {
-        if (context.Storyboard == board) return context;
+        if (context.Storyboard == board && context.Element == element) return context;
       }
       return null;
     }
@@ -42,9 +43,9 @@ namespace SkinEngine
       lock (_runningAnimations)
       {
 
-        if (null == GetContext(board))
+        if (null == GetContext(board, element))
         {
-          StoryboardContext context = new StoryboardContext(board);
+          StoryboardContext context = new StoryboardContext(board, element);
           _runningAnimations.Add(context);
           context.Setup(element);
           context.Start(SkinContext.TimePassed);
@@ -56,14 +57,14 @@ namespace SkinEngine
     /// Stops the storyboard.
     /// </summary>
     /// <param name="board">The board.</param>
-    public void StopStoryboard(Storyboard board)
+    public void StopStoryboard(Storyboard board, UIElement element)
     {
       lock (_runningAnimations)
       {
-        StoryboardContext context = GetContext(board);
+        StoryboardContext context = GetContext(board, element);
         if (context == null) return;
-        context.Stop();
         _runningAnimations.Remove(context);
+        context.Stop();
       }
     }
 
