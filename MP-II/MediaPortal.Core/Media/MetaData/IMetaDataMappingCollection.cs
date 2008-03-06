@@ -33,7 +33,6 @@ namespace MediaPortal.Media.MetaData
     /// <summary>
     /// Adds a new mapping
     /// </summary>
-    /// <param name="name">The name for the mapping.</param>
     /// <param name="mapping">The mapping.</param>
     void Add(IMetadataMapping mapping);
 
