@@ -137,7 +137,7 @@ namespace MediaPortal.Plugins.PlayerManager
                 int duration = System.Int32.Parse(durationLine);
 
                 string tmp = fileName.ToLower();
-                FileUtils.GetQualifiedFilename(basePath, ref fileName);
+                FileUtils.CombinePaths(basePath, fileName);
                 PlayListItem newItem = new PlayListItem(infoLine, fileName, duration);
                 fileset.Add(newItem);
                 fileName = "";

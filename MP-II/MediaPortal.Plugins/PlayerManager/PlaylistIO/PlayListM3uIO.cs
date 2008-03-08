@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.PlayerManager
       if (fileName == null || fileName.Length == 0)
         return false;
 
-      FileUtils.GetQualifiedFilename(basePath, ref fileName);
+      fileName = FileUtils.CombinePaths(basePath, fileName);
       PlayListItem newItem = new PlayListItem(songName, fileName, duration);
       fileset.Add(newItem);
       return true;

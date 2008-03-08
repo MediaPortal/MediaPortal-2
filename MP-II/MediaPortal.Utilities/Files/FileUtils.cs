@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 
@@ -31,32 +32,83 @@ using MediaPortal.Utilities.Strings;
 namespace MediaPortal.Utilities.Files
 {
   /// <summary>
-  /// Contains File and Directory related Methods
+  /// Contains file and directory related utility methods.
   /// </summary>
   public class FileUtils
   {
     /// <summary>
-    /// Combines the given Path and Filename into a Full qualified name
+    /// Combines two paths. This method differs from
+    /// <see cref="System.IO.Path.Combine(string, string)"/> in that way that it
+    /// removes relative path navigations to the parent path in the
+    /// <paramref name="path2"/> path.
     /// </summary>
-    /// <param name="strBasePath"></param>
-    /// <param name="strFileName"></param>
-    public static void GetQualifiedFilename(string strBasePath, ref string strFileName)
+    /// <example>
+    /// CombinePaths(@"C:\Program Files\", "MediaPortal") returns @"C:\Program Files\MediaPortal",
+    /// CombinePaths(@"C:\Program Files\MediaPortal", "..\abc") returns @"C:\Program Files\abc",
+    /// </example>
+    /// <param name="path1">First path to combine with the second one. If this path is
+    /// <c>null</c>, the second path will be returned.</param>
+    /// <param name="path2">Second path to be combined with the first one. This path may contain
+    /// relative path navigation elements like <c>@".."</c>. If this path is <c>null</c>,
+    /// null will be returned.</param>
+    /// <returns>
+    /// Combined paths as string. If the <paramref name="path1"/> is null, <paramref name="path2"/>
+    /// will be returned. If <paramref name="path2"/> is null, null will be returned. Otherwise,
+    /// the combination of the paths will be returned, as described.
+    /// </returns>
+    /// <exception cref="ArgumentException">If the two paths cannot be combined (For example if
+    /// the paths contain illegal characters or if the relative navigation of the second path
+    /// cannot be applied to the first one.</exception>
+    public static string CombinePaths(string path1, string path2)
     {
-      if (strFileName == null) return;
-      if (strFileName.Length <= 2) return;
-      if (strFileName[1] == ':') return;
-      strBasePath = StringUtils.RemoveTrailingSlash(strBasePath);
-      while (strFileName.StartsWith(@"..\") || strFileName.StartsWith("../"))
+      if (path1 == null) return path2;
+      if (path2 == null) return null;
+      if (Path.IsPathRooted(path2))
+        return path2;
+      path1 = RemoveTrailingPathDelimiter(path1);
+      while (path2.StartsWith(@"..\") || path2.StartsWith("../"))
       {
-        strFileName = strFileName.Substring(3);
+        path2 = path2.Substring(3);
         // Find the last / or \ character, then trim the base path
-        int pos = Math.Max(strBasePath.LastIndexOf(@"\"), strBasePath.LastIndexOf(@"/"));
+        int pos = Math.Max(path1.LastIndexOf(@"\"), path1.LastIndexOf(@"/"));
         if (pos > 0)
-          strBasePath = strBasePath.Remove(pos);
+        {
+          if (path1 == @"\\")
+            throw new ArgumentException("Cannot combine paths '{0}' and '{1}'");
+          path1 = path1.Remove(pos);
+        }
       }
-      if (strBasePath.Length == 2 && strBasePath[1] == ':')
-        strBasePath += @"\";
-      strFileName = System.IO.Path.Combine(strBasePath, strFileName);
+      if (path1.Length == 2 && path1[1] == ':')
+        path1 += @"\";
+      return Path.Combine(path1, path2);
+    }
+
+    /// <summary>
+    /// Removes a trailing slash or backslash from the given path string.
+    /// </summary>
+    /// <param name="path">A path string with or without trailing path delimiter (@"\" or "/").</param>
+    /// <returns><paramref name="path"/> with removed path delimiter(s), if there were any.</returns>
+    public static string RemoveTrailingPathDelimiter(string path)
+    {
+      if (path == null) return string.Empty;
+      if (path.Length == 0) return string.Empty;
+      while (HasPathDelimiter(path))
+      {
+        path = path.Remove(path.Length - 1);
+      }
+      return path;
+    }
+
+    /// <summary>
+    /// Returns the information if the given path has a path delimiter at its end.
+    /// </summary>
+    /// <param name="path">Path to check.</param>
+    /// <returns>true, if the specified <paramref name="path"/> has a path delimiter at its end,
+    /// otherwise false</returns>
+    public static bool HasPathDelimiter(string path)
+    {
+      return path.Length > 0 &&
+        (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
   }
 }

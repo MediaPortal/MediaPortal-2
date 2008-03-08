@@ -29,30 +29,10 @@ using System.Text;
 namespace MediaPortal.Utilities.Strings
 {
   /// <summary>
-  /// Contains String related methods
+  /// Contains String related utility methods.
   /// </summary>
   public class StringUtils
   {
-    /// <summary>
-    /// Removes a Trailing Slash from the given string
-    /// </summary>
-    /// <param name="strLine"></param>
-    /// <returns></returns>
-    public static string RemoveTrailingSlash(string strLine)
-    {
-      if (strLine == null) return string.Empty;
-      if (strLine.Length == 0) return string.Empty;
-      string strPath = strLine;
-      while (strPath.Length > 0)
-      {
-        if (strPath[strPath.Length - 1] == '\\' || strPath[strPath.Length - 1] == '/')
-        {
-          strPath = strPath.Substring(0, strPath.Length - 1);
-        }
-        else break;
-      }
-      return strPath;
-    }
-
+    // Add utility methods here, when needed...
   }
 }
