@@ -58,7 +58,7 @@ namespace MediaPortal.Core.Localisation
 
     public string ToString(StringId id)
     {
-      return id.ToString();
+      return id.Label;
     }
 
     public bool IsLocaleSupported(string cultureName)

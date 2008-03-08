@@ -114,6 +114,11 @@ namespace MediaPortal.Core.Localisation
       get { return _name; }
     }
 
+    public string Label
+    {
+      get { return "[" + _section + "." + _name + "]"; }
+    }
+
     private void LangageChange(object o)
     {
       _localised = null;
@@ -125,7 +130,7 @@ namespace MediaPortal.Core.Localisation
         _localised = ServiceScope.Get<ILocalisation>().ToString(this);
 
       if (_localised == null)
-        return "["+_section + "." + _name+"]";
+        return Label;
       else
         return _localised;
     }
