@@ -89,6 +89,7 @@ namespace MediaPortal.Core.Localisation
         // Should we raise an exception here?
         _section = "system";
         _name = label;
+        _localised = label;
       }
     }
 
