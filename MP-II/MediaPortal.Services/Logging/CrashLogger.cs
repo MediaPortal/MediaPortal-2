@@ -38,11 +38,10 @@ using Microsoft.Win32;
 namespace MediaPortal.Services.Logging
 {
   /// <summary>
-  /// Logs as much information about crash as possible
-  /// Creates a Directory for all logs
-  /// Copies all existing logs into this directory
-  /// Creates new crash log with system information
-  /// TODO
+  /// Logs as much information about crash as possible.
+  /// Creates a directory where it copies all application logs.
+  /// Creates new crash log with system information.
+  /// TODO:
   /// log status of all Services
   /// </summary>
   public class CrashLogger
@@ -50,17 +49,20 @@ namespace MediaPortal.Services.Logging
     private string _filename;
     private DateTime _crashTime;
     /// <summary>
-    /// Creates a new <see cref="FileLogger"/> instance and initializes it with the given filename and <see cref="LogLevel"/>.
+    /// Creates a new <see cref="CrashLogger"/> instance which will copy all
+    /// log files found in the specified <paramref name="logFilesPath"/>.
     /// </summary>
-    public CrashLogger(string path)
+    /// <param name="logFilesPath">Path of the application's log files to be copied to the
+    /// created crash directory.</param>
+    public CrashLogger(string logFilesPath)
     {
       _crashTime = DateTime.Now;
 
-      DirectoryInfo logPath = new DirectoryInfo(Path.Combine(path, "Crash_" + _crashTime.ToString("dd.MM.yyyy_HHmm")));
+      DirectoryInfo logPath = new DirectoryInfo(Path.Combine(logFilesPath, "Crash_" + _crashTime.ToString("dd.MM.yyyy_HHmm")));
       if (!logPath.Exists)
         logPath.Create();
 
-      CopyLogFiles(path, logPath.FullName);
+      CopyLogFiles(logFilesPath, logPath.FullName);
       //CreateDxDiagLog(logPath.FullName); -- Too slow
 
       _filename = Path.Combine(logPath.FullName, "Crash.log");

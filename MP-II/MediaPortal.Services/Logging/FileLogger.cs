@@ -33,7 +33,7 @@ using MediaPortal.Core.Logging;
 namespace MediaPortal.Services.Logging
 {
   /// <summary>
-  /// An <see cref="ILogger"/> implementation that writes messages to a text file.
+  /// A <see cref="ILogger"/> implementation that writes messages to a text file.
   /// </summary>
   /// <remarks>If the text file exists it will be truncated.</remarks>
   public class FileLogger : ILogger
@@ -95,62 +95,34 @@ namespace MediaPortal.Services.Logging
       set { _LogMethodNames = value; }
     }
 
-    /// <summary>
-    /// Writes an informational message to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
+    #region ILogger implementation
+
     public void Info(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Information);
     }
 
-    /// <summary>
-    /// Writes a warning to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
     public void Warn(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Warning);
     }
 
-    /// <summary>
-    /// Writes a debug message to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
     public void Debug(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Debug);
     }
 
-    /// <summary>
-    /// Writes an error message to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
     public void Error(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Error);
     }
 
-    /// <summary>
-    /// Writes an error message to the log, passing the original <see cref="Exception"/>.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
-    /// <param name="args">An array of objects to write using format.</param>
     public void Error(string format, Exception ex, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Error);
       Error(ex);
     }
 
-    /// <summary>
-    /// Writes an <see cref="Exception"/> to the log.
-    /// </summary>
-    /// <param name="ex">The <see cref="Exception"/> to write.</param>
     public void Error(Exception ex)
     {
       if (_Level >= LogLevel.Error)
@@ -159,15 +131,12 @@ namespace MediaPortal.Services.Logging
       }
     }
 
-    /// <summary>
-    /// Writes a critical system message to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
     public void Critical(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Critical);
     }
+
+    #endregion
 
     /// <summary>
     /// Does the actual writing of the message to the file.

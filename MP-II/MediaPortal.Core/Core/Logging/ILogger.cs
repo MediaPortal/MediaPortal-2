@@ -27,7 +27,7 @@ using System;
 namespace MediaPortal.Core.Logging
 {
   /// <summary>
-  /// Interface for all logger implementations
+  /// Interface for all logger implementations.
   /// </summary>
   public interface ILogger
   {
@@ -35,7 +35,7 @@ namespace MediaPortal.Core.Logging
     /// Gets or sets the log level.
     /// </summary>
     /// <value>A <see cref="LogLevel"/> value that indicates the minimum level messages must have to be 
-    /// written to the file.</value>
+    /// written to the logger.</value>
     LogLevel Level { get; set; }
 
     /// <summary>
