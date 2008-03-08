@@ -22,31 +22,6 @@
 
 #endregion
 
-#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -60,8 +35,8 @@ namespace MediaPortal.Utilities.Localisation
 {
   public class LocalisationStrings
   {
-    #region enum
-    private enum languageType
+    #region Enums
+    private enum LanguageType
     {
       User,
       Local,
@@ -185,20 +160,14 @@ namespace MediaPortal.Utilities.Localisation
     {
       CultureInfo[] available = new CultureInfo[_availableLanguages.Count];
 
-      IDictionaryEnumerator languageEnumerator = _availableLanguages.GetEnumerator();
-
-      for (int i = 0; i < _availableLanguages.Count; i++)
-      {
-        languageEnumerator.MoveNext();
-        available[i] = (CultureInfo)languageEnumerator.Value;
-      }
+      _availableLanguages.Values.CopyTo(available, 0);
 
       return available;
     }
 
-    public bool IsLocalSupported()
+    public bool IsLocaleSupported(string cultureName)
     {
-      if (_availableLanguages.ContainsKey(CultureInfo.CurrentCulture.Name))
+      if (_availableLanguages.ContainsKey(cultureName))
         return true;
 
       return false;
@@ -228,19 +197,19 @@ namespace MediaPortal.Utilities.Localisation
     {
       // Load User Custom strings
       if (_userLanguage)
-        LoadStrings(_userDirectory, languageType.User);
+        LoadStrings(_userDirectory, LanguageType.User);
     }
 
     private void LoadStrings(string directory)
     {
       // Local Language
-      LoadStrings(directory, languageType.Local);
+      LoadStrings(directory, LanguageType.Local);
 
       // Parent Language
-      LoadStrings(directory, languageType.Parent);
+      LoadStrings(directory, LanguageType.Parent);
 
       // Default to English
-      LoadStrings(directory, languageType.Default);
+      LoadStrings(directory, LanguageType.Default);
     }
 
     private void ReloadAll()
@@ -293,22 +262,22 @@ namespace MediaPortal.Utilities.Localisation
       }
     }
 
-    private void LoadStrings(string directory, languageType type)
+    private void LoadStrings(string directory, LanguageType type)
     {
       string language = null;
       switch (type)
       {
-        case languageType.User:
+        case LanguageType.User:
           language = "user";
           break;
-        case languageType.Local:
+        case LanguageType.Local:
           language = _currentLanguage.Name;
           break;
-        case languageType.Parent:
+        case LanguageType.Parent:
           if (!_currentLanguage.IsNeutralCulture)
             language = _currentLanguage.Parent.Name;
           break;
-        case languageType.Default:
+        case LanguageType.Default:
           if (_currentLanguage.Name != "en")
             language = "en";
           break;
@@ -343,7 +312,7 @@ namespace MediaPortal.Utilities.Localisation
             if (!_lazyLanguageStrings.ContainsKey(section.name))
             {
               List<List<StringSection>> lazyLoad = new List<List<StringSection>>();
-              foreach (languageType langType in Enum.GetValues(typeof(languageType)))
+              foreach (LanguageType langType in Enum.GetValues(typeof(LanguageType)))
                 lazyLoad.Add(new List<StringSection>());
 
               _lazyLanguageStrings.Add(section.name, lazyLoad);
@@ -383,7 +352,7 @@ namespace MediaPortal.Utilities.Localisation
     {
       if (_lazyLanguageStrings.ContainsKey(sectionName))
       {
-        foreach (languageType type in Enum.GetValues(typeof(languageType)))
+        foreach (LanguageType type in Enum.GetValues(typeof(LanguageType)))
         {
           foreach (StringSection section in _lazyLanguageStrings[sectionName][(int)type])
           {

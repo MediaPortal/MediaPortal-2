@@ -26,6 +26,10 @@ using System.Globalization;
 
 namespace MediaPortal.Core.Localisation
 {
+  /// <summary>
+  /// Dummy class which implements the <see cref="ILocalisation"/> interface, but
+  /// doesn't provide any localized strings.
+  /// </summary>
   internal class NoLocalisation : ILocalisation
   {
     public event LanguageChangeHandler LanguageChange;
@@ -40,33 +44,13 @@ namespace MediaPortal.Core.Localisation
       get { return 1; }
     }
 
-    /// <summary>
-    /// Changes the language.
-    /// </summary>
-    /// <param name="cultureName">Name of the culture.</param>
     public void ChangeLanguage(string cultureName) {}
 
-    /// <summary>
-    /// Get the translation for a given id and format the sting with
-    /// the given parameters
-    /// </summary>
-    /// <param name="id">id of text</param>
-    /// <param name="parameters">parameters used in the formating</param>
-    /// <returns>
-    /// string containing the translated text
-    /// </returns>
     public string ToString(string section, string name, object[] parameters)
     {
       return string.Format("{0}.{1}", section, name);
     }
 
-    /// <summary>
-    /// Get the translation for a given id
-    /// </summary>
-    /// <param name="id">id of text</param>
-    /// <returns>
-    /// string containing the translated text
-    /// </returns>
     public string ToString(string section, string name)
     {
       return string.Format("{0}.{1}", section, name);
@@ -77,7 +61,7 @@ namespace MediaPortal.Core.Localisation
       return id.ToString();
     }
 
-    public bool IsLocalSupported()
+    public bool IsLocaleSupported(string cultureName)
     {
       return false;
     }

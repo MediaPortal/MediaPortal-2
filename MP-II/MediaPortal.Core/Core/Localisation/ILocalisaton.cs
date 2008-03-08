@@ -29,8 +29,13 @@ namespace MediaPortal.Core.Localisation
   public delegate void LanguageChangeHandler(object o);
 
   /// <summary>
-  /// This interface for providing localised strings 
+  /// Interface for providing localised strings.
   /// </summary>
+  /// <remarks>
+  /// Localized strings are referenced from the application by instances of <see cref="StringId"/>.
+  /// Generally, the implementing instance of this interface should not be used directly,
+  /// instances of <c>StringId</c> should be used instead for resolving localized strings.
+  /// </remarks>
   public interface ILocalisation
   {
     #region Properties
@@ -39,44 +44,81 @@ namespace MediaPortal.Core.Localisation
 
     #endregion
 
+    /// <summary>
+    /// Will be called if the language changes, which makes all former returned localized
+    /// strings invalid.
+    /// </summary>
     event LanguageChangeHandler LanguageChange;
 
     #region Methods
 
     /// <summary>
-    /// Changes the language.
+    /// Changes the current language, in which all strings should be translated.
     /// </summary>
-    /// <param name="cultureName">Name of the culture.</param>
+    /// <param name="cultureName">Name of the culture. This could be "de" or "en",
+    /// for example.</param>
     void ChangeLanguage(string cultureName);
 
     /// <summary>
-    /// Get the translation for a given id and format the sting with
-    /// the given parameters
+    /// Returns the translation for a given string resource (given by section name and name)
+    /// and format the string with the given parameters in the current language.
     /// </summary>
-    /// <param name="dwCode">id of text</param>
-    /// <param name="parameters">parameters used in the formating</param>
+    /// <param name="section">Section of the string resource in the resource file.</param>
+    /// <param name="name">Name of the string resource in the resource file.</param>
+    /// <param name="parameters">Parameters used in the formating.</param>
     /// <returns>
-    /// string containing the translated text
+    /// String containing the translated text.
     /// </returns>
     string ToString(string section, string name, object[] parameters);
 
     /// <summary>
-    /// Get the translation for a given id
+    /// Returns the translation for a given string resource (given by section name and name)
+    /// without parameters in the current language.
     /// </summary>
-    /// <param name="dwCode">id of text</param>
+    /// <param name="section">Section of the string resource in the resource file.</param>
+    /// <param name="name">Name of the string resource in the resource file.</param>
     /// <returns>
-    /// string containing the translated text
+    /// String containing the translated text.
     /// </returns>
     string ToString(string section, string name);
 
+    /// <summary>
+    /// Returns the translation for the given string resource descriptor in the current language.
+    /// </summary>
+    /// <param name="id">String resource descriptor to be translated to the current language.</param>
+    /// <returns></returns>
     string ToString(StringId id);
 
-    bool IsLocalSupported();
+    /// <summary>
+    /// Returns the information, if the specified culture is supported.
+    /// </summary>
+    /// <param name="cultureName">Name of the culture to check. If the name is one of
+    /// the names returned by the property <see cref="CultureInfo.Name"/> from one
+    /// of those cultures returned by <see cref="AvailableLanguages()"/>, this method
+    /// returns <c>true</c>, otherwise it returns false.</param>
+    /// <returns>true, if the specified culture is supported, false otherwise.</returns>
+    bool IsLocaleSupported(string cultureName);
 
+    /// <summary>
+    /// Returns the <see cref="CultureInfo"/>s for all installed languages.
+    /// </summary>
+    /// <returns>Array defining all languages, for which localized strings are availabe in this
+    /// application.</returns>
     CultureInfo[] AvailableLanguages();
 
+    /// <summary>
+    /// Tries to guess the best language for the current system. Will default in english if
+    /// no other language could be found.
+    /// The algorithm for finding the "best language" depends on the implementation.
+    /// </summary>
+    /// <returns>Best language that fits to the current system.</returns>
     CultureInfo GetBestLanguage();
 
+    /// <summary>
+    /// Adds the specified directory to the collection of available language-file directories.
+    /// Will make all language files in the specified directory available to choose.
+    /// </summary>
+    /// <param name="stringsDirectory">Directory containing language files.</param>
     void AddDirectory(string stringsDirectory);
 
     #endregion
