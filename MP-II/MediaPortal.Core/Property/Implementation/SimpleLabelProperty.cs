@@ -46,7 +46,7 @@ namespace MediaPortal.Core.Properties
     public SimpleLabelProperty(string stringValue)
     {
       _stringValue = stringValue;
-      if (StringId.IsString(_stringValue))
+      if (StringId.IsResourceString(_stringValue))
       {
         _localizedString = new StringId(_stringValue);
         _stringValue = null;
