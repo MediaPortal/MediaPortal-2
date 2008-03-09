@@ -52,6 +52,7 @@ namespace MediaPortal.Manager
     }
 
     private bool _languageChange = false;
+    private bool _rightToLeft = false;
 
     public SettingsControl()
     {
@@ -76,6 +77,7 @@ namespace MediaPortal.Manager
       LoadConfigData();
 
       ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
+      CheckRightToLeft();
     }
 
     public bool Closing()
@@ -101,6 +103,36 @@ namespace MediaPortal.Manager
     }
 
     #region private methods
+    private void CheckRightToLeft()
+    {
+      if (ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft)
+      {
+        _rightToLeft = true;
+
+        this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+
+        this.sections.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+        this.sections.RightToLeftLayout = true;
+
+        this.sectionIcon.Location = new System.Drawing.Point(5, 5);
+        this.sectionTitle.Size = new System.Drawing.Size(sectionHeader.Size.Width - sectionIcon.Size.Width - 5, 16);
+        this.sectionTitle.Location = new System.Drawing.Point(sectionIcon.Size.Width + 5, 22);
+      }
+      else
+      {
+        _rightToLeft = false;
+
+        this.RightToLeft = System.Windows.Forms.RightToLeft.No;
+
+        this.sections.RightToLeft = System.Windows.Forms.RightToLeft.No;
+        this.sections.RightToLeftLayout = false;
+
+        this.sectionIcon.Location = new System.Drawing.Point(sectionHeader.Size.Width - sectionIcon.Size.Width - 5, 5);
+        this.sectionTitle.Size = new System.Drawing.Size(sectionHeader.Size.Width - sectionIcon.Size.Width - 5, 16);
+        this.sectionTitle.Location = new System.Drawing.Point(0, 22);
+      }
+    }
+
     private void LoadConfigData()
     {
       foreach (SettingBase setting in ServiceScope.Get<IPluginManager>().GetAllPluginItems<SettingBase>("/Configuration/Settings"))
@@ -188,9 +220,20 @@ namespace MediaPortal.Manager
         int linePos = 20;
         int lineHeight = 25;
         int margin = 12;
+
+        int startColumnOne = 0;
         int startColumnTwo = (int)(sectionSettings.Size.Width * 0.64);
-        int widthColumnOne = startColumnTwo - (margin * 2);
+        int widthColumnOne = startColumnTwo;
         int widthColumnTwo = sectionSettings.Size.Width - startColumnTwo;
+
+        if (_rightToLeft)
+        {
+          startColumnOne = (int)(sectionSettings.Size.Width * 0.36);
+          startColumnTwo = 0;
+          widthColumnOne = sectionSettings.Size.Width - startColumnOne;
+          widthColumnTwo = startColumnOne;
+        }
+
         foreach (SettingBase setting in sectionTag.Settings)
         {
           switch (setting.Type)
@@ -199,7 +242,7 @@ namespace MediaPortal.Manager
               Label heading = new Label();
               heading.AutoSize = false;
               heading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-              heading.Location = new System.Drawing.Point(0, linePos);
+              heading.Location = new System.Drawing.Point(startColumnOne, linePos);
               heading.Name = "heading" + linePos.ToString();
               heading.Size = new System.Drawing.Size(widthColumnOne, 13);
               heading.TabIndex = 1;
@@ -213,7 +256,8 @@ namespace MediaPortal.Manager
               {
                 Label yesnoLabel = new Label();
                 yesnoLabel.AutoSize = false;
-                yesnoLabel.Location = new System.Drawing.Point(margin, linePos - 2);
+                yesnoLabel.Location = new System.Drawing.Point(startColumnOne, linePos - 2);
+                yesnoLabel.Margin = new System.Windows.Forms.Padding(margin, 3, margin, 3);
                 yesnoLabel.Name = "heading" + linePos.ToString();
                 yesnoLabel.Size = new System.Drawing.Size(widthColumnOne, 13);
                 yesnoLabel.TabIndex = 1;
@@ -240,7 +284,9 @@ namespace MediaPortal.Manager
               {
                 Label selectionLabel = new Label();
                 selectionLabel.AutoSize = false;
-                selectionLabel.Location = new System.Drawing.Point(margin, linePos - 2);
+                selectionLabel.Location = new System.Drawing.Point(startColumnOne, linePos - 2);
+                selectionLabel.Margin = new System.Windows.Forms.Padding(margin, 3, margin, 3);
+                selectionLabel.Padding = new System.Windows.Forms.Padding(margin, 0, margin, 0);
                 selectionLabel.Name = "heading" + linePos.ToString();
                 selectionLabel.Size = new System.Drawing.Size(widthColumnOne, 13);
                 selectionLabel.TabIndex = 1;
@@ -412,6 +458,7 @@ namespace MediaPortal.Manager
     private void LangageChange(object o)
     {
       _languageChange = true;
+      CheckRightToLeft();
     }
 
     #region static controls

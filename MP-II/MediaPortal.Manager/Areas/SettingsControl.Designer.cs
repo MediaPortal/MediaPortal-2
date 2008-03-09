@@ -107,12 +107,11 @@ namespace MediaPortal.Manager
       // 
       // sectionTitle
       // 
-      this.sectionTitle.AutoSize = true;
       this.sectionTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.sectionTitle.ForeColor = System.Drawing.SystemColors.ControlLight;
       this.sectionTitle.Location = new System.Drawing.Point(3, 22);
       this.sectionTitle.Name = "sectionTitle";
-      this.sectionTitle.Size = new System.Drawing.Size(39, 16);
+      this.sectionTitle.Size = new System.Drawing.Size(280, 16);
       this.sectionTitle.TabIndex = 0;
       this.sectionTitle.Text = "Test";
       // 
@@ -196,7 +195,6 @@ namespace MediaPortal.Manager
       this.RightToLeft = System.Windows.Forms.RightToLeft.No;
       this.Size = new System.Drawing.Size(608, 513);
       this.sectionHeader.ResumeLayout(false);
-      this.sectionHeader.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.sectionIcon)).EndInit();
       this.ResumeLayout(false);
 
