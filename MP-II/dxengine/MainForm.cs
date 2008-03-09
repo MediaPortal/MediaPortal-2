@@ -45,7 +45,6 @@ using MediaPortal.Core.AutoPlay;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.Importers;
 
-using MediaPortal.Services.ExifReader;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
