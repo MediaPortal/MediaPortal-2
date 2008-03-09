@@ -68,7 +68,7 @@
     <None Include="Configuration.Framework.plugin" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
