@@ -201,7 +201,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensionUpdater", "MediaPo
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Configuration", "MediaPortal.Configuration\MediaPortal.Configuration.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration.Framework", "MediaPortal.Plugins\Configuration.Framework\Configuration.Framework.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
