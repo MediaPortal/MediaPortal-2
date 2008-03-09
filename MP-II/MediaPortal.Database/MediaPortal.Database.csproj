@@ -67,21 +67,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabasePlugin.cs" />
-    <Compile Include="Implementation\DatabaseBuilderFactory.cs" />
-    <Compile Include="Implementation\Database.cs" />
-    <Compile Include="Implementation\DatabaseFactory.cs" />
-    <Compile Include="Implementation\Databases.cs" />
-    <Compile Include="Implementation\DbAttribute.cs" />
-    <Compile Include="Implementation\DbItem.cs" />
-    <Compile Include="Implementation\Notifies\DatabaseNotifier.cs" />
-    <Compile Include="Implementation\SqlCache.cs" />
-    <Compile Include="Implementation\SqlLite\SqlLiteDatabaseBuilder.cs" />
-    <Compile Include="Implementation\SqlLite\SqlLiteDatabaseCommand.cs" />
-    <Compile Include="Implementation\SqlLite\SqlLiteDatabaseConnection.cs" />
-    <Compile Include="Implementation\SqlTableCache.cs" />
-    <Compile Include="Implementation\Sql\SqlDatabaseBuilder.cs" />
-    <Compile Include="Implementation\Sql\SqlDatabaseCommand.cs" />
-    <Compile Include="Implementation\Sql\SqlDatabaseConnection.cs" />
+    <Compile Include="DatabaseBuilderFactory.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="DatabaseFactory.cs" />
+    <Compile Include="Databases.cs" />
+    <Compile Include="DbAttribute.cs" />
+    <Compile Include="DbItem.cs" />
+    <Compile Include="Notifies\DatabaseNotifier.cs" />
+    <Compile Include="SqlCache.cs" />
+    <Compile Include="SqlLite\SqlLiteDatabaseBuilder.cs" />
+    <Compile Include="SqlLite\SqlLiteDatabaseCommand.cs" />
+    <Compile Include="SqlLite\SqlLiteDatabaseConnection.cs" />
+    <Compile Include="SqlTableCache.cs" />
+    <Compile Include="Sql\SqlDatabaseBuilder.cs" />
+    <Compile Include="Sql\SqlDatabaseCommand.cs" />
+    <Compile Include="Sql\SqlDatabaseConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
