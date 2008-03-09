@@ -67,7 +67,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\MediaPortal.Core.Services\MediaPortal.Core.Services.csproj">
       <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
-      <Name>MediaPortal.Services</Name>
+      <Name>MediaPortal.Core.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
