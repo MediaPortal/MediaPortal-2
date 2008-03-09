@@ -86,7 +86,6 @@
     <Compile Include="Burning\EventHelper.cs" />
     <Compile Include="Burning\MediaInfo.cs" />
     <Compile Include="Burning\MediaTypeSupport.cs" />
-    <Compile Include="Exif\ExifReader.cs" />
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\StringManager.cs" />
     <Compile Include="Logging\CrashLogger.cs" />
