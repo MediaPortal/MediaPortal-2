@@ -8,7 +8,7 @@
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MediaPortal.Configuration.dll">
+    <Import assembly = "Configuration.Framework.dll">
       <Builder name = "Setting" class = "MediaPortal.Configuration.Builders.SettingBuilder"/>
     </Import>
   </Runtime>
