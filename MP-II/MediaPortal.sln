@@ -54,7 +54,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "MediaPo
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core.Services", "MediaPortal.Core.Services\MediaPortal.Core.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
