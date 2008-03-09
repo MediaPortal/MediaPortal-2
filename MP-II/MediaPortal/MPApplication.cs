@@ -45,7 +45,6 @@ using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
-using MediaPortal.Services.ExifReader;
 using MediaPortal.Services.Burning;
 using MediaPortal.Services.Messaging;
 using MediaPortal.Services.MPIManager;
@@ -102,12 +101,6 @@ public class MPApplication : MarshalByRefObject
 
       logger.Debug("MPApplication: Registering Strings Manager");
       ServiceScope.Add<ILocalisation>(new StringManager());
-
-      ServiceScope.Get<ILogger>().Debug("Application: create TagReader service"); //?
-
-      ExifReader exifreader = new ExifReader();
-      logger.Debug("MPApplication: Registering ExifReader");
-      ServiceScope.Add<IExifReader>(exifreader);
 
       //meta data mapper services
       ServiceScope.Add<IMetaDataFormatterCollection>(new MetaDataFormatterCollection());
