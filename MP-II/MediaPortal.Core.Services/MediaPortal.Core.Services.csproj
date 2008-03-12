@@ -51,14 +51,6 @@
     <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.Services.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.3.1.8, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MediaPortal.Base\Bass.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MediaPortal.Base\BassRegistration.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.4.369, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\MediaPortal.Base\ICSharpCode.SharpZipLib.dll</HintPath>
@@ -75,10 +67,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoPlay\AutoPlay.cs" />
-    <Compile Include="AutoPlay\AutoPlayMediaItem.cs" />
-    <Compile Include="AutoPlay\AutoPlaySettings.cs" />
-    <Compile Include="AutoPlay\DeviceVolumeMonitor.cs" />
     <Compile Include="Burning\Burner.cs" />
     <Compile Include="Burning\BurnManager.cs" />
     <Compile Include="Burning\DeviceHelper.cs" />

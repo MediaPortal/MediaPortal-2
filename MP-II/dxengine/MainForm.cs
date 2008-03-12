@@ -48,7 +48,6 @@ using MediaPortal.Media.Importers;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
-using MediaPortal.Services.AutoPlay;
 
 using SkinEngine;
 using SkinEngine.Commands;
@@ -117,11 +116,6 @@ namespace dxEngine
       ServiceScope.Get<ILogger>().Debug("Application: create UserService service");
       UserService userservice = new UserService();
       ServiceScope.Add<IUserService>(userservice);
-
-      ServiceScope.Get<ILogger>().Debug("Application: create AutoPlay service");
-      AutoPlay autoplayservice = new AutoPlay();
-      ServiceScope.Add<IAutoPlay>(autoplayservice);
-
 
       //**********************************************************
 
