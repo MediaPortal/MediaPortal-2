@@ -25,6 +25,91 @@ namespace SkinEngine.Skin
   {
     UIElement _lastElement;
     ResourceDictionary _lastDictionary;
+
+    protected static IDictionary<string, Type> ObjectClassRegistrations = new Dictionary<string, Type>();
+    static XamlLoader()
+    {                            
+      // Panels
+      ObjectClassRegistrations.Add("DockPanel", typeof(DockPanel));
+      ObjectClassRegistrations.Add("StackPanel", typeof(StackPanel));
+      ObjectClassRegistrations.Add("VirtualizingStackPanel", typeof(VirtualizingStackPanel));
+      ObjectClassRegistrations.Add("Canvas", typeof(Canvas));
+      ObjectClassRegistrations.Add("Grid", typeof(Grid));
+      ObjectClassRegistrations.Add("RowDefinition", typeof(RowDefinition));
+      ObjectClassRegistrations.Add("ColumnDefinition", typeof(ColumnDefinition));
+      ObjectClassRegistrations.Add("GridLength", typeof(GridLength));
+      ObjectClassRegistrations.Add("WrapPanel", typeof(WrapPanel));
+
+      // Visuals
+      ObjectClassRegistrations.Add("Border", typeof(Border));
+      ObjectClassRegistrations.Add("Image", typeof(Image));
+      ObjectClassRegistrations.Add("Button", typeof(Button));
+      ObjectClassRegistrations.Add("CheckBox", typeof(CheckBox));
+      ObjectClassRegistrations.Add("Label", typeof(Label));
+      ObjectClassRegistrations.Add("Rectangle", typeof(Rectangle));
+      ObjectClassRegistrations.Add("Ellipse", typeof(Ellipse));
+      ObjectClassRegistrations.Add("Line", typeof(SkinEngine.Controls.Visuals.Line));
+      ObjectClassRegistrations.Add("Polygon", typeof(SkinEngine.Controls.Visuals.Polygon));
+      ObjectClassRegistrations.Add("Path", typeof(SkinEngine.Controls.Visuals.Path));
+      ObjectClassRegistrations.Add("ListView", typeof(SkinEngine.Controls.Visuals.ListView));
+      ObjectClassRegistrations.Add("ContentPresenter", typeof(SkinEngine.Controls.Visuals.ContentPresenter));
+      ObjectClassRegistrations.Add("ScrollContentPresenter", typeof(SkinEngine.Controls.Visuals.ScrollContentPresenter));
+      ObjectClassRegistrations.Add("ProgressBar", typeof(SkinEngine.Controls.Visuals.ProgressBar));
+      ObjectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
+      ObjectClassRegistrations.Add("TreeView", typeof(SkinEngine.Controls.Visuals.TreeView));
+      ObjectClassRegistrations.Add("TreeViewItem", typeof(SkinEngine.Controls.Visuals.TreeViewItem));
+      ObjectClassRegistrations.Add("ItemsPresenter", typeof(SkinEngine.Controls.Visuals.ItemsPresenter));
+      ObjectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.DataTemplate));
+      ObjectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
+      ObjectClassRegistrations.Add("DataTemplateSelector", typeof(SkinEngine.Controls.Visuals.DataTemplateSelector));
+      ObjectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
+      ObjectClassRegistrations.Add("Resources", typeof(ResourceDictionary));
+      ObjectClassRegistrations.Add("ResourceDictionary", typeof(ResourceDictionary));
+      
+      // Brushes
+      ObjectClassRegistrations.Add("SolidColorBrush", typeof(SolidColorBrush));
+      ObjectClassRegistrations.Add("LinearGradientBrush", typeof(LinearGradientBrush));
+      ObjectClassRegistrations.Add("RadialGradientBrush", typeof(RadialGradientBrush));
+      ObjectClassRegistrations.Add("ImageBrush", typeof(ImageBrush));
+      ObjectClassRegistrations.Add("VisualBrush", typeof(VisualBrush));
+      ObjectClassRegistrations.Add("VideoBrush", typeof(VideoBrush));
+      ObjectClassRegistrations.Add("GradientStop", typeof(GradientStop));
+
+      // Animations
+      ObjectClassRegistrations.Add("ColorAnimation", typeof(ColorAnimation));
+      ObjectClassRegistrations.Add("DoubleAnimation", typeof(DoubleAnimation));
+      ObjectClassRegistrations.Add("PointAnimation", typeof(PointAnimation));
+      ObjectClassRegistrations.Add("Storyboard", typeof(Storyboard));
+      ObjectClassRegistrations.Add("ColorAnimationUsingKeyFrames", typeof(ColorAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("DoubleAnimationUsingKeyFrames", typeof(DoubleAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("PointAnimationUsingKeyFrames", typeof(PointAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("SplineColorKeyFrame", typeof(SplineColorKeyFrame));
+      ObjectClassRegistrations.Add("SplineDoubleKeyFrame", typeof(SplineDoubleKeyFrame));
+      ObjectClassRegistrations.Add("SplinePointKeyFrame", typeof(SplinePointKeyFrame));
+
+      // Triggers
+      ObjectClassRegistrations.Add("EventTrigger", typeof(EventTrigger));
+      ObjectClassRegistrations.Add("Trigger", typeof(Trigger));
+      ObjectClassRegistrations.Add("BeginStoryboard", typeof(BeginStoryboard));
+      ObjectClassRegistrations.Add("StopStoryboard", typeof(StopStoryboard));
+
+      // Transforms
+      ObjectClassRegistrations.Add("TransformGroup", typeof(TransformGroup));
+      ObjectClassRegistrations.Add("ScaleTransform", typeof(ScaleTransform));
+      ObjectClassRegistrations.Add("SkewTransform", typeof(SkewTransform));
+      ObjectClassRegistrations.Add("RotateTransform", typeof(RotateTransform));
+      ObjectClassRegistrations.Add("TranslateTransform", typeof(TranslateTransform));
+
+      // Styles
+      ObjectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
+      ObjectClassRegistrations.Add("Setter", typeof(SkinEngine.Controls.Visuals.Styles.Setter));
+      ObjectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Styles.ControlTemplate));
+      ObjectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
+      ObjectClassRegistrations.Add("CommandGroup", typeof(SkinEngine.Controls.Bindings.CommandGroup));
+      ObjectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Controls.Bindings.InvokeCommand));
+      ObjectClassRegistrations.Add("Include", typeof(Include));
+    }
+
     /// <summary>
     /// Loads the specified skin file using MyXaml
     /// and returns the root UIElement
@@ -85,14 +170,13 @@ namespace SkinEngine.Skin
       }
     }
 
-
     void parser_OnImportNameSpace(object parser, object obj, string nameSpace)
     {
       //clr-namespace:Model;assembly=mymovies
       string[] parts = nameSpace.Split(new char[] { ';' });
       if (parts.Length != 2)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: invalid namespace declaration:{0}", nameSpace);
+        ServiceScope.Get<ILogger>().Info("XamlParser: invalid namespace declaration: {0}", nameSpace);
         return;
       }
       string className = parts[0].Substring(parts[0].IndexOf(":") + 1);
@@ -104,7 +188,7 @@ namespace SkinEngine.Skin
       Model model = SkinEngine.ModelManager.Instance.GetModel(assemblyName, className);
       if (model == null)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model :{0}.{1}", assemblyName, className);
+        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model: {0}.{1}", assemblyName, className);
         return;
       }
       PropertyInfo info = obj.GetType().GetProperty("Context");
@@ -168,6 +252,7 @@ namespace SkinEngine.Skin
       }
       return null;
     }
+
     object parser_OnGetBinding(object parser, object obj, string bindingExpression, PropertyInfo info)
     {
       if (obj is IBindingCollection)
@@ -186,7 +271,6 @@ namespace SkinEngine.Skin
       return null;
     }
 
-
     object parser_OnGetResource(object parser, object obj, string resourceName)
     {
       //Trace.WriteLine(String.Format("Get resource:{0}", resourceName));
@@ -201,7 +285,7 @@ namespace SkinEngine.Skin
         }
         if (result != null)
         {
-          Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
+          Trace.WriteLine(String.Format("xaml loader type: {0} is not clonable", result));
           return result;
         }
       }
@@ -223,7 +307,7 @@ namespace SkinEngine.Skin
         }
         if (result != null)
         {
-          Trace.WriteLine(String.Format("xaml loader type:{0} is not clonable", result));
+          Trace.WriteLine(String.Format("xaml loader type: {0} is not clonable", result));
           return result;
         }
       }
@@ -244,7 +328,7 @@ namespace SkinEngine.Skin
           }
         }
       }
-      ServiceScope.Get<ILogger>().Error("Resource:{0} not found", resourceName);
+      ServiceScope.Get<ILogger>().Error("Resource: {0} not found", resourceName);
       return null;
     }
 
@@ -277,6 +361,7 @@ namespace SkinEngine.Skin
         }
       }
     }
+
     public object ConvertType(Type propertyType, object propertyValue)
     {
       CustomTypeEventArgs e = new CustomTypeEventArgs();
@@ -287,6 +372,7 @@ namespace SkinEngine.Skin
       return e.Result;
 
     }
+
     /// <summary>
     /// Handles the CustomTypeConvertor event of the parser control.
     /// </summary>
@@ -425,156 +511,10 @@ namespace SkinEngine.Skin
     /// 	<c>true</c> if name is known classname; otherwise, <c>false</c>.
     /// </returns>
     bool IsKnownObject(string name)
-    {
-      //panels
-      if (name == "DockPanel")
-        return true;
-      else if (name == "StackPanel")
-        return true;
-      else if (name == "VirtualizingStackPanel")
-        return true;
-      else if (name == "Canvas")
-        return true;
-      else if (name == "Grid")
-        return true;
-      else if (name == "RowDefinition")
-        return true;
-      else if (name == "ColumnDefinition")
-        return true;
-      else if (name == "GridLength")
-        return true;
-      else if (name == "WrapPanel")
-        return true;
-
-      //visuals
-      else if (name == "Border")
-        return true;
-      else if (name == "Image")
-        return true;
-      else if (name == "Button")
-        return true;
-      else if (name == "Label")
-        return true;
-      else if (name == "Rectangle")
-        return true;
-      else if (name == "Ellipse")
-        return true;
-      else if (name == "Line")
-        return true;
-      else if (name == "Polygon")
-        return true;
-      else if (name == "Path")
-        return true;
-      else if (name == "CheckBox")
-        return true;
-      else if (name == "ListView")
-        return true;
-      else if (name == "DataTemplate")
-        return true;
-      else if (name == "StyleSelector")
-        return true;
-      else if (name == "DataTemplateSelector")
-        return true;
-      else if (name == "ContentPresenter")
-        return true;
-      else if (name == "ScrollContentPresenter")
-        return true;
-      else if (name == "ScrollViewer")
-        return true;
-      else if (name == "Resources")
-        return true;
-      else if (name == "ResourceDictionary")
-        return true;
-      else if (name == "ProgressBar")
-        return true;
-      else if (name == "KeyBinding")
-        return true;
-      else if (name == "TreeView")
-        return true;
-      else if (name == "TreeViewItem")
-        return true;
-      else if (name == "ItemsPresenter")
-        return true;
-
-
-      //brushes
-      else if (name == "SolidColorBrush")
-        return true;
-      else if (name == "LinearGradientBrush")
-        return true;
-      else if (name == "RadialGradientBrush")
-        return true;
-      else if (name == "ImageBrush")
-        return true;
-      else if (name == "VisualBrush")
-        return true;
-      else if (name == "VideoBrush")
-        return true;
-      else if (name == "GradientStop")
-        return true;
-
-      //animations
-      else if (name == "ColorAnimation")
-        return true;
-      else if (name == "DoubleAnimation")
-        return true;
-      else if (name == "PointAnimation")
-        return true;
-      else if (name == "Storyboard")
-        return true;
-      else if (name == "ColorAnimationUsingKeyFrames")
-        return true;
-      else if (name == "DoubleAnimationUsingKeyFrames")
-        return true;
-      else if (name == "PointAnimationUsingKeyFrames")
-        return true;
-      else if (name == "SplineColorKeyFrame")
-        return true;
-      else if (name == "SplineDoubleKeyFrame")
-        return true;
-      else if (name == "SplinePointKeyFrame")
-        return true;
-
-      //triggers
-      else if (name == "EventTrigger")
-        return true;
-      else if (name == "Trigger")
-        return true;
-      else if (name == "BeginStoryboard")
-        return true;
-      else if (name == "StopStoryboard")
-        return true;
-
-      //Transforms
-      else if (name == "TransformGroup")
-        return true;
-      else if (name == "ScaleTransform")
-        return true;
-      else if (name == "SkewTransform")
-        return true;
-      else if (name == "RotateTransform")
-        return true;
-      else if (name == "TranslateTransform")
-        return true;
-
-      //Styles
-      else if (name == "Style")
-        return true;
-      else if (name == "Setter")
-        return true;
-      else if (name == "ControlTemplate")
-        return true;
-      else if (name == "ItemsPanelTemplate")
-        return true;
-
-      else if (name == "CommandGroup")
-        return true;
-      else if (name == "InvokeCommand")
-        return true;
-      else if (name == "Include")
-        return true;
-      return false;
+    {                              
+      return ObjectClassRegistrations.ContainsKey(name);
     }
+
     /// <summary>
     /// Gets a new object which classname=name.
     /// </summary>
@@ -582,227 +522,13 @@ namespace SkinEngine.Skin
     /// <returns>object</returns>
     object GetObject(string name)
     {
-      //panels
-      if (name == "DockPanel")
-      {
-        _lastElement = new DockPanel();
-        return _lastElement;
-      }
-      else if (name == "StackPanel")
-      {
-        _lastElement = new StackPanel();
-        return _lastElement;
-      }
-      else if (name == "VirtualizingStackPanel")
-      {
-        _lastElement = new VirtualizingStackPanel();
-        return _lastElement;
-      }
-      else if (name == "Canvas")
-      {
-        _lastElement = new Canvas();
-        return _lastElement;
-      }
-      else if (name == "Grid")
-      {
-        _lastElement = new Grid();
-        return _lastElement;
-      }
-      else if (name == "RowDefinition")
-        return new RowDefinition();
-      else if (name == "ColumnDefinition")
-        return new ColumnDefinition();
-      else if (name == "GridLength")
-        return new GridLength();
-      else if (name == "WrapPanel")
-      {
-        _lastElement = new WrapPanel();
-        return _lastElement;
-      }
-
-
-      //visuals
-      else if (name == "Border")
-      {
-        _lastElement = new Border();
-        return _lastElement;
-      }
-      else if (name == "Image")
-      {
-        _lastElement = new Image();
-        return _lastElement;
-      }
-      else if (name == "Button")
-      {
-        _lastElement = new Button();
-        return _lastElement;
-      }
-      else if (name == "CheckBox")
-      {
-        _lastElement = new CheckBox();
-        return _lastElement;
-      }
-      else if (name == "Label")
-      {
-        _lastElement = new Label();
-        return _lastElement;
-      }
-      else if (name == "Rectangle")
-      {
-        _lastElement = new Rectangle();
-        return _lastElement;
-      }
-      else if (name == "Ellipse")
-      {
-        _lastElement = new Ellipse();
-        return _lastElement;
-      }
-      else if (name == "Line")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.Line();
-        return _lastElement;
-      }
-      else if (name == "Polygon")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.Polygon();
-        return _lastElement;
-      }
-      else if (name == "Path")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.Path();
-        return _lastElement;
-      }
-      else if (name == "ListView")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.ListView();
-        return _lastElement;
-      }
-      else if (name == "ContentPresenter")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.ContentPresenter();
-        return _lastElement;
-      }
-      else if (name == "ScrollContentPresenter")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.ScrollContentPresenter();
-        return _lastElement;
-      }
-      else if (name == "ProgressBar")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.ProgressBar();
-        return _lastElement;
-      }
-      else if (name == "KeyBinding")
-      {
-        return new SkinEngine.Controls.Visuals.KeyBinding();
-      }
-      else if (name == "TreeView")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.TreeView();
-        return _lastElement;
-      }
-      else if (name == "TreeViewItem")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.TreeViewItem();
-        return _lastElement;
-      }
-      else if (name == "ItemsPresenter")
-      {
-        _lastElement = new SkinEngine.Controls.Visuals.ItemsPresenter();
-        return _lastElement;
-      }
-      else if (name == "DataTemplate")
-        return new SkinEngine.Controls.Visuals.DataTemplate();
-      else if (name == "StyleSelector")
-        return new SkinEngine.Controls.Visuals.StyleSelector();
-      else if (name == "DataTemplateSelector")
-        return new SkinEngine.Controls.Visuals.DataTemplateSelector();
-      else if (name == "ScrollViewer")
-        return new SkinEngine.Controls.Visuals.ScrollViewer();
-      else if (name == "Resources")
-        return new ResourceDictionary();
-      else if (name == "ResourceDictionary")
-      {
-        _lastDictionary = new ResourceDictionary();
-        return _lastDictionary;
-      }
-
-      //brushes
-      else if (name == "SolidColorBrush")
-        return new SolidColorBrush();
-      else if (name == "LinearGradientBrush")
-        return new LinearGradientBrush();
-      else if (name == "RadialGradientBrush")
-        return new RadialGradientBrush();
-      else if (name == "ImageBrush")
-        return new ImageBrush();
-      else if (name == "VisualBrush")
-        return new VisualBrush();
-      else if (name == "VideoBrush")
-        return new VideoBrush();
-      else if (name == "GradientStop")
-        return new GradientStop();
-
-      //animations
-      else if (name == "ColorAnimation")
-        return new ColorAnimation();
-      else if (name == "DoubleAnimation")
-        return new DoubleAnimation();
-      else if (name == "PointAnimation")
-        return new PointAnimation();
-      else if (name == "Storyboard")
-        return new Storyboard();
-      else if (name == "ColorAnimationUsingKeyFrames")
-        return new ColorAnimationUsingKeyFrames();
-      else if (name == "DoubleAnimationUsingKeyFrames")
-        return new DoubleAnimationUsingKeyFrames();
-      else if (name == "PointAnimationUsingKeyFrames")
-        return new PointAnimationUsingKeyFrames();
-      else if (name == "SplineColorKeyFrame")
-        return new SplineColorKeyFrame();
-      else if (name == "SplineDoubleKeyFrame")
-        return new SplineDoubleKeyFrame();
-      else if (name == "SplinePointKeyFrame")
-        return new SplinePointKeyFrame();
-
-      //triggers
-      else if (name == "EventTrigger")
-        return new EventTrigger();
-      else if (name == "Trigger")
-        return new Trigger();
-      else if (name == "BeginStoryboard")
-        return new BeginStoryboard();
-      else if (name == "StopStoryboard")
-        return new StopStoryboard();
-
-      //Transforms
-      else if (name == "TransformGroup")
-        return new TransformGroup();
-      else if (name == "ScaleTransform")
-        return new ScaleTransform();
-      else if (name == "SkewTransform")
-        return new SkewTransform();
-      else if (name == "RotateTransform")
-        return new RotateTransform();
-      else if (name == "TranslateTransform")
-        return new TranslateTransform();
-
-      //Styles
-      else if (name == "Style")
-        return new SkinEngine.Controls.Visuals.Styles.Style();
-      else if (name == "Setter")
-        return new SkinEngine.Controls.Visuals.Styles.Setter();
-      else if (name == "ControlTemplate")
-        return new SkinEngine.Controls.Visuals.Styles.ControlTemplate();
-      else if (name == "ItemsPanelTemplate")
-        return new SkinEngine.Controls.Visuals.ItemsPanelTemplate();
-      else if (name == "CommandGroup")
-        return new SkinEngine.Controls.Bindings.CommandGroup();
-      else if (name == "InvokeCommand")
-        return new SkinEngine.Controls.Bindings.InvokeCommand();
-      else if (name == "Include")
-        return new Include();
-      return null;
+      Type t = ObjectClassRegistrations[name];
+      object result = Activator.CreateInstance(t);
+      if (result is UIElement)
+        _lastElement = result as UIElement;
+      if (result is ResourceDictionary)
+        _lastDictionary = result as ResourceDictionary;    
+      return result;
     }
 
     /// <summary>
@@ -909,6 +635,7 @@ namespace SkinEngine.Skin
       float.TryParse(floatString, out f);
       return f;
     }
+
     public double GetDouble(string doubleString)
     {
       float test = 12.03f;
@@ -926,6 +653,5 @@ namespace SkinEngine.Skin
       double.TryParse(doubleString, out f);
       return f;
     }
-
   }
 }
