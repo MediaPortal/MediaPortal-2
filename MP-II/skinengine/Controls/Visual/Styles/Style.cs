@@ -23,12 +23,12 @@
 using System;
 using System.ComponentModel;
 using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Core.Properties;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Visuals.Styles
+using SkinEngine.ElementRegistrations;
+
+namespace SkinEngine.Controls.Visuals.Styles      
 {
   public class Style :  IAddChild
   {
@@ -183,8 +183,7 @@ namespace SkinEngine.Controls.Visuals.Styles
             }
             else
             {
-              SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-              obj = loader.ConvertType(pinfo2.PropertyType, obj);
+              obj = XamlTypeConverter.ConvertType(pinfo2.PropertyType, obj);
             }
           }
         }

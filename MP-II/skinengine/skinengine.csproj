@@ -237,6 +237,8 @@
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="Effects\EffectParameters.cs" />
+    <Compile Include="ElementRegistration\XamlElements.cs" />
+    <Compile Include="ElementRegistration\XamlTypeConverter.cs" />
     <Compile Include="ExtendedMatrix.cs" />
     <Compile Include="InputManager\FocusManager.cs" />
     <Compile Include="InputManager\InputManager.cs">
@@ -296,7 +298,6 @@
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
     <Compile Include="Skin\SkinLoaderContext.cs" />
     <Compile Include="Skin\XamlLoader.cs" />
-    <Compile Include="TypeConverters\BasicTypeConverter.cs" />
     <Compile Include="WindowManagement\Animator.cs" />
     <Compile Include="WindowManagement\Utils.cs" />
     <Compile Include="WindowManagement\Window.cs" />

@@ -27,7 +27,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
-using SkinEngine.TypeConverters;
+using SkinEngine.ElementRegistrations;
 using SkinEngine.Controls.Visuals.Triggers;
 
 namespace SkinEngine.Controls.Visuals.Styles
@@ -230,13 +230,11 @@ namespace SkinEngine.Controls.Visuals.Styles
         {
           if (pinfo2.PropertyType == typeof(float))
           {
-            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-            obj = BasicTypeConverter.Convert2Float(obj.ToString());
+            obj = XamlTypeConverter.Convert2Float(obj.ToString());
           }
           else if (pinfo2.PropertyType == typeof(double))
           {
-            SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-            obj = BasicTypeConverter.Convert2Double(obj.ToString());
+            obj = XamlTypeConverter.Convert2Double(obj.ToString());
           }
           else
           {
@@ -245,8 +243,7 @@ namespace SkinEngine.Controls.Visuals.Styles
         }
         else
         {
-          SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-          obj = loader.ConvertType(pinfo2.PropertyType, obj);
+          obj = XamlTypeConverter.ConvertType(pinfo2.PropertyType, obj);
         }
       }
       ICloneable clone = obj as ICloneable;
