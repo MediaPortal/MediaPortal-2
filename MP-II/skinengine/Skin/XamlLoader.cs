@@ -1,53 +1,55 @@
 using System;
-using System.Reflection;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using MyXaml.Core;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Reflection;
+
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using SkinEngine.Controls.Animations;
+using MyXaml.Core;
+using SlimDX;
+using SkinEngine.Controls.Bindings;
 using SkinEngine.Controls.Brushes;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Visuals.Triggers;
-using SkinEngine.Controls.Bindings;
+using SkinEngine.TypeConverters;
 
-using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
 namespace SkinEngine.Skin
-{
+{                              
+  /// <summary>
+  /// This is the loader class for each XAML file.
+  /// </summary>              
   public class XamlLoader
   {
     UIElement _lastElement;
     ResourceDictionary _lastDictionary;
 
+    /// <summary>
+    /// Registration for all elements the loader can create from a XAML file.
+    /// </summary>
     protected static IDictionary<string, Type> ObjectClassRegistrations = new Dictionary<string, Type>();
     static XamlLoader()
     {                            
       // Panels
-      ObjectClassRegistrations.Add("DockPanel", typeof(DockPanel));
-      ObjectClassRegistrations.Add("StackPanel", typeof(StackPanel));
-      ObjectClassRegistrations.Add("VirtualizingStackPanel", typeof(VirtualizingStackPanel));
-      ObjectClassRegistrations.Add("Canvas", typeof(Canvas));
-      ObjectClassRegistrations.Add("Grid", typeof(Grid));
-      ObjectClassRegistrations.Add("RowDefinition", typeof(RowDefinition));
-      ObjectClassRegistrations.Add("ColumnDefinition", typeof(ColumnDefinition));
-      ObjectClassRegistrations.Add("GridLength", typeof(GridLength));
-      ObjectClassRegistrations.Add("WrapPanel", typeof(WrapPanel));
+      ObjectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));
+      ObjectClassRegistrations.Add("StackPanel", typeof(SkinEngine.Controls.Panels.StackPanel));
+      ObjectClassRegistrations.Add("VirtualizingStackPanel", typeof(SkinEngine.Controls.Panels.VirtualizingStackPanel));
+      ObjectClassRegistrations.Add("Canvas", typeof(SkinEngine.Controls.Panels.Canvas));
+      ObjectClassRegistrations.Add("Grid", typeof(SkinEngine.Controls.Panels.Grid));
+      ObjectClassRegistrations.Add("RowDefinition", typeof(SkinEngine.Controls.Panels.RowDefinition));
+      ObjectClassRegistrations.Add("ColumnDefinition", typeof(SkinEngine.Controls.Panels.ColumnDefinition));
+      ObjectClassRegistrations.Add("GridLength", typeof(SkinEngine.Controls.Panels.GridLength));
+      ObjectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
 
       // Visuals
-      ObjectClassRegistrations.Add("Border", typeof(Border));
-      ObjectClassRegistrations.Add("Image", typeof(Image));
-      ObjectClassRegistrations.Add("Button", typeof(Button));
-      ObjectClassRegistrations.Add("CheckBox", typeof(CheckBox));
-      ObjectClassRegistrations.Add("Label", typeof(Label));
-      ObjectClassRegistrations.Add("Rectangle", typeof(Rectangle));
-      ObjectClassRegistrations.Add("Ellipse", typeof(Ellipse));
+      ObjectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
+      ObjectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
+      ObjectClassRegistrations.Add("Button", typeof(SkinEngine.Controls.Visuals.Button));
+      ObjectClassRegistrations.Add("CheckBox", typeof(SkinEngine.Controls.Visuals.CheckBox));
+      ObjectClassRegistrations.Add("Label", typeof(SkinEngine.Controls.Visuals.Label));
+      ObjectClassRegistrations.Add("Rectangle", typeof(SkinEngine.Controls.Visuals.Rectangle));
+      ObjectClassRegistrations.Add("Ellipse", typeof(SkinEngine.Controls.Visuals.Ellipse));
       ObjectClassRegistrations.Add("Line", typeof(SkinEngine.Controls.Visuals.Line));
       ObjectClassRegistrations.Add("Polygon", typeof(SkinEngine.Controls.Visuals.Polygon));
       ObjectClassRegistrations.Add("Path", typeof(SkinEngine.Controls.Visuals.Path));
@@ -63,42 +65,42 @@ namespace SkinEngine.Skin
       ObjectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
       ObjectClassRegistrations.Add("DataTemplateSelector", typeof(SkinEngine.Controls.Visuals.DataTemplateSelector));
       ObjectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
-      ObjectClassRegistrations.Add("Resources", typeof(ResourceDictionary));
-      ObjectClassRegistrations.Add("ResourceDictionary", typeof(ResourceDictionary));
+      ObjectClassRegistrations.Add("Resources", typeof(SkinEngine.Controls.Visuals.ResourceDictionary));
+      ObjectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.Controls.Visuals.ResourceDictionary));
       
       // Brushes
-      ObjectClassRegistrations.Add("SolidColorBrush", typeof(SolidColorBrush));
-      ObjectClassRegistrations.Add("LinearGradientBrush", typeof(LinearGradientBrush));
-      ObjectClassRegistrations.Add("RadialGradientBrush", typeof(RadialGradientBrush));
-      ObjectClassRegistrations.Add("ImageBrush", typeof(ImageBrush));
-      ObjectClassRegistrations.Add("VisualBrush", typeof(VisualBrush));
-      ObjectClassRegistrations.Add("VideoBrush", typeof(VideoBrush));
-      ObjectClassRegistrations.Add("GradientStop", typeof(GradientStop));
+      ObjectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));
+      ObjectClassRegistrations.Add("LinearGradientBrush", typeof(SkinEngine.Controls.Brushes.LinearGradientBrush));
+      ObjectClassRegistrations.Add("RadialGradientBrush", typeof(SkinEngine.Controls.Brushes.RadialGradientBrush));
+      ObjectClassRegistrations.Add("ImageBrush", typeof(SkinEngine.Controls.Brushes.ImageBrush));
+      ObjectClassRegistrations.Add("VisualBrush", typeof(SkinEngine.Controls.Brushes.VisualBrush));
+      ObjectClassRegistrations.Add("VideoBrush", typeof(SkinEngine.Controls.Brushes.VideoBrush));
+      ObjectClassRegistrations.Add("GradientStop", typeof(SkinEngine.Controls.Brushes.GradientStop));
 
       // Animations
-      ObjectClassRegistrations.Add("ColorAnimation", typeof(ColorAnimation));
-      ObjectClassRegistrations.Add("DoubleAnimation", typeof(DoubleAnimation));
-      ObjectClassRegistrations.Add("PointAnimation", typeof(PointAnimation));
-      ObjectClassRegistrations.Add("Storyboard", typeof(Storyboard));
-      ObjectClassRegistrations.Add("ColorAnimationUsingKeyFrames", typeof(ColorAnimationUsingKeyFrames));
-      ObjectClassRegistrations.Add("DoubleAnimationUsingKeyFrames", typeof(DoubleAnimationUsingKeyFrames));
-      ObjectClassRegistrations.Add("PointAnimationUsingKeyFrames", typeof(PointAnimationUsingKeyFrames));
-      ObjectClassRegistrations.Add("SplineColorKeyFrame", typeof(SplineColorKeyFrame));
-      ObjectClassRegistrations.Add("SplineDoubleKeyFrame", typeof(SplineDoubleKeyFrame));
-      ObjectClassRegistrations.Add("SplinePointKeyFrame", typeof(SplinePointKeyFrame));
+      ObjectClassRegistrations.Add("ColorAnimation", typeof(SkinEngine.Controls.Animations.ColorAnimation));
+      ObjectClassRegistrations.Add("DoubleAnimation", typeof(SkinEngine.Controls.Animations.DoubleAnimation));
+      ObjectClassRegistrations.Add("PointAnimation", typeof(SkinEngine.Controls.Animations.PointAnimation));
+      ObjectClassRegistrations.Add("Storyboard", typeof(SkinEngine.Controls.Animations.Storyboard));
+      ObjectClassRegistrations.Add("ColorAnimationUsingKeyFrames", typeof(SkinEngine.Controls.Animations.ColorAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("DoubleAnimationUsingKeyFrames", typeof(SkinEngine.Controls.Animations.DoubleAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("PointAnimationUsingKeyFrames", typeof(SkinEngine.Controls.Animations.PointAnimationUsingKeyFrames));
+      ObjectClassRegistrations.Add("SplineColorKeyFrame", typeof(SkinEngine.Controls.Animations.SplineColorKeyFrame));
+      ObjectClassRegistrations.Add("SplineDoubleKeyFrame", typeof(SkinEngine.Controls.Animations.SplineDoubleKeyFrame));
+      ObjectClassRegistrations.Add("SplinePointKeyFrame", typeof(SkinEngine.Controls.Animations.SplinePointKeyFrame));
 
       // Triggers
-      ObjectClassRegistrations.Add("EventTrigger", typeof(EventTrigger));
-      ObjectClassRegistrations.Add("Trigger", typeof(Trigger));
-      ObjectClassRegistrations.Add("BeginStoryboard", typeof(BeginStoryboard));
-      ObjectClassRegistrations.Add("StopStoryboard", typeof(StopStoryboard));
+      ObjectClassRegistrations.Add("EventTrigger", typeof(SkinEngine.Controls.Visuals.Triggers.EventTrigger));
+      ObjectClassRegistrations.Add("Trigger", typeof(SkinEngine.Controls.Visuals.Triggers.Trigger));
+      ObjectClassRegistrations.Add("BeginStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.BeginStoryboard));
+      ObjectClassRegistrations.Add("StopStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.StopStoryboard));
 
       // Transforms
-      ObjectClassRegistrations.Add("TransformGroup", typeof(TransformGroup));
-      ObjectClassRegistrations.Add("ScaleTransform", typeof(ScaleTransform));
-      ObjectClassRegistrations.Add("SkewTransform", typeof(SkewTransform));
-      ObjectClassRegistrations.Add("RotateTransform", typeof(RotateTransform));
-      ObjectClassRegistrations.Add("TranslateTransform", typeof(TranslateTransform));
+      ObjectClassRegistrations.Add("TransformGroup", typeof(SkinEngine.Controls.Transforms.TransformGroup));
+      ObjectClassRegistrations.Add("ScaleTransform", typeof(SkinEngine.Controls.Transforms.ScaleTransform));
+      ObjectClassRegistrations.Add("SkewTransform", typeof(SkinEngine.Controls.Transforms.SkewTransform));
+      ObjectClassRegistrations.Add("RotateTransform", typeof(SkinEngine.Controls.Transforms.RotateTransform));
+      ObjectClassRegistrations.Add("TranslateTransform", typeof(SkinEngine.Controls.Transforms.TranslateTransform));
 
       // Styles
       ObjectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
@@ -107,7 +109,7 @@ namespace SkinEngine.Skin
       ObjectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
       ObjectClassRegistrations.Add("CommandGroup", typeof(SkinEngine.Controls.Bindings.CommandGroup));
       ObjectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Controls.Bindings.InvokeCommand));
-      ObjectClassRegistrations.Add("Include", typeof(Include));
+      ObjectClassRegistrations.Add("Include", typeof(SkinEngine.Skin.Include));
     }
 
     /// <summary>
@@ -389,7 +391,7 @@ namespace SkinEngine.Skin
           float[] f = new float[parts.Length];
           for (int i = 0; i < parts.Length; ++i)
           {
-            f[i] = GetFloat(parts[i]);
+            f[i] = BasicTypeConverter.Convert2Float(parts[i]);
           }
           System.Drawing.Drawing2D.Matrix matrix2d = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
           Static2dMatrix matrix = new Static2dMatrix();
@@ -422,15 +424,15 @@ namespace SkinEngine.Skin
       }
       if (e.PropertyType == typeof(Vector2))
       {
-        e.Result = GetVector2(e.Value.ToString());
+        e.Result = Convert2Vector2(e.Value.ToString());
       }
       else if (e.PropertyType == typeof(Vector3))
       {
-        e.Result = GetVector3(e.Value.ToString());
+        e.Result = Convert2Vector3(e.Value.ToString());
       }
       else if (e.PropertyType == typeof(Vector4))
       {
-        e.Result = GetVector4(e.Value.ToString());
+        e.Result = Convert2Vector4(e.Value.ToString());
       }
       else if (e.PropertyType == typeof(Brush))
       {
@@ -466,7 +468,7 @@ namespace SkinEngine.Skin
         {
           int pos = text.IndexOf('*');
           text = text.Substring(0, pos);
-          double percent = GetDouble(text);
+          double percent = BasicTypeConverter.Convert2Double(text);
           e.Result = new GridLength(GridUnitType.Star, percent);
         }
       }
@@ -532,126 +534,103 @@ namespace SkinEngine.Skin
     }
 
     /// <summary>
-    /// converts a string to a vector2
+    /// Converts a string to a <see cref="Vector2"/>.
     /// </summary>
-    /// <param name="position">The position in '0.2,0.4' format.</param>
-    /// <returns></returns>
-    protected Vector2 GetVector2(string position)
+    /// <param name="coordsString">The coordinates in "0.2,0.4" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2" will result in a vector (3.5, 7.2),
+    /// the string "5.6" will result in a vector (5.6, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0).</param>
+    /// <returns>New <see cref="Vector2"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector2 Convert2Vector2(string coordsString)
     {
-      if (position == null)
+      if (coordsString == null)
       {
         return new Vector2(0, 0);
       }
       Vector2 vec = new Vector2();
-      string[] coords = position.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new char[] { ',' });
       if (coords.Length > 0)
       {
-        vec.X = GetFloat(coords[0]);
+        vec.X = BasicTypeConverter.Convert2Float(coords[0]);
       }
       if (coords.Length > 1)
       {
-        vec.Y = GetFloat(coords[1]);
+        vec.Y = BasicTypeConverter.Convert2Float(coords[1]);
       }
       return vec;
     }
+
     /// <summary>
-    /// converts a string into a vector3 format
+    /// Converts a string to a <see cref="Vector3"/>.
     /// </summary>
-    /// <param name="position">The position in '0.2,0.3,0.4' format</param>
-    /// <returns></returns>
-    protected Vector3 GetVector3(string position)
+    /// <param name="coordsString">The coordinates in "0.2,0.4,0.1" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2,5.2" will result in a vector (3.5, 7.2, 5.2),
+    /// the string "5.6" will result in a vector (5.6, 0, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0, 0).</param>
+    /// <returns>New <see cref="Vector3"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector3 Convert2Vector3(string coordsString)
     {
-      if (position == null)
+      if (coordsString == null)
       {
         return new Vector3(0, 0, 0);
       }
       Vector3 vec = new Vector3();
-      string[] coords = position.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new char[] { ',' });
       if (coords.Length > 0)
       {
-        vec.X = GetFloat(coords[0]);
+        vec.X = BasicTypeConverter.Convert2Float(coords[0]);
       }
       if (coords.Length > 1)
       {
-        vec.Y = GetFloat(coords[1]);
+        vec.Y = BasicTypeConverter.Convert2Float(coords[1]);
       }
       if (coords.Length > 2)
       {
-        vec.Z = GetFloat(coords[2]);
+        vec.Z = BasicTypeConverter.Convert2Float(coords[2]);
       }
       return vec;
     }
+
     /// <summary>
-    /// converts a string into a vector4 format
+    /// Converts a string to a <see cref="Vector4"/>.
     /// </summary>
-    /// <param name="position">The position in '0.2,0.3,0.4,0.5' format</param>
-    /// <returns></returns>
-    protected Vector4 GetVector4(string position)
+    /// <param name="coordsString">The coordinates in "0.2,0.4,0.1,0.6" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2,5.2,2.8" will result in a
+    /// vector (3.5, 7.2, 5.2, 2.8),
+    /// the string "5.6" will result in a vector (5.6, 0, 0, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0, 0, 0).</param>
+    /// <returns>New <see cref="Vector4"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector4 Convert2Vector4(string coordsString)
     {
-      if (position == null)
+      if (coordsString == null)
       {
         return new Vector4(0, 0, 0, 0);
       }
       Vector4 vec = new Vector4();
-      string[] coords = position.Split(new char[] { ',' });
+      string[] coords = coordsString.Split(new char[] { ',' });
       if (coords.Length > 0)
       {
-        vec.X = GetFloat(coords[0]);
+        vec.X = BasicTypeConverter.Convert2Float(coords[0]);
       }
       if (coords.Length > 1)
       {
-        vec.Y = GetFloat(coords[1]);
+        vec.Y = BasicTypeConverter.Convert2Float(coords[1]);
       }
       if (coords.Length > 2)
       {
-        vec.W = GetFloat(coords[2]);
+        vec.W = BasicTypeConverter.Convert2Float(coords[2]);
       }
       if (coords.Length > 3)
       {
-        vec.Z = GetFloat(coords[3]);
+        vec.Z = BasicTypeConverter.Convert2Float(coords[3]);
       }
       return vec;
-    }
-
-    /// <summary>
-    /// converts a string into a float.
-    /// </summary>
-    /// <param name="floatString">The  string.</param>
-    /// <returns>float</returns>
-    public float GetFloat(string floatString)
-    {
-      float test = 12.03f;
-      string comma = test.ToString();
-      bool replaceCommas = (comma.IndexOf(",") >= 0);
-      if (replaceCommas)
-      {
-        floatString = floatString.Replace(".", ",");
-      }
-      else
-      {
-        floatString = floatString.Replace(",", ".");
-      }
-      float f;
-      float.TryParse(floatString, out f);
-      return f;
-    }
-
-    public double GetDouble(string doubleString)
-    {
-      float test = 12.03f;
-      string comma = test.ToString();
-      bool replaceCommas = (comma.IndexOf(",") >= 0);
-      if (replaceCommas)
-      {
-        doubleString = doubleString.Replace(".", ",");
-      }
-      else
-      {
-        doubleString = doubleString.Replace(",", ".");
-      }
-      double f;
-      double.TryParse(doubleString, out f);
-      return f;
     }
   }
 }

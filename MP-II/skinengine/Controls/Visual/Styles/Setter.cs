@@ -27,6 +27,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
+using SkinEngine.TypeConverters;
 using SkinEngine.Controls.Visuals.Triggers;
 
 namespace SkinEngine.Controls.Visuals.Styles
@@ -230,12 +231,12 @@ namespace SkinEngine.Controls.Visuals.Styles
           if (pinfo2.PropertyType == typeof(float))
           {
             SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-            obj = loader.GetFloat(obj.ToString());
+            obj = BasicTypeConverter.Convert2Float(obj.ToString());
           }
           else if (pinfo2.PropertyType == typeof(double))
           {
             SkinEngine.Skin.XamlLoader loader = new SkinEngine.Skin.XamlLoader();
-            obj = loader.GetDouble(obj.ToString());
+            obj = BasicTypeConverter.Convert2Double(obj.ToString());
           }
           else
           {
