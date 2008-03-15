@@ -27,6 +27,10 @@ using System.Xml;
 
 namespace SkinEngine.Skin
 {
+  /// <summary>
+  /// FIXME What is the meaning of this class? Should be removed if it is not
+  /// documented since Mai 2008. Albert78, Mar-15-2008
+  /// </summary>
   public class SkinLoaderContext
   {
     #region variables

@@ -15,15 +15,15 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reflection;
 using System.Xml;
 
 using Clifton.Tools.Strings;
-//using Vts.UnitTest;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MyXaml.Core.Exceptions;
+
+//using Vts.UnitTest;
 
 namespace MyXaml.Core
 {
@@ -1122,7 +1122,7 @@ namespace MyXaml.Core
       Type t = Type.GetType(qualifiedName);
       if (t == null)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Unknown type :{1}", CurrentFile, qualifiedName);
+        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Unknown type: {1}", CurrentFile, qualifiedName);
         return null;
       }
       try
@@ -1131,7 +1131,7 @@ namespace MyXaml.Core
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Can't instantiate :{1}", CurrentFile, qualifiedName);
+        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Can't instantiate: {1} (Message: {2})", CurrentFile, qualifiedName, e.Message);
       }
       return classInstance;
     }

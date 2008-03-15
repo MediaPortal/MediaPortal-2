@@ -10,6 +10,7 @@ namespace SkinEngine.Skin
     object _content;
     string _includeName;
 
+    #region Public properties    
     public string Source
     {
       get
@@ -23,13 +24,16 @@ namespace SkinEngine.Skin
         _content = loader.Load(_includeName);
       }
     }
+    #endregion
 
+    #region IInclude implementation
     public object Content
     {
       get
       {
         return _content;
       }
-    }
+    }               
+    #endregion
   }
 }
