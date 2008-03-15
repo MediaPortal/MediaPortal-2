@@ -92,7 +92,6 @@ namespace SkinEngine
       ServiceScope.Get<IPlayerFactory>().Register(new SkinEngine.Players.PlayerFactory());
     }
 
-
     /// <summary>
     /// Loads the skin.
     /// </summary>
@@ -111,9 +110,11 @@ namespace SkinEngine
 
       ShowWindow("homevista");
     }
+
     public void SwitchTheme(string newThemeName)
     {
     }
+
     public string ThemeName
     {
       get
@@ -183,7 +184,7 @@ namespace SkinEngine
       CloseDialog();
       lock (_history)
       {
-        ServiceScope.Get<ILogger>().Info("WindowManager:Switch to skin:{0}", newSkinName);
+        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to skin: {0}", newSkinName);
         string windowName = _currentWindow.Name;
         _currentDialog = null;
         _currentWindow = null;
@@ -306,9 +307,10 @@ namespace SkinEngine
     {
       try
       {
-        //show waitcursor while loading a new window
+        // show waitcursor while loading a new window
         if (_currentWindow != null)
-        {
+        {   
+          // TODO: Wait cursor
           //_currentWindow.WaitCursorVisible = true;
         }
         foreach (Window window in _windows)
@@ -318,27 +320,23 @@ namespace SkinEngine
             return window;
           }
         }
-#if TESTXAML
         Window win = new Window(windowName);
         XamlLoader loader = new XamlLoader();
         UIElement root = loader.Load(windowName + ".xaml") as UIElement;
         if (root == null) return null;
         win.Visual = root;
-#else
-        Window win = new Window(windowName);
-        _skinLoader.Load(win, windowName + ".xml");
-#endif
-        //Don't show window here.
-        //That is done at the appriopriate time by all methods calling this one.
-        //Calling show here will result in the model loading its data twice
+        // Don't show window here.
+        // That is done at the appriopriate time by all methods calling this one.
+        // Calling show here will result in the model loading its data twice.
         _windows.Add(win);
         return win;
       }
       finally
       {
-        //hide the waitcursor again
+        // hide the waitcursor again
         if (_currentWindow != null)
-        {
+        {   
+          // TODO: Wait cursor
           //_currentWindow.WaitCursorVisible = false;
         }
       }
@@ -370,7 +368,7 @@ namespace SkinEngine
     /// <param name="window">The window.</param>
     public void ShowDialog(string window)
     {
-      ServiceScope.Get<ILogger>().Debug("WindowManager:Show dialog:{0}", window);
+      ServiceScope.Get<ILogger>().Debug("WindowManager: Show dialog: {0}", window);
       CloseDialog();
       _currentDialog = GetWindow(window);
       if (_currentDialog == null)
@@ -419,6 +417,7 @@ namespace SkinEngine
     {
       GetWindow(windowName);
     }
+
     /// <summary>
     /// Shows the window with the specified name
     /// </summary>

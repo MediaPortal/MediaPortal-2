@@ -26,7 +26,11 @@ using System;
 using System.Collections.Generic;
 
 namespace SkinEngine.ElementRegistrations
-{
+{                            
+  /// <summary>
+  /// This class holds a registration for all elements which can be instanciated
+  /// by a XAML file.
+  /// </summary>
   public class XamlElements
   {
     #region Variables

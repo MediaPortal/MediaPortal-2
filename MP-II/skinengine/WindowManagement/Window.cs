@@ -1,5 +1,4 @@
-﻿#define TESTXAML
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,27 +23,21 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+
 using MediaPortal.Core;
-using MediaPortal.Core.Commands;
 using MediaPortal.Core.InputManager;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.WindowManager;
-using SkinEngine.Controls;
-using SkinEngine.Controls.Brushes;
 using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Transforms;
-using SkinEngine.Controls.Panels;
-using SkinEngine.Controls.Animations;
-using SkinEngine.Skin;
-using SkinEngine.Rendering;
+
 namespace SkinEngine
 {
-  public class Window : IWindow
+  public class Window: IWindow
   {
-    #region enums
+    #region Enums
 
     public enum State
     {
@@ -55,7 +48,7 @@ namespace SkinEngine
 
     #endregion
 
-    #region variables
+    #region Variables
 
     private string _name;
     private bool _hasFocus;
@@ -96,6 +89,7 @@ namespace SkinEngine
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
       _animator = new Animator();
     }
+
     public Animator Animator
     {
       get
@@ -103,6 +97,7 @@ namespace SkinEngine
         return _animator;
       }
     }
+
     public UIElement Visual
     {
       get
@@ -120,6 +115,7 @@ namespace SkinEngine
         }
       }
     }
+
     public FrameworkElement RootElement
     {
       get
@@ -151,15 +147,6 @@ namespace SkinEngine
     }
 
     /// <summary>
-    /// Gets the window-name.
-    /// </summary>
-    /// <value>The name.</value>
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    /// <summary>
     /// Gets or sets the state of the window.
     /// </summary>
     /// <value>The state of the window.</value>
@@ -168,7 +155,6 @@ namespace SkinEngine
       get { return _state; }
       set { _state = value; }
     }
-
 
     /// <summary>
     /// Gets or sets a value indicating whether this window has focus.
@@ -266,7 +252,7 @@ namespace SkinEngine
     /// </summary>
     public void Show()
     {
-      Trace.WriteLine("Window Show:" + Name);
+      Trace.WriteLine("Window Show: " + Name);
       FocusManager.FocusedElement = null;
       VisualTreeHelper.Instance.SetRootElement(_visual);
       SkinContext.IsValid = false;
@@ -291,7 +277,7 @@ namespace SkinEngine
     /// </summary>
     public void Hide()
     {
-      Trace.WriteLine("Window Hide:" + Name);
+      Trace.WriteLine("Window Hide: " + Name);
       lock (_visual)
       {
         Animator.StopAll();
@@ -346,15 +332,6 @@ namespace SkinEngine
       }
     }
 
-    public void Reset()
-    {
-      Trace.WriteLine("Window Reset:" + Name);
-      SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
-      _visual.Invalidate();
-      _visual.InitializeBindings();
-      _visual.Reset();
-    }
-
     public void Invalidate(IUpdateEventHandler ctl)
     {
       if (SkinContext.UseBatching == false) return;
@@ -389,5 +366,25 @@ namespace SkinEngine
         ctls[i].Update();
       }
     }
+
+    #region IWindow implementation
+    /// <summary>
+    /// Gets the window-name.
+    /// </summary>
+    /// <value>The name.</value>
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    public void Reset()
+    {
+      Trace.WriteLine("Window Reset: " + Name);
+      SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
+      _visual.Invalidate();
+      _visual.InitializeBindings();
+      _visual.Reset();
+    }
+    #endregion
   }
 }

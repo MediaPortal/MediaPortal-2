@@ -27,6 +27,9 @@ using SlimDX.Direct3D9;
 
 namespace SkinEngine
 {
+  /// <summary>
+  /// Matrix class with extended functionality (transformations, inverting, ...).
+  /// </summary>
   public class ExtendedMatrix
   {
     #region variables

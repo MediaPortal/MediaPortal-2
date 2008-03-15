@@ -250,8 +250,8 @@ namespace SkinEngine.Skin
           ResourceDictionary dictNew = (ResourceDictionary)e.Instance;
           object o = ResourceDictionaryCache.Instance.Get(dictNew.Source);
 
-
           ResourceDictionary dict = (ResourceDictionary)e.Container;
+          // TODO: Explain why we cannot merge dictNew directly into dict
           dict.Merge((ResourceDictionary)o);
           e.Result = true;
 

@@ -1,26 +1,14 @@
 using System;
-using System.Reflection;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using MyXaml.Core;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using SkinEngine.Controls.Animations;
-using SkinEngine.Controls.Brushes;
-using SkinEngine.Controls.Panels;
-using SkinEngine.Controls.Transforms;
 using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Visuals.Triggers;
-using SkinEngine.Controls.Bindings;
 
-using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
 namespace SkinEngine.Skin
-{
+{                                        
+  /// <summary>
+  /// Holds a static mapping from resource names to <see cref="ResourceDictionary"/>
+  /// instances and implements a getter method for loading a new
+  /// <see cref="ResourceDictionary"/>, given its name.
+  /// </summary>
   public class ResourceDictionaryCache
   {
     static ResourceDictionaryCache _instance;

@@ -36,7 +36,10 @@ using MediaPortal.Core.Players;
 
 
 namespace SkinEngine
-{
+{                         
+  /// <summary>
+  /// Holds context variables which are used by the skin controls.
+  /// </summary>
   public class SkinContext
   {
     public static bool UseBatching = false;
@@ -99,6 +102,7 @@ namespace SkinEngine
         return _finalOpacity;
       }
     }
+
     /// <summary>
     /// Gets or sets the Applications' main windows form.
     /// </summary>
@@ -112,7 +116,6 @@ namespace SkinEngine
         Application.Idle += new EventHandler(Application_Idle);
       }
     }
-
 
     /// <summary>
     /// Gets or sets the name of the skin currently in use
