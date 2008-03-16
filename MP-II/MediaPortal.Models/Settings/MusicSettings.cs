@@ -35,7 +35,7 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 
-using BassPlayer;
+using Media.Players.BassPlayer;
 
 namespace Settings
 {

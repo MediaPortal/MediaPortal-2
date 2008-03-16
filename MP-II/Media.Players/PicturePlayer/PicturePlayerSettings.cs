@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Settings;
 
-namespace PicturePlayer
+namespace Media.Players.PicturePlayer
 {
   public class PicturePlayerSettings
   {

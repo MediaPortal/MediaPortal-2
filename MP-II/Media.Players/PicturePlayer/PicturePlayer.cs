@@ -36,7 +36,7 @@ using MediaPortal.Presentation.WindowManager;
 
 using MediaPortal.Media.MediaManager;
 
-namespace PicturePlayer
+namespace Media.Players.PicturePlayer
 {
   public class PicturePlayer : IPlayer
   {

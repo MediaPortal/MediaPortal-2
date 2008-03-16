@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Settings;
 
-namespace BassPlayer
+namespace Media.Players.BassPlayer
 {
   public class BassPlayerSettings
   {

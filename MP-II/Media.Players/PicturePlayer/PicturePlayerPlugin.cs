@@ -35,7 +35,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManager;
 
 
-namespace PicturePlayer
+namespace Media.Players.PicturePlayer
 {
   public class PicturePlayerPlugin : IPlugin, IPlayerBuilder
   {

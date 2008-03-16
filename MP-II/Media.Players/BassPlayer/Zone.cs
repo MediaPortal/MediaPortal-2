@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BassPlayer
+namespace Media.Players.BassPlayer
 {
   /// <summary>
   /// Represents Zones == Available Audio Devices

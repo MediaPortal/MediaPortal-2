@@ -4,7 +4,7 @@
         description = "Picture Player">
 
   <Manifest>
-    <Identity name = "PicturePlayer.PicturePlayerPlugin"/>
+    <Identity name = "Media.Players.PicturePlayer.PicturePlayerPlugin"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Players">
-    <Player id = "PicturePlayerPlugin" class = "PicturePlayer.PicturePlayerPlugin" type="image" extensions=".jpg,.png,.bmp,.gif"/>
+    <Player id = "PicturePlayerPlugin" class = "Media.Players.PicturePlayer.PicturePlayerPlugin" type="image" extensions=".jpg,.png,.bmp,.gif"/>
   </Register>
 </Plugin>
