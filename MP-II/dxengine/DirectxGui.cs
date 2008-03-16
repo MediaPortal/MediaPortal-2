@@ -27,7 +27,7 @@ using MediaPortal.Core.PluginManager;
 
 namespace dxEngine
 {
-  public class DirectxGui : IPlugin, IAutoStart
+  public class DirectxGui: IPlugin, IAutoStart
   {
     public void Initialize(string id) {}
 

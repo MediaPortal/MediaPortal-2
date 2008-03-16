@@ -179,7 +179,7 @@ namespace dxEngine
     }
 
 
-    private void Form1_Load(object sender, EventArgs e)
+    private void MainForm_Load(object sender, EventArgs e)
     {
       Text = "Mediaportal II";
       SkinContext.Form = this;
@@ -202,7 +202,7 @@ namespace dxEngine
       ServiceScope.Get<IAutoPlay>().StartListening(this.Handle);
     }
 
-    private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
       ServiceScope.Get<ILogger>().Debug("Application: closing");
       ServiceScope.Get<ILogger>().Debug("Application: stop renderthread");
@@ -719,7 +719,7 @@ namespace dxEngine
 
     private static bool reentrant = false;
 
-    private void timer1_Tick(object sender, EventArgs e)
+    private void timer_Tick(object sender, EventArgs e)
     {
       if (reentrant)
       {

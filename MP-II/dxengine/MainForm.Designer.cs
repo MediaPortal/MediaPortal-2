@@ -53,13 +53,13 @@ namespace dxEngine
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      this.timer1 = new System.Windows.Forms.Timer(this.components);
+      this.timer = new System.Windows.Forms.Timer(this.components);
       this.SuspendLayout();
       // 
-      // timer1
+      // timer
       // 
-      this.timer1.Enabled = true;
-      this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+      this.timer.Enabled = true;
+      this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
       // MainForm
       // 
@@ -67,21 +67,21 @@ namespace dxEngine
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(292, 266);
       this.Name = "MainForm";
-      this.Text = "Form1";
-      this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
+      this.Text = "DirectX MainForm";
+      this.Load += new System.EventHandler(this.MainForm_Load);
       this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseUp);
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+      this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
       this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseMove);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
-      this.Load += new System.EventHandler(this.Form1_Load);
       this.ResumeLayout(false);
 
     }
 
     #endregion
 
-    private System.Windows.Forms.Timer timer1;
+    private System.Windows.Forms.Timer timer;
   }
 }
 
