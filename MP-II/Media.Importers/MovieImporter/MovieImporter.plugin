@@ -4,7 +4,7 @@
         description = "Movie Importer">
 
   <Manifest>
-    <Identity name = "MovieImporter.Importer"/>
+    <Identity name = "Media.Importers.MovieImporter.Importer"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Importers">
-    <Importer id = "MovieImporter" class = "MovieImporter.Importer" extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
+    <Importer id = "MovieImporter" class = "Media.Importers.MovieImporter.Importer" extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
   </Register>
 </Plugin>

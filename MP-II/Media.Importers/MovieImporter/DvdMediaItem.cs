@@ -5,7 +5,7 @@ using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MovieImporter
+namespace Media.Importers.MovieImporter
 {
   public class DvdMediaItem : IMediaItem
   {

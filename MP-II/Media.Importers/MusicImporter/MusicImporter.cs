@@ -38,9 +38,10 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
 using MediaPortal.Utilities.CD;
-using MusicImporter.Freedb;
+using Media.Importers.MusicImporter.Freedb;
+using Media.Importers.MusicImporter.Tags;
 
-namespace MusicImporter
+namespace Media.Importers.MusicImporter
 {
   public class MusicImporter : IPlugin, IImporter
   {

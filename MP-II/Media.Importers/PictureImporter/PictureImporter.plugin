@@ -4,7 +4,7 @@
         description = "Picture Importer">
 
   <Manifest>
-    <Identity name = "PictureImporter.Importer"/>
+    <Identity name = "Media.Importers.PictureImporter.Importer"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Importers">
-    <Importer id = "PictureImporter" class = "PictureImporter.Importer" extensions=".jpg,.png,.gif,.tga"/>
+    <Importer id = "PictureImporter" class = "Media.Importers.PictureImporter.Importer" extensions=".jpg,.png,.gif,.tga"/>
   </Register>
 </Plugin>

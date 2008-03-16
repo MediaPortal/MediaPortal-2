@@ -29,7 +29,7 @@ using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MusicImporter
+namespace Media.Importers.MusicImporter
 {
   public class CueMediaItem : IMediaItem
   {

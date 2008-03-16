@@ -27,7 +27,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections;
 
-namespace MusicImporter.Freedb
+namespace Media.Importers.MusicImporter.Freedb
 {
   /// <summary>
   /// Summary description for XMCDParser.

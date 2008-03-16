@@ -33,7 +33,7 @@ using System;
 using System.Text;
 using System.IO;
 
-namespace MusicImporter
+namespace Media.Importers.MusicImporter
 {
     /// <summary>
     /// A CueSheet class used to create, open, edit, and save cuesheets.

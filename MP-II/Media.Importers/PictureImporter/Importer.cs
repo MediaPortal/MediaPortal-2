@@ -36,7 +36,7 @@ using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace PictureImporter
+namespace Media.Importers.PictureImporter
 {
   public class Importer : IPlugin, IImporter
   {

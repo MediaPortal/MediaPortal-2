@@ -31,7 +31,7 @@ using Un4seen.Bass.AddOn.Cd;
 
 using MediaPortal.Utilities.CD;
 
-namespace MusicImporter.Freedb
+namespace Media.Importers.MusicImporter.Freedb
 {
 	/// <summary>
 	/// This Class Establishes a connection to a FreeDB Site and retrieves the information for the Audio CD inserted

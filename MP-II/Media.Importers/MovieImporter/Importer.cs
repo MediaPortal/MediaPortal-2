@@ -39,7 +39,7 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Utilities.Scraper;
 
-namespace MovieImporter
+namespace Media.Importers.MovieImporter
 {
   public class Importer : IPlugin, IImporter
   {

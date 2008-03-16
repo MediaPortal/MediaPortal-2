@@ -44,7 +44,7 @@ using System.Runtime.InteropServices;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace MovieImporter
+namespace Media.Importers.MovieImporter
 {
   public enum StreamKind
   {

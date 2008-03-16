@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace MusicImporter
+namespace Media.Importers.MusicImporter.Tags
 {
   public class MusicTag
   {

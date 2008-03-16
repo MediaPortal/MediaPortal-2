@@ -31,7 +31,7 @@ using TagLib.Id3v2;
 using File=TagLib.File;
 using Tag=TagLib.Id3v2.Tag;
 
-namespace MusicImporter
+namespace Media.Importers.MusicImporter.Tags
 {
   public class TagReader 
   {

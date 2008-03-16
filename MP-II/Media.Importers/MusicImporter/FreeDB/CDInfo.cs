@@ -25,7 +25,7 @@
 using System;
 using System.Text;
 
-namespace MusicImporter.Freedb
+namespace Media.Importers.MusicImporter.Freedb
 {
 	/// <summary>
 	/// Contains Information about a CD
