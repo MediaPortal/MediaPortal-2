@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Database;
 
-namespace Database
+namespace Components.Database
 {
   public class DbAttribute : IDbAttribute, ICloneable
   {

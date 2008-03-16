@@ -36,7 +36,7 @@ using MediaPortal.Database.Provider;
 using MediaPortal.Media.MediaManager.Views;
 
 
-namespace Database.SqlLite
+namespace Components.Database.SqlLite
 {
   public class SqlLiteDatabaseCommand : IDatabaseCommand, IDisposable
   {

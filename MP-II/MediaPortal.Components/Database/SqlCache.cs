@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace Database
+namespace Components.Database
 {
   public class SqlCache
   {

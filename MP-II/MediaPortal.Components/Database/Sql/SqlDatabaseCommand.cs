@@ -30,7 +30,7 @@ using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace Database.Sql
+namespace Components.Database.Sql
 {
   public class SqlDatabaseCommand : IDatabaseCommand, IDisposable
   {

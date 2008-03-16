@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Database;
 
-namespace Database
+namespace Components.Database.Notifies
 {
   public class DatabaseNotifier : IDatabaseNotifier
   {

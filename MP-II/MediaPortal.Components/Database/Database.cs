@@ -29,7 +29,7 @@ using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace Database
+namespace Components.Database
 {
   public class Database : IDatabase
   {

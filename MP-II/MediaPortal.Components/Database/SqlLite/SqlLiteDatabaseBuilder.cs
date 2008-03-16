@@ -26,7 +26,7 @@ using System.IO;
 using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 
-namespace Database.SqlLite
+namespace Components.Database.SqlLite
 {
   public class SqlLiteDatabaseBuilder : IDatabaseBuilder
   {

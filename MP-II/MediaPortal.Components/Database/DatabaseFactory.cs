@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 
-namespace Database
+namespace Components.Database
 {
   public class DatabaseFactory : IDatabaseFactory
   {

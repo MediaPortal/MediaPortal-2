@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Database
+namespace Components.Database
 {
   public class SqlTableCache
   {

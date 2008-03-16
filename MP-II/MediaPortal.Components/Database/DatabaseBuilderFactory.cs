@@ -26,11 +26,13 @@ using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
-using Database.Sql;
-using Database.SqlLite;
+
 using MediaPortal.Database.Provider;
 
-namespace Database
+using Components.Database.Sql;
+using Components.Database.SqlLite;
+
+namespace Components.Database
 {
   public class DatabaseBuilderFactory : IDatabaseBuilderFactory
   {

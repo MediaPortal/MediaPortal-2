@@ -26,7 +26,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Database;
 
-namespace Database
+using Components.Database.Notifies;
+
+namespace Components.Database
 {
   public class DatabasePlugin : IPlugin, IAutoStart
   {

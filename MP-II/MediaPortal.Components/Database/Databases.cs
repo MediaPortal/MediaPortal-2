@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Database;
 
-namespace Database
+namespace Components.Database
 {
   public class Databases : IDatabases
   {

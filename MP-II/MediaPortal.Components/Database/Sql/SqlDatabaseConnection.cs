@@ -27,7 +27,7 @@ using System.Data.SqlClient;
 using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 
-namespace Database.Sql
+namespace Components.Database.Sql
 {
   public class SqlDatabaseConnection : IDatabaseConnection, IDisposable
   {
