@@ -35,7 +35,7 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 using IRootContainer = MediaPortal.Media.MediaManager.IRootContainer;
 
-namespace UpNpProvider
+namespace Media.Providers.UpNpProvider
 {
   public class UpNpRootContainer : IRootContainer, IDisposable
   {

@@ -4,7 +4,7 @@
         description = "UPNP Provider">
 
   <Manifest>
-    <Identity name = "UpNpProvider.UpNpProvider"/>
+    <Identity name = "Media.Providers.UpNpProvider.UpNpProvider"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Providers">
-    <Class id = "UpNpProvider" class = "UpNpProvider.UpNpProvider"/>
+    <Class id = "UpNpProvider" class = "Media.Providers.UpNpProvider.UpNpProvider"/>
   </Register>
 </Plugin>

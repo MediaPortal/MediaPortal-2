@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace SharesProvider
+namespace Media.Providers.SharesProvider
 {
   public class FileContainer : IMediaItem
   {

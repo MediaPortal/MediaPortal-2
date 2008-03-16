@@ -29,7 +29,7 @@ using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace DatabaseProvider
+namespace Media.Providers.DatabaseProvider
 {
   public class DatabaseMediaContainer : IRootContainer
   {

@@ -36,7 +36,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace UpNpProvider
+namespace Media.Providers.UpNpProvider
 {
   public class UpNpProvider : IPlugin, IProvider
   {

@@ -30,7 +30,7 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.Importers;
 
-namespace SharesProvider
+namespace Media.Providers.SharesProvider
 {
   public class SharesProvider : IPlugin, IProvider
   {

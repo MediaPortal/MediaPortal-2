@@ -4,7 +4,7 @@
         description = "Database Provider">
 
   <Manifest>
-    <Identity name = "DatabaseProvider.DatabaseProvider"/>
+    <Identity name = "Media.Providers.DatabaseProvider.DatabaseProvider"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Providers">
-    <Class id = "DatabaseProvider" class = "DatabaseProvider.DatabaseProvider"/>
+    <Class id = "DatabaseProvider" class = "Media.Providers.DatabaseProvider.DatabaseProvider"/>
   </Register>
 </Plugin>

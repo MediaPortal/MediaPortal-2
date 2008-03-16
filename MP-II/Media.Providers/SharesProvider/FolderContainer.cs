@@ -32,7 +32,7 @@ using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 
 
-namespace SharesProvider
+namespace Media.Providers.SharesProvider
 {
   public class FolderContainer : IRootContainer
   {

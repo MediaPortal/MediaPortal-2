@@ -4,7 +4,7 @@
         description = "Predefined shares Provider">
 
   <Manifest>
-    <Identity name = "SharesProvider.SharesProvider"/>
+    <Identity name = "Media.Providers.SharesProvider.SharesProvider"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Media/Providers">
-    <Class id = "SharesProvider" class = "SharesProvider.SharesProvider"/>
+    <Class id = "SharesProvider" class = "Media.Providers.SharesProvider.SharesProvider"/>
   </Register>
 </Plugin>
