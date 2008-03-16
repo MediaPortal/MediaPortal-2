@@ -42,7 +42,7 @@ namespace MediaPortal.Services.PluginManager
   /// A <see cref="IPluginManager"/> implementation that uses .plugin files to find
   /// what plug-ins are available
   /// </summary>
-  public class PluginManager : IPluginManager
+  public class PluginManager: IPluginManager
   {
     private List<string> _pluginFiles;
     private List<string> _disabledPlugins;
@@ -50,41 +50,81 @@ namespace MediaPortal.Services.PluginManager
 
     public PluginManager()
     {
-      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;     
+      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+      AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
     }
 
 		~PluginManager()
 		{
-			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;     
-		}
+			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+      AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
+    }
 
-		public Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-		{
-			int pos = args.Name.IndexOf(",");
-			if (pos >= 0)
-			{
-				string dllName = args.Name.Substring(0, pos);
-				string[] folders = System.IO.Directory.GetDirectories("plugins");
-				for (int i = 0; i < folders.Length; ++i)
-				{
-					string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(), folders[i], dllName);
-					if (System.IO.File.Exists(fname))
-					{
-						if (_pluginTree != null)
-						{
-							foreach (PluginInfo info in _pluginTree.Plugins)
-							{
-								if (info.Name == dllName) info.Loaded = true;
-							}
-						}
-						return Assembly.LoadFile(fname);
-					}
-				}
-			}
-			return null;
-		}
+    #region Event handlers
+    /// <summary>
+    /// Method to hook in the resolving mechanism of the system to find plugin dll files
+    /// in our plugins folder.
+    /// </summary>
+    /// <param name="sender">The <see cref="ResolveEventHandler"/> sender argument. Not
+    /// interesting here.</param>
+    /// <param name="args">Holds the information about the assembly to resolve.</param>
+    /// <returns></returns>
+    Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+      string dllName = ExtractDllNameFromAssemblyName(args.Name);
+      if (dllName != null)
+      {
+        string[] folders = System.IO.Directory.GetDirectories("plugins");
+        for (int i = 0; i < folders.Length; ++i)
+        {
+          // Calculate the directory where the plugins are located.
+          string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(), folders[i], dllName);
+          if (System.IO.File.Exists(fname))
+          {
+            return Assembly.LoadFile(fname);
+          }
+        }
+      }
+      return null;
+    }
 
-  	#region Private
+    /// <summary>
+    /// Check if the loaded assembly is one of our plugins. Mark the plugin as "loaded".
+    /// </summary>
+    /// <param name="sender">The <see cref="AssemblyLoadEventHandler"/> sender argument.
+    /// Not interesting here.</param>
+    /// <param name="args">Holds the information about the assembly which was loaded.</param>
+    void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+    {
+      if (_pluginTree != null)
+      {
+        string dllName = args.LoadedAssembly.CodeBase;
+        foreach (PluginInfo info in _pluginTree.Plugins)
+        {
+          if (info.Name == dllName)
+            info.Loaded = true;
+        }
+      }
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// Given an assembly name in the form "assembly-text-name, Version, Culture, PublicKeyToken",
+    /// this method extracts the first part ("assembly-text-name" in this case).
+    /// </summary>
+    /// <param name="assemblyName">Assembly name in the form
+    /// "assembly-text-name, Version, Culture, PublicKeyToken".</param>
+    /// <returns>Extracted first part in the <paramref name="assemblyName"/>
+    /// parameter, which should be the name of the assembly dll file.</returns>
+    static string ExtractDllNameFromAssemblyName(string assemblyName)
+    {
+      int pos = assemblyName.IndexOf(",");
+      if (pos == -1)
+        return null;
+      return assemblyName.Substring(0, pos);
+    }
+
     /// <summary>
     /// Loads all the available plugins
     /// </summary>
