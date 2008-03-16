@@ -31,14 +31,14 @@ using System.Diagnostics; // for 'FileVersionInfo'
 using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 
 using SkinEngine.Commands;
@@ -207,7 +207,7 @@ namespace SkinEngine.Players
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="MediaPortal.Core.Players.IPlayer"/> at the specified index.
+    /// Gets or sets the <see cref="MediaPortal.Presentation.Players.IPlayer"/> at the specified index.
     /// </summary>
     /// <value></value>
     public IPlayer this[int index]

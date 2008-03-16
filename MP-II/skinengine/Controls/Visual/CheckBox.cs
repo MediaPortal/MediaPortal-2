@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine.Controls.Bindings;
 
 namespace SkinEngine.Controls.Visuals
@@ -125,10 +125,10 @@ namespace SkinEngine.Controls.Visuals
       if (!HasFocus) return;
 
       base.OnKeyPressed(ref key);
-      if (key == MediaPortal.Core.InputManager.Key.Enter)
+      if (key == MediaPortal.Control.InputManager.Key.Enter)
       {
         IsChecked = !IsChecked;
-        key = MediaPortal.Core.InputManager.Key.None;
+        key = MediaPortal.Control.InputManager.Key.None;
         if (IsChecked)
         {
           if (Checked != null)

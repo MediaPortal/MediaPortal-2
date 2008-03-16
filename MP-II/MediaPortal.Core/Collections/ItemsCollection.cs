@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 namespace MediaPortal.Core.Collections
 {
   /// <summary>

@@ -29,7 +29,7 @@ using System.IO;
 using NMock2;
 using NMock2.Monitoring;
 
-namespace MediaPortal.Core.InputManager
+namespace MediaPortal.Control.InputManager
 {
   public class MockKeyPressedEvent
   {

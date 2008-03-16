@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine.Controls;
 
 namespace SkinEngine

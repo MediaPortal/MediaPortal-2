@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 
 using SkinEngine;
 using SkinEngine.Controls.Panels;
@@ -241,8 +241,8 @@ namespace SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       UpdateCurrentItem();
-      bool executeCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.Enter);
-      bool executeContextCmd = (CurrentItem != null && key == MediaPortal.Core.InputManager.Key.ContextMenu);
+      bool executeCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.Enter);
+      bool executeContextCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.ContextMenu);
       base.OnKeyPressed(ref key);
 
       if (executeCmd)

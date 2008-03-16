@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Collections;
 using SkinEngine;
 using SkinEngine.Controls.Bindings;
@@ -154,7 +154,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
-      if (key == MediaPortal.Core.InputManager.Key.None)
+      if (key == MediaPortal.Control.InputManager.Key.None)
       {
         return;
       }

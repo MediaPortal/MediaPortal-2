@@ -35,7 +35,7 @@ using DirectShowLib;
 using System.IO;
 using System.Drawing.Imaging;
 using MediaPortal.Core;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Logging;
 using SkinEngine.DirectX;
 using SkinEngine.Effects;

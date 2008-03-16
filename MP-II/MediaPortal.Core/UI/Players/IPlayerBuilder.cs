@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Core.Players
+namespace MediaPortal.Presentation.Players
 {
   public interface IPlayerBuilder
   {

@@ -28,7 +28,7 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 using ICSharpCode.SharpZipLib.Zip;
 using MediaPortal.Services.MPIManager.Actions.Helpers;
 

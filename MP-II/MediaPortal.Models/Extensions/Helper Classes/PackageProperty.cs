@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Services.MPIManager;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Collections;

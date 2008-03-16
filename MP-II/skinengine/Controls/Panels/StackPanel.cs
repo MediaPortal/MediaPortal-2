@@ -341,7 +341,7 @@ namespace SkinEngine.Controls.Panels
       {
         FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
         if (focusedElement == null) return false;
-        MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
+        MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
         FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
         if (nextElement == null) return false;
         float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
@@ -360,7 +360,7 @@ namespace SkinEngine.Controls.Panels
       {
         FrameworkElement focusedElement = (FrameworkElement)FindFocusedItem();
         if (focusedElement == null) return false;
-        MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Up;
+        MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
         FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
         if (prevElement == null) return false;
         if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
@@ -401,7 +401,7 @@ namespace SkinEngine.Controls.Panels
           {
             focusedElement = (FrameworkElement)FindFocusedItem();
             if (focusedElement == null) return false;
-            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
+            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
             FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
             if (nextElement == null) return false;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
@@ -451,7 +451,7 @@ namespace SkinEngine.Controls.Panels
           {
             focusedElement = (FrameworkElement)FindFocusedItem();
             if (focusedElement == null) return false;
-            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Up;
+            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
             FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
             if (prevElement == null) return false;
             if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY))
@@ -516,7 +516,7 @@ namespace SkinEngine.Controls.Panels
           {
             focusedElement = (FrameworkElement)FindFocusedItem();
             if (focusedElement == null) return;
-            MediaPortal.Core.InputManager.Key key = MediaPortal.Core.InputManager.Key.Down;
+            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
             FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
             if (nextElement == null) return;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
@@ -550,13 +550,13 @@ namespace SkinEngine.Controls.Panels
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
-    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
+    public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
       foreach (UIElement element in Children)
       {
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
-        if (key == MediaPortal.Core.InputManager.Key.None) return;
+        if (key == MediaPortal.Control.InputManager.Key.None) return;
       }
     }
 
@@ -585,7 +585,7 @@ namespace SkinEngine.Controls.Panels
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
     /// <param name="key">The key.</param>
     /// <returns></returns>
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
@@ -594,7 +594,7 @@ namespace SkinEngine.Controls.Panels
         if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Core.InputManager.Key.None)
+        if (key == MediaPortal.Control.InputManager.Key.None)
         {
           return match;
         }
@@ -633,9 +633,9 @@ namespace SkinEngine.Controls.Panels
     /// Predicts the next FrameworkElement which is position below this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
@@ -644,7 +644,7 @@ namespace SkinEngine.Controls.Panels
         if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Core.InputManager.Key.None)
+        if (key == MediaPortal.Control.InputManager.Key.None)
         {
           return match;
         }
@@ -683,9 +683,9 @@ namespace SkinEngine.Controls.Panels
     /// Predicts the next FrameworkElement which is position left of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
@@ -694,7 +694,7 @@ namespace SkinEngine.Controls.Panels
         if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Core.InputManager.Key.None)
+        if (key == MediaPortal.Control.InputManager.Key.None)
         {
           return match;
         }
@@ -733,9 +733,9 @@ namespace SkinEngine.Controls.Panels
     /// Predicts the next FrameworkElement which is position right of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref MediaPortal.Core.InputManager.Key key, bool strict)
+    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
@@ -744,7 +744,7 @@ namespace SkinEngine.Controls.Panels
         if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Core.InputManager.Key.None)
+        if (key == MediaPortal.Control.InputManager.Key.None)
         {
           return match;
         }

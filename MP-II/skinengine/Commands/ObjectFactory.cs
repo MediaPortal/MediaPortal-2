@@ -24,10 +24,10 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine.Commands
 {

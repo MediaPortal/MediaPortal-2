@@ -32,7 +32,7 @@ using SkinEngine.Players;
 using SkinEngine.Players.Geometry;
 using SkinEngine.Skin;
 using MediaPortal.Core;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 
 
 namespace SkinEngine

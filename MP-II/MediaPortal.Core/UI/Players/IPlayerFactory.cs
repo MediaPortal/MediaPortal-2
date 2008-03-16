@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Core.Players
+namespace MediaPortal.Presentation.Players
 {
   /// <summary>
   /// interface to a player factor

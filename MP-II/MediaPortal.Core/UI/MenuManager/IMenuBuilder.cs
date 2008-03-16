@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.MenuManager
+namespace MediaPortal.Presentation.MenuManager
 {
   public interface IMenuBuilder
   {

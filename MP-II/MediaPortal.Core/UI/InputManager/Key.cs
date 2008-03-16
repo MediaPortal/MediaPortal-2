@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.InputManager
+namespace MediaPortal.Control.InputManager
 {
   public class Key
   {

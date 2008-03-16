@@ -29,7 +29,7 @@ using System.Drawing;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;

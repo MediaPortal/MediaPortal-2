@@ -35,10 +35,10 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Database;
 using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 using Timer = System.Timers.Timer;
 

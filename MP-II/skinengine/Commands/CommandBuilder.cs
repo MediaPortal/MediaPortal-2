@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine.Commands
 {

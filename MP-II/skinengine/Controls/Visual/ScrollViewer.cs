@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 
 using SkinEngine;
 using SlimDX;
@@ -88,83 +88,83 @@ namespace SkinEngine.Controls.Visuals
         _searchOffset = 0;
         return;
       }
-      if (key == MediaPortal.Core.InputManager.Key.PageDown)
+      if (key == MediaPortal.Control.InputManager.Key.PageDown)
       {
         if (OnPageDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.PageUp)
+      if (key == MediaPortal.Control.InputManager.Key.PageUp)
       {
         if (OnPageUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.Down)
+      if (key == MediaPortal.Control.InputManager.Key.Down)
       {
         if (OnDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.Up)
+      if (key == MediaPortal.Control.InputManager.Key.Up)
       {
         if (OnUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.Left)
+      if (key == MediaPortal.Control.InputManager.Key.Left)
       {
         if (OnLeft(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.Right)
+      if (key == MediaPortal.Control.InputManager.Key.Right)
       {
         if (OnRight(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
-          key = MediaPortal.Core.InputManager.Key.None;
+          key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
           return;
         }
       }
-      if (key == MediaPortal.Core.InputManager.Key.Home)
+      if (key == MediaPortal.Control.InputManager.Key.Home)
       {
         OnHome(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
-        key = MediaPortal.Core.InputManager.Key.None;
+        key = MediaPortal.Control.InputManager.Key.None;
         _startsWith = "";
         _searchOffset = 0;
         return;
       }
-      if (key == MediaPortal.Core.InputManager.Key.End)
+      if (key == MediaPortal.Control.InputManager.Key.End)
       {
         OnEnd(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
-        key = MediaPortal.Core.InputManager.Key.None;
+        key = MediaPortal.Control.InputManager.Key.None;
         _startsWith = "";
         _searchOffset = 0;
         return;
@@ -182,7 +182,7 @@ namespace SkinEngine.Controls.Visuals
           _startsWith += key.RawCode;
           ScrollToItemWhichStartsWith();
         }
-        key = MediaPortal.Core.InputManager.Key.None;
+        key = MediaPortal.Control.InputManager.Key.None;
         return;
       }
       Content.OnKeyPressed(ref key);

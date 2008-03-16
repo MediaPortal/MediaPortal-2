@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine.Controls.Bindings
 {

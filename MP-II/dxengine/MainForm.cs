@@ -32,14 +32,14 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.ExifReader;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.AutoPlay;
 
 using MediaPortal.Media.MediaManager;

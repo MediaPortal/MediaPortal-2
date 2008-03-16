@@ -48,7 +48,7 @@
 #endregion
 
 #region usings
-using MediaPortal.Core.Geometry;
+using MediaPortal.Presentation.Geometry;
 #endregion
 
 namespace SkinEngine.Players

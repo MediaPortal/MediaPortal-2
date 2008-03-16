@@ -29,7 +29,7 @@ using System.Net;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.MPIManager;
 

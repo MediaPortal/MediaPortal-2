@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Properties;

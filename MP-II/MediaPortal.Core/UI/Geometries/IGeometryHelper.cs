@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 
-namespace MediaPortal.Core.Geometry
+namespace MediaPortal.Presentation.Geometry
 {
   public interface IGeometryHelper
   {

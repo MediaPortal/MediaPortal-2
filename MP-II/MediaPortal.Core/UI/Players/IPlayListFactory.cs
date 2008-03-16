@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.Players
+namespace MediaPortal.Presentation.Players
 {
   public interface IPlaylistFactory
   {

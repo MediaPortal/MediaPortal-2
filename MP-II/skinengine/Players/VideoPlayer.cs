@@ -35,7 +35,7 @@ using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.MediaManager;

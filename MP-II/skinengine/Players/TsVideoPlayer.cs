@@ -29,8 +29,8 @@ using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.WindowManager;
 using SkinEngine.Players.Subtitles;
 
 [ComVisible(true), ComImport,

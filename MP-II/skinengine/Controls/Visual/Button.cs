@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Collections;
 using SkinEngine;
 using SkinEngine.Controls.Bindings;
@@ -245,12 +245,12 @@ namespace SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
-      if (key == MediaPortal.Core.InputManager.Key.None) return;
-      if (key == MediaPortal.Core.InputManager.Key.Enter)
+      if (key == MediaPortal.Control.InputManager.Key.None) return;
+      if (key == MediaPortal.Control.InputManager.Key.Enter)
       {
         IsPressed = true;
       }
-      if (key == MediaPortal.Core.InputManager.Key.Enter)
+      if (key == MediaPortal.Control.InputManager.Key.Enter)
       {
         if (Command != null)
         {
@@ -269,7 +269,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
 
-      if (key == MediaPortal.Core.InputManager.Key.ContextMenu)
+      if (key == MediaPortal.Control.InputManager.Key.ContextMenu)
       {
         if (ContextMenuCommand != null)
         {
@@ -281,7 +281,7 @@ namespace SkinEngine.Controls.Visuals
       if (cntl != null)
       {
         cntl.HasFocus = true;
-        key = MediaPortal.Core.InputManager.Key.None;
+        key = MediaPortal.Control.InputManager.Key.None;
       }
     }
   }

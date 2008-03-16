@@ -24,7 +24,7 @@
 
 ﻿using System.Windows.Forms;
 
-namespace MediaPortal.Core.InputManager
+namespace MediaPortal.Control.InputManager
 {
   public interface IInputMapper
   {

@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using System.Diagnostics;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 
 
 namespace SkinEngine.Controls.Visuals

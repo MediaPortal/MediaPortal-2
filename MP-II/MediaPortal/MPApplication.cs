@@ -35,7 +35,7 @@ using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.MPIManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;

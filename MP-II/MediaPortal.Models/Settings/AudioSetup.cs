@@ -30,8 +30,8 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.MenuManager;
 namespace Settings
 {
   public class AudioSetup

@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.Core.Geometry
+namespace MediaPortal.Presentation.Geometry
 {
   public interface IGeometry
   {

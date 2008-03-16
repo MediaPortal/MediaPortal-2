@@ -25,8 +25,8 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.PluginManager;
 
 namespace Home

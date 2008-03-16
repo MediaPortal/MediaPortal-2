@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 //using SkinEngine.Scripts;
 using SkinEngine.Commands.Expression;
 

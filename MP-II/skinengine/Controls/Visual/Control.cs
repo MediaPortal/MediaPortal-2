@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -766,7 +766,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position below this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
@@ -780,7 +780,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position left of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
@@ -794,7 +794,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position right of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {

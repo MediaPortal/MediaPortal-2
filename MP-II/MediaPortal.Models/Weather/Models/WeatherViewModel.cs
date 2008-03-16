@@ -28,7 +28,7 @@ using MediaPortal.Core.Collections;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.PluginManager;
 using MyWeather.Grabbers;
 

@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
 using SkinEngine.Rendering;

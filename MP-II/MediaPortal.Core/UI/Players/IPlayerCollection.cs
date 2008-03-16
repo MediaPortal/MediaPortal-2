@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Properties;
 
-namespace MediaPortal.Core.Players
+namespace MediaPortal.Presentation.Players
 {
   /// <summary>
   /// abstract class for the player collection
@@ -77,7 +77,7 @@ namespace MediaPortal.Core.Players
     bool CollectionContainsPlayer(IPlayer player);
 
     /// <summary>
-    /// Gets or sets the <see cref="MediaPortal.Core.Players.IPlayer"/> at the specified index.
+    /// Gets or sets the <see cref="MediaPortal.Presentation.Players.IPlayer"/> at the specified index.
     /// </summary>
     /// <value></value>
     IPlayer this[int index] { get; set; }

@@ -32,7 +32,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;

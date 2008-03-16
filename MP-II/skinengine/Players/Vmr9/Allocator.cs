@@ -33,7 +33,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.Core;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using SkinEngine.Effects;

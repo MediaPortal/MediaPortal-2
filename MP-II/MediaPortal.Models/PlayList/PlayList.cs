@@ -28,8 +28,8 @@ using System.IO;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 

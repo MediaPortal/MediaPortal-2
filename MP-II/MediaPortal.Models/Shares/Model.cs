@@ -29,8 +29,8 @@ using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 

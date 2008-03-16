@@ -36,9 +36,12 @@ using System.Drawing.Imaging;
 
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Localisation;
+
 using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
-using MediaPortal.Core.Localisation;
+
+using FormControl = System.Windows.Forms.Control;
 
 namespace MediaPortal.Manager
 {
@@ -48,7 +51,7 @@ namespace MediaPortal.Manager
     {
       public SettingBase Section;
       public List<SettingBase> Settings;
-      public List<Control> Controls;
+      public List<FormControl> Controls;
     }
 
     private bool _languageChange = false;
@@ -187,7 +190,7 @@ namespace MediaPortal.Manager
           BuildSettings();
         }
 
-        foreach (Control settingControl in ((SectionDetails)sections.SelectedNode.Tag).Controls)
+        foreach (FormControl settingControl in ((SectionDetails)sections.SelectedNode.Tag).Controls)
         {
           sectionSettings.Controls.Add(settingControl);
         }
@@ -215,7 +218,7 @@ namespace MediaPortal.Manager
           sectionTag.Settings = ServiceScope.Get<IPluginManager>().GetAllPluginItems<SettingBase>(location);
         }
 
-        sectionTag.Controls = new List<Control>();
+        sectionTag.Controls = new List<FormControl>();
 
         int linePos = 20;
         int lineHeight = 25;

@@ -29,7 +29,7 @@ using MediaPortal.Core.Properties;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;
 using Rectangle = System.Drawing.Rectangle;

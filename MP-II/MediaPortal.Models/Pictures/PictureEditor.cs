@@ -33,7 +33,7 @@ using MyPicture.PixelOperations;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using Pictures;
 using MyPicture.Utilities;
 namespace Pictures

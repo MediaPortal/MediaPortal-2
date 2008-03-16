@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 namespace MediaPortal.Core.Commands
 {

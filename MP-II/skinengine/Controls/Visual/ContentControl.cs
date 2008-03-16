@@ -28,7 +28,7 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Core.Properties;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine;
 using MyXaml.Core;
 

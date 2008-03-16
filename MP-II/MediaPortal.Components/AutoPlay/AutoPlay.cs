@@ -34,9 +34,9 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 using MediaPortal.Media.MediaManager;
 

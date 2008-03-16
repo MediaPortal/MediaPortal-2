@@ -36,16 +36,16 @@ using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Collections;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.WindowManager;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.Players;
 using SlimDX;
 using SlimDX.Direct3D9;
 using SkinEngine.Commands;
-using MenuItem = MediaPortal.Core.MenuManager.MenuItem;
+using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
 
 namespace SkinEngine.Players
 {

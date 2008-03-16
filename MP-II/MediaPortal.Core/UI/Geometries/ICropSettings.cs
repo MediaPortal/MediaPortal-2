@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.Geometry
+namespace MediaPortal.Presentation.Geometry
 {
   public interface ICropSettings
   {

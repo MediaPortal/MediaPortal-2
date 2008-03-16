@@ -35,9 +35,9 @@ using SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Players;
-using MediaPortal.Core.InputManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.Players;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 
 using SkinEngine.Skin;

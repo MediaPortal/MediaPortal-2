@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.InputManager
+namespace MediaPortal.Control.InputManager
 {
   /// <summary>
   /// interface to the input manager

@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Services.MenuManager;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 
 namespace MediaPortal.Services.MPIManager.Actions.Helpers
 {

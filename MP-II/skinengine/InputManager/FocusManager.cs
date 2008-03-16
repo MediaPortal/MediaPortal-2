@@ -27,8 +27,8 @@ using System.Text;
 
 using SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine
 {

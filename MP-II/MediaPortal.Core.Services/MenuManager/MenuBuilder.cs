@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using MediaPortal.Core;
-using MediaPortal.Core.MenuManager;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Localisation;
 
 namespace MediaPortal.Services.MenuManager

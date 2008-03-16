@@ -28,7 +28,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Core;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using SkinEngine.Controls.Bindings;
 using SkinEngine;
 namespace SkinEngine.Controls.Transforms

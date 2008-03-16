@@ -28,11 +28,11 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 
 using MediaPortal.Media.MediaManager;
 

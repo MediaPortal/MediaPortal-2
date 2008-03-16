@@ -34,7 +34,7 @@ using SlimDX.Direct3D9;
 using SkinEngine;
 using SkinEngine.DirectX;
 using SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;

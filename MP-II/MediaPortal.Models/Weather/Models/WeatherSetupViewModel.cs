@@ -51,7 +51,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Collections;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using MyWeather.Grabbers;
 
 namespace MyWeather

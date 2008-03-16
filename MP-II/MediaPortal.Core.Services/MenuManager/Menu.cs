@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 namespace MediaPortal.Services.MenuManager
 {
   public class Menu : MenuItem,IMenu

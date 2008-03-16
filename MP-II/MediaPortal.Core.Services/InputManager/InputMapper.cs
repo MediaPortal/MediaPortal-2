@@ -24,9 +24,9 @@
 
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
-using MediaPortal.Core.Players;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.Players;
+using MediaPortal.Presentation.WindowManager;
 
 namespace MediaPortal.Services.InputManager
 {

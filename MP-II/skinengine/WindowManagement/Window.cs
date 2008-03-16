@@ -28,9 +28,9 @@ using System.Diagnostics;
 using System.Threading;
 
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.WindowManager;
+using MediaPortal.Presentation.WindowManager;
 using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine

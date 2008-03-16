@@ -50,7 +50,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core;
-using MediaPortal.Core.Geometry;
+using MediaPortal.Presentation.Geometry;
 
 namespace SkinEngine.Players.Geometry
 {

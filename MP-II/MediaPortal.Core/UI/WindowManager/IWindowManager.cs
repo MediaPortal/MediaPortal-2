@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.WindowManager
+namespace MediaPortal.Presentation.WindowManager
 {
   /// <summary>
   /// interface for a generic window manager

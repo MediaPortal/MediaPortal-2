@@ -27,7 +27,7 @@ using System.Collections;
 using System.Text;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.Properties;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D;
@@ -415,7 +415,7 @@ namespace SkinEngine.Controls.Visuals
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
-    public override void OnKeyPressed(ref MediaPortal.Core.InputManager.Key key)
+    public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
       lock (_headerProperty)
       {
@@ -549,7 +549,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position below this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
@@ -566,7 +566,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position left of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
@@ -583,7 +583,7 @@ namespace SkinEngine.Controls.Visuals
     /// Predicts the next FrameworkElement which is position right of this FrameworkElement
     /// </summary>
     /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Core.InputManager.Key.</param>
+    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
     /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {

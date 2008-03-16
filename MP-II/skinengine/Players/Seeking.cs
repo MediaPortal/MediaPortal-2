@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Core.InputManager;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Players;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Properties;
 
 namespace SkinEngine.Players
