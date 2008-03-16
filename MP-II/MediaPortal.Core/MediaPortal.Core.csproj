@@ -105,7 +105,6 @@
     <Compile Include="Media\Importers\IImporterManager.cs" />
     <Compile Include="UI\InputManager\IInputManager.cs" />
     <Compile Include="UI\InputManager\Key.cs" />
-    <Compile Include="UI\InputManager\nUnit\InputManagerMockEvents.cs" />
     <Compile Include="UI\InputManager\IInputMapper.cs" />
     <Compile Include="Core\Localisation\ILocalisaton.cs" />
     <Compile Include="Core\Localisation\NoLocalisation.cs" />
