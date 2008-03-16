@@ -45,7 +45,7 @@ using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.CdsMetadata;
 //using MetadataParser;
 
-namespace MediaPortal.UPnPServer
+namespace Components.UPnPServer
 {
   [Serializable]
   public class DvMediaContainer2 : MediaContainer, IDvContainer, IMediaContainer, IDvMedia, IUPnPMedia

@@ -4,7 +4,7 @@
         description = "UPNP Server">
 
   <Manifest>
-    <Identity name = "MediaPortal.UPnPServer.UPnPServer"/>
+    <Identity name = "Components.UPnPServer.UPnPServer"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "UPnPServer" class = "MediaPortal.UPnPServer.UPnPServer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+    <Class id = "UPnPServer" class = "Components.UPnPServer.UPnPServer" insertafter="MediaManager" insertbefore="DirectxGui"/>
   </Register>
 </Plugin>

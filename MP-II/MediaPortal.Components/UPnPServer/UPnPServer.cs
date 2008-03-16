@@ -39,7 +39,7 @@ using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
 using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
 
-namespace MediaPortal.UPnPServer
+namespace Components.UPnPServer
 {
   public class UPnPServer : IPlugin, IAutoStart
   {

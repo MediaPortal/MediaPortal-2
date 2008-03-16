@@ -45,7 +45,7 @@ using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.CdsMetadata;
 //using MetadataParser;
 
-namespace MediaPortal.UPnPServer
+namespace Components.UPnPServer
 {
   public class Error_TransferProblem : UPnPCustomException
   {
