@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Configuration
+namespace Components.Configuration
 {
   class ConfigurationPlugin : IPlugin
   {

@@ -31,8 +31,9 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Configuration;
+using MediaPortal.Configuration.Settings;
 
-namespace MediaPortal.Configuration.Settings
+namespace Components.Configuration.Settings
 {
   public class MainLanguage : SingleSelectionList
   {

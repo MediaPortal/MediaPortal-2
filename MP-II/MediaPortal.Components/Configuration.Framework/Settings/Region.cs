@@ -30,8 +30,9 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Configuration;
+using MediaPortal.Configuration.Settings;
 
-namespace MediaPortal.Configuration.Settings
+namespace Components.Configuration.Settings
 {
   public class Region : SingleSelectionList
   {

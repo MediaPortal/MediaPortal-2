@@ -33,7 +33,9 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Configuration.Builders
+using MediaPortal.Configuration;
+
+namespace Components.Configuration.Builders
 {
   public class SettingBuilder : IPluginBuilder
   {

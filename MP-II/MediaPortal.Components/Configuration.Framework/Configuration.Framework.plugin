@@ -4,12 +4,12 @@
         description = "Configuration">
 
   <Manifest>
-    <Identity name = "MediaPortal.Configuration.ConfigurationPlugin"/>
+    <Identity name = "Components.Configuration.ConfigurationPlugin"/>
   </Manifest>
 
   <Runtime>
     <Import assembly = "Configuration.Framework.dll">
-      <Builder name = "Setting" class = "MediaPortal.Configuration.Builders.SettingBuilder"/>
+      <Builder name = "Setting" class = "Components.Configuration.Builders.SettingBuilder"/>
     </Import>
   </Runtime>
 
@@ -44,7 +44,7 @@
              text = "[configuration.language.main]"
              help = "[configuration.language.main.help]"
              type = "SingleSelectionList"
-             class = "MediaPortal.Configuration.Settings.MainLanguage"/>
+             class = "Components.Configuration.Settings.MainLanguage"/>
     <Setting id= "location"
              text = "[configuration.location]"
              type = "Heading"/>
@@ -52,18 +52,18 @@
              text = "[configuration.location.country]"
              help = "[configuration.location.country.help]"
              type = "SingleSelectionList"
-             class = "MediaPortal.Configuration.Settings.Country"/>
+             class = "Components.Configuration.Settings.Country"/>
     <Setting id= "region"
              text = "[configuration.location.region]"
              help = "[configuration.location.region.help]"
              type = "SingleSelectionList"
-             class = "MediaPortal.Configuration.Settings.Region"
+             class = "Components.Configuration.Settings.Region"
              dependency = "country"/>
     <Setting id= "city"
              text = "[configuration.location.city]"
              help = "[configuration.location.city.help]"
              type = "SingleSelectionList"
-             class = "MediaPortal.Configuration.Settings.City"
+             class = "Components.Configuration.Settings.City"
              dependency = "region"/>
   </Register>
 </Plugin>
