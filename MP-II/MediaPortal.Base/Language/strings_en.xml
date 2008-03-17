@@ -103,6 +103,7 @@
     <String name="7" text="Eject"/>
     <String name="8" text="Library"/>
     <String name="dvd" text="DVD Library"/>
+	<String name="onlineresult" text="Online search resut"/>
   </Section>
   <Section name="music">
     <String name="0" text="Name"/>

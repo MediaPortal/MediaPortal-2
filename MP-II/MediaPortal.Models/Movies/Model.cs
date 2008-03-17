@@ -35,6 +35,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Properties;
 using MediaPortal.Core.PluginManager;
 
@@ -65,6 +66,7 @@ namespace MyMovies
     private ItemsCollection _sortMenu;
     private ItemsCollection _viewsMenu;
     private ItemsCollection _movies;
+
     private MovieFactory _factory;
     private MovieSettings _settings;
     private FolderItem _folder;
@@ -143,14 +145,29 @@ namespace MyMovies
       queue = broker.Get("importers");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
+      queue = broker.Get("imdbimporters");
+      queue.OnMessageReceive += new MessageReceivedHandler(OnImdbImporterMessageReceived);
 
       //create our dynamic context menu items
       _dynamicContextMenuItems = new List<IMenuItem>();
     }
     #endregion
 
+    /// <summary>
+    /// Called when [importer message received].
+    /// </summary>
+    /// <param name="message">The message.</param>
     void OnImporterMessageReceived(MPMessage message)
     {
+      string mes = message.MetaData["action"] as string;
+      switch (mes)
+      {
+        case "fileinfoupdated":
+          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MetaData["file"] as string);
+          break;
+        default:
+          break;
+      }
       Refresh();
       _movies.FireChange();
     }
@@ -668,9 +685,79 @@ namespace MyMovies
         }
       }
     }
+   
+    
     public bool CanResume(ListItem item)
     {
       return true;
     }
+
+    #region ImdbStuffs
+
+    private ItemsCollection _imdbresultmovies = new ItemsCollection();
+    private Queue<MPMessage> _imdbmessages = new Queue<MPMessage>();
+    private Property _imdbmovietile=new Property();
+
+    /// <summary>
+    /// Gets the imdb movietile.
+    /// </summary>
+    /// <value>The imdb movietile.</value>
+    public Property ImdbMovietile
+    {
+      get
+      {
+        return _imdbmovietile;
+      }
+    }
+
+    /// <summary>
+    /// Gets the imdb result movies.
+    /// </summary>
+    /// <value>The imdb result movies.</value>
+    public ItemsCollection ImdbResultMovies
+    {
+      get
+      {
+        return _imdbresultmovies;
+      }
+    }
+    
+    /// <summary>
+    /// Called when [imdb importer message received].
+    /// </summary>
+    /// <param name="message">The message.</param>
+    void OnImdbImporterMessageReceived(MPMessage message)
+    {
+      string mes = message.MetaData["action"] as string;
+      switch (mes)
+      {
+        case "fileinfoupdated":
+          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MetaData["file"] as string);
+          break;
+        case "imdbchoiceneeded":
+          ShowImdbChoice(message);
+          break;
+        default:
+          break;
+      }
+      Refresh();
+      _movies.FireChange();
+    }
+
+    void ShowImdbChoice(MPMessage msg)
+    {
+      _imdbresultmovies.Clear();
+      foreach (string title in msg.MetaData["titles"] as List<string>)
+      {
+        ListItem item = new ListItem();
+        item.Add("Name",title);
+        _imdbresultmovies.Add(item);
+      }
+      _imdbresultmovies.FireChange();
+      _imdbmovietile.SetValue(msg.MetaData["title"] as string);
+      ServiceScope.Get<IWindowManager>().ShowWindow("imdbresultchoice");
+    }
+
+    #endregion
   }
 }
