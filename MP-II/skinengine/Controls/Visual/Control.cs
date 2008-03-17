@@ -21,6 +21,7 @@
 */
 
 #endregion
+
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -69,8 +70,7 @@ namespace SkinEngine.Controls.Visuals
       Attach();
     }
 
-    public Control(Control c)
-      : base(c)
+    public Control(Control c): base(c)
     {
       Init();
 
@@ -109,6 +109,7 @@ namespace SkinEngine.Controls.Visuals
       _cornerRadiusProperty = new Property((double)0);
 
     }
+
     void Attach()
     {
       //_borderProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -117,16 +118,19 @@ namespace SkinEngine.Controls.Visuals
       _templateProperty.Attach(new PropertyChangedHandler(OnTemplateChanged));
       _cornerRadiusProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     void OnBorderBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
       if (Window != null) Window.Invalidate(this);
     }
+
     void OnBackgroundBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
       if (Window != null) Window.Invalidate(this);
     }
+
     protected override void OnStyleChanged(Property property)
     {
       if (_templateProperty == null)
@@ -135,6 +139,7 @@ namespace SkinEngine.Controls.Visuals
       Style.Set(this);
       Invalidate();
     }
+
     protected void OnTemplateChanged(Property property)
     {
       if (Template != null)
@@ -181,6 +186,7 @@ namespace SkinEngine.Controls.Visuals
         _templateControl = value;
       }
     }
+
     /// <summary>
     /// Gets or sets the background brush
     /// </summary>
@@ -223,10 +229,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the background property.
-    /// </summary>
-    /// <value>The background property.</value>
     public Property BorderThicknessProperty
     {
       get
@@ -239,10 +241,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
     public double BorderThickness
     {
       get
@@ -255,10 +253,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the background property.
-    /// </summary>
-    /// <value>The background property.</value>
     public Property CornerRadiusProperty
     {
       get
@@ -271,10 +265,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
     public double CornerRadius
     {
       get
@@ -392,6 +382,7 @@ namespace SkinEngine.Controls.Visuals
         _lastEvent = UIEvent.None;
       }
     }
+
     void RenderBorder()
     {
 
@@ -440,7 +431,6 @@ namespace SkinEngine.Controls.Visuals
       }
 
     }
-
 
     /// <summary>
     /// Renders the visual
@@ -583,8 +573,6 @@ namespace SkinEngine.Controls.Visuals
     }
     #endregion
 
-
-    #region findXXX methods
     /// <summary>
     /// Fires an event.
     /// </summary>
@@ -598,6 +586,7 @@ namespace SkinEngine.Controls.Visuals
       base.FireEvent(eventName);
     }
 
+    #region findXXX methods
     /// <summary>
     /// Find the element with name
     /// </summary>
@@ -670,6 +659,7 @@ namespace SkinEngine.Controls.Visuals
         if (Window != null) Window.Invalidate(this);
       }
     }
+
     /// <summary>
     /// Called when [mouse move].
     /// </summary>
@@ -683,6 +673,7 @@ namespace SkinEngine.Controls.Visuals
       }
       base.OnMouseMove(x, y);
     }
+
     public override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
@@ -696,6 +687,7 @@ namespace SkinEngine.Controls.Visuals
       if (_templateControl != null)
         _templateControl.Reset();
     }
+
     public override void Deallocate()
     {
       base.Deallocate();
@@ -731,6 +723,7 @@ namespace SkinEngine.Controls.Visuals
       }
       _performLayout = true;
     }
+
     public override void Allocate()
     {
       base.Allocate();
@@ -744,7 +737,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
     #endregion
-
 
     #region focus prediction
 
@@ -803,11 +795,7 @@ namespace SkinEngine.Controls.Visuals
       if (element != null) return element;
       return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
-
-
     #endregion
-
-
 
     #region layouting
     /// <summary>
@@ -919,7 +907,6 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
-
 
     #region Get the desired Rounded Rectangle path.
     private GraphicsPath GetRoundedRect(RectangleF baseRect, float CornerRadius)
@@ -1062,10 +1049,8 @@ namespace SkinEngine.Controls.Visuals
       path.Transform(mtx);
       return path;
     }
-
     #endregion
     #endregion
-
 
     public override void DoBuildRenderTree()
     {
@@ -1081,6 +1066,7 @@ namespace SkinEngine.Controls.Visuals
         _templateControl.BuildRenderTree();
       }
     }
+
     public override void DestroyRenderTree()
     {
       if (_templateControl != null)
@@ -1089,6 +1075,7 @@ namespace SkinEngine.Controls.Visuals
       }
       base.DestroyRenderTree();
     }
+
     public override void SetWindow(Window window)
     {
       base.SetWindow(window);
@@ -1101,9 +1088,9 @@ namespace SkinEngine.Controls.Visuals
     public virtual void BecomesVisible()
     {
     }
+
     public virtual void BecomesHidden()
     {
     }
-
   }
 }
