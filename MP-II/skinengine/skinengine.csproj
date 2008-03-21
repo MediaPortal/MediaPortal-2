@@ -60,25 +60,21 @@
   <ItemGroup>
     <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxEngine\references\DirectShowLib-2005.dll</HintPath>
+      <HintPath>References\DirectShowLib-2005.dll</HintPath>
     </Reference>
-    <Reference Include="NMock2, Version=1.0.2313.18049, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SlimDX, Version=1.0.2936.23774, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxengine\references\NMock2.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.2.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxengine\references\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="SlimDX, Version=1.0.2863.25597, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dxengine\references\SlimDX.dll</HintPath>
+      <HintPath>References\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="ThumbnailGenerator, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\thumbNails\ThumbnailGenerator\ThumbnailGenerator\bin\x86\Debug\ThumbnailGenerator.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColorConverter.cs" />
@@ -313,13 +309,6 @@
       <Project>{FC6CCC7F-3080-419B-B72A-157A00959DA2}</Project>
       <Name>MyXaml.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\thumbNails\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj">
-      <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
-      <Name>ThumbnailGenerator</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="WindowManagement\nUnit\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

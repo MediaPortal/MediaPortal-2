@@ -173,6 +173,7 @@ namespace SkinEngine.Controls.Visuals
         Triggers.Add((Trigger)t.Clone());
       }
     }
+
     void Init()
     {
       _bindings = new BindingCollection();
@@ -228,6 +229,7 @@ namespace SkinEngine.Controls.Visuals
         _loaded = value;
       }
     }
+
     void OnOpacityPropertyChanged(Property property)
     {
       _opacityCache = (double)_opacityProperty.GetValue();
@@ -273,6 +275,7 @@ namespace SkinEngine.Controls.Visuals
         return _resources;
       }
     }
+
     public void SetResources(ResourceDictionary resources)
     {
       _resources = resources;
@@ -382,6 +385,7 @@ namespace SkinEngine.Controls.Visuals
         _freezableProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Gets or sets the context property.
     /// </summary>
@@ -413,8 +417,6 @@ namespace SkinEngine.Controls.Visuals
         _contextProperty.SetValue(value);
       }
     }
-
-
 
     /// <summary>
     /// Gets or sets the opacity mask.
@@ -529,7 +531,6 @@ namespace SkinEngine.Controls.Visuals
         _rowSpanProperty.SetValue(value);
       }
     }
-
 
     /// <summary>
     /// Gets or sets the column property.
@@ -662,7 +663,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-
     /// <summary>
     /// Gets or sets the triggers property.
     /// </summary>
@@ -707,7 +707,6 @@ namespace SkinEngine.Controls.Visuals
       }
     }
 
-
     /// <summary>
     /// Gets or sets the name property.
     /// </summary>
@@ -739,6 +738,7 @@ namespace SkinEngine.Controls.Visuals
         _nameProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Gets or sets the key property.
     /// </summary>
@@ -816,6 +816,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
+
     /// <summary>
     /// Gets or sets the is focusable property.
     /// </summary>
@@ -863,6 +864,7 @@ namespace SkinEngine.Controls.Visuals
         _isFocusScopeProperty = value;
       }
     }
+
     /// <summary>
     /// Gets or sets a value indicating whether this instance is focus scope.
     /// </summary>
@@ -880,6 +882,7 @@ namespace SkinEngine.Controls.Visuals
         _isFocusScopeProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Gets or sets the position property.
     /// </summary>
@@ -930,6 +933,7 @@ namespace SkinEngine.Controls.Visuals
         Position = pos;
       }
     }
+
     /// <summary>
     /// Gets or sets the top position.
     /// </summary>
@@ -980,6 +984,7 @@ namespace SkinEngine.Controls.Visuals
         _dockProperty.SetValue(value);
       }
     }
+
     /// <summary>
     /// Gets or sets a value indicating whether this instance is visible.
     /// </summary>
@@ -1000,7 +1005,6 @@ namespace SkinEngine.Controls.Visuals
           this.Visibility = VisibilityEnum.Hidden;
       }
     }
-
 
     /// <summary>
     /// Gets or sets the margin property.
@@ -1065,7 +1069,6 @@ namespace SkinEngine.Controls.Visuals
         _layoutTransformProperty.SetValue(value);
       }
     }
-
 
     /// <summary>
     /// Gets or sets the render transform.
@@ -1269,6 +1272,7 @@ namespace SkinEngine.Controls.Visuals
         }
       }
     }
+
     /// <summary>
     /// Fires an event.
     /// </summary>
@@ -1315,6 +1319,7 @@ namespace SkinEngine.Controls.Visuals
     {
       Window.Animator.StopStoryboard(board, this);
     }
+
     /// <summary>
     /// Called when the mouse moves
     /// </summary>
@@ -1335,6 +1340,7 @@ namespace SkinEngine.Controls.Visuals
     {
       return false;
     }
+
     /// <summary>
     /// Find the element with name
     /// </summary>
@@ -1346,6 +1352,7 @@ namespace SkinEngine.Controls.Visuals
         return this;
       return null;
     }
+
     /// <summary>
     /// Finds the element of type t.
     /// </summary>
@@ -1356,6 +1363,7 @@ namespace SkinEngine.Controls.Visuals
       if (this.GetType() == t) return this;
       return null;
     }
+
     /// <summary>
     /// Finds the the element which is a ItemsHost
     /// </summary>
@@ -1376,14 +1384,12 @@ namespace SkinEngine.Controls.Visuals
       return null;
     }
 
-
     #region IBindingCollection Members
 
     public void Add(Binding binding)
     {
       _bindings.Add(binding);
     }
-
 
     public virtual void InitializeBindings()
     {
@@ -1401,16 +1407,20 @@ namespace SkinEngine.Controls.Visuals
         _fireLoaded = false;
       }
     }
+
     public virtual void Reset()
     {
       _fireLoaded = true;
     }
+
     public virtual void Allocate()
     {
     }
+
     public virtual void Deallocate()
     {
     }
+
     public virtual void SetWindow(Window window)
     {
       Window = window;

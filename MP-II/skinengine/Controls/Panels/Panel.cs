@@ -252,7 +252,7 @@ namespace SkinEngine.Controls.Panels
       }
     }
 
-    protected virtual void RenderChilds()
+    protected virtual void RenderChildren()
     {
       foreach (UIElement element in _renderOrder)
       {
@@ -317,7 +317,7 @@ namespace SkinEngine.Controls.Panels
 
         _backgroundAsset.LastTimeUsed = SkinContext.Now;
       }
-      RenderChilds();
+      RenderChildren();
       SkinContext.RemoveOpacity();
     }
 

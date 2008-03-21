@@ -45,7 +45,7 @@ namespace MediaPortal.Services.PathManager
     private Dictionary<string, string> _paths;
     #endregion
 
-    #region Constructors/Destructors
+    #region Constructors/Destructor
     public PathManager()
     {
       _paths = new Dictionary<string, string>();
@@ -58,7 +58,7 @@ namespace MediaPortal.Services.PathManager
     }
     #endregion
 
-    #region IDictionary Implementations
+    #region IPathManager Implementation
 
     public bool Exists(string label)
     {

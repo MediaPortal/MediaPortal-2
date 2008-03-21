@@ -53,7 +53,7 @@ namespace SkinEngine.Controls.Visuals
     Stretch = 3,
   };
 
-  public class FrameworkElement : UIElement
+  public class FrameworkElement: UIElement
   {
 
     Property _widthProperty;

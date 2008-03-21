@@ -92,6 +92,7 @@ namespace SkinEngine.Controls.Bindings
         _propertyInfo = value;
       }
     }
+
     public virtual void Initialize(object bindingDestinationObject)
     {
       UIElement element = bindingDestinationObject as UIElement;
@@ -100,6 +101,7 @@ namespace SkinEngine.Controls.Bindings
         Initialize(bindingDestinationObject, element);
       }
     }
+
     /// <summary>
     /// Initializes the binding to the object specified
     /// </summary>
@@ -169,8 +171,6 @@ namespace SkinEngine.Controls.Bindings
             Property destinationProperty = (Property)methodInfo.Invoke(obj, null);
 
             destinationProperty.SetValue(vis);
-
-
           }
 
         }
@@ -239,8 +239,6 @@ namespace SkinEngine.Controls.Bindings
 
           //create a new dependency..
           _dependency = new BindingDependency(sourceProperty, destinationProperty, _mode, negate);
-
-
         }
         else
         {
@@ -250,7 +248,6 @@ namespace SkinEngine.Controls.Bindings
           if (methodInfo == null) return;
           _dependency = new BindingDependency(sourceProperty, methodInfo, obj, _mode,negate);
         }
-
       }
       else
       {
@@ -388,7 +385,6 @@ namespace SkinEngine.Controls.Bindings
       return null;
     }
 
-
     protected PropertyInfo GetPropertyOnObject(object element, string propertyName, bool checkForProperty, out object context)
     {
       context = null;
@@ -498,12 +494,10 @@ namespace SkinEngine.Controls.Bindings
         }
       }
 
-
       info = model.GetType().GetMethod(parts[parts.Length - 1]);
       context = model;
       return info;
       //----
     }
   }
-
 }

@@ -314,7 +314,7 @@ namespace SkinEngine.Controls.Panels
     /// Renders the visual
     /// </summary>
     /// 
-    protected override void RenderChilds()
+    protected override void RenderChildren()
     {
       lock (_orientationProperty)
       {

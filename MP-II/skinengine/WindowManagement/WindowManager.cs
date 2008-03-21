@@ -129,7 +129,7 @@ namespace SkinEngine
       CloseDialog();
       lock (_history)
       {
-        ServiceScope.Get<ILogger>().Info("WindowManager:Switch to theme:{0}", newThemeName);
+        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to theme: {0}", newThemeName);
         string windowName = _currentWindow.Name;
         _currentDialog = null;
         _currentWindow = null;
@@ -424,7 +424,7 @@ namespace SkinEngine
     /// <param name="windowName">Name of the window.</param>
     public void ShowWindow(string windowName)
     {
-      ServiceScope.Get<ILogger>().Debug("WindowManager:Show window:{0}", windowName);
+      ServiceScope.Get<ILogger>().Debug("WindowManager: Show window: {0}", windowName);
       Window window = GetWindow(windowName);
       if (window == null)
       {
@@ -466,6 +466,7 @@ namespace SkinEngine
         }
       }
     }
+
     void ShowHomeMenu()
     {
       while (_currentWindow.IsAnimating) Thread.Sleep(10);

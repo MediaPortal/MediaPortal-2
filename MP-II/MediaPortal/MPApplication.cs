@@ -52,6 +52,10 @@ using MediaPortal.Services.MetaData;
 
 //using MediaPortal.Utilities.CommandLine;
 
+/// <summary>
+/// FIXME: Please document the meaning of this class! Should it be deleted?
+/// Mar-16-2008 Albert78
+/// </summary>
 public class MPApplication : MarshalByRefObject
 {
   public static bool Run(CommandLineOptions mpArgs)

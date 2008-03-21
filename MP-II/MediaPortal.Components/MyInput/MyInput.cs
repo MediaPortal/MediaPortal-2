@@ -93,7 +93,7 @@ namespace MediaPortal.MyInput
     {
       System.Windows.Forms.Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
       ILogger logger = ServiceScope.Get<ILogger>(false);
-      logger.Info("MyInput:Startup");
+      logger.Info("MyInput: Startup");
 
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>(true);
       
@@ -103,7 +103,7 @@ namespace MediaPortal.MyInput
       if (_settings.RemoteMap == null)
         _settings.RemoteMap = new List<MappedKeyCode>();
 
-      logger.Info("MyInput:connect to service");
+      logger.Info("MyInput: Connect to service");
       IPAddress serverIP = Client.GetIPFromName(_settings.ServerHost);
       IPEndPoint endPoint = new IPEndPoint(serverIP, IrssComms.Server.DefaultPort);
 
