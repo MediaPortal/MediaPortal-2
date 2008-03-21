@@ -217,7 +217,6 @@ namespace SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      int index = 0;
       switch (Orientation)
       {
         case Orientation.Vertical:

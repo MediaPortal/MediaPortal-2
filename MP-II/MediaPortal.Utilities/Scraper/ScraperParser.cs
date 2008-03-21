@@ -215,7 +215,6 @@ namespace MediaPortal.Utilities.Scraper
         if (pExpression.Attributes["noclean"] != null)
         {
           string szNoClean = pExpression.Attributes["noclean"].Value;
-          int iChar = 0;
           string[] temp = new string[9];
           temp = szNoClean.Split(',');
           for (int i = 0; i < bClean.Length; i++)
@@ -239,7 +238,6 @@ namespace MediaPortal.Utilities.Scraper
         if (pExpression.Attributes["trim"] != null)
         {
           string szTrim = pExpression.Attributes["trim"].Value;
-          int iChar = 0;
           string[] temp = new string[9];
           temp = szTrim.Split(',');
           for (int i = 0; i < bTrim.Length; i++)

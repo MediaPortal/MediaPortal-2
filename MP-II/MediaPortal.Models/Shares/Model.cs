@@ -212,7 +212,6 @@ namespace Shares
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
       foreach (FolderItem item in items)
       {
-        bool enabled = false;
         if (item.Selected)
         {
           mgr.AddShare(item.Folder);

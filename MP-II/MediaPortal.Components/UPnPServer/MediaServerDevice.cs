@@ -1376,7 +1376,7 @@ namespace Components.UPnPServer
       IPEndPoint remoteEP = null;
       if (uri.HostNameType == UriHostNameType.Dns)
       {
-        remoteEP = new IPEndPoint(Dns.GetHostByName(uri.Host).AddressList[0], uri.Port);
+        remoteEP = new IPEndPoint(Dns.GetHostEntry(uri.Host).AddressList[0], uri.Port);
       }
       else
       {
@@ -1499,7 +1499,7 @@ namespace Components.UPnPServer
       {
         if (SourceURI.HostNameType == UriHostNameType.Dns)
         {
-          address = new IPAddress(Dns.GetHostByName(SourceURI.Host).AddressList[0].Address);
+          address = new IPAddress(Dns.GetHostEntry(SourceURI.Host).AddressList[0].Address);
         }
         else
         {

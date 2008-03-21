@@ -535,6 +535,7 @@ namespace MyXaml.Core
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open :{0}", filename);
+        ServiceScope.Get<ILogger>().Error(e);
         return null;
       }
 

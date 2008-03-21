@@ -180,7 +180,7 @@ namespace MediaPortal.Utilities.Scraper
             return SearchUrl;
           }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
           SearchUrl = xml;
           return xml;
