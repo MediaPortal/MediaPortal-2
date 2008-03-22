@@ -7,7 +7,7 @@
     <ProjectGuid>{7B78930B-160A-4573-A4D5-FFA7E08279FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Music</RootNamespace>
+    <RootNamespace>Models.Music</RootNamespace>
     <AssemblyName>Music</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

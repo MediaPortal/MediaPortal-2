@@ -23,10 +23,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MetaData;
 
-namespace Music
+namespace Models.Music
 {
   public enum SortOption
   {

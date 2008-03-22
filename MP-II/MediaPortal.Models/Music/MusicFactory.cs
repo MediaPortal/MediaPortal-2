@@ -26,12 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace Music
+namespace Models.Music
 {
   public class MusicFactory
   {

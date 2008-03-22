@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
@@ -41,7 +41,7 @@ using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace Music
+namespace Models.Music
 {
   /// <summary>
   /// Model which exposes a movie collection
