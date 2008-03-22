@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Configuration.Settings;
 
-namespace Presentation.dxEngine.Settings
+namespace SkinEngine.Settings
 {
   public class Fullscreen : YesNo
   {

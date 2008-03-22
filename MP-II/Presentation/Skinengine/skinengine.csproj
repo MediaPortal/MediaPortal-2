@@ -218,6 +218,7 @@
     <Compile Include="Controls\Visual\UIElementCollection.cs" />
     <Compile Include="Controls\Visual\Visual.cs" />
     <Compile Include="Controls\Visual\VisualTreeHelper.cs" />
+    <Compile Include="DirectxGui.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />
     <Compile Include="DirectX\D3DSettingsForm.cs" />
     <Compile Include="DirectX\d3dSetup.cs" />
@@ -231,6 +232,12 @@
     <Compile Include="ElementRegistration\XamlElements.cs" />
     <Compile Include="ElementRegistration\XamlTypeConverter.cs" />
     <Compile Include="ExtendedMatrix.cs" />
+    <Compile Include="GUI\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="InputManager\FocusManager.cs" />
     <Compile Include="InputManager\InputManager.cs">
       <SubType>Code</SubType>
@@ -297,6 +304,8 @@
     <Compile Include="Rendering\PrimitiveContext.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\RenderPipeline.cs" />
+    <Compile Include="Settings\AppSettings.cs" />
+    <Compile Include="Settings\Fullscreen.cs" />
     <Compile Include="SkinContext.cs" />
     <Compile Include="Skin\Include.cs" />
     <Compile Include="Skin\ResourceDictionaryCache.cs" />
@@ -309,14 +318,31 @@
     <Compile Include="WindowManagement\WindowSettings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MediaPortal.Core.Services\MediaPortal.Core.Services.csproj">
+      <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
+      <Name>MediaPortal.Core.Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj">
       <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
       <Name>ThumbnailGenerator</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SkinEngine.plugin" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GUI\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -327,6 +353,14 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(TargetPath)"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\dxengine\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)SlimDx.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)Microsoft.DirectX.DirectDraw.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)ThumbnailGenerator.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+</PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

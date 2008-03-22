@@ -1,19 +1,18 @@
-<Plugin name        = "DirectxGui"
-        author      = "Team MediaPortal"
+<Plugin name        = "SkinEngine"
+        author      = "Frodo"
         copyright   = "GPL"
-        description = "DirectX GUI">
+        description = "DirectX Window Manager">
 
   <Manifest>
-    <Identity name = "Presentation.dxEngine.DirectxGui"/>
+    <Identity name = "SkinEngine.DirectxGui"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "dxEngine.dll"/>
     <Import assembly = "skinengine.dll"/>
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "DirectxGui" class = "Presentation.dxEngine.DirectxGui"/>
+    <Class id = "SkinEngine" class = "SkinEngine.DirectxGui"/>
   </Register>
 
   <Register location = "/Configuration/Settings/General">
@@ -24,6 +23,6 @@
              text = "[configuration.system.fullscreen]"
              help = "[configuration.system.fullscreen.help]"
              type = "YesNo"
-             class = "Presentation.dxEngine.Settings.Fullscreen"/>
+             class = "SkinEngine.Settings.Fullscreen"/>
   </Register>
 </Plugin>
