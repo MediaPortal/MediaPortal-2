@@ -79,6 +79,10 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Models\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="BassPlayer.plugin" />

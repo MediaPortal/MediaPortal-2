@@ -79,6 +79,10 @@
       <Project>{DA3A7694-8ACC-4CAA-B797-BE0C4A879AC1}</Project>
       <Name>BassPlayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings.plugin" />
