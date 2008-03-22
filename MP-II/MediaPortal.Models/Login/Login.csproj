@@ -7,8 +7,8 @@
     <ProjectGuid>{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyLogin</RootNamespace>
-    <AssemblyName>MyLogin</AssemblyName>
+    <RootNamespace>Models.Login</RootNamespace>
+    <AssemblyName>Login</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,7 +50,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\MyLogin.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\Login.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -85,6 +85,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)MyLogin.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

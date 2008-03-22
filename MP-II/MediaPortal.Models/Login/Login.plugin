@@ -4,14 +4,14 @@
         description = "Login Plugin">
 
   <Manifest>
-    <Identity name = "MyLogin.LoginModel"/>
+    <Identity name = "Models.Login.LoginModel"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyLogin.dll"/>
+    <Import assembly = "Login.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyLogin" class = "MyLogin.LoginModel"/>
+    <Class id = "MyLogin" class = "Models.Login.LoginModel"/>
   </Register>
 </Plugin>

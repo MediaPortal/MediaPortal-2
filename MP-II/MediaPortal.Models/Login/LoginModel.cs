@@ -26,13 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.UserManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.UserManagement;
 
-namespace MyLogin
+namespace Models.Login
 {
   /// <summary>
   /// viewmodel for handling logins
