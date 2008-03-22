@@ -7,7 +7,7 @@
     <ProjectGuid>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Home</RootNamespace>
+    <RootNamespace>Models.HomeMenu</RootNamespace>
     <AssemblyName>Menu</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

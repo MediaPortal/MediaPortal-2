@@ -4,7 +4,7 @@
         description = "Provides Menu Services">
 
   <Manifest>
-    <Identity name = "Home.HomeMenu"/>
+    <Identity name = "Models.HomeMenu.HomeMenu"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "Menu" class = "Home.HomeMenu"/>
+    <Class id = "Menu" class = "Models.HomeMenu.HomeMenu"/>
   </Register>
 </Plugin>

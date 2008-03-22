@@ -23,13 +23,13 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
-using MediaPortal.Core.Commands;
+using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.Commands;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.PluginManager;
 
-namespace Home
+namespace Models.HomeMenu
 {
   public class HomeMenu : IPlugin
   {
