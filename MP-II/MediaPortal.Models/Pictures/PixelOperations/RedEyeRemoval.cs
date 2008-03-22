@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 
-namespace MyPicture.PixelOperations
+namespace Models.Pictures.PixelOperations
 {
   class RedEye : IPixelOperation
   {

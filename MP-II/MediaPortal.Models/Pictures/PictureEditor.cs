@@ -29,14 +29,15 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using MyPicture.PixelOperations;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.WindowManager;
-using Pictures;
-using MyPicture.Utilities;
-namespace Pictures
+
+using Models.Pictures.Utilities;
+using Models.Pictures.PixelOperations;
+
+namespace Models.Pictures
 {
   public class PictureEditor
   {

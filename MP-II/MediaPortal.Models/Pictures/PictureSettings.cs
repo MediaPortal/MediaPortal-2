@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace Pictures
+namespace Models.Pictures
 {
   public class PictureSettings
   {

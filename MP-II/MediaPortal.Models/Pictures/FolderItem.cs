@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 
-namespace Pictures
+namespace Models.Pictures
 {
   public class FolderItem : ListItem
   {

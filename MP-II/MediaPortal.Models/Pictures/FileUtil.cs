@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace Pictures
+namespace Models.Pictures
 {
   public class FileUtil
   {

@@ -4,14 +4,14 @@
         description = "Pictures Plugin">
 
   <Manifest>
-    <Identity name = "Pictures.PictureModel"/>
+    <Identity name = "Models.Pictures.PictureModel"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyPicture.dll"/>
+    <Import assembly = "Pictures.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyPicture" class = "Pictures.PictureModel"/>
+    <Class id = "MyPicture" class = "Models.Pictures.PictureModel"/>
   </Register>
 </Plugin>

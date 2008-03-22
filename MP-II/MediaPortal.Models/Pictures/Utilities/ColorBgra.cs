@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace MyPicture.Utilities
+namespace Models.Pictures.Utilities
 {
   /// <summary>
   /// This is our pixel format that we will work with. It is always 32-bits / 4-bytes and is

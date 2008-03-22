@@ -28,7 +28,7 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace MyPicture.Utilities
+namespace Models.Pictures.Utilities
 {
   [Serializable]
   public class Level : ChannelCurve

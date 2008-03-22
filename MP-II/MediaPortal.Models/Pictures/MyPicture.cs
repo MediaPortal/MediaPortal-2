@@ -31,12 +31,12 @@ using System.Threading;
 using System.Timers;
 using MediaManager.Views;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Database;
 using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
@@ -48,7 +48,7 @@ using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace Pictures
+namespace Models.Pictures
 {
   /// <summary>
   /// Model which exposes a pictures collection
