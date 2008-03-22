@@ -82,7 +82,7 @@
     <Compile Include="Utilities\Level.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal.Components\MediaManager\MediaManager.csproj">
+    <ProjectReference Include="..\..\Components\MediaManager\MediaManager.csproj">
       <Project>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</Project>
       <Name>MediaManager</Name>
     </ProjectReference>
