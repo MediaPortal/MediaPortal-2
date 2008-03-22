@@ -43,10 +43,10 @@ using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.MediaManager;
 
-using SkinEngine.Commands;
+using Presentation.SkinEngine.Commands;
 
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class OsdProperties
   {

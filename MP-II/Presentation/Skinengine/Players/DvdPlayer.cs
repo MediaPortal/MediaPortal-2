@@ -44,10 +44,10 @@ using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.Players;
 using SlimDX;
 using SlimDX.Direct3D9;
-using SkinEngine.Commands;
+using Presentation.SkinEngine.Commands;
 using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class DvdPlayer : VideoPlayer
   {

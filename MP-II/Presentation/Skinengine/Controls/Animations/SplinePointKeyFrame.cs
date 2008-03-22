@@ -27,7 +27,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class SplinePointKeyFrame : PointKeyFrame
   {

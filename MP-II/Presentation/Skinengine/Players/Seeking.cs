@@ -31,7 +31,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class Seeking
   {

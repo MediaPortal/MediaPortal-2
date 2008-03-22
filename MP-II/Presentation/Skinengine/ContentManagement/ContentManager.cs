@@ -25,11 +25,11 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using SkinEngine.Effects;
-using SkinEngine.Fonts;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.Fonts;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class ContentManager
   {

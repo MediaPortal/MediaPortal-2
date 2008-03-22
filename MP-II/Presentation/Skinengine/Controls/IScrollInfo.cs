@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public interface IScrollInfo
   {

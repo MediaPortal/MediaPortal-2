@@ -25,8 +25,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
-namespace SkinEngine.Controls.Animations
+using Presentation.SkinEngine.Controls.Visuals;
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class TimelineGroup : Timeline, IList
   {

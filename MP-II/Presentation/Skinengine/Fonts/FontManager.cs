@@ -29,7 +29,7 @@ using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace SkinEngine.Fonts
+namespace Presentation.SkinEngine.Fonts
 {
   public class FontManager
   {

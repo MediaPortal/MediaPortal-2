@@ -26,7 +26,7 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class SplineDoubleKeyFrame : DoubleKeyFrame
   {

@@ -28,14 +28,14 @@ using System.Text;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine;
-using SkinEngine.Rendering;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
@@ -49,7 +49,7 @@ using MyXaml.Core;
 // - rendertransform
 // - visibility
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Border : Shape, IAddChild, IUpdateEventHandler
   {

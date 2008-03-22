@@ -27,14 +27,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Collections;
-using SkinEngine;
-using SkinEngine.Rendering;
-using SkinEngine.Controls.Panels;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Panels;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Represents a control that can be used to present a collection of items.

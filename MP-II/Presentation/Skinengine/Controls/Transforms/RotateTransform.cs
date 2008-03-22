@@ -29,7 +29,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using SlimDX.Direct3D;
 
-namespace SkinEngine.Controls.Transforms
+namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class RotateTransform : Transform
   {

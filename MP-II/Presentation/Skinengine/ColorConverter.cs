@@ -4,7 +4,8 @@ using System.Text;
 using SlimDX;
 using SlimDX.Direct3D;
 using System.Drawing;
-namespace SkinEngine
+
+namespace Presentation.SkinEngine
 {
   public class ColorConverter
   {

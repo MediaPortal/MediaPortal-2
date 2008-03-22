@@ -29,10 +29,10 @@ using MediaPortal.Presentation.Commands;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-//using SkinEngine.Scripts;
-using SkinEngine.Commands.Expression;
+//using Presentation.SkinEngine.Scripts;
+using Presentation.SkinEngine.Commands.Expression;
 
-namespace SkinEngine.Commands
+namespace Presentation.SkinEngine.Commands
 {
   public class ReflectionCommand : ICommand
   {

@@ -4,7 +4,7 @@ using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class Utils
   {

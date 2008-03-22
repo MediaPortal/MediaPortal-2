@@ -25,12 +25,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.WindowManager;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class FocusManager
   {

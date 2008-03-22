@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Players;
-using SkinEngine.Players.Teletext;
+using Presentation.SkinEngine.Players;
+using Presentation.SkinEngine.Players.Teletext;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-namespace SkinEngine.Players.Subtitles
+namespace Presentation.SkinEngine.Players.Subtitles
 {
   class TeletextSubtitleDecoder : IDVBTeletextDecoder
   {

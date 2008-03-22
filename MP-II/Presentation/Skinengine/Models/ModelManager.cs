@@ -30,7 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class ModelManager
   {

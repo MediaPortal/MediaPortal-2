@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public class CommandGroup : List<InvokeCommand>, IAddChild
   {

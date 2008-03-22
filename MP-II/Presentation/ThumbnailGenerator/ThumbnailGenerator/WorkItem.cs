@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace SkinEngine.Thumbnails
+namespace Presentation.ThumbnailGenerator
 {
   public class WorkItem
   {

@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class DoubleAnimation : Timeline
   {

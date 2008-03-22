@@ -25,11 +25,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class PointAnimation : Timeline
   {

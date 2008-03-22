@@ -26,7 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Visuals.Triggers
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerCollection : List<Trigger>, IAddChild
   {

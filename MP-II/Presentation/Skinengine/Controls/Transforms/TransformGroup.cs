@@ -29,7 +29,7 @@ using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Transforms
+namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TransformGroup : Transform, IAddChild
   {

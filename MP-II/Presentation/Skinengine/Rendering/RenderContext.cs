@@ -24,13 +24,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Effects;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Rendering
+namespace Presentation.SkinEngine.Rendering
 {
   public class RenderContext : IDisposable
   {

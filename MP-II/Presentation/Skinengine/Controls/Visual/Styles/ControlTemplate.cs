@@ -23,12 +23,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Panels;
-using SkinEngine.Controls.Visuals.Triggers;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Panels;
+using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Controls.Visuals.Styles
+namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
   public class ControlTemplate : FrameworkTemplate
   {

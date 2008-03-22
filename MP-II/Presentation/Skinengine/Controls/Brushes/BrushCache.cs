@@ -32,9 +32,9 @@ using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.DirectX;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class BrushCache
   {

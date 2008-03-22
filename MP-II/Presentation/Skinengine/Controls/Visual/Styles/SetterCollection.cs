@@ -25,7 +25,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Visuals.Styles
+namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
   public class SetterCollection : IEnumerable<Setter>
   {

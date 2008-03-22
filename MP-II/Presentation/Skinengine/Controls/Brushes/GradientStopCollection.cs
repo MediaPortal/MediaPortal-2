@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class GradientStopCollection : IEnumerable<GradientStop>, ICloneable
   {

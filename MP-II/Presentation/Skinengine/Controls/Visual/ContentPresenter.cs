@@ -29,7 +29,7 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ContentPresenter : FrameworkElement
   {

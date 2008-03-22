@@ -27,15 +27,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Effects;
-using SkinEngine.DirectX;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine;
+using Presentation.SkinEngine;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush, IAsset
   {

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };

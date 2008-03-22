@@ -26,11 +26,11 @@ using System;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
-using SkinEngine.Effects;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.Rendering;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class TextureRender
   {

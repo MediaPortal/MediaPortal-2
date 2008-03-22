@@ -34,12 +34,12 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.Players;
-using SkinEngine.Players.Geometry;
-using SkinEngine.Thumbnails;
-using Geometry = SkinEngine.Players.Geometry.Geometry;
+using Presentation.SkinEngine.Players;
+using Presentation.SkinEngine.Players.Geometry;
+using Presentation.ThumbnailGenerator;
+using Geometry = Presentation.SkinEngine.Players.Geometry.Geometry;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class TextureAsset : ITextureAsset
   {

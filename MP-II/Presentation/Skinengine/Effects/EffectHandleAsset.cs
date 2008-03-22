@@ -33,7 +33,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Effects
+namespace Presentation.SkinEngine.Effects
 {
   public class EffectHandleAsset
   {

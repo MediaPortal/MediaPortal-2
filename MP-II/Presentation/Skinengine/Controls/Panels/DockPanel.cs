@@ -25,11 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Rendering;
 using MediaPortal.Presentation.Properties;
 using Rectangle = System.Drawing.Rectangle;
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class DockPanel : Panel
   {

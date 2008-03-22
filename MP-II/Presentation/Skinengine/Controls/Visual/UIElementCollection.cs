@@ -26,7 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class UIElementCollection : IEnumerable<UIElement>
   {

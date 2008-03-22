@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public interface IBindingCollection
   {

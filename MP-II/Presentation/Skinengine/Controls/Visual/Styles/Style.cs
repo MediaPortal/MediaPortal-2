@@ -26,9 +26,9 @@ using System.Reflection;
 
 using MediaPortal.Presentation.Properties;
 using MyXaml.Core;
-using SkinEngine.ElementRegistrations;
+using Presentation.SkinEngine.ElementRegistrations;
 
-namespace SkinEngine.Controls.Visuals.Styles      
+namespace Presentation.SkinEngine.Controls.Visuals.Styles      
 {
   public class Style :  IAddChild
   {

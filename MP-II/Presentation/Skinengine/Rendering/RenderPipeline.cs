@@ -25,9 +25,9 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine;
-using SkinEngine.Controls.Visuals;
-namespace SkinEngine.Rendering
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Controls.Visuals;
+namespace Presentation.SkinEngine.Rendering
 {
   /// <summary>
   /// TODO:

@@ -51,7 +51,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
 	/// <summary>
 	/// A String Tokenizer that accepts Strings as source and delimiter. Only 1 delimiter is supported (either String or char[]).

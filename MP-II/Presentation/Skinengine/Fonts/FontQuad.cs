@@ -52,9 +52,9 @@ applications, and to alter it and redistribute it freely, subject to the followi
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.DirectX;
 
-namespace SkinEngine.Fonts
+namespace Presentation.SkinEngine.Fonts
 {
   /// <summary>Quad used to render bitmapped fonts</summary>
   public class FontQuad : Quad

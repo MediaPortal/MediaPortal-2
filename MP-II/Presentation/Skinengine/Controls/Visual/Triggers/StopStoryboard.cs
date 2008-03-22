@@ -26,9 +26,9 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Animations;
+using Presentation.SkinEngine.Controls.Animations;
 
-namespace SkinEngine.Controls.Visuals.Triggers
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class StopStoryboard : TriggerAction
   {

@@ -26,14 +26,14 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.DirectX;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Visuals;
 
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
 
   public enum TileMode

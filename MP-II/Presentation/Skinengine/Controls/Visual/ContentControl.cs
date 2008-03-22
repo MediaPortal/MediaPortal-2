@@ -27,13 +27,13 @@ using System.Collections;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
-using SkinEngine;
+using Presentation.SkinEngine;
 using MyXaml.Core;
 
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ContentControl : Control, IAddChild
   {

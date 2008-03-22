@@ -29,22 +29,22 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using SkinEngine;
-using SkinEngine.DirectX;
-using SkinEngine.Controls.Brushes;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = SlimDX.Matrix;
-using Brush = SkinEngine.Controls.Brushes.Brush;
+using Brush = Presentation.SkinEngine.Controls.Brushes.Brush;
 
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using GeometryUtility;
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Describes to a LineStrip how it should place the line's width relative to its points

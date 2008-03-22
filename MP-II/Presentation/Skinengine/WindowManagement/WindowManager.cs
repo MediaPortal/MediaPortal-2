@@ -31,7 +31,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
@@ -40,9 +40,9 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 
-using SkinEngine.Skin;
+using Presentation.SkinEngine.Skin;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class WindowManager : IWindowManager
   {

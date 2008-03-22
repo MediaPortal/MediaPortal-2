@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.Geometry;
 
-namespace SkinEngine.Players.Geometry
+namespace Presentation.SkinEngine.Players.Geometry
 {
   public class GeometryNormal : IGeometry
   {

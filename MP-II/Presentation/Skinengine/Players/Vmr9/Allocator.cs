@@ -36,9 +36,9 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.Effects;
+using Presentation.SkinEngine.Effects;
 
-namespace SkinEngine.Players.Vmr9
+namespace Presentation.SkinEngine.Players.Vmr9
 {
 
   #region IVMR9PresentCallback interface

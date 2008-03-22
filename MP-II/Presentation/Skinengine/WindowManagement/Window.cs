@@ -31,9 +31,9 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class Window: IWindow
   {

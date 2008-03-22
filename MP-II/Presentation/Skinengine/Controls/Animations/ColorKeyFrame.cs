@@ -26,7 +26,7 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 using System.Drawing;
 
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class ColorKeyFrame : IKeyFrame, ICloneable
   {

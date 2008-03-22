@@ -32,7 +32,7 @@ using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class Settings
   {

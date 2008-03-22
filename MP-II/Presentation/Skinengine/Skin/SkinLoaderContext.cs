@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace SkinEngine.Skin
+namespace Presentation.SkinEngine.Skin
 {
   /// <summary>
   /// FIXME What is the meaning of this class? Should be removed if it is not

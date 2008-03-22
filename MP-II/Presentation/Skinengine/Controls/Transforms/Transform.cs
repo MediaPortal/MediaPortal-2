@@ -29,9 +29,9 @@ using SlimDX.Direct3D9;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-using SkinEngine.Controls.Bindings;
-using SkinEngine;
-namespace SkinEngine.Controls.Transforms
+using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine;
+namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class Transform : Property, ICloneable, IBindingCollection
   {

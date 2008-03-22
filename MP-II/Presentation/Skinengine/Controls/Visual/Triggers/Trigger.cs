@@ -28,10 +28,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MyXaml.Core;
-using SkinEngine.Controls.Bindings;
-namespace SkinEngine.Controls.Visuals.Triggers
+using Presentation.SkinEngine.Controls.Bindings;
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class Trigger : ICloneable, IAddChild, IBindingCollection
   {

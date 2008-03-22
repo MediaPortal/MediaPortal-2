@@ -28,16 +28,18 @@ using System.Diagnostics;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-namespace SkinEngine.Thumbnails
+
+namespace Presentation.ThumbnailGenerator.Database
 {
-  public class Database
+  public class ThumbDatabase
   {
     private string _dbName;
     private List<Thumb> _thumbs = new List<Thumb>();
     private bool _changed;
     private DateTime _keepAliveTimer;
     string _folder;
-    public Database()
+
+    public ThumbDatabase()
     {
       _thumbs = new List<Thumb>();
       _keepAliveTimer = DateTime.Now;

@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class ParallelTimeline : TimelineGroup
   {

@@ -2,11 +2,11 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine;
-using SkinEngine.Controls;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Animations;
-namespace SkinEngine
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Animations;
+namespace Presentation.SkinEngine
 {
   public class Animator
   {

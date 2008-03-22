@@ -5,11 +5,11 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MyXaml.Core;
-using SkinEngine.Controls.Bindings;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.ElementRegistrations;
+using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.ElementRegistrations;
 
-namespace SkinEngine.Skin
+namespace Presentation.SkinEngine.Skin
 {                              
   /// <summary>
   /// This is the loader class for each XAML file.

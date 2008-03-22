@@ -27,9 +27,9 @@ using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.DirectX;
 
-namespace SkinEngine.Fonts
+namespace Presentation.SkinEngine.Fonts
 {
   public class FontBufferAsset : IAsset
   {

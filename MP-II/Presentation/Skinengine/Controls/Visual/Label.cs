@@ -29,16 +29,16 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Localisation;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Font = SkinEngine.Fonts.Font;
-using FontRender = SkinEngine.Fonts.FontRender;
-using FontBufferAsset = SkinEngine.Fonts.FontBufferAsset;
-using FontManager = SkinEngine.Fonts.FontManager;
+using Font = Presentation.SkinEngine.Fonts.Font;
+using FontRender = Presentation.SkinEngine.Fonts.FontRender;
+using FontBufferAsset = Presentation.SkinEngine.Fonts.FontBufferAsset;
+using FontManager = Presentation.SkinEngine.Fonts.FontManager;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Label : Control
   {

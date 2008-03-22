@@ -25,43 +25,43 @@
 using System.Collections.Generic;
 using System.Timers;
 
-namespace SkinEngine.Thumbnails
+namespace Presentation.ThumbnailGenerator.Database
 {
-  public class DatabaseCache
+  public class ThumbDatabaseCache
   {
-    private Dictionary<string, Database> _databases;
-    private static DatabaseCache _instance;
+    private Dictionary<string, ThumbDatabase> _databases;
+    private static ThumbDatabaseCache _instance;
     private Timer _timer;
 
-    public static DatabaseCache Instance
+    public static ThumbDatabaseCache Instance
     {
       get
       {
         if (_instance == null)
         {
-          _instance = new DatabaseCache();
+          _instance = new ThumbDatabaseCache();
         }
         return _instance;
       }
     }
 
-    public DatabaseCache()
+    public ThumbDatabaseCache()
     {
-      _databases = new Dictionary<string, Database>();
+      _databases = new Dictionary<string, ThumbDatabase>();
       _timer = new Timer(1000);
       _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
       _timer.Start();
     }
 
 
-    public Database Get(string name)
+    public ThumbDatabase Get(string name)
     {
       if (_databases.ContainsKey(name))
       {
         return _databases[name];
       }
 
-      Database dbs = new Database();
+      ThumbDatabase dbs = new ThumbDatabase();
       dbs.Open(name);
       _databases[name] = dbs;
       return dbs;
@@ -75,7 +75,7 @@ namespace SkinEngine.Thumbnails
         do
         {
           disposing = false;
-          Dictionary<string, Database>.Enumerator enumer = _databases.GetEnumerator();
+          Dictionary<string, ThumbDatabase>.Enumerator enumer = _databases.GetEnumerator();
           while (enumer.MoveNext())
           {
             if (enumer.Current.Value.CanFree)

@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Visuals.Triggers
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerAction : ICloneable
   {

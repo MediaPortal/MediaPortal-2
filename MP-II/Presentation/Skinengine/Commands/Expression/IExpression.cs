@@ -24,7 +24,7 @@
 
 using System;
 
-namespace SkinEngine.Commands.Expression
+namespace Presentation.SkinEngine.Commands.Expression
 {
   /// <summary>
   /// This interface is the base for all of the expression evaluation objects.

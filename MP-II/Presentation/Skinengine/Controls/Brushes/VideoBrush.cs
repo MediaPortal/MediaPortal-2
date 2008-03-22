@@ -29,18 +29,18 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 
-using SkinEngine.Controls.Transforms;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Effects;
-using SkinEngine;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Transforms;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class VideoBrush : Brush
   {

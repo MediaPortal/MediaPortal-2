@@ -25,7 +25,7 @@
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Properties;
 using System.Xml.Serialization;
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public enum SpeakerConnectionType
   {

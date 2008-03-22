@@ -51,7 +51,7 @@
 using MediaPortal.Presentation.Geometry;
 #endregion
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   /// <summary>
   /// Class which holds crop settings for the PlaneScene

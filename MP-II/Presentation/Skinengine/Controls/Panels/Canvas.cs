@@ -26,11 +26,11 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Canvas : Panel
   {

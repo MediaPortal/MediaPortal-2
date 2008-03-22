@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MyXaml.Core;
-namespace SkinEngine.Skin
+namespace Presentation.SkinEngine.Skin
 {
   public class Include : IInclude
   {

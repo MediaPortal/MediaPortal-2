@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Players.Teletext;
-namespace SkinEngine.Players.Subtitles
+using Presentation.SkinEngine.Players.Teletext;
+namespace Presentation.SkinEngine.Players.Subtitles
 {
   public class TeletextPageHeader
   {

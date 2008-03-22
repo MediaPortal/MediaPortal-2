@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
-using SkinEngine.Controls;
+using Presentation.SkinEngine.Controls;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class InputManager : IInputManager
   {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class RowDefinitionsCollection : List<RowDefinition>, IAddChild
   {

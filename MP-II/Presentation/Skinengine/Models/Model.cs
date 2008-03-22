@@ -27,7 +27,7 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class Model
   {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 
-namespace SkinEngine.Skin
+namespace Presentation.SkinEngine.Skin
 {                                        
   /// <summary>
   /// Holds a static mapping from resource names to <see cref="ResourceDictionary"/>

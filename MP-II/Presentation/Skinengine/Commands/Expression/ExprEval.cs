@@ -28,7 +28,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 
 
-namespace SkinEngine.Commands.Expression
+namespace Presentation.SkinEngine.Commands.Expression
 {
   /// <summary>
   /// This class will evaluate boolean and mathmatical expressions

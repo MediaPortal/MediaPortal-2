@@ -24,13 +24,13 @@
 
 using System;
 using System.ComponentModel;
-using SkinEngine.Controls.Brushes;
-using SkinEngine.Controls.Panels;
-using SkinEngine.Controls.Transforms;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Controls.Panels;
+using Presentation.SkinEngine.Controls.Transforms;
+using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
 
-namespace SkinEngine.ElementRegistrations
+namespace Presentation.SkinEngine.ElementRegistrations
 {
   /// <summary>
   /// This class holds static methods for converting string representations

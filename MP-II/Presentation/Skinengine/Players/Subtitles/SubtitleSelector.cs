@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace SkinEngine.Players.Subtitles
+namespace Presentation.SkinEngine.Players.Subtitles
 {
   public enum SubtitleType
   {

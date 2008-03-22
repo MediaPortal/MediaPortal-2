@@ -4,7 +4,7 @@ using System.Text;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public interface ITextureAsset : IAsset
   {

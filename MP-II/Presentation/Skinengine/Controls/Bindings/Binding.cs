@@ -26,14 +26,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.WindowManager;
 
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public class Binding : ICloneable
   {

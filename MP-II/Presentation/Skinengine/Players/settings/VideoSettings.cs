@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class VideoSettings
   {

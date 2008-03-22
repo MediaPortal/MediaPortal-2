@@ -27,10 +27,10 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.ElementRegistrations;
-using SkinEngine.Controls.Visuals.Triggers;
+using Presentation.SkinEngine.ElementRegistrations;
+using Presentation.SkinEngine.Controls.Visuals.Triggers;
 
-namespace SkinEngine.Controls.Visuals.Styles
+namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
   public class Setter : TriggerAction
   {

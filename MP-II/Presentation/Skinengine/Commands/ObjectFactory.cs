@@ -29,7 +29,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 
-namespace SkinEngine.Commands
+namespace Presentation.SkinEngine.Commands
 {
   internal class ObjectFactory
   {

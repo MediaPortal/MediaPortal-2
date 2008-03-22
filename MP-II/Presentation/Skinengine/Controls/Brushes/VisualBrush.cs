@@ -25,15 +25,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Bindings;
-using SkinEngine.Effects;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class VisualBrush : TileBrush, IBindingCollection
   {

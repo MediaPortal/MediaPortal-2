@@ -29,9 +29,9 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using SkinEngine;
-using SkinEngine.DirectX;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Rendering;
 
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -42,7 +42,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Line : Shape
   {

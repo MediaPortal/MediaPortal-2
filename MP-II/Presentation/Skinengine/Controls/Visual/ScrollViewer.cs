@@ -27,15 +27,15 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
 
-using SkinEngine;
+using Presentation.SkinEngine;
 using SlimDX;
 using SlimDX.Direct3D9;
-using SkinEngine.Controls.Panels;
+using Presentation.SkinEngine.Controls.Panels;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {

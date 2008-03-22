@@ -33,7 +33,7 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class VisualTreeHelper
   {

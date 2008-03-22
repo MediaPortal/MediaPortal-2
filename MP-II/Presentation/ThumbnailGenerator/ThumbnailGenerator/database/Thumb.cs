@@ -24,7 +24,7 @@
 
 using System.IO;
 
-namespace SkinEngine.Thumbnails
+namespace Presentation.ThumbnailGenerator.Database
 {
   public class Thumb
   {

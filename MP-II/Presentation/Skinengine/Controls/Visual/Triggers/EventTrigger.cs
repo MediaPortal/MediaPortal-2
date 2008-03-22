@@ -25,9 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Animations;
-using SkinEngine.Controls.Visuals.Styles;
-namespace SkinEngine.Controls.Visuals.Triggers
+using Presentation.SkinEngine.Controls.Animations;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class EventTrigger : Trigger
   {

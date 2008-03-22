@@ -25,7 +25,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace SkinEngine.Commands.Expression
+namespace Presentation.SkinEngine.Commands.Expression
 {
   /// <summary>
   /// This class is internal to the library, houses different regular expression objects

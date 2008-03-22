@@ -28,17 +28,17 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 
-using SkinEngine.Controls.Transforms;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Effects;
-using SkinEngine;
-using SkinEngine.DirectX;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Transforms;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Brushes
+namespace Presentation.SkinEngine.Controls.Brushes
 {
   /// <summary>
   /// todo:

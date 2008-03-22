@@ -26,20 +26,20 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
-using SkinEngine.Rendering;
-using SkinEngine.Controls.Brushes;
-using SkinEngine.Rendering;
-using SkinEngine;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
 using Rectangle = System.Drawing.Rectangle;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
   {

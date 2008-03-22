@@ -27,20 +27,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine;
-using SkinEngine.DirectX;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = SlimDX.Matrix;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ProgressBar : Control
   {

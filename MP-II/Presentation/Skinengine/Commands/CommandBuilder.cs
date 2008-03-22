@@ -25,7 +25,7 @@
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Presentation.WindowManager;
 
-namespace SkinEngine.Commands
+namespace Presentation.SkinEngine.Commands
 {
   public class CommandBuilder : ICommandBuilder
   {

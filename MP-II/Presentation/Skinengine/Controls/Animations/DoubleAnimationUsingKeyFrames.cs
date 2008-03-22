@@ -27,9 +27,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals;
 using MyXaml.Core;
-namespace SkinEngine.Controls.Animations
+namespace Presentation.SkinEngine.Controls.Animations
 {
   public class DoubleAnimationUsingKeyFrames : Timeline, IAddChild
   {

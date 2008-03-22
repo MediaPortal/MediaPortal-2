@@ -25,7 +25,7 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class RowDefinition : ICloneable
   {

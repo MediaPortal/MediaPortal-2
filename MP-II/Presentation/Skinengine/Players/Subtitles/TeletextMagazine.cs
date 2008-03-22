@@ -4,7 +4,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace SkinEngine.Players.Subtitles
+namespace Presentation.SkinEngine.Players.Subtitles
 {
   public struct LineContent
   {

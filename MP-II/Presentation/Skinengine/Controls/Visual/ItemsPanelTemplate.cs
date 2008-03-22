@@ -30,12 +30,12 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.Control.InputManager;
-using SkinEngine;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.DirectX;
 using Rectangle = System.Drawing.Rectangle;
-using SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ItemsPanelTemplate : FrameworkTemplate
   {

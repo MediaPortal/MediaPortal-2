@@ -28,12 +28,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using SkinEngine;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public enum StretchDirection { UpOnly, DownOnly, Both };
 

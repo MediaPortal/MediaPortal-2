@@ -29,7 +29,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SkinEngine.Commands.Expression
+namespace Presentation.SkinEngine.Commands.Expression
 {
   public delegate void AdditionalFunctionEventHandler(object sender, AdditionalFunctionEventArgs e);
   public delegate void AdditionalVariableEventHandler(object sender, AdditionalVariableEventArgs e);

@@ -30,9 +30,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-//using System.Windows.Controls;
+using Presentation.ThumbnailGenerator.Database;
 
-namespace SkinEngine.Thumbnails
+namespace Presentation.ThumbnailGenerator
 {
   public class ThumbnailBuilder
   {
@@ -58,7 +58,7 @@ namespace SkinEngine.Thumbnails
 
         //find media files within the folder
 
-        Database dbFolder = DatabaseCache.Instance.Get(thumb.DestinationFolder);
+        ThumbDatabase dbFolder = ThumbDatabaseCache.Instance.Get(thumb.DestinationFolder);
         string[] subNails = new string[4];
         int currentThumb = 0;
         string[] files = Directory.GetFiles(thumb.SourceFolder);
@@ -163,12 +163,12 @@ namespace SkinEngine.Thumbnails
     /// <returns></returns>
     public bool CreateThumbnailForFile(WorkItem thumb)
     {
-      Database dbs = DatabaseCache.Instance.Get(thumb.SourceFolder);
+      ThumbDatabase dbs = ThumbDatabaseCache.Instance.Get(thumb.SourceFolder);
       bool result = CreateThumbnailForFile(dbs, thumb);
       return result;
     }
 
-    public bool CreateThumbnailForFile(Database dbs, WorkItem thumb)
+    public bool CreateThumbnailForFile(ThumbDatabase dbs, WorkItem thumb)
     {
       string ext = Path.GetExtension(thumb.Source).ToLower();
       try

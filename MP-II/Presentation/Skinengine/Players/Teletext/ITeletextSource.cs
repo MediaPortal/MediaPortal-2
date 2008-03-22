@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using DirectShowLib;
 
-namespace SkinEngine.Players.Teletext
+namespace Presentation.SkinEngine.Players.Teletext
 {
 
   enum TeletextEvent

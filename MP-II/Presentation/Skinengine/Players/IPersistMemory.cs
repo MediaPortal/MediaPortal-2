@@ -50,7 +50,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   [ComVisible(true), ComImport,
    Guid("BD1AE5E0-A6AE-11CE-BD37-504200C10000"),

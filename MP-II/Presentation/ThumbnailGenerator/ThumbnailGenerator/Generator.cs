@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace SkinEngine.Thumbnails
+using Presentation.ThumbnailGenerator.Database;
+
+namespace Presentation.ThumbnailGenerator
 {
   public class Generator
   {
@@ -57,10 +59,10 @@ namespace SkinEngine.Thumbnails
       }
     }
 
-    private Database GetDatabase(string fileName)
+    private ThumbDatabase GetDatabase(string fileName)
     {
       string path = Path.GetDirectoryName(fileName);
-      Database dbs = DatabaseCache.Instance.Get(path);
+      ThumbDatabase dbs = ThumbDatabaseCache.Instance.Get(path);
       return dbs;
     }
 

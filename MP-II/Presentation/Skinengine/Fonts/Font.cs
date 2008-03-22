@@ -29,10 +29,10 @@ using System.IO;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.Effects;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.DirectX;
 
-namespace SkinEngine.Fonts
+namespace Presentation.SkinEngine.Fonts
 {
   public class Font : ITextureAsset
   {

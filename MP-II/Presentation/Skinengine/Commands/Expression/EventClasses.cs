@@ -24,7 +24,7 @@
 
 using System;
 
-namespace SkinEngine.Commands.Expression
+namespace Presentation.SkinEngine.Commands.Expression
 {
   #region "Event Handling Objects"
 

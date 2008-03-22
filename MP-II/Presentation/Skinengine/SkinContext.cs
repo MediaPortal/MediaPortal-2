@@ -28,14 +28,14 @@ using System.Windows.Forms;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
-using SkinEngine.Players;
-using SkinEngine.Players.Geometry;
-using SkinEngine.Skin;
+using Presentation.SkinEngine.Players;
+using Presentation.SkinEngine.Players.Geometry;
+using Presentation.SkinEngine.Skin;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {                         
   /// <summary>
   /// Holds context variables which are used by the skin controls.

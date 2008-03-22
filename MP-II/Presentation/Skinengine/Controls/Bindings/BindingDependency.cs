@@ -4,7 +4,7 @@ using System.Text;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
 
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public enum BindingMode
   {

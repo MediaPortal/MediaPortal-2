@@ -41,9 +41,9 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 
-using SkinEngine.Commands;
+using Presentation.SkinEngine.Commands;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class MediaPlayers : PlayerCollection
   {

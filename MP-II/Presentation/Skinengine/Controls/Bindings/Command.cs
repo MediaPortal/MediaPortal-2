@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public class Command : ICloneable
   {

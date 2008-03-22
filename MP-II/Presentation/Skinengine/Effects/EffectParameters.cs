@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SlimDX;
-namespace SkinEngine.Effects
+namespace Presentation.SkinEngine.Effects
 {
   public class EffectParameters
   {

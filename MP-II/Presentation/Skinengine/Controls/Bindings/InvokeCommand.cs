@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using MediaPortal.Presentation.Properties;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Controls.Visuals.Triggers;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals.Triggers;
 
-namespace SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Controls.Bindings
 {
   public class InvokeCommand : TriggerAction, IBindingCollection
   {

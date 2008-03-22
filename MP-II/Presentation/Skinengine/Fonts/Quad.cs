@@ -52,12 +52,12 @@ applications, and to alter it and redistribute it freely, subject to the followi
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 using System;
-using SkinEngine.DirectX;
+using Presentation.SkinEngine.DirectX;
 
 //using SlimDX.Direct3D
 using SlimDX.Direct3D9;
 
-namespace SkinEngine.Fonts
+namespace Presentation.SkinEngine.Fonts
 {
   public class Quad : ICloneable
   {

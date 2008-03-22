@@ -43,11 +43,11 @@ using MediaPortal.Media.MediaManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
-using SkinEngine.Effects;
-using SkinEngine.Players.Vmr9;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.Players.Vmr9;
 
-namespace SkinEngine.Players
+namespace Presentation.SkinEngine.Players
 {
   public class VideoPlayer : IPlayer
   {

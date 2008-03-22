@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SkinEngine.ElementRegistrations
+namespace Presentation.SkinEngine.ElementRegistrations
 {                            
   /// <summary>
   /// This class holds a registration for all elements which can be instanciated

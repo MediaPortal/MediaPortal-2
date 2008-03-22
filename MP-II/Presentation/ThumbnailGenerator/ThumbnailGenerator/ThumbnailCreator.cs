@@ -31,7 +31,7 @@ using System.Text;
 
 //i forgot where i originally got this code?
 
-namespace SkinEngine.Thumbnails
+namespace Presentation.ThumbnailGenerator
 {
 
   #region ThumbnailCreator

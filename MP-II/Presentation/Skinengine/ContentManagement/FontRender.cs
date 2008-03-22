@@ -27,10 +27,10 @@ using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using SkinEngine.DirectX;
-using SkinEngine.Rendering;
-using SkinEngine.Effects;
-namespace SkinEngine.Fonts
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.Effects;
+namespace Presentation.SkinEngine.Fonts
 {
   public class FontRender
   {

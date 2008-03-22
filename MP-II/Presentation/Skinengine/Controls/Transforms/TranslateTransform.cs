@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-namespace SkinEngine.Controls.Transforms
+namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TranslateTransform : Transform
   {

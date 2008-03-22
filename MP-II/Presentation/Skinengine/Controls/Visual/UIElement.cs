@@ -34,12 +34,12 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.WindowManager;
-using SkinEngine.Controls.Visuals.Triggers;
-using SkinEngine.Controls.Animations;
-using SkinEngine.Controls.Transforms;
-using SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Controls.Visuals.Triggers;
+using Presentation.SkinEngine.Controls.Animations;
+using Presentation.SkinEngine.Controls.Transforms;
+using Presentation.SkinEngine.Controls.Bindings;
 
-namespace SkinEngine.Controls.Visuals
+namespace Presentation.SkinEngine.Controls.Visuals
 {
   public enum VisibilityEnum
   {

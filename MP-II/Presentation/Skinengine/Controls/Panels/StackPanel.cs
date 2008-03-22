@@ -31,11 +31,11 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
-using SkinEngine.DirectX;
-using SkinEngine.Controls.Visuals;
-using SkinEngine.Rendering;
+using Presentation.SkinEngine.DirectX;
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Rendering;
 
-namespace SkinEngine.Controls.Panels
+namespace Presentation.SkinEngine.Controls.Panels
 {
   public class StackPanel : Panel, IScrollInfo
   {
