@@ -26,7 +26,7 @@ using System.Text;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Panels;
 using SkinEngine.Controls.Visuals.Triggers;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 
 namespace SkinEngine.Controls.Visuals.Styles
 {

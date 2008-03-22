@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Core.Properties
+namespace MediaPortal.Presentation.Properties
 {
   /// <summary>
   /// Class which implements an ILabelProperty for a (localized) string

@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 
 

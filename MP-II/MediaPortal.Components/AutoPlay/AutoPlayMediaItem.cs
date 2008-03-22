@@ -29,7 +29,7 @@ using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Services.AutoPlay
+namespace Components.Services.AutoPlay
 {
   public class AutoPlayMediaItem : IMediaItem
   {

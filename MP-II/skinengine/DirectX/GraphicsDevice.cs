@@ -30,7 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;

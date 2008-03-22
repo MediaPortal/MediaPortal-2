@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;

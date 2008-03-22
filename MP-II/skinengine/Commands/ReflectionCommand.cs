@@ -25,9 +25,9 @@
 using System;
 using System.Reflection;
 using MediaPortal.Core;
-using MediaPortal.Core.Commands;
+using MediaPortal.Presentation.Commands;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 //using SkinEngine.Scripts;
 using SkinEngine.Commands.Expression;

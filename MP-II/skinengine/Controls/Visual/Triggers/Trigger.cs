@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MyXaml.Core;
 using SkinEngine.Controls.Bindings;

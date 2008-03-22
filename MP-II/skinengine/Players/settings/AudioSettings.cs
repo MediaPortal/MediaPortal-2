@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using System.Xml.Serialization;
 namespace SkinEngine.Players
 {

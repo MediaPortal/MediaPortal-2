@@ -35,7 +35,7 @@ using DirectShowLib;
 using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;

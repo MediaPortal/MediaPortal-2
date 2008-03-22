@@ -25,9 +25,10 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.Commands;
+using MediaPortal.Presentation.Commands;
 using MediaPortal.Presentation.WindowManager;
-namespace MediaPortal.Core.Collections
+
+namespace MediaPortal.Presentation.Collections
 {
   /// <summary>
   /// interface to a collection of items

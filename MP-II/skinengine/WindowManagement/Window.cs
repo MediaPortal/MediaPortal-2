@@ -29,7 +29,7 @@ using System.Threading;
 
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using SkinEngine.Controls.Visuals;
 

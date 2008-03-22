@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 #endregion
 
 namespace SkinEngine.Controls.Panels

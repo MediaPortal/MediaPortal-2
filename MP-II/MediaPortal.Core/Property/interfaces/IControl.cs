@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.Properties
+namespace MediaPortal.Presentation.Properties
 {
   /// <summary>
   /// interface to a generic control

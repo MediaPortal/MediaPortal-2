@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using System.Drawing;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Rendering;
 using Rectangle = System.Drawing.Rectangle;

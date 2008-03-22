@@ -24,7 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MyXaml.Core;
 using SkinEngine.ElementRegistrations;
 

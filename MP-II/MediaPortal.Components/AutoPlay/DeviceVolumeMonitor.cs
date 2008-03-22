@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 #pragma warning disable 649
 #pragma warning disable 169
 
-namespace MediaPortal.Services.AutoPlay
+namespace Components.Services.AutoPlay
 {
 
   /// <summary>

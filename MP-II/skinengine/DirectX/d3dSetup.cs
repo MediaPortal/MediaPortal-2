@@ -34,7 +34,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 
 using SlimDX;
 using SlimDX.Direct3D;

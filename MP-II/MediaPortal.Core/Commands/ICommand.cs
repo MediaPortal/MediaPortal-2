@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.Commands
+namespace MediaPortal.Presentation.Commands
 {
   /// <summary>
   /// interface for a generic command

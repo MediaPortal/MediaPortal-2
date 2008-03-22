@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.WindowManager;
 
-namespace MediaPortal.Core.Commands
+namespace MediaPortal.Presentation.Commands
 {
   /// <summary>
   /// interface to a command builder

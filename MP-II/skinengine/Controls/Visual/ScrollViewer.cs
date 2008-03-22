@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
 

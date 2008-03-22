@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.AutoPlay
+namespace Components.Services.AutoPlay
 {
   public class AutoPlaySettings
   {

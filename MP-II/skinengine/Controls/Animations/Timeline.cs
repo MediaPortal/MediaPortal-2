@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals;
 
 namespace SkinEngine.Controls.Animations

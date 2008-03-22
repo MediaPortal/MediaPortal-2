@@ -25,10 +25,10 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using SkinEngine;
 using SkinEngine.Controls.Bindings;
 

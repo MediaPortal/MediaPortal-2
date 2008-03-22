@@ -25,7 +25,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 
 namespace SkinEngine.Controls.Visuals
 {

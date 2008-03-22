@@ -4,7 +4,7 @@
         description = "Service that detects media changes and starts playback.">
 
   <Manifest>
-    <Identity name = "MediaPortal.Services.AutoPlay.AutoPlay"/>
+    <Identity name = "Components.Services.AutoPlay.AutoPlay"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Services">
-    <Class id = "IAutoPlay" class = "MediaPortal.Services.AutoPlay.AutoPlay"/>
+    <Class id = "IAutoPlay" class = "Components.Services.AutoPlay.AutoPlay"/>
   </Register>
 </Plugin>

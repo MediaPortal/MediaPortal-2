@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Text;
 using System.Drawing.Drawing2D;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using SkinEngine.Controls.Brushes;
 using SlimDX;

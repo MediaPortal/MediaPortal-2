@@ -25,8 +25,6 @@
 using System;
 using System.Text.RegularExpressions;
 
-//using SkinEngine.Logging;
-
 namespace MediaPortal.Core.Localisation
 {
   /// <summary>

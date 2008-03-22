@@ -27,7 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using SkinEngine;
 using SkinEngine.DirectX;

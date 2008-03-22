@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 
 namespace SkinEngine.Players
 {

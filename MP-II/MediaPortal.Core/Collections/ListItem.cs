@@ -23,11 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Commands;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Core.Collections
+namespace MediaPortal.Presentation.Collections
 {
   /// <summary>
   /// class for a single item

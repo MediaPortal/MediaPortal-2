@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.ElementRegistrations;
 using SkinEngine.Controls.Visuals.Triggers;
 

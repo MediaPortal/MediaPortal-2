@@ -29,9 +29,9 @@ using System.Text;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine.Controls.Bindings

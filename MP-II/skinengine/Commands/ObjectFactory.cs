@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 
 namespace SkinEngine.Commands

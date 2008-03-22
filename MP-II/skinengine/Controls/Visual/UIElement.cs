@@ -31,7 +31,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.WindowManager;
 using SkinEngine.Controls.Visuals.Triggers;

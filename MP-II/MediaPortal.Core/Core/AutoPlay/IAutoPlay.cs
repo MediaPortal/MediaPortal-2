@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.AutoPlay
+namespace MediaPortal.Presentation.AutoPlay
 {
   public interface IAutoPlay
   {

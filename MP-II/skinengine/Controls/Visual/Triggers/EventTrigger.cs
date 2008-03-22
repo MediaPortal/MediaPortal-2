@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Animations;
 using SkinEngine.Controls.Visuals.Styles;
 namespace SkinEngine.Controls.Visuals.Triggers

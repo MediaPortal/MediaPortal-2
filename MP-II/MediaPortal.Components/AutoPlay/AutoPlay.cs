@@ -28,8 +28,8 @@ using System.Text;
 using System.IO;
 
 using MediaPortal.Core;
-using MediaPortal.Core.AutoPlay;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.AutoPlay;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
@@ -43,7 +43,7 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Utilities.CD;
 using MediaPortal.Utilities.Screens;
 
-namespace MediaPortal.Services.AutoPlay
+namespace Components.Services.AutoPlay
 {
   public class AutoPlay : IAutoPlay
   {

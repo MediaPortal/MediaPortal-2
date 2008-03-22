@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using System.Drawing;
 
 namespace SkinEngine.Controls.Animations

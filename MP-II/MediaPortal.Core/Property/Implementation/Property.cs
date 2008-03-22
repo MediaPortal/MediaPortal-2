@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.Properties
+namespace MediaPortal.Presentation.Properties
 {
   public delegate void PropertyChangedHandler(Property property);
 

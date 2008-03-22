@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using SkinEngine;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals;
 using SkinEngine.Effects;
 using SkinEngine.DirectX;

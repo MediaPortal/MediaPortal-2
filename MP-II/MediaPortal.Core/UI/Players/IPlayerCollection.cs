@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 
 namespace MediaPortal.Presentation.Players
 {

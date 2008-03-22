@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SkinEngine.Controls.Visuals;
 using SlimDX;
 using SlimDX.Direct3D9;

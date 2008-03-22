@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using System.Diagnostics;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 
 

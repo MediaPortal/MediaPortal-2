@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Text;
 using System.Drawing.Drawing2D;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using SkinEngine.Controls.Brushes;
 using SlimDX;
@@ -234,7 +234,7 @@ namespace SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
-      MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
+      MediaPortal.Presentation.Collections.ListItem listItem = (MediaPortal.Presentation.Collections.ListItem)Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
 
@@ -281,7 +281,7 @@ namespace SkinEngine.Controls.Visuals
       ActualHeight = layoutRect.Height;
       PointF p = layoutRect.Location;
 
-      MediaPortal.Core.Collections.ListItem listItem = (MediaPortal.Core.Collections.ListItem)Context;
+      MediaPortal.Presentation.Collections.ListItem listItem = (MediaPortal.Presentation.Collections.ListItem)Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 

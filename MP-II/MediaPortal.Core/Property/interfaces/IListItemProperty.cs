@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 
-namespace MediaPortal.Core.Properties
+namespace MediaPortal.Presentation.Properties
 {
   /// <summary>
   /// interface to a property

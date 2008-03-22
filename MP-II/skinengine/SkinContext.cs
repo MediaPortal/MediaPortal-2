@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
 using SkinEngine.Players;

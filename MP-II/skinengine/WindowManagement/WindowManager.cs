@@ -33,7 +33,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Control.InputManager;
