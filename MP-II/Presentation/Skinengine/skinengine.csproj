@@ -304,7 +304,7 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MyXaml.Core\MyXaml.Core.csproj">
+    <ProjectReference Include="..\..\External\MyXaml.Core\MyXaml.Core.csproj">
       <Project>{FC6CCC7F-3080-419B-B72A-157A00959DA2}</Project>
       <Name>MyXaml.Core</Name>
     </ProjectReference>
