@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MyMovies
+namespace Models.Movies
 {
   public class DvdMediaItem : IMediaItem
   {

@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MyMovies
+namespace Models.Movies
 {
   public class MovieSettings
   {

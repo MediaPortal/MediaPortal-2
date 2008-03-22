@@ -27,24 +27,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Properties;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Players;
+using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.Properties;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MyMovies
+namespace Models.Movies
 {
   /// <summary>
   /// Model which exposes a movie collection

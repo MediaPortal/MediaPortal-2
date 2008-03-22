@@ -23,11 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 
 using MediaPortal.Media.MetaData;
 
-namespace MyMovies
+namespace Models.Movies
 {
 
   internal class MovieComparer : IComparer<ListItem>

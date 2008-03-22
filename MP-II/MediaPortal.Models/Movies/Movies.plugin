@@ -4,14 +4,14 @@
         description = "Movies Plugin">
 
   <Manifest>
-    <Identity name = "MyMovies.Model"/>
+    <Identity name = "Models.Movies.Model"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyMovies.dll"/>
+    <Import assembly = "Movies.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyMovies" class = "MyMovies.Model"/>
+    <Class id = "MyMovies" class = "Models.Movies.Model"/>
   </Register>
 </Plugin>

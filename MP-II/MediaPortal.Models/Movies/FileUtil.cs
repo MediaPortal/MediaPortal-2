@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace MyMovies
+namespace Models.Movies
 {
   public class FileUtil
   {

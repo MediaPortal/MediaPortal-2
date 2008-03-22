@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 
-namespace MyMovies
+namespace Models.Movies
 {
   public class MovieItem : ListItem
   {
