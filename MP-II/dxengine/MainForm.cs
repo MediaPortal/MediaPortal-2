@@ -31,7 +31,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
-using MediaPortal.Core.ExifReader;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;

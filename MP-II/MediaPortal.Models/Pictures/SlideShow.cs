@@ -33,7 +33,6 @@ using MediaManager.Views;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Database;
-using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Properties;

@@ -62,14 +62,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\ItemsCollection.cs" />
-    <Compile Include="Collections\ListItem.cs" />
-    <Compile Include="Commands\ICommand.cs" />
-    <Compile Include="Commands\ICommandBuilder.cs" />
-    <Compile Include="Commands\ICommandParameter.cs" />
-    <Compile Include="Commands\ICommandResult.cs" />
+    <Compile Include="Presentation\Collections\ItemsCollection.cs" />
+    <Compile Include="Presentation\Collections\ListItem.cs" />
+    <Compile Include="Presentation\Commands\ICommand.cs" />
+    <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
+    <Compile Include="Presentation\Commands\ICommandParameter.cs" />
+    <Compile Include="Presentation\Commands\ICommandResult.cs" />
     <Compile Include="Core\ApplicationCore.cs" />
-    <Compile Include="Core\AutoPlay\IAutoPlay.cs" />
+    <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Configuration\Settings\YesNo.cs" />
     <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
     <Compile Include="Configuration\SettingBase.cs" />
@@ -103,9 +103,9 @@
     <Compile Include="Core\IApplication.cs" />
     <Compile Include="Media\Importers\IImporter.cs" />
     <Compile Include="Media\Importers\IImporterManager.cs" />
-    <Compile Include="Presentation\InputManager\IInputManager.cs" />
-    <Compile Include="Presentation\InputManager\Key.cs" />
-    <Compile Include="Presentation\InputManager\IInputMapper.cs" />
+    <Compile Include="Control\InputManager\IInputManager.cs" />
+    <Compile Include="Control\InputManager\Key.cs" />
+    <Compile Include="Control\InputManager\IInputMapper.cs" />
     <Compile Include="Core\Localisation\ILocalisaton.cs" />
     <Compile Include="Core\Localisation\NoLocalisation.cs" />
     <Compile Include="Core\Localisation\RegionSettings.cs" />
@@ -164,14 +164,14 @@
     <Compile Include="Core\PluginManager\IPluginInfo.cs" />
     <Compile Include="Core\PluginManager\IPluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property\Implementation\LocalizedLabelProperty.cs" />
-    <Compile Include="Property\Implementation\Property.cs" />
-    <Compile Include="Property\Implementation\SimpleLabelProperty.cs" />
-    <Compile Include="Property\interfaces\IBooleanProperty.cs" />
-    <Compile Include="Property\interfaces\IControl.cs" />
-    <Compile Include="Property\interfaces\IFloatproperty.cs" />
-    <Compile Include="Property\interfaces\ILabelProperty.cs" />
-    <Compile Include="Property\interfaces\IListItemProperty.cs" />
+    <Compile Include="Presentation\Property\Implementation\LocalizedLabelProperty.cs" />
+    <Compile Include="Presentation\Property\Implementation\Property.cs" />
+    <Compile Include="Presentation\Property\Implementation\SimpleLabelProperty.cs" />
+    <Compile Include="Presentation\Property\interfaces\IBooleanProperty.cs" />
+    <Compile Include="Presentation\Property\interfaces\IControl.cs" />
+    <Compile Include="Presentation\Property\interfaces\IFloatproperty.cs" />
+    <Compile Include="Presentation\Property\interfaces\ILabelProperty.cs" />
+    <Compile Include="Presentation\Property\interfaces\IListItemProperty.cs" />
     <Compile Include="Core\ServiceCreatorCallback.cs" />
     <Compile Include="Core\ServiceNotFoundException.cs" />
     <Compile Include="Core\ServiceScope.cs" />
@@ -179,9 +179,6 @@
     <Compile Include="Core\Settings\ISettingsManager.cs" />
     <Compile Include="Core\Settings\NoSettingsManager.cs" />
     <Compile Include="Core\Settings\SettingAttribute.cs" />
-    <Compile Include="Readers\ExifReader\ExifReader.cs" />
-    <Compile Include="Readers\ExifReader\ExifTag.cs" />
-    <Compile Include="Readers\ExifReader\IExifReader.cs" />
     <Compile Include="Core\Threading\IntervalWork.cs" />
     <Compile Include="Core\Threading\IThreadPool.cs" />
     <Compile Include="Core\Threading\IWork.cs" />

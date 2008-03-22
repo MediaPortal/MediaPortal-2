@@ -31,7 +31,6 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.ExifReader;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.MPIManager;
