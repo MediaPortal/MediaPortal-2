@@ -44,9 +44,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediaPortal.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="MediaPortal.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\MediaPortal.Core\bin\x86\Debug\MediaPortal.Core.dll</HintPath>
+      <HintPath>..\..\MediaPortal.Interfaces\bin\x86\Debug\MediaPortal.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="MediaPortal.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>

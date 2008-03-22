@@ -7,8 +7,8 @@
     <ProjectGuid>{52E587D0-A274-44DA-8846-8EEAF5414923}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Core</RootNamespace>
-    <AssemblyName>MediaPortal.Core</AssemblyName>
+    <RootNamespace>MediaPortal.Interfaces</RootNamespace>
+    <AssemblyName>MediaPortal.Interfaces</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.Core.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.Interfaces.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -71,9 +71,9 @@
       <Project>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</Project>
       <Name>MediaManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.Core</Name>
+      <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

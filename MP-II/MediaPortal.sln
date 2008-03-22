@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "Prese
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "MediaPortal.Core\MediaPortal.Core.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Interfaces", "MediaPortal.Interfaces\MediaPortal.Interfaces.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
