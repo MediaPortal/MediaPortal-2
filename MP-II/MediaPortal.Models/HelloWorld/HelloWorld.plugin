@@ -4,14 +4,14 @@
         description = "Sample Plugin">
 
   <Manifest>
-    <Identity name = "MyHelloWorld.Model"/>
+    <Identity name = "Models.HelloWorld.Model"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyHelloWorld.dll"/>
+    <Import assembly = "HelloWorld.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyHelloworld" class = "MyHelloWorld.Model"/>
+    <Class id = "Helloworld" class = "Models.HelloWorld.Model"/>
   </Register>
 </Plugin>
