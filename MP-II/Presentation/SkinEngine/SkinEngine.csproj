@@ -7,8 +7,8 @@
     <ProjectGuid>{7E943389-3589-40C9-B481-2E223554CC49}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>skinengine</RootNamespace>
-    <AssemblyName>skinengine</AssemblyName>
+    <RootNamespace>SkinEngine</RootNamespace>
+    <AssemblyName>SkinEngine</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,7 +54,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\skinengine.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\SkinEngine.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
