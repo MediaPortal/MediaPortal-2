@@ -330,7 +330,7 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj">
+    <ProjectReference Include="..\ThumbnailGenerator\ThumbnailGenerator.csproj">
       <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
       <Name>ThumbnailGenerator</Name>
     </ProjectReference>
