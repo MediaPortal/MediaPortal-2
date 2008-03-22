@@ -1,10 +1,10 @@
 <Plugin name        = "DirectxGui"
-        author      = "Frodo"
+        author      = "Team MediaPortal"
         copyright   = "GPL"
         description = "DirectX GUI">
 
   <Manifest>
-    <Identity name = "dxEngine.DirectxGui"/>
+    <Identity name = "Presentation.dxEngine.DirectxGui"/>
   </Manifest>
 
   <Runtime>
@@ -13,7 +13,7 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "DirectxGui" class = "dxEngine.DirectxGui"/>
+    <Class id = "DirectxGui" class = "Presentation.dxEngine.DirectxGui"/>
   </Register>
 
   <Register location = "/Configuration/Settings/General">
@@ -24,6 +24,6 @@
              text = "[configuration.system.fullscreen]"
              help = "[configuration.system.fullscreen.help]"
              type = "YesNo"
-             class = "dxEngine.Settings.Fullscreen"/>
+             class = "Presentation.dxEngine.Settings.Fullscreen"/>
   </Register>
 </Plugin>

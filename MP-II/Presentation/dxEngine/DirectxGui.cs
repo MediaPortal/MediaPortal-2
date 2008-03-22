@@ -25,7 +25,7 @@
 using System.Windows.Forms;
 using MediaPortal.Core.PluginManager;
 
-namespace dxEngine
+namespace Presentation.dxEngine
 {
   public class DirectxGui: IPlugin, IAutoStart
   {

@@ -54,9 +54,9 @@ using SkinEngine.Fonts;
 using SkinEngine.Players;
 using SkinEngine.Skin;
 
-using dxEngine.Settings;
+using Presentation.dxEngine.Settings;
 
-namespace dxEngine
+namespace Presentation.dxEngine
 {
   // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IApplication

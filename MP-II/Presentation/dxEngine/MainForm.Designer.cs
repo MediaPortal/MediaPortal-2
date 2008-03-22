@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace dxEngine
+namespace Presentation.dxEngine
 {
   partial class MainForm
   {

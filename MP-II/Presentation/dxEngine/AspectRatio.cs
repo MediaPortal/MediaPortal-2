@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace dxEngine
+namespace Presentation.dxEngine
 {
   public enum AspectRatio
   {
