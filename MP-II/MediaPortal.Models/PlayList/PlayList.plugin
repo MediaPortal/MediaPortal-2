@@ -4,7 +4,7 @@
         description = "Playlist Plugin">
 
   <Manifest>
-    <Identity name = "MediaPortal.PlayList.PlayList"/>
+    <Identity name = "Models.PlayList.PlayList"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "PlayList" class = "MediaPortal.PlayList.PlayList"/>
+    <Class id = "PlayList" class = "Models.PlayList.PlayList"/>
   </Register>
 </Plugin>

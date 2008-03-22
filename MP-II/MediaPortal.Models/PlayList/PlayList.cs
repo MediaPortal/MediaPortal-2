@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
@@ -36,7 +36,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.PlayList
+namespace Models.PlayList
 {
   public class PlayList : IPlugin
   {

@@ -25,10 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.PlayList
+namespace Models.PlayList
 {
   public class PlayListItem : ListItem
   {
