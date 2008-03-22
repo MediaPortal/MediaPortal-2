@@ -71,10 +71,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="ThumbnailGenerator, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\thumbNails\ThumbnailGenerator\ThumbnailGenerator\bin\x86\Debug\ThumbnailGenerator.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColorConverter.cs" />
@@ -241,6 +237,19 @@
     </Compile>
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
+    <Compile Include="MyXaml.Core\Attributes.cs" />
+    <Compile Include="MyXaml.Core\Break.cs" />
+    <Compile Include="MyXaml.Core\CustomTypeEventArgs.cs" />
+    <Compile Include="MyXaml.Core\EventArgs.cs" />
+    <Compile Include="MyXaml.Core\Exceptions.cs" />
+    <Compile Include="MyXaml.Core\IAddChild.cs" />
+    <Compile Include="MyXaml.Core\IInclude.cs" />
+    <Compile Include="MyXaml.Core\Interfaces.cs" />
+    <Compile Include="MyXaml.Core\MxBinding.cs" />
+    <Compile Include="MyXaml.Core\MxComponentContainer.cs" />
+    <Compile Include="MyXaml.Core\ObjectInfo.cs" />
+    <Compile Include="MyXaml.Core\Parser.cs" />
+    <Compile Include="MyXaml.Core\StringHelpers.cs" />
     <Compile Include="Players\CropSettings.cs" />
     <Compile Include="Players\DvdPlayer.cs" />
     <Compile Include="Players\FilterGraphTools.cs" />
@@ -304,9 +313,9 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\External\MyXaml.Core\MyXaml.Core.csproj">
-      <Project>{FC6CCC7F-3080-419B-B72A-157A00959DA2}</Project>
-      <Name>MyXaml.Core</Name>
+    <ProjectReference Include="..\ThumbnailGenerator\ThumbnailGenerator\ThumbnailGenerator.csproj">
+      <Project>{48D8E092-16AD-4022-B584-B19E75E4FD38}</Project>
+      <Name>ThumbnailGenerator</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -318,7 +327,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(TargetPath)"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\dxengine\"
-xcopy /Y "$(TargetDir)MyXaml.Core.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\dxengine\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\dxengine\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
