@@ -50,9 +50,9 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MyWeather.Grabbers;
+using Models.Weather.Grabbers;
 
-namespace MyWeather
+namespace Models.Weather
 {
   /// <summary>
   ///  WeatherDataModel
@@ -88,7 +88,7 @@ namespace MyWeather
       List<City> citiesList = Helper.CityInfoListToCityObjectList(settings.LocationsList);
       // Get the WeatherCatchers that should be used from the Plugins (if availale)
       /******* TEMPORILY ADD EXISTING CATCHERS *****/
-      //List<IWeatherCatcher> catchers = ServiceScope.Get<IPluginManager>().BuildItems<IWeatherCatcher>("/MyWeather/Grabbers");
+      //List<IWeatherCatcher> catchers = ServiceScope.Get<IPluginManager>().BuildItems<IWeatherCatcher>("/Models.Weather/Grabbers");
       List<IWeatherCatcher> catchers = new List<IWeatherCatcher>();
       catchers.Add(new WeatherDotComCatcher());
       catchers.Add(new TestCatcher());

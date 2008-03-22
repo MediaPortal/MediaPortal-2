@@ -24,15 +24,15 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.PluginManager;
-using MyWeather.Grabbers;
+using Models.Weather.Grabbers;
 
-namespace MyWeather
+namespace Models.Weather
 {
   /// <summary>
   /// ViewModel Class for weather.xml

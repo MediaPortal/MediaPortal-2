@@ -2,8 +2,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <RootNamespace>MyWeather</RootNamespace>
-    <AssemblyName>MyWeather</AssemblyName>
+    <RootNamespace>Models.Weather</RootNamespace>
+    <AssemblyName>Weather</AssemblyName>
     <WarningLevel>4</WarningLevel>
     <OutputType>Library</OutputType>
     <MinFrameworkVersionRequired>3.0</MinFrameworkVersionRequired>
@@ -64,7 +64,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\MyWeather.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\Weather.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -118,6 +118,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)MyWeather.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

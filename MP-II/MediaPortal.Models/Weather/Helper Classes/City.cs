@@ -49,9 +49,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 
-namespace MyWeather
+namespace Models.Weather
 {
   /// <summary>
   /// this is a basic field where
@@ -349,8 +349,8 @@ namespace MyWeather
     {
       City = "Dummytown, Dummyland";
       LastUpdate = "Friday, 12 May 2007";
-      Temperature = "12°C";
-      FeelsLikeTemp = "16°C";
+      Temperature = "12ï¿½C";
+      FeelsLikeTemp = "16ï¿½C";
       Condition = "Partly \n Cloudy";
       Icon = "30.png";
       Humidity = "70%";
@@ -545,8 +545,8 @@ namespace MyWeather
         iconImageNameHigh = "16.png";
         overview = "Partly\nCloudy";
         this.day = "Monday";
-        high = "13°C";
-        low = "8°C";
+        high = "13ï¿½C";
+        low = "8ï¿½C";
         sunRise = "5:00 AM";
         sunSet = "7:00 PM";
         precipitation = "Partly\nCloudy";
@@ -559,8 +559,8 @@ namespace MyWeather
         iconImageNameHigh = "36.png";
         overview = "Sunny";
         this.day = "Tuesday";
-        high = "25°C";
-        low = "20°C";
+        high = "25ï¿½C";
+        low = "20ï¿½C";
         sunRise = "5:10 AM";
         sunSet = "7:10 PM";
         precipitation = "Sunny";
@@ -573,8 +573,8 @@ namespace MyWeather
         iconImageNameHigh = "34.png";
         overview = "Fog";
         this.day = "Wednesday";
-        high = "20°C";
-        low = "11°C";
+        high = "20ï¿½C";
+        low = "11ï¿½C";
         sunRise = "5:20 AM";
         sunSet = "7:20 PM";
         precipitation = "Fog";
@@ -587,8 +587,8 @@ namespace MyWeather
         iconImageNameHigh = "38.png";
         overview = "Storm and\nThunder";
         this.day = "Thursday";
-        high = "12°C";
-        low = "0°C";
+        high = "12ï¿½C";
+        low = "0ï¿½C";
         sunRise = "5:40 AM";
         sunSet = "7:40 PM";
         precipitation = "Storm and\nThunder";
@@ -611,8 +611,8 @@ namespace MyWeather
         iconImageNameHigh = "16.png";
         overview = "this is an overview";
         this.day = "Monday";
-        high = "13°C";
-        low = "8°C";
+        high = "13ï¿½C";
+        low = "8ï¿½C";
         sunRise = "5:00 AM";
         sunSet = "7:00 PM";
         precipitation = "Partly\nCloudy";
@@ -625,8 +625,8 @@ namespace MyWeather
         iconImageNameHigh = "36.png";
         overview = "this is an overview";
         this.day = "Tuesday";
-        high = "25°C";
-        low = "20°C";
+        high = "25ï¿½C";
+        low = "20ï¿½C";
         sunRise = "5:10 AM";
         sunSet = "7:10 PM";
         precipitation = "Sunny";
@@ -639,8 +639,8 @@ namespace MyWeather
         iconImageNameHigh = "34.png";
         overview = "this is an overview";
         this.day = "Wednesday";
-        high = "20°C";
-        low = "11°C";
+        high = "20ï¿½C";
+        low = "11ï¿½C";
         sunRise = "5:20 AM";
         sunSet = "7:20 PM";
         precipitation = "Fog";
@@ -653,8 +653,8 @@ namespace MyWeather
         iconImageNameHigh = "38.png";
         overview = "this is an overview";
         this.day = "Thursday";
-        high = "12°C";
-        low = "0°C";
+        high = "12ï¿½C";
+        low = "0ï¿½C";
         sunRise = "5:40 AM";
         sunSet = "7:40 PM";
         precipitation = "Storm and\nThunder";

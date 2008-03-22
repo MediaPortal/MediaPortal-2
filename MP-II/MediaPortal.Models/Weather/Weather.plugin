@@ -4,14 +4,14 @@
         description = "Weather Plugin">
 
   <Manifest>
-    <Identity name = "MyWeather.WeatherViewModel"/>
+    <Identity name = "Models.Weather.WeatherViewModel"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyWeather.dll"/>
+    <Import assembly = "Weather.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyWeather" class = "MyWeather.WeatherViewModel"/>
+    <Class id = "MyWeather" class = "Models.Weather.WeatherViewModel"/>
   </Register>
 </Plugin>

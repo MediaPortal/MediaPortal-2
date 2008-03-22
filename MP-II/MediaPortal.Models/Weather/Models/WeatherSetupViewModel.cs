@@ -49,12 +49,12 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
-using MyWeather.Grabbers;
+using Models.Weather.Grabbers;
 
-namespace MyWeather
+namespace Models.Weather
 {
   public class WeatherSetupViewModel
   {

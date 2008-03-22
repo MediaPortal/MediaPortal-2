@@ -59,7 +59,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 
-namespace MyWeather.Grabbers
+namespace Models.Weather.Grabbers
 {
   /// <summary>
   /// Implementation of the IWeatherCatcher
@@ -121,18 +121,18 @@ namespace MyWeather.Grabbers
       // download the xml file to the given location
       if (!Download(city.Id, file))
       {
-        ServiceScope.Get<ILogger>().Info("MyWeather.WeatherDotComCatcher: Could not Download Data for {0}.", city.Name);
+        ServiceScope.Get<ILogger>().Info("Models.Weather.WeatherDotComCatcher: Could not Download Data for {0}.", city.Name);
         return false;
       }
       // try to parse the file
       if (!ParseFile(city, file))
       {
-        ServiceScope.Get<ILogger>().Info("MyWeather.WeatherDotComCatcher: Could not Parse Data from {0} for City {1}.",
+        ServiceScope.Get<ILogger>().Info("Models.Weather.WeatherDotComCatcher: Could not Parse Data from {0} for City {1}.",
                                          file, city.Name);
         return false;
       }
       ServiceScope.Get<ILogger>().Info(
-        "MyWeather.WeatherDotComCatcher: Fetching of weather data was successful for {0}.", city.Name);
+        "Models.Weather.WeatherDotComCatcher: Fetching of weather data was successful for {0}.", city.Name);
       city.HasData = true;
       return true;
     }
@@ -241,7 +241,7 @@ namespace MyWeather.Grabbers
           return true;
         }
 
-        ServiceScope.Get<ILogger>().Info("MyWeather.WeatherDotComCatcher.Download: No internet connection {0}", code);
+        ServiceScope.Get<ILogger>().Info("Models.Weather.WeatherDotComCatcher.Download: No internet connection {0}", code);
 
         if (_skipConnectionTest == false)
         {

@@ -51,7 +51,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace MyWeather
+namespace Models.Weather
 {
   public class Helper
   {

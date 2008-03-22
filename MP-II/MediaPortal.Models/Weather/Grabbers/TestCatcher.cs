@@ -49,7 +49,7 @@
 
 using System.Collections.Generic;
 
-namespace MyWeather.Grabbers
+namespace Models.Weather.Grabbers
 {
   /// <summary>
   /// Implementation of the IWeatherCatcher

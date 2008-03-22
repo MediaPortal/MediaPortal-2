@@ -33,11 +33,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly : AssemblyTitle("MyWeather")]
+[assembly : AssemblyTitle("Models.Weather")]
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
 [assembly : AssemblyCompany("")]
-[assembly : AssemblyProduct("MyWeather")]
+[assembly : AssemblyProduct("Models.Weather")]
 [assembly : AssemblyCopyright("Copyright @  2007")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]

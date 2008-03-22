@@ -50,7 +50,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
-namespace MyWeather
+namespace Models.Weather
 {
   /// <summary>
   /// Sample settings class wich will implement your own settings object in your code/plugin

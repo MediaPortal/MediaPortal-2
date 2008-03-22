@@ -49,7 +49,7 @@
 
 using System.Collections.Generic;
 
-namespace MyWeather
+namespace Models.Weather
 {
   /// <summary>
   /// this is an Interface for catching weather data

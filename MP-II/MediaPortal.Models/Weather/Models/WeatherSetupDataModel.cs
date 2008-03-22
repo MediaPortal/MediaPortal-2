@@ -51,7 +51,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace MyWeather
+namespace Models.Weather
 {
 
   #region WeatherSetupDataModel
