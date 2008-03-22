@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Settings;
 
-namespace SkinEngine.Settings
+namespace Presentation.SkinEngine.Settings
 {
   public class AppSettings
   {

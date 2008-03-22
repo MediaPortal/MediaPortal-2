@@ -4,7 +4,7 @@
         description = "DirectX Window Manager">
 
   <Manifest>
-    <Identity name = "SkinEngine.DirectxGui"/>
+    <Identity name = "Presentation.SkinEngine.DirectxGui"/>
   </Manifest>
 
   <Runtime>
@@ -12,7 +12,7 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "SkinEngine" class = "SkinEngine.DirectxGui"/>
+    <Class id = "SkinEngine" class = "Presentation.SkinEngine.DirectxGui"/>
   </Register>
 
   <Register location = "/Configuration/Settings/General">
@@ -23,6 +23,6 @@
              text = "[configuration.system.fullscreen]"
              help = "[configuration.system.fullscreen.help]"
              type = "YesNo"
-             class = "SkinEngine.Settings.Fullscreen"/>
+             class = "Presentation.SkinEngine.Settings.Fullscreen"/>
   </Register>
 </Plugin>

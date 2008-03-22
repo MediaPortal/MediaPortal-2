@@ -23,10 +23,10 @@
 #endregion
 
 using System.Windows.Forms;
-using SkinEngine.GUI;
+using Presentation.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
 
-namespace SkinEngine
+namespace Presentation.SkinEngine
 {
   public class DirectxGui: IPlugin, IAutoStart
   {

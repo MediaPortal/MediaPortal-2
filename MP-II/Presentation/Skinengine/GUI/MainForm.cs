@@ -48,15 +48,15 @@ using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
 
-using SkinEngine;
-using SkinEngine.Commands;
-using SkinEngine.Fonts;
-using SkinEngine.Players;
-using SkinEngine.Skin;
+using Presentation.SkinEngine;
+using Presentation.SkinEngine.Commands;
+using Presentation.SkinEngine.Fonts;
+using Presentation.SkinEngine.Players;
+using Presentation.SkinEngine.Skin;
 
-using SkinEngine.Settings;
+using Presentation.SkinEngine.Settings;
 
-namespace SkinEngine.GUI
+namespace Presentation.SkinEngine.GUI
 {
   // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IApplication
