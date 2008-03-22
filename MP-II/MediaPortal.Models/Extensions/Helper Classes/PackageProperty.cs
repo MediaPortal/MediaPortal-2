@@ -29,10 +29,10 @@ using MediaPortal.Services.MPIManager;
 using MediaPortal.Core.MPIManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core;
-using MediaPortal.Core.Properties;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.Collections;
 
-namespace MyExtensions
+namespace Models.Extensions.Helper
 {
   public class PackageProperty : MPIEnumeratorObject
   {

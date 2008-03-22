@@ -28,9 +28,9 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Xml;
-using MediaPortal.Core.Properties;
+using MediaPortal.Presentation.Properties;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
@@ -45,7 +45,9 @@ using MediaPortal.Services.MPIManager;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MyExtensions
+using Models.Extensions.Helper;
+
+namespace Models.Extensions
 {
   /// <summary>
   /// Model which exposes a movie collection

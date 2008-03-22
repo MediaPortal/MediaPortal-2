@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MyExtensions
+namespace Models.Extensions
 {
   public class ExtensionSettings
   {

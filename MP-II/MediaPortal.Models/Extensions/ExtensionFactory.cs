@@ -30,7 +30,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.MPIManager;
 
 using MediaPortal.Services.MPIManager;
@@ -38,7 +38,7 @@ using MediaPortal.Services.MPIManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MediaManager;
 
-namespace MyExtensions
+namespace Models.Extensions
 {
   public class ExtensionFactory
   {

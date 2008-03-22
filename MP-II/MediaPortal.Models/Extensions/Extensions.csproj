@@ -7,8 +7,8 @@
     <ProjectGuid>{51B5C6FD-C2A2-4702-B698-21E369410E32}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyExtensions</RootNamespace>
-    <AssemblyName>MyExtensions</AssemblyName>
+    <RootNamespace>Models.Extensions</RootNamespace>
+    <AssemblyName>Extensions</AssemblyName>
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
@@ -50,7 +50,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\MyExtensions.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\Extensions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -95,6 +95,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)MyExtensions.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

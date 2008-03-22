@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 
-namespace MyExtensions
+namespace Models.Extensions
 {
   public enum SortOption
   {

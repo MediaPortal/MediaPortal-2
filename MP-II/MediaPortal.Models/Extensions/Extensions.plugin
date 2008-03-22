@@ -4,14 +4,14 @@
         description = "Plugins, that installs MediaPortal Extensions">
 
   <Manifest>
-    <Identity name = "MyExtensions.Model"/>
+    <Identity name = "Models.Extensions.Model"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyExtensions.dll"/>
+    <Import assembly = "Extensions.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyExtensions" class = "MyExtensions.Model"/>
+    <Class id = "MyExtensions" class = "Models.Extensions.Model"/>
   </Register>
 </Plugin>

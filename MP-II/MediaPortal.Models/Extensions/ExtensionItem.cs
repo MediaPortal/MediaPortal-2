@@ -23,11 +23,11 @@
 #endregion
 
 using System;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Services.MPIManager;
 
-namespace MyExtensions
+namespace Models.Extensions
 {
   public class ExtensionItem : ListItem
   {
