@@ -7,7 +7,7 @@
     <ProjectGuid>{EAE480DB-43B8-43EF-94EE-074499BC23E5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Shares</RootNamespace>
+    <RootNamespace>Models.Shares</RootNamespace>
     <AssemblyName>Shares</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

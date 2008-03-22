@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Logging;
@@ -36,7 +36,7 @@ using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
 
-namespace Shares
+namespace Models.Shares
 {
   public class Model : IPlugin
   {

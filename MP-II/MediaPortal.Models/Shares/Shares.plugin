@@ -4,7 +4,7 @@
         description = "Shares Plugin">
 
   <Manifest>
-    <Identity name = "Shares.Model"/>
+    <Identity name = "Models.Shares.Model"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "Shares" class = "Shares.Model"/>
+    <Class id = "Shares" class = "Models.Shares.Model"/>
   </Register>
 </Plugin>
