@@ -97,15 +97,15 @@
     <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="Core\TaskScheduler\Task.cs" />
     <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
-    <Compile Include="UI\Geometries\ICropSettings.cs" />
-    <Compile Include="UI\Geometries\IGeometry.cs" />
-    <Compile Include="UI\Geometries\IGeometryHelper.cs" />
+    <Compile Include="Presentation\Geometries\ICropSettings.cs" />
+    <Compile Include="Presentation\Geometries\IGeometry.cs" />
+    <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />
     <Compile Include="Core\IApplication.cs" />
     <Compile Include="Media\Importers\IImporter.cs" />
     <Compile Include="Media\Importers\IImporterManager.cs" />
-    <Compile Include="UI\InputManager\IInputManager.cs" />
-    <Compile Include="UI\InputManager\Key.cs" />
-    <Compile Include="UI\InputManager\IInputMapper.cs" />
+    <Compile Include="Presentation\InputManager\IInputManager.cs" />
+    <Compile Include="Presentation\InputManager\Key.cs" />
+    <Compile Include="Presentation\InputManager\IInputMapper.cs" />
     <Compile Include="Core\Localisation\ILocalisaton.cs" />
     <Compile Include="Core\Localisation\NoLocalisation.cs" />
     <Compile Include="Core\Localisation\RegionSettings.cs" />
@@ -125,11 +125,11 @@
     <Compile Include="Media\MediaManager\Views\IQuery.cs" />
     <Compile Include="Media\MediaManager\Views\IView.cs" />
     <Compile Include="Media\MediaManager\Views\Query.cs" />
-    <Compile Include="UI\MenuManager\IMenu.cs" />
-    <Compile Include="UI\MenuManager\IMenuBuilder.cs" />
-    <Compile Include="UI\MenuManager\IMenuCollection.cs" />
-    <Compile Include="UI\MenuManager\IMenuItem.cs" />
-    <Compile Include="UI\MenuManager\MenuItem.cs">
+    <Compile Include="Presentation\MenuManager\IMenu.cs" />
+    <Compile Include="Presentation\MenuManager\IMenuBuilder.cs" />
+    <Compile Include="Presentation\MenuManager\IMenuCollection.cs" />
+    <Compile Include="Presentation\MenuManager\IMenuItem.cs" />
+    <Compile Include="Presentation\MenuManager\MenuItem.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Messaging\IMessageFilter.cs" />
@@ -149,14 +149,14 @@
     <Compile Include="MPIManager\IMPIQueue.cs" />
     <Compile Include="MPIManager\IMPIQueueObject.cs" />
     <Compile Include="Core\PathManager\IPathManager.cs" />
-    <Compile Include="UI\Players\IPlayer.cs" />
-    <Compile Include="UI\Players\IPlayerBuilder.cs" />
-    <Compile Include="UI\Players\IPlayerCollection.cs" />
-    <Compile Include="UI\Players\IPlayerFactory.cs" />
-    <Compile Include="UI\Players\IPlayList.cs" />
-    <Compile Include="UI\Players\IPlayListFactory.cs" />
-    <Compile Include="UI\Players\IPlaylistIO.cs" />
-    <Compile Include="UI\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Players\IPlayer.cs" />
+    <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
+    <Compile Include="Presentation\Players\IPlayerCollection.cs" />
+    <Compile Include="Presentation\Players\IPlayerFactory.cs" />
+    <Compile Include="Presentation\Players\IPlayList.cs" />
+    <Compile Include="Presentation\Players\IPlayListFactory.cs" />
+    <Compile Include="Presentation\Players\IPlaylistIO.cs" />
+    <Compile Include="Presentation\Players\IPlayListManager.cs" />
     <Compile Include="Core\PluginManager\IAutoStart.cs" />
     <Compile Include="Core\PluginManager\IPluginBuilder.cs" />
     <Compile Include="Core\PluginManager\INodeItem.cs" />
@@ -193,8 +193,8 @@
     <Compile Include="Core\UserManagement\IRole.cs" />
     <Compile Include="Core\UserManagement\IUser.cs" />
     <Compile Include="Core\UserManagement\IUserService.cs" />
-    <Compile Include="UI\WindowManager\IWindow.cs" />
-    <Compile Include="UI\WindowManager\IWindowManager.cs" />
+    <Compile Include="Presentation\WindowManager\IWindow.cs" />
+    <Compile Include="Presentation\WindowManager\IWindowManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Media\MediaManager\MediaManager class diagram.cd" />
