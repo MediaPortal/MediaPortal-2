@@ -4,14 +4,14 @@
         description = "Media Plugin">
 
   <Manifest>
-    <Identity name = "MyMedia.Model"/>
+    <Identity name = "Models.Media.Model"/>
   </Manifest>
 
   <Runtime>
-    <Import assembly = "MyMedia.dll"/>
+    <Import assembly = "Media.dll"/>
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "MyMedia" class = "MyMedia.Model"/>
+    <Class id = "MyMedia" class = "Models.Media.Model"/>
   </Register>
 </Plugin>

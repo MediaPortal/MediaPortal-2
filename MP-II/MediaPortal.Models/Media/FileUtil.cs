@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace MyMedia
+namespace Models.Media
 {
   public class FileUtil
   {

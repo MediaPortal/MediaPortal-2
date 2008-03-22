@@ -26,11 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
 
-namespace MyMedia
+namespace Models.Media
 {
   public class MediaFactory
   {

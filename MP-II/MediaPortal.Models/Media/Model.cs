@@ -25,7 +25,7 @@
 using System;
 using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
@@ -36,7 +36,7 @@ using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.MediaManager;
 
-namespace MyMedia
+namespace Models.Media
 {
   /// <summary>
   /// Model which exposes a movie collection

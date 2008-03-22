@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MyMedia
+namespace Models.Media
 {
   public class MediaSettings
   {

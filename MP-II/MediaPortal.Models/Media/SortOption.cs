@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MyMedia
+namespace Models.Media
 {
   public enum SortOption
   {

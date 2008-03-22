@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 
-namespace MyMedia
+namespace Models.Media
 {
  
   internal class MediaComparer : IComparer<ListItem>
