@@ -4,7 +4,7 @@
         description = "Settings Plugin">
 
   <Manifest>
-    <Identity name = "Settings.General"/>
+    <Identity name = "Models.Settings.General"/>
   </Manifest>
 
   <Runtime>
@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Models">
-    <Class id = "Settings" class = "Settings.General"/>
+    <Class id = "Settings" class = "Models.Settings.General"/>
   </Register>
 </Plugin>

@@ -7,7 +7,7 @@
     <ProjectGuid>{F3ADA862-5671-49DC-B04A-2975221603CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Settings</RootNamespace>
+    <RootNamespace>Models.Settings</RootNamespace>
     <AssemblyName>Settings</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

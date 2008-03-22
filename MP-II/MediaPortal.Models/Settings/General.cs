@@ -28,13 +28,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Globalization;
 using MediaPortal.Core;
-using MediaPortal.Core.Collections;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.PluginManager;
 
-namespace Settings
+namespace Models.Settings
 {
   public class General : IPlugin
   {
