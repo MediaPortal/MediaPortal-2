@@ -61,8 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="database\Database.cs" />
-    <Compile Include="database\DatabaseCache.cs" />
+    <Compile Include="database\ThumbDatabase.cs" />
+    <Compile Include="database\ThumbDatabaseCache.cs" />
     <Compile Include="database\Thumb.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
