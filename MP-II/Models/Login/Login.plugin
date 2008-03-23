@@ -11,7 +11,7 @@
     <Import assembly = "Login.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
+  <Register location = "/Models/MyLogin">
     <Class id = "MyLogin" class = "Models.Login.LoginModel"/>
   </Register>
 </Plugin>

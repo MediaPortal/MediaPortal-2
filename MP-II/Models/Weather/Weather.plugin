@@ -11,7 +11,7 @@
     <Import assembly = "Weather.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
+  <Register location = "/Models/Weather">
     <Class id = "MyWeather" class = "Models.Weather.WeatherViewModel"/>
   </Register>
 </Plugin>

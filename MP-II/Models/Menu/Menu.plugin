@@ -11,7 +11,7 @@
     <Import assembly = "Menu.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "Menu" class = "Models.HomeMenu.HomeMenu"/>
+  <Register location = "/Models/Menu">
+    <Class id = "HomeMenu" class = "Models.HomeMenu.HomeMenu"/>
   </Register>
 </Plugin>

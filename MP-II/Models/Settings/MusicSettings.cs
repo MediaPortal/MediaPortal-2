@@ -34,15 +34,26 @@ using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.PluginManager;
 
 using Media.Players.BassPlayer;
 
 namespace Models.Settings
 {
-  public class MusicSettings
+  public class MusicSettings : IPlugin
   {
     ItemsCollection _mainMenu;
     BassPlayerSettings _settings;
+    
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
 
     public MusicSettings()
     {

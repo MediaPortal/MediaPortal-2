@@ -32,14 +32,25 @@ using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Core.PluginManager;
 
 namespace Models.Settings
 {
-  public class RefreshrateSettings
+  public class RefreshrateSettings : IPlugin
   {
     ItemsCollection _mainMenu;
     ItemsCollection _refreshrates;
     ItemsCollection _refreshRateControl;
+    
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+    #endregion
 
     public RefreshrateSettings()
     {

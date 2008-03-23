@@ -97,7 +97,7 @@ namespace Presentation.SkinEngine.Skin
       Model model = SkinEngine.ModelManager.Instance.GetModel(assemblyName, className);
       if (model == null)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model: {0}.{1}", assemblyName, className);
+        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model: assemblyName: {0} class:{1}", assemblyName, className);
         return;
       }
       PropertyInfo info = obj.GetType().GetProperty("Context");

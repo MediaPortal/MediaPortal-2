@@ -11,7 +11,7 @@
     <Import assembly = "Extensions.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "MyExtensions" class = "Models.Extensions.Model"/>
+  <Register location = "/Models/MyExtensions">
+    <Class id = "Model" class = "Models.Extensions.Model"/>
   </Register>
 </Plugin>

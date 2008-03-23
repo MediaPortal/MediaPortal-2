@@ -11,7 +11,7 @@
     <Import assembly = "Media.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "MyMedia" class = "Models.Media.Model"/>
+  <Register location = "/Models/MyMedia">
+    <Class id = "Model" class = "Models.Media.Model"/>
   </Register>
 </Plugin>

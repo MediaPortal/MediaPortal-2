@@ -11,7 +11,7 @@
     <Import assembly = "HelloWorld.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "Helloworld" class = "Models.HelloWorld.Model"/>
+  <Register location = "/Models/HelloWorld">
+    <Class id = "Model" class = "Models.MyHelloWorld.Model"/>
   </Register>
 </Plugin>

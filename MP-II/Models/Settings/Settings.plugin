@@ -10,8 +10,11 @@
   <Runtime>
     <Import assembly = "Settings.dll"/>
   </Runtime>
-
-  <Register location = "/Models">
-    <Class id = "Settings" class = "Models.Settings.General"/>
+  <Register location = "/Models/Settings">
+    <Class id = "General" class = "Models.Settings.General"/>
+	<Class id = "RefreshrateSettings" class = "Models.Settings.RefreshrateSettings"/>
+	<Class id = "Appearance" class = "Models.Settings.Appearance"/>
+	<Class id = "MusicSettings" class = "Models.Settings.MusicSettings"/>
+    <Class id = "VideoSettings" class = "Models.Settings.VideoSettings"/>
   </Register>
 </Plugin>

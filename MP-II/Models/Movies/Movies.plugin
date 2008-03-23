@@ -11,7 +11,7 @@
     <Import assembly = "Movies.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "MyMovies" class = "Models.Movies.Model"/>
+  <Register location = "/Models/MyMovies">
+    <Class id = "Model" class = "Models.Movies.Model"/>
   </Register>
 </Plugin>

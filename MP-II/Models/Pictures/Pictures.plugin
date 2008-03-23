@@ -11,7 +11,7 @@
     <Import assembly = "Pictures.dll"/>
   </Runtime>
 
-  <Register location = "/Models">
-    <Class id = "MyPicture" class = "Models.Pictures.PictureModel"/>
+  <Register location = "/Models/mypicture">
+    <Class id = "PictureModel" class = "Models.Pictures.PictureModel"/>
   </Register>
 </Plugin>
