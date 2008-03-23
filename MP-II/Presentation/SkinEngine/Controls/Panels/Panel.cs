@@ -34,7 +34,6 @@ using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Controls.Brushes;
-using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
 using Rectangle = System.Drawing.Rectangle;
