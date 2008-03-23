@@ -34,6 +34,12 @@ namespace MediaPortal.Core.Logging
     #region ILogger Members
 
     /// <summary>
+    /// Writes a Critical error <see cref="Exception"/> to the log.
+    /// </summary>
+    /// <param name="ex">The <see cref="Exception"/> to write.</param>
+    public void Critical(Exception ex) { }
+
+    /// <summary>
     /// Writes a critical system message to the log.
     /// </summary>
     /// <param name="format">A composite format string.</param>

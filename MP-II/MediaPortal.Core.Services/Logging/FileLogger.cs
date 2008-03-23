@@ -134,6 +134,12 @@ namespace MediaPortal.Services.Logging
     public void Critical(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Critical);
+
+    }
+
+    public void Critical(Exception ex)
+    {
+      WriteException(ex);
     }
 
     #endregion
@@ -225,6 +231,10 @@ namespace MediaPortal.Services.Logging
         using (StreamWriter writer = new StreamWriter(_FileName, true))
         {
           writer.WriteLine(messageBuilder.ToString());
+          if (messageLevel == LogLevel.Critical)
+          {
+            writer.Flush();
+          }
         }
       }
       finally

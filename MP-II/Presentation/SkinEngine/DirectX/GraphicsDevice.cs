@@ -101,8 +101,8 @@ namespace Presentation.SkinEngine
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("GraphicsDevice: failed to setup directx");
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: failed to setup directx");
+        ServiceScope.Get<ILogger>().Critical(ex);
       }
     }
 
