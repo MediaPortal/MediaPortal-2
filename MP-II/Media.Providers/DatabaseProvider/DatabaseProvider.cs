@@ -36,14 +36,15 @@ namespace Media.Providers.DatabaseProvider
 
     public DatabaseProvider() { }
 
-
+    #region IPlugin Members
     public void Initialize(string id)
     {
-      // ServiceScope.Get<IMediaManager>().Register(this);
     }
+    #endregion
 
     public void Dispose() { }
 
+    #region IProvider Members
     /// <summary>
     /// get the root containers for this provider
     /// </summary>
@@ -87,5 +88,6 @@ namespace Media.Providers.DatabaseProvider
       return new List<IAbstractMediaItem>();
 
     }
+    #endregion
   }
 }

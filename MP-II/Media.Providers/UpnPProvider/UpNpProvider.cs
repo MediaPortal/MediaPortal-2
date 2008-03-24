@@ -48,15 +48,6 @@ namespace Media.Providers.UpNpProvider
 
     #endregion
 
-    public void Initialize(string id)
-    {
-      //ServiceScope.Get<IMediaManager>().Register(this);
-    }
-
-    public void Dispose() { }
-
-    #region IProvider Members
-
     /// <summary>
     /// Initializes a new instance of the <see cref="UpNpProvider"/> class.
     /// </summary>
@@ -72,6 +63,15 @@ namespace Media.Providers.UpNpProvider
       // startupThread.Start();
       Start();
     }
+
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+    #endregion
+
+    public void Dispose() { }
+
 
     /// <summary>
     /// Starts the upnp provider.
@@ -134,6 +134,7 @@ namespace Media.Providers.UpNpProvider
       }
     }
 
+    #region IProvider Members
     /// <summary>
     /// get the root containers for this provider
     /// </summary>
