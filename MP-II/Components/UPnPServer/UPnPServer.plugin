@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "UPnPServer" class = "Components.UPnPServer.UPnPServer" insertafter="MediaManager" insertbefore="DirectxGui"/>
+    <Class id = "UPnPServer" class = "Components.UPnPServer.UPnPServer" insertbefore="SkinEngine"/>
   </Register>
 </Plugin>
