@@ -125,9 +125,9 @@ namespace Presentation.SkinEngine
     /// <param name="className">Name of the class.</param>
     public void Load(string assemblyName, string className)
     {
-      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model plugin: {0} class:{1}", assemblyName, className);
+      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model assemblyName: {0} class:{1}", assemblyName, className);
 
-      
+
       try
       {
         object model = ServiceScope.Get<IPluginManager>().GetPluginItem<IPlugin>("/Models/" + assemblyName, className);
@@ -140,34 +140,9 @@ namespace Presentation.SkinEngine
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Debug("ModelManager: failed to load model plugin:{0} class:{1}", assemblyName,
-                                          className);
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Critical("ModelManager: failed to load model assemblyName:{0} class:{1}", assemblyName, className);
+        ServiceScope.Get<ILogger>().Critical(ex);
       }
-      
-      /*
-      try
-      {
-        string assemblyFileName = String.Format(@"{0}\models\{1}.dll", Directory.GetCurrentDirectory(), assemblyName);
-        Assembly assembly = Assembly.LoadFile(assemblyFileName);
-        Type[] exportedTypes = assembly.GetExportedTypes();
-        for (int i = 0; i < exportedTypes.Length; ++i)
-        {
-          if (exportedTypes[i].IsClass && exportedTypes[i].Name == className)
-          {
-            object model = Activator.CreateInstance(exportedTypes[i]);
-            _models.Add(new Model(assemblyName, className, exportedTypes[i], model));
-            return;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Debug("ModelManager: failed to load model assembly:{0} class:{1}", assemblyName,
-                                          className);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-      */
     }
   }
 }
