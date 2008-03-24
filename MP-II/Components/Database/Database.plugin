@@ -12,7 +12,7 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "Database" class = "Components.Database.DatabasePlugin" insertbefore = "MediaManager"/>
+    <Class id = "Database" class = "Components.Database.DatabasePlugin" insertbefore = "SkinEngine"/>
   </Register>
 
   <Register location = "/Databases">

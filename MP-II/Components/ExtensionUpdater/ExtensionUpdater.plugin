@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/AutoStart">
-    <Class id = "ExtensionUpdater" class = "MediaPortal.Plugins.ExtensionUpdater.ExtensionUpdater" insertafter="MediaManager" insertbefore="DirectxGui"/>
+    <Class id = "ExtensionUpdater" class = "MediaPortal.Plugins.ExtensionUpdater.ExtensionUpdater" insertbefore="SkinEngine"/>
   </Register>
 </Plugin>
