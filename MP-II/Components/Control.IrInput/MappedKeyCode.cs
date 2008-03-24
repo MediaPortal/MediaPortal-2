@@ -26,9 +26,8 @@ using System;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 
-namespace MediaPortal.MyInput
+namespace Components.Control.IrInput
 {
-
   [XmlRoot]
   public class MappedKeyCode
   {

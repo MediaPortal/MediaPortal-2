@@ -40,15 +40,14 @@ using MediaPortal.Core.Settings;
 using IrssComms;
 using IrssUtils;
 
-namespace MediaPortal.MyInput
+namespace Components.Control.IrInput
 {
 
   /// <summary>
   /// MediaPortal Input Service plugin.
   /// </summary>
-  public class MyInput : IPlugin, IAutoStart
+  public class IrInputPlugin : IPlugin, IAutoStart
   {
-
     #region IPlugin Members
 
     public void Initialize(string id)
@@ -80,7 +79,7 @@ namespace MediaPortal.MyInput
 
     #region Variables
 
-    MyInputSettings _settings;
+    IrInputSettings _settings;
     Client _client;
     //string _learnIRFilename;
     //bool _registered;
@@ -97,7 +96,7 @@ namespace MediaPortal.MyInput
 
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>(true);
       
-      _settings = new MyInputSettings();
+      _settings = new IrInputSettings();
       settingsManager.Load(_settings);
 
       if (_settings.RemoteMap == null)

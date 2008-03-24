@@ -26,13 +26,12 @@ using System.Collections.Generic;
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.MyInput
+namespace Components.Control.IrInput
 {
-
   /// <summary>
   /// Settings class for MyInput.
   /// </summary>
-  public class MyInputSettings
+  public class IrInputSettings
   {
 
     #region Variables

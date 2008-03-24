@@ -1,0 +1,17 @@
+<Plugin name        = "IrInput"
+        author      = "and-81"
+        copyright   = "GPL"
+        description = "Ir Input Service plugin">
+
+  <Manifest>
+    <Identity name = "Components.Control.IrInput.IrInputPlugin"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Control.IrInput.dll"/>
+  </Runtime>
+
+  <Register location = "/AutoStart">
+    <Class id = "IrInput" class = "Components.Control.IrInput.IrInputPlugin" insertbefore="SkinEngine"/>
+  </Register>
+</Plugin>
