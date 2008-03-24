@@ -37,7 +37,7 @@ using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
 
-namespace MyHelloWorld
+namespace Models.HelloWorld
 {
   /// <summary>
   /// Example for a Viewmodel

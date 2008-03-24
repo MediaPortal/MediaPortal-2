@@ -12,6 +12,6 @@
   </Runtime>
 
   <Register location = "/Models/HelloWorld">
-    <Class id = "Model" class = "Models.MyHelloWorld.Model"/>
+    <Class id = "Model" class = "Models.HelloWorld.Model"/>
   </Register>
 </Plugin>
