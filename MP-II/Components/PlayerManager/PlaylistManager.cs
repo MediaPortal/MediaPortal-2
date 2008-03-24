@@ -31,7 +31,7 @@ using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Plugins.PlayerManager
+namespace Components.Services.PlayerManager
 {
   public class PlaylistManager : IPlaylistManager
   {

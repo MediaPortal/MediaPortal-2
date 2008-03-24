@@ -34,7 +34,7 @@ using MediaPortal.Media.MediaManager;
 
 using MediaPortal.Utilities.Files;
 
-namespace MediaPortal.Plugins.PlayerManager
+namespace Components.Services.PlayerManager.PlayListIO
 {
   /// <summary>
   /// Loads a Playlist in PLS Format

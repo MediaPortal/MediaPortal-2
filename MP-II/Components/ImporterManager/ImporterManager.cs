@@ -37,7 +37,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Plugins.Services.Importers
+namespace Components.Services.Importers
 {
   public class ImporterManager : IImporterManager, IPlugin
   {

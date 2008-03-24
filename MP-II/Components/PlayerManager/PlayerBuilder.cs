@@ -33,7 +33,7 @@ using MediaPortal.Presentation.Players;
 
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Plugins.PlayerManager
+namespace Components.Services.PlayerManager
 {
   class PlayerBuilder : IPluginBuilder, IPlayerBuilder
   {

@@ -24,79 +24,60 @@
 
 using System;
 using System.Collections.Generic;
-using MediaManager.Views;
+
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaManager
-{
-  public class MediaManager : IPlugin, IAutoStart, IMediaManager
-	{
-		#region Variables
-		private readonly List<IProvider> _providers;
-    private readonly List<IRootContainer> _views;
-		#endregion
+using Components.Services.MediaManager.Views;
 
-		#region Constructors
-		/// <summary>
+namespace Components.Services.MediaManager
+{
+  public class MediaManager : IPlugin, IMediaManager
+  {
+    #region Variables
+    private bool _providerPluginsLoaded = false;
+    private readonly List<IProvider> _providers;
+    private readonly List<IRootContainer> _views;
+    #endregion
+
+    #region Constructors
+    /// <summary>
     /// Initializes a new instance of the <see cref="MediaManager"/> class.
     /// </summary>
     public MediaManager()
     {
       _providers = new List<IProvider>();
       _views = new List<IRootContainer>();
-		}
-		#endregion
-		
-		#region IPlugin Implementation
-		/// <summary>
-    /// Initializes the specified id.
-    /// </summary>
-    /// <param name="id">The id.</param>
-    public void Initialize(string id) { }
-		#endregion
+    }
+    #endregion
 
-		#region IAutoStart Implementation
-		/// <summary>
-    /// Startups this instance.
+    #region IPlugin Implementation
+    /// <summary>
+    /// Initializes this instance.
     /// </summary>
-    public void Startup()
+    public void Initialize(string id)
     {
-      ServiceScope.Add<IMediaManager>(this);
-      foreach (IProvider provider in ServiceScope.Get<IPluginManager>().GetAllPluginItems<IProvider>("/Media/Providers"))
+      ViewLoader loader = new ViewLoader();
+      string[] files = System.IO.Directory.GetFiles("Views");
+      for (int i = 0; i < files.Length; ++i)
       {
-        ServiceScope.Get<IMediaManager>().Register(provider);
+        MediaContainer cont = loader.Load(files[i]);
+        Register(cont);
       }
-      Initialize();
-		}
+    }
+    #endregion
 
-		/// <summary>
-		/// Initializes this instance.
-		/// </summary>
-		private void Initialize()
-		{
-
-			ViewLoader loader = new ViewLoader();
-			string[] files = System.IO.Directory.GetFiles("Views");
-			for (int i = 0; i < files.Length; ++i)
-			{
-				MediaContainer cont = loader.Load(files[i]);
-				Register(cont);
-			}
-		}
-		#endregion
-
-		/// <summary>
+    /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose() { }
 
-		#region IMediaManager Implementation
-		#region Properties
-		/// <summary>
+    #region IMediaManager Implementation
+    #region Properties
+    /// <summary>
     /// Gets the providers.
     /// </summary>
     /// <value>The providers.</value>
@@ -104,6 +85,8 @@ namespace MediaManager
     {
       get
       {
+        LoadProviderPlugins();
+
         return _providers;
       }
     }
@@ -118,10 +101,10 @@ namespace MediaManager
       {
         return _views;
       }
-		}
-		#endregion
+    }
+    #endregion
 
-		/// <summary>
+    /// <summary>
     /// Registers the specified provider.
     /// </summary>
     /// <param name="provider">The provider.</param>
@@ -161,6 +144,9 @@ namespace MediaManager
       get
       {
         List<IRootContainer> list = new List<IRootContainer>();
+
+        LoadProviderPlugins();
+
         foreach (IProvider provider in _providers)
         {
           List<IRootContainer> subContainers = provider.RootContainers;
@@ -225,11 +211,27 @@ namespace MediaManager
         return GetRoot().Items;
       }
       return parentItem.Items;
-		}
-		#endregion
+    }
+    #endregion
 
-		#region Private methods
-		/// <summary>
+    #region Private methods
+
+    /// <summary>
+    /// Loads the provider plugins and registers them
+    /// </summary>
+    private void LoadProviderPlugins()
+    {
+      if (!_providerPluginsLoaded)
+      {
+        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().GetAllPluginItems<IProvider>("/Media/Providers"))
+        {
+          this.Register(provider);
+        }
+        _providerPluginsLoaded = true;
+      }
+    }
+
+    /// <summary>
     /// Finds the item.
     /// </summary>
     /// <param name="parent">The parent.</param>
@@ -263,6 +265,9 @@ namespace MediaManager
       {
         root.Items.Add(view);
       }
+
+      LoadProviderPlugins();
+
       foreach (IProvider provider in _providers)
       {
         if (provider.RootContainers == null)
@@ -274,26 +279,26 @@ namespace MediaManager
         }
       }
       return root;
-		}
-		#endregion
+    }
+    #endregion
 
-		#region IStatus Implementation
-		public List<string> GetStatus()
-		{
-			List<string> status = new List<string>();
-			status.Add("=== MediaManager - Providers");
-			foreach (IProvider provider in _providers)
-			{
-				status.Add(string.Format("     Provider = {0}", provider.Title));
-			}
-			status.Add("=== MediaManager - Views");
-			foreach (IRootContainer _view in _views)
-			{
-				status.Add(string.Format("     View = {0}", _view.Title));
-			}
+    #region IStatus Implementation
+    public List<string> GetStatus()
+    {
+      List<string> status = new List<string>();
+      status.Add("=== MediaManager - Providers");
+      foreach (IProvider provider in _providers)
+      {
+        status.Add(string.Format("     Provider = {0}", provider.Title));
+      }
+      status.Add("=== MediaManager - Views");
+      foreach (IRootContainer _view in _views)
+      {
+        status.Add(string.Format("     View = {0}", _view.Title));
+      }
 
-			return status;
-		}
-		#endregion
-	}
+      return status;
+    }
+    #endregion
+  }
 }

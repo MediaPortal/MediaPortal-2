@@ -1,5 +1,5 @@
 <Plugin name        = "AutoPlay Service"
-        author      = "hwahrmann"
+        author      = "Team MediaPortal"
         copyright   = "GPL"
         description = "Service that detects media changes and starts playback.">
 
@@ -8,7 +8,7 @@
   </Manifest>
 
   <Runtime>
-    <Import assembly = "AutoPlay.dll"/>
+    <Import assembly = "Services.AutoPlay.dll"/>
   </Runtime>
 
   <Register location = "/Services">

@@ -1,0 +1,17 @@
+<Plugin name        = "MediaManager"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "MediaManager">
+
+  <Manifest>
+    <Identity name = "Components.Services.MediaManager.MediaManager"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Services.MediaManager.dll"/>
+  </Runtime>
+
+  <Register location = "/Services">
+    <Class id = "IMediaManager" class = "Components.Services.MediaManager.MediaManager"/>
+  </Register>
+</Plugin>

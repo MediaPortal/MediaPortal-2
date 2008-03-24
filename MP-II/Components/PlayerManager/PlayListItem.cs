@@ -29,7 +29,7 @@ using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Plugins.PlayerManager
+namespace Components.Services.PlayerManager
 {
   public class PlayListItem : IMediaItem
   {

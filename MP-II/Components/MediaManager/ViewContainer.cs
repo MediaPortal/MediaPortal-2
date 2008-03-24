@@ -29,9 +29,9 @@ using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MetaData;
 
-using MediaManager.Views;
+using Components.Services.MediaManager.Views;
 
-namespace MediaManager
+namespace Components.Services.MediaManager
 {
   public class ViewContainer : IRootContainer
   {

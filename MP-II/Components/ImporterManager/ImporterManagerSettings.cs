@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Plugins.Services.Importers
+namespace Components.Services.Importers
 {
   [Serializable]
   public class Share

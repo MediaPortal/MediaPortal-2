@@ -30,7 +30,7 @@ using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaManager.Views
+namespace Components.Services.MediaManager.Views
 {
   public class ViewNavigator
   {

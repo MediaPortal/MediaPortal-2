@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Plugins.Services.Importers
+namespace Components.Services.Importers
 {
   public class FileChangeEvent
   {

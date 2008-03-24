@@ -31,7 +31,9 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Plugins.PlayerManager
+using Components.Services.PlayerManager.PlayListIO;
+
+namespace Components.Services.PlayerManager
 {
   public class PlaylistFactory : IPlaylistFactory
   {

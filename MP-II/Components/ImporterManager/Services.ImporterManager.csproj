@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{EC4B2593-C535-4D63-84E3-F8B7CD876F63}</ProjectGuid>
+    <ProjectGuid>{6834C0AF-FCE6-4998-8DCC-F9E08F52E0D7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.PlayerManager</RootNamespace>
-    <AssemblyName>PlayerManager</AssemblyName>
+    <RootNamespace>Components.Services.ImporterManager</RootNamespace>
+    <AssemblyName>Services.ImporterManager</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\PlayerManager.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\Services.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -56,28 +56,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PlayerFactory.cs" />
-    <Compile Include="PlayerBuilder.cs" />
-    <Compile Include="PlayList.cs" />
-    <Compile Include="PlayListFactory.cs" />
-    <Compile Include="PlaylistIO\PlayListM3uIO.cs" />
-    <Compile Include="PlaylistIO\PlayListPLSIO.cs" />
-    <Compile Include="PlayListItem.cs" />
-    <Compile Include="PlaylistManager.cs" />
+    <Compile Include="DelayedFileSystemWatcher.cs" />
+    <Compile Include="FileChangeEvent.cs" />
+    <Compile Include="ImporterBuilder.cs" />
+    <Compile Include="ImporterManager.cs" />
+    <Compile Include="ImporterManagerSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PlayerManager.plugin" />
+    <Compile Include="WatchedFolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Services.ImporterManager.plugin" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -88,7 +82,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

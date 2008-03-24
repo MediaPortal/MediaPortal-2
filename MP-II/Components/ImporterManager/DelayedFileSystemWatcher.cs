@@ -28,7 +28,7 @@ using System.Timers;
 using System.Collections;
 using System.ComponentModel;
 
-namespace MediaPortal.Plugins.Services.Importers
+namespace Components.Services.Importers
 {
   /// <summary>
   /// The standard FileSystemWatcher raises numerous change events for a single change.

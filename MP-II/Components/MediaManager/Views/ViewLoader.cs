@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager.Views;
 
-namespace MediaManager.Views
+namespace Components.Services.MediaManager.Views
 {
   public class ViewLoader
   {

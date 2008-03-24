@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6834C0AF-FCE6-4998-8DCC-F9E08F52E0D7}</ProjectGuid>
+    <ProjectGuid>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ImporterManager</RootNamespace>
-    <AssemblyName>ImporterManager</AssemblyName>
+    <RootNamespace>Components.Services.MediaManager</RootNamespace>
+    <AssemblyName>Services.MediaManager</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\ImporterManager.XML</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\Services.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -56,13 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DelayedFileSystemWatcher.cs" />
-    <Compile Include="FileChangeEvent.cs" />
-    <Compile Include="ImporterBuilder.cs" />
-    <Compile Include="ImporterManager.cs" />
-    <Compile Include="ImporterManagerSettings.cs" />
+    <Compile Include="MediaContainer.cs" />
+    <Compile Include="MediaManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WatchedFolder.cs" />
+    <Compile Include="ViewContainer.cs" />
+    <Compile Include="Views\View.cs" />
+    <Compile Include="Views\ViewLoader.cs" />
+    <Compile Include="Views\ViewNavigator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
@@ -71,7 +71,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ImporterManager.plugin" />
+    <None Include="Services.MediaManager.plugin" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -82,7 +82,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Services.$(ProjectName)\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

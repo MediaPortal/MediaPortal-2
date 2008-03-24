@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
-namespace MediaManager
+namespace Components.Services.MediaManager
 {
   public class MediaContainer : IRootContainer
   {

@@ -30,7 +30,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
 
-namespace MediaPortal.Plugins.PlayerManager
+namespace Components.Services.PlayerManager
 {
   public class PlayerFactory : IPlayerFactory, IPlugin
   {
