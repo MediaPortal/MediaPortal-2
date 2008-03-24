@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Services.MetaData
+namespace Components.Services.MetaDataMapper
 {
   public class MetadataMappingItem : IMetadataMappingItem
   {

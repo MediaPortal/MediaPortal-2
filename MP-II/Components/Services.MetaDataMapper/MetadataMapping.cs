@@ -25,44 +25,50 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 using MediaPortal.Media.MetaData;
+using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Services.MetaData
+namespace Components.Services.MetaDataMapper
 {
-  public class DateTimeFormatter : IMetaDataFormatter
+  public class MetadataMapping : IMetadataMapping
   {
-    #region IMetaDataFormatter Members
+    StringId localizedName;
+    List<IMetadataMappingItem> _items;
+    #region IMetadataMapping Members
 
-    public string Name
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MetadataMapping"/> class.
+    /// </summary>
+    public MetadataMapping()
+    {
+      _items = new List<IMetadataMappingItem>();
+    }
+
+    /// <summary>
+    /// Gets or sets the localized name for this mapping
+    /// </summary>
+    /// <value>The localized name.</value>
+    public StringId LocalizedName
     {
       get
       {
-        return "date";
+        return localizedName;
       }
       set
       {
+        localizedName = value;
       }
     }
 
-    public DateTime GetDate(object metaData)
+    /// <summary>
+    /// Gets the mapping items.
+    /// </summary>
+    /// <value>The mapping items.</value>
+    public List<IMetadataMappingItem> Items
     {
-      if (metaData == null) return DateTime.MinValue;
-      if (metaData.GetType() != typeof(DateTime)) return DateTime.MinValue;
-      return (DateTime)metaData;
+      get { return _items; }
     }
-    public string Format(object metaData, string formatting)
-    {
-      DateTime dt = GetDate(metaData);
-      if (String.IsNullOrEmpty(formatting)) return dt.ToString();
-      return dt.ToString(formatting);
-    }
-    public int CompareTo(object metaData1, object metaData2)
-    {
-      DateTime dt1 = GetDate(metaData1);
-      DateTime dt2 = GetDate(metaData2);
-      return dt1.CompareTo(dt2);
-    }
+
     #endregion
   }
 }

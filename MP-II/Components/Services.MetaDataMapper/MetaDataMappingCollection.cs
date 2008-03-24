@@ -26,47 +26,36 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Services.MetaData
+namespace Components.Services.MetaDataMapper
 {
-  public class MetadataMapping : IMetadataMapping
+  public class MetaDataMappingCollection : IMetaDataMappingCollection
   {
-    StringId localizedName;
-    List<IMetadataMappingItem> _items;
-    #region IMetadataMapping Members
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MetadataMapping"/> class.
-    /// </summary>
-    public MetadataMapping()
+    List<IMetadataMapping> _mappings;
+    public MetaDataMappingCollection()
     {
-      _items = new List<IMetadataMappingItem>();
+      _mappings = new List<IMetadataMapping>();
+    }
+    #region IMetaDataMappingCollection Members
+
+    public void Add(IMetadataMapping mapping)
+    {
+      _mappings.Add(mapping);
     }
 
-    /// <summary>
-    /// Gets or sets the localized name for this mapping
-    /// </summary>
-    /// <value>The localized name.</value>
-    public StringId LocalizedName
+    public List<IMetadataMapping> Mappings
     {
       get
       {
-        return localizedName;
-      }
-      set
-      {
-        localizedName = value;
+        return _mappings;
       }
     }
-
-    /// <summary>
-    /// Gets the mapping items.
-    /// </summary>
-    /// <value>The mapping items.</value>
-    public List<IMetadataMappingItem> Items
+    public int Count
     {
-      get { return _items; }
+      get
+      {
+        return _mappings.Count;
+      }
     }
 
     #endregion

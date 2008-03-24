@@ -1,0 +1,18 @@
+<Plugin name        = "MetaDataMapper"
+        author      = "Team MediaPortal"
+        copyright   = "GPL"
+        description = "MetaDataMapper">
+
+  <Manifest>
+    <Identity name = "Components.Services.MetaDataMapper.MetaDataMapperPlugin"/>
+  </Manifest>
+
+  <Runtime>
+    <Import assembly = "Services.MetaDataMapper.dll"/>
+  </Runtime>
+
+  <Register location = "/Services">
+        <Class id = "IMetaDataFormatterCollection" class = "Components.Services.MetaDataMapper.MetaDataFormatterCollection"/>
+        <Class id = "IMetadataMappingProvider" class = "Components.Services.MetaDataMapper.MetadataMappingProvider"/>
+  </Register>
+</Plugin>

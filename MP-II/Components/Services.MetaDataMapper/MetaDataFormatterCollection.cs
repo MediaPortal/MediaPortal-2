@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Services.MetaData
+using Components.Services.MetaDataMapper.Formatters;
+
+namespace Components.Services.MetaDataMapper
 {
   public class MetaDataFormatterCollection : IMetaDataFormatterCollection
   {

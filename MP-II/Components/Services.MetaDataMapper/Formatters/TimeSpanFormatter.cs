@@ -27,51 +27,66 @@ using System.Collections.Generic;
 using System.Text;
 
 using MediaPortal.Media.MetaData;
-namespace MediaPortal.Services.MetaData
+
+
+namespace Components.Services.MetaDataMapper.Formatters
 {
-  public class TextFormatter : IMetaDataFormatter
+  public class TimeSpanFormatter : IMetaDataFormatter
   {
     #region IMetaDataFormatter Members
 
-    /// <summary>
-    /// Gets or sets the name for the formatter
-    /// </summary>
-    /// <value>The name.</value>
     public string Name
     {
       get
       {
-        return "text";
+        return "timespan";
       }
       set
       {
       }
     }
-    string GetText(object metaData)
-    {
-      if (metaData == null) return "";
-      return metaData.ToString();
-    }
 
-    /// <summary>
-    /// Formats the specified metadata object into the correct representation
-    /// </summary>
-    /// <param name="metaData">The metadata object.</param>
-    /// <param name="formatting">The formatting to use.</param>
-    /// <returns>
-    /// string containing the formatted metadata object
-    /// </returns>
+    TimeSpan GetTimeSpan(object metaData)
+    {
+      if (metaData == null) return new TimeSpan();
+      TimeSpan ts = new TimeSpan();
+      if (metaData.GetType() == typeof(TimeSpan))
+      {
+        ts = (TimeSpan)metaData;
+      }
+      if (metaData.GetType() == typeof(int))
+      {
+        int secs = (int)metaData;
+        ts = new TimeSpan(0, 0, secs);
+      }
+      if (metaData.GetType() == typeof(long))
+      {
+        long secs = (long)metaData;
+        ts = new TimeSpan(0, 0, (int)secs);
+      }
+      if (metaData.GetType() == typeof(uint))
+      {
+        uint secs = (uint)metaData;
+        ts = new TimeSpan(0, 0, (int)secs);
+      }
+      return ts;
+    }
     public string Format(object metaData, string formatting)
     {
-      return GetText(metaData);
-    }
-    public int CompareTo(object metaData1, object metaData2)
-    {
-      string t1 = GetText(metaData1);
-      string t2 = GetText(metaData2);
-      return t1.CompareTo(t2);
+      TimeSpan ts = GetTimeSpan(metaData);
+      if (String.IsNullOrEmpty(formatting)) return ts.ToString();
+      formatting = formatting.Replace("hh", String.Format("{0:00}", ts.Hours));
+      formatting = formatting.Replace("mm", String.Format("{0:00}", ts.Minutes));
+      formatting = formatting.Replace("ss", String.Format("{0:00}", ts.Seconds));
+      return formatting;
     }
 
+    public int CompareTo(object metaData1, object metaData2)
+    {
+      TimeSpan t1 = GetTimeSpan(metaData1);
+      TimeSpan t2 = GetTimeSpan(metaData2);
+      return t1.CompareTo(t2);
+    }
     #endregion
   }
 }

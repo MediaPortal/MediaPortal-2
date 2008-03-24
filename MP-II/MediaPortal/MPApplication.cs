@@ -22,106 +22,109 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
-using MediaPortal;
-using MediaPortal.Core;
-using MediaPortal.Core.Threading;
-using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.DeviceManager;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.MPIManager;
-using MediaPortal.Presentation.Players;
+// Class for running MP in separate Application domain
+// Currently in-active. Not decided if will be used again
+// 2008-03-24 James
+//using System;
+//using System.Diagnostics;
+//using MediaPortal;
+//using MediaPortal.Core;
+//using MediaPortal.Core.Threading;
+//using MediaPortal.Core.Localisation;
+//using MediaPortal.Core.Logging;
+//using MediaPortal.Core.PluginManager;
+//using MediaPortal.Core.Settings;
+//using MediaPortal.Core.DeviceManager;
+//using MediaPortal.Core.Messaging;
+//using MediaPortal.Core.MPIManager;
+//using MediaPortal.Presentation.Players;
 
-using MediaPortal.Media.Importers;
-using MediaPortal.Media.MetaData;
+//using MediaPortal.Media.Importers;
+//using MediaPortal.Media.MetaData;
 
-using MediaPortal.Services.Threading;
-using MediaPortal.Services.Localisation;
-using MediaPortal.Services.Logging;
-using MediaPortal.Services.PluginManager;
-using MediaPortal.Services.Settings;
-using MediaPortal.Services.Burning;
-using MediaPortal.Services.Messaging;
-using MediaPortal.Services.MPIManager;
-using MediaPortal.Services.MetaData;
+//using MediaPortal.Services.Threading;
+//using MediaPortal.Services.Localisation;
+//using MediaPortal.Services.Logging;
+//using MediaPortal.Services.PluginManager;
+//using MediaPortal.Services.Settings;
+//using MediaPortal.Services.Burning;
+//using MediaPortal.Services.Messaging;
+//using MediaPortal.Services.MPIManager;
+//using MediaPortal.Services.MetaData;
 
-//using MediaPortal.Utilities.CommandLine;
+////using MediaPortal.Utilities.CommandLine;
 
-/// <summary>
-/// FIXME: Please document the meaning of this class! Should it be deleted?
-/// Mar-16-2008 Albert78
-/// </summary>
-public class MPApplication : MarshalByRefObject
-{
-  public static bool Run(CommandLineOptions mpArgs)
-  {
-    using (new ServiceScope(true)) //This is the first servicescope
-    {
-      //Check whether the user wants to log method names in the logger
-      //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
-      bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
-      LogLevel level = LogLevel.All;
-      if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
-      {
-        level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
-      }
-      ILogger logger = new FileLogger(@"log\MediaPortal.log", level, logMethods);
-      ServiceScope.Add(logger);
-      logger.Info("MPApplication: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
-      //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
-      //             "Some code change has caused MP2 to load in the wrong AppDomain.  Crash recovery will fail now...");
-
-
-      //MPInstaller - for testing only 
-      logger.Debug("MPApplication: Executing MPInstaller");
-      MPInstaller Installer = new MPInstaller();
-      ServiceScope.Add<IMPInstaller>(Installer);
-      Installer.LoadQueue();
-      Installer.ExecuteQueue(false);
+///// <summary>
+///// FIXME: Please document the meaning of this class! Should it be deleted?
+///// Mar-16-2008 Albert78
+///// </summary>
+//public class MPApplication : MarshalByRefObject
+//{
+//  public static bool Run(CommandLineOptions mpArgs)
+//  {
+//    using (new ServiceScope(true)) //This is the first servicescope
+//    {
+//      //Check whether the user wants to log method names in the logger
+//      //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
+//      bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
+//      LogLevel level = LogLevel.All;
+//      if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
+//      {
+//        level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
+//      }
+//      ILogger logger = new FileLogger(@"log\MediaPortal.log", level, logMethods);
+//      ServiceScope.Add(logger);
+//      logger.Info("MPApplication: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+//      //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
+//      //             "Some code change has caused MP2 to load in the wrong AppDomain.  Crash recovery will fail now...");
 
 
-      //register core service implementations
-      logger.Debug("MPApplication: Registering ThreadPool");
-      MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
-      pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
-      pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
-      pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);
-      pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
-      ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
+//      //MPInstaller - for testing only 
+//      logger.Debug("MPApplication: Executing MPInstaller");
+//      MPInstaller Installer = new MPInstaller();
+//      ServiceScope.Add<IMPInstaller>(Installer);
+//      Installer.LoadQueue();
+//      Installer.ExecuteQueue(false);
 
-      logger.Debug("MPApplication: Registering Message Broker");
-      ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
-      logger.Debug("MPApplication: Registering Plugin Manager");
-      ServiceScope.Add<IPluginManager>(new PluginManager());
+//      //register core service implementations
+//      logger.Debug("MPApplication: Registering ThreadPool");
+//      MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
+//      pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
+//      pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
+//      pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);
+//      pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
+//      ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
 
-      logger.Debug("MPApplication: Registering Settings Manager");
-      ServiceScope.Add<ISettingsManager>(new SettingsManager());
+//      logger.Debug("MPApplication: Registering Message Broker");
+//      ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
-      logger.Debug("MPApplication: Registering Strings Manager");
-      ServiceScope.Add<ILocalisation>(new StringManager());
+//      logger.Debug("MPApplication: Registering Plugin Manager");
+//      ServiceScope.Add<IPluginManager>(new PluginManager());
 
-      //meta data mapper services
-      ServiceScope.Add<IMetaDataFormatterCollection>(new MetaDataFormatterCollection());
-      ServiceScope.Add<IMetadataMappingProvider>(new MetadataMappingProvider());
+//      logger.Debug("MPApplication: Registering Settings Manager");
+//      ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
-      BurnManager burnManager = new BurnManager();
-      logger.Debug("MPApplication: Registering BurnManager");
-      ServiceScope.Add<IBurnManager>(burnManager);
-      EventHelper.Init(); // only for quick test simulating a plugin (trying to stay clean before the preview)...
+//      logger.Debug("MPApplication: Registering Strings Manager");
+//      ServiceScope.Add<ILocalisation>(new StringManager());
 
-      //logger.Debug("MPApplication: Registering ImporterManager");
-      //ServiceScope.Add<IImporterManager>(new ImporterManager());
+//      //meta data mapper services
+//      ServiceScope.Add<IMetaDataFormatterCollection>(new MetaDataFormatterCollection());
+//      ServiceScope.Add<IMetadataMappingProvider>(new MetadataMappingProvider());
 
-      // Start the core
-      logger.Debug("MPApplication: Starting core");
-      ApplicationCore core = new ApplicationCore();
-      core.Start();
-      return false;
-    }
-  }
-}
+//      BurnManager burnManager = new BurnManager();
+//      logger.Debug("MPApplication: Registering BurnManager");
+//      ServiceScope.Add<IBurnManager>(burnManager);
+//      EventHelper.Init(); // only for quick test simulating a plugin (trying to stay clean before the preview)...
+
+//      //logger.Debug("MPApplication: Registering ImporterManager");
+//      //ServiceScope.Add<IImporterManager>(new ImporterManager());
+
+//      // Start the core
+//      logger.Debug("MPApplication: Starting core");
+//      ApplicationCore core = new ApplicationCore();
+//      core.Start();
+//      return false;
+//    }
+//  }
+//}

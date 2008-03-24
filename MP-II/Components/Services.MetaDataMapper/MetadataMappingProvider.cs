@@ -32,7 +32,7 @@ using MediaPortal.Core.Localisation;
 
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Services.MetaData
+namespace Components.Services.MetaDataMapper
 {
   public class MetadataMappingProvider : IMetadataMappingProvider
   {

@@ -52,7 +52,6 @@ using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
 using MediaPortal.Services.MPIManager;
-using MediaPortal.Services.MetaData;
 using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
@@ -143,12 +142,6 @@ namespace MediaPortal
         ServiceScope.Add<IMPInstaller>(Installer);
         Installer.LoadQueue();
         Installer.ExecuteQueue(false);
-
-
-        //to be removed
-        //meta data mapper services
-        ServiceScope.Add<IMetaDataFormatterCollection>(new MetaDataFormatterCollection());
-        ServiceScope.Add<IMetadataMappingProvider>(new MetadataMappingProvider());
 
 #if !DEBUG
         // Not in Debug mode (ie Release) then catch all Exceptions

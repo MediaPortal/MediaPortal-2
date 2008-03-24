@@ -25,39 +25,44 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Services.MetaData
+namespace Components.Services.MetaDataMapper.Formatters
 {
-  public class MetaDataMappingCollection : IMetaDataMappingCollection
+  public class DateTimeFormatter : IMetaDataFormatter
   {
-    List<IMetadataMapping> _mappings;
-    public MetaDataMappingCollection()
-    {
-      _mappings = new List<IMetadataMapping>();
-    }
-    #region IMetaDataMappingCollection Members
+    #region IMetaDataFormatter Members
 
-    public void Add(IMetadataMapping mapping)
-    {
-      _mappings.Add(mapping);
-    }
-
-    public List<IMetadataMapping> Mappings
+    public string Name
     {
       get
       {
-        return _mappings;
+        return "date";
       }
-    }
-    public int Count
-    {
-      get
+      set
       {
-        return _mappings.Count;
       }
     }
 
+    public DateTime GetDate(object metaData)
+    {
+      if (metaData == null) return DateTime.MinValue;
+      if (metaData.GetType() != typeof(DateTime)) return DateTime.MinValue;
+      return (DateTime)metaData;
+    }
+    public string Format(object metaData, string formatting)
+    {
+      DateTime dt = GetDate(metaData);
+      if (String.IsNullOrEmpty(formatting)) return dt.ToString();
+      return dt.ToString(formatting);
+    }
+    public int CompareTo(object metaData1, object metaData2)
+    {
+      DateTime dt1 = GetDate(metaData1);
+      DateTime dt2 = GetDate(metaData2);
+      return dt1.CompareTo(dt2);
+    }
     #endregion
   }
 }

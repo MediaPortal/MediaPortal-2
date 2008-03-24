@@ -83,15 +83,6 @@
     <Compile Include="MenuManager\MenuCollection.cs" />
     <Compile Include="Messaging\MessageBroker.cs" />
     <Compile Include="Messaging\Queue.cs" />
-    <Compile Include="MetaData\Formatters\DateTimeFormatter.cs" />
-    <Compile Include="MetaData\Formatters\FileSizeFormatter.cs" />
-    <Compile Include="MetaData\Formatters\TextFormatter.cs" />
-    <Compile Include="MetaData\Formatters\TimeSpanFormatter.cs" />
-    <Compile Include="MetaData\MetaDataFormatterCollection.cs" />
-    <Compile Include="MetaData\MetadataMapping.cs" />
-    <Compile Include="MetaData\MetaDataMappingCollection.cs" />
-    <Compile Include="MetaData\MetadataMappingItem.cs" />
-    <Compile Include="MetaData\MetadataMappingProvider.cs" />
     <Compile Include="MPIManager\Actions\CopyExecuteFile.cs" />
     <Compile Include="MPIManager\Actions\CopyFile.cs" />
     <Compile Include="MPIManager\Actions\CopyMenu.cs" />
