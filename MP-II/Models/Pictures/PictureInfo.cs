@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
-using MediaPortal.Control.InputManager;
+//using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;

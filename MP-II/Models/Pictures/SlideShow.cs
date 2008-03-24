@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Timers;
-using MediaManager.Views;
+
 using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Database;
@@ -44,6 +44,7 @@ using Timer = System.Timers.Timer;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
+
 
 
 namespace Models.Pictures

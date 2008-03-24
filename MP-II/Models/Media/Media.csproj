@@ -67,10 +67,6 @@
     <Compile Include="SortOption.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Components\MediaManager\MediaManager.csproj">
-      <Project>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</Project>
-      <Name>MediaManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
