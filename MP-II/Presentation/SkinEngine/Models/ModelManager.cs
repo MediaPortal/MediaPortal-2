@@ -132,7 +132,7 @@ namespace Presentation.SkinEngine
       {
         object model = ServiceScope.Get<IPluginManager>().GetPluginItem<IPlugin>("/Models/" + assemblyName, className);
         Type exportedType = model.GetType();
-        if (exportedType.IsClass && exportedType.Name == className)
+        if (exportedType.IsClass)
         {
           _models.Add(new Model(assemblyName, className, exportedType, model));
           return;
