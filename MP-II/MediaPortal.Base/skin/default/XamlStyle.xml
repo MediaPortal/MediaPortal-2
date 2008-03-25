@@ -163,7 +163,7 @@
                   </RadialGradientBrush>
                 </Rectangle.Fill>
               </Rectangle>
-              <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
+              <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter">
               </ContentPresenter>
             </Grid>
             <ControlTemplate.Triggers>
@@ -359,7 +359,7 @@
               <Ellipse Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right"  Width="12" Height="12"  Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF" />
               <Ellipse Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10"  Height="10" Fill="#AAFFFFFF" Visibility="Hidden" />
 
-              <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
+              <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter">
               </ContentPresenter>
             </Grid>
             <ControlTemplate.Triggers>
@@ -501,7 +501,7 @@
               <Ellipse Name="OuterCircle" Margin="10,0,0,0" HorizontalAlignment="Left"  Width="12" Height="12"  Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF" />
               <Ellipse Name="InnerCircle" Margin="11,0,0,0" HorizontalAlignment="Left" Width="10"  Height="10" Fill="#AAFFFFFF" Visibility="Hidden" />
 
-              <ContentPresenter Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter" TextElement.FontFamily="Segoe Media Center" TextElement.FontSize="20" TextElement.Foreground="White"  >
+              <ContentPresenter Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  Name="contentPresenter">
               </ContentPresenter>
             </Grid>
             <ControlTemplate.Triggers>
@@ -2113,7 +2113,7 @@
       </Setter>
       <Setter Property="ItemsPanel">
         <Setter.Value>
-          <ItemsPanelTemplate TargetType="ListBox">
+          <ItemsPanelTemplate>
             <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
@@ -2188,7 +2188,7 @@
       </Setter>
       <Setter Property="ItemsPanel">
         <Setter.Value>
-          <ItemsPanelTemplate TargetType="ListBox">
+          <ItemsPanelTemplate>
             <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
@@ -2238,7 +2238,7 @@
       </Setter>
       <Setter Property="ItemsPanel">
         <Setter.Value>
-          <ItemsPanelTemplate TargetType="ListBox">
+          <ItemsPanelTemplate>
             <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
@@ -2307,7 +2307,7 @@
       </Setter>
       <Setter Property="ItemsPanel">
         <Setter.Value>
-          <ItemsPanelTemplate TargetType="TreeView">
+          <ItemsPanelTemplate>
             <StackPanel  Name="treeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
