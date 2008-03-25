@@ -48,6 +48,7 @@ namespace Components.Control.IrInput
   /// </summary>
   public class IrInputPlugin : IPlugin, IAutoStart
   {
+
     #region IPlugin Members
 
     public void Initialize(string id)
@@ -71,7 +72,7 @@ namespace Components.Control.IrInput
       Thread startupThread = new Thread(new ThreadStart(Start));
       startupThread.IsBackground = true;
       startupThread.Priority = ThreadPriority.BelowNormal;
-      startupThread.Name = "My Input Startup";
+      startupThread.Name = "IrInputPlugin Startup";
       startupThread.Start();
     }
 
@@ -91,8 +92,8 @@ namespace Components.Control.IrInput
     void Start()
     {
       System.Windows.Forms.Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
-      ILogger logger = ServiceScope.Get<ILogger>(false);
-      logger.Info("MyInput: Startup");
+      
+      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Startup");
 
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>(true);
       
@@ -100,28 +101,23 @@ namespace Components.Control.IrInput
       settingsManager.Load(_settings);
 
       if (_settings.RemoteMap == null)
-        _settings.RemoteMap = new List<MappedKeyCode>();
+        _settings.RemoteMap = LoadRemoteMap("DefaultRemoteMap.xml");
 
-      logger.Info("MyInput: Connect to service");
+      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Connect to service");
+
       IPAddress serverIP = Client.GetIPFromName(_settings.ServerHost);
       IPEndPoint endPoint = new IPEndPoint(serverIP, IrssComms.Server.DefaultPort);
 
       if (!StartClient(endPoint))
-      {
-        if (logger != null)
-          logger.Error("MyInput: Failed to start local comms, input service is unavailable for this session");
-      }
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Failed to start local comms, input service is unavailable for this session");
       else
-      {
-        if (logger != null)
-          logger.Info("MyInput: Started");
-      }
+        ServiceScope.Get<ILogger>().Info("IrInputPlugin: Started");
     }
 
     void Application_ApplicationExit(object sender, EventArgs e)
     {
-      ILogger logger = ServiceScope.Get<ILogger>(false);
-      logger.Info("MyInput: Stopped");
+      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Stopped");
+
       StopClient();
     }
 
@@ -130,20 +126,15 @@ namespace Components.Control.IrInput
     {
       Exception ex = obj as Exception;
 
-      ILogger logger = ServiceScope.Get<ILogger>(false);
-      if (logger != null)
-      {
-        if (ex != null)
-          logger.Error("MyInput: Communications failure: {0}", ex.Message);
-        else
-          logger.Error("MyInput: Communications failure");
-      }
+      if (ex != null)
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Communications failure: {0}", ex.Message);
+      else
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Communications failure");
+
       StopClient();
 
-      if (logger != null)
-      {
-        logger.Warn("MyInput: Attempting communications restart ...");
-      }
+      ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Attempting communications restart ...");
+
       IPAddress serverIP = Client.GetIPFromName(_settings.ServerHost);
       IPEndPoint endPoint = new IPEndPoint(serverIP, IrssComms.Server.DefaultPort);
 
@@ -152,20 +143,14 @@ namespace Components.Control.IrInput
 
     void Connected(object obj)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-
-      if (logger != null)
-        logger.Info("MyInput: Connected to server");
+      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Connected to server");
 
       IrssMessage message = new IrssMessage(MessageType.RegisterClient, MessageFlags.Request);
       _client.Send(message);
     }
     void Disconnected(object obj)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-
-      if (logger != null)
-        logger.Warn("MyInput: Communications with server has been lost");
+      ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Communications with server has been lost");
 
       Thread.Sleep(1000);
     }
@@ -203,10 +188,7 @@ namespace Components.Control.IrInput
 
     void ReceivedMessage(IrssMessage received)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-
-      if (logger != null)
-        logger.Debug("MyInput: Received Message \"{0}\" {1}", received.Type, received.GetDataAsString());
+      ServiceScope.Get<ILogger>().Debug("IrInputPlugin: Received Message \"{0}\" {1}", received.Type, received.GetDataAsString());
 
       try
       {
@@ -218,9 +200,9 @@ namespace Components.Control.IrInput
           /*
           case MessageType.BlastIR:
             if ((received.Flags & MessageFlags.Success) == MessageFlags.Success)
-              ServiceScope.Get<ILogger>().Info("MyInput: Blast successful");
+              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Blast successful");
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
-              ServiceScope.Get<ILogger>().Warn("MyInput: Failed to blast IR command");
+              ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Failed to blast IR command");
             break;
           */
           case MessageType.RegisterClient:
@@ -229,58 +211,20 @@ namespace Components.Control.IrInput
               _irServerInfo = IRServerInfo.FromBytes(received.GetDataAsBytes());
               //_registered = true;
 
-              if (_settings.FirstRun)
-              {
-                IrssMessage requestActiveReceivers = new IrssMessage(MessageType.ActiveReceivers, MessageFlags.Request);
-                _client.Send(requestActiveReceivers);
-              }
-
-              if (logger != null)
-                logger.Info("MyInput: Registered to Input Service");
+              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Registered to Input Service");
             }
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
             {
               //_registered = false;
-              if (logger != null)
-                logger.Warn("MyInput: Input Service refused to register plugin");
+              ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Input Service refused to register plugin");
             }
             break;
 
-          // When the plugin receives the list of active receivers it tries to load default
-          case MessageType.ActiveReceivers:
-            if ((received.Flags & MessageFlags.Response) == MessageFlags.Response)
-            {
-              if (!_settings.FirstRun)
-                break;
-
-              string[] activeReceivers = received.GetDataAsString().Split(new char[] { ',' });
-
-              foreach (string receiver in activeReceivers)
-              {
-                // Load default mappings for active receivers...
-
-                string fileName = String.Format("Plugins\\MyInput\\{0}.xml", receiver);
-                if (File.Exists(fileName))
-                {
-                  List<MappedKeyCode> newMap = LoadRemoteMap(fileName);
-                  _settings.RemoteMap.AddRange(newMap);
-                }
-              }
-
-              _settings.FirstRun = false;
-
-              ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>(true);
-
-              if (settingsManager != null)
-                settingsManager.Save(_settings);
-            }
-            break;
           /*
           case MessageType.LearnIR:
             if ((received.Flags & MessageFlags.Success) == MessageFlags.Success)
             {
-              if (logger != null)
-                logger.Info("MyInput: Learned IR Successfully");
+              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Learned IR Successfully");
 
               byte[] dataBytes = received.GetDataAsBytes();
 
@@ -289,28 +233,24 @@ namespace Components.Control.IrInput
             }
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
             {
-              if (logger != null)
-                logger.Error("MyInput: Failed to learn IR command");
+              ServiceScope.Get<ILogger>().Error("IrInputPlugin: Failed to learn IR command");
             }
             else if ((received.Flags & MessageFlags.Timeout) == MessageFlags.Timeout)
             {
-              if (logger != null)
-                logger.Error("MyInput: Learn IR command timed-out");
+              ServiceScope.Get<ILogger>().Error("IrInputPlugin: Learn IR command timed-out");
             }
 
             _learnIRFilename = null;
             break;
           */
           case MessageType.ServerShutdown:
-            if (logger != null)
-              logger.Warn("MyInput: Input Service Shutdown - MyInput is disabled until Input Service returns");
+            ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Input Service Shutdown - IrInputPlugin is disabled until Input Service returns");
             //_registered = false;
             break;
 
           case MessageType.Error:
             //_learnIRFilename = null;
-            if (logger != null)
-              logger.Error("MyInput: Received error: {0}", received.GetDataAsString());
+            ServiceScope.Get<ILogger>().Error("IrInputPlugin: Received error: {0}", received.GetDataAsString());
             break;
         }
 
@@ -319,32 +259,23 @@ namespace Components.Control.IrInput
       }
       catch (Exception ex)
       {
-        if (logger != null)
-          logger.Error("MyInput - ReveivedMessage(): {0}", ex.Message);
-        //else
-          //throw ex;
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin - ReveivedMessage(): {0}", ex.Message);
       }
     }
 
     void RemoteHandler(string remoteButton)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-      
       IInputMapper inputMapper = ServiceScope.Get<IInputMapper>();
       if (inputMapper == null)
       {
-        if (logger != null)
-          logger.Error("MyInput: No Input Mapper, can't map \"{0}\"", remoteButton);
-
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin: No Input Mapper, can't map \"{0}\"", remoteButton);
         return;
       }
 
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
       if (inputManager == null)
       {
-        if (logger != null)
-          logger.Error("MyInput: No Input Manager, can't map and act on \"{0}\"", remoteButton);
-
+        ServiceScope.Get<ILogger>().Error("IrInputPlugin: No Input Manager, can't map and act on \"{0}\"", remoteButton);
         return;
       }
 
@@ -359,15 +290,13 @@ namespace Components.Control.IrInput
 
           inputManager.KeyPressed(key);
 
-          if (logger != null)
-            logger.Info("MyInput: Mapped \"{0}\" to \"{1}\"", remoteButton, mapped.Key);
+          ServiceScope.Get<ILogger>().Info("IrInputPlugin: Mapped \"{0}\" to \"{1}\"", remoteButton, mapped.Key);
 
           return;
         }
       }
 
-      if (logger != null)
-        logger.Warn("MyInput: No remote mapping found for \"{0}\"", remoteButton);
+      ServiceScope.Get<ILogger>().Warn("IrInputPlugin: No remote mapping found for \"{0}\"", remoteButton);
     }
 
     /// <summary>
@@ -386,6 +315,7 @@ namespace Components.Control.IrInput
       return remoteMap;
     }
 
+    /*
     void SaveRemoteMap(string remoteFile, List<MappedKeyCode> remoteMap)
     {
       XmlSerializer writer = new XmlSerializer(typeof(List<MappedKeyCode>));
@@ -393,6 +323,7 @@ namespace Components.Control.IrInput
       using (StreamWriter file = new StreamWriter(remoteFile))
         writer.Serialize(file, remoteMap);
     }
+    */
 
   }
 

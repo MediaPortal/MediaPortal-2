@@ -28,15 +28,15 @@ using MediaPortal.Core.Settings;
 
 namespace Components.Control.IrInput
 {
+
   /// <summary>
-  /// Settings class for MyInput.
+  /// Settings class for IrInputPlugin.
   /// </summary>
   public class IrInputSettings
   {
 
     #region Variables
 
-    bool _firstRun;
     string _serverHost;
 
     List<MappedKeyCode> _remoteMap;
@@ -44,17 +44,6 @@ namespace Components.Control.IrInput
     #endregion Variables
 
     #region Properties
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this is the first run.
-    /// </summary>
-    /// <value><c>true</c> if this is the first run; otherwise, <c>false</c>.</value>
-    [Setting(SettingScope.Global, true)]
-    public bool FirstRun
-    {
-      get { return _firstRun; }
-      set { _firstRun = value; }
-    }
 
     /// <summary>
     /// Gets or sets the server host.
@@ -77,7 +66,6 @@ namespace Components.Control.IrInput
       get { return _remoteMap; }
       set { _remoteMap = value; }
     }
-
 
     #endregion Properties
 
