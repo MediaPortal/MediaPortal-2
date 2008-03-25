@@ -12,6 +12,7 @@
   </Runtime>
 
   <Register location = "/Models/Weather">
-    <Class id = "MyWeather" class = "Models.Weather.WeatherViewModel"/>
+    <Class id = "WeatherModel" class = "Models.Weather.WeatherViewModel"/>
+	<Class id = "WeatherSetupModel" class = "Models.Weather.WeatherSetupViewModel"/>
   </Register>
 </Plugin>

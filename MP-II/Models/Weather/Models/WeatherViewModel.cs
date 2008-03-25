@@ -29,8 +29,8 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.PluginManager;
 using Models.Weather.Grabbers;
+using MediaPortal.Core.PluginManager;
 
 namespace Models.Weather
 {

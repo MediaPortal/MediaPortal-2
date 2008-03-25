@@ -53,10 +53,11 @@ using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using Models.Weather.Grabbers;
+using MediaPortal.Core.PluginManager;
 
 namespace Models.Weather
 {
-  public class WeatherSetupViewModel
+  public class WeatherSetupViewModel : IPlugin
   {
     private List<CitySetupInfo> _locations; // locations that are already in the list
     private List<CitySetupInfo> _locationsSearch; // locations that return as result of searching for a city
@@ -65,6 +66,14 @@ namespace Models.Weather
     private readonly ItemsCollection _locationsSearchExposed = new ItemsCollection();
     // Listcollection to expose _locationsExposed
 
+    #region IPlugin Members
+    public void Initialize(string id)
+    {
+    }
+
+    public void Dispose()
+    {
+    }
     /// <summary>
     /// constructor
     /// </summary>
@@ -78,6 +87,7 @@ namespace Models.Weather
       // load settings
       GetLocationsFromSettings();
     }
+    #endregion
 
     /// <summary>
     /// load settings
