@@ -94,7 +94,7 @@ namespace Presentation.SkinEngine
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
         AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx initialized {0}x{1} format: {2} {3} Hz", Width,
+        ServiceScope.Get<ILogger>().Info("GraphicsDevice: directx initialized {0}x{1} format: {2} {3} Hz", Width,
                                           Height, adapterInfo.CurrentDisplayMode.Format,
                                           adapterInfo.CurrentDisplayMode.RefreshRate);
         GetCapabilities();

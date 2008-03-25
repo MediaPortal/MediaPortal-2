@@ -223,7 +223,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     {
       if (!_isAssemblyLoaded)
       {
-        ServiceScope.Get<ILogger>().Info("Loading Plugin: " + _assembly);
+        ServiceScope.Get<ILogger>().Debug("Loading Plugin: " + _assembly);
 
         _isAssemblyLoaded = true;
 
@@ -259,7 +259,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
             _loadedAssembly = System.Reflection.Assembly.LoadFrom(Path.Combine(_hintPath, _assembly));
           }
 
-          ServiceScope.Get<ILogger>().Info("Assembly Version: " + _loadedAssembly.GetName().Version.ToString());
+          ServiceScope.Get<ILogger>().Debug("Assembly Version: " + _loadedAssembly.GetName().Version.ToString());
 #if DEBUG
           // preload assembly to provoke FileLoadException if dependencies are missing
           _loadedAssembly.GetExportedTypes();

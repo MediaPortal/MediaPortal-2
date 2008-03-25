@@ -195,19 +195,19 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     {
       if (!_instances.ContainsKey(_manifest.Identity))
       {
-        ServiceScope.Get<ILogger>().Info("Creating plugin instance: " + _manifest.Identity);
+        ServiceScope.Get<ILogger>().Debug("Creating plugin instance: " + _manifest.Identity);
         IPlugin pluginInstance = CreateInstance(_manifest.Identity) as IPlugin;
         if (pluginInstance != null)
         {
           _instances.Add(_manifest.Identity, (object)pluginInstance);
-          ServiceScope.Get<ILogger>().Debug("Initialising plugin: {0}", _properties["name"]);
+          ServiceScope.Get<ILogger>().Info("Initialising plugin: {0}", _properties["name"]);
           pluginInstance.Initialize(_properties["name"]);  
         }
       }
 
       if (!_instances.ContainsKey(className))
       {
-        ServiceScope.Get<ILogger>().Info("Creating plugin class instance: " + className);
+        ServiceScope.Get<ILogger>().Debug("Creating plugin class instance: " + className);
         object instance = CreateInstance(className);
         if (instance != null)
           _instances.Add(className, instance);

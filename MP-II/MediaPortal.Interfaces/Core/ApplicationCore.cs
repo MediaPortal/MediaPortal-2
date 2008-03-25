@@ -38,7 +38,7 @@ namespace MediaPortal.Core
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       pluginManager.Startup();
 
-      ServiceScope.Get<ILogger>().Debug("Application: Starting Autostart plugins");
+      ServiceScope.Get<ILogger>().Info("Application: Starting Autostart plugins");
       foreach (IAutoStart plugin in pluginManager.GetAllPluginItems<IAutoStart>("/AutoStart"))
       {
         plugin.Startup();
