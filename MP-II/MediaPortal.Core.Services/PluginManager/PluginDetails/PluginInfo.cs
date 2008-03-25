@@ -200,8 +200,8 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         if (pluginInstance != null)
         {
           _instances.Add(_manifest.Identity, (object)pluginInstance);
-          ServiceScope.Get<ILogger>().Debug("Initialising plugin: {0}, id {1}", className, _properties["id"]);
-          pluginInstance.Initialize(_properties["id"]);  
+          ServiceScope.Get<ILogger>().Debug("Initialising plugin: {0}", _properties["name"]);
+          pluginInstance.Initialize(_properties["name"]);  
         }
       }
 
