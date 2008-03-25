@@ -162,9 +162,9 @@ Section -Main SEC0000
     ;------------  End of Common Files and Folders for XP & Vista
     
        
-    ; Now we delete the .plugin file for MyInput. In the first version , we want to use the IR Server Suite
-    Delete /REBOOTOK "$INSTDIR\Plugins\MyInput\MyInput.plugin"
-    
+    ; Now we delete the .plugin file for Control.IrInput.  In the first version , we want to use the IR Server Suite
+    Delete /REBOOTOK "$INSTDIR\Plugins\Control.IrInput\Control.IrInput.plugin"
+
     ; The Following Filters and Dll need to be copied to \windows\system32 for xp
     ; In Vista they stay in the Install Directory
     ${if} $WindowsVersion == "Vista" 
@@ -224,12 +224,12 @@ Section -post SEC0001
     WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoRepair 1
 SectionEnd
 
-; This section installs the VC++ Redist Library
+; This section installs the IR Server Suite
 Section "IR Server Suite" SEC0002
     SetOutPath $INSTDIR
     SetOverwrite on
     
-    ; Now Copy the VC Redist File, which will be executed as part of the install
+    ; Now Copy the IR Server Suite installer, which will be executed as part of the install
     File "IR Server Suite.exe"
 
     DetailPrint "Installing IR Server Suite Package"
