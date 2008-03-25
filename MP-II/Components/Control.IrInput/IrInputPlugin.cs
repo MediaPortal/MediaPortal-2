@@ -101,7 +101,7 @@ namespace Components.Control.IrInput
       settingsManager.Load(_settings);
 
       if (_settings.RemoteMap == null)
-        _settings.RemoteMap = LoadRemoteMap("DefaultRemoteMap.xml");
+        _settings.RemoteMap = LoadRemoteMap("Plugins\\Control.IrInput\\DefaultRemoteMap.xml");
 
       ServiceScope.Get<ILogger>().Info("IrInputPlugin: Connect to service");
 
