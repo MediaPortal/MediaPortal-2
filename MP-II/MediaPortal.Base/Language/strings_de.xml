@@ -10,6 +10,9 @@
         <String name="eject" text="Auswerfen" />
         <String name="yes" text="Ja" />
         <String name="no" text="Nein" />
+        <String name="done" text="Fertig"/>
+        <String name="cancel" text="Abbrechen"/>
+        <String name="back" text="Zurück"/>
     </Section>
     <Section name="general">
         <String name="name" text="Name" />
@@ -39,11 +42,8 @@
         <String name="shares" text="Bibliothek"/>
         <String name="addnewshares" text="Ordner hinzufügen"/>
         <String name="removeshares" text="Ordner entfernen"/>
-        <String name="done" text="Fertig"/>
         <String name="description" text="Ordner zur Medien-Bibliothek hinzufügen"/>
         <String name="selectsharetoremove" text="Welche Ordner sollen nicht mehr überwacht werden?"/>
-        <String name="back" text="Zurück"/>
-        <String name="cancel" text="Abbrechen"/>
     </Section>    
     <Section name="playback">
         <String name="0" text="Zoom-Modus" />

@@ -10,6 +10,9 @@
     <String name="eject" text="Uitwerpen"/>
     <String name="yes" text="Ja"/>
     <String name="no" text="Nee"/>
+    <String name="done" text="Done"/>
+    <String name="cancel" text="Annuleren"/>
+    <String name="back" text="Terug"/>
   </Section>
   <Section name="general">
     <String name="name" text="Naam"/>
@@ -39,15 +42,12 @@
     <String name="shares" text="Bibliotheek"/>
     <String name="addnewshares" text="Voeg directories toe aan de bibliotheek"/>
     <String name="removeshares" text="Verwijder directories uit de bibliotheek"/>
-    <String name="done" text="Done"/>
     <String name="description" text="Voeg of verwijder directories van de bibliotheek"/>
     <String name="selectsharetoremove" text="Selecteer de directories welke verwijderd moeten worden"/>
     <String name="selectsharestoadd" text="Selecteer de directories welke toegevoegd moeten worden"/>
     <String name="canceled" text="Er zijn geen wijzigingen gedaan."/>
     <String name="pressfinish" text="Selecteer klaar om verder te gaan."/>
     <String name="refreshing" text="The bibliotheek wordt ververst."/>
-    <String name="back" text="Terug"/>
-    <String name="cancel" text="Annuleren"/>
   </Section>
   <Section name="playback">
     <String name="0" text="Zoom modes"/>

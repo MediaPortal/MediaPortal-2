@@ -10,6 +10,9 @@
     <String name="eject" text="Eject"/>
     <String name="yes" text="Yes"/>
     <String name="no" text="No"/>
+    <String name="done" text="Done"/>
+    <String name="cancel" text="Cancel"/>
+    <String name="back" text="Back"/>
   </Section>
   <Section name="general">
     <String name="name" text="Name"/>
@@ -39,15 +42,12 @@
     <String name="shares" text="Library Setup"/>
     <String name="addnewshares" text="Add folders to watch"/>
     <String name="removeshares" text="Stop watching folders"/>
-    <String name="done" text="Done"/>
     <String name="description" text="Add or remove folders to the library"/>
     <String name="selectsharetoremove" text="Select folders which you dont want to watch anymore"/>
     <String name="selectsharestoadd" text="Select folders which you want to add to the library"/>
     <String name="canceled" text="No changes have been made."/>
     <String name="pressfinish" text="Press finish to continue working."/>
     <String name="refreshing" text="The library is being refreshed in the background."/>
-    <String name="back" text="Back"/>
-    <String name="cancel" text="Cancel"/>
   </Section>
   <Section name="playback">
     <String name="0" text="Zoom modes"/>

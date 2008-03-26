@@ -10,6 +10,9 @@
     <String name="eject" text="Mata ut"/>
     <String name="yes" text="ja"/>
     <String name="no" text="nej"/>
+    <String name="done" text="OK"/>
+    <String name="cancel" text="Avbryt"/>
+    <String name="back" text="Back"/>
   </Section>
   <Section name="general">
     <String name="name" text="Namn"/>
@@ -36,10 +39,15 @@
     <String name="refresh" text="Uppdatera databasen"/>
   </Section>
   <Section name="shares">
-    <String name="shares" text="Delade foldrar"/>
-    <String name="add" text="Lägg till"/>
-    <String name="done" text="Klar"/>
-    <String name="description" text="Lägg till eller ta bort foldrar till biblioteket"/>
+    <String name="shares" text="Mediabibliotek"/>
+    <String name="addnewshares" text="Lägg till folder att övervaka"/>
+    <String name="removeshares" text="Ta bort folder att övervaka"/>
+    <String name="description" text="Add or remove folders to the library"/>
+    <String name="selectsharetoremove" text="Select folders which you dont want to watch anymore"/>
+    <String name="selectsharestoadd" text="Select folders which you want to add to the library"/>
+    <String name="canceled" text="No changes have been made."/>
+    <String name="pressfinish" text="Press finish to continue working."/>
+    <String name="refreshing" text="The library is being refreshed in the background."/>
   </Section>
   <Section name="playback">
     <String name="0" text="Zoom modes"/>
