@@ -89,20 +89,21 @@ namespace Presentation.SkinEngine
       }
       try
       {
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize directx");
+        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
         _setup.SetupDirectX(window, maximize);
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
         AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
-        ServiceScope.Get<ILogger>().Info("GraphicsDevice: directx initialized {0}x{1} format: {2} {3} Hz", Width,
+        ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} format: {2} {3} Hz", Width,
                                           Height, adapterInfo.CurrentDisplayMode.Format,
                                           adapterInfo.CurrentDisplayMode.RefreshRate);
         GetCapabilities();
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: failed to setup directx");
+        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: failed to set-up DirectX");
         ServiceScope.Get<ILogger>().Critical(ex);
+        System.Environment.Exit(0);
       }
     }
 
@@ -130,8 +131,8 @@ namespace Presentation.SkinEngine
                                                       Format.A8R8G8B8);
       int vertexShaderVersion = Device.GetDeviceCaps().VertexShaderVersion.Major;
       int pixelShaderVersion = Device.GetDeviceCaps().PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("Directx: Pixel shader support:{0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("Directx: Vertex shader support:{0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support:{0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support:{0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;
