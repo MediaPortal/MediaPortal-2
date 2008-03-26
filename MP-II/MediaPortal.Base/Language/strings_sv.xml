@@ -12,7 +12,7 @@
     <String name="no" text="nej"/>
     <String name="done" text="OK"/>
     <String name="cancel" text="Avbryt"/>
-    <String name="back" text="Back"/>
+    <String name="back" text="Tillbaka"/>
   </Section>
   <Section name="general">
     <String name="name" text="Namn"/>
