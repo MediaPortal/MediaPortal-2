@@ -25,10 +25,10 @@
 
       <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
         <Button Style="{StaticResource MpButton}" Margin="0,0,10,0"   Width="160" Height="32" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="sharescancel">
-          <Label Font="font13" Text="[settings.cancel]" Height="32" />
+          <Label Font="font13" Text="[system.cancel]" Height="32" />
         </Button>
         <Button Style="{StaticResource MpButton}" Margin="10,0,10,10"  Width="160" Height="32" Command="{Binding Path=WindowManager.ShowPreviousWindow}" >
-          <Label Font="font13" Text="[settings.finish]" Height="32" />
+          <Label Font="font13" Text="[system.done]" Height="32" />
         </Button>
       </StackPanel>
       <ListView Name="list"  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Shares}" Command="{Binding Path=RemoveShare}" CommandParameter="{Binding Path=this.CurrentItem}"  SelectionChanged="{Binding Path=OnSelectionChange}"/>

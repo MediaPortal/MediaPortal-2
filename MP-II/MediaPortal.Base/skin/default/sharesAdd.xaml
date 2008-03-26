@@ -23,10 +23,10 @@
       <Label Margin="60,0,0,0" Font="font13" Text="[shares.selectsharestoadd]" Width="660" Height="32" DockPanel.Dock="Top"/>
       <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
         <Button Style="{StaticResource MpButton}" Margin="0,0,10,0"   Width="160" Height="32" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="sharescancel">
-          <Label Font="font13" Text="[settings.cancel]" Height="32" />
+          <Label Font="font13" Text="[system.cancel]" Height="32" />
         </Button>
         <Button Style="{StaticResource MpButton}" Margin="10,0,10,10"  Width="160" Height="32" Command="{Binding Path=Save}" >
-          <Label Font="font13" Text="[settings.finish]" Height="32" />
+          <Label Font="font13" Text="[system.done]" Height="32" />
         </Button>
       </StackPanel>
       <TreeView Name="tree" Background="#CF2A5EB4" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}" Command="{Binding GetSubItems}" CommandParameter="{Binding Path=this.CurrentItem}"/>

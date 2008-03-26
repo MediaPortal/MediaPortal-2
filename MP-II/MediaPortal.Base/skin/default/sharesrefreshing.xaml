@@ -24,7 +24,7 @@
       <Label Margin="60,0,0,0" Font="font12" Text="[shares.pressfinish]" Width="660" Height="32" DockPanel.Dock="Top"/>
       <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" >
         <Button Name="btnFinish" Style="{StaticResource MpButton}" Margin="0,348,10,0"  Width="160" Height="32" Command="{Binding Path=WindowManager.ShowPreviousWindow}" >
-          <Label Font="font13" Text="[settings.finish]" Height="32" />
+          <Label Font="font13" Text="[system.done]" Height="32" />
         </Button>
       </StackPanel>
     </DockPanel>
