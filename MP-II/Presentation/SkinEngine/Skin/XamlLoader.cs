@@ -331,6 +331,8 @@ namespace Presentation.SkinEngine.Skin
     /// <returns>object</returns>
     object CreateObject(string className)
     {
+      ServiceScope.Get<ILogger>().Critical("CreateObject: {0} ", className);
+
       Type t = XamlElements.ObjectClassRegistrations[className];
       object result = Activator.CreateInstance(t);
       if (result is UIElement)

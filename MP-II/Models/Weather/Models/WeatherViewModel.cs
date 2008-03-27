@@ -21,16 +21,21 @@
 */
 
 #endregion
-
+using System;
 using System.Collections.Generic;
+
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
-using Models.Weather.Grabbers;
 using MediaPortal.Core.PluginManager;
+
+using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.MenuManager;
+
+using Models.Weather.Grabbers;
+
 
 namespace Models.Weather
 {
@@ -48,6 +53,8 @@ namespace Models.Weather
 
     private readonly ItemsCollection _forecastCollection = new ItemsCollection();
     // Used to display the 4day Forecast for the currently selected Location
+    
+    private ItemsCollection _mainMenu;
 
     #region IPlugin Members
     public void Initialize(string id)
@@ -68,6 +75,21 @@ namespace Models.Weather
       Refresh();
     }
     #endregion
+
+    /// <summary>
+    /// exposes the main menu to the skin
+    /// </summary>
+    /// <value>The main menu.</value>
+    public ItemsCollection MainMenu
+    {
+      get
+      {
+        IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
+        _mainMenu = new ItemsCollection(menuCollect.GetMenu("weather-main"));
+
+        return _mainMenu;
+      }
+    }
 
     /// <summary>
     /// this gets the locations from settings

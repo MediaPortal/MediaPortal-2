@@ -1,0 +1,8 @@
+<menu>
+  <items>
+    <item text="[weather.1]" image="" command="WindowManager.ShowDialog" parameter="dialogWeatherLocations"/>
+    <item text="[weather.2]" image="" command="Weather:WeatherModel.Refresh" parameter=""/>
+    <item text="[weather.4]" image="" command="WindowManager.ShowDialog" parameter="weathersetup"/>
+  </items>
+</menu>
+

@@ -6,7 +6,6 @@
     </Canvas.Resources>
     <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[weather.0]" Height="50"/>
-
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[weather.0]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
         <Label.RenderTransform>
           <TransformGroup>
@@ -20,12 +19,23 @@
           </LinearGradientBrush>
         </Label.OpacityMask>
       </Label>
+      <Label Margin="160,0,0,0" DockPanel.Dock="Top" Font="font13"  Text="CurrentLocation" Height="32"/>
       <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
         <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>
-      <ListView  Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Pictures}" Command="{Binding Path=Select}" CommandParameter="{Binding Path=this.CurrentItem}" ContextMenuCommand="{Binding Path=WindowManager.ShowDialog}" ContextMenuCommandParameter="dialogMyPictureContextMenu" SelectionChanged="{Binding Path=OnSelectionChange}"/>
-
+      <Grid DockPanel.Dock="Right">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel1" VerticalAlignment="Top">
+            <Label Font="font13" Text="aaa" Height="10" /> 
+          </StackPanel>   
+          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel3" VerticalAlignment="Top">
+            <Label Font="font13" Text="xxxx" Height="10" /> 
+          </StackPanel>
+        </Grid>
     </DockPanel>
   </Canvas>
 </MyXaml>
