@@ -57,6 +57,10 @@
     <DocumentationFile>bin\x86\Xml Documentation\Database.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FirebirdSql.Data.FirebirdClient, Version=2.0.1.0, Culture=neutral, PublicKeyToken=3750abcc3150b00c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.48.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
@@ -73,6 +77,9 @@
     <Compile Include="Databases.cs" />
     <Compile Include="DbAttribute.cs" />
     <Compile Include="DbItem.cs" />
+    <Compile Include="FireBird\FireBirdDatabaseBuilder.cs" />
+    <Compile Include="FireBird\FireBirdDatabaseCommand.cs" />
+    <Compile Include="FireBird\FireBirdDatabaseConnection.cs" />
     <Compile Include="Notifies\DatabaseNotifier.cs" />
     <Compile Include="SqlCache.cs" />
     <Compile Include="SqlLite\SqlLiteDatabaseBuilder.cs" />
@@ -104,6 +111,6 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(ProjectDir)References\*.dll" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+xcopy /Y /E "$(ProjectDir)References\*.*" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

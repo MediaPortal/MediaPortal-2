@@ -202,11 +202,11 @@ namespace MediaPortal.Media.MediaManager.Views
             string attrValue = Value.ToString().Replace("'", "''");
             if (_operator == Operator.Like)
             {
-              return String.Format("({0} {1} '%{2}%')", Key, _operator.ToString(), attrValue);
+              return String.Format("(\"{0}\" {1} '%{2}%')", Key, _operator.ToString(), attrValue);
             }
             else
             {
-              return String.Format("({0} {1} '{2}')", Key, _operator.ToString(), attrValue);
+              return String.Format("(\"{0}\" {1} '{2}')", Key, _operator.ToString(), attrValue);
             }
           }
         }
@@ -225,7 +225,7 @@ namespace MediaPortal.Media.MediaManager.Views
           }
           if (left.Length > 0 && right.Length > 0)
           {
-            line += String.Format("({0} {1} {2}) ", left, e.Operator.ToString(), right);
+            line += String.Format("(\"{0}\" {1} {2}) ", left, e.Operator.ToString(), right);
           }
           else if (right.Length > 0)
           {

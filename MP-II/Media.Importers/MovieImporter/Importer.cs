@@ -593,7 +593,7 @@ namespace Media.Importers.MovieImporter
         _movieDatabase.Add("title", typeof(string), 1024);
         _movieDatabase.Add("genre", typeof(List<string>), 40);
         _movieDatabase.Add("director", typeof(string), 40);
-        _movieDatabase.Add("contentURI", typeof(string), 1024);
+        _movieDatabase.Add("contentURI", typeof(string), 1000);
         _movieDatabase.Add("CoverArt", typeof(string), 1024);
         _movieDatabase.Add("VideoCodec", typeof(string), 100);
         _movieDatabase.Add("VideoBitRate", typeof(string), 100);
@@ -609,8 +609,8 @@ namespace Media.Importers.MovieImporter
         _movieDatabase.Add("duration", typeof(int));
         _movieDatabase.Add("tagline", typeof(string), 60);
         _movieDatabase.Add("plot", typeof(string), 1024);
-        _movieDatabase.Add("actors", typeof(List<string>), 1024);
-        _movieDatabase.Add("path", typeof(string), 1024);
+        _movieDatabase.Add("actors", typeof(List<string>), 1000);
+        _movieDatabase.Add("path", typeof(string), 1000);
         _movieDatabase.Add("lastplayed", typeof(DateTime));
         _movieDatabase.Add("size", typeof(int));
         _movieDatabase.Add("dateAdded", typeof(DateTime));

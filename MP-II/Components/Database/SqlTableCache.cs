@@ -41,7 +41,10 @@ namespace Components.Database
 
     public void Add(IDataReader reader)
     {
-      _cache[(string) reader[1]] = (int) ((Int64) reader[0]);
+      if (reader.ToString() == "System.Data.SQLite.SQLiteDataReader")
+        _cache[(string)reader[1]] = (int)((Int64) reader[0]);
+      else
+      _cache[(string) reader[1]] = (int) (reader[0]);
     }
 
     public bool Contains(string key)

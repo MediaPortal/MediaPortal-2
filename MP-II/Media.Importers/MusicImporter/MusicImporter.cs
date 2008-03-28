@@ -564,9 +564,9 @@ namespace Media.Importers.MusicImporter
 
         // Add the attributes
         _musicDatabase.Add("contenturi", typeof(string), 255);
-        _musicDatabase.Add("path", typeof(string), 1024);
-        _musicDatabase.Add("artist", typeof(List<string>), 1024);
-        _musicDatabase.Add("albumArtist", typeof(List<string>), 1024);
+        _musicDatabase.Add("path", typeof(string), 1000);
+        _musicDatabase.Add("artist", typeof(List<string>), 1000);
+        _musicDatabase.Add("albumArtist", typeof(List<string>), 1000);
         _musicDatabase.Add("album", typeof(string), 255);
         _musicDatabase.Add("genre", typeof(List<string>), 255);
         _musicDatabase.Add("title", typeof(string), 255);
@@ -582,7 +582,7 @@ namespace Media.Importers.MusicImporter
         _musicDatabase.Add("resumeAt", typeof(int));
         _musicDatabase.Add("gainTrack", typeof(double));
         _musicDatabase.Add("peakTrack", typeof(double));
-        _musicDatabase.Add("lyrics", typeof(string), 1024);
+        _musicDatabase.Add("lyrics", typeof(string), 4096);
         _musicDatabase.Add("musicBrainzID", typeof(string), 255);
         _musicDatabase.Add("dateLastPlayed", typeof(DateTime));
         _musicDatabase.Add("dateAdded", typeof(DateTime));

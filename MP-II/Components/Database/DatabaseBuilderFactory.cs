@@ -70,6 +70,7 @@ namespace Components.Database
       // create database of default type
       string location = ServiceScope.Get<IPathManager>().GetPath("<DATABASE>");
       string connection = string.Format(@"SqlLite:Data Source={0}\{1}.db3", location, databaseId);
+      //string connection = string.Format(@"FireBird:ServerType=1;User=SYSDBA;Password=masterkey;Charset=ISO8859_1;Database={0}\{1}.fdb", location, databaseId);
 
       return Create(connection);
     }
