@@ -1123,7 +1123,7 @@ namespace MyXaml.Core
       Type t = Type.GetType(qualifiedName);
       if (t == null)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Unknown type: {1}", CurrentFile, qualifiedName);
+        ServiceScope.Get<ILogger>().Error("XamlParser: {0} Unknown type: {1}", CurrentFile, qualifiedName);
         return null;
       }
       try
@@ -1132,7 +1132,7 @@ namespace MyXaml.Core
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser: {0} Can't instantiate: {1} (Message: {2})", CurrentFile, qualifiedName, e.Message);
+        ServiceScope.Get<ILogger>().Error("XamlParser: {0} Can't instantiate: {1} (Message: {2})", CurrentFile, qualifiedName, e.Message);
       }
       return classInstance;
     }

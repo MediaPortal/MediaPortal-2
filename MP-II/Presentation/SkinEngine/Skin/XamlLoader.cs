@@ -331,14 +331,22 @@ namespace Presentation.SkinEngine.Skin
     /// <returns>object</returns>
     object CreateObject(string className)
     {
-      //ServiceScope.Get<ILogger>().Critical("CreateObject: {0} ", className);
-      Type t = XamlElements.ObjectClassRegistrations[className];
-      object result = Activator.CreateInstance(t);
-      if (result is UIElement)
-        _lastElement = result as UIElement;
-      if (result is ResourceDictionary)
-        _lastDictionary = result as ResourceDictionary;    
-      return result;
+      try
+      {
+        Type t = XamlElements.ObjectClassRegistrations[className];
+        object result = Activator.CreateInstance(t);
+        if (result is UIElement)
+          _lastElement = result as UIElement;
+        if (result is ResourceDictionary)
+          _lastDictionary = result as ResourceDictionary;
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("CreateObject: class {0}", className);
+        ServiceScope.Get<ILogger>().Error(e.Message);
+        return null;
+      }
     }
   }
 }
