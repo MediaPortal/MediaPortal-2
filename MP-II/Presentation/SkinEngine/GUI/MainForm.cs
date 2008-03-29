@@ -63,7 +63,8 @@ namespace Presentation.SkinEngine.GUI
   {
     private Thread _renderThread;
     private GraphicsDevice _directX;
-    private bool _isRunning;
+    private bool _renderThreadRunning;
+    private bool _renderThreadStopped;
     private float _fpsCounter;
     private DateTime _fpsTimer;
     private float fixed_aspect_ratio = 0;
@@ -79,23 +80,21 @@ namespace Presentation.SkinEngine.GUI
     {
       //**********************************************************
       //following stuff should be dynamicly build offcourse
-      //ILogger logger = new FileLogger(@"log\mediaportal.log", LogLevel.All);
-      //ServiceScope.Add(logger); //<T> parameter is unnecessary when T = type of variable
-      //logger.Debug("Application: starting");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting");
 
 
       ServiceScope.Add<IApplication>(this);
       ServiceScope.Add<IInputMapper>(new InputMapper());
 
-      ServiceScope.Get<ILogger>().Debug("Application: create ICommandBuilder service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create ICommandBuilder service");
       CommandBuilder cmdBuilder = new CommandBuilder();
       ServiceScope.Add<ICommandBuilder>(cmdBuilder);
 
-      ServiceScope.Get<ILogger>().Debug("Application: create IInputManager service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IInputManager service");
       InputManager inputManager = new InputManager();
       ServiceScope.Add<IInputManager>(inputManager);
 
-      ServiceScope.Get<ILogger>().Debug("Application: create IMenuManager service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IMenuManager service");
 
       MenuCollection menuCollection = new MenuCollection();
       ServiceScope.Add<IMenuCollection>(menuCollection);
@@ -103,52 +102,29 @@ namespace Presentation.SkinEngine.GUI
       MenuBuilder menuBuilder = new MenuBuilder();
       ServiceScope.Add<IMenuBuilder>(menuBuilder);
 
-      ServiceScope.Get<ILogger>().Debug("Application: create IWindowManager service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IWindowManager service");
       WindowManager windowManager = new WindowManager();
       ServiceScope.Add<IWindowManager>(windowManager);
 
 
-      ServiceScope.Get<ILogger>().Debug("Application: create PlayerCollection service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerCollection service");
       MediaPlayers players = new MediaPlayers();
       ServiceScope.Add<PlayerCollection>(players);
 
-      ServiceScope.Get<ILogger>().Debug("Application: create UserService service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create UserService service");
       UserService userservice = new UserService();
       ServiceScope.Add<IUserService>(userservice);
-
       //**********************************************************
 
       _previousMousePosition = new Point(-1, -1);
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      ServiceScope.Get<ILogger>().Debug("Application: load skin settings");
-      //Loader loader = new Loader();
-      //loader.LoadSkinSettings();
-
+      // Albert78 FIXME: Make primary screen configurable
       Rectangle screen = Screen.PrimaryScreen.Bounds;
-      float ar = screen.Width / ((float)screen.Height);
-      if (false && ar >= 1.6)
-      {
-        float height = screen.Height;
-        height *= 0.7f;
+      ClientSize = new Size((int) SkinContext.Width, (int) SkinContext.Height);
+      fixed_aspect_ratio = SkinContext.Height / SkinContext.Width;
 
-        if (height < SkinContext.Height)
-        {
-          height = SkinContext.Height;
-        }
-        float width = height * (16.0f / 9.0f);
-        ClientSize = new Size((int)width, (int)height);
-        fixed_aspect_ratio = 9.0f / 16.0f;
-      }
-      else
-      {
-        // ClientSize = new Size(1200, 980);// new Size((int)SkinContext.Width, (int)SkinContext.Height);
-        ClientSize = new Size((int)SkinContext.Width, (int)SkinContext.Height);
-        fixed_aspect_ratio = 3.0f / 4.0f;
-      }
-      // this.ClientSize = new Size(SkinContext.Width, SkinContext.Height);
-      // fixed_aspect_ratio = 3.0f / 4.0f;
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
 
@@ -161,41 +137,27 @@ namespace Presentation.SkinEngine.GUI
         Location = new Point(0, 0);
         ClientSize = Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
-        Text = "";
-        MinimizeBox = false;
-        MaximizeBox = false;
-        ControlBox = false;
-        BackColor = Color.Black;
-        TopMost = true;
-        ShowInTaskbar = false;
         _mode = ScreenMode.ExclusiveMode;
         _displaySetting = GraphicsDevice.DesktopDisplayMode;
-
-        MediaPortal.Utilities.Win32.Window.EnableStartBar(false);
-        MediaPortal.Utilities.Win32.Window.ShowStartBar(false);
       }
       _windowState = WindowState;
+      CheckTopMost();
     }
 
 
     private void MainForm_Load(object sender, EventArgs e)
     {
-      Text = "Mediaportal II";
       SkinContext.Form = this;
       _previousPosition = Location;
 
-      ServiceScope.Get<ILogger>().Debug("Application: initialize directx");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize directx");
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
       _directX = new GraphicsDevice(this, settings.FullScreen);
-      ServiceScope.Get<ILogger>().Debug("Application: load skin");
-      WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-      manager.LoadSkin();
-      ServiceScope.Get<ILogger>().Debug("Application: start render thread");
-      _renderThread = new Thread(RenderLoop);
-      _renderThread.Name = "DirectX Render Thread";
-      _renderThread.Start();
-      ServiceScope.Get<ILogger>().Debug("Application: running");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Load skin");
+      ServiceScope.Get<IWindowManager>().LoadSkin();
+      StartRenderThread();
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
 
       // The form is active, so let's start listening on AutoPlay events
       ServiceScope.Get<IAutoPlay>().StartListening(this.Handle);
@@ -203,49 +165,50 @@ namespace Presentation.SkinEngine.GUI
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      ServiceScope.Get<ILogger>().Debug("Application: closing");
-      ServiceScope.Get<ILogger>().Debug("Application: stop renderthread");
-      _isRunning = false;
-      if (_renderThread != null)
-      {
-        _renderThread.Join();
-      }
-      ServiceScope.Get<ILogger>().Debug("Application: stop players");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Closing");
+      StopRenderThread();
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop players");
       ServiceScope.Get<PlayerCollection>().Dispose();
-      ServiceScope.Get<ILogger>().Debug("Application: dispose directx");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
-      _renderThread = null;
       MediaPortal.Utilities.Win32.Window.EnableStartBar(true);
       MediaPortal.Utilities.Win32.Window.ShowStartBar(true);
-      ServiceScope.Get<ILogger>().Debug("Application: stopping.");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
     }
 
     private void RenderLoop()
     {
       _fpsTimer = DateTime.Now;
-      _fpsCounter = 0.0f;
-      _isRunning = true;
+      _fpsCounter = 0;
+      _renderThreadRunning = true;
       SkinContext.IsRendering = true;
-      while (_isRunning)
+      try
       {
-        Render();
-        TimeSpan ts = DateTime.Now - _fpsTimer;
-        if (ts.TotalSeconds >= 1.0f)
+        while (!_renderThreadStopped)
         {
-          float secs = (float)ts.TotalSeconds;
-          _fpsCounter /= secs;
-          //this.Text = "fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString();
-          _fpsCounter = 0;
-          _fpsTimer = DateTime.Now;
-          if (GraphicsDevice.DeviceLost)
+          Render();
+          TimeSpan ts = DateTime.Now - _fpsTimer;
+          if (ts.TotalSeconds >= 1.0f)
           {
-            break;
+            float secs = (float)ts.TotalSeconds;
+            _fpsCounter /= secs;
+            //this.Text = "fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString();
+            _fpsCounter = 0;
+            _fpsTimer = DateTime.Now;
+            if (GraphicsDevice.DeviceLost)
+            {
+              break;
+            }
           }
         }
       }
-      SkinContext.IsRendering = false;
-      ServiceScope.Get<ILogger>().Debug("Application: renderthread stopped.");
+      finally
+      {
+        _renderThreadRunning = false;
+        SkinContext.IsRendering = false;
+      }
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }
 
     /// <summary>
@@ -266,7 +229,7 @@ namespace Presentation.SkinEngine.GUI
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {
-      if (!_isRunning)
+      if (_renderThreadStopped)
       {
         return;
       }
@@ -291,7 +254,6 @@ namespace Presentation.SkinEngine.GUI
       //      this.Text = String.Format("{0},{1}", x.ToString("f2"), y.ToString("f2"));
       ServiceScope.Get<IInputManager>().MouseMove(x, y);
     }
-
 
     private void MainForm_KeyUp(object sender, KeyEventArgs e) { }
 
@@ -372,7 +334,7 @@ namespace Presentation.SkinEngine.GUI
       {
         if (WindowState == FormWindowState.Normal)
         {
-          Rect r = (Rect)Marshal.PtrToStructure(m.LParam, typeof(Rect));
+          Rect r = (Rect) Marshal.PtrToStructure(m.LParam, typeof(Rect));
 
           // Get the current dimensions.
           float wid = r.Right - r.Left;
@@ -380,39 +342,35 @@ namespace Presentation.SkinEngine.GUI
           // Get the new aspect ratio.
           float new_aspect_ratio = hgt / wid;
 
-          // The first time, save the form? aspect ratio.
-          if (fixed_aspect_ratio == 0)
-          {
-            fixed_aspect_ratio = new_aspect_ratio;
-          }
           // See if the aspect ratio is changing.
           if (fixed_aspect_ratio != new_aspect_ratio)
           {
+            Int32 dragBorder = m.WParam.ToInt32();
             // To decide which dimension we should preserve,
             // see what border the user is dragging.
-            if (m.WParam.ToInt32() == WMSZ_TOPLEFT || m.WParam.ToInt32() == WMSZ_TOPRIGHT ||
-                m.WParam.ToInt32() == WMSZ_BOTTOMLEFT || m.WParam.ToInt32() == WMSZ_BOTTOMRIGHT)
+            if (dragBorder == WMSZ_TOPLEFT || dragBorder == WMSZ_TOPRIGHT ||
+                dragBorder == WMSZ_BOTTOMLEFT || dragBorder == WMSZ_BOTTOMRIGHT)
             {
               // The user is dragging a corner.
               // Preserve the bigger dimension.
               if (new_aspect_ratio > fixed_aspect_ratio)
               {
-                // It? too tall and thin. Make it wider.
+                // It's too tall and thin. Make it wider.
                 wid = hgt / fixed_aspect_ratio;
               }
               else
               {
-                // It? too short and wide. Make it taller.
+                // It's too short and wide. Make it taller.
                 hgt = wid * fixed_aspect_ratio;
               }
             }
-            else if (m.WParam.ToInt32() == WMSZ_LEFT || m.WParam.ToInt32() == WMSZ_RIGHT)
+            else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
             {
               // The user is dragging a side.
               // Preserve the width.
               hgt = wid * fixed_aspect_ratio;
             }
-            else if (m.WParam.ToInt32() == WMSZ_TOP || m.WParam.ToInt32() == WMSZ_BOTTOM)
+            else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
             {
               // The user is dragging the top or bottom.
               // Preserve the height.
@@ -421,8 +379,8 @@ namespace Presentation.SkinEngine.GUI
             // Figure out whether to reset the top/bottom
             // and left/right.
             // See if the user is dragging the top edge.
-            if (m.WParam.ToInt32() == WMSZ_TOP || m.WParam.ToInt32() == WMSZ_TOPLEFT ||
-                m.WParam.ToInt32() == WMSZ_TOPRIGHT)
+            if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
+                dragBorder == WMSZ_TOPRIGHT)
             {
               // Reset the top.
               r.Top = r.Bottom - (int)(hgt);
@@ -433,8 +391,8 @@ namespace Presentation.SkinEngine.GUI
               r.Bottom = r.Top + (int)(hgt);
             }
             // See if the user is dragging the left edge.
-            if (m.WParam.ToInt32() == WMSZ_LEFT || m.WParam.ToInt32() == WMSZ_TOPLEFT ||
-                m.WParam.ToInt32() == WMSZ_BOTTOMLEFT)
+            if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
+                dragBorder == WMSZ_BOTTOMLEFT)
             {
               // Reset the left.
               r.Left = r.Right - (int)(wid);
@@ -444,7 +402,7 @@ namespace Presentation.SkinEngine.GUI
               // Reset the right.
               r.Right = r.Left + (int)(wid);
             }
-            // Update the Message object? LParam field.
+            // Update the Message object's LParam field.
             Marshal.StructureToPtr(r, m.LParam, true);
           }
         }
@@ -456,7 +414,7 @@ namespace Presentation.SkinEngine.GUI
     protected override void OnSizeChanged(EventArgs e)
     {
       base.OnSizeChanged(e);
-      ServiceScope.Get<ILogger>().Debug("Application: OnSizeChanged  {0} {1}", Bounds.ToString(), WindowState);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), WindowState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -474,7 +432,7 @@ namespace Presentation.SkinEngine.GUI
 
     protected override void OnResizeEnd(EventArgs e)
     {
-      ServiceScope.Get<ILogger>().Debug("Application: OnResizeEnd {0} {1}", Bounds.ToString(), WindowState);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), WindowState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -486,33 +444,27 @@ namespace Presentation.SkinEngine.GUI
       {
         base.OnResizeEnd(e);
         _previousClientSize = ClientSize;
-        // ServiceScope.Get<ILogger>().Debug("Application: stop render thread");
-        _isRunning = false;
-        if (_renderThread != null)
-        {
-          _renderThread.Join();
-          _renderThread = null;
-        }
+        ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
+        StopRenderThread();
 
         ServiceScope.Get<PlayerCollection>().ReleaseResources();
-        //ServiceScope.Get<ILogger>().Debug("Application: dispose resources");
+        //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose resources");
         //ServiceScope.Get<PlayerCollection>().Dispose();
 
         FontManager.Free();
         ContentManager.Free();
         //
-        ServiceScope.Get<ILogger>().Debug("Application: reset directx");
+        ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
         if (WindowState != FormWindowState.Minimized)
         {
           GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), string.Empty);
-          ServiceScope.Get<ILogger>().Debug("Application: allocate fonts");
+          ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Allocate fonts");
           FontManager.Alloc();
-          ServiceScope.Get<IWindowManager>().CurrentWindow.Reset();
+          ServiceScope.Get<IWindowManager>().Reset();
 
-          ServiceScope.Get<ILogger>().Debug("Application: start render thread");
-          _renderThread = new Thread(RenderLoop);
-          _renderThread.Start();
+          ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
+          StartRenderThread();
         }
         ServiceScope.Get<PlayerCollection>().ReallocResources();
       }
@@ -520,8 +472,9 @@ namespace Presentation.SkinEngine.GUI
 
     public void SwitchMode(ScreenMode mode, FPS fps)
     {
-      ServiceScope.Get<ILogger>().Debug("Application: SwitchMode({0},{1})", mode, fps);
-      bool maximize = (mode == ScreenMode.ExclusiveMode) || (mode == ScreenMode.FullScreenWindowed);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0}, {1})", mode, fps);
+      bool oldFullscreen = IsFullScreen;
+      bool newFullscreen = (mode == ScreenMode.ExclusiveMode) || (mode == ScreenMode.FullScreenWindowed);
       string displaySetting;
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
@@ -560,75 +513,51 @@ namespace Presentation.SkinEngine.GUI
       _displaySetting = displaySetting;
       _mode = mode;
 
-      if (maximize)
+      if (newFullscreen && !oldFullscreen)
       {
-        ServiceScope.Get<ILogger>().Debug("Application: ClientSize {0}", ClientSize);
         _previousClientSize = ClientSize;
       }
 
 
-      ServiceScope.Get<ILogger>().Debug("Application: stop renderthread");
-
-      settings.FullScreen = maximize;
+      settings.FullScreen = newFullscreen;
       ServiceScope.Get<ISettingsManager>().Save(settings);
 
-      ServiceScope.Get<ILogger>().Debug("Application: stop renderthread");
-      _isRunning = false;
-      _renderThread.Join();
-      ServiceScope.Get<ILogger>().Debug("Application: dispose resources");
+      StopRenderThread();
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
       ServiceScope.Get<PlayerCollection>().ReleaseResources();
 
       FontManager.Free();
       ContentManager.Free();
 
       // Must be done before reset. Otherwise we will loose device after reset.
-      if (maximize)
+      if (newFullscreen)
       {
         Location = new Point(0, 0);
+        // Albert78 FIXME: Make primary screen configurable
         ClientSize = Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
-        MinimizeBox = false;
-        MaximizeBox = false;
-        ControlBox = false;
-        BackColor = Color.Black;
-        TopMost = true;
-        ShowInTaskbar = false;
-
-        // Hide start menu
-        MediaPortal.Utilities.Win32.Window.EnableStartBar(false);
-        MediaPortal.Utilities.Win32.Window.ShowStartBar(false);
       }
       else
       {
         WindowState = FormWindowState.Normal;
         FormBorderStyle = FormBorderStyle.Sizable;
-        MaximizeBox = true;
-        MinimizeBox = true;
-        ControlBox = true;
         ClientSize = _previousClientSize;
         Location = _previousPosition;
-
-        // Show start menu
-        MediaPortal.Utilities.Win32.Window.EnableStartBar(true);
-        MediaPortal.Utilities.Win32.Window.ShowStartBar(true);
-
-        Update();
-        Activate();
       }
+      CheckTopMost();
+      Update();
+      Activate();
 
-      ServiceScope.Get<ILogger>().Debug("Application: switch mode maximize = {0},  mode = {1}, displaySetting = {2}", maximize, mode, displaySetting);
-      ServiceScope.Get<ILogger>().Debug("Application: reset directx");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}, displaySetting = {2}", newFullscreen, mode, displaySetting);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
       GraphicsDevice.Reset(this, (mode == ScreenMode.ExclusiveMode), displaySetting);
 
-      ServiceScope.Get<ILogger>().Debug("Application: allocate fonts");
       FontManager.Alloc();
 
       ServiceScope.Get<PlayerCollection>().ReallocResources();
 
-      ServiceScope.Get<ILogger>().Debug("Application: start renderthread");
-      _renderThread = new Thread(RenderLoop);
-      _renderThread.Start();
+      StartRenderThread();
     }
 
     public bool IsFullScreen
@@ -702,6 +631,27 @@ namespace Presentation.SkinEngine.GUI
       }
     }
 
+    protected void StartRenderThread()
+    {
+      if (_renderThread != null)
+        throw new Exception("DirectX MainForm: Render thread already running");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Start render thread");
+      _renderThreadStopped = false;
+      _renderThread = new Thread(RenderLoop);
+      _renderThread.Name = "DirectX Render Thread";
+      _renderThread.Start();
+    }
+
+    protected void StopRenderThread()
+    {
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
+      _renderThreadStopped = true;
+      if (_renderThread == null)
+        return;
+      _renderThread.Join();
+      _renderThread = null;
+    }
+
     private void MainForm_MouseUp(object sender, MouseEventArgs e) { }
 
     protected override void OnGotFocus(EventArgs e)
@@ -716,41 +666,51 @@ namespace Presentation.SkinEngine.GUI
       _hasFocus = false;
     }
 
-    private static bool reentrant = false;
+    private readonly object _reclaimDeviceSyncObj = new object();
 
     private void timer_Tick(object sender, EventArgs e)
     {
-      if (reentrant)
-      {
-        return;
-      }
-
-      try
-      {
-        reentrant = true;
-        if (GraphicsDevice.DeviceLost)
+      // Avoid multiple threads in here.
+      if (Monitor.TryEnter(_reclaimDeviceSyncObj))
+        try
         {
-          if (_renderThread != null)
+          if (GraphicsDevice.DeviceLost)
           {
-            _renderThread.Join();
-            _renderThread = null;
-          }
-          if (_hasFocus)
-          {
-            if (GraphicsDevice.ReclaimDevice())
+            StopRenderThread();
+            if (_hasFocus)
             {
-              FontManager.Alloc();
-              _renderThread = new Thread(RenderLoop);
-              GraphicsDevice.DeviceLost = false;
-              _renderThread.Start();
+              if (GraphicsDevice.ReclaimDevice())
+              {
+                FontManager.Alloc();
+                GraphicsDevice.DeviceLost = false;
+                StartRenderThread();
+              }
             }
           }
         }
-      }
-      finally
-      {
-        reentrant = false;
-      }
+        finally
+        {
+          Monitor.Exit(_reclaimDeviceSyncObj);
+        }
+    }
+
+    /// <summary>
+    /// Sets the TopMost property setting according to the current fullscreen setting
+    /// and activation mode.
+    /// </summary>
+    protected void CheckTopMost()
+    {
+      TopMost = IsFullScreen && this == ActiveForm;
+    }
+
+    private void MainForm_Activated(object sender, EventArgs e)
+    {
+      CheckTopMost();
+    }
+
+    private void MainForm_Deactivate(object sender, EventArgs e)
+    {
+      CheckTopMost();
     }
   }
 
@@ -760,5 +720,5 @@ namespace Presentation.SkinEngine.GUI
     public int Top;
     public int Right;
     public int Bottom;
-  } ;
+  };
 }

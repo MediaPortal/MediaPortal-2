@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<MyXaml >
-  <Canvas xmlns:local="clr-namespace:HomeMenu;assembly=menu" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
+<MyXaml>
+  <Canvas
+      xmlns:local="clr-namespace:HomeMenu;assembly=Menu"
+      FocusManager.FocusedElement="{Binding ElementName=mainMenu}"
+    >
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>

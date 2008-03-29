@@ -66,9 +66,20 @@ namespace MediaPortal.Presentation.WindowManager
     IWindow CurrentWindow { get; }
 
     /// <summary>
+    /// Resets the currently opened windows
+    /// </summary>
+    void Reset();
+
+    /// <summary>
     /// Reloads the current window
     /// </summary>
     void Reload();
+
+    /// <summary>
+    /// Initially loads the skin. This method will be called when the GUI
+    /// was initialized.
+    /// </summary>
+    void LoadSkin();
 
     /// <summary>
     /// switches the gui to another skin

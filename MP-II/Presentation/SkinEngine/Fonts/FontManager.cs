@@ -58,7 +58,7 @@ namespace Presentation.SkinEngine.Fonts
         {
           return;
         }
-        ServiceScope.Get<ILogger>().Debug("FontManager:LoadFont:{0}", fontName);
+        ServiceScope.Get<ILogger>().Debug("FontManager: LoadFont: {0}", fontName);
 
         XmlNode nodeFace = node.Attributes.GetNamedItem("face");
         if (nodeFace == null)
@@ -138,11 +138,13 @@ namespace Presentation.SkinEngine.Fonts
         Trace.WriteLine("alloc font:" + enumer.Current.Key);
       }
     }
+
     public static void Reload()
     {
       _fonts = new Dictionary<string, Font>();
 
       XmlDocument doc = new XmlDocument();
+      // Albert78, 26.3.08: FIXME overwork the path resolution
       doc.Load(String.Format(@"skin\{0}\font.xml", SkinContext.SkinName));
       XmlNodeList nodes = doc.SelectNodes("/fonts/font");
       foreach (XmlNode node in nodes)

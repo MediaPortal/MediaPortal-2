@@ -5,6 +5,7 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MyXaml.Core;
+using Clifton.Tools.Strings;
 using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.ElementRegistrations;
@@ -12,7 +13,8 @@ using Presentation.SkinEngine.ElementRegistrations;
 namespace Presentation.SkinEngine.Skin
 {                              
   /// <summary>
-  /// This is the loader class for each XAML file.
+  /// This is the loader class for XAML files. It uses a XAML parser to read the
+  /// structure and builds the visual elements tree for the file.
   /// </summary>              
   public class XamlLoader
   {
@@ -20,13 +22,14 @@ namespace Presentation.SkinEngine.Skin
     ResourceDictionary _lastDictionary;
 
     /// <summary>
-    /// Loads the specified skin file using MyXaml
-    /// and returns the root UIElement
+    /// Loads the specified skin file and returns the root UIElement.
     /// </summary>
-    /// <param name="skinFile">The skin file.</param>
-    /// <returns></returns>
+    /// <param name="skinFile">The XAML skin file.</param>
+    /// <returns><see cref="UIElement"/>-ancestor corresponding to the root element in the
+    /// specified skin file.</returns>
     public object Load(string skinFile)
     {
+      // FIXME: rework the XAML file lookup mechanism
       DateTime dt = DateTime.Now;
       string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
       if (System.IO.File.Exists(skinFile))
@@ -47,34 +50,7 @@ namespace Presentation.SkinEngine.Skin
         parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
         object obj = parser.Instantiate(fullFileName, "*");
         TimeSpan ts = DateTime.Now - dt;
-        ServiceScope.Get<ILogger>().Info("Xaml loaded {0} msec:{1}", skinFile, ts.TotalMilliseconds);
-        return obj;
-      }
-    }
-
-
-    public object Load(string skinFile, string tagName)
-    {
-      Trace.WriteLine("---load:" + skinFile);
-      string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
-      if (System.IO.File.Exists(skinFile))
-      {
-        fullFileName = skinFile;
-      }
-      using (Parser parser = new Parser())
-      {
-        parser.InstantiatePropertyDeclaration += new Parser.InstantiatePropertyDeclarationDlgt(parser_InstantiatePropertyDeclaration);
-        parser.InstantiateFromQName += new Parser.InstantiateClassDlgt(parser_InstantiateFromQName);
-        parser.PropertyDeclarationTest += new Parser.PropertyDeclarationTestDlgt(parser_PropertyDeclarationTest);
-        parser.CustomTypeConvertor += new Parser.CustomTypeConverterDlgt(parser_CustomTypeConvertor);
-        parser.OnGetResource += new Parser.GetResourceDlgt(parser_OnGetResource);
-        parser.AddToCollection += new Parser.AddToCollectionDlgt(parser_AddToCollection);
-        parser.OnSetContent += new Parser.SetContentDlg(parser_OnSetContent);
-        parser.OnGetBinding += new Parser.GetBindingDlgt(parser_OnGetBinding);
-        parser.OnGetTemplateBinding += new Parser.GetBindingDlgt(parser_OnGetTemplateBinding);
-        parser.OnImportNameSpace += new Parser.ImportNamespaceDlgt(parser_OnImportNameSpace);
-        UIElement obj = (UIElement)parser.Instantiate(fullFileName, tagName);
-        Trace.WriteLine("---------");
+        ServiceScope.Get<ILogger>().Info("Xaml loaded {0} msec: {1}", skinFile, ts.TotalMilliseconds);
         return obj;
       }
     }
@@ -85,31 +61,27 @@ namespace Presentation.SkinEngine.Skin
       string[] parts = nameSpace.Split(new char[] { ';' });
       if (parts.Length != 2)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: invalid namespace declaration: {0}", nameSpace);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: invalid namespace declaration: {0}", nameSpace);
         return;
       }
-      string className = parts[0].Substring(parts[0].IndexOf(":") + 1);
-      string assemblyName = parts[1].Substring(parts[1].IndexOf("=") + 1);
-      if (!SkinEngine.ModelManager.Instance.Contains(assemblyName, className))
-      {
-        SkinEngine.ModelManager.Instance.Load(assemblyName, className);
-      }
-      Model model = SkinEngine.ModelManager.Instance.GetModel(assemblyName, className);
+      string className = StringHelpers.RightOf(parts[0], ':');
+      string assemblyName = StringHelpers.RightOf(parts[1], '=');
+      Model model = SkinEngine.ModelManager.Instance.GetOrLoadModel(assemblyName, className);
       if (model == null)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: unknown model: assemblyName: {0} class:{1}", assemblyName, className);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: unknown model: {0}.{1}", assemblyName, className);
         return;
       }
       PropertyInfo info = obj.GetType().GetProperty("Context");
       if (info == null)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: object {0} does not have a Context property", obj);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: object {0} does not have a Context property", obj);
         return;
       }
       MethodInfo methodInfo = info.GetSetMethod();
       if (methodInfo == null)
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: object {0} does not have a Context set property", obj);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: object {0} does not have a Context set property", obj);
         return;
       }
       methodInfo.Invoke(obj, new object[] { model.Instance });
@@ -119,20 +91,15 @@ namespace Presentation.SkinEngine.Skin
     {
       if (obj is UIElement)
       {
-        if (content is FrameworkElement)
+        UIElement element = (UIElement)obj;
+        ContentPresenter contentPresenter = VisualTreeHelper.Instance.FindElementType(element, typeof(ContentPresenter)) as ContentPresenter;
+        if (contentPresenter != null)
         {
-          UIElement element = (UIElement)obj;
-          ContentPresenter contentPresenter = VisualTreeHelper.Instance.FindElementType(element, typeof(ContentPresenter)) as ContentPresenter;
-          if (contentPresenter != null)
+          if (content is FrameworkElement)
           {
             contentPresenter.Content = (FrameworkElement)content;
           }
-        }
-        else if (content is String)
-        {
-          UIElement element = (UIElement)obj;
-          ContentPresenter contentPresenter = VisualTreeHelper.Instance.FindElementType(element, typeof(ContentPresenter)) as ContentPresenter;
-          if (contentPresenter != null)
+          else if (content is String)
           {
             Label l = new Label();
             l.Text = (string)content;
@@ -157,7 +124,7 @@ namespace Presentation.SkinEngine.Skin
       }
       else
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: class {0} does not implement IBindingCollection", obj);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: class {0} does not implement IBindingCollection", obj);
       }
       return null;
     }
@@ -175,7 +142,7 @@ namespace Presentation.SkinEngine.Skin
       }
       else
       {
-        ServiceScope.Get<ILogger>().Info("XamlParser: class {0} does not implement IBindingCollection", obj);
+        ServiceScope.Get<ILogger>().Info("XamlLoader: class {0} does not implement IBindingCollection", obj);
       }
       return null;
     }
@@ -251,7 +218,7 @@ namespace Presentation.SkinEngine.Skin
           object o = ResourceDictionaryCache.Instance.Get(dictNew.Source);
 
           ResourceDictionary dict = (ResourceDictionary)e.Container;
-          // TODO: Explain why we cannot merge dictNew directly into dict
+          // Albert78 TODO: Explain why we cannot merge dictNew directly into dict
           dict.Merge((ResourceDictionary)o);
           e.Result = true;
 

@@ -28,8 +28,30 @@ using MediaPortal.Core.WindowManager;
 
 namespace SkinEngine
 {
+  /// <summary>
+  /// Class to manage displaying wait cursors in the current <see cref="IWindow"/>.
+  /// This class can be used to simplify displaying and resetting a wait cursor when
+  /// used in a single method context, i.e. when the cursor should be shown and hidden again
+  /// in the same method execution.
+  /// To show a wait cursor, just create an instance of <see cref="ShowWaitCursor"/>, and dispose
+  /// it afterwards:
+  /// 
+  /// <code>
+  ///   ShowWaitCursor wc = new ShowWaitCursor();
+  ///   try
+  ///   {
+  ///     [... Code which requires the wait cursor ...]
+  ///   }
+  ///   finally
+  ///   {
+  ///     wc.Dispose();
+  ///   }
+  /// </code>
+  /// </summary>
   public class ShowWaitCursor : IDisposable
   {
+    protected bool _oldWaitCursorState;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ShowWaitCursor"/> class.
     /// </summary>
@@ -37,6 +59,7 @@ namespace SkinEngine
     {
       WindowManager manager = (WindowManager) ServiceScope.Get<IWindowManager>();
       IWindow window = manager.CurrentWindow;
+      _oldWaitCursorState = window.WaitCursorVisible;
       window.WaitCursorVisible = true;
     }
 
@@ -49,7 +72,7 @@ namespace SkinEngine
     {
       WindowManager manager = (WindowManager) ServiceScope.Get<IWindowManager>();
       IWindow window = manager.CurrentWindow;
-      window.WaitCursorVisible = false;
+      window.WaitCursorVisible = _oldWaitCursorState;
     }
 
     #endregion

@@ -157,13 +157,13 @@ namespace Presentation.SkinEngine
     /// Resets the directx device
     /// </summary>
     /// <param name="window">The window.</param>
-    /// <param name="exclusiveMode">if set to <c>true</c> then use directx exclusive mode
-    /// else directx windowed mode.</param>
+    /// <param name="exclusiveMode">if set to <c>true</c> then use DirectX exclusive mode
+    /// else DirectX windowed mode.</param>
     public static bool Reset(Form window, bool exclusiveMode, string displaySetting)
     {
       try
       {
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: reset directx, exclusive:{0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
+        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
         if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
         {
           if (_backBuffer != null)
@@ -174,7 +174,7 @@ namespace Presentation.SkinEngine
           _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
           int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
           AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
-          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx reset {0}x{1} format: {2} {3} Hz", Width, Height,
+          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
@@ -188,7 +188,7 @@ namespace Presentation.SkinEngine
       }
       catch (DirectXException)
       {
-        ServiceScope.Get<ILogger>().Error("GraphicsDevice: failed to reset directx");
+        ServiceScope.Get<ILogger>().Error("GraphicsDevice: Failed to reset DirectX");
         // ServiceScope.Get<ILogger>().Error(ex);
       }
       return false;
@@ -218,6 +218,7 @@ namespace Presentation.SkinEngine
         _device = null;
       }
     }
+    #endregion
 
     /// <summary>
     /// Gets or sets the DirectX Device.
@@ -437,17 +438,10 @@ namespace Presentation.SkinEngine
             if (SkinContext.UseBatching)
             {
               RenderPipeline.Instance.Render();
-
-                WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-                manager.Render();
-
-
             }
-            else
-            {
-              WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-              manager.Render();
-            }
+
+            WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+            manager.Render();
           }
           //End the scene
           _device.EndScene();
@@ -459,7 +453,7 @@ namespace Presentation.SkinEngine
         }
         catch (DeviceLostException)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice:Lost directx device");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device");
           _deviceLost = true;
           return true;
         }
@@ -472,7 +466,7 @@ namespace Presentation.SkinEngine
         }
         catch (GraphicsException ex)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: graphics exception");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Graphics exception");
           ServiceScope.Get<ILogger>().Error(ex);
           _deviceLost = true;
           return true;
@@ -499,34 +493,35 @@ namespace Presentation.SkinEngine
       }
       catch (DeviceNotResetException)
       {
-        ServiceScope.Get<ILogger>().Warn("GraphicsDevice:aquired directx device");
+        ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired DirectX device");
         try
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice:device reset");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Device reset");
           _setup.Reset();
           int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
           AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
-          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: directx reset {0}x{1} format: {2} {3} Hz", Width, Height,
+          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice:aquired device reset");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
           return true;
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice:reset failed");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Reset failed");
           ServiceScope.Get<ILogger>().Error(ex);
         }
       }
       catch (DeviceLostException) { }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Warn("GraphicsDevice:TestCooperativeLevel failed");
+        ServiceScope.Get<ILogger>().Warn("GraphicsDevice: TestCooperativeLevel failed");
         ServiceScope.Get<ILogger>().Error(ex);
       }
       return false;
     }
+
     /// <summary>
     /// Returns available display modes for the display device
     /// </summary>
@@ -540,7 +535,5 @@ namespace Presentation.SkinEngine
     {
       get { return _setup.DesktopDisplayMode; }
     }
-
-    #endregion
   }
 }

@@ -256,7 +256,7 @@
     <Compile Include="MyXaml.Core\MxComponentContainer.cs" />
     <Compile Include="MyXaml.Core\ObjectInfo.cs" />
     <Compile Include="MyXaml.Core\Parser.cs" />
-    <Compile Include="MyXaml.Core\StringHelpers.cs" />
+    <Compile Include="External\StringHelpers.cs" />
     <Compile Include="Players\CropSettings.cs" />
     <Compile Include="Players\DvdPlayer.cs" />
     <Compile Include="Players\FilterGraphTools.cs" />

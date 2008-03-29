@@ -53,10 +53,26 @@ namespace Presentation.SkinEngine
     private string _name;
     private bool _hasFocus;
     private State _state = State.Running;
+
+    /// <summary>
+    /// Our handler bound on our KeyPressed handler. Will be used to attach to
+    /// the <see cref="IInputManager"/>'s KeyPressed event.
+    /// </summary>
     private KeyPressedHandler _keyPressHandler;
+
+    /// <summary>
+    /// Our handler bound on our MouseMoved handler. Will be used to attach to
+    /// the <see cref="IInputManager"/>'s MouseMoved event.
+    /// </summary>
     private MouseMoveHandler _mouseMoveHandler;
-    private Property _opened;
+
+    /// <summary>
+    /// Holds the information if our input handlers are currently attached at
+    /// the <see cref="IInputManger"/>.
+    /// </summary>
     private bool _attachedInput = false;
+
+    private Property _opened;
     private string _defaultFocus;
     private Thread _thread;
     public event EventHandler OnClose;

@@ -108,7 +108,7 @@ namespace Presentation.SkinEngine
       SkinContext.SkinName = settings.Skin;
       //SkinContext.ThemeName = settings.Theme;
 
-      ShowWindow("homevista");
+      ShowWindow("home");
     }
 
     public void SwitchTheme(string newThemeName)
@@ -279,6 +279,13 @@ namespace Presentation.SkinEngine
       }
     }
 
+    public void Reset()
+    {
+      if (_currentDialog != null)
+        _currentDialog.Reset();
+      _currentWindow.Reset();
+    }
+
     /// <summary>
     /// Determines wether the windowmanager contains a window with the specified name
     /// </summary>
@@ -299,9 +306,11 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Gets the window with the specified name.
+    /// Gets the window with the specified name. If the window is already load, the cached window
+    /// will be returned. Else, a new window instance will be created and load from the XAML resource
+    /// specified by the <paramref name="windowName"/>.
     /// </summary>
-    /// <param name="windowName">Name of the window.</param>
+    /// <param name="windowName">Name of the window to return.</param>
     /// <returns></returns>
     public Window GetWindow(string windowName)
     {
@@ -448,6 +457,7 @@ namespace Presentation.SkinEngine
         if (_previousWindow != null)
         {
           _previousWindow.WindowState = Window.State.Closing;
+          _previousWindow.HasFocus = false;
           _previousWindow.DetachInput();
         }
         _currentWindow = window;
@@ -459,33 +469,36 @@ namespace Presentation.SkinEngine
           _previousWindow.Hide();
         _previousWindow = null;
 
-        if (_currentWindow != null && _currentWindow.Name == "login")
-        {
-          Thread tStart = new Thread(new ThreadStart(ShowHomeMenu));
-          tStart.Start();
-        }
+        // Albert78, 23.3.08: Why this code?
+        //if (_currentWindow != null && _currentWindow.Name == "login")
+        //{
+        //  Thread tStart = new Thread(new ThreadStart(ShowHomeMenu));
+        //  tStart.Start();
+        //}
       }
     }
 
-    void ShowHomeMenu()
-    {
-      while (_currentWindow.IsAnimating) Thread.Sleep(10);
+    // Albert78, 23.3.08: See comment at the end of method ShowWindow. This method is nowhere else used than
+    // in the region commented out there
+    //void ShowHomeMenu()
+    //{
+    //  while (_currentWindow.IsAnimating) Thread.Sleep(10);
 
-      _previousWindow = _currentWindow;
+    //  _previousWindow = _currentWindow;
 
-      _previousWindow.WindowState = Window.State.Closing;
-      _previousWindow.HasFocus = false;
-      _previousWindow.DetachInput();
+    //  _previousWindow.WindowState = Window.State.Closing;
+    //  _previousWindow.HasFocus = false;
+    //  _previousWindow.DetachInput();
 
 
 
-      _currentWindow = GetWindow("homeVista");
-      _history.Add(_currentWindow);
-      _currentWindow.WindowState = Window.State.Running;
-      _currentWindow.AttachInput();
-      _currentWindow.Show();
-      _previousWindow.Hide();
-    }
+    //  _currentWindow = GetWindow("home");
+    //  _history.Add(_currentWindow);
+    //  _currentWindow.WindowState = Window.State.Running;
+    //  _currentWindow.AttachInput();
+    //  _currentWindow.Show();
+    //  _previousWindow.Hide();
+    //}
 
     /// <summary>
     /// Shows the previous window.
@@ -498,7 +511,7 @@ namespace Presentation.SkinEngine
       }
       lock (_history)
       {
-        ServiceScope.Get<ILogger>().Debug("WindowManager:Show previous window");
+        ServiceScope.Get<ILogger>().Debug("WindowManager: Show previous window");
         Window window = _history[_history.Count - 1];
         if (_currentDialog != null)
         {
@@ -582,7 +595,7 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Gets / Sets Dialog LIne 1
+    /// Gets / Sets Dialog Line 1
     /// </summary>
     public string DialogLine1
     {
@@ -597,7 +610,7 @@ namespace Presentation.SkinEngine
     }
     
     /// <summary>
-    /// Gets / Sets Dialog LIne 2
+    /// Gets / Sets Dialog Line 2
     /// </summary>
     public string DialogLine2
     {
@@ -612,7 +625,7 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Gets / Sets Dialog LIne 3
+    /// Gets / Sets Dialog Line 3
     /// </summary>
     public string DialogLine3
     {

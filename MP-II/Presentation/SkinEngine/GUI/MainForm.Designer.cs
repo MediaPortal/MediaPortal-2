@@ -65,12 +65,15 @@ namespace Presentation.SkinEngine.GUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.BackColor = System.Drawing.Color.Black;
       this.ClientSize = new System.Drawing.Size(292, 266);
       this.Name = "MainForm";
-      this.Text = "DirectX MainForm";
+      this.Text = "MediaPortal II";
+      this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
       this.Load += new System.EventHandler(this.MainForm_Load);
       this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseUp);
       this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
+      this.Activated += new System.EventHandler(this.MainForm_Activated);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
       this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseMove);

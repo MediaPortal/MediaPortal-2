@@ -35,7 +35,8 @@ namespace Presentation.SkinEngine
   {
     static public int TextureReferences = 0;
     static public int VertexReferences = 0;
-    #region variables
+
+    #region Private variables
 
     private static Dictionary<string, IAsset> _assetsNormal = new Dictionary<string, IAsset>();
     private static Dictionary<string, IAsset> _assetsHigh = new Dictionary<string, IAsset>();
@@ -44,6 +45,7 @@ namespace Presentation.SkinEngine
     private static DateTime _timer = SkinContext.Now;
 
     #endregion
+
     static ContentManager()
     {
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
@@ -107,31 +109,25 @@ namespace Presentation.SkinEngine
       }
       lock (_assetsNormal)
       {
-        if (_assetsNormal.ContainsValue(unknownAsset))
+        Dictionary<string, IAsset>.Enumerator enumer = _assetsNormal.GetEnumerator();
+        while (enumer.MoveNext())
         {
-          Dictionary<string, IAsset>.Enumerator enumer = _assetsNormal.GetEnumerator();
-          while (enumer.MoveNext())
+          if (enumer.Current.Value == unknownAsset)
           {
-            if (enumer.Current.Value == unknownAsset)
-            {
-              _assetsNormal.Remove(enumer.Current.Key);
-              break;
-            }
+            _assetsNormal.Remove(enumer.Current.Key);
+            break;
           }
         }
       }
       lock (_assetsHigh)
       {
-        if (_assetsHigh.ContainsValue(unknownAsset))
+        Dictionary<string, IAsset>.Enumerator enumer = _assetsHigh.GetEnumerator();
+        while (enumer.MoveNext())
         {
-          Dictionary<string, IAsset>.Enumerator enumer = _assetsHigh.GetEnumerator();
-          while (enumer.MoveNext())
+          if (enumer.Current.Value == unknownAsset)
           {
-            if (enumer.Current.Value == unknownAsset)
-            {
-              _assetsHigh.Remove(enumer.Current.Key);
-              break;
-            }
+            _assetsHigh.Remove(enumer.Current.Key);
+            break;
           }
         }
       }
@@ -227,117 +223,49 @@ namespace Presentation.SkinEngine
       }
       _timer = SkinContext.Now;
 
-      lock (_assetsNormal)
-      {
-        Dictionary<string, IAsset>.Enumerator en = _assetsNormal.GetEnumerator();
-        while (en.MoveNext())
-        {
-          IAsset img = en.Current.Value;
-          if (img.IsAllocated)
-          {
-            if (img.CanBeDeleted)
-            {
-              img.Free(false);
-            }
-          }
-        }
-      }
-
-      lock (_assetsHigh)
-      {
-        Dictionary<string, IAsset>.Enumerator en = _assetsHigh.GetEnumerator();
-        while (en.MoveNext())
-        {
-          IAsset img = en.Current.Value;
-          if (img.IsAllocated)
-          {
-            if (img.CanBeDeleted)
-            {
-              img.Free(false);
-            }
-          }
-        }
-      }
-
-      lock (_unnamedAssets)
-      {
-        foreach (IAsset img in _unnamedAssets)
-        {
-          if (img.IsAllocated)
-          {
-            if (img.CanBeDeleted)
-            {
-              img.Free(false);
-            }
-          }
-        }
-      }
-
-      lock (_vertexBuffers)
-      {
-        foreach (IAsset asset in _vertexBuffers)
-        {
-          if (asset.IsAllocated && asset.CanBeDeleted)
-          {
-            asset.Free(false);
-          }
-        }
-      }
+      Free(true, false);
       //Trace.WriteLine(String.Format("Mgr: normal:{0} high:{1} unnamed:{2} vertex:{3}",
             //_assetsNormal.Count, _assetsHigh.Count, _unnamedAssets.Count, _vertexBuffers.Count));
+    }
+
+    protected static void Free(ICollection<IAsset> assets, bool checkIfCanBeDeleted, bool force)
+    {
+      lock (assets)
+      {
+        foreach (IAsset asset in assets)
+        {
+          if (asset.IsAllocated && (!checkIfCanBeDeleted || asset.CanBeDeleted))
+          {
+            asset.Free(force);
+          }
+        }
+      }
+    }
+
+    protected static void Free(IDictionary<string, IAsset> assets, bool checkIfCanBeDeleted, bool force)
+    {
+      lock (assets)
+      {
+        Free(assets.Values, checkIfCanBeDeleted, force);
+      }
+    }
+
+    public static void Free()
+    {
+      Free(false, true);
     }
 
     /// <summary>
     /// Frees all resources
     /// </summary>
-    public static void Free()
+    protected static void Free(bool checkIfCanBeDeleted, bool force)
     {
-      lock (_assetsNormal)
-      {
-        Dictionary<string, IAsset>.Enumerator en = _assetsNormal.GetEnumerator();
-        while (en.MoveNext())
-        {
-          IAsset img = en.Current.Value;
-          if (img.IsAllocated)
-          {
-            img.Free(true);
-          }
-        }
-      }
-      lock (_assetsHigh)
-      {
-        Dictionary<string, IAsset>.Enumerator en = _assetsHigh.GetEnumerator();
-        while (en.MoveNext())
-        {
-          IAsset img = en.Current.Value;
-          if (img.IsAllocated)
-          {
-            img.Free(true);
-          }
-        }
-      }
-      lock (_unnamedAssets)
-      {
-        for (int i = 0; i < _unnamedAssets.Count; ++i)
-        {
-          if (_unnamedAssets[i].IsAllocated)
-          {
-            _unnamedAssets[i].Free(true);
-          }
-        }
-      }
-
-      lock (_vertexBuffers)
-      {
-        foreach (IAsset asset in _vertexBuffers)
-        {
-          if (asset.IsAllocated)
-          {
-            asset.Free(true);
-          }
-        }
-      }
+      Free(_assetsNormal, checkIfCanBeDeleted, force);
+      Free(_assetsHigh, checkIfCanBeDeleted, force);
+      Free(_unnamedAssets, checkIfCanBeDeleted, force);
+      Free(_vertexBuffers, checkIfCanBeDeleted, force);
     }
+
     public static void Clear()
     {
       Free();

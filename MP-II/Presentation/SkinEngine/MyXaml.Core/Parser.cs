@@ -90,6 +90,9 @@ namespace MyXaml.Core
     public event SetContentDlg OnSetContent;
     public event ImportNamespaceDlgt OnImportNameSpace;
 
+    /// <summary>
+    /// The file currently processed.
+    /// </summary>
     protected string currentFile;
 
     /// <summary>
@@ -103,8 +106,8 @@ namespace MyXaml.Core
     protected Hashtable prefixToNamespaceMap;
 
     /// <summary>
-    /// Maintains the mapping of names and the class instance associated with
-    /// the name.
+    /// Maintains the mapping of names defined by "def" and the class
+    /// instance associated with the name.
     /// </summary>
     protected Hashtable nameToInstanceMap;
 
@@ -513,11 +516,11 @@ namespace MyXaml.Core
     {
       if (filename == null)
       {
-        throw (new ArgumentException("Filename is null."));
+        throw (new ArgumentException("Filename has to describe a XAML file."));
       }
       if (tagName == null)
       {
-        throw (new ArgumentException("tagName is null."));
+        throw (new ArgumentException("tagName has to be an expression describing tags to load."));
       }
       XmlDocument doc = new XmlDocument();									// Create an XmlDocument instance.
       try
@@ -528,21 +531,19 @@ namespace MyXaml.Core
         }
         else
         {
-          ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open :{0}", filename);
+          ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open: {0}", filename);
           return null;
         }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("XamlParser: Can't open :{0}", filename);
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceScope.Get<ILogger>().Error("XamlParser: Can't open: {0}", e, filename);
         return null;
       }
 
       currentFile = filename;
 
-      object obj = Instantiate(doc, tagName, ignoreMissingFields);			// Instantiate using the XmlDocument.
-      return obj;
+      return Instantiate(doc, tagName, ignoreMissingFields);    			// Instantiate using the XmlDocument.
     }
 
     public object InstantiateFromString(string xml, string tagName)
@@ -750,6 +751,7 @@ namespace MyXaml.Core
       }
       else
       {
+        // FIXME: Use XPath to find the first child with @Name=tagName
         foreach (XmlNode node in topElement.ChildNodes)					// For each child in the root..
         {
           if (node.Attributes != null)								// If it has attributes...
@@ -777,7 +779,7 @@ namespace MyXaml.Core
 
       if (objectNode == null)
       {
-        throw (new GraphNotFoundException("The graph for " + tagName + " could not be found."));
+        throw (new GraphNotFoundException("The graph for tag '" + tagName + "' could not be found."));
       }
 
       if ((nameAttr != null) && (nameAttr.Prefix == "ref"))				// If the root of the object graph is a reference to an existing object...
@@ -785,7 +787,7 @@ namespace MyXaml.Core
         string refName = nameAttr.Value;									// Get the reference name.
         if (!ContainsReference(refName))
         {
-          throw (new NoReferenceException("The reference " + refName + " does not exist in the reference collection."));
+          throw (new NoReferenceException("The reference '" + refName + "' does not exist in the reference collection."));
         }
         instance = GetReference(refName);									// Get the instance.
       }

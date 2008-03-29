@@ -12,7 +12,7 @@ using System.Xml;
 namespace MyXaml.Core
 {
 	/// <summary>
-	/// Container for instance information.  Used while processing the object.
+	/// Container for element instance information. Used while traversing the element tree.
 	/// </summary>
 	public class ObjectInfo
 	{

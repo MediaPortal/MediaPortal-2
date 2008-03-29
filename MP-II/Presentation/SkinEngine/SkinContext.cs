@@ -152,6 +152,7 @@ namespace Presentation.SkinEngine
       get { return _skinHeight; }
       set { _skinHeight = value; }
     }
+
     public static System.Drawing.SizeF Zoom
     {
       get { return _skinZoom; }
