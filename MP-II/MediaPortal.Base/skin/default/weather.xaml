@@ -4,7 +4,7 @@
     <Canvas.Resources>
       <ResourceDictionary Source="XamlStyle.xml"/>
     </Canvas.Resources>
-    <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+    <DockPanel Background="{StaticResource backGroundBrush}" Name = "Dock1" Width="720" Height="576">
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[weather.0]" Height="50"/>
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[weather.0]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
         <Label.RenderTransform>
@@ -24,18 +24,25 @@
         <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
       </StackPanel>
-      <Grid DockPanel.Dock="Right">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="100"/>
-          </Grid.ColumnDefinitions>
-          <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel1" VerticalAlignment="Top">
-            <Label Font="font13" Text="aaa" Height="10" /> 
-          </StackPanel>   
-          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel3" VerticalAlignment="Top">
-            <Label Font="font13" Text="xxxx" Height="10" /> 
-          </StackPanel>
-        </Grid>
+      <Grid DockPanel.Dock="Left" Name="Grid1" HorizontalAlignment="Left">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel1" VerticalAlignment="Top">
+          <Label Font="font13" Text="[weather.6]" />
+          <Label Font="font13" Text="[weather.7]" />
+          <Label Font="font13" Text="[weather.8]" />
+          <Label Font="font13" Text="[weather.9]" />
+          <Label Font="font13" Text="[weather.10]" />
+          <Label Font="font13" Text="[weather.11]" />
+          <Label Font="font13" Text="[weather.12]" />
+          <Label Font="font13" Text="[weather.13]" /> 
+        </StackPanel>   
+        <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel3" VerticalAlignment="Top">
+          <Label Font="font13" Text="xxxx"/> 
+        </StackPanel>
+      </Grid>
     </DockPanel>
   </Canvas>
 </MyXaml>
