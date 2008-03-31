@@ -83,15 +83,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       if (obj == null)
       {
-        obj = ModelManager.Instance.GetModelByName(parts[0]);
+        Model m = ModelManager.Instance.GetModelByName(parts[0]);
+        if (m == null)
+          return null;
+        obj = m.Instance;
       }
-      if (obj == null) return null;
-      if (parts.Length == 1)
-      {
-        return obj;
-      }
-      if (obj == null)
+      
+      if (obj == null) 
         return null;
+      
+      if (parts.Length == 1)
+        return obj;
 
       int partNr = 1;
       int indexNo;
