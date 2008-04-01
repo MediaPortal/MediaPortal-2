@@ -5,4 +5,5 @@
  <Path name="LOG" value="&lt;DATA&gt;\Log" />
  <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
  <Path name="MPINSTALLER" value="&lt;DATA&gt;\Installer" />
+ <Path name="SKIN" value="&lt;APPLICATION_ROOT&gt;\Skin" />
 </Paths>
