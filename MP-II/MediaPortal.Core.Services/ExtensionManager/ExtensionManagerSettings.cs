@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
-  public class MPIManagerSettings
+  public class ExtensionManagerSettings
   {
     #region variables
 
@@ -39,7 +39,7 @@ namespace MediaPortal.Services.MPIManager
     #endregion
 
     #region Ctor
-    public MPIManagerSettings()
+    public ExtensionManagerSettings()
     {
 
     }

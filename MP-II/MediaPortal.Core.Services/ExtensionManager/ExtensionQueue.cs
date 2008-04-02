@@ -27,24 +27,24 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 using System.Runtime.Serialization;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
   [Serializable]
-  public class MPIQueue : IMPIQueue//, ISerializable 
+  public class ExtensionQueue : IExtensionQueue//, ISerializable 
   {
-    public MPIQueue()
+    public ExtensionQueue()
     {
-      _items = new List<MPIQueueObject>();
+      _items = new List<ExtensionQueueObject>();
     }
 
-     List<MPIQueueObject> _items;
+     List<ExtensionQueueObject> _items;
     /// <summary>
     /// Gets or sets the queue item.
     /// </summary>
     /// <value>The item.</value>
-    public List<MPIQueueObject> Items
+    public List<ExtensionQueueObject> Items
     {
       get
       {
@@ -63,10 +63,10 @@ namespace MediaPortal.Services.MPIManager
     /// <returns>
     /// 	<c>true</c> if [contains] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    public bool Contains(IMPIQueueObject obj)
+    public bool Contains(IExtensionQueueObject obj)
     {
       bool x_ret = false;
-      foreach (IMPIQueueObject obj1 in Items)
+      foreach (IExtensionQueueObject obj1 in Items)
       {
         if (obj.Action == obj1.Action && obj.PackageId==obj1.PackageId)
         {

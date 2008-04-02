@@ -26,11 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.MPIManager.Actions
+namespace MediaPortal.Services.ExtensionManager.Actions
 {
-  public class ScreenShot : IMPIFileAction
+  public class ScreenShot : IExtensionFileAction
   {
 
     /// <summary>
@@ -38,7 +38,7 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// </summary>
     /// <param name="item">The file item.</param>
     /// <returns></returns>
-    public string GetZipEntry(IMPIFileItem item)
+    public string GetZipEntry(IExtensionFileItem item)
     {
       return "screenshots\\" + Path.GetFileName(item.FileName);
     }
@@ -48,7 +48,7 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    public string GetDirEntry(IMPIFileItem item)
+    public string GetDirEntry(IExtensionFileItem item)
     {
       return "screenshots\\" + Path.GetFileName(item.FileName);
     }
@@ -79,12 +79,12 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// <param name="holder">The holder strem.</param>
     /// <param name="fileItem">The file item.</param>
     /// <returns></returns>
-    public bool Install(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    public bool Install(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
       return true;
     }
 
-    public bool UnInstall(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    public bool UnInstall(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
       return true;
     }

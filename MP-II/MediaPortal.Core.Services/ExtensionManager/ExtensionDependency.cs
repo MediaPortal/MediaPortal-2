@@ -23,49 +23,70 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using System.Text;
-using MediaPortal.Core.MPIManager;
-using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Services.MPIManager.Actions
+namespace MediaPortal.Services.ExtensionManager
 {
-  class CopyRegisterFile:CopyFile,IMPIFileAction
+  [Serializable]
+  public class ExtensionDependency
   {
-    public new bool Install(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    public ExtensionDependency(string id,string oper,string version)
     {
-      if (base.Install(holder, fileItem, pak))
-      {
-        try
-        {
-          System.Diagnostics.Process.Start(string.Format("regsvr32 /s {0}", GetDirEntry(fileItem)));
-          return true;
-        }
-        catch (Exception)
-        {
-          return false;
-        }
-      }
-      return false;
+      ExtensionId = id;
+      Operator = oper;
+      Version = version;
+    }
+    
+    public ExtensionDependency()
+    {
+      ExtensionId = string.Empty;
+      Operator = string.Empty;
+      Version = string.Empty;
     }
 
-    public new bool UnInstall(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    string _extensionId;
+    [XmlAttribute]
+    public string ExtensionId
     {
-      try
+      get
       {
-        System.Diagnostics.Process.Start(string.Format("regsvr32 /u {0}", GetDirEntry(fileItem)));
+        return _extensionId;
       }
-      catch (Exception)
+      set
       {
-        return false;
+        _extensionId = value;
       }
-      return base.UnInstall(holder, fileItem, pak);
     }
 
-    public new string Description()
+    string _operator;
+    [XmlAttribute]
+    public string Operator
     {
-      return "Copy a file to Param1 location and \n register it with regsvr32";
+      get
+      {
+        return _operator;
+      }
+      set
+      {
+        _operator = value;
+      }
     }
+
+    string _version;
+    [XmlAttribute]
+    public string Version
+    {
+      get
+      {
+        return _version;
+      }
+      set
+      {
+        _version = value;
+      }
+    }
+
   }
 }

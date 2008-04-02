@@ -26,20 +26,20 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
   /// <summary>
   /// Implement the IMPIFileItem interface, store one file dat included in package
   /// </summary>
   [Serializable]
-  public class MPIFileItem : IMPIFileItem
+  public class ExtensionFileItem : IExtensionFileItem
   {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MPIFileItem"/> class.
+    /// Initializes a new instance of the <see cref="ExtensionFileItem"/> class.
     /// </summary>
-    public MPIFileItem()
+    public ExtensionFileItem()
     {
       FileName = string.Empty;
       Action = string.Empty;
@@ -49,14 +49,14 @@ namespace MediaPortal.Services.MPIManager
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MPIFileItem"/> class.
+    /// Initializes a new instance of the <see cref="ExtensionFileItem"/> class.
     /// </summary>
     /// <param name="file">The file name.</param>
     /// <param name="action">The action.</param>
     /// <param name="param1">The param1.</param>
     /// <param name="param2">The param2.</param>
     /// <param name="param3">The param3.</param>
-    public MPIFileItem(string file, string action, string param1, string param2, string param3)
+    public ExtensionFileItem(string file, string action, string param1, string param2, string param3)
     {
       FileName = file;
       Action = action;

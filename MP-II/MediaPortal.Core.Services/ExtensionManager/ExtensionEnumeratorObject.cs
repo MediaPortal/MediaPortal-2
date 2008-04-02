@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
-  public class MPIEnumeratorObject:MPIPackage
+  public class ExtensionEnumeratorObject:ExtensionPackage
   {
-    public MPIEnumeratorObject(MPIPackage package, MPIPackageState state)
+    public ExtensionEnumeratorObject(ExtensionPackage package, ExtensionPackageState state)
       :base(package)
     {
       this.State = state;
@@ -41,19 +41,19 @@ namespace MediaPortal.Services.MPIManager
       this.Size = 0;
     }
 
-    public MPIEnumeratorObject()
+    public ExtensionEnumeratorObject()
       : base()
     {
-      this.State =MPIPackageState.Unknown;
+      this.State =ExtensionPackageState.Unknown;
       this.DownloadUrl = string.Empty;
       this.Downloads = 0;
       this.Date = DateTime.MinValue;
       this.Size = 0;
     }
 
-    public MPIEnumeratorObject(MPIDependency dep)
+    public ExtensionEnumeratorObject(ExtensionDependency dep)
     {
-      this.State = MPIPackageState.Unknown;
+      this.State = ExtensionPackageState.Unknown;
       this.PackageId = string.Empty;
       this.ExtensionId = dep.ExtensionId;
       this.Name = string.Empty;
@@ -68,7 +68,7 @@ namespace MediaPortal.Services.MPIManager
       this.Size = 0;
     }
 
-    public MPIEnumeratorObject(MPIEnumeratorObject obj)
+    public ExtensionEnumeratorObject(ExtensionEnumeratorObject obj)
       :base(obj)
     {
       this.State = obj.State;
@@ -79,8 +79,8 @@ namespace MediaPortal.Services.MPIManager
       this.Size = obj.Size;
     }
 
-    MPIPackageState _state = MPIPackageState.Unknown;
-    public MPIPackageState State
+    ExtensionPackageState _state = ExtensionPackageState.Unknown;
+    public ExtensionPackageState State
     {
       get
       {

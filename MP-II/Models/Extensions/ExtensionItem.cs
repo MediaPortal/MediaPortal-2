@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 
 namespace Models.Extensions
 {
@@ -33,11 +33,11 @@ namespace Models.Extensions
   {
     public long Size;
     public DateTime DateTime;
-    public MPIEnumeratorObject Item;
+    public ExtensionEnumeratorObject Item;
     public IMediaItem MediaItem;
-    public ExtensionItem(MPIEnumeratorObject item)
+    public ExtensionItem(ExtensionEnumeratorObject item)
     {
-      Item = new MPIEnumeratorObject(item);
+      Item = new ExtensionEnumeratorObject(item);
     }
 
     public ExtensionItem(IMediaItem item)

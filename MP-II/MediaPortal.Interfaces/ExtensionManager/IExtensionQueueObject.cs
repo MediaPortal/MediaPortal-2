@@ -25,49 +25,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Services.MenuManager;
-using MediaPortal.Presentation.MenuManager;
 
-namespace MediaPortal.Services.MPIManager.Actions.Helpers
+namespace MediaPortal.Core.ExtensionManager
 {
-  class ExtMenuItem:MenuItem
+  /// <summary>
+  /// Interface for a startup queue object
+  /// </summary>
+  public interface IExtensionQueueObject
   {
-    private string _literalText;
-    private string _packages;
-    
-    public ExtMenuItem(string text, string imagePath, string command, string commandParameter,string packages)
-    {
-      LiteralText = text;
-      ImagePath = imagePath;
-      Command = command;
-      CommandParameter = commandParameter;
-      Items = new List<IMenuItem>();
-      Packages = packages;
-    }
-
-
-    public string LiteralText
-    {
-      get
-      {
-        return _literalText;
-      }
-      set
-      {
-        _literalText = value;
-      }
-    }
-
-    public string Packages
-    {
-      get
-      {
-        return _packages;
-      }
-      set
-      {
-        _packages = value;
-      }
-    }
+    string PackageName { get; set; }
+    string PackageId { get; set; }
+    string PackageExtensionId { get; set; }
+    string FileName { get; set; }
+    string Action { get; set; }
   }
 }

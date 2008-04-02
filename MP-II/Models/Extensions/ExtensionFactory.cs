@@ -31,9 +31,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.Collections;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MediaManager;
@@ -47,7 +47,7 @@ namespace Models.Extensions
 
     #endregion
 
-    public MPInstaller Installer = ServiceScope.Get<IMPInstaller>() as MPInstaller;
+    public ExtensionInstaller Installer = ServiceScope.Get<IExtensionInstaller>() as ExtensionInstaller;
     public int _view;
 
     #region shares
@@ -56,14 +56,14 @@ namespace Models.Extensions
       return null;
     }
 
-    public void DownloadExtraInfo(MPIEnumeratorObject obj)
+    public void DownloadExtraInfo(ExtensionEnumeratorObject obj)
     {
       string source = string.Format("{3}/plugins/{0}/{1}/{2}/plugin.xml",obj.ExtensionId,obj.Version,obj.VersionType,Installer.Settings.BaseUrl);
       string dest = Path.GetTempFileName();
       DownloadFile(source, dest);
-      IMPIPackage pak = Installer.LoadPackageFromXML(dest);
+      IExtensionPackage pak = Installer.LoadPackageFromXML(dest);
       if (pak != null)
-        Installer.Enumerator.Add((MPIPackage)pak);
+        Installer.Enumerator.Add((ExtensionPackage)pak);
       Installer.Enumerator.Save();
     }
 
@@ -107,9 +107,9 @@ namespace Models.Extensions
       }
     }
 
-    public void LoadItems(ref ItemsCollection extensions, List<MPIEnumeratorObject> extensionList)
+    public void LoadItems(ref ItemsCollection extensions, List<ExtensionEnumeratorObject> extensionList)
     {
-      foreach (MPIEnumeratorObject extensionItem in extensionList)
+      foreach (ExtensionEnumeratorObject extensionItem in extensionList)
       {
         ExtensionItem newItem = new ExtensionItem(extensionItem);
         newItem.Add("Name", extensionItem.Name + " - v" + extensionItem.Version);
@@ -123,13 +123,13 @@ namespace Models.Extensions
 
     private void LoadItems(ref ItemsCollection extensions, FolderItem item, string cat)
     {
-      foreach (KeyValuePair<string, List<MPIEnumeratorObject>> kpv in Installer.Enumerator.Items)
+      foreach (KeyValuePair<string, List<ExtensionEnumeratorObject>> kpv in Installer.Enumerator.Items)
       {
-        MPIEnumeratorObject extensionItem = Installer.Enumerator.GetExtensions(kpv.Key);
-        MPIPackage pak;
+        ExtensionEnumeratorObject extensionItem = Installer.Enumerator.GetExtensions(kpv.Key);
+        ExtensionPackage pak;
         if ((pak = Installer.Enumerator.GetInstalledExtesion(extensionItem.ExtensionId)) != null)
         {
-          extensionItem = new MPIEnumeratorObject(pak, MPIPackageState.Installed);
+          extensionItem = new ExtensionEnumeratorObject(pak, ExtensionPackageState.Installed);
         }
         if (!string.IsNullOrEmpty(extensionItem.Name) && MetView(extensionItem))
         {
@@ -175,7 +175,7 @@ namespace Models.Extensions
       }
     }
 
-    public string GetThumb(MPIEnumeratorObject obj)
+    public string GetThumb(ExtensionEnumeratorObject obj)
     {
       if (obj.ContainScreenShoot())
       {
@@ -188,21 +188,21 @@ namespace Models.Extensions
       }
     }
 
-    private string GetState(MPIEnumeratorObject ext)
+    private string GetState(ExtensionEnumeratorObject ext)
     {
       string  x_ret = "Unknown";
-      if (ext.State == MPIPackageState.Installed)
+      if (ext.State == ExtensionPackageState.Installed)
       {
         x_ret = "Installed";
         if (Installer.Enumerator.HaveUpdate(ext))
           x_ret = "Update";
       }
-      if (ext.State == MPIPackageState.Online)
+      if (ext.State == ExtensionPackageState.Online)
         x_ret = "Online";
-      MPIQueueObject queueItem = Installer.GetQueueItem(ext.PackageId);
+      ExtensionQueueObject queueItem = Installer.GetQueueItem(ext.PackageId);
       if (queueItem != null)
       {
-        if (ext.State == MPIPackageState.Installed && queueItem.Action == "Install")
+        if (ext.State == ExtensionPackageState.Installed && queueItem.Action == "Install")
         {
           x_ret = "ReInstall";
         }
@@ -217,12 +217,12 @@ namespace Models.Extensions
       return x_ret;
     }
 
-    private bool MetView(MPIEnumeratorObject ext)
+    private bool MetView(ExtensionEnumeratorObject ext)
     {
       switch (_view)
       {
         case 1:
-          if (ext.State == MPIPackageState.Installed || Installer.GetQueueItem(ext.PackageId) != null)
+          if (ext.State == ExtensionPackageState.Installed || Installer.GetQueueItem(ext.PackageId) != null)
             return true;
           else
             return false;

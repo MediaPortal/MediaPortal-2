@@ -27,15 +27,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 using MediaPortal.Core;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
   [Serializable]
-  public class MPIQueueObject:IMPIQueueObject
+  public class ExtensionQueueObject:IExtensionQueueObject
   {
-    public MPIQueueObject()
+    public ExtensionQueueObject()
     {
       PackageName = string.Empty;
       PackageId = string.Empty;
@@ -44,7 +44,7 @@ namespace MediaPortal.Services.MPIManager
       PackageExtensionId = string.Empty;
     }
 
-    public MPIQueueObject(IMPIPackage package, string action)
+    public ExtensionQueueObject(IExtensionPackage package, string action)
     {
       PackageName = package.Name;
       PackageId = package.PackageId;

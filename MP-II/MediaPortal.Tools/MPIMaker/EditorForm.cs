@@ -33,20 +33,20 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Windows.Forms;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Core;
 using MediaPortal.Services.PathManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using ICSharpCode.SharpZipLib.Zip;
 
 
-namespace MPIMaker
+namespace ExtensionMaker
 {
   public partial class EditorForm : Form
   {
-    private MPInstaller Installer = new MPInstaller();
-    private MPIPackage Package = new MPIPackage();
+    private ExtensionInstaller Installer = new ExtensionInstaller();
+    private ExtensionPackage Package = new ExtensionPackage();
     private string FileName = string.Empty;
     private bool loading = false;
     private const string REORDER = "Reorder";
@@ -56,11 +56,11 @@ namespace MPIMaker
     {
       ServiceScope.Add<IPathManager>(new PathManager());
       InitializeComponent();
-      foreach(KeyValuePair<string, IMPIFileAction> kpv in Installer.GetAllFileActions())
+      foreach(KeyValuePair<string, IExtensionFileAction> kpv in Installer.GetAllFileActions())
       {
         comboBoxAction.Items.Add(kpv.Key);
       }
-      foreach (MPIEnumeratorObject obj in Installer.GetAllKnowExtensions())
+      foreach (ExtensionEnumeratorObject obj in Installer.GetAllKnowExtensions())
       {
         comboBoxDependenciExt.Items.Add(obj);
       }
@@ -97,7 +97,7 @@ namespace MPIMaker
 
     private void AddFile(string filename)
     {
-      MPIFileItem fil = new MPIFileItem(filename,"","","","");
+      ExtensionFileItem fil = new ExtensionFileItem(filename,"","","","");
       ListViewItem item1 = new ListViewItem(filename);
       item1.SubItems.Add("");
       item1.SubItems.Add("");
@@ -204,14 +204,14 @@ namespace MPIMaker
 
     private void SetProperty(ListViewItem it)
     {
-      ((MPIFileItem)it.Tag).Action = comboBoxAction.Text;
-      ((MPIFileItem)it.Tag).Param1 = comboBoxParam1.Text;
-      ((MPIFileItem)it.Tag).Param2 = comboBoxParam2.Text;
-      ((MPIFileItem)it.Tag).Param3 = comboBoxParam3.Text;
-      FileItemToListItem((MPIFileItem)it.Tag, it);
+      ((ExtensionFileItem)it.Tag).Action = comboBoxAction.Text;
+      ((ExtensionFileItem)it.Tag).Param1 = comboBoxParam1.Text;
+      ((ExtensionFileItem)it.Tag).Param2 = comboBoxParam2.Text;
+      ((ExtensionFileItem)it.Tag).Param3 = comboBoxParam3.Text;
+      FileItemToListItem((ExtensionFileItem)it.Tag, it);
     }
 
-    private void FileItemToListItem(MPIFileItem fi,ListViewItem it)
+    private void FileItemToListItem(ExtensionFileItem fi, ListViewItem it)
     {
       it.Text = fi.FileName;
       it.SubItems[1].Text = fi.Action;
@@ -244,7 +244,7 @@ namespace MPIMaker
     {
       if (string.IsNullOrEmpty(FileName))
       {
-        saveFileDialog1.Filter = "MPI project file (*.xmp)|*.xmp|All files|*.*";
+        saveFileDialog1.Filter = "Extension project file (*.xmp)|*.xmp|All files|*.*";
         if (saveFileDialog1.ShowDialog() == DialogResult.OK)
         {
           FileName = saveFileDialog1.FileName;
@@ -260,7 +260,7 @@ namespace MPIMaker
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
     {
       openFileDialog1.Multiselect = false;
-      saveFileDialog1.Filter = "MPI project file (*.xmp)|*.xmp|All files|*.*";
+      saveFileDialog1.Filter = "Extension project file (*.xmp)|*.xmp|All files|*.*";
       if (saveFileDialog1.ShowDialog()==DialogResult.OK)
       {
         FileName = saveFileDialog1.FileName;
@@ -273,9 +273,9 @@ namespace MPIMaker
       Package.Items.Clear();
       foreach(ListViewItem item in listView1.Items)
       {
-        Package.Items.Add((MPIFileItem)item.Tag);
+        Package.Items.Add((ExtensionFileItem)item.Tag);
       }
-      XmlSerializer serializer = new XmlSerializer(typeof(MPIPackage));
+      XmlSerializer serializer = new XmlSerializer(typeof(ExtensionPackage));
       TextWriter writer = new StreamWriter(filename);
       serializer.Serialize(writer, Package);
       writer.Close();
@@ -286,7 +286,7 @@ namespace MPIMaker
       if (Package != null)
       {
         listView1.Items.Clear();
-        foreach (MPIFileItem fi in Package.Items)
+        foreach (ExtensionFileItem fi in Package.Items)
         {
           ListViewItem item1 = new ListViewItem(fi.FileName);
           item1.SubItems.Add("");
@@ -297,7 +297,7 @@ namespace MPIMaker
           item1.Tag = fi;
           listView1.Items.AddRange(new ListViewItem[] { item1 });
         }
-        foreach (MPIDependency dep in Package.Dependencies)
+        foreach (ExtensionDependency dep in Package.Dependencies)
         {
           ListViewItem item1 = new ListViewItem(dep.ExtensionId);
           item1.SubItems.Add(dep.Operator);
@@ -323,14 +323,14 @@ namespace MPIMaker
       FileName = filename;
       if (File.Exists(filename))
       {
-        Package = (MPIPackage)Installer.LoadPackageFromXML(filename);
+        Package = (ExtensionPackage)Installer.LoadPackageFromXML(filename);
         LoadFromPackage();
       }
     }
 
     private void openToolStripMenuItem_Click(object sender, EventArgs e)
     {
-      openFileDialog1.Filter = "MPI project file (*.xmp)|*.xmp|All files|*.*";
+      openFileDialog1.Filter = "Extension project file (*.xmp)|*.xmp|All files|*.*";
       if (openFileDialog1.ShowDialog() == DialogResult.OK)
       {
         LoadFile(openFileDialog1.FileName);
@@ -339,7 +339,7 @@ namespace MPIMaker
 
     private void buttonSaveBuildFile_Click(object sender, EventArgs e)
     {
-      saveFileDialog1.Filter = "MPI file (*.mpi)|*.mpi|All files|*.*";
+      saveFileDialog1.Filter = "Extension file (*.mpi)|*.mpi|All files|*.*";
       if (saveFileDialog1.ShowDialog() == DialogResult.OK)
       {
         textBoxBuildFile.Text = saveFileDialog1.FileName;
@@ -359,7 +359,7 @@ namespace MPIMaker
           //s.SetLevel(9); // 0 - store only to 9 - means best compression
           AddFileToZip(s, tempfile, "installer.xmp");
           listBoxBuild.Items.Add(tempfile);
-          foreach (MPIFileItem fileitem in Package.Items)
+          foreach (ExtensionFileItem fileitem in Package.Items)
           {
             AddFileToZip(s, fileitem.FileName, Installer.GetFileAction(fileitem.Action).GetZipEntry(fileitem));
             listBoxBuild.Items.Add(fileitem.FileName);
@@ -415,10 +415,10 @@ namespace MPIMaker
 
     private void buttonAddDependencie_Click(object sender, EventArgs e)
     {
-      ListViewItem item1 = new ListViewItem(((MPIEnumeratorObject)comboBoxDependenciExt.SelectedItem).ExtensionId);
+      ListViewItem item1 = new ListViewItem(((ExtensionEnumeratorObject)comboBoxDependenciExt.SelectedItem).ExtensionId);
       item1.SubItems.Add(comboBoxDependecieOp.Text);
       item1.SubItems.Add(textBoxDependencieVersion.Text);
-      MPIDependency dep = new MPIDependency(((MPIEnumeratorObject)comboBoxDependenciExt.SelectedItem).ExtensionId, comboBoxDependecieOp.Text, textBoxDependencieVersion.Text);
+      ExtensionDependency dep = new ExtensionDependency(((ExtensionEnumeratorObject)comboBoxDependenciExt.SelectedItem).ExtensionId, comboBoxDependecieOp.Text, textBoxDependencieVersion.Text);
       item1.Tag = dep;
       Package.Dependencies.Add(dep);
       listView2.Items.AddRange(new ListViewItem[] { item1 });
@@ -428,7 +428,7 @@ namespace MPIMaker
     {
       if (listView2.SelectedItems.Count > 0)
       {
-        foreach (MPIEnumeratorObject obj in comboBoxDependenciExt.Items)
+        foreach (ExtensionEnumeratorObject obj in comboBoxDependenciExt.Items)
         {
           if (obj.ExtensionId == listView2.SelectedItems[0].Text)
             comboBoxDependenciExt.SelectedItem = obj; 
@@ -436,7 +436,7 @@ namespace MPIMaker
         //comboBoxDependenciExt.Text = listView2.SelectedItems[0].Text;
         comboBoxDependecieOp.Text = listView2.SelectedItems[0].SubItems[1].Text;
         textBoxDependencieVersion.Text = listView2.SelectedItems[0].SubItems[2].Text;
-        Package.Dependencies.Remove((MPIDependency)listView2.SelectedItems[0].Tag);
+        Package.Dependencies.Remove((ExtensionDependency)listView2.SelectedItems[0].Tag);
         listView2.Items.Remove(listView2.SelectedItems[0]);
       }
     }
@@ -446,7 +446,7 @@ namespace MPIMaker
       foreach (ListViewItem item in listView1.SelectedItems)
       {
         listView1.Items.Remove(item);
-        Package.Items.Remove((MPIFileItem)item.Tag);
+        Package.Items.Remove((ExtensionFileItem)item.Tag);
       }
     }
 
@@ -569,7 +569,7 @@ namespace MPIMaker
 
     private void newToolStripMenuItem_Click(object sender, EventArgs e)
     {
-      Package = new MPIPackage();
+      Package = new ExtensionPackage();
       LoadFromPackage();
     }
 

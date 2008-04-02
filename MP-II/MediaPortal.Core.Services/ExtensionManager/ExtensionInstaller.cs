@@ -28,39 +28,39 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using MediaPortal.Core;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Services.MPIManager.Actions;
+using MediaPortal.Services.ExtensionManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
-  public class MPInstaller: IMPInstaller
+  public class ExtensionInstaller: IExtensionInstaller
   {
     public delegate void OnNextFileEventHandler();
 
 
     #region variables
 
-    private Dictionary<string, IMPIFileAction> _fileActions;
-    private MPIQueue Queue;
-    public MPIEnumerator Enumerator;
-    private MPIManagerSettings _settings;
+    private Dictionary<string, IExtensionFileAction> _fileActions;
+    private ExtensionQueue Queue;
+    public ExtensionEnumerator Enumerator;
+    private ExtensionManagerSettings _settings;
 
     #endregion
 
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MPInstaller"/> class.
+    /// Initializes a new instance of the <see cref="ExtensionInstaller"/> class.
     /// </summary>
-    public MPInstaller()
+    public ExtensionInstaller()
     {
-      Queue = new MPIQueue();
-      Enumerator = new MPIEnumerator();
-      _fileActions = new Dictionary<string, IMPIFileAction>();
-      _settings = new MPIManagerSettings();
+      Queue = new ExtensionQueue();
+      Enumerator = new ExtensionEnumerator();
+      _fileActions = new Dictionary<string, IExtensionFileAction>();
+      _settings = new ExtensionManagerSettings();
       RegisterAction("CopyFile", new CopyFile());
       RegisterAction("ScreenShots", new ScreenShot());
       RegisterAction("CopyMenu", new CopyMenu());
@@ -68,13 +68,13 @@ namespace MediaPortal.Services.MPIManager
       RegisterAction("Copy&ExecuteFile", new CopyExecuteFile());
     }
 
-    public List<MPIEnumeratorObject> GetAllKnowExtensions()
+    public List<ExtensionEnumeratorObject> GetAllKnowExtensions()
     {
-      List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
-      foreach (KeyValuePair<string, List<MPIEnumeratorObject>> kpv in Enumerator.Items)
+      List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
+      foreach (KeyValuePair<string, List<ExtensionEnumeratorObject>> kpv in Enumerator.Items)
       {
-        MPIEnumeratorObject extensionItem = new MPIEnumeratorObject();
-        foreach (MPIEnumeratorObject obj in kpv.Value)
+        ExtensionEnumeratorObject extensionItem = new ExtensionEnumeratorObject();
+        foreach (ExtensionEnumeratorObject obj in kpv.Value)
         {
           if (extensionItem.Version.CompareTo(obj.Version) < 0)
             extensionItem = obj;
@@ -89,9 +89,9 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns>True if found a locked file</returns>
-    public bool AreFilesLocked(MPIPackage package)
+    public bool AreFilesLocked(ExtensionPackage package)
     {
-      foreach(MPIFileItem items in package.Items)
+      foreach(ExtensionFileItem items in package.Items)
       {
         string filename = _fileActions[items.Action].GetDirEntry(items);
         if (File.Exists(filename))
@@ -115,12 +115,12 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    public List<MPIEnumeratorObject> GetUnsolvedDependencies(MPIPackage package)
+    public List<ExtensionEnumeratorObject> GetUnsolvedDependencies(ExtensionPackage package)
     {
-      List<MPIEnumeratorObject> x_ret=new List<MPIEnumeratorObject>();
-      foreach (MPIDependency dep in package.Dependencies)
+      List<ExtensionEnumeratorObject> x_ret=new List<ExtensionEnumeratorObject>();
+      foreach (ExtensionDependency dep in package.Dependencies)
       {
-        MPIEnumeratorObject pak;
+        ExtensionEnumeratorObject pak;
         if ((pak = Enumerator.GetInstalledExtesion(dep.ExtensionId)) == null)
         {
           x_ret.Add(Enumerator.GetExtensions(dep.ExtensionId));
@@ -157,7 +157,7 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    public bool InstallPackage(IMPIPackage package)
+    public bool InstallPackage(IExtensionPackage package)
     {
       if (CheckDependency(package))
       {
@@ -168,7 +168,7 @@ namespace MediaPortal.Services.MPIManager
             ZipEntry entry;
             while ((entry = s.GetNextEntry()) != null)
             {
-              IMPIFileItem fileitem = FindFileItemByZipEntry(entry.Name, package);
+              IExtensionFileItem fileitem = FindFileItemByZipEntry(entry.Name, package);
               if (fileitem != null)
               {
                 _fileActions[fileitem.Action].Install(s, fileitem,package);
@@ -193,16 +193,16 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    public bool UnInstallPackage(IMPIPackage package)
+    public bool UnInstallPackage(IExtensionPackage package)
     {
-      foreach (IMPIFileItem fileitem in ((MPIPackage)package).Items)
+      foreach (IExtensionFileItem fileitem in ((ExtensionPackage)package).Items)
       {
         if (!_fileActions[fileitem.Action].UnInstall(null,fileitem , package))
           return false;
         if (OnNextFile != null)
           OnNextFile();
       }
-      Enumerator.Add(package as MPIPackage, MPIPackageState.Local);
+      Enumerator.Add(package as ExtensionPackage, ExtensionPackageState.Local);
       Enumerator.Save();
       return true;
     }
@@ -213,7 +213,7 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    public bool CheckDependency(IMPIPackage package)
+    public bool CheckDependency(IExtensionPackage package)
     {
       return true;
     }
@@ -222,14 +222,14 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="filename">The filename.</param>
     /// <returns></returns>
-    public IMPIPackage LoadPackageFromXML(string filename)
+    public IExtensionPackage LoadPackageFromXML(string filename)
     {
       try
       {
-        MPIPackage pak = new MPIPackage();
-        XmlSerializer serializer = new XmlSerializer(typeof(MPIPackage));
+        ExtensionPackage pak = new ExtensionPackage();
+        XmlSerializer serializer = new XmlSerializer(typeof(ExtensionPackage));
         FileStream fs = new FileStream(filename, FileMode.Open);
-        pak = (MPIPackage)serializer.Deserialize(fs);
+        pak = (ExtensionPackage)serializer.Deserialize(fs);
         fs.Close();
         //pak.FileName = filename;
         return pak;
@@ -245,7 +245,7 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="filename">The filename.</param>
     /// <returns> Return null if the file not exist</returns>
-    public IMPIPackage LoadPackageFromMPI(string filename)
+    public IExtensionPackage LoadPackageFromMPI(string filename)
     {
       if (!File.Exists(filename))
       {
@@ -275,7 +275,7 @@ namespace MediaPortal.Services.MPIManager
         }
         if (File.Exists(tpf))
         {
-          IMPIPackage pk =LoadPackageFromXML(tpf);
+          IExtensionPackage pk =LoadPackageFromXML(tpf);
           pk.FileName = filename;
           File.Delete(tpf);
           return pk;
@@ -290,7 +290,7 @@ namespace MediaPortal.Services.MPIManager
 
     #region FileActions
 
-    public IMPIFileAction GetFileAction(string action)
+    public IExtensionFileAction GetFileAction(string action)
     {
       return _fileActions[action];
     }
@@ -299,7 +299,7 @@ namespace MediaPortal.Services.MPIManager
     /// Return  all registered file actions.
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, IMPIFileAction> GetAllFileActions()
+    public Dictionary<string, IExtensionFileAction> GetAllFileActions()
     {
       return _fileActions;
     }
@@ -308,7 +308,7 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="actionName">Name of the action.</param>
     /// <param name="action">The action class.</param>
-    public void RegisterAction(string actionName, IMPIFileAction action)
+    public void RegisterAction(string actionName, IExtensionFileAction action)
     {
       _fileActions[actionName] = action;
     }
@@ -319,9 +319,9 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="entry">The entry.</param>
     /// <returns></returns>
-    public IMPIFileItem FindFileItemByZipEntry(string entry,IMPIPackage package)
+    public IExtensionFileItem FindFileItemByZipEntry(string entry,IExtensionPackage package)
     {
-      foreach (IMPIFileItem item in ((MPIPackage)package).Items)
+      foreach (IExtensionFileItem item in ((ExtensionPackage)package).Items)
       {
         if (_fileActions[item.Action].GetZipEntry(item) == entry)
           return item;
@@ -351,19 +351,19 @@ namespace MediaPortal.Services.MPIManager
         OnNextFile += screen.NextFile;
       }
       screen.SetAllCount(Queue.Items.Count);
-      MPIQueue temp_queue = new MPIQueue();
-      foreach (MPIQueueObject item in Queue.Items)
+      ExtensionQueue temp_queue = new ExtensionQueue();
+      foreach (ExtensionQueueObject item in Queue.Items)
       {
         if (!File.Exists(item.FileName))
         {
-          MPIEnumeratorObject obj= Enumerator.GetItem(item.PackageId);
+          ExtensionEnumeratorObject obj= Enumerator.GetItem(item.PackageId);
           if (obj != null && !string.IsNullOrEmpty(obj.DownloadUrl))
           {
             DownloadScreen dlScreen = new DownloadScreen(obj.DownloadUrl, item.FileName);
             dlScreen.ShowDialog();
           }
         }
-        MPIPackage pak = (MPIPackage)LoadPackageFromMPI(item.FileName);
+        ExtensionPackage pak = (ExtensionPackage)LoadPackageFromMPI(item.FileName);
         screen.Next();
         if (pak != null)
         {
@@ -374,14 +374,14 @@ namespace MediaPortal.Services.MPIManager
             if (InstallPackage(pak))
             {
               temp_queue.Items.Add(item);
-              MPIEnumeratorObject obj = Enumerator.GetItem(pak.PackageId);
+              ExtensionEnumeratorObject obj = Enumerator.GetItem(pak.PackageId);
               if (obj != null)
               {
-                obj.State = MPIPackageState.Installed;
+                obj.State = ExtensionPackageState.Installed;
               }
               else
               {
-                Enumerator.Add(pak, MPIPackageState.Installed);
+                Enumerator.Add(pak, ExtensionPackageState.Installed);
               }
               Enumerator.Save();
             }
@@ -390,10 +390,10 @@ namespace MediaPortal.Services.MPIManager
           {
             if (UnInstallPackage(pak))
             {
-              MPIEnumeratorObject obj = Enumerator.GetItem(pak.PackageId);
+              ExtensionEnumeratorObject obj = Enumerator.GetItem(pak.PackageId);
               if (obj != null)
               {
-                obj.State = MPIPackageState.Local;
+                obj.State = ExtensionPackageState.Local;
                 Enumerator.Save();
               }
               temp_queue.Items.Add(item);
@@ -401,7 +401,7 @@ namespace MediaPortal.Services.MPIManager
           }
         }
       }
-      foreach (MPIQueueObject item in temp_queue.Items)
+      foreach (ExtensionQueueObject item in temp_queue.Items)
       {
         Queue.Items.Remove(item);
       }
@@ -414,9 +414,9 @@ namespace MediaPortal.Services.MPIManager
     /// Add a package to queue.
     /// </summary>
     /// <param name="package">The package.</param>
-    public void AddToQueue(IMPIPackage package, string action)
+    public void AddToQueue(IExtensionPackage package, string action)
     {
-      if (!Queue.Contains(new MPIQueueObject(package, action)))
+      if (!Queue.Contains(new ExtensionQueueObject(package, action)))
       {
         try
         {
@@ -427,7 +427,7 @@ namespace MediaPortal.Services.MPIManager
             File.Copy(package.FileName, fullFileName, true);
           }
           package.FileName = fullFileName;
-          Queue.Items.Add(new MPIQueueObject(package, action));
+          Queue.Items.Add(new ExtensionQueueObject(package, action));
         }
         catch (Exception ex)
         {
@@ -441,7 +441,7 @@ namespace MediaPortal.Services.MPIManager
     /// Removes from queue.
     /// </summary>
     /// <param name="package">The package.</param>
-    public void RemoveFromQueue(IMPIPackage package)
+    public void RemoveFromQueue(IExtensionPackage package)
     {
       RemoveFromQueue(package.PackageId);
     }
@@ -451,7 +451,7 @@ namespace MediaPortal.Services.MPIManager
     /// <param name="packageId">The package id.</param>
     public void RemoveFromQueue(string packageId)
     {
-      List<MPIQueueObject> removObj = new List<MPIQueueObject>();
+      List<ExtensionQueueObject> removObj = new List<ExtensionQueueObject>();
       for (int i = 0; i < Queue.Items.Count; i++)
       {
         if (Queue.Items[i].PackageId == packageId)
@@ -459,7 +459,7 @@ namespace MediaPortal.Services.MPIManager
           removObj.Add(Queue.Items[i]);
         }
       }
-      foreach (MPIQueueObject obj in removObj)
+      foreach (ExtensionQueueObject obj in removObj)
       {
         Queue.Items.Remove(obj);
       }
@@ -472,7 +472,7 @@ namespace MediaPortal.Services.MPIManager
     /// <param name="extensionId">The extension id.</param>
     public void RemoveAllFromQueue(string extensionId)
     {
-      List<MPIQueueObject> removObj = new List<MPIQueueObject>();
+      List<ExtensionQueueObject> removObj = new List<ExtensionQueueObject>();
       for (int i = 0; i < Queue.Items.Count; i++)
       {
         if (Queue.Items[i].PackageExtensionId == extensionId)
@@ -480,7 +480,7 @@ namespace MediaPortal.Services.MPIManager
           removObj.Add(Queue.Items[i]);
         }
       }
-      foreach (MPIQueueObject obj in removObj)
+      foreach (ExtensionQueueObject obj in removObj)
       {
         Queue.Items.Remove(obj);
       }
@@ -491,9 +491,9 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="packageId">The package id.</param>
     /// <returns>If not found return null</returns>
-    public MPIQueueObject GetQueueItem(string packageId)
+    public ExtensionQueueObject GetQueueItem(string packageId)
     {
-      MPIQueueObject item = null;
+      ExtensionQueueObject item = null;
       for (int i = 0; i < Queue.Items.Count; i++)
       {
         if (Queue.Items[i].PackageId == packageId)
@@ -509,9 +509,9 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="extensionId">The extension id.</param>
     /// <returns>List of items with same extension id</returns>
-    public List<MPIQueueObject> GetQueueItems(string extensionId)
+    public List<ExtensionQueueObject> GetQueueItems(string extensionId)
     {
-      List<MPIQueueObject> items = new List<MPIQueueObject>();
+      List<ExtensionQueueObject> items = new List<ExtensionQueueObject>();
       for (int i = 0; i < Queue.Items.Count; i++)
       {
         if (Queue.Items[i].PackageExtensionId == extensionId)
@@ -526,7 +526,7 @@ namespace MediaPortal.Services.MPIManager
     /// Return the queue.
     /// </summary>
     /// <returns></returns>
-    public IMPIQueue GetQueue()
+    public IExtensionQueue GetQueue()
     {
       return Queue;
     }
@@ -538,9 +538,9 @@ namespace MediaPortal.Services.MPIManager
         string fullFileName = String.Format(@"{0}\Mpiqueue.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
         if (File.Exists(fullFileName))
         {
-          XmlSerializer serializer = new XmlSerializer(typeof(MPIQueue));
+          XmlSerializer serializer = new XmlSerializer(typeof(ExtensionQueue));
           FileStream fs = new FileStream(fullFileName, FileMode.Open);
-          Queue = (MPIQueue)serializer.Deserialize(fs);
+          Queue = (ExtensionQueue)serializer.Deserialize(fs);
           fs.Close();
         }
       }
@@ -562,7 +562,7 @@ namespace MediaPortal.Services.MPIManager
         }
         else
         {
-          XmlSerializer serializer = new XmlSerializer(typeof(MPIQueue));
+          XmlSerializer serializer = new XmlSerializer(typeof(ExtensionQueue));
           TextWriter writer = new StreamWriter(fullFileName);
           serializer.Serialize(writer, Queue);
           writer.Close();
@@ -584,7 +584,7 @@ namespace MediaPortal.Services.MPIManager
     /// </returns>
     public bool IsUpdateWaiting(string extensionId)
     {
-      MPIEnumeratorObject obj = Enumerator.GetInstalledExtesion(extensionId);
+      ExtensionEnumeratorObject obj = Enumerator.GetInstalledExtesion(extensionId);
       if (obj != null)
       {
         return Enumerator.HaveUpdate(obj);
@@ -598,16 +598,16 @@ namespace MediaPortal.Services.MPIManager
     /// <param name="extensionId">The extension GUID</param>
     public void Update(string extensionId)
     {
-      MPIEnumeratorObject latestObj = Enumerator.GetExtensions(extensionId);
-      MPIEnumeratorObject installedObj = Enumerator.GetInstalledExtesion(extensionId);
+      ExtensionEnumeratorObject latestObj = Enumerator.GetExtensions(extensionId);
+      ExtensionEnumeratorObject installedObj = Enumerator.GetInstalledExtesion(extensionId);
       if (installedObj != null)
       {
         AddToQueue(installedObj, "Uninstall");
-        foreach (MPIEnumeratorObject obj in GetUnsolvedDependencies(latestObj))
+        foreach (ExtensionEnumeratorObject obj in GetUnsolvedDependencies(latestObj))
         {
           AddToQueue(obj, "Install");
         }
-        AddToQueue(latestObj as IMPIPackage, "Install");
+        AddToQueue(latestObj as IExtensionPackage, "Install");
       }
     }
 
@@ -617,7 +617,7 @@ namespace MediaPortal.Services.MPIManager
     public void UpdateAll()
     {
 
-      foreach(MPIEnumeratorObject obj in GetAllKnowExtensions())
+      foreach(ExtensionEnumeratorObject obj in GetAllKnowExtensions())
       {
         if(IsUpdateWaiting(obj.ExtensionId))
         {
@@ -641,7 +641,7 @@ namespace MediaPortal.Services.MPIManager
     /// This setting isn't loaded automaticaly, this should loadede mamualy
     /// </summary>
     /// <value>The settings.</value>
-    public MPIManagerSettings Settings
+    public ExtensionManagerSettings Settings
     {
       get
       {

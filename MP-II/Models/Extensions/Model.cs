@@ -36,11 +36,11 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
@@ -73,7 +73,7 @@ namespace Models.Extensions
     private readonly List<IAbstractMediaItem> _extensionsViews;
 
     List<IMenuItem> _dynamicContextMenuItems;
-    MPInstaller Installer = ServiceScope.Get<IMPInstaller>() as MPInstaller;
+    ExtensionInstaller Installer = ServiceScope.Get<IExtensionInstaller>() as ExtensionInstaller;
 
     enum ContextMenuItem
     {
@@ -465,17 +465,17 @@ namespace Models.Extensions
       ExtensionItem item = selectedItem as ExtensionItem;
       item.Item = Installer.Enumerator.GetItem(item.Item.PackageId);
 
-      MPIEnumeratorObject latestObj = Installer.Enumerator.GetExtensions(item.Item.ExtensionId);
+      ExtensionEnumeratorObject latestObj = Installer.Enumerator.GetExtensions(item.Item.ExtensionId);
       if (latestObj.Dependencies.Count == 0 && latestObj.Items.Count == 0)
         _factory.DownloadExtraInfo(latestObj);
       latestObj = Installer.Enumerator.GetExtensions(item.Item.ExtensionId);
-      Installer.AddToQueue(item.Item as IMPIPackage, "Uninstall");
+      Installer.AddToQueue(item.Item as IExtensionPackage, "Uninstall");
 
-      foreach (MPIEnumeratorObject obj in Installer.GetUnsolvedDependencies(item.Item))
+      foreach (ExtensionEnumeratorObject obj in Installer.GetUnsolvedDependencies(item.Item))
       {
         Installer.AddToQueue(obj, "Install");
       }
-      Installer.AddToQueue(latestObj as IMPIPackage, "Install");
+      Installer.AddToQueue(latestObj as IExtensionPackage, "Install");
       
       UpdateContextMenu();
       ContextMenu.FireChange(true);
@@ -490,11 +490,11 @@ namespace Models.Extensions
       ExtensionItem item = selectedItem as ExtensionItem;
       if (item != null)
       {
-        foreach(MPIEnumeratorObject obj in Installer.GetUnsolvedDependencies(item.Item))
+        foreach(ExtensionEnumeratorObject obj in Installer.GetUnsolvedDependencies(item.Item))
         {
           Installer.AddToQueue(obj, "Install");
         }
-        Installer.AddToQueue(item.Item as IMPIPackage, "Install");
+        Installer.AddToQueue(item.Item as IExtensionPackage, "Install");
       }
       UpdateContextMenu();
       ContextMenu.FireChange(true);
@@ -511,7 +511,7 @@ namespace Models.Extensions
       ExtensionItem item = selectedItem as ExtensionItem;
       if (item != null)
       {
-        Installer.AddToQueue(item.Item as IMPIPackage, "Uninstall");
+        Installer.AddToQueue(item.Item as IExtensionPackage, "Uninstall");
       }
       UpdateContextMenu();
       ContextMenu.FireChange(true);
@@ -527,8 +527,8 @@ namespace Models.Extensions
       ExtensionItem item = selectedItem as ExtensionItem;
       if (item != null)
       {
-        Installer.AddToQueue(item.Item as IMPIPackage, "Uninstall");
-        Installer.AddToQueue(item.Item as IMPIPackage, "Install");
+        Installer.AddToQueue(item.Item as IExtensionPackage, "Uninstall");
+        Installer.AddToQueue(item.Item as IExtensionPackage, "Install");
       }
       UpdateContextMenu();
       ContextMenu.FireChange(true);
@@ -552,7 +552,7 @@ namespace Models.Extensions
           //if (pak != null)
             //Installer.AddToQueue(pak, "Install");
         //}
-        Installer.AddToQueue((IMPIPackage)item.Item, "Install");
+        Installer.AddToQueue((IExtensionPackage)item.Item, "Install");
       }
       UpdateContextMenu();
       NotifyAction();
@@ -606,10 +606,10 @@ namespace Models.Extensions
           ExtensionItem item = SelectedItem as ExtensionItem;
           if (item != null)
           {
-            MPIQueueObject queueItem = Installer.GetQueueItem(item.Item.PackageId);
+            ExtensionQueueObject queueItem = Installer.GetQueueItem(item.Item.PackageId);
             if (queueItem != null)
             {
-              List <MPIQueueObject> queueObjs= Installer.GetQueueItems(item.Item.ExtensionId);
+              List <ExtensionQueueObject> queueObjs= Installer.GetQueueItems(item.Item.ExtensionId);
               if (queueObjs.Count > 1 && queueObjs[0].PackageId != queueObjs[1].PackageId)
               {
                 menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.CancelUpdate]);
@@ -628,7 +628,7 @@ namespace Models.Extensions
             }
             else
             {
-              if (item.Item.State == MediaPortal.Services.MPIManager.MPIPackageState.Installed)
+              if (item.Item.State == MediaPortal.Services.ExtensionManager.ExtensionPackageState.Installed)
               {
                 menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.Unistall]);
                 menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.Reinstall]);

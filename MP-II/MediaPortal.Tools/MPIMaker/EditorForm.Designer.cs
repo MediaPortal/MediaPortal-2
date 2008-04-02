@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MPIMaker
+namespace ExtensionMaker
 {
   partial class EditorForm
   {
@@ -861,7 +861,7 @@ namespace MPIMaker
       this.Controls.Add(this.tabControl1);
       this.Controls.Add(this.menuStrip1);
       this.Name = "EditorForm";
-      this.Text = "MPIMaker";
+      this.Text = "ExtensionMaker";
       this.tabControl1.ResumeLayout(false);
       this.tabPage1.ResumeLayout(false);
       this.groupBox4.ResumeLayout(false);

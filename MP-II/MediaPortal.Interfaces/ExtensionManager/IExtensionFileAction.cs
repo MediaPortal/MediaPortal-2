@@ -26,26 +26,29 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-
-namespace MediaPortal.Core.MPIManager
+namespace MediaPortal.Core.ExtensionManager
 {
-
-  public interface IMPIFileItem
+  public interface IExtensionFileAction
   {
-
     /// <summary>
-    /// Gets or sets the name of the file.
+    /// Return a zip entry for a FileItem.
     /// </summary>
-    /// <value>The name of the file.</value>
-    string FileName { get; set; }
+    /// <param name="item">The file item.</param>
+    /// <returns></returns>
+    string GetZipEntry(IExtensionFileItem item);
 
-    string Action { get; set; }
+    string GetDirEntry(IExtensionFileItem item);
 
-    string Param1 { get; set; }
+    string Description();
 
-    string Param2 { get; set; }
+    List<string> Param1List();
+    
+    List<string> Param2List();
 
-    string Param3 { get; set; }
+    List<string> Param3List();
+    
+    bool Install(object holder, IExtensionFileItem fileItem, IExtensionPackage pak);
 
+    bool UnInstall(object holder, IExtensionFileItem fileItem, IExtensionPackage pak);
   }
 }

@@ -28,24 +28,24 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
-  public class MPIEnumerator
+  public class ExtensionEnumerator
   {
-    public MPIEnumerator()
+    public ExtensionEnumerator()
     {
-      _items = new Dictionary<string, List<MPIEnumeratorObject>>();
+      _items = new Dictionary<string, List<ExtensionEnumeratorObject>>();
     }
 
-    Dictionary<string, List<MPIEnumeratorObject>> _items;
+    Dictionary<string, List<ExtensionEnumeratorObject>> _items;
     /// <summary>
     /// Gets or sets the items.
     /// </summary>
     /// <value>The items.</value>
-    public Dictionary<string, List<MPIEnumeratorObject>> Items
+    public Dictionary<string, List<ExtensionEnumeratorObject>> Items
     {
       get
       {
@@ -70,9 +70,9 @@ namespace MediaPortal.Services.MPIManager
     {
       if (Items.ContainsKey(extensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[extensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[extensionId])
         {
-          if (obj.State == MPIPackageState.Installed)
+          if (obj.State == ExtensionPackageState.Installed)
           {
             return true;
           }
@@ -90,11 +90,11 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="extensionId">The extension id.</param>
     /// <returns></returns>
-    public bool HaveUpdate(MPIEnumeratorObject pak)
+    public bool HaveUpdate(ExtensionEnumeratorObject pak)
     {
       if (Items.ContainsKey(pak.ExtensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[pak.ExtensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[pak.ExtensionId])
         {
           if (obj.Compare(pak) >0)
           {
@@ -112,9 +112,9 @@ namespace MediaPortal.Services.MPIManager
     public List<string> GetCategories()
     {
       List<string> x_ret = new List<string>();
-      foreach (KeyValuePair<string, List<MPIEnumeratorObject>> kpv in Items)
+      foreach (KeyValuePair<string, List<ExtensionEnumeratorObject>> kpv in Items)
       {
-        foreach (MPIEnumeratorObject obj in kpv.Value)
+        foreach (ExtensionEnumeratorObject obj in kpv.Value)
         {
           if (!x_ret.Contains(obj.ExtensionType))
             x_ret.Add(obj.ExtensionType);
@@ -123,11 +123,11 @@ namespace MediaPortal.Services.MPIManager
       return x_ret;
     }
     
-    public MPIEnumeratorObject GetItem(string packageId)
+    public ExtensionEnumeratorObject GetItem(string packageId)
     {
-      foreach (KeyValuePair<string, List<MPIEnumeratorObject>> kpv in Items)
+      foreach (KeyValuePair<string, List<ExtensionEnumeratorObject>> kpv in Items)
       {
-        foreach (MPIEnumeratorObject obj in kpv.Value)
+        foreach (ExtensionEnumeratorObject obj in kpv.Value)
         {
           if (obj.PackageId == packageId)
             return obj;
@@ -140,13 +140,13 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="extensionId">The extension id.</param>
     /// <returns>Return null if the extension isn't installed</returns>
-    public MPIEnumeratorObject GetInstalledExtesion(string extensionId)
+    public ExtensionEnumeratorObject GetInstalledExtesion(string extensionId)
     {
       if (Items.ContainsKey(extensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[extensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[extensionId])
         {
-          if (obj.State == MPIPackageState.Installed)
+          if (obj.State == ExtensionPackageState.Installed)
           {
             return obj;
           }
@@ -164,12 +164,12 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="extesionId">The extesion id.</param>
     /// <returns></returns>
-    public MPIEnumeratorObject GetExtensions(string extensionId)
+    public ExtensionEnumeratorObject GetExtensions(string extensionId)
     {
-      MPIEnumeratorObject extensionItem = new MPIEnumeratorObject();
+      ExtensionEnumeratorObject extensionItem = new ExtensionEnumeratorObject();
       if (Items.ContainsKey(extensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[extensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[extensionId])
         {
           if (extensionItem.Version.CompareTo(obj.Version) < 0)
             extensionItem = obj;
@@ -183,21 +183,21 @@ namespace MediaPortal.Services.MPIManager
     /// </summary>
     /// <param name="package">The package.</param>
     /// <param name="state">The state.</param>
-    public void Add(MPIPackage package,MPIPackageState state)
+    public void Add(ExtensionPackage package,ExtensionPackageState state)
     {
       if (Items.ContainsKey(package.ExtensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[package.ExtensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[package.ExtensionId])
         {
-          if ((obj.State == state)&& state == MPIPackageState.Installed)
+          if ((obj.State == state)&& state == ExtensionPackageState.Installed)
           {
             if (File.Exists(obj.FileName))
-              obj.State = MPIPackageState.Local;
+              obj.State = ExtensionPackageState.Local;
             else
-              obj.State = MPIPackageState.Unknown;
+              obj.State = ExtensionPackageState.Unknown;
           }
         }
-        foreach (MPIEnumeratorObject obj in Items[package.ExtensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[package.ExtensionId])
         {
           if (obj.PackageId == package.PackageId)
           {
@@ -205,12 +205,12 @@ namespace MediaPortal.Services.MPIManager
             break;
           }
         }
-        Items[package.ExtensionId].Add(new MPIEnumeratorObject(package,state));
+        Items[package.ExtensionId].Add(new ExtensionEnumeratorObject(package,state));
       }
       else
       {
-        List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
-        list.Add(new MPIEnumeratorObject(package, state));
+        List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
+        list.Add(new ExtensionEnumeratorObject(package, state));
         Items.Add(package.ExtensionId, list);
       }
     }
@@ -219,12 +219,12 @@ namespace MediaPortal.Services.MPIManager
     /// Adds the specified package.
     /// </summary>
     /// <param name="package">The package.</param>
-    public void Add(MPIPackage package)
+    public void Add(ExtensionPackage package)
     {
       bool found = false;
       if (Items.ContainsKey(package.ExtensionId))
       {
-        foreach (MPIEnumeratorObject obj in Items[package.ExtensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[package.ExtensionId])
         {
           if (obj.PackageId == package.PackageId)
           {
@@ -236,12 +236,12 @@ namespace MediaPortal.Services.MPIManager
           }
         }
         if (!found)
-          Items[package.ExtensionId].Add(new MPIEnumeratorObject(package,MPIPackageState.Unknown));
+          Items[package.ExtensionId].Add(new ExtensionEnumeratorObject(package,ExtensionPackageState.Unknown));
       }
       else
       {
-        List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
-        list.Add(new MPIEnumeratorObject(package, MPIPackageState.Unknown));
+        List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
+        list.Add(new ExtensionEnumeratorObject(package, ExtensionPackageState.Unknown));
         Items.Add(package.ExtensionId, list);
       }
     }
@@ -250,12 +250,12 @@ namespace MediaPortal.Services.MPIManager
     /// Adds the specified package.
     /// </summary>
     /// <param name="package">The package.</param>
-    public void Add(MPIEnumeratorObject package)
+    public void Add(ExtensionEnumeratorObject package)
     {
       if (Items.ContainsKey(package.ExtensionId))
       {
         bool found = false;
-        foreach (MPIEnumeratorObject obj in Items[package.ExtensionId])
+        foreach (ExtensionEnumeratorObject obj in Items[package.ExtensionId])
         {
           if (obj.PackageId == package.PackageId)
           {
@@ -271,7 +271,7 @@ namespace MediaPortal.Services.MPIManager
       }
       else
       {
-        List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
+        List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
         list.Add(package);
         Items.Add(package.ExtensionId, list);
       }
@@ -284,7 +284,7 @@ namespace MediaPortal.Services.MPIManager
     /// <param name="listFile">The list file.</param>
     public void UpdateList(string listFile)
     {
-      List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
+      List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
       if (File.Exists(listFile))
       {
         XmlDocument doc = new XmlDocument();
@@ -292,8 +292,8 @@ namespace MediaPortal.Services.MPIManager
         XmlNodeList extList = doc.SelectNodes("plugins/plugin");
         foreach (XmlNode nodeext in extList)
         {
-          MPIEnumeratorObject obj = new MPIEnumeratorObject();
-          obj.State = MPIPackageState.Online;
+          ExtensionEnumeratorObject obj = new ExtensionEnumeratorObject();
+          obj.State = ExtensionPackageState.Online;
           obj.ExtensionId = nodeext.Attributes["id"].Value;
           obj.PackageId = nodeext.Attributes["packageid"].Value;
           obj.Version = nodeext.Attributes["version"].Value;
@@ -335,11 +335,11 @@ namespace MediaPortal.Services.MPIManager
         XmlNodeList extList = ver.SelectNodes("Extension");
         foreach (XmlNode nodeext in extList)
         {
-          List<MPIEnumeratorObject> list = new List<MPIEnumeratorObject>();
+          List<ExtensionEnumeratorObject> list = new List<ExtensionEnumeratorObject>();
           string ext = nodeext.Attributes["Id"].Value;
           foreach (XmlNode nodepak in nodeext.SelectNodes("Package"))
           {
-            MPIEnumeratorObject obj = new MPIEnumeratorObject();
+            ExtensionEnumeratorObject obj = new ExtensionEnumeratorObject();
             list.Add(obj);
             obj.ExtensionId = ext;
             obj.PackageId = nodepak.Attributes["Id"].Value;
@@ -367,37 +367,37 @@ namespace MediaPortal.Services.MPIManager
             switch (nodepak.Attributes["State"].Value)
             {
               case "Local":
-                obj.State = MPIPackageState.Local;
+                obj.State = ExtensionPackageState.Local;
                 break;
               case "Installed":
-                obj.State = MPIPackageState.Installed;
+                obj.State = ExtensionPackageState.Installed;
                 break;
               case "Online":
-                obj.State = MPIPackageState.Online;
+                obj.State = ExtensionPackageState.Online;
                 break;
               case "System":
-                obj.State = MPIPackageState.System;
+                obj.State = ExtensionPackageState.System;
                 break;
               default :
-                obj.State = MPIPackageState.Unknown;
+                obj.State = ExtensionPackageState.Unknown;
                 break;
             }
             if (string.IsNullOrEmpty(obj.FileName))
             {
               obj.FileName = String.Format(@"{0}\{1}.mpi", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"), obj.PackageId);
             }
-            if (obj.State == MPIPackageState.Local && !File.Exists(obj.FileName))
+            if (obj.State == ExtensionPackageState.Local && !File.Exists(obj.FileName))
             {
-              obj.State = MPIPackageState.Online;
+              obj.State = ExtensionPackageState.Online;
             }
             foreach (XmlLinkedNode depnode in nodepak.SelectNodes("Dependencies/Dependency"))
             {
               if (depnode.Attributes.Count > 0)
-                obj.Dependencies.Add(new MPIDependency(depnode.Attributes["Id"].Value, depnode.Attributes["Operator"].Value, depnode.Attributes["Version"].Value));
+                obj.Dependencies.Add(new ExtensionDependency(depnode.Attributes["Id"].Value, depnode.Attributes["Operator"].Value, depnode.Attributes["Version"].Value));
             }
             foreach (XmlLinkedNode filnode in nodepak.SelectNodes("Files/File"))
             {
-              obj.Items.Add(new MPIFileItem(filnode.Attributes["FileName"].Value,
+              obj.Items.Add(new ExtensionFileItem(filnode.Attributes["FileName"].Value,
                 filnode.Attributes["Action"].Value, filnode.Attributes["Param1"].Value, filnode.Attributes["Param2"].Value, filnode.Attributes["Param3"].Value));
             }
           }
@@ -430,11 +430,11 @@ namespace MediaPortal.Services.MPIManager
           // Create the XmlWriter object and write some content.
           writer = XmlWriter.Create(myStream, settings);
           writer.WriteStartElement("MPIRegistry");
-          foreach (KeyValuePair<string, List<MPIEnumeratorObject>> key in Items)
+          foreach (KeyValuePair<string, List<ExtensionEnumeratorObject>> key in Items)
           {
             writer.WriteStartElement("Extension");
             writer.WriteAttributeString("Id", key.Key);
-            foreach (MPIEnumeratorObject ob in key.Value)
+            foreach (ExtensionEnumeratorObject ob in key.Value)
             {
               writer.WriteStartElement("Package");
               writer.WriteAttributeString("Id", ob.PackageId);
@@ -451,7 +451,7 @@ namespace MediaPortal.Services.MPIManager
               writer.WriteAttributeString("Date", ob.Date.ToString());
               writer.WriteAttributeString("Size", ob.Size.ToString());
               writer.WriteStartElement("Dependencies");
-              foreach (MPIDependency dep in ob.Dependencies)
+              foreach (ExtensionDependency dep in ob.Dependencies)
               {
                 writer.WriteStartElement("Dependency");
                 writer.WriteAttributeString("Id", dep.ExtensionId);
@@ -461,7 +461,7 @@ namespace MediaPortal.Services.MPIManager
               }
               writer.WriteEndElement();
               writer.WriteStartElement("Files");
-              foreach (IMPIFileItem fil in ob.Items)
+              foreach (IExtensionFileItem fil in ob.Items)
               {
                 writer.WriteStartElement("File");
                 writer.WriteAttributeString("FileName", Path.GetFileName(fil.FileName));

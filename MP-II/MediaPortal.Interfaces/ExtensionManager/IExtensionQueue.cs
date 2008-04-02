@@ -26,17 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.MPIManager
+namespace MediaPortal.Core.ExtensionManager
 {
   /// <summary>
-  /// Interface for a startup queue object
+  /// Interface for startup queue manager
   /// </summary>
-  public interface IMPIQueueObject
+  public interface IExtensionQueue
   {
-    string PackageName { get; set; }
-    string PackageId { get; set; }
-    string PackageExtensionId { get; set; }
-    string FileName { get; set; }
-    string Action { get; set; }
+    bool Contains(IExtensionQueueObject obj);
   }
 }

@@ -28,18 +28,18 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
   /// <summary>
   /// Implementation of IMPIPackage, manage data 
   /// included in mpi package
   /// </summary>
   [Serializable]
-  public class MPIPackage : IMPIPackage
+  public class ExtensionPackage : IExtensionPackage
   {
-    public MPIPackage()
+    public ExtensionPackage()
     {
       Name = string.Empty;
       FileName = string.Empty;
@@ -48,13 +48,13 @@ namespace MediaPortal.Services.MPIManager
       Version = "0.0.0.0";
       VersionType = string.Empty;
       ExtensionType = string.Empty;
-      Items = new List<MPIFileItem>();
-      Dependencies = new List<MPIDependency>();
+      Items = new List<ExtensionFileItem>();
+      Dependencies = new List<ExtensionDependency>();
       Author = string.Empty;
       Description = string.Empty;
     }
 
-    public MPIPackage(MPIPackage pk)
+    public ExtensionPackage(ExtensionPackage pk)
     {
       Name = pk.Name;
       FileName = pk.FileName;
@@ -69,7 +69,7 @@ namespace MediaPortal.Services.MPIManager
       Description = pk.Description;
     }
 
-    #region IMPIPackage Members
+    #region IExtensionPackage Members
     string _name;
     /// <summary>
     /// Gets or sets the name of package.
@@ -201,12 +201,12 @@ namespace MediaPortal.Services.MPIManager
     }
     
     
-    List<MPIFileItem> _items;
+    List<ExtensionFileItem> _items;
     /// <summary>
     /// Included file items.
     /// </summary>
     /// <value>The file list.</value>
-    public List<MPIFileItem> Items
+    public List<ExtensionFileItem> Items
     {
       get
       {
@@ -218,12 +218,12 @@ namespace MediaPortal.Services.MPIManager
       }
     }
 
-    List<MPIDependency> _dependencies;
+    List<ExtensionDependency> _dependencies;
     /// <summary>
     /// Included file items.
     /// </summary>
     /// <value>The file list.</value>
-    public List<MPIDependency> Dependencies
+    public List<ExtensionDependency> Dependencies
     {
       get
       {
@@ -248,7 +248,7 @@ namespace MediaPortal.Services.MPIManager
    #endregion
     #region methods 
     
-    public int Compare(MPIPackage pak)
+    public int Compare(ExtensionPackage pak)
     {
       return CompareVersions(this.Version, pak.Version);
     }
@@ -259,7 +259,7 @@ namespace MediaPortal.Services.MPIManager
     /// <returns></returns>
     public bool ContainScreenShoot()
     {
-      foreach (MPIFileItem fil in Items)
+      foreach (ExtensionFileItem fil in Items)
       {
         if (fil.Action == "ScreenShots")
           return true;
@@ -270,7 +270,7 @@ namespace MediaPortal.Services.MPIManager
     public int NumScreenShoots()
     {
       int count = 0;
-      foreach (MPIFileItem fil in Items)
+      foreach (ExtensionFileItem fil in Items)
       {
         count++;
       }

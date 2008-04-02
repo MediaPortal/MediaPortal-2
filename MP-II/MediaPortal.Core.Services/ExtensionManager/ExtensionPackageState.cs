@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Services.MPIManager
+namespace MediaPortal.Services.ExtensionManager
 {
-  public enum MPIPackageState
+  public enum ExtensionPackageState
   {
     Local = 0,
     Installed = 1,

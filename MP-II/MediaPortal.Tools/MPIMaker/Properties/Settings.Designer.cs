@@ -32,7 +32,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MPIMaker.Properties
+namespace ExtensionMaker.Properties
 {
 
 

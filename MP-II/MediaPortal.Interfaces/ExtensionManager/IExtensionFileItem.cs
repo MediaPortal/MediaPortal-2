@@ -26,38 +26,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.MPIManager
+
+namespace MediaPortal.Core.ExtensionManager
 {
-  /// <summary>
-  /// Interface to a single MPI object, manage loading mpi package
-  /// </summary>
-  public interface IMPIPackage
+
+  public interface IExtensionFileItem
   {
 
-    string Name { get; set; }
-
-    string FileName { get; set; }
     /// <summary>
-    /// Gets or sets the GUID, unic for every package 
+    /// Gets or sets the name of the file.
     /// </summary>
-    /// <value>The id.</value>
-    string PackageId { get; set; }
+    /// <value>The name of the file.</value>
+    string FileName { get; set; }
 
-    string ExtensionId { get; set; }
+    string Action { get; set; }
 
-    string Version { get; set; }
+    string Param1 { get; set; }
 
-    string VersionType { get; set; }
+    string Param2 { get; set; }
 
-    string ExtensionType { get; set; }
+    string Param3 { get; set; }
 
-    bool Load(string filename);
-
-    string Author { get; set; }
-
-    string Description { get; set; }
-
-
-    //List<IMPIFileItem> Items { get; set; }
   }
 }

@@ -33,10 +33,10 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.TaskScheduler;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Threading;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 
 namespace MediaPortal.Plugins.ExtensionUpdater
 {
@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     #region variables
 
     private ExtensionUpdaterSettings _settings ;
-    MPInstaller installer;
+    ExtensionInstaller installer;
     WebClient client;
     WebClient updaterClient;
     string _tempfile;
@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
 
     public ExtensionUpdater()
     {
-      installer = (MPInstaller)ServiceScope.Get<IMPInstaller>();
+      installer = (ExtensionInstaller)ServiceScope.Get<IExtensionInstaller>();
       listFile = String.Format(@"{0}\Mpilist.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       _settings = new ExtensionUpdaterSettings();
       _queue = ServiceScope.Get<IMessageBroker>().Get("extensionupdater");
@@ -217,12 +217,12 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     /// </summary>
     private void GetNextPendingExtension()
     {
-      MPIQueue Queue = (MPIQueue)installer.GetQueue();
-      foreach (MPIQueueObject item in Queue.Items)
+      ExtensionQueue Queue = (ExtensionQueue)installer.GetQueue();
+      foreach (ExtensionQueueObject item in Queue.Items)
       {
         if (!File.Exists(item.FileName))
         {
-          MPIEnumeratorObject obj = installer.Enumerator.GetItem(item.PackageId);
+          ExtensionEnumeratorObject obj = installer.Enumerator.GetItem(item.PackageId);
           if (obj != null && !string.IsNullOrEmpty(obj.DownloadUrl))
           {
             _finalfile = item.FileName;

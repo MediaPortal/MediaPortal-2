@@ -25,14 +25,49 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MediaPortal.Services.MenuManager;
+using MediaPortal.Presentation.MenuManager;
 
-namespace MediaPortal.Core.MPIManager
+namespace MediaPortal.Services.ExtensionManager.Actions.Helpers
 {
-  /// <summary>
-  /// Interface for startup queue manager
-  /// </summary>
-  public interface IMPIQueue
+  class ExtMenuItem:MenuItem
   {
-    bool Contains(IMPIQueueObject obj);
+    private string _literalText;
+    private string _packages;
+    
+    public ExtMenuItem(string text, string imagePath, string command, string commandParameter,string packages)
+    {
+      LiteralText = text;
+      ImagePath = imagePath;
+      Command = command;
+      CommandParameter = commandParameter;
+      Items = new List<IMenuItem>();
+      Packages = packages;
+    }
+
+
+    public string LiteralText
+    {
+      get
+      {
+        return _literalText;
+      }
+      set
+      {
+        _literalText = value;
+      }
+    }
+
+    public string Packages
+    {
+      get
+      {
+        return _packages;
+      }
+      set
+      {
+        _packages = value;
+      }
+    }
   }
 }

@@ -27,14 +27,14 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Presentation.MenuManager;
 using ICSharpCode.SharpZipLib.Zip;
-using MediaPortal.Services.MPIManager.Actions.Helpers;
+using MediaPortal.Services.ExtensionManager.Actions.Helpers;
 
-namespace MediaPortal.Services.MPIManager.Actions
+namespace MediaPortal.Services.ExtensionManager.Actions
 {
-  class CopyMenu : IMPIFileAction
+  class CopyMenu : IExtensionFileAction
   {
     private Dictionary<string, string> _dirs = new Dictionary<string, string>();
     private IMenu menu1;
@@ -53,7 +53,7 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// </summary>
     /// <param name="item">The file item.</param>
     /// <returns></returns>
-    public string GetZipEntry(IMPIFileItem item)
+    public string GetZipEntry(IExtensionFileItem item)
     {
       return "Menus\\"+Path.GetFileName(item.FileName);
     }
@@ -63,7 +63,7 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    public string GetDirEntry(IMPIFileItem item)
+    public string GetDirEntry(IExtensionFileItem item)
     {
       return "Menus\\" + Path.GetFileName(item.FileName);
     }
@@ -100,7 +100,7 @@ namespace MediaPortal.Services.MPIManager.Actions
     /// <param name="fileItem">The file item.</param>
     /// <param name="pak">The package</param>
     /// <returns></returns>
-    public bool Install(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    public bool Install(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
       try
       {
@@ -143,7 +143,7 @@ namespace MediaPortal.Services.MPIManager.Actions
       }
     }
 
-    public bool UnInstall(object holder, IMPIFileItem fileItem, IMPIPackage pak)
+    public bool UnInstall(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
       try
       {

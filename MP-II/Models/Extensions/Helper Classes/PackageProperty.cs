@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MediaPortal.Services.MPIManager;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Services.ExtensionManager;
+using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
@@ -34,7 +34,7 @@ using MediaPortal.Presentation.Collections;
 
 namespace Models.Extensions.Helper
 {
-  public class PackageProperty : MPIEnumeratorObject
+  public class PackageProperty : ExtensionEnumeratorObject
   {
     private Property _nameProperty;
     private Property _descriptionProperty;
@@ -44,7 +44,7 @@ namespace Models.Extensions.Helper
     private readonly ExtensionFactory _factory;
     private ItemsCollection _dependon;
     private ItemsCollection _versions;
-    MPInstaller Installer = ServiceScope.Get<IMPInstaller>() as MPInstaller;
+    ExtensionInstaller Installer = ServiceScope.Get<IExtensionInstaller>() as ExtensionInstaller;
 
     //public PackageProperty(MPIEnumeratorObject obj)
     //      :base(obj)
@@ -65,7 +65,7 @@ namespace Models.Extensions.Helper
       _screeShotProperty = new Property();
     }
 
-    public void Set(MPIEnumeratorObject obj)
+    public void Set(ExtensionEnumeratorObject obj)
     {
       _nameProperty.SetValue(obj.Name);
       _descriptionProperty.SetValue(obj.Description);
@@ -74,9 +74,9 @@ namespace Models.Extensions.Helper
       _screeShotProperty.SetValue(_factory.GetThumb(obj));
       _dependon.Clear();
       _versions.Clear();
-      foreach (MPIDependency dep in obj.Dependencies)
+      foreach (ExtensionDependency dep in obj.Dependencies)
       {
-        MPIEnumeratorObject depobj = Installer.Enumerator.GetExtensions(dep.ExtensionId);
+        ExtensionEnumeratorObject depobj = Installer.Enumerator.GetExtensions(dep.ExtensionId);
         ExtensionItem item = new ExtensionItem(depobj);
         item.Add("Name", depobj.Name);
         _dependon.Add(item);

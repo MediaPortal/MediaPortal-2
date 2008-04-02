@@ -26,43 +26,43 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.MPIManager
+namespace MediaPortal.Core.ExtensionManager
 {
   /// <summary>
   /// Interface for local MPI handing, like install, uninstall, enumerate 
   /// </summary>
-  public interface IMPInstaller
+  public interface IExtensionInstaller
   {
     
-    Dictionary<string, IMPIFileAction> GetAllFileActions();
+    Dictionary<string, IExtensionFileAction> GetAllFileActions();
 
-    IMPIFileAction GetFileAction(string action);
+    IExtensionFileAction GetFileAction(string action);
 
     /// <summary>
     /// Install a package.
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    bool InstallPackage(IMPIPackage package);
+    bool InstallPackage(IExtensionPackage package);
 
     /// <summary>
     /// Uninstall a package.
     /// </summary>
     /// <param name="package">The package.</param>
     /// <returns></returns>
-    bool UnInstallPackage(IMPIPackage package);
+    bool UnInstallPackage(IExtensionPackage package);
 
-    void RegisterAction(string actionName, IMPIFileAction action);
+    void RegisterAction(string actionName, IExtensionFileAction action);
 
-    IMPIPackage LoadPackageFromXML(string filename);
+    IExtensionPackage LoadPackageFromXML(string filename);
 
-    IMPIPackage LoadPackageFromMPI(string filename);
+    IExtensionPackage LoadPackageFromMPI(string filename);
 
     void ExecuteQueue();
 
-    void AddToQueue(IMPIPackage package, string action);
+    void AddToQueue(IExtensionPackage package, string action);
 
-    void RemoveFromQueue(IMPIPackage package);
+    void RemoveFromQueue(IExtensionPackage package);
 
     void LoadQueue();
 

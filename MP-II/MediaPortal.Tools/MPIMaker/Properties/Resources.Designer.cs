@@ -32,7 +32,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MPIMaker.Properties
+namespace ExtensionMaker.Properties
 {
 
 
@@ -68,7 +68,7 @@ namespace MPIMaker.Properties
       {
         if ((resourceMan == null))
         {
-          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MPIMaker.Properties.Resources", typeof(Resources).Assembly);
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ExtensionMaker.Properties.Resources", typeof(Resources).Assembly);
           resourceMan = temp;
         }
         return resourceMan;

@@ -39,7 +39,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.MPIManager;
+using MediaPortal.Core.ExtensionManager;
 
 using MediaPortal.Media.MetaData;
 
@@ -51,7 +51,7 @@ using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
-using MediaPortal.Services.MPIManager;
+using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
@@ -137,9 +137,9 @@ namespace MediaPortal
         EventHelper.Init(); // only for quick test simulating a plugin
 
         //MPInstaller - for testing only 
-        logger.Debug("ApplicationLauncher: Executing MPInstaller");
-        MPInstaller Installer = new MPInstaller();
-        ServiceScope.Add<IMPInstaller>(Installer);
+        logger.Debug("ApplicationLauncher: Executing ExtensionInstaller");
+        ExtensionInstaller Installer = new ExtensionInstaller();
+        ServiceScope.Add<IExtensionInstaller>(Installer);
         Installer.LoadQueue();
         Installer.ExecuteQueue(false);
 
