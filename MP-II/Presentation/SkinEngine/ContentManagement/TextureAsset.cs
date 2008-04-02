@@ -32,6 +32,7 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PathManager;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.Players;
@@ -204,7 +205,7 @@ namespace Presentation.SkinEngine
           }
           else*/
           {
-            _sourceFileName = String.Format(@"skin\{0}\media\{1}", SkinContext.SkinName, _textureName);
+            _sourceFileName = String.Format(@"{0}\{1}\Media\{2}", ServiceScope.Get<IPathManager>().GetPath("<SKIN>"), SkinContext.SkinName, _textureName);
             if (File.Exists(_sourceFileName))
             {
               _state = State.Created;
