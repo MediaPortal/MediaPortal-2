@@ -207,7 +207,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Grid.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Grid.arrange :{0} X {1}, Y {2} W{3}x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
       layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
