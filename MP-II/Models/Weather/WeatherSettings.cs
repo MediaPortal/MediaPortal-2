@@ -78,7 +78,7 @@ namespace Models.Weather
     }
 
     // Location of the XML files to parse to
-    [Setting(SettingScope.User, "Media/Weather/location{0}.xml")]
+    [Setting(SettingScope.User, "Media/Users/location{0}.xml")]
     public string ParsefileLocation
     {
       get { return _parseFileLocation; }
