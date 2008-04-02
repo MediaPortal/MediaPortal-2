@@ -64,7 +64,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       string[] parts = name.Split(new char[] { '.' });
       object obj;
-      if (parts[0] == "this") obj = visual;
+      if (parts[0] == "this")
+      {
+        obj = visual;
+      }
       else if (parts[0] == "WindowManager")
       {
         obj = ServiceScope.Get<IWindowManager>();
