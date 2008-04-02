@@ -19,7 +19,6 @@
           </LinearGradientBrush>
         </Label.OpacityMask>
       </Label>
-      <Label Margin="160,0,0,0" DockPanel.Dock="Top" Font="font13"  Text="CurrentLocation" Height="32"/>
       <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
         <ListView  Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
         <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Players.OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="fullscreenvideo"/>
@@ -28,19 +27,31 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel1" VerticalAlignment="Top">
-          <Label Font="font13" Text="[weather.6]" />
-          <Label Font="font13" Text="[weather.7]" />
-          <Label Font="font13" Text="[weather.8]" />
-          <Label Font="font13" Text="[weather.9]" />
-          <Label Font="font13" Text="[weather.10]" />
-          <Label Font="font13" Text="[weather.11]" />
-          <Label Font="font13" Text="[weather.12]" />
-          <Label Font="font13" Text="[weather.13]" /> 
+          <Image Width="128" Height="128" Source="Weather\128x128\30.png"/>
+          <Label Font="font12"  Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Name}" Height="32"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel2" VerticalAlignment="Top">
+          <Label Font="font12" Text="[weather.6]" />
+          <Label Font="font12" Text="[weather.7]" />
+          <Label Font="font12" Text="[weather.8]" />
+          <Label Font="font12" Text="[weather.9]" />
+          <Label Font="font12" Text="[weather.10]" />
+          <Label Font="font12" Text="[weather.11]" />
+          <Label Font="font12" Text="[weather.12]" />
+          <Label Font="font12" Text="[weather.13]" /> 
         </StackPanel>   
-        <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel3" VerticalAlignment="Top">
-          <Label Font="font13" Text="xxxx"/> 
+        <StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" Name="StackPanel3" VerticalAlignment="Top">
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.Temperature}"/>
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.FeelsLikeTemp}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.UVIndex}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.Wind}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.Humidity}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.Condition.DewPoint}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.LocationInfo.SunRise}"/> 
+          <Label Font="font12" Text="{Binding Path=Weather:WeatherModel.CurrentLocation.LocationInfo.SunSet}"/>            
         </StackPanel>
       </Grid>
     </DockPanel>
