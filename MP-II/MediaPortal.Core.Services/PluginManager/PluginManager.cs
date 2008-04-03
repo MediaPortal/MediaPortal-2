@@ -199,6 +199,8 @@ namespace MediaPortal.Services.PluginManager
     /// </summary>
     public void StopAll()
     {
+      // Is this method required?
+      // old code needs to re-written
       //foreach (IPlugin plugin in runningPlugins.Values)
       //{
       //  plugin.Dispose();
