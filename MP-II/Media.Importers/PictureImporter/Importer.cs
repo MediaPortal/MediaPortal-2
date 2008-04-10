@@ -70,40 +70,22 @@ namespace Media.Importers.PictureImporter
 
     #endregion
 
-    //#region IAutoStart Members
-
-    //public void Startup()
-    //{
-    //  ServiceScope.Get<IImporterManager>().Register(this);
-    //}
-
-    //#endregion
-
     #region IImporter Members
+    /// <summary>
+    /// Do any housekeeping before the first file gets imported
+    /// </summary>
+    /// <returns></returns>
+    public void BeforeImport(int avAilableFiles)
+    {
+    }
 
-    ///// <summary>
-    ///// Gets the importer name.
-    ///// </summary>
-    ///// <value>The importer name.</value>
-    //public string Name
-    //{
-    //  get
-    //  {
-    //    return "PictureImporter";
-    //  }
-    //}
-
-    ///// <summary>
-    ///// Gets the file-extensions the importer supports
-    ///// </summary>
-    ///// <value>The file-extensions.</value>
-    //public List<string> Extensions
-    //{
-    //  get
-    //  {
-    //    return _extensions;
-    //  }
-    //}
+    /// <summary>
+    /// Do Cleanup after all files have been imported
+    /// </summary>
+    /// <returns></returns>
+    public void AfterImport()
+    {
+    }
 
     /// <summary>
     /// Imports the file.

@@ -45,6 +45,20 @@ namespace MediaPortal.Media.Importers
     //string Extensions { get;}
 
     /// <summary>
+    /// Called by the importer manager before the import process starts
+    /// Allows the importer to do housekeeping before importing the first file
+    /// i.e. The Music Importer would check for non-existing music files
+    /// </summary>
+    /// <param name="availableFiles">The number of Files the Importer should process</param>
+    void BeforeImport(int availableFiles);
+
+    /// <summary>
+    /// Called by the importer manager after the last file has been imported
+    /// Allows the importer to do Cleanup
+    /// </summary>
+    void AfterImport();
+
+    /// <summary>
     /// Called by the importer manager when a full-import needs to be done
     /// </summary>
     /// <param name="folder">the file.</param>

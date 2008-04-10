@@ -47,15 +47,16 @@ namespace Media.Importers.MusicImporter
   {
     #region Variables
     DateTime _lastImport = DateTime.MinValue;
-    //List<string> _extensions;
     private IDatabase _musicDatabase = null;
-    //private readonly string _supportedExtensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc";
     private readonly string[] ArtistNamePrefixes = new string[]
       {
         "the",
         "les",
         "die"
       };
+
+    DateTime _startTime;
+    private int _processedFiles = 0;
     #endregion
 
     #region Enums
@@ -100,27 +101,64 @@ namespace Media.Importers.MusicImporter
 
     #region IImporter Members
     /// <summary>
+    /// Do any housekeeping before the first file gets imported
+    /// </summary>
+    /// <returns></returns>
+    public void BeforeImport(int avAilableFiles)
+    {
+      _startTime = DateTime.Now;
+      _processedFiles = 0;
+
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Processing {0} Songs", avAilableFiles);
+      DeleteNonExistingSongs();
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Get files in Share");
+    }
+
+    /// <summary>
+    /// Do Cleanup after all files have been imported
+    /// </summary>
+    /// <returns></returns>
+    public void AfterImport()
+    {
+      DateTime stopTime = DateTime.Now;
+      TimeSpan ts = stopTime - _startTime;
+      float fSecsPerTrack = ((float)ts.TotalSeconds / _processedFiles);
+      string trackPerSecSummary = "";
+
+      if (_processedFiles > 0)
+      {
+        trackPerSecSummary = string.Format(" ({0} seconds per track)", fSecsPerTrack);
+      }
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Music database reorganization done.  Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", _processedFiles, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
+    }
+
+    /// <summary>
     /// Imports the file.
     /// </summary>
     /// <param name="folder">The file.</param>
     public bool FileImport(string file)
     {
-      IDbItem track = AddSong(file);
+      IDbItem track;
+      if (!SongExists(file))
+      {
+        //The song does not exist, we will add it.
+        track = AddSong(file);
+      }
+      else
+      {
+        track = UpdateSong(file);
+      }
+
       if (track != null)
       {
+        _processedFiles++;
+        if (_processedFiles % 100 == 0)
+          ServiceScope.Get<ILogger>().Info("MusicImporter: Songs Processed so far: {0}", _processedFiles);
+
         track.Save();
         return true;
       }
       return false;
-    }
-
-    /// <summary>
-    /// Imports the folder.
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    public void ImportFolder(string folder, DateTime since)
-    {
-      Import(folder, since);
     }
 
     /// <summary>
@@ -416,122 +454,6 @@ namespace Media.Importers.MusicImporter
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
-
-    /// <summary>
-    /// Queries FreeDB for the Audio CD inserted
-    /// </summary>
-    /// <param name="folder"></param>
-    /// <param name="items"></param>
-    private void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
-    {
-      string discId = string.Empty;
-      CDInfoDetail MusicCD = new CDInfoDetail();
-      char driveLetter = System.IO.Path.GetFullPath(folder).ToCharArray()[0];
-      try
-      {
-        FreeDBQuery freedb = new FreeDBQuery();
-        freedb.Connect(); 
-        Freedb.CDInfo[] cds = freedb.GetDiscInfo(driveLetter);
-        if (cds != null)
-        {
-          if (cds.Length == 1)
-          {
-            MusicCD = freedb.GetDiscDetails(cds[0].Category, cds[0].DiscId);
-            discId = cds[0].DiscId;
-          }
-        }
-        freedb.Disconnect();
-      }
-      catch (Exception)
-      {
-        MusicCD = null;
-      }
-
-      if (MusicCD != null)
-      {
-        // Update the Items with the Track Details
-        int i = 0;
-        foreach (IAbstractMediaItem item in items)
-        {
-          IMediaItem mediaItem = item as IMediaItem;
-          if (mediaItem != null)
-          {
-            mediaItem.Title = MusicCD.Tracks[i].Title;
-            mediaItem.MetaData["album"] = MusicCD.Title;
-            mediaItem.MetaData["duration"] = MusicCD.Tracks[i].Duration;
-            mediaItem.MetaData["track"] = MusicCD.Tracks[i].TrackNumber;
-
-            if (MusicCD.Tracks[i].Artist != null)
-              mediaItem.MetaData["album"] = MusicCD.Tracks[i].Artist;
-            else
-              mediaItem.MetaData["artist"] = MusicCD.Artist;
-          }
-          i++;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Opens a queue file and adds all the tracks found to the items
-    /// </summary>
-    /// <param name="strFileName"></param>
-    /// <returns>List of Tracks found in the CueSheet</returns>
-    private List<IAbstractMediaItem> ProcessCueSheet(IAbstractMediaItem item)
-    {
-      List<IAbstractMediaItem> items = new List<IAbstractMediaItem>();
-      CueSheet cuesheet = new CueSheet(item.ContentUri.LocalPath);     
-      string defaultCueAudioFile = cuesheet.Tracks[0].DataFile.Filename;
-      
-      if (Path.GetDirectoryName(defaultCueAudioFile) == String.Empty)
-        defaultCueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), defaultCueAudioFile);
-
-      // Get the tag from the original file, so that we have a duration
-      MusicTag tag = GetTag(defaultCueAudioFile);
-
-      for (int i = 0; i < cuesheet.Tracks.Length; i++)
-      {
-        Track track, nextTrack;
-        int startPosition, endPosition;
-        
-        track = cuesheet.Tracks[i];
-
-        if (track.TrackDataType != DataType.AUDIO)
-          continue;
-
-        if (i + 1 < cuesheet.Tracks.Length)
-          nextTrack = cuesheet.Tracks[i + 1];
-        else
-          nextTrack = cuesheet.Tracks[i];
-        
-        string cueAudioFile = track.DataFile.Filename;
-        if (cueAudioFile == null)
-          cueAudioFile = defaultCueAudioFile;
-        else
-        {
-          if (Path.GetDirectoryName(cueAudioFile) == String.Empty)
-            cueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), cueAudioFile);
-        }
-
-        CueMediaItem mediaitem = new CueMediaItem(cueAudioFile);
-        mediaitem.Title = track.Title;
-        mediaitem.MetaData["artist"] = track.Performer;
-        mediaitem.MetaData["track"] = track.TrackNumber;
-        mediaitem.MetaData["album"] = cuesheet.Title;
-        // Calculate Startpoint in ms 
-        // Note: 1 second = 75 Frames in a cuesheet
-        startPosition = track.Indices[0].Minutes * 60 * 1000 + track.Indices[0].Seconds * 1000 + (int)((double)track.Indices[0].Frames / 75.0 * 1000.0);
-
-        if (i + 1 < cuesheet.Tracks.Length)
-          endPosition = nextTrack.Indices[0].Minutes * 60 * 1000 + nextTrack.Indices[0].Seconds * 1000 + (int)((double)nextTrack.Indices[0].Frames / 75.0 * 1000.0);
-        else
-          endPosition = tag.Duration * 1000;
-
-        mediaitem.MetaData["resumeAt"] = startPosition;
-        mediaitem.MetaData["duration"] = (endPosition - startPosition) / 1000;
-        items.Add(mediaitem);
-      }
-      return items;
-    }
     #endregion
 
     #region private methods
@@ -611,55 +533,121 @@ namespace Media.Importers.MusicImporter
       }
     }
 
-    void Import(string folder, DateTime lastImport)
+    /// <summary>
+    /// Queries FreeDB for the Audio CD inserted
+    /// </summary>
+    /// <param name="folder"></param>
+    /// <param name="items"></param>
+    private void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
     {
+      string discId = string.Empty;
+      CDInfoDetail MusicCD = new CDInfoDetail();
+      char driveLetter = System.IO.Path.GetFullPath(folder).ToCharArray()[0];
       try
       {
-        DateTime importDate = _lastImport;
-
-        ServiceScope.Get<ILogger>().Info("MusicImport. import {0} from {1}", folder, importDate.ToShortDateString());
-        DateTime startTime = DateTime.Now;
-        int fileCount = 0;
-        try
+        FreeDBQuery freedb = new FreeDBQuery();
+        freedb.Connect();
+        Freedb.CDInfo[] cds = freedb.GetDiscInfo(driveLetter);
+        if (cds != null)
         {
-          ServiceScope.Get<ILogger>().Info("MusicImport: Delete non-exiting songs from database");
-
-          DeleteNonExistingSongs();
-
-          ServiceScope.Get<ILogger>().Info("MusicImport: Get files in Share");
-          int GetFilesResult = GetFiles(folder, ref fileCount, importDate);
-          ServiceScope.Get<ILogger>().Info("MusicImport: Add / Update files: {0} files added / updated", GetFilesResult);
-        }
-
-        catch (Exception ex)
-        {
-          ServiceScope.Get<ILogger>().Error("MusicImport: Error");
-          ServiceScope.Get<ILogger>().Error(ex);
-        }
-
-        finally
-        {
-          DateTime stopTime = DateTime.Now;
-          TimeSpan ts = stopTime - startTime;
-          float fSecsPerTrack = ((float)ts.TotalSeconds / fileCount);
-          string trackPerSecSummary = "";
-
-          if (fileCount > 0)
+          if (cds.Length == 1)
           {
-            trackPerSecSummary = string.Format(" ({0} seconds per track)", fSecsPerTrack);
+            MusicCD = freedb.GetDiscDetails(cds[0].Category, cds[0].DiscId);
+            discId = cds[0].DiscId;
           }
-          ServiceScope.Get<ILogger>().Info("MusicImport: Music database reorganization done.  Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", fileCount, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
-          _lastImport = DateTime.Now;
         }
+        freedb.Disconnect();
       }
-      catch (Exception ex)
+      catch (Exception)
       {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error importing folder:{0}", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
+        MusicCD = null;
+      }
+
+      if (MusicCD != null)
+      {
+        // Update the Items with the Track Details
+        int i = 0;
+        foreach (IAbstractMediaItem item in items)
+        {
+          IMediaItem mediaItem = item as IMediaItem;
+          if (mediaItem != null)
+          {
+            mediaItem.Title = MusicCD.Tracks[i].Title;
+            mediaItem.MetaData["album"] = MusicCD.Title;
+            mediaItem.MetaData["duration"] = MusicCD.Tracks[i].Duration;
+            mediaItem.MetaData["track"] = MusicCD.Tracks[i].TrackNumber;
+
+            if (MusicCD.Tracks[i].Artist != null)
+              mediaItem.MetaData["album"] = MusicCD.Tracks[i].Artist;
+            else
+              mediaItem.MetaData["artist"] = MusicCD.Artist;
+          }
+          i++;
+        }
       }
     }
 
+    /// <summary>
+    /// Opens a queue file and adds all the tracks found to the items
+    /// </summary>
+    /// <param name="strFileName"></param>
+    /// <returns>List of Tracks found in the CueSheet</returns>
+    private List<IAbstractMediaItem> ProcessCueSheet(IAbstractMediaItem item)
+    {
+      List<IAbstractMediaItem> items = new List<IAbstractMediaItem>();
+      CueSheet cuesheet = new CueSheet(item.ContentUri.LocalPath);
+      string defaultCueAudioFile = cuesheet.Tracks[0].DataFile.Filename;
 
+      if (Path.GetDirectoryName(defaultCueAudioFile) == String.Empty)
+        defaultCueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), defaultCueAudioFile);
+
+      // Get the tag from the original file, so that we have a duration
+      MusicTag tag = GetTag(defaultCueAudioFile);
+
+      for (int i = 0; i < cuesheet.Tracks.Length; i++)
+      {
+        Track track, nextTrack;
+        int startPosition, endPosition;
+
+        track = cuesheet.Tracks[i];
+
+        if (track.TrackDataType != DataType.AUDIO)
+          continue;
+
+        if (i + 1 < cuesheet.Tracks.Length)
+          nextTrack = cuesheet.Tracks[i + 1];
+        else
+          nextTrack = cuesheet.Tracks[i];
+
+        string cueAudioFile = track.DataFile.Filename;
+        if (cueAudioFile == null)
+          cueAudioFile = defaultCueAudioFile;
+        else
+        {
+          if (Path.GetDirectoryName(cueAudioFile) == String.Empty)
+            cueAudioFile = Path.Combine(Path.GetDirectoryName(item.ContentUri.LocalPath), cueAudioFile);
+        }
+
+        CueMediaItem mediaitem = new CueMediaItem(cueAudioFile);
+        mediaitem.Title = track.Title;
+        mediaitem.MetaData["artist"] = track.Performer;
+        mediaitem.MetaData["track"] = track.TrackNumber;
+        mediaitem.MetaData["album"] = cuesheet.Title;
+        // Calculate Startpoint in ms 
+        // Note: 1 second = 75 Frames in a cuesheet
+        startPosition = track.Indices[0].Minutes * 60 * 1000 + track.Indices[0].Seconds * 1000 + (int)((double)track.Indices[0].Frames / 75.0 * 1000.0);
+
+        if (i + 1 < cuesheet.Tracks.Length)
+          endPosition = nextTrack.Indices[0].Minutes * 60 * 1000 + nextTrack.Indices[0].Seconds * 1000 + (int)((double)nextTrack.Indices[0].Frames / 75.0 * 1000.0);
+        else
+          endPosition = tag.Duration * 1000;
+
+        mediaitem.MetaData["resumeAt"] = startPosition;
+        mediaitem.MetaData["duration"] = (endPosition - startPosition) / 1000;
+        items.Add(mediaitem);
+      }
+      return items;
+    }
 
     /// <summary>
     /// Remove songs, which are not existing anymore, because they have been moved, deleted.
@@ -698,7 +686,7 @@ namespace Media.Importers.MusicImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error deleting non existing songs");
+        ServiceScope.Get<ILogger>().Info("Musicimporter:error deleting non existing songs");
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
@@ -733,184 +721,6 @@ namespace Media.Importers.MusicImporter
         ServiceScope.Get<ILogger>().Error(ex);
       }
       return;
-    }
-
-
-    /// <summary>
-    /// Scan the Music Shares and add all new songs found to the database.
-    /// Update tags for Songs, which have been updated
-    /// </summary>
-    /// <param name="fileCount"></param>
-    /// <returns></returns>
-    private int GetFiles(string folder, ref int fileCount, DateTime lastImport)
-    {
-      try
-      {
-        int totalFiles = 0;
-
-        int SongCounter = 0;
-        int AddedCounter = 0;
-        int TotalSongs;
-        List<string> availableFiles = new List<string>();
-
-        // Get all the files for the given Share / Path
-        CountFilesInPath(folder, ref totalFiles, ref availableFiles, lastImport);
-
-        // Now get the files from the root directory, which we missed in the above search
-        try
-        {
-          foreach (string file in Directory.GetFiles(folder, "*.*"))
-          {
-            CheckFileForInclusion(file, ref totalFiles, ref availableFiles, lastImport);
-          }
-        }
-        catch
-        {
-          // ignore exception that we get on CD / DVD shares
-        }
-
-        TotalSongs = totalFiles;
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Found {0} files.", totalFiles);
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Now check for new / updated files.");
-
-        // Contains a list of Items to be inserted to the DB.
-        // Do Mass insertion at the end of processing the files
-        List<IDbItem> tracks = new List<IDbItem>();
-
-
-        foreach (string MusicFile in availableFiles)
-        {
-          SongCounter++;
-
-          List<IDbItem> result;
-          try
-          {
-            Query trackByFilename = new Query("contenturi", Operator.Same, MusicFile);
-            result = _musicDatabase.Query(trackByFilename);
-          }
-          catch (Exception)
-          {
-            ServiceScope.Get<ILogger>().Error("MusicImporter: AddMissingFiles finished with error (exception for select)");
-            return (int)Errors.ERROR_REORG_SONGS;
-          }
-
-          IDbItem track;
-          if (result.Count == 0)
-          {
-            //The song does not exist, we will add it.
-            track = AddSong(MusicFile);
-          }
-          else
-          {
-            track = UpdateSong(MusicFile);
-          }
-
-          if (track != null)
-          {
-            tracks.Add(track);
-          }
-
-          AddedCounter++;
-        }
-
-        // now save all the items added / updated
-        _musicDatabase.Save(tracks);
-
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Checked {0} files.", totalFiles);
-        ServiceScope.Get<ILogger>().Info("MusicImporter: {0} skipped because of creation before the last import", totalFiles - AddedCounter);
-
-        fileCount = TotalSongs;
-        return SongCounter;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error GetFiles:{0}", folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-        return 0;
-      }
-    }
-
-    /// <summary>
-    /// Retrieve all the in a given path.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="totalFiles"></param>
-    private void CountFilesInPath(string path, ref int totalFiles, ref List<string> availableFiles, DateTime lastImport)
-    {
-      try
-      {
-        foreach (string dir in Directory.GetDirectories(path))
-        {
-          try
-          {
-            foreach (string file in Directory.GetFiles(dir, "*.*"))
-            {
-              CheckFileForInclusion(file, ref totalFiles, ref availableFiles, lastImport);
-            }
-          }
-          catch (Exception ex)
-          {
-            // We might not be able to access a folder. i.e. System Volume Information
-            ServiceScope.Get<ILogger>().Info("MusicImporter: Unable to process files in directory {0}. {1}", dir, ex.Message);
-          }
-          CountFilesInPath(dir, ref totalFiles, ref availableFiles, lastImport);
-        }
-      }
-      catch (Exception)
-      {
-        // Ignore
-      }
-    }
-
-    /// <summary>
-    /// Should the file be included in the list to be added
-    /// </summary>
-    /// <param name="file"></param>
-    /// <param name="totalFiles"></param>
-    private void CheckFileForInclusion(string file, ref int totalFiles, ref List<string> availableFiles, DateTime lastImport)
-    {
-      try
-      {
-        string ext = Path.GetExtension(file).ToLower();
-        if (ext == ".m3u")
-        {
-          return;
-        }
-        if (ext == ".pls")
-        {
-          return;
-        }
-        if (ext == ".wpl")
-        {
-          return;
-        }
-        if (ext == ".b4s")
-        {
-          return;
-        }
-        if ((File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden)
-        {
-          return;
-        }
-
-        // checked by ImporterBuilder
-        //// Only get files with the required extension
-        //if (_supportedExtensions.IndexOf(ext) == -1)
-        //{
-        //  return;
-        //}
-
-        // Only Add files to the list, if they have been Created / Updated after the Last Import date
-        if (File.GetCreationTime(file) > lastImport || File.GetLastWriteTime(file) > lastImport)
-        {
-          availableFiles.Add(file);
-        }
-      }
-      catch (Exception)
-      {
-        //File.GetAttributes may fail if [file] is 0 bytes long
-      }
-      totalFiles++;
     }
 
     /// <summary>

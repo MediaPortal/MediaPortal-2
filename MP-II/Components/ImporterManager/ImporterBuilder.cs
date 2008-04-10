@@ -108,10 +108,12 @@ namespace Components.Services.Importers
       if (availableFiles.Count > 0)
       {
         Build();
+        _importerInstance.BeforeImport(availableFiles.Count);
         foreach (string filename in availableFiles)
         {
           _importerInstance.FileImport(filename);
         }
+        _importerInstance.AfterImport();
       }
     }
 
