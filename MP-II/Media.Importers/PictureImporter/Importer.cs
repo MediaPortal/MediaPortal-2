@@ -43,7 +43,6 @@ namespace Media.Importers.PictureImporter
     #region IPlugin Members
     List<string> _extensions;
     IDatabase _pictureDatabase;
-    DateTime _lastImport = DateTime.MinValue;
 
     public Importer()
     {
@@ -404,52 +403,7 @@ namespace Media.Importers.PictureImporter
       }
     }
 
-    //void Import(string folder, ref List<string> availableFiles, DateTime since)
-    //{
-    //  since = _lastImport;
-    //  ServiceScope.Get<ILogger>().Info("pictureimporter {0}", folder);
-    //  try
-    //  {
-    //    string[] subFolders = Directory.GetDirectories(folder);
-    //    for (int i = 0; i < subFolders.Length; ++i)
-    //    {
-    //      Import(subFolders[i], ref availableFiles, since);
-    //    }
-    //    string[] files = Directory.GetFiles(folder);
-    //    for (int i = 0; i < files.Length; ++i)
-    //    {
-    //      string ext = Path.GetExtension(files[i]).ToLower();
-    //      if (Extensions.Contains(ext))
-    //      {
-    //        if (CheckFile(files[i], since))
-    //        {
-    //          availableFiles.Add(files[i]);
-    //        }
-    //      }
-    //    }
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("pictureimporter:error Import:{0}", folder);
-    //    ServiceScope.Get<ILogger>().Error(ex);
-    //  }
-
-    //  _lastImport = DateTime.Now;
-    //}
-
-    //bool CheckFile(string fileName, DateTime lastImport)
-    //{
-    //  if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
-    //  {
-    //    return false;
-    //  }
-    //  if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
-    //  {
-    //    return true;
-    //  }
-    //  return false;
-    //}
-
+ 
     IDbItem GetExifFor(string file)
     {
       try
@@ -525,24 +479,13 @@ namespace Media.Importers.PictureImporter
         _pictureDatabase.Add("ViewComment", typeof(string), 1024);
         _pictureDatabase.Add("ISOSpeed", typeof(string), 1024);
         _pictureDatabase.Add("Orientation", typeof(int));
-        _pictureDatabase.Add("PictureTags", typeof(List<string>), 1024);
+        _pictureDatabase.Add("PictureTags", typeof(List<string>), 1000);
         _pictureDatabase.Add("Date", typeof(DateTime), 1024);
         _pictureDatabase.Add("contentURI", typeof(string), 1024);
         _pictureDatabase.Add("CoverArt", typeof(string), 1024);
         _pictureDatabase.Add("Updated", typeof(string), 1);
         _pictureDatabase.Add("path", typeof(string), 1024);
         _pictureDatabase.Add("dateAdded", typeof(DateTime));
-
-        //get date/time of last import done....
-        Query lastDateQuery = new Query();
-        lastDateQuery.Sort = SortOrder.Descending;
-        lastDateQuery.SortFields.Add("dateAdded");
-        lastDateQuery.Limit = 1;
-        List<IDbItem> lastItems = _pictureDatabase.Query(lastDateQuery);
-        if (lastItems.Count == 0)
-          _lastImport = DateTime.MinValue;
-        else
-          _lastImport = (DateTime)lastItems[0]["dateAdded"];
       }
       catch (Exception ex)
       {

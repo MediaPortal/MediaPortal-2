@@ -283,12 +283,12 @@ namespace Components.Database.FireBird
       string indexName = String.Format("IX_{0}_{1}", _tableName, _columnName);
       // Firebird allows maximum of 31 chars for index / table names
       if (indexName.Length > 31)
-        indexName = indexName.Substring(0, 31);
+        indexName = indexName.Substring(0, 30);
 
       using (FbCommand cmd = new FbCommand())
       {
         cmd.CommandType = CommandType.Text;
-        cmd.CommandText = String.Format("select distinct RDB$INDEX_NAME from RDB$INDICES where RDB$INDEX_NAME = upper('{0}')", indexName);
+        cmd.CommandText = String.Format("select distinct RDB$INDEX_NAME from RDB$INDICES where RDB$INDEX_NAME = '{0}'", indexName);
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
         using (FbDataReader reader = cmd.ExecuteReader())
         {
@@ -399,13 +399,13 @@ namespace Components.Database.FireBird
           string sql = "";
 
           // Do we add or Update
-          bool add = (item["id"] == null);
+          bool add = (item["ID"] == null);
 
           enumer = item.Attributes.GetEnumerator();
           while (enumer.MoveNext())
           {
             IDbAttribute att = enumer.Current.Value;
-            if (att.Name == "id")
+            if (att.Name == "ID")
             {
               continue;
             }
@@ -421,7 +421,10 @@ namespace Components.Database.FireBird
               {
                 attrValue = String.Format("|{0}|", attrValue);
               }
+
+              // We might end up in invalid SQL Statements, if the string contains apostrophes
               attrValue = attrValue.Replace("'", "''");
+              attrValue = attrValue.Replace("’", "’’");
 
               if (add)
               {
@@ -460,7 +463,7 @@ namespace Components.Database.FireBird
             {
               sql = sql.Substring(0, sql.Length - 1);
             }
-            cmd.CommandText = String.Format("update {0} set {1} where id={2}", item.Database.Name, sql, item["id"]);
+            cmd.CommandText = String.Format("update {0} set {1} where id={2}", item.Database.Name, sql, item["ID"]);
             cmd.ExecuteNonQuery();
           }
         }
@@ -488,13 +491,13 @@ namespace Components.Database.FireBird
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
         cmd.CommandType = CommandType.Text;
-        if (item["id"] != null)
+        if (item["ID"] != null)
         {
-          cmd.CommandText = String.Format("delete from {0} where id={1}", item.Database.Name, item["id"]);
+          cmd.CommandText = String.Format("delete from {0} where id={1}", item.Database.Name, item["ID"]);
           cmd.ExecuteNonQuery();
           DeleteMultiFields(item);
         }
-        item["id"] = null;
+        item["ID"] = null;
       }
       IDatabaseNotifier notifier = ServiceScope.Get<IDatabaseNotifier>();
       notifier.Notify(item.Database, DatabaseNotificationType.ItemDeleted, item);
@@ -805,7 +808,8 @@ namespace Components.Database.FireBird
     public List<IDbAttribute> GetAttributes(string tableName)
     {
       List<IDbAttribute> list = new List<IDbAttribute>();
-      list.Add(new DbAttribute("id", typeof(int)));
+      // Attenntion: "ID" needs to be uppercase, since firebird creates the field in this way
+      list.Add(new DbAttribute("ID", typeof(int))); 
       using (FbCommand cmd = new FbCommand())
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;

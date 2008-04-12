@@ -46,7 +46,6 @@ namespace Media.Importers.MusicImporter
   public class MusicImporter : IPlugin, IImporter
   {
     #region Variables
-    DateTime _lastImport = DateTime.MinValue;
     private IDatabase _musicDatabase = null;
     private readonly string[] ArtistNamePrefixes = new string[]
       {
@@ -466,7 +465,7 @@ namespace Media.Importers.MusicImporter
         result = _musicDatabase.Query(trackByFilename);
         return (result != null && result.Count > 0);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
       }
       return false;
@@ -504,7 +503,7 @@ namespace Media.Importers.MusicImporter
         _musicDatabase.Add("resumeAt", typeof(int));
         _musicDatabase.Add("gainTrack", typeof(double));
         _musicDatabase.Add("peakTrack", typeof(double));
-        _musicDatabase.Add("lyrics", typeof(string), 4096);
+        _musicDatabase.Add("lyrics", typeof(string), 8192);
         _musicDatabase.Add("musicBrainzID", typeof(string), 255);
         _musicDatabase.Add("dateLastPlayed", typeof(DateTime));
         _musicDatabase.Add("dateAdded", typeof(DateTime));
@@ -514,17 +513,6 @@ namespace Media.Importers.MusicImporter
         _musicDatabase.AddIndex("Music", "albumArtist", "asc");
         _musicDatabase.AddIndex("Music", "album", "asc");
         _musicDatabase.AddIndex("Music", "genre", "asc");
-
-        //get date/time of last import done....
-        Query lastDateQuery = new Query();
-        lastDateQuery.Sort = SortOrder.Descending;
-        lastDateQuery.SortFields.Add("dateAdded");
-        lastDateQuery.Limit = 1;
-        List<IDbItem> lastItems = _musicDatabase.Query(lastDateQuery);
-        if (lastItems.Count == 0)
-          _lastImport = DateTime.MinValue;
-        else
-          _lastImport = (DateTime)lastItems[0]["dateAdded"];
       }
       catch (Exception ex)
       {
