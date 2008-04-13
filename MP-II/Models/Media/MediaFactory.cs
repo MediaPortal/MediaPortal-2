@@ -74,6 +74,7 @@ namespace Models.Media
         containerItem.Add("Size", "");
         containerItem.Add("Date", "");
         containerItem.Add("defaulticon", "DefaultFolderBig.png");
+        containerItem.Add("CoverArt", "");
         items.Add(containerItem);
       }
       foreach (IAbstractMediaItem item in itemsInView)
@@ -86,13 +87,20 @@ namespace Models.Media
           containerItem.Add("Size", "");
           containerItem.Add("Date", "");
           containerItem.Add("defaulticon", "DefaultFolderBig.png");
-          if (item.MetaData != null)
+
+          if (item.MetaData != null && item.MetaData.ContainsKey("CoverArt"))
           {
-            if (item.MetaData.ContainsKey("CoverArt"))
-              containerItem.Add("CoverArt", item.MetaData["CoverArt"].ToString());
+            containerItem.Add("CoverArt", item.MetaData["CoverArt"].ToString());
           }
+          else
+          {
+            containerItem.Add("CoverArt", "");
+          }
+
           if (containerItem.MediaContainer != null)
+          {
             containerItem.MediaContainer.Parent = parentItem;
+          }
           items.Add(containerItem);
           continue;
         }
