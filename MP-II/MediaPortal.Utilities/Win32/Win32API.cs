@@ -47,6 +47,25 @@ namespace MediaPortal.Utilities.Win32
     public const int CSIDL_MYMUSIC = 0x000d;     // "My Music" folder
     public const int CSIDL_MYVIDEO = 0x000e;     // "My Videos" folder
     public const int CSIDL_MYPICTURES = 0x0027;  // "My Pictures" folder
+
+    // OSVERSIONINFOEX specific constants
+    public const int VER_NT_WORKSTATION = 1;
+    public const int VER_NT_DOMAIN_CONTROLLER = 2;
+    public const int VER_NT_SERVER = 3;
+    public const int VER_SUITE_SMALLBUSINESS = 1;  // Microsoft Small Business Server was once installed on the system, but may have been upgraded to another version of Windows.
+    public const int VER_SUITE_ENTERPRISE = 2;     // Windows Server 2008 Enterprise, Windows Server 2003, Enterprise Edition, or Windows 2000 Advanced Server is installed.
+    public const int VER_SUITE_BACKOFFICE = 4;     // Microsoft BackOffice components are installed.
+    public const int VER_SUITE_TERMINAL = 16;      // Terminal Services is installed. This value is always set.
+    public const int VER_SUITE_SMALLBUSINES_RESTRICTED = 32;      // Microsoft Small Business Server is installed with the restrictive client license in force.
+    public const int VER_SUITE_EMBEDDEDNT = 64;      // Windows XP Embedded is installed.
+    public const int VER_SUITE_DATACENTER = 128;   // Windows Server 2008 Datacenter, Windows Server 2003, Datacenter Edition, or Windows 2000 Datacenter Server is installed.
+    public const int VER_SUITE_SINGLEUSERTS = 256; // Remote Desktop is supported, but only one interactive session is supported. This value is set unless the system is running in application server mode.
+    public const int VER_SUITE_PERSONAL = 512;     // Windows Vista Home Premium, Windows Vista Home Basic, or Windows XP Home Edition is installed.
+    public const int VER_SUITE_BLADE = 1024;       // Windows Server 2003, Web Edition is installed.
+    public const int VER_SUITE_STORAGE_SERVER = 8192;       // Windows Storage Server 2003 R2 or Windows Storage Server 2003is installed.
+    public const int VER_SUITE_COMPUTE_SERVER = 16384;      // Windows Server 2003, Compute Cluster Edition is installed.
+    public const int VER_SUITE_WH_SERVER = 32768;      // Windows Home Server is installed.
+
     #endregion
 
     #region Methods
@@ -86,6 +105,14 @@ namespace MediaPortal.Utilities.Win32
 
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool CloseHandle(IntPtr hObject);
+
+    /// <summary>
+    /// Gets Operating System Information
+    /// </summary>
+    /// <param name="osVersionInfo"></param>
+    /// <returns></returns>
+    [DllImport("kernel32.dll")]
+    public static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
     #endregion
 
     #region User32
@@ -151,7 +178,7 @@ namespace MediaPortal.Utilities.Win32
 
     #region WinInet
     [DllImport("wininet.dll")]
-    private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
+    public extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
     #endregion
 
     #region Shell32
@@ -236,6 +263,23 @@ namespace MediaPortal.Utilities.Win32
       public Rectangle normalPosition;
     }
 
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OSVERSIONINFOEX
+    {
+      public int dwOSVersionInfoSize;
+      public int dwMajorVersion;
+      public int dwMinorVersion;
+      public int dwBuildNumber;
+      public int dwPlatformId;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string szCSDVersion;
+      public short wServicePackMajor;
+      public short wServicePackMinor;
+      public short wSuiteMask;
+      public byte wProductType;
+      public byte wReserved;
+    }
     #endregion
     #endregion
 

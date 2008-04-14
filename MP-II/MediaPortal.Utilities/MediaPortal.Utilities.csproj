@@ -120,8 +120,8 @@
       <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </Compile>
     <Compile Include="Strings\StringUtils.cs" />
+    <Compile Include="Win32\EnvironmentUtils.cs" />
     <Compile Include="Win32\Internet.cs" />
-    <Compile Include="Win32\SpecialFolder.cs" />
     <Compile Include="Win32\Win32API.cs" />
     <Compile Include="Win32\Window.cs" />
     <Compile Include="Xml\XmlNoNamespaceWriter.cs" />
