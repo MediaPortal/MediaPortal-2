@@ -243,18 +243,22 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      AllocFont();
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
-      if (_label != null)
+
+      // InitializeBindings must be done before we can measure (we could have a binding)
+      InitializeBindings();
+      InitializeTriggers();
+      AllocFont();
+
+      if (_label != null && _asset != null)
       {
-        if (_asset != null)
-        {
-          float h = _asset.Font.LineHeight;// *1.2f;
-          //h -= (_asset.Font.LineHeight - _asset.Font.Base);
-          size = new SizeF((float)availableSize.Width, (float)(h));
-          if (availableSize.Width == 0)
-            size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
-        }
+
+        float h = _asset.Font.LineHeight;// *1.2f;
+        //h -= (_asset.Font.LineHeight - _asset.Font.Base);
+        size = new SizeF((float)availableSize.Width, (float)(h));
+        if (availableSize.Width == 0)
+          size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
+
       }
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
@@ -314,8 +318,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsArrangeValid = true;
-      InitializeBindings();
-      InitializeTriggers();
       _isLayoutInvalid = false;
       _update = true;
       //Trace.WriteLine(String.Format("Label.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
