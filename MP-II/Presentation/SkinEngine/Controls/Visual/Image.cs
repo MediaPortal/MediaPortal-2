@@ -329,8 +329,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
 
       IsArrangeValid = true;
-      InitializeBindings();
-      InitializeTriggers();
       _isLayoutInvalid = false;
       if (Window != null) Window.Invalidate(this);
     }
@@ -343,6 +341,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+
+      //Trace.WriteLine(String.Format("Image.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
+
+      // InitializeBindings must be done before we can measure (we could have a binding)
+      InitializeBindings();
+      InitializeTriggers();
 
       float w = (float)Width * SkinContext.Zoom.Width;
       float h = (float)Height * SkinContext.Zoom.Height;
