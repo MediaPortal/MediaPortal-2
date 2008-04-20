@@ -1259,11 +1259,17 @@ namespace MyXaml.Core
         {
           while (propertyValue.IndexOf('{') != -1)					// If there are embedded references in the attribute value...
           {
-            string refName =											// Get the reference name.
-              StringHelpers.Between(propertyValue, '{', '}');
+            // Get the reference name.
+            string refName = StringHelpers.Between(propertyValue, '{', '}');
+            
+            if (refName == String.Empty)
+            {
+              ServiceScope.Get<ILogger>().Error("XamlParser:{0} Malformed reference :{1}", CurrentFile, propertyValue);
+              return;
+            }
             if (!ContainsReference(refName))						// Verify that it already exists.  Embedded references must be immediately resolvable.
             {
-              ServiceScope.Get<ILogger>().Warn("XamlParser:{0} Cannot make a forward reference to :{1} on:{2}", CurrentFile, propertyValue, obj.GetType().ToString());
+              ServiceScope.Get<ILogger>().Error("XamlParser:{0} Cannot make a forward reference to :{1} on:{2}", CurrentFile, propertyValue, obj.GetType().ToString());
               return;
             }
 
