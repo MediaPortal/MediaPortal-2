@@ -245,6 +245,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
 
+      //Trace.WriteLine(String.Format("Label.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
+      
       // InitializeBindings must be done before we can measure (we could have a binding)
       InitializeBindings();
       InitializeTriggers();
@@ -322,7 +324,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _update = true;
       //Trace.WriteLine(String.Format("Label.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
     
-      if (Window != null) Window.Invalidate(this);
+      if (Window != null) 
+        Window.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()
