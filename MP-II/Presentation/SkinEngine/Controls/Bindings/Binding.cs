@@ -32,6 +32,7 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.WindowManager;
+using Clifton.Tools.Strings;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
@@ -187,39 +188,24 @@ namespace Presentation.SkinEngine.Controls.Bindings
       }
       object bindingSourceProperty;
       UIElement sourceElement = bindingDestinationObject as UIElement;
-      if (sourceElement != null)
+      
+      if (sourceElement == null)
       {
-        bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
-        if (bindingSourceProperty == null)
-        {
-          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName + "Property");
-          if (bindingSourceProperty == null)
-          {
-            bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName);
-            if (bindingSourceProperty == null)
-            {
-              ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
-                Expression, bindingSourcePropertyName, sourceElement);
-              return;
-            }
-          }
-        }
+        sourceElement = _context;
       }
-      else
+
+      bindingSourceProperty = GetBindingSourceObject(sourceElement, bindingSourcePropertyName);
+      if (bindingSourceProperty == null)
       {
-        bindingSourceProperty = GetBindingSourceObject(_context, bindingSourcePropertyName);
+        bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName + "Property");
         if (bindingSourceProperty == null)
         {
-          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(_context, bindingSourcePropertyName + "Property");
+          bindingSourceProperty = VisualTreeHelper.Instance.FindElement(sourceElement, bindingSourcePropertyName);
           if (bindingSourceProperty == null)
           {
-            bindingSourceProperty = VisualTreeHelper.Instance.FindElement(_context, bindingSourcePropertyName);
-            if (bindingSourceProperty == null)
-            {
-              ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}",
-                Expression, bindingSourcePropertyName, sourceElement);
-              return;
-            }
+            ServiceScope.Get<ILogger>().Warn("SetupDatabinding:'{0}' cannot find binding source element '{1}' on {2}",
+              Expression, bindingSourcePropertyName, sourceElement);
+            return;
           }
         }
       }
@@ -269,7 +255,8 @@ namespace Presentation.SkinEngine.Controls.Bindings
     {
       if (element.Context == null)
       {
-        if (element.VisualParent == null) return null;
+        if (element.VisualParent == null) 
+          return null;
         return GetBindingSourceObject(element.VisualParent, bindingSourcePropertyName);
       }
       Object obj;
@@ -388,44 +375,66 @@ namespace Presentation.SkinEngine.Controls.Bindings
     protected PropertyInfo GetPropertyOnObject(object element, string propertyName, bool checkForProperty, out object context)
     {
       context = null;
-      PropertyInfo info;
+      PropertyInfo propInfo;
+
       string[] parts = propertyName.Split('.');
-      if (parts.Length == 1)
-      {
-        if (checkForProperty)
-        {
-          info = element.GetType().GetProperty(propertyName + "Property");
-          if (info != null)
-          {
-            context = element;
-            return info;
-          }
-        }
-        info = element.GetType().GetProperty(propertyName);
-        if (info != null)
-        {
-          context = element;
-        }
-        return info;
-      }
-      ///----
+
       object model = element;
       int partNr = 0;
       object obj = null;
       while (partNr < parts.Length - 1)
       {
-        Type classType = model.GetType();
-        info = classType.GetProperty(parts[partNr],
+        int indexNo = -1;
+        string indexStr = String.Empty;
+        string indexString;
+
+        // Do we have a indexed property? e.g. item[1]
+        if (StringHelpers.EndsWith(parts[partNr], ']'))
+        {
+          indexStr = StringHelpers.Between(parts[partNr], '[', ']');
+          if (!Int32.TryParse(indexStr, out indexNo))
+          {
+            indexNo = -1;
+            indexString = indexStr;
+          }
+          parts[partNr] = StringHelpers.LeftOf(parts[partNr], '[');
+        }
+
+        // Get the reference name.
+        propInfo = model.GetType().GetProperty(parts[partNr],
                                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
                                 BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
-        if (info == null)
+        if (propInfo == null)
           return null;
-        MethodInfo methodInfo = info.GetGetMethod();
+        MethodInfo methodInfo = propInfo.GetGetMethod();
         if (methodInfo == null)
           return null;
         obj = methodInfo.Invoke(model, null);
 
         partNr++;
+        if (indexNo >= 0)
+        {
+          propInfo = obj.GetType().GetProperty("Item",
+                                  BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
+                                  BindingFlags.InvokeMethod | BindingFlags.ExactBinding);
+          if (propInfo == null)
+          {
+            ServiceScope.Get<ILogger>().Error("cannot get indexed property info for {0}", parts[partNr]);
+            return null;
+          }
+          methodInfo = propInfo.GetGetMethod();
+          if (methodInfo == null)
+          {
+            ServiceScope.Get<ILogger>().Error("cannot get indexed method info for {0}", parts[partNr]);
+            return null;
+          }
+          obj = methodInfo.Invoke(obj, new object[] { indexNo });
+          if (obj == null)
+          {
+            return null;
+          }
+        }
+
         if (partNr < parts.Length)
         {
           model = obj;
@@ -438,16 +447,16 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
       if (checkForProperty)
       {
-        info = model.GetType().GetProperty(parts[parts.Length - 1] + "Property");
-        if (info != null)
+        propInfo = model.GetType().GetProperty(parts[parts.Length - 1] + "Property");
+        if (propInfo != null)
         {
           context = model;
-          return info;
+          return propInfo;
         }
       }
-      info = model.GetType().GetProperty(parts[parts.Length - 1]);
+      propInfo = model.GetType().GetProperty(parts[parts.Length - 1]);
       context = model;
-      return info;
+      return propInfo;
       //----
     }
 

@@ -86,7 +86,7 @@ namespace Presentation.SkinEngine.Controls.Bindings
           bindingSourceProperty = VisualTreeHelper.Instance.FindElement((UIElement)visual, Expression);
           if (bindingSourceProperty == null)
           {
-            ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding source element '{1}' on {2}", Expression, PropertyInfo.Name, visual);
+            ServiceScope.Get<ILogger>().Warn("TemplateBinding:'{0}' cannot find binding source element '{1}' on {2}", Expression, PropertyInfo.Name, visual);
             return;
           }
         }
@@ -101,7 +101,7 @@ namespace Presentation.SkinEngine.Controls.Bindings
           bindingDestProperty = VisualTreeHelper.Instance.FindElement((UIElement)bindingDestinationObject, "this." + PropertyInfo.Name);
           if (bindingDestProperty == null)
           {
-            ServiceScope.Get<ILogger>().Warn("Binding:'{0}' cannot find binding Dest element '{1}' on {2}", PropertyInfo.Name, PropertyInfo.Name, bindingDestinationObject);
+            ServiceScope.Get<ILogger>().Warn("TemplateBinding:'{0}' cannot find binding dest element '{1}' on {2}", PropertyInfo.Name, PropertyInfo.Name, bindingDestinationObject);
             return;
           }
         }
