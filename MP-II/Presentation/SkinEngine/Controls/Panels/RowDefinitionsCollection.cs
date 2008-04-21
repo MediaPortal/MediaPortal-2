@@ -68,7 +68,8 @@ namespace Presentation.SkinEngine.Controls.Panels
         RowDefinition rowDef = this[i + row];
         if (rowDef.Height.IsAuto || rowDef.Height.IsStar)
         {
-          if (rowDef.Height.Length == 0.0)
+
+          if (rowDef.Height.Length < height / relativeCount)
           {
             rowDef.Height.Length = height / relativeCount;
           }

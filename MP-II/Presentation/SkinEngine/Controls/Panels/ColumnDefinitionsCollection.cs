@@ -67,7 +67,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         ColumnDefinition colDef = this[i + column];
         if (colDef.Width.IsAuto || colDef.Width.IsStar)
         {
-          if (colDef.Width.Length == 0.0)
+          if (colDef.Width.Length < width / relativeCount)
           {
             colDef.Width.Length = width / relativeCount;
           }
