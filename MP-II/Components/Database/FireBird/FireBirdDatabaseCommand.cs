@@ -333,7 +333,7 @@ namespace Components.Database.FireBird
           // In rare cases quotation escape might fail. Make sure it goes on with the next item.
           try
           {
-            if (AddUpdateItem(item, connect))
+            if (AddUpdateItem(item, connect, transaction))
               itemsAdded.Add(item);
             else
               itemsModified.Add(item);
@@ -367,7 +367,11 @@ namespace Components.Database.FireBird
       FbConnection connect = (FbConnection)_connection.UnderlyingConnection;
       bool added = false;
 
-      added = AddUpdateItem(item, connect);
+      using (FbTransaction transaction = connect.BeginTransaction())
+      {
+        added = AddUpdateItem(item, connect, transaction);
+        transaction.Commit();
+      }
 
       IDatabaseNotifier notifier = ServiceScope.Get<IDatabaseNotifier>();
       if (added)
@@ -381,96 +385,92 @@ namespace Components.Database.FireBird
       }
     }
 
-    private bool AddUpdateItem(IDbItem item, FbConnection connect)
+    private bool AddUpdateItem(IDbItem item, FbConnection connect, FbTransaction transaction)
     {
       SqlCache cache = new SqlCache();
       Dictionary<string, IDbAttribute>.Enumerator enumer;
       bool added = false;
-     
-      using (FbTransaction transaction = connect.BeginTransaction())
+
+      using (FbCommand cmd = new FbCommand())
       {
-        using (FbCommand cmd = new FbCommand())
+        cmd.Connection = connect;
+        cmd.CommandType = CommandType.Text;
+        cmd.Transaction = transaction;
+        string tags = "";
+        string values = "";
+        string sql = "";
+
+        // Do we add or Update
+        bool add = (item["ID"] == null);
+
+        enumer = item.Attributes.GetEnumerator();
+        while (enumer.MoveNext())
         {
-          cmd.Connection = connect;
-          cmd.CommandType = CommandType.Text;
-          cmd.Transaction = transaction;
-          string tags = "";
-          string values = "";
-          string sql = "";
-
-          // Do we add or Update
-          bool add = (item["ID"] == null);
-
-          enumer = item.Attributes.GetEnumerator();
-          while (enumer.MoveNext())
+          IDbAttribute att = enumer.Current.Value;
+          if (att.Name == "ID")
           {
-            IDbAttribute att = enumer.Current.Value;
-            if (att.Name == "ID")
-            {
-              continue;
-            }
-            if (att.Value != null)
-            {
-              string attrValue = att.Value.ToString();
-              if (att.Type == typeof(DateTime))
-              {
-                attrValue = ((DateTime)att.Value).ToString("yyyy-MM-dd HH:mm:ss");
-              }
-              // For List fields we need to insert the ?|" in order to be able to find multiple entries on search
-              if (att.IsList)
-              {
-                attrValue = String.Format("|{0}|", attrValue);
-              }
-
-              // We might end up in invalid SQL Statements, if the string contains apostrophes
-              attrValue = attrValue.Replace("'", "''");
-              attrValue = attrValue.Replace("’", "’’");
-
-              if (add)
-              {
-                tags += String.Format("\"{0}\",", att.Name);
-                values += String.Format("'{0}',", attrValue);
-              }
-              else
-              {
-                sql += String.Format("\"{0}\"='{1}',", att.Name, attrValue);
-              }
-            }
+            continue;
           }
-
-          if (add)
+          if (att.Value != null)
           {
-            if (tags.EndsWith(","))
+            string attrValue = att.Value.ToString();
+            if (att.Type == typeof(DateTime))
             {
-              tags = tags.Substring(0, tags.Length - 1);
+              attrValue = ((DateTime)att.Value).ToString("yyyy-MM-dd HH:mm:ss");
             }
-            if (values.EndsWith(","))
+            // For List fields we need to insert the ?|" in order to be able to find multiple entries on search
+            if (att.IsList)
             {
-              values = values.Substring(0, values.Length - 1);
+              attrValue = String.Format("|{0}|", attrValue);
             }
-            cmd.CommandText =
-              String.Format("insert into {0} ({1}) values ({2})",
-                            item.Database.Name, tags, values);
 
-            cmd.ExecuteNonQuery();
-            //Int64 obj = (Int64)cmd.ExecuteScalar();
-            //item["id"] = (int)obj;
-            added = true;
-          }
-          else
-          {
-            if (sql.EndsWith(","))
+            // We might end up in invalid SQL Statements, if the string contains apostrophes
+            attrValue = attrValue.Replace("'", "''");
+            attrValue = attrValue.Replace("’", "’’");
+
+            if (add)
             {
-              sql = sql.Substring(0, sql.Length - 1);
+              tags += String.Format("\"{0}\",", att.Name);
+              values += String.Format("'{0}',", attrValue);
             }
-            cmd.CommandText = String.Format("update {0} set {1} where id={2}", item.Database.Name, sql, item["ID"]);
-            cmd.ExecuteNonQuery();
+            else
+            {
+              sql += String.Format("\"{0}\"='{1}',", att.Name, attrValue);
+            }
           }
         }
-        transaction.Commit();
+
+        if (add)
+        {
+          if (tags.EndsWith(","))
+          {
+            tags = tags.Substring(0, tags.Length - 1);
+          }
+          if (values.EndsWith(","))
+          {
+            values = values.Substring(0, values.Length - 1);
+          }
+          cmd.CommandText =
+            String.Format("insert into {0} ({1}) values ({2})",
+                          item.Database.Name, tags, values);
+
+          cmd.ExecuteNonQuery();
+          //Int64 obj = (Int64)cmd.ExecuteScalar();
+          //item["id"] = (int)obj;
+          added = true;
+        }
+        else
+        {
+          if (sql.EndsWith(","))
+          {
+            sql = sql.Substring(0, sql.Length - 1);
+          }
+          cmd.CommandText = String.Format("update {0} set {1} where id={2}", item.Database.Name, sql, item["ID"]);
+          cmd.ExecuteNonQuery();
+        }
       }
 
-      UpdateMultiFields(item, cache);
+      UpdateMultiFields(item, cache, transaction);
 
       //reset...
       enumer = item.Attributes.GetEnumerator();
@@ -523,7 +523,7 @@ namespace Components.Database.FireBird
           {
             cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
             cmd.CommandType = CommandType.Text;
-            string from = String.Format("distinct \"{0}\"",query.FieldNames[0]);
+            string from = String.Format("distinct \"{0}\"", query.FieldNames[0]);
             cmd.CommandText = String.Format("select {0} from {1}", from, tableName);
 
             using (FbDataReader reader = cmd.ExecuteReader())
@@ -562,7 +562,7 @@ namespace Components.Database.FireBird
           }
         }
         string where = query.WhereStatement;
-        
+
         cmd.CommandText = "select ";
         if (query.Limit > 0)
         {
@@ -640,7 +640,7 @@ namespace Components.Database.FireBird
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
         Dictionary<string, int> fieldsInUse = new Dictionary<string, int>();
-        cmd.CommandText = String.Format("select \"{0}\" from {1}", attName, item.Database.Name);
+        cmd.CommandText = String.Format("select distinct \"{0}\" from {1}", attName, item.Database.Name);
         using (FbDataReader reader = cmd.ExecuteReader())
         {
           while (reader.Read())
@@ -714,13 +714,14 @@ namespace Components.Database.FireBird
     ///     seperate table IF no other movie-records use it
     /// 
     /// <param name="item">The item.</param>
-    private void UpdateMultiFields(IDbItem item, SqlCache cache)
+    private void UpdateMultiFields(IDbItem item, SqlCache cache, FbTransaction transaction)
     {
       Dictionary<string, IDbAttribute>.Enumerator enumer;
       using (FbCommand cmd = new FbCommand())
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
         cmd.CommandType = CommandType.Text;
+        cmd.Transaction = transaction;
 
         //if this item has a multi-attribute field
         //for each attribute
@@ -809,7 +810,7 @@ namespace Components.Database.FireBird
     {
       List<IDbAttribute> list = new List<IDbAttribute>();
       // Attenntion: "ID" needs to be uppercase, since firebird creates the field in this way
-      list.Add(new DbAttribute("ID", typeof(int))); 
+      list.Add(new DbAttribute("ID", typeof(int)));
       using (FbCommand cmd = new FbCommand())
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;

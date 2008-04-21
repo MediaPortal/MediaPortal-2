@@ -56,6 +56,7 @@ namespace Media.Importers.MusicImporter
 
     DateTime _startTime;
     private int _processedFiles = 0;
+    private List<IDbItem> _tracks;
     #endregion
 
     #region Enums
@@ -107,6 +108,7 @@ namespace Media.Importers.MusicImporter
     {
       _startTime = DateTime.Now;
       _processedFiles = 0;
+      _tracks = new List<IDbItem>();
 
       ServiceScope.Get<ILogger>().Info("MusicImporter: Processing {0} Songs", avAilableFiles);
       DeleteNonExistingSongs();
@@ -123,6 +125,7 @@ namespace Media.Importers.MusicImporter
       TimeSpan ts = stopTime - _startTime;
       float fSecsPerTrack = ((float)ts.TotalSeconds / _processedFiles);
       string trackPerSecSummary = "";
+      _musicDatabase.Save(_tracks);
 
       if (_processedFiles > 0)
       {
@@ -138,6 +141,7 @@ namespace Media.Importers.MusicImporter
     public bool FileImport(string file)
     {
       IDbItem track;
+      Console.WriteLine(file);
       if (!SongExists(file))
       {
         //The song does not exist, we will add it.
@@ -150,11 +154,14 @@ namespace Media.Importers.MusicImporter
 
       if (track != null)
       {
+        _tracks.Add(track);
         _processedFiles++;
         if (_processedFiles % 100 == 0)
+        {
           ServiceScope.Get<ILogger>().Info("MusicImporter: Songs Processed so far: {0}", _processedFiles);
-
-        track.Save();
+          _musicDatabase.Save(_tracks);
+          _tracks.Clear();
+        }
         return true;
       }
       return false;

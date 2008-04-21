@@ -20,7 +20,7 @@
  */
 
 
-/*This file defines the new udfs for firebird.*/
+/* This file defines the new udfs for Firebird. */
 
 set sql dialect 3;
 
@@ -86,61 +86,61 @@ timestamp,
 varchar(5) returns parameter 2
 entry_point 'SDOW' module_name 'fbudf';
 
---FBUDF_API paramdsc* right(paramdsc*, short* rl, paramdsc* rc)
+--FBUDF_API paramdsc* right(const paramdsc*, const ISC_SHORT& rl, paramdsc* rc)
 declare external function sright
 varchar(100) by descriptor, smallint,
 varchar(100) by descriptor returns parameter 3
 entry_point 'right' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addDay(ISC_TIMESTAMP* v, int ndays)
+--FBUDF_API ISC_TIMESTAMP* addDay(ISC_TIMESTAMP* v, const ISC_SLONG& ndays)
 declare external function addDay
 timestamp, int
 returns timestamp
 entry_point 'addDay' module_name 'fbudf';
 
---FBUDF_API void addDay2(const ISC_TIMESTAMP* v0, const int& ndays, ISC_TIMESTAMP* v)
+--FBUDF_API void addDay2(const ISC_TIMESTAMP* v0, const ISC_SLONG& ndays, ISC_TIMESTAMP* v)
 declare external function addDay2
 timestamp, int, timestamp
 returns parameter 3
 entry_point 'addDay2' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addWeek(ISC_TIMESTAMP* v, int nweeks)
+--FBUDF_API ISC_TIMESTAMP* addWeek(ISC_TIMESTAMP* v, const ISC_SLONG& nweeks)
 declare external function addWeek
 timestamp, int
 returns timestamp
 entry_point 'addWeek' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addMonth(ISC_TIMESTAMP* v, int nmonths)
+--FBUDF_API ISC_TIMESTAMP* addMonth(ISC_TIMESTAMP* v, const ISC_SLONG& nmonths)
 declare external function addMonth
 timestamp, int
 returns timestamp
 entry_point 'addMonth' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addYear(ISC_TIMESTAMP* v, int nyears)
+--FBUDF_API ISC_TIMESTAMP* addYear(ISC_TIMESTAMP* v, const ISC_SLONG& nyears)
 declare external function addYear
 timestamp, int
 returns timestamp
 entry_point 'addYear' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addMilliSecond(ISC_TIMESTAMP* v, int nseconds)
+--FBUDF_API ISC_TIMESTAMP* addMilliSecond(ISC_TIMESTAMP* v, const ISC_SLONG& nseconds)
 declare external function addMilliSecond
 timestamp, int
 returns timestamp
 entry_point 'addMilliSecond' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addSecond(ISC_TIMESTAMP* v, int nseconds)
+--FBUDF_API ISC_TIMESTAMP* addSecond(ISC_TIMESTAMP* v, const ISC_SLONG& nseconds)
 declare external function addSecond
 timestamp, int
 returns timestamp
 entry_point 'addSecond' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addMinute(ISC_TIMESTAMP* v, int nminutes)
+--FBUDF_API ISC_TIMESTAMP* addMinute(ISC_TIMESTAMP* v, const ISC_SLONG& nminutes)
 declare external function addMinute
 timestamp, int
 returns timestamp
 entry_point 'addMinute' module_name 'fbudf';
 
---FBUDF_API ISC_TIMESTAMP* addHour(ISC_TIMESTAMP* v, int nhours)
+--FBUDF_API ISC_TIMESTAMP* addHour(ISC_TIMESTAMP* v, const ISC_SLONG& nhours)
 declare external function addHour
 timestamp, int
 returns timestamp
@@ -166,38 +166,38 @@ timestamp
 returns int by value
 entry_point 'isLeapYear' module_name 'fbudf';
 
---FBUDF_API paramdsc* fbtruncate(paramdsc* v, paramdsc* rc)
+--FBUDF_API paramdsc* fbtruncate(const paramdsc* v, paramdsc* rc)
 declare external function Truncate
 int by descriptor, int by descriptor
 returns parameter 2
 entry_point 'fbtruncate' module_name 'fbudf';
 
---FBUDF_API paramdsc* fbtruncate(paramdsc* v, paramdsc* rc)
+--FBUDF_API paramdsc* fbtruncate(const paramdsc* v, paramdsc* rc)
 declare external function i64Truncate
 numeric(18) by descriptor, numeric(18) by descriptor
 returns parameter 2
 entry_point 'fbtruncate' module_name 'fbudf';
 
---FBUDF_API paramdsc* fbround(paramdsc* v, paramdsc* rc)
+--FBUDF_API paramdsc* fbround(const paramdsc* v, paramdsc* rc)
 declare external function Round
 int by descriptor, int by descriptor
 returns parameter 2
 entry_point 'fbround' module_name 'fbudf';
 
---FBUDF_API paramdsc* fbround(paramdsc* v, paramdsc* rc)
+--FBUDF_API paramdsc* fbround(const paramdsc* v, paramdsc* rc)
 declare external function i64Round
 numeric(18, 4) by descriptor, numeric(18, 4) by descriptor
 returns parameter 2
 entry_point 'fbround' module_name 'fbudf';
 
---FBUDF_API paramdsc* power(paramdsc* v, paramdsc* v2, paramdsc* rc)
+--FBUDF_API paramdsc* power(const paramdsc* v, const paramdsc* v2, paramdsc* rc)
 declare external function dPower
 double precision by descriptor, double precision by descriptor,
 double precision by descriptor
 returns parameter 3
 entry_point 'power' module_name 'fbudf';
 
---FBUDF_API blobcallback* string2blob(paramdsc* v, blobcallback* outblob)
+--FBUDF_API blobcallback* string2blob(const paramdsc* v, blobcallback* outblob)
 declare external function string2blob
 varchar(300) by descriptor,
 blob returns parameter 2

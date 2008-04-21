@@ -34,11 +34,11 @@
  * 	Returns the absolute value of a 
  * 	number.  
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION abs 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_abs' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_abs' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -52,11 +52,11 @@ DECLARE EXTERNAL FUNCTION abs
  *	out of bounds it returns NaN, as handled
  *	by the _matherr routine.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION acos 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_acos' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_acos' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -68,11 +68,11 @@ DECLARE EXTERNAL FUNCTION acos
  *	Returns the ASCII character corresponding
  *	with the value passed in.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION ascii_char
 	INTEGER NULL
 	RETURNS CSTRING(1) FREE_IT
-	ENTRY_POINT 'IB_UDF_ascii_char' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_ascii_char' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -84,11 +84,11 @@ DECLARE EXTERNAL FUNCTION ascii_char
  *	Returns the ascii value of the character
  * 	passed in.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION ascii_val
 	CHAR(1)
 	RETURNS INTEGER BY VALUE
-	ENTRY_POINT 'IB_UDF_ascii_val' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_ascii_val' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -101,11 +101,11 @@ DECLARE EXTERNAL FUNCTION ascii_val
  *	-1 and 1, if the number is out of
  *	range NaN is returned.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION asin 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_asin' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_asin' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -117,11 +117,11 @@ DECLARE EXTERNAL FUNCTION asin
  *	Returns the arctangent of a number.
  *	
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION atan 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_atan' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_atan' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -133,11 +133,11 @@ DECLARE EXTERNAL FUNCTION atan
  * 	Returns the arctangent of the
  *	first param / the second param.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION atan2 
 	DOUBLE PRECISION, DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_atan2' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_atan2' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -149,11 +149,11 @@ DECLARE EXTERNAL FUNCTION atan2
  *	Returns the result of a binary AND 
  *	operation performed on the two numbers.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION bin_and 
 	INTEGER, INTEGER
 	RETURNS INTEGER BY VALUE
-	ENTRY_POINT 'IB_UDF_bin_and' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_bin_and' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -165,11 +165,11 @@ DECLARE EXTERNAL FUNCTION bin_and
  *	Returns the result of a binary OR 
  *	operation performed on the two numbers.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION bin_or 
 	INTEGER, INTEGER
 	RETURNS INTEGER BY VALUE
-	ENTRY_POINT 'IB_UDF_bin_or' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_bin_or' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -181,11 +181,11 @@ DECLARE EXTERNAL FUNCTION bin_or
  *	Returns the result of a binary XOR 
  *	operation performed on the two numbers.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION bin_xor 
 	INTEGER, INTEGER
 	RETURNS INTEGER BY VALUE
-	ENTRY_POINT 'IB_UDF_bin_xor' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_bin_xor' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -198,11 +198,11 @@ DECLARE EXTERNAL FUNCTION bin_xor
  *	the smallest integer that is greater 
  *	than or equal to the input value.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION ceiling 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_ceiling' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_ceiling' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -220,11 +220,11 @@ DECLARE EXTERNAL FUNCTION ceiling
  *	and returns an indefinite (same as a 
  *	quiet NaN).
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION cos 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_cos' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_cos' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -242,11 +242,11 @@ DECLARE EXTERNAL FUNCTION cos
  *	and returns an indefinite (same as a 
  *	quiet NaN).
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION cosh 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_cosh' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_cosh' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -258,11 +258,11 @@ DECLARE EXTERNAL FUNCTION cosh
  *	Returns 1 over the tangent of the
  *	input parameter.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION cot 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_cot' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_cot' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -291,11 +291,11 @@ DECLARE EXTERNAL FUNCTION div
  * 	representing the largest integer that 
  *	is less than or equal to x	
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION floor 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_floor' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_floor' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -321,11 +321,11 @@ DECLARE EXTERNAL FUNCTION frac
  * Functional description:
  *	Returns the natural log of a number.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION ln 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_ln' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_ln' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -337,11 +337,11 @@ DECLARE EXTERNAL FUNCTION ln
  *	log (x,y) returns the logarithm 
  *	base x of y.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION log 
 	DOUBLE PRECISION, DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_log' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_log' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -353,11 +353,11 @@ DECLARE EXTERNAL FUNCTION log
  *	Returns the logarithm base 10 of the
  *	input parameter.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION log10 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_log10' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_log10' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -376,11 +376,11 @@ DECLARE EXTERNAL FUNCTION log10
  * 	characters which is the limit on an 
  *	INTERBASE character string.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION "LOWER"
 	CSTRING(255) NULL
 	RETURNS CSTRING(255) FREE_IT
-	ENTRY_POINT 'IB_UDF_lower' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_lower' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -398,11 +398,11 @@ DECLARE EXTERNAL FUNCTION "LOWER"
  * 	characters which is the limit on an 
  *	INTERBASE character string.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION lpad 
 	CSTRING(255) NULL, INTEGER, CSTRING(1) NULL
 	RETURNS CSTRING(255) FREE_IT
-	ENTRY_POINT 'IB_UDF_lpad' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_lpad' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -435,11 +435,11 @@ DECLARE EXTERNAL FUNCTION ltrim
  *	Returns the remainder part of the 
  *	division of the two input parameters.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION mod 
 	INTEGER, INTEGER
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_mod' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_mod' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -450,10 +450,10 @@ DECLARE EXTERNAL FUNCTION mod
  * Functional description:
  *	Returns the value of pi = 3.1459...
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION pi 
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_pi' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_pi' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -465,20 +465,14 @@ DECLARE EXTERNAL FUNCTION pi
  *	Returns a random number between 0 
  *	and 1.  
  * 
- * Note: The rand() function was changed
- *  in Firebird 2.0 so that the seed value
- *  is not set by every call. This corrects
- *  a potential duplicate value problem and
- *  ensures that different values will
- *  always be returned.
  *
- *  To seed the random number generator or
- *  retain the old behaviour, use srand(). 
- *
- *****************************************/
+ * Note: Use srand to seed the 
+ *	random number generator. 
+ *	This behavior has been changed.
+ *****************************************
 DECLARE EXTERNAL FUNCTION rand 
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_rand' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_rand' MODULE_NAME 'ib_udf'; */
 
 
 /*****************************************
@@ -497,11 +491,11 @@ DECLARE EXTERNAL FUNCTION rand
  * 	characters which is the limit on an 
  *	INTERBASE character string.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION rpad 
 	CSTRING(255) NULL, INTEGER, CSTRING(1) NULL
 	RETURNS CSTRING(255) FREE_IT
-	ENTRY_POINT 'IB_UDF_rpad' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_rpad' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -535,11 +529,11 @@ DECLARE EXTERNAL FUNCTION rtrim
  * 	the input value is positive, zero or 
  *	negative, respectively.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION sign 
 	DOUBLE PRECISION
 	RETURNS INTEGER BY VALUE
-	ENTRY_POINT 'IB_UDF_sign' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_sign' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -555,11 +549,11 @@ DECLARE EXTERNAL FUNCTION sign
  *	function generates a _TLOSS error and 
  *	returns an indefinite (same as a quiet NaN).
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION sin 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_sin' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_sin' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -575,11 +569,11 @@ DECLARE EXTERNAL FUNCTION sin
  *	function generates a _TLOSS error and 
  *	returns an indefinite (same as a quiet NaN).
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION sinh 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_sinh' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_sinh' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -590,11 +584,11 @@ DECLARE EXTERNAL FUNCTION sinh
  * Functional description:
  *	Returns the square root of a number.
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION sqrt 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_sqrt' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_sqrt' MODULE_NAME 'ib_udf'; */
 
 
 /*****************************************
@@ -604,15 +598,11 @@ DECLARE EXTERNAL FUNCTION sqrt
  *****************************************
  *
  * Functional description:
- *	Seeds the random number generator using
- *  the current time and returns the first
- *  pseudo-random number (between 0 and 1)
- *  in the new sequence.
+ *	Returns a random number between 0 
+ *	and 1.  Note the random number
+ *	generator is seeded using the current 
+ *	time.
  *
- * Note:
- *  Two srand() calls performed within a second
- *  will return the same value.
- * 
  *****************************************/
 DECLARE EXTERNAL FUNCTION srand 
 	RETURNS DOUBLE PRECISION BY VALUE
@@ -651,7 +641,7 @@ DECLARE EXTERNAL FUNCTION substr
  *****************************************
  *
  * Functional description:
- *	substr(s,i,l) returns the substring 
+ *	substrlen(s,i,l) returns the substring
  *	of s which starts at position i and
  *	ends at position i+l-1, being l the length.
  *	Note: This function is NOT limited to
@@ -696,11 +686,11 @@ DECLARE EXTERNAL FUNCTION strlen
  *	_TLOSS error and returns an indefinite 
  *	(same as a quiet NaN).
  *
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION tan 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_tan' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_tan' MODULE_NAME 'ib_udf'; */
 
 /*****************************************
  *
@@ -717,9 +707,9 @@ DECLARE EXTERNAL FUNCTION tan
  *	_TLOSS error and returns an indefinite 
  *	(same as a quiet NaN).
  *	
- *****************************************/
+ *****************************************
 DECLARE EXTERNAL FUNCTION tanh 
 	DOUBLE PRECISION
 	RETURNS DOUBLE PRECISION BY VALUE
-	ENTRY_POINT 'IB_UDF_tanh' MODULE_NAME 'ib_udf';
+	ENTRY_POINT 'IB_UDF_tanh' MODULE_NAME 'ib_udf'; */
 
