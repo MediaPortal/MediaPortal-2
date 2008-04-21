@@ -141,7 +141,6 @@ namespace Media.Importers.MusicImporter
     public bool FileImport(string file)
     {
       IDbItem track;
-      Console.WriteLine(file);
       if (!SongExists(file))
       {
         //The song does not exist, we will add it.
@@ -156,7 +155,7 @@ namespace Media.Importers.MusicImporter
       {
         _tracks.Add(track);
         _processedFiles++;
-        if (_processedFiles % 100 == 0)
+        if (_processedFiles % 1000 == 0)
         {
           ServiceScope.Get<ILogger>().Info("MusicImporter: Songs Processed so far: {0}", _processedFiles);
           _musicDatabase.Save(_tracks);

@@ -351,9 +351,12 @@ namespace Components.Database.FireBird
       {
         notifier.Notify(newItem.Database, DatabaseNotificationType.ItemAdded, newItem);
       }
+
+      if (itemsModified.Count > 0)
+        DeleteMultiFields(itemsModified[0]);
+
       foreach (IDbItem newItem in itemsModified)
       {
-        DeleteMultiFields(newItem);
         notifier.Notify(newItem.Database, DatabaseNotificationType.ItemModified, newItem);
       }
     }
@@ -639,37 +642,11 @@ namespace Components.Database.FireBird
       using (FbCommand cmd = new FbCommand())
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
-        Dictionary<string, int> fieldsInUse = new Dictionary<string, int>();
-        cmd.CommandText = String.Format("select distinct \"{0}\" from {1}", attName, item.Database.Name);
-        using (FbDataReader reader = cmd.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            string fieldSubs = (string)reader[0];
-            string[] parts = fieldSubs.Split(new char[] { '|' });
-            for (int i = 0; i < parts.Length; ++i)
-            {
-              string attrValue = parts[i].Replace("'", "''");
-              fieldsInUse[attrValue] = 1;
-            }
-          }
-        }
-
-        Dictionary<string, int>.Enumerator enumer = fieldsInUse.GetEnumerator();
-        string where = "";
-        while (enumer.MoveNext())
-        {
-          where += String.Format("(\"{0}\" <> '{1}') AND ", attName, enumer.Current.Key);
-        }
-        if (where.EndsWith(" AND "))
-        {
-          where = where.Substring(0, where.Length - 5);
-        }
-
         string tableName = String.Format("{0}{1}", item.Database.Name, attName);
-        cmd.CommandText = String.Format("delete from {0} where {1}", tableName, where);
+        cmd.CommandText = String.Format("delete from {0} where \"{1}\" not in ( select distinct replace(replace(\"{1}\", '''', ''''''), '|', '') from {2})", tableName, attName, item.Database.Name);
         cmd.ExecuteNonQuery();
       }
+
     }
 
     /// <summary>
