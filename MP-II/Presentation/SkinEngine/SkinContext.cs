@@ -47,6 +47,7 @@ namespace Presentation.SkinEngine
     #region variables
 
     private static string _skinName = "default";
+    private static string _themeName = "default";
     private static float _skinWidth = 720;
     private static float _skinHeight = 576;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
@@ -130,6 +131,22 @@ namespace Presentation.SkinEngine
       set
       {
         _skinName = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the name of the theme currently in use
+    /// </summary>
+    /// <value>The name of the theme.</value>
+    public static string ThemeName
+    {
+      get
+      {
+        return _themeName;
+      }
+      set
+      {
+        _themeName = value;
       }
     }
 
