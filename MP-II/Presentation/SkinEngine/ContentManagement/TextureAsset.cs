@@ -173,45 +173,26 @@ namespace Presentation.SkinEngine
         return;
       }
       byte[] thumbData = null;
+      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
       ImageInformation info = new ImageInformation();
 
 
       if (_state == State.Unknown)
-      {/*
-        if (SkinContext.Theme.HasImage(_textureName))
-          
+      {
+        _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, _textureName);
+        if (File.Exists(_sourceFileName))
         {
-          _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, SkinContext.Theme.GetImage(_textureName));
+          _state = State.Created;
+        }
+        else
+        {
+          _sourceFileName = String.Format(@"{0}\{1}\Media\{2}", skinPath, SkinContext.SkinName, _textureName);
           if (File.Exists(_sourceFileName))
           {
             _state = State.Created;
           }
-          else
-          {
-            _sourceFileName = String.Format(@"skin\{0}\media\{1}", SkinContext.SkinName, SkinContext.Theme.GetImage(_textureName));
-            if (File.Exists(_sourceFileName))
-            {
-              _state = State.Created;
-            }
-          }
         }
-        else*/
-        {
-          /*
-          _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, _textureName);
-          if (File.Exists(_sourceFileName))
-          {
-            _state = State.Created;
-          }
-          else*/
-          {
-            _sourceFileName = String.Format(@"{0}\{1}\Media\{2}", ServiceScope.Get<IPathManager>().GetPath("<SKIN>"), SkinContext.SkinName, _textureName);
-            if (File.Exists(_sourceFileName))
-            {
-              _state = State.Created;
-            }
-          }
-        }
+
         if (_state == State.Unknown)
         {
           //if (File.Exists(_textureName))
