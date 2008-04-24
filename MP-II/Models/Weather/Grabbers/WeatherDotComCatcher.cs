@@ -357,8 +357,6 @@ namespace Models.Weather.Grabbers
         return false;
       }
       c.LocationInfo = new LocInfo();
-      c.LocationInfo.CityCode = GetString(xmlElement, "loc", String.Empty); // <loc id="GMXX0223">
-      c.LocationInfo.City = GetString(xmlElement, "dnam", String.Empty); // <dnam>Regensburg, Germany</dnam>
       c.LocationInfo.Time = GetString(xmlElement, "tm", String.Empty); // <tm>1:12 AM</tm>
       c.LocationInfo.Lat = GetString(xmlElement, "lat", String.Empty); // <lat>49.02</lat>
       c.LocationInfo.Lon = GetString(xmlElement, "lon", String.Empty); // <lon>12.1</lon>
@@ -395,7 +393,7 @@ namespace Models.Weather.Grabbers
       c.Condition = new CurrentCondition();
       c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", String.Empty));
       c.Condition.City = GetString(xmlElement, "obst", String.Empty);
-      c.Condition.Icon = String.Format(@"{0}.png", GetInteger(xmlElement, "icon"));
+      c.Condition.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetInteger(xmlElement, "icon"));
       string condition = LocalizeOverview(GetString(xmlElement, "t", String.Empty));
       SplitLongString(ref condition, 8, 15); //split to 2 lines if needed
       c.Condition.Condition = condition;
@@ -423,56 +421,55 @@ namespace Models.Weather.Grabbers
       {
         return false;
       }
-      c._forecast = new List<DayForeCast>();
 
       XmlNode element = xmlElement.SelectSingleNode("day");
       DayForeCast forecast;
 
       for (int i = 0; i < NUM_DAYS; i++)
       {
+        forecast = c.ForecastCollection[i];
         if (element != null)
         {
-          forecast = new DayForeCast();
-          forecast.day = LocalizeDay(element.Attributes.GetNamedItem("t").InnerText);
+          forecast.Day = LocalizeDay(element.Attributes.GetNamedItem("t").InnerText);
 
-          forecast.high = GetString(element, "hi", String.Empty); //string cause i've seen it return N/A
-          if (forecast.high == "N/A")
+          forecast.High = GetString(element, "hi", String.Empty); //string cause i've seen it return N/A
+          if (forecast.High == "N/A")
           {
-            forecast.high = "N/A";
+            forecast.High = "N/A";
           }
           else
           {
-            forecast.high = String.Format("{0}{1}{2}", forecast.high, DEGREE_CHARACTER, unitTemperature);
+            forecast.High = String.Format("{0}{1}{2}", forecast.High, DEGREE_CHARACTER, unitTemperature);
           }
 
-          forecast.low = GetString(element, "low", String.Empty);
-          if (forecast.low == "N/A")
+          forecast.Low = GetString(element, "low", String.Empty);
+          if (forecast.Low == "N/A")
           {
-            forecast.low = "N/A";
+            forecast.Low = "N/A";
           }
           else
           {
-            forecast.low = String.Format("{0}{1}{2}", forecast.low, DEGREE_CHARACTER, unitTemperature);
+            forecast.Low = String.Format("{0}{1}{2}", forecast.Low, DEGREE_CHARACTER, unitTemperature);
           }
 
-          forecast.sunRise = GetString(element, "sunr", String.Empty);
-          if (forecast.sunRise == "N/A")
+          forecast.SunRise = GetString(element, "sunr", String.Empty);
+          if (forecast.SunRise == "N/A")
           {
-            forecast.sunRise = String.Empty;
+            forecast.SunRise = String.Empty;
           }
           else
           {
-            forecast.sunRise = String.Format("{0}", RelocalizeTime(forecast.sunRise));
+            forecast.SunRise = String.Format("{0}", RelocalizeTime(forecast.SunRise));
           }
 
-          forecast.sunSet = GetString(element, "suns", String.Empty);
-          if (forecast.sunSet == "N/A")
+          forecast.SunSet = GetString(element, "suns", String.Empty);
+          if (forecast.SunSet == "N/A")
           {
-            forecast.sunSet = String.Empty;
+            forecast.SunSet = String.Empty;
           }
           else
           {
-            forecast.sunSet = String.Format("{0}", RelocalizeTime(forecast.sunSet));
+            forecast.SunSet = String.Format("{0}", RelocalizeTime(forecast.SunSet));
           }
 
           XmlNode dayElement = element.SelectSingleNode("part"); //grab the first day/night part (should be day)
@@ -487,16 +484,16 @@ namespace Models.Weather.Grabbers
 
           if (dayElement != null)
           {
-            forecast.iconImageNameLow = String.Format("{0}.png", GetInteger(dayElement, "icon"));
-            forecast.iconImageNameHigh = String.Format("{0}.png", GetInteger(dayElement, "icon"));
-            forecast.overview = LocalizeOverview(GetString(dayElement, "t", String.Empty));
-            SplitLongString(ref forecast.overview, 6, 15);
-            forecast.humidity = String.Format("{0}%", GetInteger(dayElement, "hmid"));
-            forecast.precipitation = String.Format("{0}%", GetInteger(dayElement, "ppcp"));
-            forecast.wind = ParseWind(dayElement.SelectSingleNode("wind"), _unitSpeed);
+            string overview;
+            forecast.SmallIcon = String.Format(@"Weather\64x64\{0}.png", GetInteger(dayElement, "icon"));
+            forecast.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetInteger(dayElement, "icon"));
+            overview = LocalizeOverview(GetString(dayElement, "t", String.Empty));
+            SplitLongString(ref overview, 6, 15);
+            forecast.Overview = overview;
+            forecast.Humidity = String.Format("{0}%", GetInteger(dayElement, "hmid"));
+            forecast.Precipitation = String.Format("{0}%", GetInteger(dayElement, "ppcp"));
+            forecast.Wind = ParseWind(dayElement.SelectSingleNode("wind"), _unitSpeed);
           }
-          // add to list
-          c._forecast.Add(forecast);
           element = element.NextSibling; //Element("day");
         }
       }

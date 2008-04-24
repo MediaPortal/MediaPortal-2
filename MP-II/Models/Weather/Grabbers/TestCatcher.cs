@@ -80,15 +80,14 @@ namespace Models.Weather.Grabbers
     /// <returns>true if successful, false otherwise</returns>
     public bool GetLocationData(City city)
     {
-      city._forecast = new List<DayForeCast>();
-      city._forecast.Add(new DayForeCast(0));
-      city._forecast.Add(new DayForeCast(1));
-      city._forecast.Add(new DayForeCast(2));
-      city._forecast.Add(new DayForeCast(3));
+      city.ForecastCollection = new DayForeCastCollection();
+      city.ForecastCollection.Add(new DayForeCast());
+      city.ForecastCollection.Add(new DayForeCast());
+      city.ForecastCollection.Add(new DayForeCast());
+      city.ForecastCollection.Add(new DayForeCast());
       city.Condition = new CurrentCondition();
       city.Condition.FillWithDummyData();
       city.LocationInfo = new LocInfo();
-      city.LocationInfo.FillWithDummyData();
       return true;
     }
 

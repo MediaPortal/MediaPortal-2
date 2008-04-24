@@ -44,16 +44,12 @@ namespace Models.Weather
   /// </summary>
   public class WeatherViewModel : IPlugin
   {
-    //City _currentLocation = new City("No Data", "No Data");
     private Property _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
     private readonly ItemsCollection _locationsCollection = new ItemsCollection();
     // Used to select a city... Items hold Name and ID
 
-    private readonly ItemsCollection _forecastCollection = new ItemsCollection();
-    // Used to display the 4day Forecast for the currently selected Location
-    
     private ItemsCollection _mainMenu;
 
     #region IPlugin Members
@@ -72,7 +68,6 @@ namespace Models.Weather
       ServiceScope.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       // add citys from settings to the locations list
       GetLocationsFromSettings(true);
-      Refresh();
     }
     #endregion
 
@@ -99,7 +94,6 @@ namespace Models.Weather
       // empty lists
       _locationsCollection.Clear();
       _locations.Clear();
-      CurrentLocation = null;
       // add citys from settings to the locations list
       WeatherSettings settings = new WeatherSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
@@ -109,15 +103,20 @@ namespace Models.Weather
         if (loc != null)
         {
           City buffLoc = new City(loc);
+          _locations.Add(buffLoc);
+
           buffItem = new ListItem();
           buffItem.Add("Name", loc.Name);
           buffItem.Add("Id", loc.Id);
-          _locations.Add(buffLoc);
           _locationsCollection.Add(buffItem);
-          // set the currentlocation from settings
+
+          // Is this the setting?
           if (loc.Id.Equals(settings.LocationCode))
           {
-            CurrentLocation = buffLoc;
+            // Fetch data
+            RefreshData(buffLoc);
+            // Copy the data to the skin property.
+            CurrentLocation.Copy(buffLoc);
           }
         }
       }
@@ -126,13 +125,15 @@ namespace Models.Weather
       {
         if (_locations.Count > 0)
         {
-          CurrentLocation = _locations[0];
+          // Fetch data
+          RefreshData(_locations[0]);
+          // Copy the data to the skin property.
+          CurrentLocation.Copy(_locations[0]);
         }
         // no locations have been setup yet, guide to setup
         else
         {
-          AddDummyCity(settings);
-          ServiceScope.Get<IWindowManager>().ShowWindow("weathersetup");
+        //  ServiceScope.Get<IWindowManager>().ShowWindow("weathersetup");
         }
       }
       // we've added new citys, so update the locations collection
@@ -142,74 +143,34 @@ namespace Models.Weather
       }
     }
 
-    protected static void AddDummyCity(WeatherSettings settings)
-    {
-      CitySetupInfo dummy = new CitySetupInfo("No Data", "UKXX0085");
-      settings.LocationsList.Add(dummy);
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-    }
-
     /// <summary>
-    /// this updates the Forecast itemcollection 
-    /// (f.e. when the current location changed)
+    /// updates the location with new data
     /// </summary>
-    protected void UpdateForecastsCollection()
+    /// <returns></returns>
+    public void RefreshData(City loc)
     {
-      if (CurrentLocation == null)
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+
+      if (ServiceScope.Get<IWeatherCatcher>().GetLocationData(loc))
       {
-        return;
+        ServiceScope.Get<ILogger>().Info("Loaded Weather Data for " + loc.Name + ", " + loc.Id);
       }
-      // we need to generate the ItemsCollection from the Forecast here
-      ListItem buff;
-      _forecastCollection.Clear();
-      if (CurrentLocation.Forecast == null)
+      else
       {
-        return;
+        ServiceScope.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
       }
-      // okay, fill the ItemsCollection
-      foreach (DayForeCast forecast in CurrentLocation.Forecast)
-      {
-        buff = new ListItem();
-        buff.Add("IconLow", forecast.IconLow);
-        buff.Add("IconHigh", forecast.IconHigh);
-        buff.Add("Overview", forecast.Overview);
-        buff.Add("Day", forecast.Day);
-        buff.Add("High", forecast.High);
-        buff.Add("Low", forecast.Low);
-        buff.Add("SunRise", forecast.SunRise);
-        buff.Add("SunSet", forecast.SunSet);
-        buff.Add("Precipitation", forecast.Precipitation);
-        buff.Add("Humidity", forecast.Humidity);
-        buff.Add("Wind", forecast.Wind);
-        _forecastCollection.Add(buff);
-      }
-      // tell the skin that something might have changed
-      _forecastCollection.FireChange();
+
+      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
-    /// updates all locations with new data
+    /// provides command for the skin to update the location with new data
     /// </summary>
     /// <returns></returns>
     public void Refresh()
     {
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
-      GetLocationsFromSettings(true);
-      foreach (City loc in _locations)
-      {
-        if (ServiceScope.Get<IWeatherCatcher>().GetLocationData(loc))
-        {
-          UpdateForecastsCollection();
-          ServiceScope.Get<ILogger>().Info("Loaded Weather Data for " + loc.Name + ", " + loc.Id);
-        }
-        else
-        {
-          ServiceScope.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
-        }
-      }
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      RefreshData(CurrentLocation);
     }
-
 
     /// <summary>
     /// provides command for the skin to change the current location
@@ -236,14 +197,15 @@ namespace Models.Weather
       // okay, if we found the correct location, update the lists
       if (found != null)
       {
-        CurrentLocation = found;
+        RefreshData(found);
+        CurrentLocation.Copy(found);
         // also save the last selected city to settings
         WeatherSettings settings = new WeatherSettings();
         ServiceScope.Get<ISettingsManager>().Load(settings);
         settings.LocationCode = found.Id;
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }
-      Refresh();
+
     }
 
     /// <summary>
@@ -251,19 +213,11 @@ namespace Models.Weather
     /// </summary>
     public City CurrentLocation
     {
-      set
-      {
-        if (value != null)
-        {
-          _currentLocation.SetValue(value);
-        }
-      }
       get { return (City)_currentLocation.GetValue(); }
     }
 
     public Property CurrentLocationProperty
     {
-      set { _currentLocation = value; }
       get { return _currentLocation; }
     }
 
@@ -282,17 +236,8 @@ namespace Models.Weather
     {
       get
       {
-        GetLocationsFromSettings(false);
         return _locationsCollection;
       }
-    }
-
-    /// <summary>
-    /// exposes the dayforecast (usually 4 days) to the skin
-    /// </summary>
-    public ItemsCollection ForecastCollection
-    {
-      get { return _forecastCollection; }
     }
   }
 }

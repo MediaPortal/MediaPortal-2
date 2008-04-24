@@ -122,7 +122,7 @@ namespace Models.Weather
   {
     private Property _locationInfo = new Property(new LocInfo());
     private Property _currCondition = new Property(new CurrentCondition());
-    public List<DayForeCast> _forecast;
+    private Property _dayForecastCollection = new Property(new DayForeCastCollection());
     private bool _updateSuccessful;
 
     /// <summary>
@@ -132,6 +132,7 @@ namespace Models.Weather
     public City()
     {
       _updateSuccessful = false;
+      Init();
     }
 
     public City(CitySetupInfo info)
@@ -140,6 +141,7 @@ namespace Models.Weather
       Id = info.Id;
       Grabber = info.Grabber;
       _updateSuccessful = false;
+      Init();
     }
 
     public City(string name, string id)
@@ -147,6 +149,46 @@ namespace Models.Weather
       Name = name;
       Id = id;
       _updateSuccessful = false;
+      Init();
+    }
+
+    private void Init()
+    {
+      for (int i = 0; i < 5; i++)
+        ForecastCollection.Add(new DayForeCast());
+    }
+
+    public void Copy(City src)
+    {
+      Name = src.Name;
+      Id = src.Id;
+      LocationInfo.SunRise = src.LocationInfo.SunRise;
+      LocationInfo.SunSet = src.LocationInfo.SunSet;
+      Condition.BigIcon = src.Condition.BigIcon;
+      Condition.SmallIcon = src.Condition.SmallIcon;
+      Condition.Temperature = src.Condition.Temperature;
+      Condition.LastUpdate = src.Condition.LastUpdate;
+      Condition.FeelsLikeTemp = src.Condition.FeelsLikeTemp;
+      Condition.Humidity = src.Condition.Humidity;
+      Condition.Wind = src.Condition.Wind;
+      Condition.UVIndex = src.Condition.UVIndex;
+      Condition.DewPoint = src.Condition.DewPoint;
+      Condition.Condition = src.Condition.Condition;
+      for (int i = 0; i < 5; i++)
+      {
+        ForecastCollection[i].Day = src.ForecastCollection[i].Day;
+        ForecastCollection[i].BigIcon = src.ForecastCollection[i].BigIcon;
+        ForecastCollection[i].SmallIcon = src.ForecastCollection[i].SmallIcon;
+        ForecastCollection[i].Low = src.ForecastCollection[i].Low;
+        ForecastCollection[i].High = src.ForecastCollection[i].High;
+        ForecastCollection[i].Humidity = src.ForecastCollection[i].Humidity;
+        ForecastCollection[i].Overview = src.ForecastCollection[i].Overview;
+        ForecastCollection[i].Precipitation = src.ForecastCollection[i].Precipitation;
+        ForecastCollection[i].SunRise = src.ForecastCollection[i].SunRise;
+        ForecastCollection[i].SunSet = src.ForecastCollection[i].SunSet;
+        ForecastCollection[i].Wind = src.ForecastCollection[i].Wind;
+      }
+
     }
 
     #region properties
@@ -190,9 +232,16 @@ namespace Models.Weather
     /// <summary>
     /// Current Condition
     /// </summary>
-    public List<DayForeCast> Forecast
+    public DayForeCastCollection ForecastCollection
     {
-      get { return _forecast; }
+      get { return (DayForeCastCollection)_dayForecastCollection.GetValue(); }
+      set { _dayForecastCollection.SetValue(value); }
+    }
+
+    public Property ForecastCollectionProperty
+    {
+      get { return _dayForecastCollection; }
+      set { _dayForecastCollection = value; }
     }
 
     /// <summary>
@@ -218,20 +267,6 @@ namespace Models.Weather
   /// </summary>
   public class LocInfo // <loc>
   {
-    public void FillWithDummyData()
-    {
-      CityCode = "DUMMY002351";
-      City = "Dummytown, Dummyland";
-      Time = "23:15";
-      Lat = "49.02";
-      Lon = "12.1";
-      SunRise = "7:14 AM";
-      SunSet = "5:38 PM";
-      Zone = "1";
-    }
-
-    private Property _cityCode = new Property(""); // <loc id="GMXX0223">
-    private Property _city = new Property(""); // <dnam>Regensburg, Germany</dnam>
     private Property _time = new Property(""); // <tm>1:12 AM</tm>
     private Property _lat = new Property(""); // <lat>49.02</lat>
     private Property _lon = new Property(""); // <lon>12.1</lon>
@@ -239,17 +274,6 @@ namespace Models.Weather
     private Property _sunSet = new Property(""); // <suns>5:38 PM</suns>
     private Property _zone = new Property(""); // <zone>1</zone>
     // Getters
-    public string CityCode
-    {
-      get { return (string) _cityCode.GetValue(); }
-      set { _cityCode.SetValue(value); }
-    }
-
-    public string City
-    {
-      get { return (string) _city.GetValue(); }
-      set { _city.SetValue(value); }
-    }
 
     public string Time
     {
@@ -285,18 +309,6 @@ namespace Models.Weather
     {
       get { return (string) _zone.GetValue(); }
       set { _zone.SetValue(value); }
-    }
-
-    public Property CityCodeProperty
-    {
-      get { return _cityCode; }
-      set { _cityCode = value; }
-    }
-
-    public Property CityProperty
-    {
-      get { return _city; }
-      set { _city = value; }
     }
 
     public Property TimeProperty
@@ -352,7 +364,7 @@ namespace Models.Weather
       Temperature = "12�C";
       FeelsLikeTemp = "16�C";
       Condition = "Partly \n Cloudy";
-      Icon = "30.png";
+      BigIcon = "30.png";
       Humidity = "70%";
       Wind = "200 mph";
       UVIndex = "10";
@@ -364,7 +376,8 @@ namespace Models.Weather
     private Property _temperature = new Property(""); // <temp> 
     private Property _feelsLikeTemp = new Property(""); // <flik>
     private Property _condition = new Property(""); // <t>
-    private Property _icon = new Property(""); // <icon> 
+    private Property _bigIcon = new Property(""); // <icon> 
+    private Property _smallIcon = new Property(""); // <icon> 
     private Property _humidity = new Property(""); // <hmid>
     private Property _wind = new Property(""); // <wind>
     private Property _uVindex = new Property(""); // <uv> 
@@ -424,12 +437,17 @@ namespace Models.Weather
       set { _dewPoint.SetValue(value); }
     }
 
-    public string Icon
+    public string BigIcon
     {
-      get { return (string) _icon.GetValue(); }
-      set { _icon.SetValue(value); }
+      get { return (string) _bigIcon.GetValue(); }
+      set { _bigIcon.SetValue(value); }
     }
 
+    public string SmallIcon
+    {
+      get { return (string)_smallIcon.GetValue(); }
+      set { _smallIcon.SetValue(value); }
+    }
 
     public Property CityProperty
     {
@@ -485,29 +503,10 @@ namespace Models.Weather
       set { _dewPoint = value; }
     }
 
-    public Property IconProperty
+    public Property BigIconProperty
     {
-      get { return _icon; }
-      set { _icon = value; }
-    }
-
-    public Uri IconUri
-    {
-      get { return new Uri(IconPath); }
-    }
-
-    public string IconPath
-    {
-      get
-      {
-        string icon = (string) _icon.GetValue();
-        if (icon == String.Empty)
-        {
-          return @"pack://siteoforigin:,,/Media/Weather/128x128/WEATHERALERT.png";
-        }
-        // return the data
-        return (@"pack://siteoforigin:,,/Media/Weather/128x128/" + icon.Replace('\\', '/'));
-      }
+      get { return _bigIcon; }
+      set { _bigIcon = value; }
     }
   }
 
@@ -516,237 +515,126 @@ namespace Models.Weather
   #region DayForeCast struct
 
   /// <summary>
-  /// day forecast
+  /// Day forecast
   /// </summary>
-  public struct DayForeCast
+  public class DayForeCast
   {
-    public string iconImageNameLow;
-    public string iconImageNameHigh;
-    public string overview;
-    public string day;
-    public string high;
-    public string low;
-    public string sunRise;
-    public string sunSet;
-    public string precipitation;
-    public string humidity;
-    public string wind;
+    private Property _smallIcon = new Property("");
+    private Property _bigIcon= new Property(""); 
+    private Property _overview = new Property(""); 
+    private Property _day = new Property("");
+    private Property _high = new Property("");
+    private Property _low = new Property(""); 
+    private Property _sunRise = new Property("");
+    private Property _sunSet = new Property("");
+    private Property _precipitation = new Property("");
+    private Property _humidity = new Property("");
+    private Property _wind = new Property(""); 
 
 
-    /// <summary>
-    /// constructor for designer
-    /// </summary>
-    /// <param name="day"></param>
-    public DayForeCast(int day)
-    {
-      if (day == 0)
-      {
-        iconImageNameLow = "16.png";
-        iconImageNameHigh = "16.png";
-        overview = "Partly\nCloudy";
-        this.day = "Monday";
-        high = "13�C";
-        low = "8�C";
-        sunRise = "5:00 AM";
-        sunSet = "7:00 PM";
-        precipitation = "Partly\nCloudy";
-        humidity = "54%";
-        wind = "30 mph";
-      }
-      else if (day == 1)
-      {
-        iconImageNameLow = "36.png";
-        iconImageNameHigh = "36.png";
-        overview = "Sunny";
-        this.day = "Tuesday";
-        high = "25�C";
-        low = "20�C";
-        sunRise = "5:10 AM";
-        sunSet = "7:10 PM";
-        precipitation = "Sunny";
-        humidity = "30%";
-        wind = "0 mph";
-      }
-      else if (day == 2)
-      {
-        iconImageNameLow = "34.png";
-        iconImageNameHigh = "34.png";
-        overview = "Fog";
-        this.day = "Wednesday";
-        high = "20�C";
-        low = "11�C";
-        sunRise = "5:20 AM";
-        sunSet = "7:20 PM";
-        precipitation = "Fog";
-        humidity = "84%";
-        wind = "55 mph";
-      }
-      else
-      {
-        iconImageNameLow = "38.png";
-        iconImageNameHigh = "38.png";
-        overview = "Storm and\nThunder";
-        this.day = "Thursday";
-        high = "12�C";
-        low = "0�C";
-        sunRise = "5:40 AM";
-        sunSet = "7:40 PM";
-        precipitation = "Storm and\nThunder";
-        humidity = "89%";
-        wind = "100 mph";
-      }
-    }
-
-    #region Dummy Data for Designer
-
-    /// <summary>
-    /// fills up some dummy data
-    /// </summary>
-    /// <param name="day"></param>
-    public void FillWithDummyData(int day)
-    {
-      if (day == 0)
-      {
-        iconImageNameLow = "16.png";
-        iconImageNameHigh = "16.png";
-        overview = "this is an overview";
-        this.day = "Monday";
-        high = "13�C";
-        low = "8�C";
-        sunRise = "5:00 AM";
-        sunSet = "7:00 PM";
-        precipitation = "Partly\nCloudy";
-        humidity = "54%";
-        wind = "30 mph";
-      }
-      else if (day == 1)
-      {
-        iconImageNameLow = "36.png";
-        iconImageNameHigh = "36.png";
-        overview = "this is an overview";
-        this.day = "Tuesday";
-        high = "25�C";
-        low = "20�C";
-        sunRise = "5:10 AM";
-        sunSet = "7:10 PM";
-        precipitation = "Sunny";
-        humidity = "30%";
-        wind = "0 mph";
-      }
-      else if (day == 2)
-      {
-        iconImageNameLow = "34.png";
-        iconImageNameHigh = "34.png";
-        overview = "this is an overview";
-        this.day = "Wednesday";
-        high = "20�C";
-        low = "11�C";
-        sunRise = "5:20 AM";
-        sunSet = "7:20 PM";
-        precipitation = "Fog";
-        humidity = "84%";
-        wind = "55 mph";
-      }
-      else
-      {
-        iconImageNameLow = "38.png";
-        iconImageNameHigh = "38.png";
-        overview = "this is an overview";
-        this.day = "Thursday";
-        high = "12�C";
-        low = "0�C";
-        sunRise = "5:40 AM";
-        sunSet = "7:40 PM";
-        precipitation = "Storm and\nThunder";
-        humidity = "89%";
-        wind = "100 mph";
-      }
-    }
-
-    #endregion
-
+   
     // Getters :P
-    public Uri IconImageNameLow
+
+
+
+    public string SmallIcon
     {
-      get { return new Uri(IconLow); }
+      get { return (string)_smallIcon.GetValue(); }
+      set { _smallIcon.SetValue(value); }
     }
 
-    public string IconLow
+
+    public string BigIcon
     {
-      get
-      {
-        if (iconImageNameLow == String.Empty)
-        {
-          return (@"pack://siteoforigin:,,/Media/Weather/128x128/WEATHERALERT.png");
-        }
-        // return the data
-        return (@"pack://siteoforigin:,,/Media/Weather/128x128/" + iconImageNameLow.Replace('\\', '/'));
-      }
+      get { return (string)_bigIcon.GetValue(); }
+      set { _bigIcon.SetValue(value); }
     }
 
-    public Uri IconImageNameHigh
-    {
-      get { return new Uri(IconHigh); }
-    }
-
-    public string IconHigh
-    {
-      get
-      {
-        if (iconImageNameHigh == String.Empty)
-        {
-          return (@"pack://siteoforigin:,,/Media/Weather/128x128/WEATHERALERT.png");
-        }
-        // return the data
-        return (@"pack://siteoforigin:,,/Media/Weather/128x128/" + iconImageNameHigh.Replace('\\', '/'));
-      }
-    }
 
     public string Overview
     {
-      get { return overview; }
+      get { return (string)_overview.GetValue(); }
+      set { _overview.SetValue(value); }
     }
 
     public string Day
     {
-      get { return day; }
+      get { return (string)_day.GetValue(); }
+      set { _day.SetValue(value); }
     }
 
     public string High
     {
-      get { return high; }
+      get { return (string)_high.GetValue(); }
+      set { _high.SetValue(value); }
     }
 
     public string Low
     {
-      get { return low; }
+      get { return (string)_low.GetValue(); }
+      set { _low.SetValue(value); }
     }
 
     public string SunRise
     {
-      get { return sunRise; }
+      get { return (string)_sunRise.GetValue(); }
+      set { _sunRise.SetValue(value); }
     }
 
     public string SunSet
     {
-      get { return sunSet; }
+      get { return (string)_sunSet.GetValue(); }
+      set { _sunSet.SetValue(value); }
     }
 
     public string Precipitation
     {
-      get { return precipitation; }
+      get { return (string)_precipitation.GetValue(); }
+      set { _precipitation.SetValue(value); }
     }
 
     public string Humidity
     {
-      get { return humidity; }
+      get { return (string)_humidity.GetValue(); }
+      set { _humidity.SetValue(value); }
     }
 
     public string Wind
     {
-      get { return wind; }
+      get { return (string)_wind.GetValue(); }
+      set { _wind.SetValue(value); }
     }
   } ;
+
+   /// <summary>
+  /// current condition
+  /// </summary>
+  public class DayForeCastCollection
+  {
+    List<DayForeCast> _elements;
+
+    public DayForeCastCollection()
+    {
+      _elements = new List<DayForeCast>();
+    }
+
+    /// <summary>
+    /// Adds the specified element.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    public void Add(DayForeCast element)
+    {
+      _elements.Add(element);
+    }
+
+    public DayForeCast this[int index]
+    {
+      get
+      {
+        return _elements[index];
+      }
+    }
+  }
 
   #endregion
 
