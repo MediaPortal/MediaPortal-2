@@ -83,5 +83,6 @@
     <KeyBinding KeyPress="ZoomMode" Command="{Binding Players.OSD.NextZoomMode}"/>
     <KeyBinding KeyPress="Left" Command="{Binding Players.SeekBackward}"/>
     <KeyBinding KeyPress="Right" Command="{Binding Players.SeekForward}"/>
+    <Include Source="osd.xaml"/>
   </Canvas>
 </MyXaml>

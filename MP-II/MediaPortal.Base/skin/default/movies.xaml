@@ -226,5 +226,6 @@
       </Canvas>
     </Canvas>
     -->
+  <Include Source="osd.xaml"/>
   </Canvas>
 </MyXaml>
