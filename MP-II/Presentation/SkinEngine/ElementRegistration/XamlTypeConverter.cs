@@ -144,7 +144,7 @@ namespace Presentation.SkinEngine.ElementRegistrations
         string text = value.ToString();
         if (text == "Auto")
         {
-          return new GridLength(GridUnitType.Star, 1.0);
+          return new GridLength(GridUnitType.Auto, 0.0);
         }
         else if (text.IndexOf('*') < 0)
         {
