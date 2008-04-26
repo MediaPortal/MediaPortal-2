@@ -21,13 +21,14 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-  public class ColumnDefinition : ICloneable
+  public class ColumnDefinition : DefinitionBase
   {
     Property _widthProperty;
     public ColumnDefinition()

@@ -21,56 +21,66 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-  public class RowDefinition : DefinitionBase
+  public class DefinitionBase : ICloneable
   {
-    Property _heightProperty;
-    public RowDefinition()
+    Property _nameProperty;
+
+    public DefinitionBase()
     {
       Init();
     }
-    public RowDefinition(RowDefinition v)
+    public DefinitionBase(DefinitionBase v)
     {
-      Height = v.Height;
+      Name = v.Name;
       Init();
     }
 
     public object Clone()
     {
-      return new RowDefinition(this);
+      return new DefinitionBase(this);
     }
 
     void Init()
     {
-      _heightProperty = new Property(new GridLength());
+      _nameProperty = new Property("");
     }
 
-    public Property HeightProperty
+    /// <summary>
+    /// Gets or sets the name property.
+    /// </summary>
+    /// <value>The name property.</value>
+    public Property NameProperty
     {
       get
       {
-        return _heightProperty;
+        return _nameProperty;
       }
       set
       {
-        _heightProperty = value;
+        _nameProperty = value;
       }
     }
 
-    public GridLength Height
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    public string Name
     {
       get
       {
-        return _heightProperty.GetValue() as GridLength;
+        return _nameProperty.GetValue() as string;
       }
       set
       {
-        _heightProperty.SetValue(value);
+        _nameProperty.SetValue(value);
       }
     }
   }

@@ -144,6 +144,7 @@
     <Compile Include="Controls\Panels\Canvas.cs" />
     <Compile Include="Controls\Panels\ColumnDefinition.cs" />
     <Compile Include="Controls\Panels\ColumnDefinitionsCollection.cs" />
+    <Compile Include="Controls\Panels\DefinitionBase.cs" />
     <Compile Include="Controls\Panels\DockPanel.cs" />
     <Compile Include="Controls\Panels\Grid.cs" />
     <Compile Include="Controls\Panels\GridLength.cs" />
