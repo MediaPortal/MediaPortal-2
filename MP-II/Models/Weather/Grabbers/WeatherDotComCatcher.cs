@@ -390,7 +390,6 @@ namespace Models.Weather.Grabbers
         return false;
       }
 
-      c.Condition = new CurrentCondition();
       c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", String.Empty));
       c.Condition.City = GetString(xmlElement, "obst", String.Empty);
       c.Condition.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetInteger(xmlElement, "icon"));

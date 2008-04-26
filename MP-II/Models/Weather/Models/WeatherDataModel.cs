@@ -91,7 +91,6 @@ namespace Models.Weather
       //List<IWeatherCatcher> catchers = ServiceScope.Get<IPluginManager>().BuildItems<IWeatherCatcher>("/Models.Weather/Grabbers");
       List<IWeatherCatcher> catchers = new List<IWeatherCatcher>();
       catchers.Add(new WeatherDotComCatcher());
-      catchers.Add(new TestCatcher());
 
       // do this for all cities
       foreach (City c in citiesList)

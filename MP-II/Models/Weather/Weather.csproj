@@ -76,7 +76,6 @@
     <Compile Include="Models\WeatherViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Grabbers\TestCatcher.cs" />
     <Compile Include="Helper Classes\City.cs" />
     <Compile Include="Helper Classes\Helper.cs" />
     <Compile Include="Helper Classes\IWeatherCatcher.cs" />

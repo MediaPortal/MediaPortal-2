@@ -535,8 +535,6 @@ namespace Models.Weather
    
     // Getters :P
 
-
-
     public string SmallIcon
     {
       get { return (string)_smallIcon.GetValue(); }
@@ -603,6 +601,74 @@ namespace Models.Weather
     {
       get { return (string)_wind.GetValue(); }
       set { _wind.SetValue(value); }
+    }
+
+    public Property SmallIconProperty
+    {
+      get { return _smallIcon; }
+      set { _smallIcon = value; }
+    }
+
+
+    public Property BigIconProperty
+    {
+      get { return _bigIcon; }
+      set { _bigIcon = value; }
+    }
+
+
+    public Property OverviewProperty
+    {
+      get { return _overview; }
+      set { _overview = value; }
+    }
+
+    public Property DayProperty
+    {
+      get { return _day; }
+      set { _day = value; }
+    }
+
+    public Property HighProperty
+    {
+      get { return _high; }
+      set { _high = value; }
+    }
+
+    public Property LowProperty
+    {
+      get { return _low; }
+      set { _low = value; }
+    }
+
+    public Property SunRiseProperty
+    {
+      get { return _sunRise; }
+      set { _sunRise = value; }
+    }
+
+    public Property SunSetProperty
+    {
+      get { return _sunSet; }
+      set { _sunSet = value; }
+    }
+
+    public Property PrecipitationProperty
+    {
+      get { return _precipitation; }
+      set { _precipitation = value; }
+    }
+
+    public Property HumidityProperty
+    {
+      get { return _humidity; }
+      set { _humidity = value; }
+    }
+
+    public Property WindProperty
+    {
+      get { return _wind; }
+      set { _wind = value; }
     }
   } ;
 
