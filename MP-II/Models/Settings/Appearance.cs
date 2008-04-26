@@ -28,11 +28,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Globalization;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Localisation;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.PathManager;
+using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
+
 
 namespace Models.Settings
 {
@@ -57,6 +59,7 @@ namespace Models.Settings
     public Appearance()
     {
       ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
+
       CultureInfo[] langs = localProvider.AvailableLanguages();
 
       _languages = new ItemsCollection();
@@ -72,6 +75,7 @@ namespace Models.Settings
       {
         ListItem item = new ListItem("Name", skins[i].Substring(5));
         item.Add("CoverArt", String.Format(@"{0}\media\preview.png", Path.GetFullPath(skins[i])));
+        item.Add("defaulticon", String.Format(@"{0}\media\preview.png", Path.GetFullPath(skins[i])));
         _skins.Add(item);
       }
 
@@ -82,11 +86,14 @@ namespace Models.Settings
       _themes = new ItemsCollection();
       GetThemes();
     }
+
     void GetThemes()
     {
       IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
+      string[] themes = Directory.GetDirectories(String.Format(@"{0}\{1}\themes", skinPath, mgr.SkinName));
+      
       _themes.Clear();
-      string[] themes = Directory.GetDirectories(String.Format(@"skin\{0}\themes", mgr.SkinName));
       for (int i = 0; i < themes.Length; ++i)
       {
         string themeName = themes[i];

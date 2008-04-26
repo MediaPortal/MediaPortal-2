@@ -2245,6 +2245,62 @@
       </Setter>
     </Style>
 
+     <!-- data template for a dialog menu item in list mode (each row has an image and a label)-->
+    <Style Key="itemDialogImageContainerStyle">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Button Height="100"  Style="{StaticResource MpButton}"/>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <DataTemplate Key="itemDialogImageTemplate" DataType="{Type local:DialogMenuItem}">
+      <Grid Name="Grd1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Name="A1" />
+          <ColumnDefinition name="A2" />
+        </Grid.ColumnDefinitions>
+        <Image Name="img1" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding defaulticon}" Source="{Binding CoverArt}"/>
+        <Label Name="lbl1" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding Name}" Font="font13"/>
+      </Grid>
+    </DataTemplate>
+
+    <Style Key="MpDialogImage" TargetType="ListBox">
+      <Setter Property="SnapsToDevicePixels" Value="true"/>
+      <Setter Property="OverridesDefaultStyle" Value="true"/>
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+      <Setter Property="FocusVisualStyle" Value="{Null}"/>
+      <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+      <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
+      <Setter Property="MinWidth" Value="120"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
+      <Setter Property="ItemTemplate" Value="{StaticResource itemDialogImageTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource itemDialogImageContainerStyle}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBox" >
+            <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+              <ItemsPresenter VerticalAlignment="Top"/>
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="ItemsPanel">
+        <Setter.Value>
+          <ItemsPanelTemplate>
+            <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
+          </ItemsPanelTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
     <!-- data template for a dialog menu item in list mode-->
     <DataTemplate Key="TreeItemTemplate" DataType="{Type local:DialogMenuItem}">
       <Grid >
