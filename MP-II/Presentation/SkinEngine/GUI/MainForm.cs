@@ -63,7 +63,6 @@ namespace Presentation.SkinEngine.GUI
   {
     private Thread _renderThread;
     private GraphicsDevice _directX;
-    private bool _renderThreadRunning;
     private bool _renderThreadStopped;
     private float _fpsCounter;
     private DateTime _fpsTimer;
@@ -179,9 +178,14 @@ namespace Presentation.SkinEngine.GUI
 
     private void RenderLoop()
     {
+      // The render loop is restarted after toggle windowed / fullscreen
+      // Make sure we invalidate all windows so the layout is re-done 
+      // Big window layout does not fitt small window ;-)
+      WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+      manager.Reset();
+
       _fpsTimer = DateTime.Now;
       _fpsCounter = 0;
-      _renderThreadRunning = true;
       SkinContext.IsRendering = true;
       try
       {
@@ -205,7 +209,6 @@ namespace Presentation.SkinEngine.GUI
       }
       finally
       {
-        _renderThreadRunning = false;
         SkinContext.IsRendering = false;
       }
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
@@ -448,8 +451,6 @@ namespace Presentation.SkinEngine.GUI
         StopRenderThread();
 
         ServiceScope.Get<PlayerCollection>().ReleaseResources();
-        //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose resources");
-        //ServiceScope.Get<PlayerCollection>().Dispose();
 
         FontManager.Free();
         ContentManager.Free();
