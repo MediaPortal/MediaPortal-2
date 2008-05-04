@@ -37,8 +37,8 @@ namespace Presentation.SkinEngine.Controls.Panels
   public class GridLength
   {
     GridUnitType _unitType;
-    double _value;
-    double _finalValue;
+    double _value = 0;
+    double _finalValue = 0;
 
     public GridLength(double value)
     {
@@ -49,7 +49,6 @@ namespace Presentation.SkinEngine.Controls.Panels
     public GridLength()
     {
       _unitType = GridUnitType.Auto;
-      _value = 0;
     }
 
     public GridLength(GridUnitType unitType, double value)
