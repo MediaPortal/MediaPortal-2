@@ -428,9 +428,17 @@ namespace Presentation.SkinEngine.Controls.Bindings
             ServiceScope.Get<ILogger>().Error("cannot get indexed method info for {0}", parts[partNr]);
             return null;
           }
-          obj = methodInfo.Invoke(obj, new object[] { indexNo });
-          if (obj == null)
+          try
           {
+            obj = methodInfo.Invoke(obj, new object[] { indexNo });
+            if (obj == null)
+            {
+              return null;
+            }
+          }
+          catch (Exception ex)
+          {
+            ServiceScope.Get<ILogger>().Error("index {0} for method {1} does not exists", indexNo, parts[partNr]);
             return null;
           }
         }
