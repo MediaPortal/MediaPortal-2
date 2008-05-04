@@ -453,6 +453,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       //Trace.WriteLine(String.Format("Control:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
 
+      InitializeBindings();
+      InitializeTriggers();
+
       if (!IsVisible)
       {
         _desiredSize = new SizeF(0, 0);
@@ -559,8 +562,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsArrangeValid = true;
-      InitializeBindings();
-      InitializeTriggers();
       _isLayoutInvalid = false;
       if (!finalRect.IsEmpty)
       {
