@@ -125,8 +125,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         ContentManager.Remove(_image);
         _image = null;
 
-        _renderImage.Free();
-        _renderImage = null;
+        if (_renderImage != null)
+        {
+          _renderImage.Free();
+          _renderImage = null;
+        }
       }
       _performImageLayout = true;
       if (Window != null) Window.Invalidate(this);
@@ -328,9 +331,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
 
+      //Trace.WriteLine(String.Format("Image.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+    
       IsArrangeValid = true;
       _isLayoutInvalid = false;
-      if (Window != null) Window.Invalidate(this);
+      if (Window != null) 
+        Window.Invalidate(this);
     }
 
     /// <summary>
@@ -341,8 +347,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
-
-      //Trace.WriteLine(String.Format("Image.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 
       // InitializeBindings must be done before we can measure (we could have a binding)
       InitializeBindings();
@@ -386,6 +390,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      /*
+      Trace.WriteLine(String.Format("Image.measure :{0} {1}x{2} returns {3}x{4}",
+                      this.Name, (int)availableSize.Width, (int)availableSize.Height,
+                      (int)_desiredSize.Width, (int)_desiredSize.Height)); */
+
     }
 
 
