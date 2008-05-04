@@ -13,8 +13,8 @@ sampler_state
 {
     Texture = <g_texture>;
     MipFilter = NONE;
-    MinFilter = NONE;
-    MagFilter = NONE;
+    MinFilter = POINT;
+    MagFilter = POINT;
 };
 //application to vertex structure
 struct a2v
