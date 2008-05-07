@@ -259,8 +259,8 @@ namespace Models.Weather.Grabbers
         units = 'm';
       }
 
-      url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&unit={1}&dayf=4&prod=xoap&par={2}&key={3}",
-                          locationCode, units, PARTNER_ID, PARTNER_KEY);
+      url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&unit={1}&dayf=4",
+                          locationCode, units);
 
       using (WebClient client = new WebClient())
       {
