@@ -100,63 +100,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         _dataProperty.SetValue(value);
       }
     }
-    /*
-    public override void DoRender()
-    {
-      if (String.IsNullOrEmpty(Data)) return;
-      if (!IsVisible) return;
 
-      if (Fill == null && Stroke == null) return;
-      if (!_fillDisabled)
-      {
-        if (Fill != null)
-        {
-          if ((_fillAsset != null && !_fillAsset.IsAllocated) || _fillAsset == null)
-            _performLayout = true;
-        }
-      }
-
-      if (Stroke != null)
-      {
-        if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
-          _performLayout = true;
-      }
-      if (_performLayout)
-      {
-        PerformLayout();
-        _performLayout = false;
-      }
-
-      SkinContext.AddOpacity(this.Opacity);
-      //ExtendedMatrix m = new ExtendedMatrix();
-      //SkinContext.AddTransform(m);
-      if (_fillAsset != null && !_fillDisabled)
-      {
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillAsset.VertexBuffer, _verticesCountFill, _fillPrimitiveType))
-        {
-          GraphicsDevice.Device.SetStreamSource(0, _fillAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_fillPrimitiveType, 0, _verticesCountFill);
-          Fill.EndRender();
-        }
-        _fillAsset.LastTimeUsed = SkinContext.Now;
-      }
-      if (_borderAsset != null)
-      {
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleStrip))
-        {
-          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, _verticesCountBorder);
-          Stroke.EndRender();
-        }
-        _borderAsset.LastTimeUsed = SkinContext.Now;
-      }
-      //SkinContext.RemoveTransform();
-      SkinContext.RemoveOpacity();
-
-    }*/
     protected override void PerformLayout()
     {
       TimeSpan ts;
@@ -251,10 +195,16 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Path._borderContext:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              if (_fillDisabled)
-                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
-              else
+              /*
+               * Mr Hipp - CalculateLinePoints does not work.
+               * 
+               if (_fillDisabled)
+                 _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
+               else
                 _borderAsset.VertexBuffer = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
+              */
+
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
               if (_borderAsset.VertexBuffer != null)
               {
                 Stroke.SetupBrush(this, ref verts);
