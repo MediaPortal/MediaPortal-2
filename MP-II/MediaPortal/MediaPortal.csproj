@@ -82,7 +82,7 @@
       <Name>MediaPortal.Core.Services</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Project>{EE12C52A-B610-4B8B-95CE-76AE73F8990E}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">

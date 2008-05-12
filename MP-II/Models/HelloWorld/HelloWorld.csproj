@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D13049C2-A104-4CD7-BC96-509CDED27AB8}</ProjectGuid>
+    <ProjectGuid>{813BF2B2-CAC9-4AF3-9124-0E96C4D20A18}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Models.HelloWorld</RootNamespace>

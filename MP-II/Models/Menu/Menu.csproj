@@ -58,7 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HomeMenu.cs" />
+    <Compile Include="HomeMenu\DialogMenuItem.cs" />
+    <Compile Include="HomeMenu\HomeMenu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
