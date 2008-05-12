@@ -52,7 +52,7 @@ using Presentation.SkinEngine;
 using Presentation.SkinEngine.Commands;
 using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Players;
-using Presentation.SkinEngine.Skin;
+using Presentation.SkinEngine.Loader;
 
 using Presentation.SkinEngine.Settings;
 

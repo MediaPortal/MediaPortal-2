@@ -63,7 +63,7 @@ namespace Models.Weather
 
     public WeatherViewModel()
     {
-      _currentLocation = new Property(new City("No Data", "No Data"));
+      _currentLocation = new Property(typeof(City), new City("No Data", "No Data"));
       // for testing purposes add a weathercatcher
       ServiceScope.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       // add citys from settings to the locations list

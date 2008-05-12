@@ -21,15 +21,13 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Properties;
+
 using SlimDX;
-using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
-  public class Static2dMatrix : Transform
+  public class Static2dMatrix: Transform
   {
     float[] _elements;
     /// <summary>
@@ -45,13 +43,16 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _elements = (float[])r._elements.Clone();
       CreateMatrix();
     }
+
     void Init()
     {
     }
 
     public override object Clone()
     {
-      return new Static2dMatrix(this);
+      Static2dMatrix result = new Static2dMatrix(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     public void Set2DMatrix(System.Drawing.Drawing2D.Matrix matrix2d)
@@ -59,6 +60,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _elements = matrix2d.Elements;
       CreateMatrix();
     }
+
     void CreateMatrix()
     {
       _matrix = Matrix.Identity;

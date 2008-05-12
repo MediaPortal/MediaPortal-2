@@ -23,19 +23,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.PluginManager;
-
-using MediaPortal.Media.Importers;
 
 namespace Models.HelloWorld
 {
@@ -50,7 +39,7 @@ namespace Models.HelloWorld
     ///  this property holds a string that we will modify 
     ///  later on in this tutorial
     /// </summary>
-    private Property _helloStringProperty = null;
+    private Property _helloStringProperty;
 
     
     #region IPlugin Members
@@ -60,7 +49,7 @@ namespace Models.HelloWorld
     /// </summary>
     public Model()
     {
-      _helloStringProperty = new Property("Hello World!");
+      _helloStringProperty = new Property(typeof(string), "Hello World!");
     }
 
     public void Initialize(string id)
@@ -99,14 +88,7 @@ namespace Models.HelloWorld
     /// </summary>
     public Property HelloStringProperty
     {
-      get
-      {
-        if (_helloStringProperty == null)
-        {
-          _helloStringProperty = new Property("");
-        }
-        return _helloStringProperty;
-      }
+      get { return _helloStringProperty; }
     }
 
 

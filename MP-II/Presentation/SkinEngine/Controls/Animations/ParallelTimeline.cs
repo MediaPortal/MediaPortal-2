@@ -20,9 +20,8 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -35,9 +34,12 @@ namespace Presentation.SkinEngine.Controls.Animations
       : base(a)
     {
     }
+
     public override object Clone()
     {
-      return new ParallelTimeline(this);
+      ParallelTimeline result = new ParallelTimeline(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
   }

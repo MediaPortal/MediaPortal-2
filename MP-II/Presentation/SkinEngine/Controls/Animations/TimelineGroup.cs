@@ -20,12 +20,13 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class TimelineGroup : Timeline, IList
@@ -49,14 +50,17 @@ namespace Presentation.SkinEngine.Controls.Animations
         Children.Add((Timeline)t.Clone());
       }
     }
+    
     public override object Clone()
     {
-      return new TimelineGroup(this);
+      TimelineGroup result = new TimelineGroup(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _childrenProperty = new Property(new TimelineCollection());
+      _childrenProperty = new Property(typeof(TimelineCollection), new TimelineCollection());
     }
     #endregion
 

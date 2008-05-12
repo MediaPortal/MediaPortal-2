@@ -32,10 +32,11 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine
 {
-  public class Window: IWindow
+  public class Window: NameScope, IWindow
   {
     #region Enums
 
@@ -99,7 +100,7 @@ namespace Presentation.SkinEngine
       }
 
       _history = true;
-      _opened = new Property(true);
+      _opened = new Property(typeof(bool), true);
       _name = name;
       _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
       _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
@@ -281,7 +282,7 @@ namespace Presentation.SkinEngine
         _visual.Allocate();
         _visual.Reset();
         _visual.Invalidate();
-        _visual.InitializeBindings();
+        _visual.Initialize();
         if (SkinContext.UseBatching)
           _visual.BuildRenderTree();
         _setFocusedElement = true;
@@ -398,7 +399,7 @@ namespace Presentation.SkinEngine
       Trace.WriteLine("Window Reset: " + Name);
       SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
       _visual.Invalidate();
-      _visual.InitializeBindings();
+      _visual.Initialize();
       _visual.Reset();
     }
     #endregion

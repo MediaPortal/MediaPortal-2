@@ -61,7 +61,7 @@ namespace Models.Weather
   public class CitySetupInfo
   {
     private string id, grabber;
-    protected Property _name = new Property("");
+    protected Property _name = new Property(typeof(string), "");
 
     public CitySetupInfo(string name, string id, string grabber)
     {
@@ -120,9 +120,9 @@ namespace Models.Weather
   /// </summary>
   public class City : CitySetupInfo
   {
-    private Property _locationInfo = new Property(new LocInfo());
-    private Property _currCondition = new Property(new CurrentCondition());
-    private Property _dayForecastCollection = new Property(new DayForeCastCollection());
+    private Property _locationInfo = new Property(typeof(LocInfo), new LocInfo());
+    private Property _currCondition = new Property(typeof(CurrentCondition), new CurrentCondition());
+    private Property _dayForecastCollection = new Property(typeof(DayForeCastCollection), new DayForeCastCollection());
     private bool _updateSuccessful;
 
     /// <summary>
@@ -267,12 +267,12 @@ namespace Models.Weather
   /// </summary>
   public class LocInfo // <loc>
   {
-    private Property _time = new Property(""); // <tm>1:12 AM</tm>
-    private Property _lat = new Property(""); // <lat>49.02</lat>
-    private Property _lon = new Property(""); // <lon>12.1</lon>
-    private Property _sunRise = new Property(""); // <sunr>7:14 AM</sunr> 
-    private Property _sunSet = new Property(""); // <suns>5:38 PM</suns>
-    private Property _zone = new Property(""); // <zone>1</zone>
+    private Property _time = new Property(typeof(string), ""); // <tm>1:12 AM</tm>
+    private Property _lat = new Property(typeof(string), ""); // <lat>49.02</lat>
+    private Property _lon = new Property(typeof(string), ""); // <lon>12.1</lon>
+    private Property _sunRise = new Property(typeof(string), ""); // <sunr>7:14 AM</sunr> 
+    private Property _sunSet = new Property(typeof(string), ""); // <suns>5:38 PM</suns>
+    private Property _zone = new Property(typeof(string), ""); // <zone>1</zone>
     // Getters
 
     public string Time
@@ -371,17 +371,17 @@ namespace Models.Weather
       DewPoint = "30%";
     }
 
-    private Property _city = new Property(""); // <obst>
-    private Property _lastUpdate = new Property(""); // <lsup>
-    private Property _temperature = new Property(""); // <temp> 
-    private Property _feelsLikeTemp = new Property(""); // <flik>
-    private Property _condition = new Property(""); // <t>
-    private Property _bigIcon = new Property(""); // <icon> 
-    private Property _smallIcon = new Property(""); // <icon> 
-    private Property _humidity = new Property(""); // <hmid>
-    private Property _wind = new Property(""); // <wind>
-    private Property _uVindex = new Property(""); // <uv> 
-    private Property _dewPoint = new Property(""); // <dewp>
+    private Property _city = new Property(typeof(string), ""); // <obst>
+    private Property _lastUpdate = new Property(typeof(string), ""); // <lsup>
+    private Property _temperature = new Property(typeof(string), ""); // <temp> 
+    private Property _feelsLikeTemp = new Property(typeof(string), ""); // <flik>
+    private Property _condition = new Property(typeof(string), ""); // <t>
+    private Property _bigIcon = new Property(typeof(string), ""); // <icon> 
+    private Property _smallIcon = new Property(typeof(string), ""); // <icon> 
+    private Property _humidity = new Property(typeof(string), ""); // <hmid>
+    private Property _wind = new Property(typeof(string), ""); // <wind>
+    private Property _uVindex = new Property(typeof(string), ""); // <uv> 
+    private Property _dewPoint = new Property(typeof(string), ""); // <dewp>
     // Getters :P
     public string City
     {
@@ -519,17 +519,17 @@ namespace Models.Weather
   /// </summary>
   public class DayForeCast
   {
-    private Property _smallIcon = new Property("");
-    private Property _bigIcon= new Property(""); 
-    private Property _overview = new Property(""); 
-    private Property _day = new Property("");
-    private Property _high = new Property("");
-    private Property _low = new Property(""); 
-    private Property _sunRise = new Property("");
-    private Property _sunSet = new Property("");
-    private Property _precipitation = new Property("");
-    private Property _humidity = new Property("");
-    private Property _wind = new Property(""); 
+    private Property _smallIcon = new Property(typeof(string), "");
+    private Property _bigIcon= new Property(typeof(string), ""); 
+    private Property _overview = new Property(typeof(string), ""); 
+    private Property _day = new Property(typeof(string), "");
+    private Property _high = new Property(typeof(string), "");
+    private Property _low = new Property(typeof(string), ""); 
+    private Property _sunRise = new Property(typeof(string), "");
+    private Property _sunSet = new Property(typeof(string), "");
+    private Property _precipitation = new Property(typeof(string), "");
+    private Property _humidity = new Property(typeof(string), "");
+    private Property _wind = new Property(typeof(string), ""); 
 
 
    

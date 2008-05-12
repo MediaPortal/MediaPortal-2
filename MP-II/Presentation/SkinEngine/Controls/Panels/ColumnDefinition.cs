@@ -48,7 +48,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _widthProperty = new Property(new GridLength());
+      _widthProperty = new Property(typeof(GridLength), new GridLength());
     }
 
     public Property WidthProperty

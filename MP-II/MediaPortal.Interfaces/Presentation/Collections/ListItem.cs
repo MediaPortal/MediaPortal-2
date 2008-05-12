@@ -56,14 +56,14 @@ namespace MediaPortal.Presentation.Collections
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
       _labels[name] = new SimpleLabelProperty(stringvalue);
-      _selectedProperty = new Property(false);
+      _selectedProperty = new Property(typeof(bool), false);
     }
     public ListItem(string name, StringId stringvalue)
     {
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
       _labels[name] = new LocalizedLabelProperty(stringvalue);
-      _selectedProperty = new Property(false);
+      _selectedProperty = new Property(typeof(bool), false);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ namespace MediaPortal.Presentation.Collections
     {
       _subItems = new ItemsCollection();
       _labels = new Dictionary<string, ILabelProperty>();
-      _selectedProperty = new Property(false);
+      _selectedProperty = new Property(typeof(bool), false);
     }
 
     /// <summary>

@@ -40,7 +40,7 @@ namespace Models.Extensions.Helper
     private Property _descriptionProperty;
     private Property _authorProperty;
     private Property _longNameProperty;
-    private Property _screeShotProperty;
+    private Property _screenShotProperty;
     private readonly ExtensionFactory _factory;
     private ItemsCollection _dependon;
     private ItemsCollection _versions;
@@ -55,14 +55,14 @@ namespace Models.Extensions.Helper
     public PackageProperty()
       : base()
     {
-      _nameProperty = new Property(this.Name);
-      _longNameProperty = new Property(this.Name);
-      _descriptionProperty = new Property(this.Description);
-      _authorProperty = new Property(this.Author);
+      _nameProperty = new Property(typeof(string), this.Name);
+      _longNameProperty = new Property(typeof(string), this.Name);
+      _descriptionProperty = new Property(typeof(string), this.Description);
+      _authorProperty = new Property(typeof(string), this.Author);
       _dependon = new ItemsCollection();
       _versions = new ItemsCollection();
       _factory = new ExtensionFactory();
-      _screeShotProperty = new Property();
+      _screenShotProperty = new Property(typeof(string));
     }
 
     public void Set(ExtensionEnumeratorObject obj)
@@ -71,7 +71,7 @@ namespace Models.Extensions.Helper
       _descriptionProperty.SetValue(obj.Description);
       _authorProperty.SetValue(obj.Author);
       _longNameProperty.SetValue(string.Format("{0} - {1} - {2}",obj.Name,obj.Version,obj.VersionType));
-      _screeShotProperty.SetValue(_factory.GetThumb(obj));
+      _screenShotProperty.SetValue(_factory.GetThumb(obj));
       _dependon.Clear();
       _versions.Clear();
       foreach (ExtensionDependency dep in obj.Dependencies)
@@ -138,7 +138,7 @@ namespace Models.Extensions.Helper
     {
       get
       {
-        return _screeShotProperty;
+        return _screenShotProperty;
       }
     }
   }

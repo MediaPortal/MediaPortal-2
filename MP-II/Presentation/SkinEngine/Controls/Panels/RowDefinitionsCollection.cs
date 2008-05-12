@@ -2,7 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
+
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class RowDefinitionsCollection : List<RowDefinition>, IAddChild

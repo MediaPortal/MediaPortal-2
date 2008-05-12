@@ -21,30 +21,35 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Rendering;
 using MediaPortal.Presentation.Properties;
-using Rectangle = System.Drawing.Rectangle;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class DockPanel : Panel
   {
+    protected const string DOCK_ATTACHED_PROPERTY = "DockPanel.Dock";
+
     public DockPanel()
     {
     }
+
     public DockPanel(DockPanel v)
       : base(v)
     {
     }
+
     public override object Clone()
     {
-      return new DockPanel(this);
+      DockPanel result = new DockPanel(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
+
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -75,21 +80,21 @@ namespace Presentation.SkinEngine.Controls.Panels
         if (size.Width < 0) size.Width = 0;
         if (size.Height < 0) size.Height = 0;
         child.Measure(size);
-        if (child.Dock == Dock.Top || child.Dock == Dock.Bottom)
+        if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
         {
           size.Height -= child.DesiredSize.Height;
           sizeTop.Height += child.DesiredSize.Height;
           if (child.DesiredSize.Width > sizeTop.Width)
             sizeTop.Width = child.DesiredSize.Width;
         }
-        else if (child.Dock == Dock.Left || child.Dock == Dock.Right)
+        else if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
         {
           size.Width -= child.DesiredSize.Width;
           sizeLeft.Width += child.DesiredSize.Width;
           if (child.DesiredSize.Height > sizeLeft.Height)
             sizeLeft.Height = child.DesiredSize.Height;
         }
-        else if (child.Dock == Dock.Center)
+        else if (GetDock(child) == Dock.Center)
         {
           child.Measure(size);
           size.Width -= child.DesiredSize.Width;
@@ -162,7 +167,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         count++;
         if (!child.IsVisible) continue;
-        if (child.Dock == Dock.Top)
+        if (GetDock(child) == Dock.Top)
         {
 
           PointF location = new PointF(offsetLeft, offsetTop);
@@ -177,7 +182,7 @@ namespace Presentation.SkinEngine.Controls.Panels
           offsetTop += child.DesiredSize.Height;
           size.Height -= child.DesiredSize.Height;
         }
-        else if (child.Dock == Dock.Bottom)
+        else if (GetDock(child) == Dock.Bottom)
         {
           PointF location = new PointF(offsetLeft, layoutRect.Height - (offsetBottom + child.DesiredSize.Height));
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
@@ -191,7 +196,7 @@ namespace Presentation.SkinEngine.Controls.Panels
           offsetBottom += child.DesiredSize.Height;
           size.Height -= child.DesiredSize.Height;
         }
-        else if (child.Dock == Dock.Left)
+        else if (GetDock(child) == Dock.Left)
         {
           PointF location = new PointF(offsetLeft, offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
@@ -206,7 +211,7 @@ namespace Presentation.SkinEngine.Controls.Panels
           offsetLeft += child.DesiredSize.Width;
           size.Width -= child.DesiredSize.Width;
         }
-        else if (child.Dock == Dock.Right)
+        else if (GetDock(child) == Dock.Right)
         {
           PointF location = new PointF(layoutRect.Width - (offsetRight + child.DesiredSize.Width), offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
@@ -238,7 +243,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        if (child.Dock == Dock.Center)
+        if (GetDock(child) == Dock.Center)
         {
           float width = (float)(ActualWidth - (offsetLeft + offsetRight));
 
@@ -292,5 +297,47 @@ namespace Presentation.SkinEngine.Controls.Panels
           p.Y += (s.Height - child.DesiredSize.Height);
       }
     }
+
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>Dock</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Dock</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static Dock GetDock(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<Dock>(DOCK_ATTACHED_PROPERTY, Dock.Left);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Dock</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Dock</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetDock(DependencyObject targetObject, Dock value)
+    {
+      targetObject.SetAttachedPropertyValue<Dock>(DOCK_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Dock</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Dock</c> property.</returns>
+    public static Property GetDockAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<Dock>(DOCK_ATTACHED_PROPERTY, Dock.Left);
+    }
+
+    #endregion
   }
 }

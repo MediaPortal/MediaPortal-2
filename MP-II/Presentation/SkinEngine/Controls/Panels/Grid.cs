@@ -21,21 +21,26 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Collections;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Rendering;
-using Rectangle = System.Drawing.Rectangle;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Grid : Panel
   {
+    protected const string LEFT_ATTACHED_PROPERTY = "Grid.Left";
+    protected const string RIGHT_ATTACHED_PROPERTY = "Grid.Right";
+    protected const string TOP_ATTACHED_PROPERTY = "Grid.Top";
+    protected const string BOTTOM_ATTACHED_PROPERTY = "Grid.Bottom";
+    protected const string ROW_ATTACHED_PROPERTY = "Grid.Row";
+    protected const string COLUMN_ATTACHED_PROPERTY = "Grid.Column";
+    protected const string ROWSPAN_ATTACHED_PROPERTY = "Grid.RowSpan";
+    protected const string COLUMNSPAN_ATTACHED_PROPERTY = "Grid.ColumnSpan";
+
     Property _rowDefinitionsProperty;
     Property _columnDefinitionsProperty;
 
@@ -61,13 +66,15 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override object Clone()
     {
-      return new Grid(this);
+      Grid result = new Grid(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _rowDefinitionsProperty = new Property(new RowDefinitionsCollection());
-      _columnDefinitionsProperty = new Property(new ColumnDefinitionsCollection());
+      _rowDefinitionsProperty = new Property(typeof(RowDefinitionsCollection), new RowDefinitionsCollection());
+      _columnDefinitionsProperty = new Property(typeof(ColumnDefinitionsCollection), new ColumnDefinitionsCollection());
     }
     #endregion
 
@@ -163,17 +170,17 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        int col = child.Column;
-        int row = child.Row;
+        int col = GetColumn(child);
+        int row = GetRow(child);
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
-        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, child.ColumnSpan), RowDefinitions.GetHeight(row, child.RowSpan)));
+        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, GetColumnSpan(child)), RowDefinitions.GetHeight(row, GetRowSpan(child))));
 
-        ColumnDefinitions.SetWidth(col, child.ColumnSpan, child.DesiredSize.Width);
-        RowDefinitions.SetHeight(row, child.RowSpan, child.DesiredSize.Height);
+        ColumnDefinitions.SetWidth(col, GetColumnSpan(child), child.DesiredSize.Width);
+        RowDefinitions.SetHeight(row, GetRowSpan(child), child.DesiredSize.Height);
       }
 
 
@@ -230,16 +237,16 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        int col = child.Column;
-        int row = child.Row;
+        int col = GetColumn(child);
+        int row = GetRow(child);
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
         if (col < 0) col = 0;
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
         PointF p = new PointF((float)(this.ActualPosition.X + ColumnDefinitions.GetOffset(col)), (float)(this.ActualPosition.Y + RowDefinitions.GetOffset(row)));
-        float w = ColumnDefinitions.GetWidth(col, child.ColumnSpan);
-        float h = RowDefinitions.GetHeight(row, child.RowSpan);
+        float w = ColumnDefinitions.GetWidth(col, GetColumnSpan(child));
+        float h = RowDefinitions.GetHeight(row, GetRowSpan(child));
         ArrangeChild(child, ref p, w, h);
 
         child.Arrange(new RectangleF(p, child.DesiredSize));
@@ -282,6 +289,314 @@ namespace Presentation.SkinEngine.Controls.Panels
         p.Y += (float)(heightPerCell - child.DesiredSize.Height);
       }
     }
+    #endregion
+
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>Left</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Left</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetLeft(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(LEFT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Left</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Left</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetLeft(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(LEFT_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Left</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Left</c> property.</returns>
+    public static Property GetLeftAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(LEFT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Right</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Right</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetRight(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Right</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Right</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetRight(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(RIGHT_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Right</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Right</c> property.</returns>
+    public static Property GetRightAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Top</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Top</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetTop(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(TOP_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Top</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Top</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetTop(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(TOP_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Top</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Top</c> property.</returns>
+    public static Property GetTopAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(TOP_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Bottom</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Bottom</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetBottom(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Bottom</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Bottom</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetBottom(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(BOTTOM_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Bottom</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Bottom</c> property.</returns>
+    public static Property GetBottomAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Row</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Row</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static int GetRow(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<int>(ROW_ATTACHED_PROPERTY, 0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Row</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Row</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetRow(DependencyObject targetObject, int value)
+    {
+      targetObject.SetAttachedPropertyValue<int>(ROW_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Row</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Row</c> property.</returns>
+    public static Property GetRowAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<int>(ROW_ATTACHED_PROPERTY, 0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Column</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Column</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static int GetColumn(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue(COLUMN_ATTACHED_PROPERTY, 0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Column</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Column</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetColumn(DependencyObject targetObject, int value)
+    {
+      targetObject.SetAttachedPropertyValue<int>(COLUMN_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Column</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Column</c> property.</returns>
+    public static Property GetColumnAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<int>(COLUMN_ATTACHED_PROPERTY, 0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>RowSpan</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>RowSpan</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static int GetRowSpan(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue(ROWSPAN_ATTACHED_PROPERTY, 1);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>RowSpan</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>RowSpan</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetRowSpan(DependencyObject targetObject, int value)
+    {
+      targetObject.SetAttachedPropertyValue<int>(ROWSPAN_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>RowSpan</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>RowSpan</c> property.</returns>
+    public static Property GetRowSpanAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<int>(ROWSPAN_ATTACHED_PROPERTY, 0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>ColumnSpan</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>ColumnSpan</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static int GetColumnSpan(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue(COLUMNSPAN_ATTACHED_PROPERTY, 1);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>ColumnSpan</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>ColumnSpan</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetColumnSpan(DependencyObject targetObject, int value)
+    {
+      targetObject.SetAttachedPropertyValue<int>(COLUMNSPAN_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>ColumnSpan</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>ColumnSpan</c> property.</returns>
+    public static Property GetColumnSpanAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<int>(COLUMNSPAN_ATTACHED_PROPERTY, 0);
+    }
+
     #endregion
   }
 }

@@ -20,14 +20,9 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
 
+using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -40,16 +35,41 @@ namespace Presentation.SkinEngine.Controls.Animations
     Reverse,
     Ended
   };
+
   public class AnimationContext
   {
-    public Property Property;
-    public UIElement VisualParent;
-    public uint TimeStarted;
-    public State State = State.Idle;
+    protected IDataDescriptor _dataDescriptor;
+    protected UIElement _visualParent;
+    protected uint _timeStarted;
+    protected State _state = State.Idle;
 
     public AnimationContext(UIElement visualParent)
     {
       VisualParent = visualParent;
+    }
+
+    public IDataDescriptor DataDescriptor
+    {
+      get { return _dataDescriptor; }
+      set { _dataDescriptor = value; }
+    }
+
+    public UIElement VisualParent
+    {
+      get { return _visualParent; }
+      set { _visualParent = value; }
+    }
+
+    public uint TimeStarted
+    {
+      get { return _timeStarted; }
+      set { _timeStarted = value; }
+    }
+
+    public State State
+    {
+      get { return _state; }
+      set { _state = value; }
     }
   }
 }

@@ -21,17 +21,13 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
+
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -56,13 +52,16 @@ namespace Presentation.SkinEngine.Controls.Brushes
     }
     void Init()
     {
-      _imageSourceProperty = new Property(null);
-      _downloadProgressProperty = new Property((double)0.0f);
+      _imageSourceProperty = new Property(typeof(string), null);
+      _downloadProgressProperty = new Property(typeof(double), 0.0);
       _imageSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
+
     public override object Clone()
     {
-      return new ImageBrush(this);
+      ImageBrush result = new ImageBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>

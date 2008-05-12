@@ -698,7 +698,7 @@ namespace Models.Movies
 
     private ItemsCollection _imdbresultmovies = new ItemsCollection();
     private Queue<MPMessage> _imdbmessages = new Queue<MPMessage>();
-    private Property _imdbmovietile=new Property();
+    private Property _imdbmovietile=new Property(typeof(string));
 
     /// <summary>
     /// Gets the imdb movietile.

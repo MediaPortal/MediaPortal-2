@@ -20,22 +20,20 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
   public enum FillBehaviour { HoldEnd, Stop };
 
-  public class Timeline : ICloneable
+  public class Timeline: DependencyObject, ICloneable, IInitializable
   {
-    Property _keyProperty;
     Property _beginTimeProperty;
     Property _accellerationProperty;
     Property _autoReverseProperty;
@@ -44,18 +42,19 @@ namespace Presentation.SkinEngine.Controls.Animations
     Property _repeatBehaviourProperty;
     Property _fillBehaviourProperty;
     Property _visualParentProperty;
+    protected PathExpression _propertyExpression = null;
     protected object OriginalValue;
 
-    #region ctor
+    #region Ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="Timeline"/> class.
     /// </summary>
-    public Timeline()
+    public Timeline(): base()
     {
       Init();
     }
 
-    public Timeline(Timeline a)
+    public Timeline(Timeline a): base(a)
     {
       Init();
       BeginTime = a.BeginTime;
@@ -63,61 +62,31 @@ namespace Presentation.SkinEngine.Controls.Animations
       AutoReverse = a.AutoReverse;
       DecelerationRatio = a.DecelerationRatio;
       Duration = a.Duration;
-      Key = a.Key;
       FillBehaviour = a.FillBehaviour;
       RepeatBehavior = a.RepeatBehavior;
       VisualParent = a.VisualParent;
     }
+
     public virtual object Clone()
     {
       return new Timeline(this);
     }
+
     void Init()
     {
-      _keyProperty = new Property("");
-      _beginTimeProperty = new Property(new TimeSpan(0, 0, 0));
-      _accellerationProperty = new Property(1.0);
-      _autoReverseProperty = new Property(false);
-      _decelerationRatioProperty = new Property(1.0);
-      _durationProperty = new Property(new TimeSpan(0, 0, 1));
-      _repeatBehaviourProperty = new Property(RepeatBehavior.None);
-      _fillBehaviourProperty = new Property(FillBehaviour.HoldEnd);
-      _visualParentProperty = new Property(null);
+      _beginTimeProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 0));
+      _accellerationProperty = new Property(typeof(double), 1.0);
+      _autoReverseProperty = new Property(typeof(bool), false);
+      _decelerationRatioProperty = new Property(typeof(double), 1.0);
+      _durationProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 1));
+      _repeatBehaviourProperty = new Property(typeof(RepeatBehavior), RepeatBehavior.None);
+      _fillBehaviourProperty = new Property(typeof(FillBehaviour), FillBehaviour.HoldEnd);
+      _visualParentProperty = new Property(typeof(UIElement), null);
     }
     #endregion
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the key property.
-    /// </summary>
-    /// <value>The key property.</value>
-    public Property KeyProperty
-    {
-      get
-      {
-        return _keyProperty;
-      }
-      set
-      {
-        _keyProperty = value;
-      }
-    }
+    #region Public properties
 
-    /// <summary>
-    /// Gets or sets the key.
-    /// </summary>
-    /// <value>The key.</value>
-    public string Key
-    {
-      get
-      {
-        return _keyProperty.GetValue() as string;
-      }
-      set
-      {
-        _keyProperty.SetValue(value);
-      }
-    }
     /// <summary>
     /// Gets or sets the begin time property.
     /// </summary>
@@ -344,6 +313,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     /// <summary>
     /// Gets or sets the visual parent property.
+    /// FIXME Albert78: Still needed? Don't we always use <see cref="AnimationContext.VisualParent"/>?
     /// </summary>
     /// <value>The visual parent property.</value>
     public Property VisualParentProperty
@@ -360,6 +330,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     /// <summary>
     /// Gets or sets the visual parent.
+    /// FIXME Albert78: Still needed? Don't we always use <see cref="AnimationContext.VisualParent"/>?
     /// </summary>
     /// <value>The visual parent.</value>
     public UIElement VisualParent
@@ -376,7 +347,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
-    #region animation
+    #region Animation
     /// <summary>
     /// Animates the property.
     /// </summary>
@@ -461,7 +432,12 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public virtual void Ended(AnimationContext context)
     {
+      if (IsStopped(context)) return;
+      if (context.DataDescriptor != null)
+        if (FillBehaviour != FillBehaviour.HoldEnd)
+          context.DataDescriptor.Value = OriginalValue;
     }
+
     /// <summary>
     /// Starts the animation
     /// </summary>
@@ -498,55 +474,42 @@ namespace Presentation.SkinEngine.Controls.Animations
       return (context.State == State.Idle);
     }
 
-    protected Property GetProperty(UIElement visualParent,string targetName, string targetProperty)
+    protected IDataDescriptor GetDataDescriptor(UIElement element)
     {
-      ///@optimize
-      string propertyname = "";
-      Regex regex = new Regex(@"\([^\.]+\.[^\.]+");
-      MatchCollection matches = regex.Matches(targetProperty);
-      for (int i = 0; i < matches.Count; ++i)
-      {
-        string part = matches[i].Value;
-        string part1 = part;
-        int p1 = part.IndexOf("(");
-        if (p1 >= 0)
-        {
-          part1 = part.Substring(p1 + 1);
-          p1 = part1.IndexOf(")");
-          part1 = (part1.Substring(0, p1) + part1.Substring(p1 + 1));
-        }
-        int pos = part1.IndexOf(".");
-        if (pos > 0)
-        {
-          part1 = part1.Substring(pos + 1);
-        }
-        if (propertyname.Length > 0) propertyname += ".";
-        propertyname += part1;
-      }
-      if (propertyname.Length == 0) propertyname = targetProperty;
-
-      string propertyName = String.Format("{0}.{1}", targetName, propertyname);
-      int posPoint = propertyName.LastIndexOf('.');
-      string left = propertyName.Substring(0, posPoint);
-      string right = propertyName.Substring(posPoint + 1);
-
-      object element = VisualTreeHelper.Instance.FindElement(visualParent, left);
-      if (element == null)
-        element = VisualTreeHelper.Instance.FindElement(left);
-      if (element == null) return null;
-      Type t = element.GetType();
-      PropertyInfo pinfo = t.GetProperty(right + "Property");
-      if (pinfo == null)
+      string targetName = Storyboard.GetTargetName(this);
+      object targetObject = element.FindElement(targetName);
+      if (targetObject == null)
         return null;
-      MethodInfo minfo = pinfo.GetGetMethod();
-      return minfo.Invoke(element, null) as Property;
+      IDataDescriptor result = new ValueDataDescriptor(targetObject);
+      if (_propertyExpression == null || !_propertyExpression.Evaluate(result, out result))
+        return null;
+      return result;
     }
 
     public virtual void Setup(AnimationContext context)
     {
+      context.DataDescriptor = GetDataDescriptor(context.VisualParent);
     }
+
     public virtual void Initialize(UIElement element)
     {
+      IDataDescriptor dd = GetDataDescriptor(element);
+      OriginalValue = dd == null ? null : dd.Value;
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
+    public void Initialize(IParserContext context)
+    {
+      if (String.IsNullOrEmpty(Storyboard.GetTargetName(this)) || String.IsNullOrEmpty(Storyboard.GetTargetProperty(this)))
+      {
+        _propertyExpression = null;
+        return;
+      }
+      string targetProperty = Storyboard.GetTargetProperty(this);
+      _propertyExpression = PathExpression.Compile(context, targetProperty);
     }
 
     #endregion

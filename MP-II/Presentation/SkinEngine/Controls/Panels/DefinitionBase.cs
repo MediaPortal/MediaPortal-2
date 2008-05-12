@@ -26,8 +26,11 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Panels
 {
+
   public class DefinitionBase : ICloneable
   {
     Property _nameProperty;
@@ -44,12 +47,14 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public object Clone()
     {
-      return new DefinitionBase(this);
+      DefinitionBase result = new DefinitionBase(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _nameProperty = new Property("");
+      _nameProperty = new Property(typeof(string), "");
     }
 
     /// <summary>

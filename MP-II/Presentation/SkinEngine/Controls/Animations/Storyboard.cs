@@ -20,25 +20,108 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
+using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class Storyboard : ParallelTimeline
   {
+    protected const string TARGET_NAME_ATTACHED_PROPERTY = "StoryBoard.TargetName";
+    protected const string TARGET_PROPERTY_ATTACHED_PROPERTY = "StoryBoard.TargetProperty";
+
     public Storyboard()
-    {
-    }
-    public Storyboard(Storyboard a)
-      : base(a)
-    {
-    }
+    { }
+    
+    public Storyboard(Storyboard a): base(a)
+    { }
+
     public override object Clone()
     {
-      return new Storyboard(this);
+      Storyboard result = new Storyboard(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>TargetName</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>TargetName</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static string GetTargetName(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<string>(TARGET_NAME_ATTACHED_PROPERTY, null);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>TargetName</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>TargetName</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetTargetName(DependencyObject targetObject, string value)
+    {
+      targetObject.SetAttachedPropertyValue<string>(TARGET_NAME_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>TargetName</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>TargetName</c> property.</returns>
+    public static Property GetTargetNameAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<string>(TARGET_NAME_ATTACHED_PROPERTY, null);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>TargetProperty</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>TargetProperty</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static string GetTargetProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<string>(TARGET_PROPERTY_ATTACHED_PROPERTY, null);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>TargetProperty</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>TargetProperty</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetTargetProperty(DependencyObject targetObject, string value)
+    {
+      targetObject.SetAttachedPropertyValue<string>(TARGET_PROPERTY_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>TargetProperty</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>TargetProperty</c> property.</returns>
+    public static Property GetTargetPropertyAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<string>(TARGET_PROPERTY_ATTACHED_PROPERTY, null);
+    }
+
+    #endregion
   }
 }

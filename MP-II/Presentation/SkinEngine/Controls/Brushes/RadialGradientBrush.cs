@@ -21,21 +21,18 @@
 */
 
 #endregion
+
 using System;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Rendering;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
-
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -96,10 +93,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// </summary>
     void Init()
     {
-      _centerProperty = new Property(new Vector2(0.5f, 0.5f));
-      _gradientOriginProperty = new Property(new Vector2(0.5f, 0.5f));
-      _radiusXProperty = new Property((double)0.5f);
-      _radiusYProperty = new Property((double)0.5f);
+      _centerProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
+      _gradientOriginProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
+      _radiusXProperty = new Property(typeof(double), 0.5);
+      _radiusYProperty = new Property(typeof(double), 0.5);
 
       _centerProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _gradientOriginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
@@ -113,8 +110,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// <returns></returns>
     public override object Clone()
     {
-      return new RadialGradientBrush(this);
+      RadialGradientBrush result = new RadialGradientBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
+
     /// <summary>
     /// Gets or sets the center property.
     /// </summary>
@@ -274,7 +274,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
         if (_brushTexture == null)
         {
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
+          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         }
         Free(true);
         _refresh = true;
@@ -314,7 +314,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
           SetColor(vertexBuffer);
@@ -511,7 +511,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
           //SetColor(vertexBuffer);
@@ -682,7 +682,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
         }
       }
 
-      context.Texture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "RadialGradientBrush." + this.Name);
+      context.Texture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
       if (_singleColor)
       {
 

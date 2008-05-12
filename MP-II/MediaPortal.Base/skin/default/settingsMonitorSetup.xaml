@@ -1,45 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<MyXaml >
-  <Canvas xmlns:local="clr-namespace:Appearance;assembly=settings" History="False"  FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
-    <Canvas.Resources>
-      <ResourceDictionary Source="XamlStyle.xml"/>
-    </Canvas.Resources>
-    <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50"/>
+<Canvas
+    xmlns="www.team-mediaportal.com/2008/mse/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model AssemblyName=settings,ClassName=Appearance},Path=Instance}"
+    FocusedElement="{Binding ElementName=mainMenu}"
+    History="False">
+  <Canvas.Resources>
+    <ResourceDictionary Source="XamlStyle.xml"/>
+  </Canvas.Resources>
+  <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50"/>
 
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-        <Label.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-          </TransformGroup>
-        </Label.RenderTransform>
-        <Label.OpacityMask>
-          <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-            <GradientStop Offset="0.0" Color="#FF000000" />
-            <GradientStop Offset="1.0" Color="#00000000" />
-          </LinearGradientBrush>
-        </Label.OpacityMask>
-      </Label>
+    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
+      <Label.RenderTransform>
+        <TransformGroup>
+          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+        </TransformGroup>
+      </Label.RenderTransform>
+      <Label.OpacityMask>
+        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+          <GradientStop Offset="0.0" Color="#FF000000" />
+          <GradientStop Offset="1.0" Color="#00000000" />
+        </LinearGradientBrush>
+      </Label.OpacityMask>
+    </Label>
 
-      <Label Margin="60,0,0,0" Font="font13" Text="[settings.monitorsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
-      <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <CheckBox   Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-          <Label Font="font13" Text="[settings.monitorbuildin]" />
-        </CheckBox>
-        <CheckBox  Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-          <Label Font="font13" Text="[settings.monitorcrt]" />
-        </CheckBox>
-        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-          <Label Font="font13"   Text="[settings.monitorlcd]"  />
-        </CheckBox>
-        <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-          <Label Font="font13"   Text="[settings.monitorprojector]"  />
-        </CheckBox>
-      </StackPanel>
-      <Button Style="{StaticResource MpButton}"  Width="160" Height="32" Command="{Binding Path=WindowManager.ShowWindow}" CommandParameter="settingsMonitorSetup2">
-        <Label Font="font13" Text="[settings.next]" Height="32" />
-      </Button>
+    <Label Margin="60,0,0,0" Font="font13" Text="[settings.monitorsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
+    <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
+      <CheckBox   Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+        <Label Font="font13" Text="[settings.monitorbuildin]" />
+      </CheckBox>
+      <CheckBox  x:Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+        <Label Font="font13" Text="[settings.monitorcrt]" />
+      </CheckBox>
+      <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+        <Label Font="font13"   Text="[settings.monitorlcd]"  />
+      </CheckBox>
+      <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+        <Label Font="font13"   Text="[settings.monitorprojector]"  />
+      </CheckBox>
+    </StackPanel>
+    <Button Style="{StaticResource MpButton}"  Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsMonitorSetup2">
+      <Label Font="font13" Text="[settings.next]" Height="32" />
+    </Button>
 
-    </DockPanel>
-  </Canvas>
-</MyXaml>
+  </DockPanel>
+</Canvas>

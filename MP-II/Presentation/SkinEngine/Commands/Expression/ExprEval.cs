@@ -217,7 +217,7 @@ namespace Presentation.SkinEngine.Commands.Expression
     /// <returns>object of the expression return value</returns>
     public object Evaluate()
     {
-      if ("" + Expression == "")
+      if (string.IsNullOrEmpty(Expression))
         return 0;
 
       return ExecuteEvaluation();

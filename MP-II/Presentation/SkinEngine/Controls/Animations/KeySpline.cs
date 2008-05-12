@@ -19,16 +19,11 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
+
 using System;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
-using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {

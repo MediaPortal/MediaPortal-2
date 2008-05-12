@@ -21,19 +21,12 @@
 */
 
 #endregion
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
+
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
-using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
@@ -62,7 +55,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _orientationProperty = new Property(Orientation.Vertical);
+      _orientationProperty = new Property(typeof(Orientation), Orientation.Vertical);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _startIndex = 0;
       _endIndex = 0;
@@ -74,7 +67,9 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override object Clone()
     {
-      return new VirtualizingStackPanel(this);
+      VirtualizingStackPanel result = new VirtualizingStackPanel(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>

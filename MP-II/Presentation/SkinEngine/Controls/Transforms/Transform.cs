@@ -21,39 +21,31 @@
 */
 
 #endregion
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 using SlimDX;
-using SlimDX.Direct3D9;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
-  public class Transform : Property, ICloneable, IBindingCollection
+  public class Transform : Property, ICloneable
   {
     protected bool _needUpdate = true;
     protected bool _needUpdateRel = true;
     protected Matrix _matrix = Matrix.Identity;
     protected Matrix _matrixRel = Matrix.Identity;
-    BindingCollection _bindings;
-    bool _initialized;
 
-    public Transform()
+    public Transform(): base(null)
     {
       Init();
     }
 
-    public Transform(Transform r)
+    public Transform(Transform r): base(null)
     {
       Init();
-      foreach (Binding b in r._bindings)
-      {
-        _bindings.Add((Binding)b.Clone());
-      }
     }
 
     public virtual object Clone()
@@ -63,11 +55,10 @@ namespace Presentation.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _initialized = false;
-      _bindings = new BindingCollection();
       WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
-      mgr.Utils.ZoomProperty.Attach(new PropertyChangedHandler(OnZoomChanged));
+      mgr.Utils.ZoomProperty.Attach(OnZoomChanged);
     }
+
     void OnZoomChanged(Property prop)
     {
       _needUpdate = true;
@@ -81,7 +72,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
       m.Matrix *= matrix;
     }
 
-
     public void GetTransformRel(out ExtendedMatrix m)
     {
       SlimDX.Matrix matrix;
@@ -89,8 +79,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
       m = new ExtendedMatrix();
       m.Matrix *= matrix;
     }
-
-
+    
     /// <summary>
     /// Gets the transform.
     /// </summary>
@@ -104,6 +93,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
       }
       m = _matrix;
     }
+
     public virtual void GetTransformRel(out Matrix m)
     {
       if (_needUpdateRel)
@@ -118,34 +108,9 @@ namespace Presentation.SkinEngine.Controls.Transforms
     /// Updates the transform.
     /// </summary>
     public virtual void UpdateTransform()
-    {
-      InitializeBindings();
-    }
+    { }
+
     public virtual void UpdateTransformRel()
-    {
-      InitializeBindings();
-    }
-
-
-    #region IBindingCollection Members
-
-    public void Add(Binding binding)
-    {
-      _bindings.Add(binding);
-    }
-
-    public virtual void InitializeBindings()
-    {
-      if (_initialized) return;
-      if (_bindings.Count == 0) return;
-      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
-      Window window = (Window)mgr.CurrentWindow;
-      foreach (Binding binding in _bindings)
-      {
-        binding.Initialize(this, window.Visual);
-      }
-      _initialized = true;
-    }
-    #endregion
+    { }
   }
 }

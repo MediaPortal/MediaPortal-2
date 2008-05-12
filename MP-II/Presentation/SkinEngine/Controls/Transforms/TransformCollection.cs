@@ -21,10 +21,9 @@
 */
 
 #endregion
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.Controls.Transforms
@@ -35,6 +34,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
     {
       int index = -1;
       List<Transform> _elements;
+
       public TransformEnumerator(List<Transform> elements)
       {
         _elements = elements;
@@ -52,7 +52,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
       {
       }
 
-      object System.Collections.IEnumerator.Current
+      object IEnumerator.Current
       {
         get
         {
@@ -75,12 +75,11 @@ namespace Presentation.SkinEngine.Controls.Transforms
     PropertyChangedHandler _handler;
     List<Transform> _elements;
 
-    public TransformCollection()
+    public TransformCollection(): base(null)
     {
       _elements = new List<Transform>();
-      _handler = new PropertyChangedHandler(OnPropertyChanged);
+      _handler = OnPropertyChanged;
     }
-
 
     protected void OnPropertyChanged(Property property)
     {
@@ -135,7 +134,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="SkinEngine.Controls.Brushes.Transform"/> at the specified index.
+    /// Gets or sets the <see cref="Transform"/> at the specified index.
     /// </summary>
     /// <value></value>
     public Transform this[int index]

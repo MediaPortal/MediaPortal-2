@@ -21,19 +21,17 @@
 */
 
 #endregion
+
 using System;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -75,15 +73,17 @@ namespace Presentation.SkinEngine.Controls.Brushes
     }
     void Init()
     {
-      _startPointProperty = new Property(new Vector2(0.0f, 0.0f));
-      _endPointProperty = new Property(new Vector2(1.0f, 1.0f));
+      _startPointProperty = new Property(typeof(Vector2), new Vector2(0.0f, 0.0f));
+      _endPointProperty = new Property(typeof(Vector2), new Vector2(1.0f, 1.0f));
       _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public override object Clone()
     {
-      return new LinearGradientBrush(this);
+      LinearGradientBrush result = new LinearGradientBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>
@@ -177,7 +177,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
         _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
         if (_brushTexture == null)
         {
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
+          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         }
         if (_cacheTexture != null)
         {
@@ -222,7 +222,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
           SetColor(vertexBuffer);
@@ -405,7 +405,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
             break;
           }
         }
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
           //SetColor(vertexBuffer);
@@ -564,7 +564,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
           break;
         }
       }
-      _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush, "LinearGradientBrush." + this.Name);
+      _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
       if (_singleColor)
       {
         ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);

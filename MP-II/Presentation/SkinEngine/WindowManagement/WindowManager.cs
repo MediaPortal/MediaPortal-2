@@ -1,5 +1,4 @@
-﻿#define TESTXAML
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,23 +23,17 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 
-using Presentation.SkinEngine.Skin;
+using Presentation.SkinEngine.Loader;
 
 namespace Presentation.SkinEngine
 {
@@ -74,7 +67,7 @@ namespace Presentation.SkinEngine
     private List<Window> _windows;
     private Window _currentWindow;
     private Window _currentDialog;
-    private Window _previousWindow = null;
+    private Window _previousWindow = null; // FIXME Albert78: Remove this reference - not needed
     private List<Window> _history = new List<Window>();
     public Utils _utils = new Utils();
 
@@ -330,14 +323,23 @@ namespace Presentation.SkinEngine
           }
         }
         Window win = new Window(windowName);
-        XamlLoader loader = new XamlLoader();
-        UIElement root = loader.Load(windowName + ".xaml") as UIElement;
-        if (root == null) return null;
-        win.Visual = root;
-        // Don't show window here.
-        // That is done at the appriopriate time by all methods calling this one.
-        // Calling show here will result in the model loading its data twice.
-        _windows.Add(win);
+        try
+        {
+          XamlLoader loader = new XamlLoader();
+          UIElement root = loader.Load(windowName + ".xaml") as UIElement;
+          if (root == null) return null;
+          win.Visual = root;
+          // Don't show window here.
+          // That is done at the appriopriate time by all methods calling this one.
+          // Calling show here will result in the model loading its data twice.
+          _windows.Add(win);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("XamlLoader: Error loading skin file for window '{0}'", ex, windowName);
+          // TODO Albert78: Show error dialog with skin loading message
+          return null;
+        }
         return win;
       }
       finally
@@ -417,6 +419,8 @@ namespace Presentation.SkinEngine
         }
         _currentWindow = GetWindow(name);
       }
+      if (_currentWindow == null)
+        return;
       _currentWindow.WindowState = Window.State.Running;
       _currentWindow.AttachInput();
       _currentWindow.Show();

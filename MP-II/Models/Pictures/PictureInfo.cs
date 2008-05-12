@@ -67,21 +67,21 @@ namespace Models.Pictures
     /// <param name="tag"></param>
     public PictureInfo()
     {
-      m_CameraModel = new Property("");
-      m_EquipmentMake = new Property("");
-      m_ExposureCompensation = new Property("");
-      m_ExposureTime = new Property("");
-      m_Flash = new Property("");
-      m_ImgTitle = new Property("");
-      m_MeteringMod = new Property("");
-      m_Fstop = new Property("");
-      m_ImgDimensions = new Property("");
-      m_ShutterSpeed = new Property("");
-      m_Resolutions = new Property("");
-      m_ViewComment = new Property("");
-      m_Date = new Property("");
-      m_AbsolutePath = new Property("");
-      m_Tags = new Property("");
+      m_CameraModel = new Property(typeof(string), "");
+      m_EquipmentMake = new Property(typeof(string), "");
+      m_ExposureCompensation = new Property(typeof(string), "");
+      m_ExposureTime = new Property(typeof(string), "");
+      m_Flash = new Property(typeof(string), "");
+      m_ImgTitle = new Property(typeof(string), "");
+      m_MeteringMod = new Property(typeof(string), "");
+      m_Fstop = new Property(typeof(string), "");
+      m_ImgDimensions = new Property(typeof(string), "");
+      m_ShutterSpeed = new Property(typeof(string), "");
+      m_Resolutions = new Property(typeof(string), "");
+      m_ViewComment = new Property(typeof(string), "");
+      m_Date = new Property(typeof(string), "");
+      m_AbsolutePath = new Property(typeof(string), "");
+      m_Tags = new Property(typeof(string), "");
       //ServiceScope.Get<ISettingsManager>().Load(settings);
 
     }
@@ -96,21 +96,21 @@ namespace Models.Pictures
     /// </summary>
     public void Clear()
     {
-      m_CameraModel = new Property("");
-      m_EquipmentMake = new Property("");
-      m_ExposureCompensation = new Property("");
-      m_ExposureTime = new Property("");
-      m_Flash = new Property("");
-      m_ImgTitle = new Property("");
-      m_MeteringMod = new Property("");
-      m_Fstop = new Property("");
-      m_ImgDimensions = new Property("");
-      m_ShutterSpeed = new Property("");
-      m_Resolutions = new Property("");
-      m_ViewComment = new Property("");
-      m_Date = new Property("");
-      m_AbsolutePath = new Property("");
-      m_Tags = new Property("");
+      m_CameraModel = new Property(typeof(string), "");
+      m_EquipmentMake = new Property(typeof(string), "");
+      m_ExposureCompensation = new Property(typeof(string), "");
+      m_ExposureTime = new Property(typeof(string), "");
+      m_Flash = new Property(typeof(string), "");
+      m_ImgTitle = new Property(typeof(string), "");
+      m_MeteringMod = new Property(typeof(string), "");
+      m_Fstop = new Property(typeof(string), "");
+      m_ImgDimensions = new Property(typeof(string), "");
+      m_ShutterSpeed = new Property(typeof(string), "");
+      m_Resolutions = new Property(typeof(string), "");
+      m_ViewComment = new Property(typeof(string), "");
+      m_Date = new Property(typeof(string), "");
+      m_AbsolutePath = new Property(typeof(string), "");
+      m_Tags = new Property(typeof(string), "");
     }
 
     #endregion

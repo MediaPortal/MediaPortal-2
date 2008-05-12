@@ -53,12 +53,12 @@ namespace Presentation.SkinEngine.Players
     public Settings()
     {
 
-      _propertyIsDigital = new Property(false);
-      _propertyIsAnalog = new Property(false);
-      _propertyIsBuildIn = new Property(false);
-      _propertyIsStereo = new Property(false);
-      _propertyIs51 = new Property(false);
-      _propertyIs71 = new Property(false);
+      _propertyIsDigital = new Property(typeof(bool), false);
+      _propertyIsAnalog = new Property(typeof(bool), false);
+      _propertyIsBuildIn = new Property(typeof(bool), false);
+      _propertyIsStereo = new Property(typeof(bool), false);
+      _propertyIs51 = new Property(typeof(bool), false);
+      _propertyIs71 = new Property(typeof(bool), false);
 
 
       _audioSettings = new AudioSettings();

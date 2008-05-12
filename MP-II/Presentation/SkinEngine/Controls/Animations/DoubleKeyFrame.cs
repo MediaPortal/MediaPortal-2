@@ -19,115 +19,60 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
-using SlimDX;
-using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class DoubleKeyFrame : IKeyFrame, ICloneable
+  public class DoubleKeyFrame : KeyFrameBase, IKeyFrame
   {
-    Property _keyTimeProperty;
     Property _keyValueProperty;
 
     #region ctor
-    public DoubleKeyFrame()
+    public DoubleKeyFrame(): base()
     {
       Init();
     }
 
-    public DoubleKeyFrame(DoubleKeyFrame k)
+    public DoubleKeyFrame(DoubleKeyFrame k): base(k)
     {
       Init();
-      KeyTime = k.KeyTime;
       Value = k.Value;
     }
 
     void Init()
     {
-      _keyTimeProperty = new Property(new TimeSpan(0, 0, 0));
-      _keyValueProperty = new Property(0);
+      _keyValueProperty = new Property(typeof(double), 0.0);
     }
 
-
-    public virtual object Clone()
-    {
-      return new DoubleKeyFrame(this);
-    }
     #endregion
 
-    #region properties
-
-    public Property KeyTimeProperty
-    {
-      get
-      {
-        return _keyTimeProperty;
-      }
-      set
-      {
-        _keyTimeProperty = value;
-      }
-    }
-
-    public TimeSpan KeyTime
-    {
-      get
-      {
-        return (TimeSpan)_keyTimeProperty.GetValue();
-      }
-      set
-      {
-        _keyTimeProperty.SetValue(value);
-      }
-    }
-
+    #region Properties
 
     public Property ValueProperty
     {
-      get
-      {
-        return _keyValueProperty;
-      }
-      set
-      {
-        _keyValueProperty = value;
-      }
+      get { return _keyValueProperty; }
     }
+
     public double Value
     {
-      get
-      {
-        return (double)_keyValueProperty.GetValue();
-      }
-      set
-      {
-        _keyValueProperty.SetValue(value);
-      }
+      get { return (double)_keyValueProperty.GetValue(); }
+      set { _keyValueProperty.SetValue(value); }
     }
 
     object IKeyFrame.Value
     {
-      get
-      {
-        return this.Value;
-      }
-      set
-      {
-        this.Value = (double)value;
-      }
+      get { return this.Value; }
+      set { this.Value = (double)value; }
     }
+
+    #endregion
 
     public virtual double Interpolate(double start, double keyframe)
     {
       return 0;
     }
-    #endregion
-
-
   }
 }

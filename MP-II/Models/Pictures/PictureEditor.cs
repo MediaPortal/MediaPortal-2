@@ -52,8 +52,8 @@ namespace Models.Pictures
     public PictureEditor(SlideShow slideShow)
     {
       _slideShow = slideShow;
-      _currentPicture = new Property("");
-      _croppingEnabled = new Property(false);
+      _currentPicture = new Property(typeof(string), "");
+      _croppingEnabled = new Property(typeof(bool), false);
     }
 
     #region properties

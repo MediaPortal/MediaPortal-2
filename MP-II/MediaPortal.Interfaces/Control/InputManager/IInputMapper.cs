@@ -22,7 +22,7 @@
 
 #endregion
 
-﻿using System.Windows.Forms;
+using System.Windows.Forms;
 
 namespace MediaPortal.Control.InputManager
 {

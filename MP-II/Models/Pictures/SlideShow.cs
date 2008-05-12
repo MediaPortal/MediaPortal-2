@@ -69,18 +69,18 @@ namespace Models.Pictures
     /// </summary>
     public SlideShow(ref ItemsCollection pictures)
     {
-      _pausedProperty = new Property(false);
+      _pausedProperty = new Property(typeof(bool), false);
       _pictures = pictures;
       _slideShowTimer = new Timer();
       _slideShowTimer.Interval = 3000;
       _slideShowTimer.Elapsed += _slideShowTimer_Elapsed;
-      _currentPicture = new Property("");
-      _previousPicture = new Property("");
-      _currentPictureUri = new Property("");
-      _currentTitle = new Property("");
-      _currentPictureVisible = new Property(true);
-      _previousPictureVisible = new Property(true);
-      _info = new Property(new PictureInfo());
+      _currentPicture = new Property(typeof(string), "");
+      _previousPicture = new Property(typeof(string), "");
+      _currentPictureUri = new Property(typeof(string), "");
+      _currentTitle = new Property(typeof(string), "");
+      _currentPictureVisible = new Property(typeof(bool), true);
+      _previousPictureVisible = new Property(typeof(bool), true);
+      _info = new Property(typeof(PictureInfo), new PictureInfo());
       PictureIndex = 0;
       IsPaused = false;
     }

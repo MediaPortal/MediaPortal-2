@@ -78,11 +78,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _alignmentXProperty = new Property(AlignmentX.Center);
-      _alignmentYProperty = new Property(AlignmentY.Center);
-      _stretchProperty = new Property(Stretch.Fill);
-      _tileModeProperty = new Property(TileMode.None);
-      _viewPortProperty = new Property(new Vector4(0, 0, 1, 1));
+      _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
+      _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Center);
+      _stretchProperty = new Property(typeof(Stretch), Stretch.Fill);
+      _tileModeProperty = new Property(typeof(TileMode), TileMode.None);
+      _viewPortProperty = new Property(typeof(Vector4), new Vector4(0, 0, 1, 1));
 
       _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));

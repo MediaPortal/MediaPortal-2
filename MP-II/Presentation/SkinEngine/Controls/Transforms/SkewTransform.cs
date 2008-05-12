@@ -21,12 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class SkewTransform : Transform
@@ -53,19 +52,22 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
     void Init()
     {
-      _centerYProperty = new Property((double)0.0);
-      _centerXProperty = new Property((double)0.0);
-      _angleXProperty = new Property((double)0.0);
-      _angleYProperty = new Property((double)0.0);
+      _centerYProperty = new Property(typeof(double), 0.0);
+      _centerXProperty = new Property(typeof(double), 0.0);
+      _angleXProperty = new Property(typeof(double), 0.0);
+      _angleYProperty = new Property(typeof(double), 0.0);
 
-      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _angleXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _angleYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerYProperty.Attach(OnPropertyChanged);
+      _centerXProperty.Attach(OnPropertyChanged);
+      _angleXProperty.Attach(OnPropertyChanged);
+      _angleYProperty.Attach(OnPropertyChanged);
     }
+
     public override object Clone()
     {
-      return new SkewTransform(this);
+      SkewTransform result = new SkewTransform(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     protected void OnPropertyChanged(Property property)
@@ -137,9 +139,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
         _centerYProperty.SetValue(value);
       }
     }
-
-
-
 
     /// <summary>
     /// Gets or sets the angle X property.

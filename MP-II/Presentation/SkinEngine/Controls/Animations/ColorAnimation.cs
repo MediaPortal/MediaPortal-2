@@ -20,26 +20,21 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
 
+using System.Drawing;
+using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
+
   public class ColorAnimation : Timeline
   {
     Property _fromProperty;
     Property _toProperty;
     Property _byProperty;
-    Property _targetProperty;
-    Property _targetNameProperty;
 
-    #region ctor
+    #region Ctor
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
     /// </summary>
@@ -55,25 +50,24 @@ namespace Presentation.SkinEngine.Controls.Animations
       From = a.From;
       To = a.To;
       By = a.By;
-      TargetProperty = a.TargetProperty;
-      TargetName = a.TargetName;
     }
 
     public override object Clone()
     {
-      return new ColorAnimation(this);
+      ColorAnimation result = new ColorAnimation(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
+
     void Init()
     {
-      _targetProperty = new Property("");
-      _targetNameProperty = new Property("");
-      _fromProperty = new Property(Color.Black);
-      _toProperty = new Property(Color.White);
-      _byProperty = new Property(Color.Beige);
+      _fromProperty = new Property(typeof(Color), Color.Black);
+      _toProperty = new Property(typeof(Color), Color.White);
+      _byProperty = new Property(typeof(Color), Color.Beige);
     }
     #endregion
 
-    #region properties
+    #region Public properties
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -171,77 +165,17 @@ namespace Presentation.SkinEngine.Controls.Animations
       }
     }
 
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public Property TargetPropertyProperty
-    {
-      get
-      {
-        return _targetProperty;
-      }
-      set
-      {
-        _targetProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public string TargetProperty
-    {
-      get
-      {
-        return _targetProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
-    public Property TargetNameProperty
-    {
-      get
-      {
-        return _targetNameProperty;
-      }
-      set
-      {
-        _targetNameProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public string TargetName
-    {
-      get
-      {
-        return _targetNameProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetNameProperty.SetValue(value);
-      }
-    }
-
     #endregion
 
-    #region animation methods
+    #region Animation methods
+
     /// <summary>
     /// Animates the property.
     /// </summary>
     /// <param name="timepassed">The timepassed.</param>
     protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (context.Property == null) return;
+      if (context.DataDescriptor == null) return;
       Color c;
       double distA = ((double)(To.A - From.A)) / Duration.TotalMilliseconds;
       distA *= timepassed;
@@ -261,30 +195,20 @@ namespace Presentation.SkinEngine.Controls.Animations
 
       c = Color.FromArgb((int)distA, (int)distR, (int)distG, (int)distB);
 
-      context.Property.SetValue(c);
+      context.DataDescriptor.Value = c;
     }
 
-    public override void Ended(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      if (context.Property != null)
-      {
-        if (FillBehaviour != FillBehaviour.HoldEnd)
-        {
-          context.Property.SetValue(OriginalValue);
-        }
-      }
-    }
     public override void Stop(AnimationContext context)
     {
       if (IsStopped(context)) return;
       context.State = State.Idle;
-      if (context.Property != null)
+      if (context.DataDescriptor != null)
       {
-        context.Property.SetValue(OriginalValue);
+        context.DataDescriptor.Value = OriginalValue;
 
       }
     }
+
     public override void Start(AnimationContext context, uint timePassed)
     {
       if (!IsStopped(context))
@@ -297,19 +221,8 @@ namespace Presentation.SkinEngine.Controls.Animations
       context.State = State.WaitBegin;
     }
 
-    public override void Setup(AnimationContext context)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty);
-    }
     #endregion
 
-    public override void Initialize(UIElement element)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      Property prop = GetProperty(element, TargetName, TargetProperty);
-      OriginalValue = prop.GetValue();
-    }
   }
 }
 

@@ -21,20 +21,14 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using MyXaml.Core;
+
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class BrushTexture : ITextureAsset

@@ -21,22 +21,25 @@
 */
 
 #endregion
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
+
 using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Rendering;
-using RectangleF = System.Drawing.RectangleF;
+using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Canvas : Panel
   {
+    protected const string LEFT_ATTACHED_PROPERTY = "Canvas.Left";
+    protected const string RIGHT_ATTACHED_PROPERTY = "Canvas.Right";
+    protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
+    protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
+
     public Canvas()
     {
     }
+    
     public Canvas(Canvas v)
       : base(v)
     {
@@ -44,8 +47,11 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override object Clone()
     {
-      return new Canvas(this);
+      Canvas result = new Canvas(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
+
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -118,7 +124,8 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
-        PointF p = new PointF((child.Position.X * SkinContext.Zoom.Width), (child.Position.Y * SkinContext.Zoom.Height));
+        PointF p = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
+          ((float) GetTop(child) * SkinContext.Zoom.Height));
         SkinContext.FinalLayoutTransform.TransformPoint(ref p);
         p.X += (float)this.ActualPosition.X;
         p.Y += (float)this.ActualPosition.Y;
@@ -143,5 +150,160 @@ namespace Presentation.SkinEngine.Controls.Panels
       base.Arrange(layoutRect);
     }
 
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>Left</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Left</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetLeft(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(LEFT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Left</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Left</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetLeft(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(LEFT_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Left</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Left</c> property.</returns>
+    public static Property GetLeftAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(LEFT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Right</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Right</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetRight(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Right</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Right</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetRight(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(RIGHT_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Right</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Right</c> property.</returns>
+    public static Property GetRightAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Top</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Top</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetTop(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(TOP_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Top</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Top</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetTop(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(TOP_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Top</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Top</c> property.</returns>
+    public static Property GetTopAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(TOP_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Getter method for the attached property <c>Bottom</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>Bottom</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetBottom(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>Bottom</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>Bottom</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetBottom(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(BOTTOM_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>Bottom</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>Bottom</c> property.</returns>
+    public static Property GetBottomAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
+    }
+
+    #endregion
   }
 }

@@ -21,22 +21,19 @@
 */
 
 #endregion
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class InvokeCommand : TriggerAction, IBindingCollection
+
+  public class InvokeCommand : TriggerAction
   {
     Property _commandParameter;
     Command _command;
-    BindingCollection _bindings;
     public InvokeCommand()
     {
       Init();
@@ -48,23 +45,19 @@ namespace Presentation.SkinEngine.Controls.Bindings
       Init();
       Command = c.Command;
       CommandParameter = c._commandParameter;
-
-      foreach (Binding binding in c._bindings)
-      {
-        _bindings.Add((Binding)binding.Clone());
-      }
-
     }
-    public object Clone()
+
+    public override object Clone()
     {
-      return new InvokeCommand(this);
+      InvokeCommand result = new InvokeCommand(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _commandParameter = new Property(null);
+      _commandParameter = new Property(typeof(object), null);
       _command = null;
-      _bindings = new BindingCollection();
     }
     /// <summary>
     /// Gets or sets the command.
@@ -115,26 +108,9 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
     public void Execute(UIElement element)
     {
-      InitializeBindings(element);
       if (Command != null)
       {
         Command.Execute(CommandParameter, false);
-      }
-    }
-
-    #region IBindingCollection Members
-
-    public void Add(Binding binding)
-    {
-      _bindings.Add(binding);
-    }
-
-    public virtual void InitializeBindings(UIElement element)
-    {
-      if (_bindings.Count == 0) return;
-      foreach (Binding binding in _bindings)
-      {
-        binding.Initialize(this, element);
       }
     }
 
@@ -142,7 +118,5 @@ namespace Presentation.SkinEngine.Controls.Bindings
     {
       Execute(element);
     }
-
-    #endregion
   }
 }

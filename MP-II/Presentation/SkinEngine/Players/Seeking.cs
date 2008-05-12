@@ -60,7 +60,7 @@ namespace Presentation.SkinEngine.Players
     private StringId _hoursLabel = new StringId("system", "2");
     private StringId _minsLabel = new StringId("system", "3");
     private StringId _secsLabel = new StringId("system", "4");
-    private Property _seekTime = new Property("");
+    private Property _seekTime = new Property(typeof(string), "");
 
     #endregion
 

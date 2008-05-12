@@ -100,6 +100,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _elements = new List<GradientStop>();
       _handler = new PropertyChangedHandler(OnStopChanged);
     }
+
     public virtual object Clone()
     {
       return new GradientStopCollection(this);

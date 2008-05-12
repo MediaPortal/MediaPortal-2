@@ -20,24 +20,20 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
+
 using System.Drawing;
-using System.Text;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class ColorAnimationUsingKeyFrames : Timeline, IAddChild
   {
     Property _keyFramesProperty;
-    Property _targetProperty;
-    Property _targetNameProperty;
 
-    #region ctor
+    #region Ctor
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
     /// </summary>
@@ -50,8 +46,6 @@ namespace Presentation.SkinEngine.Controls.Animations
       : base(a)
     {
       Init();
-      TargetProperty = a.TargetProperty;
-      TargetName = a.TargetName;
       //foreach (ColorKeyFrame k in a.KeyFrames)
       //{
       //  KeyFrames.Add((ColorKeyFrame)k.Clone());
@@ -61,78 +55,19 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public override object Clone()
     {
-      return new ColorAnimationUsingKeyFrames(this);
+      ColorAnimationUsingKeyFrames result = new ColorAnimationUsingKeyFrames(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _targetProperty = new Property("");
-      _targetNameProperty = new Property("");
-      _keyFramesProperty = new Property(new ColorKeyFrameCollection());
+      _keyFramesProperty = new Property(typeof(ColorKeyFrameCollection), new ColorKeyFrameCollection());
     }
+
     #endregion
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public Property TargetPropertyProperty
-    {
-      get
-      {
-        return _targetProperty;
-      }
-      set
-      {
-        _targetProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public string TargetProperty
-    {
-      get
-      {
-        return _targetProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
-    public Property TargetNameProperty
-    {
-      get
-      {
-        return _targetNameProperty;
-      }
-      set
-      {
-        _targetNameProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public string TargetName
-    {
-      get
-      {
-        return _targetNameProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetNameProperty.SetValue(value);
-      }
-    }
+    #region Public properties
 
     /// <summary>
     /// Gets or sets the target name property.
@@ -163,14 +98,15 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
-    #region animation methods
+    #region Animation methods
+
     /// <summary>
     /// Animates the property.
     /// </summary>
     /// <param name="timepassed">The timepassed.</param>
     protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (context.Property == null) return;
+      if (context.DataDescriptor == null) return;
       double time = 0;
       Color start = Color.Black;
       for (int i = 0; i < KeyFrames.Count; ++i)
@@ -181,13 +117,13 @@ namespace Presentation.SkinEngine.Controls.Animations
           double progress = (timepassed - time);
           if (progress == 0)
           {
-            context.Property.SetValue(key.Value);
+            context.DataDescriptor.Value = key.Value;
           }
           else
           {
             progress /= (key.KeyTime.TotalMilliseconds - time);
             Color result = key.Interpolate(start, progress);
-            context.Property.SetValue(result);
+            context.DataDescriptor.Value = result;
           }
           return;
         }
@@ -199,24 +135,13 @@ namespace Presentation.SkinEngine.Controls.Animations
       }
     }
 
-    public override void Ended(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      if (context.Property != null)
-      {
-        if (FillBehaviour != FillBehaviour.HoldEnd)
-        {
-          context.Property.SetValue(OriginalValue);
-        }
-      }
-    }
     public override void Stop(AnimationContext context)
     {
       if (IsStopped(context)) return;
       context.State = State.Idle;
-      if (context.Property != null)
+      if (context.DataDescriptor != null)
       {
-        context.Property.SetValue(OriginalValue);
+        context.DataDescriptor.Value = OriginalValue;
 
       }
     }
@@ -240,19 +165,6 @@ namespace Presentation.SkinEngine.Controls.Animations
       context.State = State.WaitBegin;
     }
 
-    public override void Setup(AnimationContext context)
-    {
-      context.Property = null;
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty); 
-    }
-
-    public override void Initialize(UIElement element)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      Property prop = GetProperty(element, TargetName, TargetProperty);
-      OriginalValue = prop.GetValue();
-    }
     #endregion
 
     #region IAddChild Members

@@ -19,111 +19,62 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using System.Drawing;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class ColorKeyFrame : IKeyFrame, ICloneable
+  public class ColorKeyFrame : KeyFrameBase, IKeyFrame
   {
-    Property _keyTimeProperty;
     Property _keyValueProperty;
 
-    #region ctor
-    public ColorKeyFrame()
+    #region Ctor
+
+    public ColorKeyFrame(): base()
     {
       Init();
     }
 
-    public ColorKeyFrame(ColorKeyFrame k)
+    public ColorKeyFrame(ColorKeyFrame k): base(k)
     {
       Init();
-      KeyTime = k.KeyTime;
       Value = k.Value;
     }
 
     void Init()
     {
-      _keyTimeProperty = new Property(new TimeSpan(0, 0, 0));
-      _keyValueProperty = new Property(Color.White);
+      _keyValueProperty = new Property(typeof(Color), Color.White);
     }
 
-
-    public virtual object Clone()
-    {
-      return new ColorKeyFrame(this);
-    }
     #endregion
 
     #region properties
-    public Property KeyTimeProperty
-    {
-      get
-      {
-        return _keyTimeProperty;
-      }
-      set
-      {
-        _keyTimeProperty = value;
-      }
-    }
-
-    public TimeSpan KeyTime
-    {
-      get
-      {
-        return (TimeSpan)_keyTimeProperty.GetValue();
-      }
-      set
-      {
-        _keyTimeProperty.SetValue(value);
-      }
-    }
-
 
     public Property ValueProperty
     {
-      get
-      {
-        return _keyValueProperty;
-      }
-      set
-      {
-        _keyValueProperty = value;
-      }
+      get { return _keyValueProperty; }
     }
+
     public Color Value
     {
-      get
-      {
-        return (Color)_keyValueProperty.GetValue();
-      }
-      set
-      {
-        _keyValueProperty.SetValue(value);
-      }
+      get { return (Color)_keyValueProperty.GetValue(); }
+      set { _keyValueProperty.SetValue(value); }
     }
 
     object IKeyFrame.Value
     {
-      get
-      {
-        return this.Value;
-      }
-      set
-      {
-        this.Value = (Color)value;
-      }
+      get { return this.Value; }
+      set { this.Value = (Color)value; }
     }
+
+    #endregion
 
     public virtual Color Interpolate(Color start, double keyframe)
     {
       return start;
     }
-    #endregion
   }
 }

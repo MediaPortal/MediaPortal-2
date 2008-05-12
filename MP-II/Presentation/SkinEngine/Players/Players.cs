@@ -24,8 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Globalization;
 using System.Windows.Forms;
 using System.Diagnostics; // for 'FileVersionInfo'
 using Microsoft.Win32; // for 'RegistryKey'
@@ -33,11 +31,8 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
-using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 
@@ -72,16 +67,16 @@ namespace Presentation.SkinEngine.Players
     {
 
       IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
-      queue.OnMessageReceive += new MessageReceivedHandler(OnInternalPlayerMessageReceived);
+      queue.OnMessageReceive += OnInternalPlayerMessageReceived;
       _osdProperties = new OsdProperties(this);
-      _videoPaused = new Property("Players.VideoPaused", false);
-      _videoPlaying = new Property("Players.VideoPlaying", false);
+      _videoPaused = new Property(typeof(bool), false);
+      _videoPlaying = new Property(typeof(bool), false);
       _players = new List<IPlayer>();
-      _muted = new Property(false);
-      _activePlayersProperty = new Property(0);
+      _muted = new Property(typeof(bool), false);
+      _activePlayersProperty = new Property(typeof(int), 0);
 
 
-      Application.Idle += new EventHandler(OnIdle);
+      Application.Idle += OnIdle;
       _seeking = new Seeking();
 
       IWindowManager mgr = ServiceScope.Get<IWindowManager>();

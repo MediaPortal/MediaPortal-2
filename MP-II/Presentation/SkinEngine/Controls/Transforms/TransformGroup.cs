@@ -21,14 +21,12 @@
 */
 
 #endregion
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TransformGroup : Transform, IAddChild
@@ -53,14 +51,16 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
     void Init()
     {
-      _childrenProperty = new Property(new TransformCollection());
-      _childrenProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      Children.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _childrenProperty = new Property(typeof(TransformCollection), new TransformCollection());
+      _childrenProperty.Attach(OnPropertyChanged);
+      Children.Attach(OnPropertyChanged);
     }
 
     public override object Clone()
     {
-      return new TransformGroup(this);
+      TransformGroup result = new TransformGroup(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     protected void OnPropertyChanged(Property property)
@@ -124,7 +124,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
         _matrixRel *= m;
       }
     }
-
 
     #region IAddChild Members
 

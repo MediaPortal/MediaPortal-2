@@ -28,10 +28,11 @@ using System.Reflection;
 using System.Text;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
+
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class CommandGroup : List<InvokeCommand>, IAddChild
+  public class CommandGroup : List<InvokeCommand>, IAddChild, ICloneable
   {
     public CommandGroup()
     {

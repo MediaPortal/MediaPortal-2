@@ -19,22 +19,20 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class PointKeyFrame : IKeyFrame, ICloneable
+  public class PointKeyFrame : KeyFrameBase, IKeyFrame
   {
-    Property _keyTimeProperty;
     Property _keyValueProperty;
 
-    #region ctor
+    #region Ctor
+
     public PointKeyFrame()
     {
       Init();
@@ -43,88 +41,40 @@ namespace Presentation.SkinEngine.Controls.Animations
     public PointKeyFrame(PointKeyFrame k)
     {
       Init();
-      KeyTime = k.KeyTime;
       Value = k.Value;
     }
 
     void Init()
     {
-      _keyTimeProperty = new Property(new TimeSpan(0, 0, 0));
-      _keyValueProperty = new Property(new Vector2(0, 0));
+      _keyValueProperty = new Property(typeof(Vector2), new Vector2(0, 0));
     }
 
-
-    public virtual object Clone()
-    {
-      return new PointKeyFrame(this);
-    }
     #endregion
 
-    #region properties
-    public Property KeyTimeProperty
-    {
-      get
-      {
-        return _keyTimeProperty;
-      }
-      set
-      {
-        _keyTimeProperty = value;
-      }
-    }
-
-    public TimeSpan KeyTime
-    {
-      get
-      {
-        return (TimeSpan)_keyTimeProperty.GetValue();
-      }
-      set
-      {
-        _keyTimeProperty.SetValue(value);
-      }
-    }
-
+    #region Properties
 
     public Property ValueProperty
     {
-      get
-      {
-        return _keyValueProperty;
-      }
-      set
-      {
-        _keyValueProperty = value;
-      }
+      get { return _keyValueProperty; }
     }
+
     public Vector2 Value
     {
-      get
-      {
-        return (Vector2)_keyValueProperty.GetValue();
-      }
-      set
-      {
-        _keyValueProperty.SetValue(value);
-      }
+      get { return (Vector2)_keyValueProperty.GetValue(); }
+      set { _keyValueProperty.SetValue(value); }
     }
 
     object IKeyFrame.Value
     {
-      get
-      {
-        return this.Value;
-      }
-      set
-      {
-        this.Value = (Vector2)value;
-      }
+      get { return this.Value; }
+      set { this.Value = (Vector2) value; }
     }
+
+    #endregion
 
     public virtual Vector2 Interpolate(Vector2 start, double keyframe)
     {
       return start;
     }
-    #endregion
   }
 }

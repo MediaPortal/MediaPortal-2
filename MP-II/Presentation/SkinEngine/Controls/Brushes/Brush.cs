@@ -23,19 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
-
 using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Controls.Brushes
@@ -54,7 +48,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
     Property _opacityProperty;
     Property _relativeTransformProperty;
     Transform _transformProperty;
-    Property _keyProperty;
     Property _freezableProperty;
     bool _isOpacity;
     protected System.Drawing.RectangleF _bounds;
@@ -64,15 +57,14 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// <summary>
     /// Initializes a new instance of the <see cref="Brush"/> class.
     /// </summary>
-    public Brush()
+    public Brush(): base(null)
     {
       Init();
     }
 
-    public Brush(Brush b)
+    public Brush(Brush b): base(null)
     {
       Init();
-      Key = b.Key;
       Opacity = b.Opacity;
       RelativeTransform = (TransformGroup)b.RelativeTransform.Clone();
       if (Transform != null)
@@ -83,12 +75,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
     void Init()
     {
       _isOpacity = false;
-      _keyProperty = new Property("");
-      _opacityProperty = new Property((double)1.0f);
-      _relativeTransformProperty = new Property(new TransformGroup());
+      _opacityProperty = new Property(typeof(double), 1.0);
+      _relativeTransformProperty = new Property(typeof(TransformGroup), new TransformGroup());
       _transformProperty = null;
-      _opacityProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _freezableProperty = new Property(false);
+      _opacityProperty.Attach(OnPropertyChanged);
+      _freezableProperty = new Property(typeof(bool), false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
       _orginalPosition = new System.Drawing.PointF(0, 0);
     }
@@ -148,37 +139,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Gets or sets the key property.
-    /// </summary>
-    /// <value>The key property.</value>
-    public Property KeyProperty
-    {
-      get
-      {
-        return _keyProperty;
-      }
-      set
-      {
-        _keyProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the key.
-    /// </summary>
-    /// <value>The key.</value>
-    public string Key
-    {
-      get
-      {
-        return _keyProperty.GetValue() as string;
-      }
-      set
-      {
-        _keyProperty.SetValue(value);
-      }
-    }
     /// <summary>
     /// Gets or sets the opacity property.
     /// </summary>

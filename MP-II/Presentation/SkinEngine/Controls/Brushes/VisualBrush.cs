@@ -21,23 +21,20 @@
 */
 
 #endregion
-using System;
+
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.DirectX;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
-  public class VisualBrush : TileBrush, IBindingCollection
+  public class VisualBrush : TileBrush
   {
-    BindingCollection _bindings;
     Property _visualProperty;
     EffectAsset _effect;
     Texture _textureOpacity;
@@ -53,21 +50,19 @@ namespace Presentation.SkinEngine.Controls.Brushes
       : base(b)
     {
       Init();
-      foreach (Binding binding in b._bindings)
-      {
-        _bindings.Add((Binding)binding.Clone());
-      }
       Visual = b.Visual;
     }
     void Init()
     {
-      _visualProperty = new Property(null);
-      _bindings = new BindingCollection();
+      _visualProperty = new Property(typeof(FrameworkElement), null);
       _effect = ContentManager.GetEffect("normal");
     }
+
     public override object Clone()
     {
-      return new VisualBrush(this);
+      VisualBrush result = new VisualBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>
@@ -105,7 +100,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       UpdateBounds(element, ref verts);
       base.SetupBrush(element, ref verts);
-      InitializeBindings();
       _textureOpacity = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
     }
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
@@ -207,24 +201,5 @@ namespace Presentation.SkinEngine.Controls.Brushes
         }
       }
     }
-
-    #region IBindingCollection Members
-
-
-    public void Add(Binding binding)
-    {
-      _bindings.Add(binding);
-    }
-
-
-    public virtual void InitializeBindings()
-    {
-      if (_bindings.Count == 0) return;
-      foreach (Binding binding in _bindings)
-      {
-        binding.Initialize(this);
-      }
-    }
-    #endregion
   }
 }

@@ -9,10 +9,10 @@ namespace Presentation.SkinEngine
   public class Utils
   {
 
-    Property _currentTimeProperty = new Property(DateTime.Now.ToShortTimeString());
-    Property _hourAngleProperty = new Property(0.0);
-    Property _minuteAngleProperty = new Property(0.0);
-    Property _zoomProperty = new Property(new SizeF(1, 1));
+    Property _currentTimeProperty = new Property(typeof(string), DateTime.Now.ToShortTimeString());
+    Property _hourAngleProperty = new Property(typeof(double), 0.0);
+    Property _minuteAngleProperty = new Property(typeof(double), 0.0);
+    Property _zoomProperty = new Property(typeof(SizeF), new SizeF(1, 1));
 
     public Utils()
     {

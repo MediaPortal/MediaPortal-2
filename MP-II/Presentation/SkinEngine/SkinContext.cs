@@ -27,10 +27,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
 using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.Players.Geometry;
-using Presentation.SkinEngine.Skin;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
@@ -67,8 +65,8 @@ namespace Presentation.SkinEngine
     private static CropSettings _cropSettings = new CropSettings();
     public static DateTime _now;
     public static bool HandlingInput;
-    private static Property _mouseUsedProperty = new Property(false);
-    private static Property _timeProperty = new Property(DateTime.Now);
+    private static Property _mouseUsedProperty = new Property(typeof(bool), false);
+    private static Property _timeProperty = new Property(typeof(DateTime), DateTime.Now);
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
     public static uint TimePassed;

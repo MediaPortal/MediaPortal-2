@@ -28,35 +28,52 @@ namespace MediaPortal.Presentation.Properties
 {
   public delegate void PropertyChangedHandler(Property property);
 
+  /// <summary>
+  /// Represents a typed property which can have a value. Changes on the value
+  /// of this property can be tracked by adding a <see cref="PropertyChangedHandler"/>
+  /// to it.
+  /// </summary>
   public class Property
   {
     private event PropertyChangedHandler PropertyChanged;
-    protected Object _object;
-    protected string _name;
+    protected object _value;
+    protected Type _type;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Property"/> class.
+    /// Initializes a new instance of the <see cref="Property"/> class
+    /// without a value.
     /// </summary>
-    public Property() { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Property"/> class.
-    /// </summary>
-    /// <param name="val">The property value</param>
-    public Property(object val)
+    /// <param name="type">The type of the property.</param>
+    public Property(Type type)
     {
-      _object = val;
+      _type = type;
+      _value = null;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Property"/> class.
+    /// Initializes a new instance of the <see cref="Property"/> class
+    /// with an initial value.
     /// </summary>
-    /// <param name="name">The property name.</param>
-    /// <param name="val">The property value</param>
-    public Property(string name, object val)
+    /// <param name="value">The property value.</param>
+    public Property(Type type, object value)
     {
-      _name = name;
-      _object = val;
+      _type = type;
+      _value = null;
+      SetValue(value);
+    }
+
+    public Type PropertyType
+    { get { return _type; } }
+
+    /// <summary>
+    /// Returns the information if this property has a value,
+    /// i.e. if <see cref="GetValue()"/> will return another value
+    /// than <c>null</c>.
+    /// </summary>
+    /// <returns>true, if this property has a value, else false.</returns>
+    public bool HasValue()
+    {
+      return _value != null;
     }
 
     /// <summary>
@@ -65,21 +82,24 @@ namespace MediaPortal.Presentation.Properties
     /// <returns></returns>
     public virtual object GetValue()
     {
-      return _object;
+      return _value;
     }
 
     /// <summary>
-    /// Sets the value of the property
+    /// Sets the value of the property.
     /// </summary>
     /// <param name="value">The value.</param>
     public void SetValue(object value)
     {
-      bool changed = true;
-      if (_object != null)
-        changed = !(_object.Equals(value));
-      else if (value == null)
-        changed = false;
-      _object = value;
+      bool changed;
+      if (value != null && _type != null && !_type.IsAssignableFrom(value.GetType()))
+        throw new InvalidCastException(
+          String.Format("Value '{0}' should be assigned to property with type '{1}'", value, _type.Name));
+      if (_value == null)
+        changed = value != null;
+      else
+        changed = !(_value.Equals(value));
+      _value = value;
       if (changed)
       {
         Fire();
@@ -107,6 +127,7 @@ namespace MediaPortal.Presentation.Properties
     {
       PropertyChanged = null;
     }
+
     /// <summary>
     /// Detaches the specified event handler.
     /// </summary>
@@ -114,16 +135,6 @@ namespace MediaPortal.Presentation.Properties
     public void Detach(PropertyChangedHandler handler)
     {
       PropertyChanged -= handler;
-    }
-
-    /// <summary>
-    /// Gets or sets the property name (usefull only for debugging)
-    /// </summary>
-    /// <value>The name.</value>
-    public string Name
-    {
-      get { return _name; }
-      set { _name = value; }
     }
   }
 }

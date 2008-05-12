@@ -1,28 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<MyXaml>
-  <Canvas xmlns:local="clr-namespace:Model;assembly=mymovies" History="False" FocusManager.FocusedElement="{Binding ElementName=mainMenu}">
-    <Canvas.Resources>
-      <ResourceDictionary Source="XamlStyle.xml"/>
-    </Canvas.Resources>
-    <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576"/>
-    <Canvas Width="720" Height="576">
-      <Canvas.Background>
-        <VideoBrush/>
-      </Canvas.Background>
-      <Canvas.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#2F000000" />
-          <GradientStop Offset="1.0" Color="#3F000000" />
-        </LinearGradientBrush>
-      </Canvas.OpacityMask>
-    </Canvas>
-    <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
-      <Label Font="font26"  Text="{Binding Players.OSD.Title}" HorizontalAlignment="Center"/>
-    </Grid>
-    <Image Canvas.Left="170" Canvas.Top="90"  Source="logo_stop.png" />
-    <Label Canvas.Left="240" Canvas.Top="100"  Font="font26"  Text="[playback.38]" Width="500"  Height="50" Color="#7FFFFFFF"/>
-    <Canvas Canvas.Left="240" Canvas.Top="170">
-    <ListView Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieEndedMenu}" />
-    </Canvas>
+<Canvas
+    xmlns="www.team-mediaportal.com/2008/mse/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance}"
+    FocusedElement="{Binding ElementName=mainMenu}"
+    History="False">
+  <Canvas.Resources>
+    <ResourceDictionary Source="XamlStyle.xml"/>
+  </Canvas.Resources>
+  <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576"/>
+  <Canvas Width="720" Height="576">
+    <Canvas.Background>
+      <VideoBrush/>
+    </Canvas.Background>
+    <Canvas.OpacityMask>
+      <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+        <GradientStop Offset="0.0" Color="#2F000000" />
+        <GradientStop Offset="1.0" Color="#3F000000" />
+      </LinearGradientBrush>
+    </Canvas.OpacityMask>
   </Canvas>
-</MyXaml>
+  <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
+    <Label Font="font26"  Text="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
+  </Grid>
+  <Image Canvas.Left="170" Canvas.Top="90"  Source="logo_stop.png" />
+  <Label Canvas.Left="240" Canvas.Top="100"  Font="font26"  Text="[playback.38]" Width="500"  Height="50" Color="#7FFFFFFF"/>
+  <Canvas Canvas.Left="240" Canvas.Top="170">
+  <ListView x:Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieEndedMenu}" />
+  </Canvas>
+</Canvas>

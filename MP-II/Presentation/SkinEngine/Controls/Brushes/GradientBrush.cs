@@ -32,7 +32,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
 namespace Presentation.SkinEngine.Controls.Brushes
 {
 
@@ -91,10 +91,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
     }
     void Init()
     {
-      _gradientStopsProperty = new Property(new GradientStopCollection(this));
-      _colorInterpolationModeProperty = new Property(ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
-      _spreadMethodProperty = new Property(GradientSpreadMethod.Pad);
-      _mappingModeProperty = new Property(BrushMappingMode.RelativeToBoundingBox);
+      _gradientStopsProperty = new Property(typeof(GradientStopCollection), new GradientStopCollection(this));
+      _colorInterpolationModeProperty = new Property(typeof(ColorInterpolationMode), ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
+      _spreadMethodProperty = new Property(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
+      _mappingModeProperty = new Property(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
 
       _gradientStopsProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _colorInterpolationModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));

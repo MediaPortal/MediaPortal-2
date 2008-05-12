@@ -21,13 +21,11 @@
 */
 
 #endregion
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
-using SlimDX.Direct3D;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
@@ -55,17 +53,19 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
     void Init()
     {
-      _centerYProperty = new Property((double)0.0);
-      _centerXProperty = new Property((double)0.0);
-      _angleProperty = new Property((double)0.0);
-      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _angleProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerYProperty = new Property(typeof(double), 0.0);
+      _centerXProperty = new Property(typeof(double), 0.0);
+      _angleProperty = new Property(typeof(double), 0.0);
+      _centerYProperty.Attach(OnPropertyChanged);
+      _centerXProperty.Attach(OnPropertyChanged);
+      _angleProperty.Attach(OnPropertyChanged);
     }
 
     public override object Clone()
     {
-      return new RotateTransform(this);
+      RotateTransform result = new RotateTransform(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     protected void OnPropertyChanged(Property property)

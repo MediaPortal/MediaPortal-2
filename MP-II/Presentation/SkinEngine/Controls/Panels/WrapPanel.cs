@@ -21,17 +21,13 @@
 */
 
 #endregion
-using System;
+
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
-using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
@@ -54,14 +50,16 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _orientationProperty = new Property(Orientation.Horizontal);
+      _orientationProperty = new Property(typeof(Orientation), Orientation.Horizontal);
       _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _sizeCol = new List<float>();
     }
 
     public override object Clone()
     {
-      return new WrapPanel(this);
+      WrapPanel result = new WrapPanel(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>

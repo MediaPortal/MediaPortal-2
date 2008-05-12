@@ -21,31 +21,28 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
-using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
-using Rectangle = System.Drawing.Rectangle;
-using MyXaml.Core;
+using Presentation.SkinEngine.XamlParser;
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
   {
+    protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
+
     protected Property _alignmentXProperty;
     protected Property _alignmentYProperty;
     protected Property _childrenProperty;
-    protected Brush _backgroundProperty;
+    protected Property _backgroundProperty;
     protected bool _performLayout = true;
     protected List<UIElement> _renderOrder;
     bool _updateRenderOrder = true;
@@ -76,13 +73,13 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _childrenProperty = new Property(new UIElementCollection(this));
-      _alignmentXProperty = new Property(AlignmentX.Center);
-      _alignmentYProperty = new Property(AlignmentY.Top);
-      _backgroundProperty = null;
+      _childrenProperty = new Property(typeof(UIElementCollection), new UIElementCollection(this));
+      _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
+      _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Top);
+      _backgroundProperty = new Property(typeof(Brush), null);
 
-      _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
-      _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
+      _alignmentXProperty.Attach(OnPropertyInvalidate);
+      _alignmentYProperty.Attach(OnPropertyInvalidate);
       _renderOrder = new List<UIElement>();
     }
 
@@ -115,6 +112,14 @@ namespace Presentation.SkinEngine.Controls.Panels
     }
 
 
+    public Property BackgroundProperty
+    {
+      get
+      {
+        return _backgroundProperty;
+      }
+    }
+
     /// <summary>
     /// Gets or sets the background brush
     /// </summary>
@@ -123,15 +128,15 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       get
       {
-        return _backgroundProperty;
+        return (Brush) _backgroundProperty.GetValue();
       }
       set
       {
-        _backgroundProperty = value;
+        _backgroundProperty.SetValue(value);
         if (value != null)
         {
-          _backgroundProperty.ClearAttachedEvents();
-          _backgroundProperty.Attach(new PropertyChangedHandler(OnBrushPropertyChanged));
+          value.ClearAttachedEvents();
+          value.Attach(OnBrushPropertyChanged);
         }
       }
     }
@@ -146,10 +151,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         return _childrenProperty;
       }
-      set
-      {
-        _childrenProperty = value;
-      }
     }
 
     /// <summary>
@@ -160,9 +161,11 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       get
       {
-        return _childrenProperty.GetValue() as UIElementCollection;
+        return _childrenProperty == null ? null :
+          _childrenProperty.GetValue() as UIElementCollection;
       }
     }
+
     public void SetChildren(UIElementCollection children)
     {
       _childrenProperty.SetValue(children);
@@ -181,10 +184,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         return _alignmentXProperty;
       }
-      set
-      {
-        _alignmentXProperty = value;
-      }
     }
 
     /// <summary>
@@ -195,7 +194,8 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       get
       {
-        return (AlignmentX)_alignmentXProperty.GetValue();
+        return _alignmentXProperty == null ? AlignmentX.Center :
+          (AlignmentX)_alignmentXProperty.GetValue();
       }
       set
       {
@@ -213,10 +213,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         return _alignmentYProperty;
       }
-      set
-      {
-        _alignmentYProperty = value;
-      }
     }
 
     /// <summary>
@@ -227,13 +223,15 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       get
       {
-        return (AlignmentY)_alignmentYProperty.GetValue();
+        return _alignmentYProperty == null ? AlignmentY.Top :
+          (AlignmentY)_alignmentYProperty.GetValue();
       }
       set
       {
         _alignmentYProperty.SetValue(value);
       }
     }
+
     public override void Invalidate()
     {
       base.Invalidate();
@@ -419,6 +417,8 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
+      if (Children == null)
+        return;
       foreach (UIElement element in Children)
       {
         element.FireUIEvent(eventType, source);
@@ -833,5 +833,47 @@ namespace Presentation.SkinEngine.Controls.Panels
         child.SetWindow(window);
       }
     }
+
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>ZIndex</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>ZIndex</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetZIndex(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(ZINDEX_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>ZIndex</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>ZIndex</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetZIndex(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(ZINDEX_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>ZIndex</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>ZIndex</c> property.</returns>
+    public static Property GetZIndexAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty(ZINDEX_ATTACHED_PROPERTY, -1.0);
+    }
+
+    #endregion
   }
 }

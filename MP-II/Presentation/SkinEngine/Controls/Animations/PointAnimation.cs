@@ -20,14 +20,10 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
+
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
-using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -36,10 +32,9 @@ namespace Presentation.SkinEngine.Controls.Animations
     Property _fromProperty;
     Property _toProperty;
     Property _byProperty;
-    Property _targetProperty;
-    Property _targetNameProperty;
 
-    #region ctor
+    #region Ctor
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PointAnimation"/> class.
     /// </summary>
@@ -47,6 +42,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       Init();
     }
+
     public PointAnimation(PointAnimation a)
       : base(a)
     {
@@ -54,26 +50,27 @@ namespace Presentation.SkinEngine.Controls.Animations
       From = a.From;
       To = a.To;
       By = a.By;
-      TargetProperty = a.TargetProperty;
-      TargetName = a.TargetName;
     }
+
     public override object Clone()
     {
-      return new PointAnimation(this);
+      PointAnimation result = new PointAnimation(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     void Init()
     {
-      _targetNameProperty = new Property("");
-      _targetProperty = new Property("");
-      _fromProperty = new Property(new Vector2(0, 0));
-      _toProperty = new Property(new Vector2(0, 0));
-      _byProperty = new Property(new Vector2(0, 0));
+      _fromProperty = new Property(typeof(Vector2), new Vector2(0, 0));
+      _toProperty = new Property(typeof(Vector2), new Vector2(0, 0));
+      _byProperty = new Property(typeof(Vector2), new Vector2(0, 0));
 
     }
+
     #endregion
 
-    #region properties
+    #region Public properties
+
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -171,73 +168,13 @@ namespace Presentation.SkinEngine.Controls.Animations
       }
     }
 
-
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public Property TargetPropertyProperty
-    {
-      get
-      {
-        return _targetProperty;
-      }
-      set
-      {
-        _targetProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public string TargetProperty
-    {
-      get
-      {
-        return _targetProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
-    public Property TargetNameProperty
-    {
-      get
-      {
-        return _targetNameProperty;
-      }
-      set
-      {
-        _targetNameProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public string TargetName
-    {
-      get
-      {
-        return _targetNameProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetNameProperty.SetValue(value);
-      }
-    }
     #endregion
 
-    #region animation methods
+    #region Animation methods
+
     protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (context.Property == null) return;
+      if (context.DataDescriptor == null) return;
       double distx = (To.X - From.X) / Duration.TotalMilliseconds;
       distx *= timepassed;
       distx += From.X;
@@ -252,13 +189,9 @@ namespace Presentation.SkinEngine.Controls.Animations
     public override void Ended(AnimationContext context)
     {
       if (IsStopped(context)) return;
-      if (context.Property != null)
-      {
+      if (context.DataDescriptor != null)
         if (FillBehaviour != FillBehaviour.HoldEnd)
-        {
           SetValue(context, (Vector2)OriginalValue);
-        }
-      }
     }
 
     public override void Start(AnimationContext context, uint timePassed)
@@ -268,29 +201,15 @@ namespace Presentation.SkinEngine.Controls.Animations
 
       context.State = State.Starting;
 
-
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
-    }
-    public override void Setup(AnimationContext context)
-    {
-      context.Property = null;
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty);
-    }
-
-    public override void Initialize(UIElement element)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      Property prop = GetProperty(element, TargetName, TargetProperty);
-      OriginalValue = prop.GetValue();
     }
 
     public override void Stop(AnimationContext context)
     {
       if (IsStopped(context)) return;
       context.State = State.Idle;
-      if (context.Property != null)
+      if (context.DataDescriptor != null)
       {
         SetValue(context, (Vector2)OriginalValue);
       }
@@ -298,8 +217,8 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     Vector2 GetValue(AnimationContext context)
     {
-      if (context.Property == null) return new Vector2(0, 0);
-      object o = context.Property.GetValue();
+      if (context.DataDescriptor == null) return new Vector2(0, 0);
+      object o = context.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2)) return (Vector2)o;
       if (o.GetType() == typeof(Vector3))
       {
@@ -309,23 +228,24 @@ namespace Presentation.SkinEngine.Controls.Animations
       return new Vector2(0, 0);
 
     }
+
     void SetValue(AnimationContext context,Vector2 vector)
     {
-      if (context.Property == null) return;
-      object o = context.Property.GetValue();
+      if (context.DataDescriptor == null) return;
+      object o = context.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2))
       {
-        context.Property.SetValue(vector);
+        context.DataDescriptor.Value = vector;
         return;
       }
       if (o.GetType() == typeof(Vector3))
       {
         Vector3 v = new Vector3(vector.X, vector.Y, ((Vector3)o).Z);
-        context.Property.SetValue(v);
+        context.DataDescriptor.Value = v;
         return;
       }
-
     }
+
     #endregion
   }
 }

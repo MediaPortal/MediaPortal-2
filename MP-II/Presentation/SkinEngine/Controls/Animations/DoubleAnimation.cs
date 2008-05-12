@@ -20,12 +20,9 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
+
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -34,10 +31,9 @@ namespace Presentation.SkinEngine.Controls.Animations
     Property _fromProperty;
     Property _toProperty;
     Property _byProperty;
-    Property _targetProperty;
-    Property _targetNameProperty;
 
-    #region ctor
+    #region Ctor
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
     /// </summary>
@@ -45,6 +41,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       Init();
     }
+    
     public DoubleAnimation(DoubleAnimation a)
       : base(a)
     {
@@ -52,25 +49,26 @@ namespace Presentation.SkinEngine.Controls.Animations
       From = a.From;
       To = a.To;
       By = a.By;
-      TargetProperty = a.TargetProperty;
-      TargetName = a.TargetName;
     }
+
     public override object Clone()
     {
-      return new DoubleAnimation(this);
+      DoubleAnimation result = new DoubleAnimation(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
+
     void Init()
     {
-      _targetNameProperty = new Property("");
-      _targetProperty = new Property("");
-      _fromProperty = new Property(0.0);
-      _toProperty = new Property(1.0);
-      _byProperty = new Property(0.1);
+      _fromProperty = new Property(typeof(double), 0.0);
+      _toProperty = new Property(typeof(double), 1.0);
+      _byProperty = new Property(typeof(double), 0.1);
 
     }
+
     #endregion
 
-    #region properties
+    #region Public properties
     /// <summary>
     /// Gets or sets from property.
     /// </summary>
@@ -168,101 +166,30 @@ namespace Presentation.SkinEngine.Controls.Animations
       }
     }
 
-
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public Property TargetPropertyProperty
-    {
-      get
-      {
-        return _targetProperty;
-      }
-      set
-      {
-        _targetProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target property.
-    /// </summary>
-    /// <value>The target property.</value>
-    public string TargetProperty
-    {
-      get
-      {
-        return _targetProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
-    public Property TargetNameProperty
-    {
-      get
-      {
-        return _targetNameProperty;
-      }
-      set
-      {
-        _targetNameProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public string TargetName
-    {
-      get
-      {
-        return _targetNameProperty.GetValue() as string;
-      }
-      set
-      {
-        _targetNameProperty.SetValue(value);
-      }
-    }
     #endregion
 
-    #region animation properties
+    #region Animation properties
+
     protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
-      if (context.Property == null) return;
+      if (context.DataDescriptor == null) return;
       double dist = (To - From) / Duration.TotalMilliseconds;
       dist *= timepassed;
       dist += From;
 
-      context.Property.SetValue((double)dist);
-    }
-
-    public override void Ended(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      if (context.Property != null)
-      {
-        if (FillBehaviour != FillBehaviour.HoldEnd)
-        {
-          context.Property.SetValue(OriginalValue);
-        }
-      }
+      context.DataDescriptor.Value = dist;
     }
 
     public override void Stop(AnimationContext context)
     {
       if (IsStopped(context)) return;
       context.State = State.Idle;
-      if (context.Property != null)
+      if (context.DataDescriptor != null)
       {
-        context.Property.SetValue(OriginalValue);
+        context.DataDescriptor.Value = OriginalValue;
       }
     }
+
     public override void Start(AnimationContext context, uint timePassed)
     {
       if (!IsStopped(context))
@@ -273,18 +200,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
     }
-    public override void Setup(AnimationContext context)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      context.Property = GetProperty(context.VisualParent, TargetName, TargetProperty);
-    }
 
-    public override void Initialize(UIElement element)
-    {
-      if (String.IsNullOrEmpty(TargetName) || String.IsNullOrEmpty(TargetProperty)) return;
-      Property prop = GetProperty(element, TargetName, TargetProperty);
-      OriginalValue = prop.GetValue();
-    }
     #endregion
   }
 }

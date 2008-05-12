@@ -20,12 +20,11 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class SplineDoubleKeyFrame : DoubleKeyFrame
@@ -51,7 +50,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     void Init()
     {
       _spline = new KeySpline();
-      _keySplineProperty = new Property(new Vector4());
+      _keySplineProperty = new Property(typeof(Vector4), new Vector4());
     }
     void Attach()
     {
@@ -67,10 +66,11 @@ namespace Presentation.SkinEngine.Controls.Animations
       }
     }
 
-
     public override object Clone()
     {
-      return new SplineDoubleKeyFrame(this);
+      SplineDoubleKeyFrame result = new SplineDoubleKeyFrame(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     public Property KeySplineProperty

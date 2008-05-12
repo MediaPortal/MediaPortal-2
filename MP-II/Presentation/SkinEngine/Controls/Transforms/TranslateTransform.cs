@@ -21,11 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TranslateTransform : Transform
@@ -48,15 +48,17 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
     void Init()
     {
-      _YProperty = new Property((double)0.0);
-      _XProperty = new Property((double)0.0);
+      _YProperty = new Property(typeof(double), 0.0);
+      _XProperty = new Property(typeof(double), 0.0);
       _YProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _XProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
     public override object Clone()
     {
-      return new TranslateTransform(this);
+      TranslateTransform result = new TranslateTransform(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     protected void OnPropertyChanged(Property property)

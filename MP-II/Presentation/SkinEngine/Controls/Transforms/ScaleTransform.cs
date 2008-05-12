@@ -21,12 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class ScaleTransform : Transform
@@ -51,19 +50,21 @@ namespace Presentation.SkinEngine.Controls.Transforms
     }
     void Init()
     {
-      _centerYProperty = new Property((double)0.0);
-      _centerXProperty = new Property((double)0.0);
-      _scaleXProperty = new Property((double)0.0);
-      _scaleYProperty = new Property((double)0.0);
-      _centerYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _centerXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _scaleXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _scaleYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerYProperty = new Property(typeof(double), 0.0);
+      _centerXProperty = new Property(typeof(double), 0.0);
+      _scaleXProperty = new Property(typeof(double), 0.0);
+      _scaleYProperty = new Property(typeof(double), 0.0);
+      _centerYProperty.Attach(OnPropertyChanged);
+      _centerXProperty.Attach(OnPropertyChanged);
+      _scaleXProperty.Attach(OnPropertyChanged);
+      _scaleYProperty.Attach(OnPropertyChanged);
     }
 
     public override object Clone()
     {
-      return new ScaleTransform(this);
+      ScaleTransform result = new ScaleTransform(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     protected void OnPropertyChanged(Property property)

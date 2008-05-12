@@ -22,23 +22,18 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 
-using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
-using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
 using Rectangle = System.Drawing.Rectangle;
+using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -75,17 +70,15 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// </summary>
     void Init()
     {
-      _streamProperty = new Property((int)0);
+      _streamProperty = new Property(typeof(int), 0);
       _effect = ContentManager.GetEffect("normal");
     }
 
-    /// <summary>
-    /// Clones this instance.
-    /// </summary>
-    /// <returns></returns>
     public override object Clone()
     {
-      return new VideoBrush(this);
+      VideoBrush result = new VideoBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>

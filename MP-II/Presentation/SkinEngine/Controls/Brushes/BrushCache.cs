@@ -21,19 +21,9 @@
 */
 
 #endregion
-using System;
-using System.Diagnostics;
-using System.Collections;
+
 using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
-using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using MyXaml.Core;
+
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class BrushCache
@@ -58,7 +48,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _cache = new List<BrushTexture>();
     }
 
-    public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush,string name)
+    public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush)
     {
       for (int i = 0; i < _cache.Count; ++i)
       {
@@ -67,7 +57,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
           return _cache[i];
         }
       }
-      BrushTexture brush = new BrushTexture(stops, opacitybrush,name);
+      BrushTexture brush = new BrushTexture(stops, opacitybrush, null);
       _cache.Add(brush);
 //      Trace.WriteLine(String.Format("brushes:{0}", _cache.Count));
       return brush;

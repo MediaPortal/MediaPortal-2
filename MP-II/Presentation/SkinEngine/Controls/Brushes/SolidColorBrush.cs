@@ -21,11 +21,8 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
 using Presentation.SkinEngine;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
@@ -34,8 +31,9 @@ using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
+using Presentation.SkinEngine.MarkupExtensions;
+
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush//, IAsset
@@ -65,7 +63,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _colorProperty = new Property(Color.White);
+      _colorProperty = new Property(typeof(Color), Color.White);
       //ContentManager.Add(this);
       _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _effect = ContentManager.GetEffect("solidbrush");
@@ -74,7 +72,9 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     public override object Clone()
     {
-      return new SolidColorBrush(this);
+      SolidColorBrush result = new SolidColorBrush(this);
+      BindingMarkupExtension.CopyBindings(this, result);
+      return result;
     }
 
     /// <summary>

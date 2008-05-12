@@ -102,9 +102,9 @@ namespace Presentation.SkinEngine
     /// cache, if it was already load. Else, it will be load and stored in the
     /// model cache.
     /// </summary>
-    /// <param name="assembly">Assembly name of the model to get or load.</param>
+    /// <param name="assemblyName">Assembly name of the model to get or load.</param>
     /// <param name="className">Class name of the model to get or load.</param>
-    /// <returns></returns>
+    /// <returns>Instance of the specified <see cref="Model"/>.</returns>
     public Model GetOrLoadModel(string assemblyName, string className)
     {
       Model result = GetModel(assemblyName, className);
@@ -122,7 +122,8 @@ namespace Presentation.SkinEngine
     /// </summary>
     /// <param name="assembly">Assembly name of the model to retrieve.</param>
     /// <param name="className">Class name of the model to retrieve.</param>
-    /// <returns></returns>
+    /// <returns><see cref="Model"/> instance or <c>null</c>, if the model
+    /// was not loaded yet.</returns>
     public Model GetModel(string assembly, string className)
     {
       for (int i = 0; i < _models.Count; ++i)
@@ -142,7 +143,7 @@ namespace Presentation.SkinEngine
     /// [model.Assembly]:[model.ClassName]
     /// </code>
     /// This method is a convenience method for method
-    /// <see cref="GetModel(string assembly, string className)"/>.
+    /// <see cref="GetModel(string,string)"/>.
     /// </summary>
     /// <param name="name">Name of the model to retrieve. The model name is of
     /// the form <c>[model.Assembly]:[model.ClassName]</c>.</param>
@@ -158,9 +159,9 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Loads the specified model from disk. This method doesn't store the returned method in
+    /// Loads the specified model from disk. This method doesn't store the returned model in
     /// the internal model cache. To get a model instance from outside this class, use
-    /// method <see cref="GetOrLoadModel(string assemblyName, string className)"/>.
+    /// method <see cref="GetOrLoadModel(string,string)"/>.
     /// </summary>
     /// <param name="assemblyName">Assembly name of the model to load.</param>
     /// <param name="className">Class name of the model to load.</param>
@@ -168,10 +169,10 @@ namespace Presentation.SkinEngine
     /// registered as expected and therefore it could not be load.</returns>
     protected static Model Load(string assemblyName, string className)
     {
-      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model assemblyName: {0} class:{1}", assemblyName, className);
+      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model assemblyName: {0} class: {1}", assemblyName, className);
       try
       {
-        object model = ServiceScope.Get<IPluginManager>().GetPluginItem<IPlugin>("/Models/" + assemblyName, className);
+        object model = ServiceScope.Get<IPluginManager>().GetPluginItem<object>("/Models/" + assemblyName, className);
         if (model != null)
         {
           Type exportedType = model.GetType();
@@ -183,7 +184,7 @@ namespace Presentation.SkinEngine
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model assemblyName: {0} class:{1}", ex, assemblyName, className);
+        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model assemblyName: {0} class: {1}", ex, assemblyName, className);
       }
       return null;
     }

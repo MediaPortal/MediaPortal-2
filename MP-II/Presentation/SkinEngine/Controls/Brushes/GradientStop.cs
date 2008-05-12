@@ -21,30 +21,27 @@
 */
 
 #endregion
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
-  public class GradientStop : Property,ICloneable
+  public class GradientStop : Property, ICloneable
   {
     Property _colorProperty;
     Property _offsetProperty;
-    double _offsetCache = 0;
-    Color _colorCache = Color.White;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GradientStop"/> class.
     /// </summary>
-    public GradientStop()
+    public GradientStop(): base(null)
     {
       Init();
     }
 
-    public GradientStop(GradientStop b)
+    public GradientStop(GradientStop b): base(null)
     {
       Init();
       Color = b.Color;
@@ -52,11 +49,12 @@ namespace Presentation.SkinEngine.Controls.Brushes
     }
     void Init()
     {
-      _colorProperty = new Property(Color.White);
-      _offsetProperty = new Property((double)0.0f);
-      _colorProperty.Attach(new PropertyChangedHandler(OnColorChanged));
-      _offsetProperty.Attach(new PropertyChangedHandler(OnOffsetChanged));
+      _colorProperty = new Property(typeof(Color), Color.White);
+      _offsetProperty = new Property(typeof(double), 0.0);
+      _colorProperty.Attach(OnColorChanged);
+      _offsetProperty.Attach(OnOffsetChanged);
     }
+
     public virtual object Clone()
     {
       return new GradientStop(this);
@@ -67,22 +65,19 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// </summary>
     /// <param name="offset">The offset.</param>
     /// <param name="color">The color.</param>
-    public GradientStop(float offset, Color color)
+    public GradientStop(double offset, Color color): base(null)
     {
-      _colorProperty = new Property(color);
-      _offsetProperty = new Property((double)offset);
-      _colorCache = color;
-      _offsetCache=offset;
+      _colorProperty = new Property(typeof(Color), color);
+      _offsetProperty = new Property(typeof(double), offset);
     }
 
     public void OnColorChanged(Property prop)
     {
-      _colorCache = (Color)_colorProperty.GetValue() ;
       Fire();
     }
+
     public void OnOffsetChanged(Property prop)
     {
-      _offsetCache = (double)_offsetProperty.GetValue();
       Fire();
     }
 
@@ -110,7 +105,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       get
       {
-        return _colorCache;
+        return (Color) _colorProperty.GetValue();
       }
       set
       {
@@ -142,7 +137,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       get
       {
-        return _offsetCache;
+        return (double) _offsetProperty.GetValue();
       }
       set
       {
