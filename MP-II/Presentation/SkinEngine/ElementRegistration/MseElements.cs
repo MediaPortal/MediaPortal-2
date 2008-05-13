@@ -55,6 +55,7 @@ namespace Presentation.SkinEngine.ElementRegistrations
       objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
       objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
       objectClassRegistrations.Add("Button", typeof(SkinEngine.Controls.Visuals.Button));
+      objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       objectClassRegistrations.Add("CheckBox", typeof(SkinEngine.Controls.Visuals.CheckBox));
       objectClassRegistrations.Add("Label", typeof(SkinEngine.Controls.Visuals.Label));
       objectClassRegistrations.Add("ListView", typeof(SkinEngine.Controls.Visuals.ListView));

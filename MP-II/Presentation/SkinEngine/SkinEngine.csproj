@@ -160,6 +160,7 @@
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
     <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
+    <Compile Include="Controls\Visuals\TextBox.cs" />
     <Compile Include="Controls\Visuals\VisualAssetContext.cs" />
     <Compile Include="Controls\Visuals\Border.cs" />
     <Compile Include="Controls\Visuals\Button.cs" />
