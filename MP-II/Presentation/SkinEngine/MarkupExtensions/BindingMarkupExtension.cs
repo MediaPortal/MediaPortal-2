@@ -168,7 +168,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// will be re-targeted to the specified <paramref name="newTarget"/> object.
     /// If the <paramref name="other"/> binding was already
     /// <see cref="Bound"/>, this binding should be bound too by a call to
-    /// <see cref="Bind(IDocumentContext)"/> or <see cref="UpdateBinding()"/>.
+    /// <see cref="Bind()"/> or <see cref="UpdateBinding()"/>.
     /// </summary>
     /// <param name="other">Other Binding to copy.</param>
     /// <param name="newTarget">New target object for this Binding.</param>
@@ -631,15 +631,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
         if (!Evaluate(out sourceDd))
           return false;
 
-        if (Mode == BindingMode.Default)
-          // Currently, we don't really support the Default binding mode in
-          // MediaPortal skin engine. Maybe we will support it in future -
-          // then we'll be able to initialize the mode with a default value
-          // implied by our target data endpoint.
-          Mode = BindingMode.OneWay;
         bool attachToSource = false;
         bool attachToTarget = false;
-        if (Mode == BindingMode.OneWay)
+        if (Mode == BindingMode.OneWay || Mode == BindingMode.Default)
+        // Currently, we don't really support the Default binding mode in
+        // MediaPortal skin engine. Maybe we will support it in future -
+        // then we'll be able to initialize the mode with a default value
+        // implied by our target data endpoint.
         {
           attachToSource = true;
         }
