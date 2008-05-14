@@ -24,6 +24,7 @@
 using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Diagnostics;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
 using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
@@ -134,7 +135,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     }
 
     void Set(UIElement element, Setter setter)
-    {
+    {    
       if (setter.IsSet == false)
       {
         setter.IsSet = true;
@@ -155,7 +156,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
             }
             else
             {
-              obj = TypeConverter.Convert(obj, pinfo2.PropertyType, out obj);
+              if (!TypeConverter.Convert(obj, pinfo2.PropertyType, out obj))
+                return;
             }
           }
         }
