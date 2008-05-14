@@ -69,7 +69,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _textProperty = new Property(typeof(string), "");
       _colorProperty = new Property(typeof(Color), Color.White);
       _scrollProperty = new Property(typeof(bool), false);
-      _fontProperty = new Property(typeof(string), "");
+      _fontProperty = new Property(typeof(string), "font13");
       _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
       _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
       _scrollProperty.Attach(new PropertyChangedHandler(OnScrollChanged));

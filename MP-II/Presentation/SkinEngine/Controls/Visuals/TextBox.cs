@@ -79,7 +79,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _caretIndexProperty = new Property(typeof(int),0);
       _textProperty = new Property(typeof(string),"");
       _colorProperty = new Property(typeof(Color),Color.Black);
-      _fontProperty = new Property(typeof(string),"");
+      _fontProperty = new Property(typeof(string), "font13");
       _textWrappingProperty = new Property(typeof(string),"");
       _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
       _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
