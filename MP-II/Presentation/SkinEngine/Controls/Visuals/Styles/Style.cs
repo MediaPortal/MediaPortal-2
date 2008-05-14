@@ -156,8 +156,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
             }
             else
             {
-              if (!TypeConverter.Convert(obj, pinfo2.PropertyType, out obj))
-                return;
+              TypeConverter.Convert(obj, pinfo2.PropertyType, out obj);
             }
           }
         }
