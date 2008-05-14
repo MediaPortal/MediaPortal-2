@@ -43,7 +43,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
   {
     Property _templateProperty;
     FrameworkElement _templateControl;
-    Brush _backgroundProperty;
+    Property _backgroundProperty;
     Brush _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
@@ -100,11 +100,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _templateProperty = new Property(typeof(ControlTemplate), null);
 
       _borderProperty = null;
-      _backgroundProperty = null;
+      _backgroundProperty = new Property(typeof(Brush),null);
       _borderThicknessProperty = new Property(typeof(double), 1.0);
       _cornerRadiusProperty = new Property(typeof(double), 0.0);
     }
-
+    
     void Attach()
     {
       //_borderProperty.Attach(OnPropertyChanged);
@@ -184,11 +184,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
-    public Brush Background
+
+    public Property BackgroundProperty
     {
       get
       {
@@ -202,6 +199,22 @@ namespace Presentation.SkinEngine.Controls.Visuals
           _backgroundProperty.ClearAttachedEvents();
           _backgroundProperty.Attach(new PropertyChangedHandler(OnBackgroundBrushPropertyChanged));
         }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the background brush
+    /// </summary>
+    /// <value>The background.</value>
+    public Brush Background
+    {
+      get
+      {
+        return _backgroundProperty.GetValue() as Brush;
+      }
+      set
+      {
+        _backgroundProperty.SetValue(value);
       }
     }
 
