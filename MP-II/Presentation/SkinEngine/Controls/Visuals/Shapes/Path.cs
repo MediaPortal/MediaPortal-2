@@ -210,7 +210,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
                 Stroke.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                _verticesCountBorder = verts.Length - 2;// (verts.Length / 3);
+                //_verticesCountBorder = verts.Length - 2;// (verts.Length / 3);
+                _verticesCountBorder = verts.Length / 3;
               }
             }
             else
