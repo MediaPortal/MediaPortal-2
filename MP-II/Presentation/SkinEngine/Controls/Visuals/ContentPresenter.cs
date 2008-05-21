@@ -183,9 +183,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
       _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
+      
+      // Width / Height is not set.
+      if (Width == 0)
         _desiredSize.Width = (float)(availableSize.Width - marginWidth);
-      if (Height <= 0)
+      if (Height == 0)
         _desiredSize.Height = (float)(availableSize.Height - marginHeight);
 
       if (LayoutTransform != null)
@@ -194,17 +196,42 @@ namespace Presentation.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
+
+      // Calculate how much is available for the child
+      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+
+      // It can not be less than zero in any dimension
+      if (childSize.Width < 0) 
+        childSize.Width = 0;
+      if (childSize.Height < 0) 
+        childSize.Height = 0;
+
+      // Do we have a child
       if (Content != null)
       {
-        Content.Measure(_desiredSize);
+        // Measure the child
+        Content.Measure(childSize);
+
+        // Is the desired size of the child bigger than our self?
+        // Then we must expand our desire.
+        if (Content.DesiredSize.Height > _desiredSize.Height)
+          _desiredSize.Height = Content.DesiredSize.Height;
+
+        if (Content.DesiredSize.Width > _desiredSize.Width)
+          _desiredSize.Width = Content.DesiredSize.Width;
       }
-      if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
+
+      // Do we have a fixed Width / Height?
+      if (Width > 0) 
+        _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
+      if (Height > 0) 
+        _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
 
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
+
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       _desiredSize.Width += (float)marginWidth;
       _desiredSize.Height += (float)marginHeight;
