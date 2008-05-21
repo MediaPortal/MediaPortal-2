@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
@@ -243,19 +244,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
 
       //Trace.WriteLine(String.Format("Label.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-      
+   
       InitializeTriggers();
       AllocFont();
 
       if (_label != null && _asset != null)
       {
-
-        float h = _asset.Font.LineHeight;// *1.2f;
-        //h -= (_asset.Font.LineHeight - _asset.Font.Base);
-        size = new SizeF((float)availableSize.Width, (float)(h));
+        size = new SizeF((float)availableSize.Width, (float)_asset.Font.LineHeight);
         if (availableSize.Width == 0)
           size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
-
       }
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
