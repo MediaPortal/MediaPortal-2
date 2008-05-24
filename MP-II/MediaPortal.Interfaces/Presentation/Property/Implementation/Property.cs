@@ -94,16 +94,14 @@ namespace MediaPortal.Presentation.Properties
       bool changed;
       if (value != null && _type != null && !_type.IsAssignableFrom(value.GetType()))
         throw new InvalidCastException(
-          String.Format("Value '{0}' should be assigned to property with type '{1}'", value, _type.Name));
+          String.Format("Value '{0}' cannot be assigned to property with type '{1}'", value, _type.Name));
       if (_value == null)
         changed = value != null;
       else
         changed = !(_value.Equals(value));
       _value = value;
       if (changed)
-      {
         Fire();
-      }
     }
 
     public void Fire()
@@ -115,7 +113,7 @@ namespace MediaPortal.Presentation.Properties
     }
 
     /// <summary>
-    /// Attaches the an event handler.
+    /// Attaches an event handler.
     /// The event handler gets called when the property's value gets changed
     /// </summary>
     /// <param name="handler">The handler.</param>
