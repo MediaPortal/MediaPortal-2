@@ -296,7 +296,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       {
         char cmd = match.Value[0];
         PointF[] points = null;
-        if (match.Value.Length > 0)
+        if (match.Value.Length > 1)
         {
           string[] txtpoints;
           txtpoints = match.Value.Substring(1).Trim().Split(new char[] { ',', ' ' });
