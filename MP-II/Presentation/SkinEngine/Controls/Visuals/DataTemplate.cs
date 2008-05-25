@@ -27,17 +27,16 @@ using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
-  /// <summary>
-  /// Specifies the visual structure and behavioral aspects of a Control that can be shared across multiple instances of the control.
-  /// </summary>
-  public class DataTemplate : FrameworkTemplate
+  public class DataTemplate : FrameworkTemplate, IImplicitKey
   {
     #region Private fields
 
     Property _triggerProperty;
+    Property _dataTypeProperty;
 
     #endregion
 
@@ -51,6 +50,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void Init()
     {
       _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
+      _dataTypeProperty = new Property(typeof(Type), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -59,25 +59,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       DataTemplate dt = source as DataTemplate;
       foreach (Trigger t in dt.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
+      DataType = copyManager.GetCopy(dt.DataType);
     }
 
     #endregion
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the type of the target (not used here, but required for real xaml)
-    /// </summary>
-    /// <value>The type of the target.</value>
     public Type DataType
     {
-      get
-      {
-        return null;
-      }
-      set
-      {
-      }
+      get { return (Type) _dataTypeProperty.GetValue(); }
+      set { _dataTypeProperty.SetValue(value); }
     }
 
     public Property TriggersProperty
@@ -88,6 +80,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public IList<Trigger> Triggers
     {
       get { return (IList<Trigger>)_triggerProperty.GetValue(); }
+    }
+
+    #endregion
+
+    #region IImplicitKey implementation
+
+    public object GetImplicitKey()
+    {
+      return DataType;
     }
 
     #endregion
