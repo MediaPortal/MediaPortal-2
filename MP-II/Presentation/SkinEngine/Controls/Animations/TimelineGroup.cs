@@ -21,94 +21,70 @@
 */
 #endregion
 
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class TimelineGroup : Timeline, IList
+  public class TimelineGroup : Timeline, IList<Timeline>
   {
+    #region Private fields
+
     Property _childrenProperty;
-    #region ctor
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TimelineGroup"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public TimelineGroup()
     {
       Init();
     }
 
-    public TimelineGroup(TimelineGroup grp)
-      : base(grp)
-    {
-      Init();
-      foreach (Timeline t in grp.Children)
-      {
-        Children.Add((Timeline)t.Clone());
-      }
-    }
-    
-    public override object Clone()
-    {
-      TimelineGroup result = new TimelineGroup(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _childrenProperty = new Property(typeof(TimelineCollection), new TimelineCollection());
+      _childrenProperty = new Property(typeof(IList<Timeline>), new List<Timeline>());
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      TimelineGroup grp = source as TimelineGroup;
+      foreach (Timeline t in grp.Children)
+        Children.Add(copyManager.GetCopy(t));
+    }
+
     #endregion
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the children property.
-    /// </summary>
-    /// <value>The children property.</value>
+    #region Public properties
+
     public Property ChildrenProperty
     {
-      get
-      {
-        return _childrenProperty;
-      }
-      set
-      {
-        _childrenProperty = value;
-      }
+      get { return _childrenProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the children.
-    /// </summary>
-    /// <value>The children.</value>
-    public TimelineCollection Children
+    public IList<Timeline> Children
     {
-      get
-      {
-        return (TimelineCollection)_childrenProperty.GetValue();
-      }
+      get { return (IList<Timeline>) _childrenProperty.GetValue(); }
     }
+
     #endregion
 
 
-    public override  void Initialize(UIElement element)
+    public override void Initialize(UIElement element)
     {
       foreach (Timeline line in Children)
-      {
         line.Initialize(element);
-      }
     }
 
-    #region IList Members
+    #region IList<Timeline> Members
 
-    public int Add(object value)
+    public void Add(Timeline value)
     {
-      Children.Add((Timeline)value);
-      return Children.Count;
+      Children.Add(value);
     }
 
     public void Clear()
@@ -116,83 +92,68 @@ namespace Presentation.SkinEngine.Controls.Animations
       Children.Clear();
     }
 
-    public bool Contains(object value)
+    public bool Contains(Timeline item)
     {
-      throw new Exception("The method or operation is not implemented.");
+      return Children.Contains(item);
     }
 
-    public int IndexOf(object value)
+    public int IndexOf(Timeline item)
     {
-      throw new Exception("The method or operation is not implemented.");
+      return Children.IndexOf(item);
     }
 
-    public void Insert(int index, object value)
+    public void Insert(int index, Timeline value)
     {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public bool IsFixedSize
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
+      Children.Insert(index, value);
     }
 
     public bool IsReadOnly
     {
-      get { throw new Exception("The method or operation is not implemented."); }
+      get { return false; }
     }
 
-    public void Remove(object value)
+    public bool Remove(Timeline value)
     {
-      throw new Exception("The method or operation is not implemented.");
+      return Children.Remove(value);
     }
 
     public void RemoveAt(int index)
     {
-      throw new Exception("The method or operation is not implemented.");
+      Children.RemoveAt(index);
     }
 
-    public object this[int index]
+    public Timeline this[int index]
     {
-      get
-      {
-        return Children[index];
-      }
-      set
-      {
-      }
+      get { return Children[index]; }
+      set { Children[index] = value; }
     }
 
     #endregion
 
-    #region ICollection Members
+    #region ICollection<Timeline> Members
 
-    public void CopyTo(Array array, int index)
+    public void CopyTo(Timeline[] array, int index)
     {
-      throw new Exception("The method or operation is not implemented.");
+      Children.CopyTo(array, index);
     }
 
     public int Count
     {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public bool IsSynchronized
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
-
-    public object SyncRoot
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
+      get { return Children.Count; }
     }
 
     #endregion
 
-    #region IEnumerable Members
+    #region IEnumerable<Timeline> Members
 
-    public IEnumerator GetEnumerator()
+    IEnumerator<Timeline> IEnumerable<Timeline>.GetEnumerator()
     {
-      throw new Exception("The method or operation is not implemented.");
+      return Children.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return Children.GetEnumerator();
     }
 
     #endregion

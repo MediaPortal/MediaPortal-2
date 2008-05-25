@@ -19,78 +19,57 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class DoubleAnimationUsingKeyFrames: Timeline, IAddChild
   {
+    #region Private fields
+
     Property _keyFramesProperty;
 
+    #endregion
+
     #region Ctor
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
-    /// </summary>
+
     public DoubleAnimationUsingKeyFrames()
     {
       Init();
     }
 
-    public DoubleAnimationUsingKeyFrames(DoubleAnimationUsingKeyFrames a)
-      : base(a)
-    {
-      Init();
-      //foreach (DoubleKeyFrame k in a.KeyFrames)
-      //{
-      //  KeyFrames.Add((DoubleKeyFrame)k.Clone());
-      //}
-      _keyFramesProperty.SetValue(a.KeyFrames);
-    }
-
-    public override object Clone()
-    {
-      DoubleAnimationUsingKeyFrames result = new DoubleAnimationUsingKeyFrames(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _keyFramesProperty = new Property(typeof(DoubleKeyFrameCollection), new DoubleKeyFrameCollection());
+      _keyFramesProperty = new Property(typeof(IList<DoubleKeyFrame>), new List<DoubleKeyFrame>());
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      DoubleAnimationUsingKeyFrames a = source as DoubleAnimationUsingKeyFrames;
+      IList<DoubleKeyFrame> keyFrames = KeyFrames;
+      foreach (DoubleKeyFrame kf in a.KeyFrames)
+        keyFrames.Add(copyManager.GetCopy(kf));
+    }
+
     #endregion
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
     public Property KeyFramesProperty
     {
-      get
-      {
-        return _keyFramesProperty;
-      }
-      set
-      {
-        _keyFramesProperty = value;
-      }
+      get { return _keyFramesProperty; }
     }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public DoubleKeyFrameCollection KeyFrames
+
+    public IList<DoubleKeyFrame> KeyFrames
     {
-      get
-      {
-        return _keyFramesProperty.GetValue() as DoubleKeyFrameCollection;
-      }
+      get { return _keyFramesProperty.GetValue() as IList<DoubleKeyFrame>; }
     }
 
     #endregion

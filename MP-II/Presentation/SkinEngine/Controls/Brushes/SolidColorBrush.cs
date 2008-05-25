@@ -32,12 +32,14 @@ using Presentation.SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush//, IAsset
   {
+    #region Private properties
+
     Property _colorProperty;
     //Texture _texture;
     double _height;
@@ -46,19 +48,13 @@ namespace Presentation.SkinEngine.Controls.Brushes
     EffectHandleAsset _effectHandleColor;
     DateTime _lastTimeUsed;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SolidColorBrush"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public SolidColorBrush()
     {
       Init();
-    }
-
-    public SolidColorBrush(SolidColorBrush b)
-      : base(b)
-    {
-      Init();
-      Color = b.Color;
     }
 
     void Init()
@@ -70,41 +66,14 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      SolidColorBrush result = new SolidColorBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      SolidColorBrush b = source as SolidColorBrush;
+      Color = copyManager.GetCopy(b.Color);
     }
 
-    /// <summary>
-    /// Gets the color property.
-    /// </summary>
-    /// <value>The color property.</value>
-    public Property ColorProperty
-    {
-      get
-      {
-        return _colorProperty;
-      }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the color.
-    /// </summary>
-    /// <value>The color.</value>
-    public Color Color
-    {
-      get
-      {
-        return (Color)_colorProperty.GetValue();
-      }
-      set
-      {
-        _colorProperty.SetValue(value);
-      }
-    }
+    #endregion
 
     /// <summary>
     /// Called when a property changed.
@@ -115,10 +84,17 @@ namespace Presentation.SkinEngine.Controls.Brushes
       Fire();
     }
 
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
+    public Property ColorProperty
+    {
+      get { return _colorProperty; }
+    }
+
+    public Color Color
+    {
+      get { return (Color)_colorProperty.GetValue(); }
+      set { _colorProperty.SetValue(value); }
+    }
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       //Trace.WriteLine("SolidColorBrush.SetupBrush()");
@@ -141,9 +117,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       //if (_texture == null) return;
@@ -167,9 +140,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       context.Parameters.Add(_effectHandleColor, v);
     }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)

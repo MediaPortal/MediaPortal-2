@@ -19,63 +19,60 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using System.Collections.Generic;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
+  /// <summary>
+  /// Specifies the visual structure and behavioral aspects of a Control that
+  /// can be shared across multiple instances of the control.
+  /// </summary>
   public class ControlTemplate : FrameworkTemplate
   {
+    #region Private fields
+
     Property _triggerProperty;
     Property _targetTypeProperty;
 
-    #region ctor
-    /// <summary>
-    /// pecifies the visual structure and behavioral aspects of a Control that can be shared across multiple instances of the control.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public ControlTemplate()
     {
       Init();
     }
 
-    public ControlTemplate(ControlTemplate ct)
-      : base(ct)
-    {
-      Init();
-      foreach (Trigger t in ct.Triggers)
-      {
-        Triggers.Add((Trigger)t.Clone());
-      }
-    }
-
     void Init()
     {
-      _triggerProperty = new Property(typeof(TriggerCollection), new TriggerCollection());
+      _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
       _targetTypeProperty = new Property(typeof(Type), null);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      ControlTemplate result = new ControlTemplate(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      ControlTemplate ct = source as ControlTemplate;
+      TargetType = copyManager.GetCopy(ct.TargetType);
+      foreach (Trigger t in ct.Triggers)
+        Triggers.Add(copyManager.GetCopy(t));
     }
 
     #endregion
 
     #region Public properties
-    /// <summary>
-    /// Gets or sets the target type property.
-    /// </summary>
+
     public Property TargetTypeProperty
     {
       get { return _targetTypeProperty; }
-      set { _targetTypeProperty = value; }
     }
 
     /// <summary>
@@ -89,34 +86,16 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       set { _targetTypeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers property.
-    /// </summary>
-    /// <value>The triggers property.</value>
     public Property TriggersProperty
     {
-      get
-      {
-        return _triggerProperty;
-      }
-      set
-      {
-        _triggerProperty = value;
-      }
+      get { return _triggerProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers.
-    /// </summary>
-    /// <value>The triggers.</value>
-    public TriggerCollection Triggers
+    public IList<Trigger> Triggers
     {
-      get
-      {
-        return (TriggerCollection)_triggerProperty.GetValue();
-      }
+      get { return (IList<Trigger>)_triggerProperty.GetValue(); }
     }
-    #endregion
 
+    #endregion
   }
 }

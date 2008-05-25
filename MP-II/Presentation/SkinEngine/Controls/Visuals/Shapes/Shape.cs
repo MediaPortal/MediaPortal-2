@@ -35,7 +35,7 @@ using Brush = Presentation.SkinEngine.Controls.Brushes.Brush;
 using SlimDX;
 using SlimDX.Direct3D9;
 using GeometryUtility;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
@@ -65,6 +65,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
   public class Shape : FrameworkElement, IUpdateEventHandler
   {
+    #region Private fields
+
     Property _stretchProperty;
     Property _fillProperty;
     Property _strokeProperty;
@@ -79,108 +81,77 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     protected UIEvent _lastEvent;
     protected bool _hidden;
 
+    #endregion
+
+    #region Ctor
+
     public Shape()
     {
       Init();
     }
 
-    public Shape(Shape s)
-      : base(s)
-    {
-      Init();
-      if (s.Fill != null)
-        Fill = (Brush)s.Fill.Clone();
-      if (s.Stroke != null)
-        Stroke = (Brush)s.Stroke.Clone();
-      StrokeThickness = s.StrokeThickness;
-      Stretch = s.Stretch;
-    }
-
-    public override object Clone()
-    {
-      Shape result = new Shape(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
       _fillProperty = new Property(typeof(Brush), null);
-      _fillProperty.Attach(OnFillBrushPropertyChanged);
       _strokeProperty = new Property(typeof(Brush), null);
-      _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty = new Property(typeof(double), 1.0);
       _stretchProperty = new Property(typeof(Stretch), Stretch.None);
+
+      _fillProperty.Attach(OnFillBrushPropertyChanged);
+      _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Attach(OnStrokeThicknessChanged);
-      // _strokeProperty.Attach(new PropertyChangedHandler(OnStrokeThicknessChanged));
+      // _strokeProperty.Attach(OnStrokeThicknessChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Shape s = source as Shape;
+      Fill = copyManager.GetCopy(s.Fill);
+      Stroke = copyManager.GetCopy(s.Stroke);
+      StrokeThickness = copyManager.GetCopy(s.StrokeThickness);
+      Stretch = copyManager.GetCopy(s.Stretch);
+    }
+
+    #endregion
 
     void OnStrokeThicknessChanged(Property property)
     {
       _performLayout = true;
       if (Window != null) Window.Invalidate(this);
     }
+
     void OnFillBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
       if (Window != null) Window.Invalidate(this);
     }
+
     void OnStrokeBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
       if (Window != null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// Gets or sets the stretch property.
-    /// </summary>
-    /// <value>The stretch property.</value>
     public Property StretchProperty
     {
-      get
-      {
-        return _stretchProperty;
-      }
-      set
-      {
-        _stretchProperty = value;
-      }
+      get { return _stretchProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stretch.
-    /// </summary>
-    /// <value>The stretch.</value>
     public Stretch Stretch
     {
-      get
-      {
-        return (Stretch)_stretchProperty.GetValue();
-      }
-      set
-      {
-        _stretchProperty.SetValue(value);
-      }
+      get { return (Stretch)_stretchProperty.GetValue(); }
+      set { _stretchProperty.SetValue(value); }
     }
 
     public Property FillProperty
     {
-      get
-      {
-        return _fillProperty;
-      }
+      get { return _fillProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the fill.
-    /// </summary>
-    /// <value>The fill.</value>
     public Brush Fill
     {
-      get
-      {
-        return (Brush) _fillProperty.GetValue();
-      }
+      get { return (Brush) _fillProperty.GetValue(); }
       set
       {
         if (Fill != null)
@@ -188,28 +159,18 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
         _fillProperty.SetValue(value);
         if (value != null)
-          _fillProperty.Attach(OnFillBrushPropertyChanged);
+          value.Attach(OnFillBrushPropertyChanged);
       }
     }
 
     public Property StrokeProperty
     {
-      get
-      {
-        return _strokeProperty;
-      }
+      get { return _strokeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stroke.
-    /// </summary>
-    /// <value>The stroke.</value>
     public Brush Stroke
     {
-      get
-      {
-        return (Brush) _strokeProperty.GetValue();
-      }
+      get { return (Brush) _strokeProperty.GetValue(); }
       set
       {
         if (Stroke != null)
@@ -221,41 +182,20 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    /// <summary>
-    /// Gets or sets the stroke thickness property.
-    /// </summary>
-    /// <value>The stroke thickness property.</value>
     public Property StrokeThicknessProperty
     {
-      get
-      {
-        return _strokeThicknessProperty;
-      }
-      set
-      {
-        _strokeThicknessProperty = value;
-      }
+      get { return _strokeThicknessProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stroke thickness.
-    /// </summary>
-    /// <value>The stroke thickness.</value>
     public double StrokeThickness
     {
-      get
-      {
-        return (double)_strokeThicknessProperty.GetValue();
-      }
-      set
-      {
-        _strokeThicknessProperty.SetValue(value);
-      }
+      get { return (double)_strokeThicknessProperty.GetValue(); }
+      set { _strokeThicknessProperty.SetValue(value); }
     }
 
     protected virtual void PerformLayout()
-    {
-    }
+    { }
+
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) return;
@@ -263,6 +203,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _performLayout = false;
       _lastEvent = UIEvent.None;
     }
+
     public override void DestroyRenderTree()
     {
       if (_fillContext != null)
@@ -334,9 +275,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _lastEvent = UIEvent.None;
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -357,7 +295,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         _performLayout = false;
       }
 
-      SkinContext.AddOpacity(this.Opacity);
+      SkinContext.AddOpacity(Opacity);
       if (_fillAsset != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -500,14 +438,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    /// <summary>
-    /// Gets the inset.
-    /// </summary>
-    /// <param name="nextpoint">The nextpoint.</param>
-    /// <param name="point">The point.</param>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="thickNess">The thick ness.</param>
     static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction, ExtendedMatrix finalTransLayoutform)
     {
       double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
@@ -524,23 +454,19 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       y += point.Y;
     }
 
-    /// <summary>
-    /// Gets the next point.
-    /// </summary>
-    /// <param name="points">The points.</param>
-    /// <param name="i">The i.</param>
-    /// <returns></returns>
     static PointF GetNextPoint(PointF[] points, int i, int max)
     {
       i++;
       while (i >= max) i -= max;
       return points[i];
     }
+
     static public void PathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
     {
       PolygonDirection direction = PointsDirection(path);
       PathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
     }
+
     static public void PathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
       verts = null;
@@ -604,8 +530,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         verts[offset + 4].Position = new Vector3(x, y, 1);
 
         verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
-
-
       }
     }
 
@@ -622,6 +546,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       PolygonDirection direction = PointsDirection(path);
       return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
     }
+
     static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
       verts = null;
@@ -656,7 +581,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       return vertexBuffer;
     }
 
-
     /// <summary>
     /// Splits the path into triangles.
     /// </summary>
@@ -690,11 +614,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
       return vertexBuffer;
     }
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("shape.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
@@ -714,10 +634,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       if (Window != null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
@@ -747,11 +663,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       //Trace.WriteLine(String.Format("shape.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
-
     static protected void ZCross(ref PointF left, ref PointF right, out double result)
     {
       result = left.X * right.Y - left.Y * right.X;
     }
+
     static public void CalcCentroid(GraphicsPath path, out float cx, out float cy)
     {
       int pointCount = path.PointCount;
@@ -813,7 +729,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     }
 
 
-    #region math helpers
+    #region Math helpers
+
     /// <summary>the slope of v, or NaN if it is nearly vertical</summary>
     /// <param name="v">Vector to take slope from</param>
     protected float vectorSlope(Vector2 v)
@@ -847,9 +764,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     {
       return (x > 0f ? 1f : (x < 0f ? -1f : 0f));
     }
+
     #endregion
 
-    #region point calculation
+    #region Point calculation
+
     /// <overloads>Computes points needed to connect thick lines properly</overloads>
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
     /// <param name="distance">Distance from the center of the line that the point should be</param>
@@ -928,6 +847,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
       return new Vector2(x, safeSlope * x + safeIntercept);
     }
+
     public void TransformXY(ref Vector2 vector, ref Matrix m)
     {
       float w1 = vector.X * m.M11 + vector.Y * m.M21;
@@ -991,7 +911,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
           innerDistance = new Vector2((thickness) * SkinContext.Zoom.Width, (thickness) * SkinContext.Zoom.Height);
           break;
       }
-
 
       Vector2[] outPoints = new Vector2[(points.Length + (close ? 1 : 0)) * 2];
 
@@ -1091,7 +1010,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         RenderPipeline.Instance.Remove(_strokeContext);
         _strokeContext = null;
       }
-
     }
 
     public override void Allocate()

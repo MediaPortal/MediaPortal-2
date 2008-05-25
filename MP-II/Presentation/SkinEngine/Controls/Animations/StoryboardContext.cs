@@ -20,14 +20,9 @@
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals;
 
+using System.Collections.Generic;
+using Presentation.SkinEngine.Controls.Visuals;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {

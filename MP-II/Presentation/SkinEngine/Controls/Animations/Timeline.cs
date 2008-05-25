@@ -26,13 +26,14 @@ using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
   public enum FillBehaviour { HoldEnd, Stop };
 
-  public class Timeline: DependencyObject, ICloneable, IInitializable
+  public class Timeline: DependencyObject, IInitializable
   {
     Property _beginTimeProperty;
     Property _accellerationProperty;
@@ -46,30 +47,10 @@ namespace Presentation.SkinEngine.Controls.Animations
     protected object OriginalValue;
 
     #region Ctor
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Timeline"/> class.
-    /// </summary>
-    public Timeline(): base()
+
+    public Timeline()
     {
       Init();
-    }
-
-    public Timeline(Timeline a): base(a)
-    {
-      Init();
-      BeginTime = a.BeginTime;
-      Accelleration = a.Accelleration;
-      AutoReverse = a.AutoReverse;
-      DecelerationRatio = a.DecelerationRatio;
-      Duration = a.Duration;
-      FillBehaviour = a.FillBehaviour;
-      RepeatBehavior = a.RepeatBehavior;
-      VisualParent = a.VisualParent;
-    }
-
-    public virtual object Clone()
-    {
-      return new Timeline(this);
     }
 
     void Init()
@@ -83,249 +64,112 @@ namespace Presentation.SkinEngine.Controls.Animations
       _fillBehaviourProperty = new Property(typeof(FillBehaviour), FillBehaviour.HoldEnd);
       _visualParentProperty = new Property(typeof(UIElement), null);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Timeline t = source as Timeline;
+      BeginTime = copyManager.GetCopy(t.BeginTime);
+      Accelleration = copyManager.GetCopy(t.Accelleration);
+      AutoReverse = copyManager.GetCopy(t.AutoReverse);
+      DecelerationRatio = copyManager.GetCopy(t.DecelerationRatio);
+      Duration = copyManager.GetCopy(t.Duration);
+      FillBehaviour = copyManager.GetCopy(t.FillBehaviour);
+      RepeatBehavior = copyManager.GetCopy(t.RepeatBehavior);
+      VisualParent = copyManager.GetCopy(t.VisualParent);
+      _propertyExpression = copyManager.GetCopy(t._propertyExpression);
+    }
+
     #endregion
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the begin time property.
-    /// </summary>
-    /// <value>The begin time property.</value>
     public Property BeginTimeProperty
     {
-      get
-      {
-        return _beginTimeProperty;
-      }
-      set
-      {
-        _beginTimeProperty = value;
-      }
+      get { return _beginTimeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the begin time.
-    /// </summary>
-    /// <value>The begin time.</value>
     public TimeSpan BeginTime
     {
-      get
-      {
-        return (TimeSpan)_beginTimeProperty.GetValue();
-      }
-      set
-      {
-        _beginTimeProperty.SetValue(value);
-      }
+      get { return (TimeSpan)_beginTimeProperty.GetValue(); }
+      set { _beginTimeProperty.SetValue(value); }
     }
-    /// <summary>
-    /// Gets or sets the accelleration property.
-    /// </summary>
-    /// <value>The accelleration property.</value>
+
     public Property AccellerationProperty
     {
-      get
-      {
-        return _accellerationProperty;
-      }
-      set
-      {
-        _accellerationProperty = value;
-      }
+      get { return _accellerationProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the accelleration.
-    /// </summary>
-    /// <value>The accelleration.</value>
     public double Accelleration
     {
-      get
-      {
-        return (double)_accellerationProperty.GetValue();
-      }
-      set
-      {
-        _accellerationProperty.SetValue(value);
-      }
+      get { return (double)_accellerationProperty.GetValue(); }
+      set { _accellerationProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the auto reverse property.
-    /// </summary>
-    /// <value>The auto reverse property.</value>
     public Property AutoReverseProperty
     {
-      get
-      {
-        return _autoReverseProperty;
-      }
-      set
-      {
-        _autoReverseProperty = value;
-      }
+      get { return _autoReverseProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether [auto reverse].
-    /// </summary>
-    /// <value><c>true</c> if [auto reverse]; otherwise, <c>false</c>.</value>
     public bool AutoReverse
     {
-      get
-      {
-        return (bool)_autoReverseProperty.GetValue();
-      }
-      set
-      {
-        _autoReverseProperty.SetValue(value);
-      }
+      get { return (bool)_autoReverseProperty.GetValue(); }
+      set { _autoReverseProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the deceleration ratio property.
-    /// </summary>
-    /// <value>The deceleration ratio property.</value>
     public Property DecelerationRatioProperty
     {
-      get
-      {
-        return _decelerationRatioProperty;
-      }
-      set
-      {
-        _decelerationRatioProperty = value;
-      }
+      get { return _decelerationRatioProperty; }
+      set { _decelerationRatioProperty = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the deceleration ratio.
-    /// </summary>
-    /// <value>The deceleration ratio.</value>
     public double DecelerationRatio
     {
-      get
-      {
-        return (double)_decelerationRatioProperty.GetValue();
-      }
-      set
-      {
-        _decelerationRatioProperty.SetValue(value);
-      }
+      get { return (double)_decelerationRatioProperty.GetValue(); }
+      set { _decelerationRatioProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the duration property.
-    /// </summary>
-    /// <value>The duration property.</value>
     public Property DurationProperty
     {
-      get
-      {
-        return _durationProperty;
-      }
-      set
-      {
-        _durationProperty = value;
-      }
+      get { return _durationProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the duration.
-    /// </summary>
-    /// <value>The duration.</value>
     public TimeSpan Duration
     {
-      get
-      {
-        return (TimeSpan)_durationProperty.GetValue();
-      }
-      set
-      {
-        _durationProperty.SetValue(value);
-      }
+      get { return (TimeSpan)_durationProperty.GetValue(); }
+      set { _durationProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the repeat behaviour property.
-    /// </summary>
-    /// <value>The repeat behaviour property.</value>
     public Property RepeatBehaviorProperty
     {
-      get
-      {
-        return _repeatBehaviourProperty;
-      }
-      set
-      {
-        _repeatBehaviourProperty = value;
-      }
+      get { return _repeatBehaviourProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the repeat behaviour.
-    /// </summary>
-    /// <value>The repeat behaviour.</value>
     public RepeatBehavior RepeatBehavior
     {
-      get
-      {
-        return (RepeatBehavior)_repeatBehaviourProperty.GetValue();
-      }
-      set
-      {
-        _repeatBehaviourProperty.SetValue(value);
-      }
+      get { return (RepeatBehavior) _repeatBehaviourProperty.GetValue(); }
+      set { _repeatBehaviourProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the fill behaviour property.
-    /// </summary>
-    /// <value>The fill behaviour property.</value>
     public Property FillBehaviourProperty
     {
-      get
-      {
-        return _fillBehaviourProperty;
-      }
-      set
-      {
-        _fillBehaviourProperty = value;
-      }
+      get { return _fillBehaviourProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the fill behaviour.
-    /// </summary>
-    /// <value>The fill behaviour.</value>
     public FillBehaviour FillBehaviour
     {
-      get
-      {
-        return (FillBehaviour)_fillBehaviourProperty.GetValue();
-      }
-      set
-      {
-        _fillBehaviourProperty.SetValue(value);
-      }
+      get { return (FillBehaviour)_fillBehaviourProperty.GetValue(); }
+      set { _fillBehaviourProperty.SetValue(value); }
     }
 
-
     /// <summary>
-    /// Gets or sets the visual parent property.
+    /// Gets the visual parent property.
     /// FIXME Albert78: Still needed? Don't we always use <see cref="AnimationContext.VisualParent"/>?
     /// </summary>
     /// <value>The visual parent property.</value>
     public Property VisualParentProperty
     {
-      get
-      {
-        return _visualParentProperty;
-      }
-      set
-      {
-        _visualParentProperty = value;
-      }
+      get { return _visualParentProperty; }
     }
 
     /// <summary>
@@ -335,19 +179,13 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// <value>The visual parent.</value>
     public UIElement VisualParent
     {
-      get
-      {
-        return (UIElement)_visualParentProperty.GetValue();
-      }
-      set
-      {
-        _visualParentProperty.SetValue(value);
-      }
+      get { return (UIElement)_visualParentProperty.GetValue(); }
+      set { _visualParentProperty.SetValue(value); }
     }
 
     #endregion
 
-    #region Animation
+    #region Animation methods
     /// <summary>
     /// Animates the property.
     /// </summary>

@@ -22,31 +22,34 @@
 
 #endregion
 
-using System;
-using Presentation.SkinEngine;
 using Presentation.SkinEngine.Controls.Resources;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Defines a container for UI elements which are used as template controls
   /// for all types of UI-templates. Special template types
-  /// like <see cref="ControlTemplate"/> or <see cref="DataTemplate"/> are derived
+  /// like <see cref="Styles.ControlTemplate"/> or <see cref="DataTemplate"/> are derived
   /// from this class. This class basically has no other job than holding those
   /// UI elements and cloning them when the template should be applied
-  /// (method <see cref="LoadContent(Window)"/>).
+  /// (method <see cref="LoadContent()"/>).
   /// </summary>
   /// <remarks>
   /// Templated controls such as <see cref="Button">Buttons</see> or
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: NameScope, ICloneable, IAddChild
+  public class FrameworkTemplate: NameScope, IAddChild, IDeepCopyable
   {
+    #region Private fields
+
     ResourceDictionary _resourceDictionary;
     UIElement _templateElement;
+
+    #endregion
 
     #region Ctor
 
@@ -55,48 +58,34 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Init();
     }
 
-    public FrameworkTemplate(FrameworkTemplate template)
-    {
-      Init();
-      _templateElement = template._templateElement;
-      _resourceDictionary = template._resourceDictionary;
-    }
-
-    public virtual object Clone()
-    {
-      FrameworkTemplate result = new FrameworkTemplate(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
-
     void Init()
     {
       _resourceDictionary = new ResourceDictionary();
     }
 
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      FrameworkTemplate ft = source as FrameworkTemplate;
+      _templateElement = copyManager.GetCopy(ft._templateElement);
+      _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
+    }
+
     #endregion
 
-    #region properties
+    #region Public properties
 
     public ResourceDictionary Resources
     {
-      get
-      {
-        return _resourceDictionary;
-      }
+      get { return _resourceDictionary; }
     }
 
     #endregion
 
     #region Public methods
 
-    public UIElement LoadContent(Window w)
+    public UIElement LoadContent()
     {
-      ///@optimize: 
-      if (_templateElement == null) return null;
-      UIElement element= _templateElement.Clone() as UIElement;
-      element.SetWindow(w);
+      UIElement element = MpfCopyManager.DeepCopy(_templateElement);
       return element;
     }
 

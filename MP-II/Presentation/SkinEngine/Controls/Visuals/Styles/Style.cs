@@ -22,45 +22,49 @@
 #endregion
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Diagnostics;
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
-using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles      
 {
-  public class Style: NameScope, IAddChild, IImplicitKey
+  public class Style: NameScope, IAddChild, IImplicitKey, IDeepCopyable
   {
-    SetterCollection _setters;
+    #region Private fields
+
+    IList<Setter> _setters;
     Property _targetTypeProperty;
+
+    #endregion
+
+    #region Ctor
 
     public Style()
     {
       Init();
     }
 
-    public Style(Style s)
-    {
-      Init();
-      _setters = s._setters;
-      /*
-      foreach (Setter set in s._setters)
-      {
-        _setters.Add((Setter)set.Clone());
-      }*/
-    }
-
     void Init()
     {
-      _setters = new SetterCollection();
+      _setters = new List<Setter>();
       _targetTypeProperty = new Property(typeof(Type), null);
     }
 
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Style s = source as Style;
+      foreach (Setter se in s._setters)
+        _setters.Add(copyManager.GetCopy(se));
+      TargetType = copyManager.GetCopy(s.TargetType);
+    }
+
+    #endregion
+
     /// <summary>
     /// Gets or sets the based on property (we dont use it in our xaml engine, but real xaml requires it)
-    /// FIXME: New XAML engine perhaps uses it!
+    /// FIXME: New XAML engine will use it!
     /// </summary>
     public Style BasedOn
     {
@@ -73,27 +77,21 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       }
     }
 
-    /// <summary>
-    /// Gets or sets the target type property.
-    /// </summary>
     public Property TargetTypeProperty
     {
       get { return _targetTypeProperty; }
-      set { _targetTypeProperty = value; }
     }
 
     /// <summary>
-    /// Gets or sets the type of the target (we dont use it in our xaml engine, but real xaml requires it)
-    /// FIXME: New XAML engine uses it!
+    /// Gets or sets the type of the target this setter can be applied to.
     /// </summary>
-    /// <value>The type of the target.</value>
     public Type TargetType
     {
       get { return _targetTypeProperty.GetValue() as Type; }
       set { _targetTypeProperty.SetValue(value); }
     }
 
-    public FrameworkElement Get(Window window)
+    public FrameworkElement Get()
     {
       foreach (Setter setter in _setters)
       {
@@ -103,73 +101,36 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           FrameworkElement element;
           if (setter.Value is FrameworkTemplate)
           {
-            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent(window);
+            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
             element = source;
           }
           else
           {
             source = (FrameworkElement)setter.Value;
-            element = (FrameworkElement)source.Clone();
+            element = MpfCopyManager.DeepCopy(source);
           }
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")
-              Set(element, setter2);
+              setter2.Execute(element, null);
           }
-          element.SetWindow(window);
           return element;
         }
       }
       return null;
     }
 
+    /// <summary>
+    /// Applies this <see cref="Style"/> to the specified <paramref name="element"/>.
+    /// </summary>
+    /// <param name="element">The element to apply this <see cref="Style"/> to.</param>
     public void Set(UIElement element)
     {
-      Window w = element.Window;
       foreach (Setter setter in _setters)
       {
         setter.Setup(element);
-        Set(element, setter);
+        setter.Execute(element, null);
       }
-      element.SetWindow(w);
-    }
-
-    void Set(UIElement element, Setter setter)
-    {    
-      if (setter.IsSet == false)
-      {
-        setter.IsSet = true;
-        Type t = element.GetType();
-        PropertyInfo pinfo = t.GetProperty(setter.Property + "Property");
-        if (pinfo == null) return;
-        setter.MethodInfo = pinfo.GetGetMethod();
-
-        object obj = setter.Value;
-        if (obj as String != null)
-        {
-          PropertyInfo pinfo2 = t.GetProperty(setter.Property);
-          if (pinfo2 != null)
-          {
-            if (TypeDescriptor.GetConverter(pinfo2.PropertyType).CanConvertFrom(typeof(string)))
-            {
-              obj = TypeDescriptor.GetConverter(pinfo2.PropertyType).ConvertFromString((string)obj);
-            }
-            else
-            {
-              TypeConverter.Convert(obj, pinfo2.PropertyType, out obj);
-            }
-          }
-        }
-        setter.SetterValue = obj;
-      }
-      MethodInfo info = setter.MethodInfo;
-      if (info == null) return;
-      Property property = info.Invoke(element, null) as Property;
-
-      if (setter.SetterValue is ICloneable)
-        property.SetValue(((ICloneable) setter.SetterValue).Clone());
-      else
-        property.SetValue(setter.SetterValue);
     }
 
     #region IAddChild implementation

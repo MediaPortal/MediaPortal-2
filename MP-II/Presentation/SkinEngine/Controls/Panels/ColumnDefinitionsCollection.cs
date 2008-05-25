@@ -24,11 +24,18 @@
 
 using System.Collections.Generic;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-  public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild
+  public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild, IDeepCopyable
   {
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      ColumnDefinitionsCollection c = source as ColumnDefinitionsCollection;
+      foreach (ColumnDefinition cd in c)
+        Add(copyManager.GetCopy(cd));
+    }
 
     #region IAddChild Members
 
@@ -132,7 +139,6 @@ namespace Presentation.SkinEngine.Controls.Panels
           column.Width.Length = width * (1.0 / totalStar);
         }
       }
-
     }
   }
 }

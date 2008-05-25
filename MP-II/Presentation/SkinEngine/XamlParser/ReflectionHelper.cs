@@ -187,5 +187,53 @@ namespace Presentation.SkinEngine.XamlParser
       result = null;
       return false;
     }
+
+    public static void FindImplementedCollectionType(Type type, out Type collectionType, out Type entryType)
+    {
+      FindImplementedCollectionOrListType(type, typeof(ICollection), typeof(ICollection<>), out collectionType, out entryType);
+    }
+
+    public static void FindImplementedListType(Type type, out Type listType, out Type entryType)
+    {
+      FindImplementedCollectionOrListType(type, typeof(IList), typeof(IList<>), out listType, out entryType);
+    }
+
+    protected static void FindImplementedCollectionOrListType(Type type,
+      Type nonGenericType, Type genericType, out Type resultCollectionType, out Type resultEntryType)
+    {
+      resultCollectionType = null;
+      resultEntryType = null;
+      IDictionary<Type, Type> foundGeneric = new Dictionary<Type, Type>();
+      IList<Type> foundNonGeneric = new List<Type>();
+      foreach (Type interfaceType in type.GetInterfaces())
+      {
+        Type collectionType = nonGenericType;
+        if (interfaceType.IsGenericType)
+        {
+          Type entryType = interfaceType.GetGenericArguments()[0];
+          collectionType = genericType;
+          collectionType = collectionType.MakeGenericType(entryType);
+          if (collectionType.IsAssignableFrom(type))
+            if (!foundGeneric.ContainsKey(collectionType))
+              foundGeneric.Add(collectionType, entryType);
+        }
+        else if (collectionType.IsAssignableFrom(type))
+          foundNonGeneric.Add(collectionType);
+      }
+      IEnumerator<KeyValuePair<Type, Type>> ge = foundGeneric.GetEnumerator();
+      if (ge.MoveNext())
+      {
+        resultCollectionType = ge.Current.Key;
+        resultEntryType = ge.Current.Value;
+        return;
+      }
+      IEnumerator<Type> nge = foundNonGeneric.GetEnumerator();
+      if (nge.MoveNext())
+      {
+        resultCollectionType = nge.Current;
+        resultEntryType = null;
+        return;
+      }
+    }
   }
 }

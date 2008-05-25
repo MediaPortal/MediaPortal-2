@@ -22,29 +22,14 @@
 
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
-
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ListViewItem : ContentControl
   {
-    #region ctor
+    #region Ctor
     public ListViewItem()
     {
       Init();
-    }
-
-    public ListViewItem(ListViewItem b)
-      : base(b)
-    {
-      Init();
-    }
-
-    public override object Clone()
-    {
-      ListViewItem result = new ListViewItem(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()

@@ -19,32 +19,30 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class SplineColorKeyFrame : ColorKeyFrame
   {
-    KeySpline _spline;
+    #region Private fields
+
+    KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
     Property _keySplineProperty;
-    #region ctor
+
+    #endregion
+
+    #region Ctor
+
     public SplineColorKeyFrame()
     {
       Init();
-      Attach();
-    }
-
-    public SplineColorKeyFrame(SplineColorKeyFrame k)
-      : base(k)
-    {
-      Init();
-      this.KeySpline = k.KeySpline;
-      OnSplineChanged(null);
       Attach();
     }
 
@@ -52,57 +50,42 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       _spline = new KeySpline();
       _keySplineProperty = new Property(typeof(Vector4), new Vector4());
-      _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
-    }
-    void Attach()
-    {
-      _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
     }
 
+    void Attach()
+    {
+      _keySplineProperty.Attach(OnSplineChanged);
+    }
 
     void OnSplineChanged(Property prop)
     {
-      if (this.KeySpline.X != 0 && this.KeySpline.Y != 0 && this.KeySpline.Z != 0 && this.KeySpline.W != 0)
-      {
-        _spline = new KeySpline(this.KeySpline.X, this.KeySpline.Y, this.KeySpline.Z, this.KeySpline.W);
-      }
+      if (KeySpline.X != 0 && KeySpline.Y != 0 && KeySpline.Z != 0 && KeySpline.W != 0)
+        _spline = new KeySpline(KeySpline.X, KeySpline.Y, KeySpline.Z, KeySpline.W);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      SplineColorKeyFrame result = new SplineColorKeyFrame(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      SplineColorKeyFrame kf = source as SplineColorKeyFrame;
+      KeySpline = copyManager.GetCopy(kf.KeySpline);
     }
 
     #endregion
 
-    #region properties
+    #region Public properties
+
     public Property KeySplineProperty
     {
-      get
-      {
-        return _keySplineProperty;
-      }
-      set
-      {
-        _keySplineProperty = value;
-      }
+      get { return _keySplineProperty; }
     }
 
     public Vector4 KeySpline
     {
-      get
-      {
-        return (Vector4)_keySplineProperty.GetValue();
-      }
-      set
-      {
-        _keySplineProperty.SetValue(value);
-      }
+      get { return (Vector4)_keySplineProperty.GetValue(); }
+      set { _keySplineProperty.SetValue(value); }
     }
-    #endregion
 
+    #endregion
 
     public override Color Interpolate(Color start, double keyframe)
     {

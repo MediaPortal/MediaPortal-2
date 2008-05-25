@@ -1,9 +1,9 @@
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -22,29 +22,21 @@
 
 #endregion
 
-using System;
-using System.Xml;
-
-namespace Presentation.SkinEngine.Exceptions
+namespace MediaPortal.Utilities.DeepCopy
 {
   /// <summary>
-  /// Base class for all exceptions in the MediaPortal Skin Engine.
+  /// Interface for providing access to instances copied from a source instance
+  /// in a two-step deep copying process.
   /// </summary>
-  public class MseException: ApplicationException
+  public interface ICopyManager
   {
-    public MseException(string msg) : base(msg) { }
-    public MseException(string msg, Exception ex): base(msg, ex) {}
-  }
-
-  /// <summary>
-  /// Thrown if a declared XAML namespace is not supported.
-  /// </summary>
-  public class ConvertException : MseException
-  {
-    public ConvertException(string msg, params object[] args):
-      base(string.Format(msg, args)) {}
-    public ConvertException(string msg, Exception ex, params object[] args)
-      :
-      base(string.Format(msg, args), ex) {}
+    /// <summary>
+    /// Returns the object which was copied from the specified <paramref name="source"/>
+    /// object.
+    /// </summary>
+    /// <returns>Copy of the specified <paramref name="source"/> object. The
+    /// returned instance may not have finished its copying process, so it is not
+    /// save to access fields on the returned object.</returns>
+    T GetCopy<T>(T source);
   }
 }

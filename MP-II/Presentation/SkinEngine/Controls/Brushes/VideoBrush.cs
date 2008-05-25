@@ -33,12 +33,14 @@ using Presentation.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
 using Rectangle = System.Drawing.Rectangle;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class VideoBrush : Brush
   {
+    #region Private fields
+
     Property _streamProperty;
     EffectAsset _effect;
     Size _videoSize;
@@ -46,55 +48,35 @@ namespace Presentation.SkinEngine.Controls.Brushes
     string _previousGeometry;
     PositionColored2Textured[] _verts;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VideoBrush"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public VideoBrush()
     {
       Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VideoBrush"/> class.
-    /// </summary>
-    /// <param name="videoBrush">The video brush.</param>
-    public VideoBrush(VideoBrush videoBrush)
-      : base(videoBrush)
-    {
-      Init();
-      Stream = videoBrush.Stream;
-    }
-
-    /// <summary>
-    /// Inits this instance.
-    /// </summary>
     void Init()
     {
       _streamProperty = new Property(typeof(int), 0);
       _effect = ContentManager.GetEffect("normal");
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      VideoBrush result = new VideoBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      VideoBrush b = source as VideoBrush;
+      Stream = copyManager.GetCopy(b.Stream);
     }
 
-    /// <summary>
-    /// Gets or sets the stream property.
-    /// </summary>
-    /// <value>The stream property.</value>
+    #endregion
+
+    #region Public properties
+
     public Property StreamProperty
     {
-      get
-      {
-        return _streamProperty;
-      }
-      set
-      {
-        _streamProperty = value;
-      }
+      get { return _streamProperty; }
     }
 
     /// <summary>
@@ -103,20 +85,12 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// <value>The video stream number.</value>
     public int Stream
     {
-      get
-      {
-        return (int)_streamProperty.GetValue();
-      }
-      set
-      {
-        _streamProperty.SetValue(value);
-      }
+      get { return (int)_streamProperty.GetValue(); }
+      set { _streamProperty.SetValue(value); }
     }
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="verts"></param>
+
+    #endregion
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       UpdateBounds(element, ref verts);
@@ -125,7 +99,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _videoSize = new Size(0, 0);
       _videoAspectRatio = new Size(0, 0);
     }
-
 
     void UpdateVertexBuffer(IPlayer player, VertexBuffer vertexBuffer)
     {
@@ -192,13 +165,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       PositionColored2Textured.Set(vertexBuffer, ref verts);
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
-    /// <param name="vertexBuffer">The vertex buffer.</param>
-    /// <param name="primitiveCount"></param>
-    /// <param name="primitiveType"></param>
-    /// <returns></returns>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
 
@@ -218,9 +184,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       return true;
     }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public override void EndRender()
     {
       PlayerCollection players = ServiceScope.Get<PlayerCollection>();

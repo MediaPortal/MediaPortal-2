@@ -31,6 +31,7 @@ using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -43,8 +44,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
   ///   - viewbox
   ///   - resource cleanup (textures & vertexbuffers)
   /// </summary>
-  public class Brush : Property, ICloneable
+  public class Brush : Property, IDeepCopyable
   {
+    #region Private fields
+
     Property _opacityProperty;
     Property _relativeTransformProperty;
     Transform _transformProperty;
@@ -54,22 +57,13 @@ namespace Presentation.SkinEngine.Controls.Brushes
     protected System.Drawing.PointF _orginalPosition;
     protected System.Drawing.PointF _minPosition;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Brush"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public Brush(): base(null)
     {
       Init();
-    }
-
-    public Brush(Brush b): base(null)
-    {
-      Init();
-      Opacity = b.Opacity;
-      RelativeTransform = (TransformGroup)b.RelativeTransform.Clone();
-      if (Transform != null)
-        Transform = (Transform)b.Transform.Clone();
-      Freezable = b.Freezable;
     }
 
     void Init()
@@ -78,24 +72,87 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _opacityProperty = new Property(typeof(double), 1.0);
       _relativeTransformProperty = new Property(typeof(TransformGroup), new TransformGroup());
       _transformProperty = null;
-      _opacityProperty.Attach(OnPropertyChanged);
       _freezableProperty = new Property(typeof(bool), false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
       _orginalPosition = new System.Drawing.PointF(0, 0);
+
+      _opacityProperty.Attach(OnPropertyChanged);
     }
 
-    public virtual object Clone()
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      return new Brush(this);
+      Brush b = source as Brush;
+      IsOpacityBrush = copyManager.GetCopy(b.IsOpacityBrush);
+      Opacity = copyManager.GetCopy(b.Opacity);
+      RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
+      Transform = copyManager.GetCopy(b.Transform);
+      Freezable = copyManager.GetCopy(b.Freezable);
     }
 
-    /// <summary>
-    /// Called when a property changed.
-    /// </summary>
-    /// <param name="prop">The prop.</param>
+    #endregion
+
+    #region Protected methods
+
     protected virtual void OnPropertyChanged(Property prop)
+    { }
+
+    #endregion
+
+    #region Public properties
+
+    public Property FreezableProperty
     {
+      get { return _freezableProperty; }
     }
+
+    public bool Freezable
+    {
+      get { return (bool)_freezableProperty.GetValue(); }
+      set { _freezableProperty.SetValue(value); }
+    }
+
+    public Property OpacityProperty
+    {
+      get { return _opacityProperty; }
+    }
+
+    public double Opacity
+    {
+      get { return (double)_opacityProperty.GetValue(); }
+      set { _opacityProperty.SetValue(value); }
+    }
+
+    public Property RelativeTransformProperty
+    {
+      get { return _relativeTransformProperty; }
+    }
+
+    public TransformGroup RelativeTransform
+    {
+      get { return (TransformGroup)_relativeTransformProperty.GetValue(); }
+      set { _relativeTransformProperty.SetValue(value); }
+    }
+
+    public Transform Transform
+    {
+      get { return _transformProperty; }
+      set { _transformProperty = value; }
+    }
+
+    public bool IsOpacityBrush
+    {
+      get { return _isOpacity; }
+      set { _isOpacity = value; }
+    }
+
+    public virtual Texture Texture
+    {
+      get { return null; }
+    }
+
+    #endregion
+
+    #region Public methods
 
     /// <summary>
     /// Scales the specified u/v coordinates.
@@ -104,127 +161,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
     /// <param name="v">The v.</param>
     /// <param name="color">The color.</param>
     public virtual void Scale(ref float u, ref float v, ref ColorValue color)
-    {
-    }
+    { }
 
-    /// <summary>
-    /// Gets or sets the freezable property.
-    /// </summary>
-    /// <value>The freezable property.</value>
-    public Property FreezableProperty
-    {
-      get
-      {
-        return _freezableProperty;
-      }
-      set
-      {
-        _freezableProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="Brush"/> is freezable.
-    /// </summary>
-    /// <value><c>true</c> if freezable; otherwise, <c>false</c>.</value>
-    public bool Freezable
-    {
-      get
-      {
-        return (bool)_freezableProperty.GetValue();
-      }
-      set
-      {
-        _freezableProperty.SetValue(value);
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the opacity property.
-    /// </summary>
-    /// <value>The opacity property.</value>
-    public Property OpacityProperty
-    {
-      get
-      {
-        return _opacityProperty;
-      }
-      set
-      {
-        _opacityProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the opacity.
-    /// </summary>
-    /// <value>The opacity.</value>
-    public double Opacity
-    {
-      get
-      {
-        return (double)_opacityProperty.GetValue();
-      }
-      set
-      {
-        _opacityProperty.SetValue(value);
-      }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the relative transform property.
-    /// </summary>
-    /// <value>The relative transform property.</value>
-    public Property RelativeTransformProperty
-    {
-      get
-      {
-        return _relativeTransformProperty;
-      }
-      set
-      {
-        _relativeTransformProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the relative transform.
-    /// </summary>
-    /// <value>The relative transform.</value>
-    public TransformGroup RelativeTransform
-    {
-      get
-      {
-        return (TransformGroup)_relativeTransformProperty.GetValue();
-      }
-      set
-      {
-        _relativeTransformProperty.SetValue(value);
-      }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the transform.
-    /// </summary>
-    /// <value>The transform.</value>
-    public Transform Transform
-    {
-      get
-      {
-        return _transformProperty;
-      }
-      set
-      {
-        _transformProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
     public virtual void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       float w = (float)element.ActualWidth;
@@ -295,74 +233,29 @@ namespace Presentation.SkinEngine.Controls.Brushes
         _minPosition.Y = _orginalPosition.Y + miny;
       }
       _bounds = new System.Drawing.RectangleF(minx, miny, maxx, maxy);
-
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
-    /// <param name="vertexBuffer">The vertex buffer.</param>
-    public virtual bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount,PrimitiveType primitiveType)
+    public virtual bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount,
+        PrimitiveType primitiveType)
     {
       return false;
     }
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
-    /// <param name="tex">The tex.</param>
+
     public virtual void BeginRender(Texture tex)
-    {
-    }
+    { }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public virtual void EndRender()
-    {
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is an opacity brush.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is an opacity brush; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsOpacityBrush
-    {
-      get
-      {
-        return _isOpacity;
-      }
-      set
-      {
-        _isOpacity = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets the texture.
-    /// </summary>
-    /// <value>The texture.</value>
-    public virtual Texture Texture
-    {
-      get
-      {
-        return null;
-      }
-    }
+    { }
 
     public virtual void Allocate()
-    {
-    }
-
+    { }
 
     public virtual void Deallocate()
-    {
-    }
+    { }
 
     public virtual void SetupPrimitive(PrimitiveContext context)
-    {
-    }
+    { }
 
+    #endregion
   }
 }

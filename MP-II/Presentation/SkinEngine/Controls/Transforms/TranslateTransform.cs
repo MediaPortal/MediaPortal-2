@@ -24,115 +24,73 @@
 
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TranslateTransform : Transform
   {
+    #region Private fields
+
     Property _XProperty;
     Property _YProperty;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TranslateTransform"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public TranslateTransform()
     {
       Init();
     }
-    public TranslateTransform(TranslateTransform g)
-      : base(g)
-    {
-      Init();
-      X = g.X;
-      Y = g.Y;
-    }
+
     void Init()
     {
       _YProperty = new Property(typeof(double), 0.0);
       _XProperty = new Property(typeof(double), 0.0);
-      _YProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _XProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+
+      _YProperty.Attach(OnPropertyChanged);
+      _XProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      TranslateTransform result = new TranslateTransform(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      TranslateTransform t = source as TranslateTransform;
+      X = copyManager.GetCopy(t.X);
+      Y = copyManager.GetCopy(t.Y);
     }
+
+    #endregion
 
     protected void OnPropertyChanged(Property property)
     {
       _needUpdate = true;
       Fire();
     }
-    /// <summary>
-    /// Gets or sets the X property.
-    /// </summary>
-    /// <value>The X property.</value>
+
     public Property XProperty
     {
-      get
-      {
-        return _XProperty;
-      }
-      set
-      {
-        _XProperty = value;
-      }
+      get { return _XProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the X.
-    /// </summary>
-    /// <value>The X.</value>
     public double X
     {
-      get
-      {
-        return (double)_XProperty.GetValue();
-      }
-      set
-      {
-        _XProperty.SetValue(value);
-      }
+      get { return (double)_XProperty.GetValue(); }
+      set { _XProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the Y property.
-    /// </summary>
-    /// <value>The Y property.</value>
     public Property YProperty
     {
-      get
-      {
-        return _YProperty;
-      }
-      set
-      {
-        _YProperty = value;
-      }
+      get { return _YProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the Y.
-    /// </summary>
-    /// <value>The Y.</value>
     public double Y
     {
-      get
-      {
-        return (double)_YProperty.GetValue();
-      }
-      set
-      {
-        _YProperty.SetValue(value);
-      }
+      get { return (double)_YProperty.GetValue(); }
+      set { _YProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
     public override void UpdateTransform()
     {
       base.UpdateTransform();
@@ -144,6 +102,5 @@ namespace Presentation.SkinEngine.Controls.Transforms
       base.UpdateTransformRel();
       _matrixRel = Matrix.Translation((float)X , (float)Y , 0);
     }
-
   }
 }

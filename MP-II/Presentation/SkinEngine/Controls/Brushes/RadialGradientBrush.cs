@@ -32,12 +32,14 @@ using Presentation.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class RadialGradientBrush : GradientBrush, IAsset
   {
+    #region Private fields
+
     Texture _cacheTexture;
     double _height;
     double _width;
@@ -65,32 +67,15 @@ namespace Presentation.SkinEngine.Controls.Brushes
     float[] g_center;
     float[] g_radius;
 
+    #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
-    /// </summary>
+    #region Ctor
+
     public RadialGradientBrush()
     {
       Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RadialGradientBrush"/> class.
-    /// </summary>
-    /// <param name="b">The b.</param>
-    public RadialGradientBrush(RadialGradientBrush b)
-      : base(b)
-    {
-      Init();
-      Center = b.Center;
-      GradientOrigin = b.GradientOrigin;
-      RadiusX = b.RadiusX;
-      RadiusY = b.RadiusY;
-    }
-
-    /// <summary>
-    /// Inits this instance.
-    /// </summary>
     void Init()
     {
       _centerProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
@@ -98,151 +83,25 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _radiusXProperty = new Property(typeof(double), 0.5);
       _radiusYProperty = new Property(typeof(double), 0.5);
 
-      _centerProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _gradientOriginProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _radiusXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _radiusYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _centerProperty.Attach(OnPropertyChanged);
+      _gradientOriginProperty.Attach(OnPropertyChanged);
+      _radiusXProperty.Attach(OnPropertyChanged);
+      _radiusYProperty.Attach(OnPropertyChanged);
     }
 
-    /// <summary>
-    /// Clones this instance.
-    /// </summary>
-    /// <returns></returns>
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      RadialGradientBrush result = new RadialGradientBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      RadialGradientBrush b = source as RadialGradientBrush;
+      Center = copyManager.GetCopy(b.Center);
+      GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
+      RadiusX = copyManager.GetCopy(b.RadiusX);
+      RadiusY = copyManager.GetCopy(b.RadiusY);
     }
 
-    /// <summary>
-    /// Gets or sets the center property.
-    /// </summary>
-    /// <value>The center property.</value>
-    public Property CenterProperty
-    {
-      get
-      {
-        return _centerProperty;
-      }
-      set
-      {
-        _centerProperty = value;
-      }
-    }
+    #endregion
 
-    /// <summary>
-    /// Gets or sets the center.
-    /// </summary>
-    /// <value>The center.</value>
-    public Vector2 Center
-    {
-      get
-      {
-        return (Vector2)_centerProperty.GetValue();
-      }
-      set
-      {
-        _centerProperty.SetValue(value);
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the gradient origin property.
-    /// </summary>
-    /// <value>The gradient origin property.</value>
-    public Property GradientOriginProperty
-    {
-      get
-      {
-        return _gradientOriginProperty;
-      }
-      set
-      {
-        _gradientOriginProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the gradient origin.
-    /// </summary>
-    /// <value>The gradient origin.</value>
-    public Vector2 GradientOrigin
-    {
-      get
-      {
-        return (Vector2)_gradientOriginProperty.GetValue();
-      }
-      set
-      {
-        _gradientOriginProperty.SetValue(value);
-      }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the radius X property.
-    /// </summary>
-    /// <value>The radius X property.</value>
-    public Property RadiusXProperty
-    {
-      get
-      {
-        return _radiusXProperty;
-      }
-      set
-      {
-        _radiusXProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the radius X.
-    /// </summary>
-    /// <value>The radius X.</value>
-    public double RadiusX
-    {
-      get
-      {
-        return (double)_radiusXProperty.GetValue();
-      }
-      set
-      {
-        _radiusXProperty.SetValue(value);
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the radius Y property.
-    /// </summary>
-    /// <value>The radius Y property.</value>
-    public Property RadiusYProperty
-    {
-      get
-      {
-        return _radiusYProperty;
-      }
-      set
-      {
-        _radiusYProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the radius Y.
-    /// </summary>
-    /// <value>The radius Y.</value>
-    public double RadiusY
-    {
-      get
-      {
-        return (double)_radiusYProperty.GetValue();
-      }
-      set
-      {
-        _radiusYProperty.SetValue(value);
-      }
-    }
+    #region Protected methods
 
     /// <summary>
     /// Called when a property changed.
@@ -254,10 +113,63 @@ namespace Presentation.SkinEngine.Controls.Brushes
       Fire();
     }
 
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
+    #endregion
+
+    #region Public properties
+
+    public Property CenterProperty
+    {
+      get { return _centerProperty; }
+    }
+
+    public Vector2 Center
+    {
+      get { return (Vector2)_centerProperty.GetValue(); }
+      set { _centerProperty.SetValue(value); }
+    }
+
+    public Property GradientOriginProperty
+    {
+      get { return _gradientOriginProperty; }
+    }
+
+    public Vector2 GradientOrigin
+    {
+      get { return (Vector2)_gradientOriginProperty.GetValue(); }
+      set { _gradientOriginProperty.SetValue(value); }
+    }
+
+    public Property RadiusXProperty
+    {
+      get { return _radiusXProperty; }
+    }
+
+    public double RadiusX
+    {
+      get { return (double)_radiusXProperty.GetValue(); }
+      set { _radiusXProperty.SetValue(value); }
+    }
+
+    public Property RadiusYProperty
+    {
+      get { return _radiusYProperty; }
+    }
+
+    public double RadiusY
+    {
+      get { return (double)_radiusYProperty.GetValue(); }
+      set { _radiusYProperty.SetValue(value); }
+    }
+
+    public override Texture Texture
+    {
+      get { return _brushTexture.Texture; }
+    }
+
+    #endregion
+
+    #region Public methods
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       //      Trace.WriteLine("RadialGradientBrush.SetupBrush()");
@@ -281,10 +193,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (Transform != null)
@@ -348,9 +256,15 @@ namespace Presentation.SkinEngine.Controls.Brushes
         }
       }
 
-
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      if (!_singleColor)
+      if (_singleColor)
+      {
+        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        _handleColor.SetParameter(v);
+        _effect.StartRender(null);
+        _lastTimeUsed = SkinContext.Now;
+      }
+      else
       {
         if (Freezable)
         {
@@ -381,8 +295,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
             //next put the control at position (0,0,0)
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
-            m.Matrix *= Matrix.Translation(new Vector3(-(float)(_position.X + 1), -(float)(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling((float)((((float)GraphicsDevice.Width) * cx) / w), (float)((((float)GraphicsDevice.Height * cy)) / h), 1.0f);
+            m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
+            m.Matrix *= Matrix.Scaling((GraphicsDevice.Width * cx) / w, (GraphicsDevice.Height * cy) / h, 1.0f);
 
             SkinContext.AddTransform(m);
 
@@ -399,10 +313,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
                   GraphicsDevice.Device.StretchRect(backBuffer,
-                                                         new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
-                                                         cacheSurface,
-                                                         new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
-                                                         TextureFilter.None);
+                      new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                      cacheSurface,
+                      new System.Drawing.Rectangle(0, 0, (int) w, (int) h),
+                      TextureFilter.None);
 
                 }
                 //change the rendertarget to the opacitytexture
@@ -412,7 +326,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
                 GraphicsDevice.Device.BeginScene();
                 //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
                 //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-
 
                 Matrix mrel = Matrix.Identity;
                 RelativeTransform.GetTransformRel(out mrel);
@@ -439,15 +352,12 @@ namespace Presentation.SkinEngine.Controls.Brushes
               //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
               _effect = ContentManager.GetEffect("normal");
               ContentManager.Add(this);
-
-
             }
             GraphicsDevice.Device.BeginScene();
           }
           _effect.StartRender(_cacheTexture);
           //GraphicsDevice.Device.SetTexture(0, _cacheTexture);
           _lastTimeUsed = SkinContext.Now;
-
         }
         else
         {
@@ -465,20 +375,9 @@ namespace Presentation.SkinEngine.Controls.Brushes
           _lastTimeUsed = SkinContext.Now;
         }
       }
-      else
-      {
-        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
-        _handleColor.SetParameter(v);
-        _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.Now;
-      }
       return true;
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
-    /// <param name="tex">The tex.</param>
     public override void BeginRender(Texture tex)
     {
       if (Transform != null)
@@ -564,9 +463,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)
@@ -579,27 +475,15 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
+    #endregion
 
     #region IAsset Members
 
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
-      get
-      {
-        return (_cacheTexture != null);
-      }
+      get { return (_cacheTexture != null); }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -618,9 +502,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
     public bool Free(bool force)
     {
       if (_cacheTexture != null)
@@ -635,17 +516,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     #endregion
 
-    /// <summary>
-    /// Gets the texture.
-    /// </summary>
-    /// <value>The texture.</value>
-    public override Texture Texture
-    {
-      get
-      {
-        return _brushTexture.Texture;
-      }
-    }
     public override void Deallocate()
     {
       if (_cacheTexture != null)
@@ -658,9 +528,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
     }
 
     public override void Allocate()
-    {
+    { }
 
-    }
     public override void SetupPrimitive(PrimitiveContext context)
     {
       context.Parameters = new EffectParameters();

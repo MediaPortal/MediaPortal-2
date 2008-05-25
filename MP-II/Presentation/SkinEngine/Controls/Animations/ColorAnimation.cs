@@ -23,40 +23,26 @@
 
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
 
   public class ColorAnimation : Timeline
   {
+    #region Private fields
+
     Property _fromProperty;
     Property _toProperty;
     Property _byProperty;
 
+    #endregion
+
     #region Ctor
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
-    /// </summary>
+
     public ColorAnimation()
     {
       Init();
-    }
-
-    public ColorAnimation(ColorAnimation a)
-      : base(a)
-    {
-      Init();
-      From = a.From;
-      To = a.To;
-      By = a.By;
-    }
-
-    public override object Clone()
-    {
-      ColorAnimation result = new ColorAnimation(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -65,104 +51,51 @@ namespace Presentation.SkinEngine.Controls.Animations
       _toProperty = new Property(typeof(Color), Color.White);
       _byProperty = new Property(typeof(Color), Color.Beige);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ColorAnimation a = source as ColorAnimation;
+      From = copyManager.GetCopy(a.From);
+      To = copyManager.GetCopy(a.To);
+      By = copyManager.GetCopy(a.By);
+    }
+
     #endregion
 
     #region Public properties
-    /// <summary>
-    /// Gets or sets from property.
-    /// </summary>
-    /// <value>From property.</value>
+
     public Property FromProperty
     {
-      get
-      {
-        return _fromProperty;
-      }
-      set
-      {
-        _fromProperty = value;
-      }
+      get { return _fromProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets from.
-    /// </summary>
-    /// <value>From.</value>
     public Color From
     {
-      get
-      {
-        return (Color)_fromProperty.GetValue();
-      }
-      set
-      {
-        _fromProperty.SetValue(value);
-      }
+      get { return (Color) _fromProperty.GetValue(); }
+      set { _fromProperty.SetValue(value); }
     }
 
-
-    /// <summary>
-    /// Gets or sets to property.
-    /// </summary>
-    /// <value>To property.</value>
     public Property ToProperty
     {
-      get
-      {
-        return _toProperty;
-      }
-      set
-      {
-        _toProperty = value;
-      }
+      get { return _toProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets to.
-    /// </summary>
-    /// <value>To.</value>
     public Color To
     {
-      get
-      {
-        return (Color)_toProperty.GetValue();
-      }
-      set
-      {
-        _toProperty.SetValue(value);
-      }
+      get { return (Color)_toProperty.GetValue(); }
+      set { _toProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the by property.
-    /// </summary>
-    /// <value>The by property.</value>
     public Property ByProperty
     {
-      get
-      {
-        return _byProperty;
-      }
-      set
-      {
-        _byProperty = value;
-      }
+      get { return _byProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the by.
-    /// </summary>
-    /// <value>The by.</value>
     public Color By
     {
-      get
-      {
-        return (Color)_byProperty.GetValue();
-      }
-      set
-      {
-        _byProperty.SetValue(value);
-      }
+      get { return (Color)_byProperty.GetValue(); }
+      set { _byProperty.SetValue(value); }
     }
 
     #endregion
@@ -203,10 +136,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       if (IsStopped(context)) return;
       context.State = State.Idle;
       if (context.DataDescriptor != null)
-      {
         context.DataDescriptor.Value = OriginalValue;
-
-      }
     }
 
     public override void Start(AnimationContext context, uint timePassed)

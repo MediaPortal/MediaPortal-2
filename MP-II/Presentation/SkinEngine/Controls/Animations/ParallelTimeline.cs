@@ -19,28 +19,15 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class ParallelTimeline : TimelineGroup
+  public class ParallelTimeline: TimelineGroup
   {
-    public ParallelTimeline()
-    {
-    }
-    public ParallelTimeline(ParallelTimeline a)
-      : base(a)
-    {
-    }
-
-    public override object Clone()
-    {
-      ParallelTimeline result = new ParallelTimeline(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
+    public ParallelTimeline() { }
   }
 }

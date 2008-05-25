@@ -19,151 +19,83 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class DoubleAnimation : Timeline
   {
+    #region Private fields
+
     Property _fromProperty;
     Property _toProperty;
     Property _byProperty;
 
+    #endregion
+
     #region Ctor
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DoubleAnimation"/> class.
-    /// </summary>
     public DoubleAnimation()
     {
       Init();
     }
     
-    public DoubleAnimation(DoubleAnimation a)
-      : base(a)
-    {
-      Init();
-      From = a.From;
-      To = a.To;
-      By = a.By;
-    }
-
-    public override object Clone()
-    {
-      DoubleAnimation result = new DoubleAnimation(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
       _fromProperty = new Property(typeof(double), 0.0);
       _toProperty = new Property(typeof(double), 1.0);
       _byProperty = new Property(typeof(double), 0.1);
+    }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      DoubleAnimation a = source as DoubleAnimation;
+      From = copyManager.GetCopy(a.From);
+      To = copyManager.GetCopy(a.To);
+      By = copyManager.GetCopy(a.By);
     }
 
     #endregion
 
     #region Public properties
-    /// <summary>
-    /// Gets or sets from property.
-    /// </summary>
-    /// <value>From property.</value>
+
     public Property FromProperty
     {
-      get
-      {
-        return _fromProperty;
-      }
-      set
-      {
-        _fromProperty = value;
-      }
+      get { return _fromProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets from.
-    /// </summary>
-    /// <value>From.</value>
     public double From
     {
-      get
-      {
-        return (double)_fromProperty.GetValue();
-      }
-      set
-      {
-        _fromProperty.SetValue(value);
-      }
+      get { return (double)_fromProperty.GetValue(); }
+      set { _fromProperty.SetValue(value); }
     }
 
 
-    /// <summary>
-    /// Gets or sets to property.
-    /// </summary>
-    /// <value>To property.</value>
     public Property ToProperty
     {
-      get
-      {
-        return _toProperty;
-      }
-      set
-      {
-        _toProperty = value;
-      }
+      get { return _toProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets to.
-    /// </summary>
-    /// <value>To.</value>
     public double To
     {
-      get
-      {
-        return (double)_toProperty.GetValue();
-      }
-      set
-      {
-        _toProperty.SetValue(value);
-      }
+      get { return (double)_toProperty.GetValue(); }
+      set { _toProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the by property.
-    /// </summary>
-    /// <value>The by property.</value>
     public Property ByProperty
     {
-      get
-      {
-        return _byProperty;
-      }
-      set
-      {
-        _byProperty = value;
-      }
+      get { return _byProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the by.
-    /// </summary>
-    /// <value>The by.</value>
     public double By
     {
-      get
-      {
-        return (double)_byProperty.GetValue();
-      }
-      set
-      {
-        _byProperty.SetValue(value);
-      }
+      get { return (double)_byProperty.GetValue(); }
+      set { _byProperty.SetValue(value); }
     }
 
     #endregion

@@ -24,32 +24,28 @@
 
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class SkewTransform : Transform
   {
+    #region Private fields
+
     Property _centerXProperty;
     Property _centerYProperty;
     Property _angleXProperty;
     Property _angleYProperty;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SkewTransform"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public SkewTransform()
     {
       Init();
     }
-    public SkewTransform(SkewTransform r)
-      : base(r)
-    {
-      Init();
-      CenterX = r.CenterX;
-      CenterY = r.CenterY;
-      AngleX = r.AngleX;
-      AngleY = r.AngleY;
-    }
+
     void Init()
     {
       _centerYProperty = new Property(typeof(double), 0.0);
@@ -63,12 +59,17 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _angleYProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      SkewTransform result = new SkewTransform(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      SkewTransform t = source as SkewTransform;
+      CenterX = copyManager.GetCopy(t.CenterX);
+      CenterY = copyManager.GetCopy(t.CenterY);
+      AngleX = copyManager.GetCopy(t.AngleX);
+      AngleY = copyManager.GetCopy(t.AngleY);
     }
+
+    #endregion
 
     protected void OnPropertyChanged(Property property)
     {
@@ -76,137 +77,50 @@ namespace Presentation.SkinEngine.Controls.Transforms
       Fire();
     }
 
-    /// <summary>
-    /// Gets or sets the center X property.
-    /// </summary>
-    /// <value>The center X property.</value>
     public Property CenterXProperty
     {
-      get
-      {
-        return _centerXProperty;
-      }
-      set
-      {
-        _centerXProperty = value;
-      }
+      get { return _centerXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the center X.
-    /// </summary>
-    /// <value>The center X.</value>
     public double CenterX
     {
-      get
-      {
-        return (double)_centerXProperty.GetValue();
-      }
-      set
-      {
-        _centerXProperty.SetValue(value);
-      }
+      get { return (double)_centerXProperty.GetValue(); }
+      set { _centerXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y property.
-    /// </summary>
-    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
-      get
-      {
-        return _centerYProperty;
-      }
-      set
-      {
-        _centerYProperty = value;
-      }
+      get { return _centerYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y.
-    /// </summary>
-    /// <value>The center Y.</value>
     public double CenterY
     {
-      get
-      {
-        return (double)_centerYProperty.GetValue();
-      }
-      set
-      {
-        _centerYProperty.SetValue(value);
-      }
+      get { return (double)_centerYProperty.GetValue(); }
+      set { _centerYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the angle X property.
-    /// </summary>
-    /// <value>The angle X property.</value>
     public Property AngleXProperty
     {
-      get
-      {
-        return _angleXProperty;
-      }
-      set
-      {
-        _angleXProperty = value;
-      }
+      get { return _angleXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the angle X.
-    /// </summary>
-    /// <value>The angle X.</value>
     public double AngleX
     {
-      get
-      {
-        return (double)_angleXProperty.GetValue();
-      }
-      set
-      {
-        _angleXProperty.SetValue(value);
-      }
+      get { return (double)_angleXProperty.GetValue(); }
+      set { _angleXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the angle Y property.
-    /// </summary>
-    /// <value>The angle Y property.</value>
     public Property AngleYProperty
     {
-      get
-      {
-        return _angleYProperty;
-      }
-      set
-      {
-        _angleYProperty = value;
-      }
+      get { return _angleYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the angle Y.
-    /// </summary>
-    /// <value>The angle Y.</value>
     public double AngleY
     {
-      get
-      {
-        return (double)_angleYProperty.GetValue();
-      }
-      set
-      {
-        _angleYProperty.SetValue(value);
-      }
+      get { return (double)_angleYProperty.GetValue(); }
+      set { _angleYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
     public override void UpdateTransform()
     {
       base.UpdateTransform();
@@ -232,8 +146,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
 
       if (translation)
         _matrix = Matrix.Translation((float)-cx, (float)-cy, 0);
-
     }
-
   }
 }

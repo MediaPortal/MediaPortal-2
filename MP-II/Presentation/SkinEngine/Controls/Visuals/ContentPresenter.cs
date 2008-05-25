@@ -26,41 +26,27 @@ using System;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ContentPresenter : FrameworkElement
   {
+    #region Private fields
+
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
     FrameworkElement _contentCache;
+
+    #endregion
+
+    #region Ctor
+
     public ContentPresenter()
     {
       Init();
-    }
-
-    public ContentPresenter(ContentPresenter c)
-      : base(c)
-    {
-      Init();
-      if (c.Content != null)
-      {
-        Content = (FrameworkElement)c.Content.Clone();
-        Content.VisualParent = this;
-      }
-      if (c.ContentTemplate != null)
-        ContentTemplate = (DataTemplate)c.ContentTemplate.Clone();
-      if (c.ContentTemplateSelector != null)
-        ContentTemplateSelector = c.ContentTemplateSelector;
-    }
-
-    public override object Clone()
-    {
-      ContentPresenter result = new ContentPresenter(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -68,8 +54,25 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _contentProperty = new Property(typeof(FrameworkElement), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
       _contentTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
+
       _contentProperty.Attach(OnContentChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ContentPresenter p = source as ContentPresenter;
+      Content = copyManager.GetCopy(p.Content);
+      ContentTemplateSelector = copyManager.GetCopy(p.ContentTemplateSelector);
+
+      // Don't take part in the outer copying process for the ContentTemplate property here -
+      // we need a finished copied template here. As the template has no references to its
+      // containing instance, it is safe to do a self-contained deep copy of it.
+      ContentTemplate = MpfCopyManager.DeepCopy(p.ContentTemplate);
+    }
+
+    #endregion
+
     void OnContentChanged(Property property)
     {
       _contentCache = _contentProperty.GetValue() as FrameworkElement;
@@ -77,118 +80,50 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Content.SetWindow(Window);
     }
 
-    /// <summary>
-    /// Gets or sets the content property.
-    /// </summary>
-    /// <value>The content property.</value>
     public Property ContentProperty
     {
-      get
-      {
-        return _contentProperty;
-      }
-      set
-      {
-        _contentProperty = value;
-      }
+      get { return _contentProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content.
-    /// </summary>
-    /// <value>The content.</value>
     public FrameworkElement Content
     {
-      get
-      {
-        return _contentCache;
-      }
-      set
-      {
-        _contentProperty.SetValue(value);
-      }
+      get { return _contentCache; }
+      set { _contentProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the content template property.
-    /// </summary>
-    /// <value>The content template property.</value>
     public Property ContentTemplateProperty
     {
-      get
-      {
-        return _contentTemplateProperty;
-      }
-      set
-      {
-        _contentTemplateProperty = value;
-      }
+      get { return _contentTemplateProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content template.
-    /// </summary>
-    /// <value>The content template.</value>
     public DataTemplate ContentTemplate
     {
-      get
-      {
-        return _contentTemplateProperty.GetValue() as DataTemplate;
-      }
-      set
-      {
-        _contentTemplateProperty.SetValue(value);
-      }
+      get { return _contentTemplateProperty.GetValue() as DataTemplate; }
+      set { _contentTemplateProperty.SetValue(value); }
     }
 
-
-    /// <summary>
-    /// Gets or sets the content template selector property.
-    /// </summary>
-    /// <value>The content template selector property.</value>
     public Property ContentTemplateSelectorProperty
     {
-      get
-      {
-        return _contentTemplateSelectorProperty;
-      }
-      set
-      {
-        _contentTemplateSelectorProperty = value;
-      }
+      get { return _contentTemplateSelectorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content template selector.
-    /// </summary>
-    /// <value>The content template selector.</value>
     public DataTemplateSelector ContentTemplateSelector
     {
-      get
-      {
-        return _contentTemplateSelectorProperty.GetValue() as DataTemplateSelector;
-      }
-      set
-      {
-        _contentTemplateSelectorProperty.SetValue(value);
-      }
+      get { return _contentTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
+      set { _contentTemplateSelectorProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       
       // Width / Height is not set.
       if (Width == 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        _desiredSize.Width = availableSize.Width - marginWidth;
       if (Height == 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {
@@ -212,20 +147,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
         // Measure the child
         Content.Measure(childSize);
 
-        // Is the desired size of the child bigger than our self?
-        // Then we must expand our desire.
-        if (Content.DesiredSize.Height > _desiredSize.Height)
-          _desiredSize.Height = Content.DesiredSize.Height;
-
-        if (Content.DesiredSize.Width > _desiredSize.Width)
+        // Next lines added by Albert78, 20.5.08
+        if (Width == 0)
           _desiredSize.Width = Content.DesiredSize.Width;
+        if (Height == 0)
+          _desiredSize.Height = Content.DesiredSize.Height;
       }
-
-      // Do we have a fixed Width / Height?
-      if (Width > 0) 
-        _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) 
-        _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
 
       if (LayoutTransform != null)
       {
@@ -233,28 +160,20 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += (float)marginWidth;
-      _desiredSize.Height += (float)marginHeight;
-      _originalSize = _desiredSize;
-
-
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += Margin.X * SkinContext.Zoom.Width;
+      layoutRect.Y += Margin.Y * SkinContext.Zoom.Height;
+      layoutRect.Width -= (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      layoutRect.Height -= (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -267,9 +186,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       if (Content != null)
       {
-        PointF location = new PointF((float)(layoutRect.X), (float)(layoutRect.Y));
+        PointF location = new PointF(layoutRect.X, layoutRect.Y);
         SizeF size = new SizeF(Content.DesiredSize.Width, Content.DesiredSize.Height);
-        ArrangeChild(Content, ref location, (double)layoutRect.Width, (double)layoutRect.Height);
+        ArrangeChild(Content, ref location, layoutRect.Width, layoutRect.Height);
         Content.Arrange(new RectangleF(location, size));
       }
 
@@ -285,7 +204,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _isLayoutInvalid = false;
     }
 
-    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
+    protected void ArrangeChild(FrameworkElement child, ref PointF p, double widthPerCell, double heightPerCell)
     {
       if (VisualParent == null) return;
 
@@ -306,15 +225,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
         p.Y += (float)(heightPerCell - child.DesiredSize.Height);
       }
     }
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
+
     public override void DoRender()
     {
       base.DoRender();
       if (Content != null)
       {
-        SkinContext.AddOpacity(this.Opacity);
+        SkinContext.AddOpacity(Opacity);
         Content.DoRender();
         SkinContext.RemoveOpacity();
       }
@@ -328,6 +245,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Content.BuildRenderTree();
       }
     }
+
     public override void DestroyRenderTree()
     {
       if (Content != null)
@@ -336,11 +254,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       if (!IsFocusScope) return;
@@ -351,16 +264,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.OnMouseMove(x, y);
     }
 
-
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
       if (Content != null)
         Content.FireUIEvent(eventType,  source);
     }
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
+
     public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
       if (Content != null)
@@ -369,11 +278,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
     public override UIElement FindElement(string name)
     {
       if (Content != null)
@@ -384,11 +288,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindElement(name);
     }
 
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
     public override UIElement FindElementType(Type t)
     {
       if (Content != null)
@@ -399,10 +298,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindElementType(t);
     }
 
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindItemsHost()
     {
       if (Content != null)
@@ -413,10 +308,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindItemsHost();
     }
 
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
       if (HasFocus) return this;
@@ -427,12 +318,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return null;
     }
+
     public override void Reset()
     {
       base.Reset();
       if (Content != null)
         Content.Reset();
     }
+
     public override void Deallocate()
     {
       base.Deallocate();
@@ -441,6 +334,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Content.Deallocate();
       }
     }
+
     public override void Allocate()
     {
       base.Allocate();
@@ -449,54 +343,31 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Content.Allocate();
       }
     }
-    #region focus prediction
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
+    #region Focus prediction
+
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       return ((FrameworkElement)Content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       return ((FrameworkElement)Content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       return ((FrameworkElement)Content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       return ((FrameworkElement)Content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
 
-
     #endregion
+
     public override void SetWindow(Window window)
     {
       base.SetWindow(window);

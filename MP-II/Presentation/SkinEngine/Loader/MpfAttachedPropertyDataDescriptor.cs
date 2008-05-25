@@ -29,13 +29,13 @@ using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.Loader
 {
-  public class MseAttachedPropertyDataDescriptor: DependencyPropertyDataDescriptor
+  public class MpfAttachedPropertyDataDescriptor: DependencyPropertyDataDescriptor
   {
-    protected MseNamespaceHandler _namespaceHandler;
+    protected MpfNamespaceHandler _namespaceHandler;
     protected string _propertyProvider;
 
-    public MseAttachedPropertyDataDescriptor(
-        MseNamespaceHandler parent, object targetObject,
+    public MpfAttachedPropertyDataDescriptor(
+        MpfNamespaceHandler parent, object targetObject,
         string propertyProvider, string propertyName):
         base(targetObject, propertyName, GetAttachedProperty(propertyProvider, propertyName, targetObject))
     {
@@ -46,7 +46,7 @@ namespace Presentation.SkinEngine.Loader
     internal static Property GetAttachedProperty(string propertyProvider, string propertyName,
         object targetObject)
     {
-      MethodInfo mi = MseNamespaceHandler.GetAttachedPropertyGetter(propertyProvider, propertyName);
+      MethodInfo mi = MpfNamespaceHandler.GetAttachedPropertyGetter(propertyProvider, propertyName);
       if (mi != null)
         return (Property) mi.Invoke(targetObject, new object[] {targetObject});
       else
@@ -57,7 +57,7 @@ namespace Presentation.SkinEngine.Loader
 
     public override IDataDescriptor Retarget(object newTarget)
     {
-      MseAttachedPropertyDataDescriptor result;
+      MpfAttachedPropertyDataDescriptor result;
       if (!CreateAttachedPropertyDataDescriptor(_namespaceHandler, newTarget,
           _propertyProvider, _propertyName, out result))
         throw new InvalidOperationException(string.Format(
@@ -66,16 +66,16 @@ namespace Presentation.SkinEngine.Loader
       return result;
     }
 
-    public static bool CreateAttachedPropertyDataDescriptor(MseNamespaceHandler parent,
+    public static bool CreateAttachedPropertyDataDescriptor(MpfNamespaceHandler parent,
         object targetObj, string propertyProvider, string propertyName,
-        out MseAttachedPropertyDataDescriptor result)
+        out MpfAttachedPropertyDataDescriptor result)
     {
       result = null;
       if (targetObj == null)
         throw new NullReferenceException("Target object 'null' is not supported");
-      if (!MseNamespaceHandler.HasAttachedProperty(propertyProvider, propertyName, targetObj))
+      if (!MpfNamespaceHandler.HasAttachedProperty(propertyProvider, propertyName, targetObj))
         return false;
-      result = new MseAttachedPropertyDataDescriptor(parent, targetObj, propertyProvider, propertyName);
+      result = new MpfAttachedPropertyDataDescriptor(parent, targetObj, propertyProvider, propertyName);
       return true;
     }
   }

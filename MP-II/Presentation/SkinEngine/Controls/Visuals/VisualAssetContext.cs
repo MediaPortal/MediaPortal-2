@@ -21,6 +21,7 @@
 */
 
 #endregion
+
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _assetId++;
       LastTimeUsed = SkinContext.Now;
     }
+
     #region IAsset Members
 
     public bool IsAllocated
@@ -81,6 +83,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         return false;
       }
     }
+
     public VertexBuffer VertexBuffer
     {
       get
@@ -97,6 +100,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         LastTimeUsed = SkinContext.Now;
       }
     }
+
     public Texture Texture
     {
       get
@@ -134,6 +138,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       return _name;
     }
+
     #endregion
   }
 }

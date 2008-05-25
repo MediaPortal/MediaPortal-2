@@ -35,16 +35,20 @@ using SizeF = System.Drawing.SizeF;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.Controls.Visuals.Shapes;
 using Presentation.SkinEngine.Controls.Brushes;
-using Presentation.SkinEngine.MarkupExtensions;
+using Presentation.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Control : FrameworkElement, IUpdateEventHandler
   {
+    #region Private/protected fields
+
     Property _templateProperty;
     FrameworkElement _templateControl;
     Property _backgroundProperty;
-    Brush _borderProperty;
+    Property _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
     VisualAssetContext _backgroundAsset;
@@ -57,62 +61,56 @@ namespace Presentation.SkinEngine.Controls.Visuals
     protected UIEvent _lastEvent = UIEvent.None;
     protected bool _hidden = false;
 
-    #region ctor
+    #endregion
+
+    #region Ctor
+
     public Control()
     {
       Init();
       Attach();
     }
 
-    public Control(Control c): base(c)
-    {
-      Init();
-
-      if (c.Template != null)
-      {
-        Template = (ControlTemplate)c.Template.Clone();
-        FrameworkElement element = Template.LoadContent(Window) as FrameworkElement;
-        if (element != null)
-        {
-          element.VisualParent = this;
-          _templateControl = element;
-          _templateControl.Context = this.Context;
-        }
-      }
-      if (c.BorderBrush != null)
-        this.BorderBrush = (Brush)c.BorderBrush.Clone();
-      if (c.Background != null)
-        this.Background = (Brush)c.Background.Clone();
-      BorderThickness = c.BorderThickness;
-      CornerRadius = c.CornerRadius;
-      Attach();
-    }
-
-    public override object Clone()
-    {
-      Control result = new Control(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
       _templateProperty = new Property(typeof(ControlTemplate), null);
 
-      _borderProperty = null;
-      _backgroundProperty = new Property(typeof(Brush),null);
+      _borderProperty = new Property(typeof(Brush), null);
+      _backgroundProperty = new Property(typeof(Brush), null);
       _borderThicknessProperty = new Property(typeof(double), 1.0);
       _cornerRadiusProperty = new Property(typeof(double), 0.0);
     }
-    
+
     void Attach()
     {
-      //_borderProperty.Attach(OnPropertyChanged);
-      //_backgroundProperty.Attach(OnPropertyChanged);
-      //_borderThicknessProperty.Attach(OnPropertyChanged);
+      _borderProperty.Attach(OnPropertyChanged);
+      _backgroundProperty.Attach(OnPropertyChanged);
+      _borderThicknessProperty.Attach(OnPropertyChanged);
       _templateProperty.Attach(OnTemplateChanged);
       _cornerRadiusProperty.Attach(OnPropertyChanged);
+
+      // FIXME Albert78: Remove this
+      DataContextProperty.Attach(OnDataContextPropertyChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Control c = source as Control;
+      BorderBrush = copyManager.GetCopy(c.BorderBrush);
+      Background = copyManager.GetCopy(c.Background);
+      BorderThickness = copyManager.GetCopy(c.BorderThickness);
+      CornerRadius = copyManager.GetCopy(c.CornerRadius);
+
+      // Don't take part in the outer copying process for the Template property here -
+      // we need a finished copied template here. As the template has no references to its
+      // containing instance, it is safe to do a self-contained deep copy of it.
+      Template = MpfCopyManager.DeepCopy(c.Template);
+    }
+
+    #endregion
+
+    #region Change handlers
 
     void OnBorderBrushPropertyChanged(Property property)
     {
@@ -126,13 +124,18 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
+    // FIXME Albert78: Remove this (see comments in OnTemplateChanged and Button.OnKeyPressed)
+    void OnDataContextPropertyChanged(Property property)
+    {
+      if (_templateControl != null)
+        _templateControl.Context = Context;
+    }
+
     protected override void OnStyleChanged(Property property)
     {
       if (_templateProperty == null)
         Init();
-      ///@optimize: 
-      Style.Set(this);
-      Invalidate();
+      base.OnStyleChanged(property);
     }
 
     protected void OnTemplateChanged(Property property)
@@ -140,16 +143,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Template != null)
       {
         ///@optimize: 
-        FrameworkElement element = Template.LoadContent(Window) as FrameworkElement;
+        FrameworkElement element = Template.LoadContent() as FrameworkElement;
         if (element != null)
         {
           element.VisualParent = this;
           _templateControl = element;
           // FIXME Albert78: The next line should be removed - we do not need it any more
-          // - but the button OnKeyPressed handler still needs it
-          _templateControl.Context = this.Context;
-          this.Resources.Merge(Template.Resources);
-          this.Triggers.Merge(Template.Triggers);
+          // - but the button OnKeyPressed handler still needs it. See Button.OnKeyPressed
+          _templateControl.Context = Context;
+          Resources.Merge(Template.Resources);
+          foreach (Trigger t in Template.Triggers)
+            Triggers.Add(t);
           _templateControl.SetWindow(Window);
         }
         else
@@ -169,159 +173,70 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _performLayout = true;
       if (Window != null) Window.Invalidate(this);
     }
+
     #endregion
 
-    #region properties
+    #region Public properties
+
     public FrameworkElement TemplateControl
     {
-      get
-      {
-        return _templateControl;
-      }
-      set
-      {
-        _templateControl = value;
-      }
+      get { return _templateControl; }
+      set { _templateControl = value; }
     }
-
 
     public Property BackgroundProperty
     {
-      get
-      {
-        return _backgroundProperty;
-      }
-      set
-      {
-        _backgroundProperty = value;
-        if (value != null)
-        {
-          _backgroundProperty.ClearAttachedEvents();
-          _backgroundProperty.Attach(new PropertyChangedHandler(OnBackgroundBrushPropertyChanged));
-        }
-      }
+      get { return _backgroundProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
     public Brush Background
     {
-      get
-      {
-        return _backgroundProperty.GetValue() as Brush;
-      }
-      set
-      {
-        _backgroundProperty.SetValue(value);
-      }
+      get { return (Brush) _backgroundProperty.GetValue(); }
+      set { _backgroundProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the Border brush
-    /// </summary>
-    /// <value>The Border.</value>
     public Brush BorderBrush
     {
-      get
-      {
-        return _borderProperty;
-      }
-      set
-      {
-        _borderProperty = value;
-        if (value != null)
-        {
-          _borderProperty.ClearAttachedEvents();
-          _borderProperty.Attach(new PropertyChangedHandler(OnBorderBrushPropertyChanged));
-        }
-      }
+      get { return (Brush) _borderProperty.GetValue(); }
+      set { _borderProperty.SetValue(value); }
     }
 
     public Property BorderThicknessProperty
     {
-      get
-      {
-        return _borderThicknessProperty;
-      }
-      set
-      {
-        _borderThicknessProperty = value;
-      }
+      get { return _borderThicknessProperty; }
     }
 
     public double BorderThickness
     {
-      get
-      {
-        return (double)_borderThicknessProperty.GetValue();
-      }
-      set
-      {
-        _borderThicknessProperty.SetValue(value);
-      }
+      get { return (double)_borderThicknessProperty.GetValue(); }
+      set { _borderThicknessProperty.SetValue(value); }
     }
 
     public Property CornerRadiusProperty
     {
-      get
-      {
-        return _cornerRadiusProperty;
-      }
-      set
-      {
-        _cornerRadiusProperty = value;
-      }
+      get { return _cornerRadiusProperty; }
     }
 
     public double CornerRadius
     {
-      get
-      {
-        return (double)_cornerRadiusProperty.GetValue();
-      }
-      set
-      {
-        _cornerRadiusProperty.SetValue(value);
-      }
+      get { return (double)_cornerRadiusProperty.GetValue(); }
+      set { _cornerRadiusProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the control template property.
-    /// </summary>
-    /// <value>The control template property.</value>
     public Property TemplateProperty
     {
-      get
-      {
-        return _templateProperty;
-      }
-      set
-      {
-        _templateProperty = value;
-      }
+      get { return _templateProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the control template.
-    /// </summary>
-    /// <value>The control template.</value>
     public ControlTemplate Template
     {
-      get
-      {
-        return _templateProperty.GetValue() as ControlTemplate;
-      }
-      set
-      {
-        _templateProperty.SetValue(value);
-      }
+      get { return _templateProperty.GetValue() as ControlTemplate; }
+      set { _templateProperty.SetValue(value); }
     }
+
     #endregion
 
-    #region rendering
-
+    #region Rendering
 
     void SetupBrush(UIEvent uiEvent)
     {
@@ -442,9 +357,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       RenderBorder();
@@ -458,28 +370,29 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region measure&arrange
-    public override void Measure(System.Drawing.SizeF availableSize)
+    #region Measure&arrange
+
+    public override void Measure(SizeF availableSize)
     {
       //Trace.WriteLine(String.Format("Control:Measure '{0}' {1}x{2}", this.Name, availableSize.Width, availableSize.Height));
 
+      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
       if (!IsVisible)
       {
         _desiredSize = new SizeF(0, 0);
-        _originalSize = _desiredSize;
-        _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
         return;
       }
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      if (Width <= 0)
+        _desiredSize.Width = availableSize.Width - marginWidth;
+      if (Height <= 0)
+        _desiredSize.Height = availableSize.Height - marginHeight;
+
       if (_templateControl == null)
       {
-        _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-        if (Width <= 0)
-          _desiredSize.Width = (float)(availableSize.Width - marginWidth);
-        if (Height <= 0)
-          _desiredSize.Height = (float)(availableSize.Height - marginHeight);
-
         if (LayoutTransform != null)
         {
           ExtendedMatrix m = new ExtendedMatrix();
@@ -487,23 +400,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
           SkinContext.AddLayoutTransform(m);
         }
         SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-        _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
         if (LayoutTransform != null)
         {
           SkinContext.RemoveLayoutTransform();
         }
         _desiredSize.Width += marginWidth;
         _desiredSize.Height += marginHeight;
-        _originalSize = _desiredSize;
         return;
       }
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-
-      if (Width <= 0)
-        _desiredSize.Width = (float)availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = (float)availableSize.Height - marginHeight;
-
 
       if (LayoutTransform != null)
       {
@@ -525,27 +429,22 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
-      _desiredSize.Width += (float)marginWidth;
-      _desiredSize.Height += (float)marginHeight;
-      _originalSize = _desiredSize;
-
-
+      _desiredSize.Width += marginWidth;
+      _desiredSize.Height += marginHeight;
 
       // Trace.WriteLine(String.Format("Control:Measure returns '{0}' {1}x{2}", this.Name, _desiredSize.Width, _desiredSize.Height));
-      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-
       //Trace.WriteLine(String.Format("Control:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      layoutRect.X += Margin.X * SkinContext.Zoom.Width;
+      layoutRect.Y += Margin.Y * SkinContext.Zoom.Height;
+      layoutRect.Width -= (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      layoutRect.Height -= (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -559,8 +458,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         _templateControl.Arrange(layoutRect);
         ActualPosition = _templateControl.ActualPosition;
-        ActualWidth = ((FrameworkElement)_templateControl).ActualWidth;
-        ActualHeight = ((FrameworkElement)_templateControl).ActualHeight;
+        ActualWidth = _templateControl.ActualWidth;
+        ActualHeight = _templateControl.ActualHeight;
       }
 
       if (LayoutTransform != null)
@@ -577,15 +476,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
         if (Window != null) Window.Invalidate(this);
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
     }
+
     #endregion
 
-    /// <summary>
-    /// Fires an event.
-    /// </summary>
-    /// <param name="eventName">Name of the event.</param>
     public override void FireEvent(string eventName)
     {
       if (_templateControl != null)
@@ -596,11 +492,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     #region findXXX methods
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
+
     public override UIElement FindElement(string name)
     {
       if (_templateControl != null)
@@ -631,10 +523,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindItemsHost(); ;
     }
 
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
       if (base.HasFocus) return this;
@@ -645,9 +533,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return null;
     }
+
     #endregion
 
-    #region input handling
+    #region Input handling
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
@@ -669,11 +558,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       if (_templateControl != null)
@@ -745,16 +629,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _templateControl.Allocate();
       }
     }
+
     #endregion
 
-    #region focus prediction
+    #region Focus prediction
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (_templateControl == null) return null;
@@ -763,12 +642,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (_templateControl == null) return null;
@@ -777,12 +650,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (_templateControl == null) return null;
@@ -791,12 +658,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (_templateControl == null) return null;
@@ -804,12 +665,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (element != null) return element;
       return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
+
     #endregion
 
-    #region layouting
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
+    #region Layouting
+
     void PerformLayout()
     {
       //Trace.WriteLine("Border.PerformLayout() " + this.Name);
@@ -852,7 +712,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
               if (_backgroundAsset.VertexBuffer != null)
               {
                 Background.SetupBrush(this, ref verts);
-
 
                 PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
                 _verticesCountBackground = (verts.Length / 3);
@@ -917,7 +776,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    #region Get the desired Rounded Rectangle path.
+    /// <summary>
+    /// Get the desired Rounded Rectangle path.
+    /// </summary>
     private GraphicsPath GetRoundedRect(RectangleF baseRect, float CornerRadius)
     {
       // if corner radius is less than or equal to zero, 
@@ -998,9 +859,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       path.Flatten();
       return path;
     }
-    #endregion
 
-    #region Gets the desired Capsular path.
+    /// <summary>
+    /// Gets the desired Capsular path.
+    /// </summary>
     private GraphicsPath GetCapsule(RectangleF baseRect)
     {
       float diameter;
@@ -1058,7 +920,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       path.Transform(mtx);
       return path;
     }
-    #endregion
+
     #endregion
 
     public override void DoBuildRenderTree()
@@ -1095,11 +957,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     public virtual void BecomesVisible()
-    {
-    }
+    { } 
 
     public virtual void BecomesHidden()
-    {
-    }
+    { }
   }
 }

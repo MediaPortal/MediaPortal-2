@@ -22,8 +22,6 @@
 
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
-
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class TreeViewItem : HeaderedItemsControl
@@ -33,20 +31,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Init();
     }
 
-    public TreeViewItem(TreeViewItem c)
-      : base(c)
-    {
-      Init();
-    }
-
-    public override object Clone()
-    {
-      TreeViewItem result = new TreeViewItem(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
-    { } 
+    { }
+
+    protected override bool Prepare()
+    {
+      if (!IsExpanded)
+        return true;
+      return base.Prepare();
+    }
   }
 }

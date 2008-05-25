@@ -21,16 +21,6 @@
 */
 
 #endregion
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Control.InputManager;
-
-using Presentation.SkinEngine;
-
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

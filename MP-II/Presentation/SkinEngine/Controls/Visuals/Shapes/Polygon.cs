@@ -24,80 +24,62 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
+using System.Collections.Generic;using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
   public class Polygon : Shape
   {
+    #region Private fields
+
     Property _pointsProperty;
+
+    #endregion
+
+    #region Ctor
 
     public Polygon()
     {
       Init();
     }
 
-    public Polygon(Polygon s)
-      : base(s)
-    {
-      Init();
-      foreach (Point point in s.Points)
-      {
-        Points.Add(point);
-      }
-    }
-
-    public override object Clone()
-    {
-      Polygon result = new Polygon(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _pointsProperty = new Property(typeof(PointCollection), new PointCollection());
+      _pointsProperty = new Property(typeof(IList<Point>), new List<Point>());
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Polygon p = source as Polygon;
+      foreach (Point pt in p.Points)
+        Points.Add(copyManager.GetCopy(pt));
+    }
+
+    #endregion
+
+    #region Public properties
 
     public Property PointsProperty
     {
-      get
-      {
-        return _pointsProperty;
-      }
-      set
-      {
-        _pointsProperty = value;
-      }
+      get { return _pointsProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the points.
-    /// </summary>
-    /// <value>The points.</value>
-    public PointCollection Points
+    public IList<Point> Points
     {
-      get
-      {
-        return (PointCollection)_pointsProperty.GetValue();
-      }
-      set
-      {
-        _pointsProperty.SetValue(value);
-      }
+      get { return (IList<Point>)_pointsProperty.GetValue(); }
     }
 
+    #endregion
 
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
+    #region Layouting
+
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
@@ -202,10 +184,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
           }
         }
       }
-
-
     }
-    #region Get the desired Rounded Rectangle path.
+
+    /// <summary>
+    /// Get the desired Rounded Rectangle path.
+    /// </summary>
     private GraphicsPath GetPolygon(RectangleF baseRect)
     {
       Point[] points = new Point[Points.Count];
@@ -230,12 +213,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       mPath.Transform(m);
 
       mPath.Flatten();
-
-
       return mPath;
     }
+
     #endregion
-
-
   }
 }

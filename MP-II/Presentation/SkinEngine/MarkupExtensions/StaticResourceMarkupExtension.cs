@@ -22,14 +22,9 @@
 
 #endregion
 
-using System;
-using System.Xml;
-using System.Collections.Generic;
-using System.Reflection;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Resources;
-using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -64,7 +59,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
       object result = null;
-      // Our current visual element's implementation doesn't support a materialized
+      // FIXME Albert78: Our current visual element's implementation doesn't support a materialized
       // logical tree, so we have to use the parser's context stack
       foreach (ElementContextInfo current in context.ContextStack)
       {

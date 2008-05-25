@@ -25,12 +25,15 @@
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.Presentation.Collections;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class TreeView : ItemsControl
   {
+    #region Private fields
+
     Property _commandParameter;
     Command _command;
     Property _commands;
@@ -38,30 +41,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _contextMenuCommandParameterProperty;
     Command _selectionChanged;
 
+    #endregion
+
+    #region Ctor
+
     public TreeView()
     {
       Init();
-    }
-
-    public TreeView(TreeView c)
-      : base(c)
-    {
-      Init();
-
-      Command = c.Command;
-      CommandParameter = c._commandParameter;
-      SelectionChanged = c.SelectionChanged;
-
-      ContextMenuCommand = c.ContextMenuCommand;
-      ContextMenuCommandParameter = c.ContextMenuCommandParameter;
-      Commands = (CommandGroup)c.Commands.Clone();
-    }
-
-    public override object Clone()
-    {
-      TreeView result = new TreeView(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -74,160 +60,88 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     }
 
-    #region events
-    public Command SelectionChanged
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      get
-      {
-        return _selectionChanged;
-      }
-      set
-      {
-        _selectionChanged = value;
-      }
+      base.DeepCopy(source, copyManager);
+      TreeView tv = source as TreeView;
+      Command = copyManager.GetCopy(tv.Command);
+      CommandParameter = copyManager.GetCopy(tv._commandParameter);
+      SelectionChanged = copyManager.GetCopy(tv.SelectionChanged);
+
+      ContextMenuCommand = copyManager.GetCopy(tv.ContextMenuCommand);
+      ContextMenuCommandParameter = copyManager.GetCopy(tv.ContextMenuCommandParameter);
+      Commands = copyManager.GetCopy(tv.Commands);
     }
+
     #endregion
 
-    #region properties
+    #region Events
+
+    public Command SelectionChanged
+    {
+      get { return _selectionChanged; }
+      set { _selectionChanged = value; }
+    }
+
+    #endregion
+
+    #region Public properties
 
     public Property CommandsProperty
     {
-      get
-      {
-        return _commands;
-      }
-      set
-      {
-        _commands = value;
-      }
+      get { return _commands; }
     }
-    /// <summary>
-    /// Gets or sets the command.s
-    /// </summary>
-    /// <value>The command.</value>
+
     public CommandGroup Commands
     {
-      get
-      {
-        return _commands.GetValue() as CommandGroup;
-      }
-      set
-      {
-        _commands.SetValue(value);
-      }
+      get { return _commands.GetValue() as CommandGroup; }
+      set { _commands.SetValue(value); }
     }
-    /// <summary>
-    /// Gets or sets the command.
-    /// </summary>
-    /// <value>The command.</value>
+
     public Command Command
     {
-      get
-      {
-        return _command;
-      }
-      set
-      {
-        _command = value;
-      }
+      get { return _command; }
+      set { _command = value; }
     }
-    /// <summary>
-    /// Gets or sets the command parameter property.
-    /// </summary>
-    /// <value>The command parameter property.</value>
+
     public Property CommandParameterProperty
     {
-      get
-      {
-        return _commandParameter;
-      }
-      set
-      {
-        _commandParameter = value;
-      }
+      get { return _commandParameter; }
     }
 
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
     public object CommandParameter
     {
-      get
-      {
-        return _commandParameter.GetValue();
-      }
-      set
-      {
-        _commandParameter.SetValue(value);
-      }
+      get { return _commandParameter.GetValue(); }
+      set { _commandParameter.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command.
-    /// </summary>
-    /// <value>The context menu command.</value>
     public Command ContextMenuCommand
     {
-      get
-      {
-        return _contextMenuCommand;
-      }
-      set
-      {
-        _contextMenuCommand = value;
-      }
+      get { return _contextMenuCommand; }
+      set { _contextMenuCommand = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command parameter property.
-    /// </summary>
-    /// <value>The context menu command parameter property.</value>
     public Property ContextMenuCommandParameterProperty
     {
-      get
-      {
-        return _contextMenuCommandParameterProperty;
-      }
-      set
-      {
-        _contextMenuCommandParameterProperty = value;
-      }
+      get { return _contextMenuCommandParameterProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command parameter.
-    /// </summary>
-    /// <value>The context menu command parameter.</value>
     public object ContextMenuCommandParameter
     {
-      get
-      {
-        return _contextMenuCommandParameterProperty.GetValue();
-      }
-      set
-      {
-        _contextMenuCommandParameterProperty.SetValue(value);
-      }
+      get { return _contextMenuCommandParameterProperty.GetValue(); }
+      set { _contextMenuCommandParameterProperty.SetValue(value); }
     }
+
     #endregion
 
-    #region input handling
-    /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
+    #region Input handling
+
     public override void OnMouseMove(float x, float y)
     {
       base.OnMouseMove(x, y);
       UpdateCurrentItem();
     }
 
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
       UpdateCurrentItem();
@@ -253,9 +167,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Updates the current item.
-    /// </summary>
     void UpdateCurrentItem()
     {
       UIElement element = FindFocusedItem();
@@ -277,5 +188,34 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    protected override FrameworkElement PrepareItemContainer(object dataItem)
+    {
+      TreeViewItem container = new TreeViewItem();
+      container.Style = ItemContainerStyle;
+      container.Context = dataItem;
+      container.TemplateControl = new ItemsPresenter();
+      container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+      container.TemplateControl.VisualParent = container;
+      container.ItemsPanel = ItemsPanel;
+      if (dataItem is ListItem)
+      {
+        ListItem listItem = (ListItem) dataItem;
+        container.ItemsSource = listItem.SubItems;
+      }
+
+      container.HeaderTemplateSelector = this.ItemTemplateSelector;
+      container.HeaderTemplate = ItemTemplate;
+      FrameworkElement element = ItemContainerStyle.Get();
+      element.Context = dataItem;
+      ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+
+      container.Header = element;
+
+      ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      if (p != null) p.IsVisible = false;
+      return container;
+    }
   }
 }

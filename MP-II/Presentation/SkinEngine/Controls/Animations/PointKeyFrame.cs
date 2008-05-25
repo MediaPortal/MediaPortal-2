@@ -22,15 +22,12 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
 using SlimDX;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class PointKeyFrame : KeyFrameBase, IKeyFrame
+  public class PointKeyFrame : ValueKeyFrame<Vector2>
   {
-    Property _keyValueProperty;
-
     #region Ctor
 
     public PointKeyFrame()
@@ -38,36 +35,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       Init();
     }
 
-    public PointKeyFrame(PointKeyFrame k)
-    {
-      Init();
-      Value = k.Value;
-    }
-
     void Init()
     {
-      _keyValueProperty = new Property(typeof(Vector2), new Vector2(0, 0));
-    }
-
-    #endregion
-
-    #region Properties
-
-    public Property ValueProperty
-    {
-      get { return _keyValueProperty; }
-    }
-
-    public Vector2 Value
-    {
-      get { return (Vector2)_keyValueProperty.GetValue(); }
-      set { _keyValueProperty.SetValue(value); }
-    }
-
-    object IKeyFrame.Value
-    {
-      get { return this.Value; }
-      set { this.Value = (Vector2) value; }
+      Value = new Vector2(0, 0);
     }
 
     #endregion

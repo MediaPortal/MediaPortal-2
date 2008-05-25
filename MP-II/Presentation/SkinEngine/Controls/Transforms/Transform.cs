@@ -22,35 +22,31 @@
 
 #endregion
 
-using System;
 using SlimDX;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using Presentation.SkinEngine;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
-  public class Transform : Property, ICloneable
+  public class Transform : Property, IDeepCopyable
   {
+    #region Private/protected fields
+
     protected bool _needUpdate = true;
     protected bool _needUpdateRel = true;
     protected Matrix _matrix = Matrix.Identity;
     protected Matrix _matrixRel = Matrix.Identity;
 
+    #endregion
+    
+    #region Ctor
+
     public Transform(): base(null)
     {
       Init();
-    }
-
-    public Transform(Transform r): base(null)
-    {
-      Init();
-    }
-
-    public virtual object Clone()
-    {
-      return new Transform(this);
     }
 
     void Init()
@@ -58,6 +54,11 @@ namespace Presentation.SkinEngine.Controls.Transforms
       WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
       mgr.Utils.ZoomProperty.Attach(OnZoomChanged);
     }
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    { }
+
+    #endregion
 
     void OnZoomChanged(Property prop)
     {
@@ -80,10 +81,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
       m.Matrix *= matrix;
     }
     
-    /// <summary>
-    /// Gets the transform.
-    /// </summary>
-    /// <param name="m">The matrix</param>
     public virtual void GetTransform(out Matrix m)
     {
       if (_needUpdate)
@@ -104,9 +101,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
       m = _matrixRel;
     }
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
     public virtual void UpdateTransform()
     { }
 

@@ -23,7 +23,6 @@
 #endregion
 
 using Presentation.SkinEngine.Controls.Visuals.Styles;
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -37,22 +36,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public ItemsPresenter()
     { }
 
-    public ItemsPresenter(ItemsPresenter p)
-      :base(p)
-    {
-    }
-
-    public override object Clone()
-    {
-      ItemsPresenter result = new ItemsPresenter(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     public void ApplyTemplate(FrameworkTemplate template)
     {
       ControlTemplate ct = new ControlTemplate();
-      ct.AddChild(template.LoadContent(Window));
+      ct.AddChild(template.LoadContent());
       this.Template = ct;
     }
 

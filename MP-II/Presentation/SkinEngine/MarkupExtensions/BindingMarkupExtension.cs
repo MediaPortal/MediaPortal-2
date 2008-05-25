@@ -185,7 +185,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
       // Copy values initialized by the Prepare(IParserContext,IDataDescriptor) call,
       // retargeted to the newTarget.
-      _targetDataDescriptor = other._targetDataDescriptor.Retarget(newTarget);
+      _targetDataDescriptor = other._targetDataDescriptor == null ? null :
+          other._targetDataDescriptor.Retarget(newTarget);
 
       _compiledPath = other._compiledPath;
       _negate = other._negate;

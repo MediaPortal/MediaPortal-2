@@ -19,11 +19,10 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Properties;
+
 #endregion
+
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
@@ -34,11 +33,17 @@ namespace Presentation.SkinEngine.Controls.Panels
     Star = 2,
   }
 
-  public class GridLength
+  public class GridLength: IDeepCopyable
   {
+    #region Private fields
+
     GridUnitType _unitType;
     double _value = 0;
     double _finalValue = 0;
+
+    #endregion
+
+    #region Ctor
 
     public GridLength(double value)
     {
@@ -57,54 +62,40 @@ namespace Presentation.SkinEngine.Controls.Panels
       _value = value;
     }
 
-    /// <summary>
-    /// Gets a value indicating whether the length is absolute.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is absolute; otherwise, <c>false</c>.
-    /// </value>
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      GridLength gl = source as GridLength;
+      _unitType = copyManager.GetCopy(gl._unitType);
+      _value = copyManager.GetCopy(gl._value);
+      _finalValue = copyManager.GetCopy(gl._finalValue);
+    }
+
+    #endregion
+
     public bool IsAbsolute
     {
-      get
-      {
-        return _unitType == GridUnitType.Pixel;
-      }
+      get { return _unitType == GridUnitType.Pixel; }
     }
 
     /// <summary>
     /// Gets a value indicating whether length is determined by control size.
     /// </summary>
-    /// <value><c>true</c> if this instance is auto; otherwise, <c>false</c>.</value>
     public bool IsAuto
     {
-      get
-      {
-        return _unitType == GridUnitType.Auto;
-      }
+      get { return _unitType == GridUnitType.Auto; }
     }
 
     /// <summary>
     /// Gets a value indicating whether length is a percentage of the control size
     /// </summary>
-    /// <value><c>true</c> if this instance is star; otherwise, <c>false</c>.</value>
     public bool IsStar
     {
-      get
-      {
-        return _unitType == GridUnitType.Star;
-      }
+      get { return _unitType == GridUnitType.Star; }
     }
 
-    /// <summary>
-    /// Gets the value.
-    /// </summary>
-    /// <value>The value.</value>
     public double Value
     {
-      get
-      {
-        return _value;
-      }
+      get { return _value; }
     }
 
     /// <summary>
@@ -113,17 +104,9 @@ namespace Presentation.SkinEngine.Controls.Panels
     /// <value>The type of the grid unit.</value>
     public GridUnitType GridUnitType
     {
-      get
-      {
-        return _unitType;
-      }
+      get { return _unitType; }
     }
 
-    /// <summary>
-    /// Gets the length.
-    /// </summary>
-    /// <param name="totalLength">The total length.</param>
-    /// <returns></returns>
     public double GetLength(double totalLength,  ColumnDefinitionsCollection collection, float scale)
     {
       if (IsAbsolute) return _value * scale;
@@ -149,16 +132,8 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public double Length
     {
-      get
-      {
-        return _finalValue;
-      }
-      set
-      {
-        _finalValue = value;
-      }
+      get { return _finalValue; }
+      set { _finalValue = value; }
     }
-
-    
   }
 }

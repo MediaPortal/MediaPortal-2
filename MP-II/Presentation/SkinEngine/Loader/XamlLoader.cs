@@ -28,12 +28,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.ElementRegistrations;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Loader
 {
-  using System.Collections.Generic;
-
   /// <summary>
   /// This is the loader class for XAML files. It uses a XAML parser to read the
   /// structure and builds the visual elements tree for the file.
@@ -43,7 +41,7 @@ namespace Presentation.SkinEngine.Loader
     /// <summary>
     /// XAML namespace for the MediaPortal Skin Engine visual's class library.
     /// </summary>
-    public const string NS_MEDIAPORTAL_MSE_URI = "www.team-mediaportal.com/2008/mse/directx";
+    public const string NS_MEDIAPORTAL_MPF_URI = "www.team-mediaportal.com/2008/mpf/directx";
 
     /// <summary>
     /// Loads the specified skin file and returns the root UIElement.
@@ -60,7 +58,7 @@ namespace Presentation.SkinEngine.Loader
         fullFileName = skinFile;
       }
       Parser parser = new Parser(fullFileName, parser_ImportNamespace, parser_GetEventHandler);
-      parser.SetCustomTypeConverter(MseTypeConverter.ConvertType);
+      parser.SetCustomTypeConverter(MseElements.ConvertType);
       DateTime dt = DateTime.Now;
       object obj = parser.Parse();
       TimeSpan ts = DateTime.Now - dt;
@@ -70,8 +68,8 @@ namespace Presentation.SkinEngine.Loader
 
     static INamespaceHandler parser_ImportNamespace(IParserContext context, string namespaceURI)
     {
-      if (namespaceURI == NS_MEDIAPORTAL_MSE_URI)
-        return new MseNamespaceHandler();
+      if (namespaceURI == NS_MEDIAPORTAL_MPF_URI)
+        return new MpfNamespaceHandler();
       else
         throw new XamlNamespaceNotSupportedException("XAML namespace '{0}' is not supported by the MediaPortal skin engine", namespaceURI);
     }

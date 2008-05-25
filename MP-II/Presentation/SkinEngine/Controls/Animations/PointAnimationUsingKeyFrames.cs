@@ -19,81 +19,58 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class PointAnimationUsingKeyFrames : Timeline, IAddChild
   {
+    #region Private fields
+
     Property _keyFramesProperty;
+
+    #endregion
 
     #region Ctor
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PointAnimation"/> class.
-    /// </summary>
     public PointAnimationUsingKeyFrames()
     {
       Init();
     }
 
-    public PointAnimationUsingKeyFrames(PointAnimationUsingKeyFrames a)
-      : base(a)
-    {
-      Init();
-      //foreach (PointKeyFrame k in a.KeyFrames)
-      //{
-      //  KeyFrames.Add((PointKeyFrame)k.Clone());
-      //}
-      _keyFramesProperty.SetValue(a.KeyFrames);
-    }
-
-    public override object Clone()
-    {
-      PointAnimationUsingKeyFrames result = new PointAnimationUsingKeyFrames(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _keyFramesProperty = new Property(typeof(PointKeyFrameCollection), new PointKeyFrameCollection());
+      _keyFramesProperty = new Property(typeof(IList<PointKeyFrame>), new List<PointKeyFrame>());
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      PointAnimationUsingKeyFrames a = source as PointAnimationUsingKeyFrames;
+      IList<PointKeyFrame> keyFrames = KeyFrames;
+      foreach (PointKeyFrame kf in a.KeyFrames)
+        keyFrames.Add(copyManager.GetCopy(kf));
     }
 
     #endregion
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
     public Property KeyFramesProperty
     {
-      get
-      {
-        return _keyFramesProperty;
-      }
-      set
-      {
-        _keyFramesProperty = value;
-      }
+      get { return _keyFramesProperty; }
     }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public PointKeyFrameCollection KeyFrames
+
+    public IList<PointKeyFrame> KeyFrames
     {
-      get
-      {
-        return _keyFramesProperty.GetValue() as PointKeyFrameCollection;
-      }
+      get { return _keyFramesProperty.GetValue() as IList<PointKeyFrame>; }
     }
 
     #endregion

@@ -24,33 +24,24 @@
 
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Animations;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class BeginStoryboard : TriggerAction
   {
+    #region Private fields
+
     Property _storyBoardProperty;
     Property _nameProperty;
+
+    #endregion
+
+    #region Ctor
 
     public BeginStoryboard()
     {
       Init();
-    }
-
-    public BeginStoryboard(BeginStoryboard action)
-      : base(action)
-    {
-      Init();
-      Storyboard = action.Storyboard;
-      Name = action.Name;
-    }
-
-    public override object Clone()
-    {
-      BeginStoryboard result = new BeginStoryboard(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -58,70 +49,43 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       _storyBoardProperty = new Property(typeof(Timeline), null);
       _nameProperty = new Property(typeof(string), "");
     }
-    /// <summary>
-    /// Gets or sets the storyboard property.
-    /// </summary>
-    /// <value>The storyboard property.</value>
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      BeginStoryboard s = source as BeginStoryboard;
+      Storyboard = copyManager.GetCopy(s.Storyboard);
+      Name = copyManager.GetCopy(s.Name);
+    }
+
+    #endregion
+
+    #region Public properties
+
     public Property StoryboardProperty
     {
-      get
-      {
-        return _storyBoardProperty;
-      }
-      set
-      {
-        _storyBoardProperty = value;
-      }
+      get { return _storyBoardProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the storyboard.
-    /// </summary>
-    /// <value>The storyboard.</value>
     public Timeline Storyboard
     {
-      get
-      {
-        return _storyBoardProperty.GetValue() as Timeline;
-      }
-      set
-      {
-        _storyBoardProperty.SetValue(value);
-      }
+      get { return _storyBoardProperty.GetValue() as Timeline; }
+      set { _storyBoardProperty.SetValue(value); }
     }
 
 
-    /// <summary>
-    /// Gets or sets the name property.
-    /// </summary>
-    /// <value>The name property.</value>
     public Property NameProperty
     {
-      get
-      {
-        return _nameProperty;
-      }
-      set
-      {
-        _nameProperty = value;
-      }
+      get { return _nameProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
     public string Name
     {
-      get
-      {
-        return _nameProperty.GetValue() as string;
-      }
-      set
-      {
-        _nameProperty.SetValue(value);
-      }
+      get { return _nameProperty.GetValue() as string; }
+      set { _nameProperty.SetValue(value); }
     }
+
+    #endregion
 
     public override void Execute(UIElement element, Trigger trigger)
     {
@@ -133,6 +97,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
       }
     }
+
     public override void Setup(UIElement element)
     {
       if (Storyboard != null)

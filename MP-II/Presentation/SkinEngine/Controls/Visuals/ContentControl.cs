@@ -25,42 +25,26 @@
 using System;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ContentControl : Control, IAddChild
   {
+    #region Private fields
+
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
 
-    #region ctor
+    #endregion
+
+    #region Ctor
+
     public ContentControl()
     {
       Init();
-    }
-
-    public ContentControl(ContentControl c)
-      : base(c)
-    {
-      Init();
-      if (c.Content != null)
-      {
-        Content = (FrameworkElement)c.Content.Clone();
-        Content.VisualParent = this;
-      }
-      if (c.ContentTemplate != null)
-        ContentTemplate = (DataTemplate)c.ContentTemplate.Clone();
-      if (c.ContentTemplateSelector != null)
-        ContentTemplateSelector = c.ContentTemplateSelector;
-    }
-
-    public override object Clone()
-    {
-      ContentControl result = new ContentControl(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -68,13 +52,29 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _contentProperty = new Property(typeof(FrameworkElement), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
       _contentTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
+
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentTemplateSelectorProperty.Attach(OnContentTemplateSelectorChanged);
       _contentProperty.Attach(OnContentChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ContentControl c = source as ContentControl;
+      Content = copyManager.GetCopy(c.Content);
+      ContentTemplateSelector = copyManager.GetCopy(c.ContentTemplateSelector);
+
+      // Don't take part in the outer copying process for the ContentTemplate property here -
+      // we need a finished copied content template here. As the template has no references to its
+      // containing instance, it is safe to do a self-contained deep copy of it.
+      ContentTemplate = MpfCopyManager.DeepCopy(c.ContentTemplate);
+    }
+
     #endregion
 
-    #region eventhandlers
+    #region Eventhandlers
+
     void OnContentChanged(Property property)
     {
       ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
@@ -85,6 +85,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         presenter.Content = Content;
       }
     }
+
     void OnContentTemplateChanged(Property property)
     {
       ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
@@ -95,6 +96,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         presenter.ContentTemplate = ContentTemplate;
       }
     }
+
     void OnContentTemplateSelectorChanged(Property property)
     {
       ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
@@ -105,106 +107,45 @@ namespace Presentation.SkinEngine.Controls.Visuals
         presenter.ContentTemplateSelector = ContentTemplateSelector;
       }
     }
+
     #endregion
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the content property.
-    /// </summary>
-    /// <value>The content property.</value>
+    #region Public properties
+
     public Property ContentProperty
     {
-      get
-      {
-        return _contentProperty;
-      }
-      set
-      {
-        _contentProperty = value;
-      }
+      get { return _contentProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content.
-    /// </summary>
-    /// <value>The content.</value>
     public FrameworkElement Content
     {
-      get
-      {
-        return _contentProperty.GetValue() as FrameworkElement;
-      }
-      set
-      {
-        _contentProperty.SetValue(value);
-      }
+      get { return _contentProperty.GetValue() as FrameworkElement; }
+      set { _contentProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the content template property.
-    /// </summary>
-    /// <value>The content template property.</value>
     public Property ContentTemplateProperty
     {
-      get
-      {
-        return _contentTemplateProperty;
-      }
-      set
-      {
-        _contentTemplateProperty = value;
-      }
+      get { return _contentTemplateProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content template.
-    /// </summary>
-    /// <value>The content template.</value>
     public DataTemplate ContentTemplate
     {
-      get
-      {
-        return _contentTemplateProperty.GetValue() as DataTemplate;
-      }
-      set
-      {
-        _contentTemplateProperty.SetValue(value);
-      }
+      get { return _contentTemplateProperty.GetValue() as DataTemplate; }
+      set { _contentTemplateProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the content template selector property.
-    /// </summary>
-    /// <value>The content template selector property.</value>
     public Property ContentTemplateSelectorProperty
     {
-      get
-      {
-        return _contentTemplateSelectorProperty;
-      }
-      set
-      {
-        _contentTemplateSelectorProperty = value;
-      }
+      get { return _contentTemplateSelectorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the content template selector.
-    /// </summary>
-    /// <value>The content template selector.</value>
     public DataTemplateSelector ContentTemplateSelector
     {
-      get
-      {
-        return _contentTemplateSelectorProperty.GetValue() as DataTemplateSelector;
-      }
-      set
-      {
-        _contentTemplateSelectorProperty.SetValue(value);
-      }
+      get { return _contentTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
+      set { _contentTemplateSelectorProperty.SetValue(value); }
     }
-    #endregion
 
+    #endregion
 
     #region IAddChild Members
 
@@ -213,7 +154,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Content = (o as FrameworkElement);
     }
 
+    #endregion
+
     #region findXXX methods
+
     public override UIElement FindElementType(Type t)
     {
       if (Content != null)
@@ -224,11 +168,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return base.FindElementType(t);
     }
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
+
     public override UIElement FindElement(string name)
     {
       if (Content != null)
@@ -239,7 +179,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindElement(name);
     }
 
-    #endregion
     #endregion
   }
 }

@@ -25,48 +25,49 @@
 using System;
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class RotateTransform : Transform
   {
+    #region Private fields
+
     Property _centerXProperty;
     Property _centerYProperty;
     Property _angleProperty;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RotateTransform"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public RotateTransform()
     {
       Init();
     }
 
-    public RotateTransform(RotateTransform r)
-      : base(r)
-    {
-      Init();
-      CenterX = r.CenterX;
-      CenterY = r.CenterY;
-      Angle = r.Angle;
-    }
     void Init()
     {
       _centerYProperty = new Property(typeof(double), 0.0);
       _centerXProperty = new Property(typeof(double), 0.0);
       _angleProperty = new Property(typeof(double), 0.0);
+
       _centerYProperty.Attach(OnPropertyChanged);
       _centerXProperty.Attach(OnPropertyChanged);
       _angleProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      RotateTransform result = new RotateTransform(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      RotateTransform t = source as RotateTransform;
+      CenterX = copyManager.GetCopy(t.CenterX);
+      CenterY = copyManager.GetCopy(t.CenterY);
+      Angle = copyManager.GetCopy(t.Angle);
     }
+
+    #endregion
+    #region Protected methods
 
     protected void OnPropertyChanged(Property property)
     {
@@ -74,110 +75,45 @@ namespace Presentation.SkinEngine.Controls.Transforms
       Fire();
     }
 
+    #endregion
 
-    /// <summary>
-    /// Gets or sets the center X property.
-    /// </summary>
-    /// <value>The center X property.</value>
+    #region Public properties
+
     public Property CenterXProperty
     {
-      get
-      {
-        return _centerXProperty;
-      }
-      set
-      {
-        _centerXProperty = value;
-      }
+      get { return _centerXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the center X.
-    /// </summary>
-    /// <value>The center X.</value>
     public double CenterX
     {
-      get
-      {
-        return (double)_centerXProperty.GetValue();
-      }
-      set
-      {
-        _centerXProperty.SetValue(value);
-      }
+      get { return (double)_centerXProperty.GetValue(); }
+      set { _centerXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y property.
-    /// </summary>
-    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
-      get
-      {
-        return _centerYProperty;
-      }
-      set
-      {
-        _centerYProperty = value;
-      }
+      get { return _centerYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y.
-    /// </summary>
-    /// <value>The center Y.</value>
     public double CenterY
     {
-      get
-      {
-        return (double)_centerYProperty.GetValue();
-      }
-      set
-      {
-        _centerYProperty.SetValue(value);
-      }
+      get { return (double)_centerYProperty.GetValue(); }
+      set { _centerYProperty.SetValue(value); }
     }
 
-
-
-
-    /// <summary>
-    /// Gets or sets the angle property.
-    /// </summary>
-    /// <value>The angle property.</value>
     public Property AngleProperty
     {
-      get
-      {
-        return _angleProperty;
-      }
-      set
-      {
-        _angleProperty = value;
-      }
+      get { return _angleProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the angle.
-    /// </summary>
-    /// <value>The angle.</value>
     public double Angle
     {
-      get
-      {
-        return (double)_angleProperty.GetValue();
-      }
-      set
-      {
-        _angleProperty.SetValue(value);
-      }
+      get { return (double)_angleProperty.GetValue(); }
+      set { _angleProperty.SetValue(value); }
     }
 
+    #endregion
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
     public override void UpdateTransform()
     {
       base.UpdateTransform();

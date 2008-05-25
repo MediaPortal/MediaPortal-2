@@ -25,33 +25,24 @@
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-
   public class InvokeCommand : TriggerAction
   {
+    #region Private fields
+
     Property _commandParameter;
     Command _command;
+
+    #endregion
+
+    #region Ctor
+
     public InvokeCommand()
     {
       Init();
-    }
-
-    public InvokeCommand(InvokeCommand c)
-      : base(c)
-    {
-      Init();
-      Command = c.Command;
-      CommandParameter = c._commandParameter;
-    }
-
-    public override object Clone()
-    {
-      InvokeCommand result = new InvokeCommand(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -59,64 +50,47 @@ namespace Presentation.SkinEngine.Controls.Bindings
       _commandParameter = new Property(typeof(object), null);
       _command = null;
     }
-    /// <summary>
-    /// Gets or sets the command.
-    /// </summary>
-    /// <value>The command.</value>
-    public Command Command
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      get
-      {
-        return _command;
-      }
-      set
-      {
-        _command = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the command parameter property.
-    /// </summary>
-    /// <value>The command parameter property.</value>
-    public Property CommandParameterProperty
-    {
-      get
-      {
-        return _commandParameter;
-      }
-      set
-      {
-        _commandParameter = value;
-      }
+      base.DeepCopy(source, copyManager);
+      InvokeCommand ic = source as InvokeCommand;
+      Command = copyManager.GetCopy(ic.Command);
+      CommandParameter = copyManager.GetCopy(ic.CommandParameter);
     }
 
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
+    #endregion
+
+    #region Public properties
+
+    public Command Command
+    {
+      get { return _command; }
+      set { _command = value; }
+    }
+
+    public Property CommandParameterProperty
+    {
+      get { return _commandParameter; }
+    }
+
     public object CommandParameter
     {
-      get
-      {
-        return _commandParameter.GetValue();
-      }
-      set
-      {
-        _commandParameter.SetValue(value);
-      }
+      get { return _commandParameter.GetValue(); }
+      set { _commandParameter.SetValue(value); }
     }
 
     public void Execute(UIElement element)
     {
       if (Command != null)
-      {
         Command.Execute(CommandParameter, false);
-      }
     }
 
-    public override  void Execute(UIElement element, Trigger trigger)
+    public override void Execute(UIElement element, Trigger trigger)
     {
       Execute(element);
     }
+
+    #endregion
   }
 }

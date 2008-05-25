@@ -7,9 +7,6 @@ using GeometryUtility;
 
 namespace GeometryUtility
 {
-  /// <summary>
-  /// Summary description for Class1.
-  /// </summary>
   public class CPolygonShape
   {
     //private CPoint2D[] m_aInputVertices;

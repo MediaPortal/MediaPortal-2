@@ -26,12 +26,11 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-
-  public class DefinitionBase : ICloneable
+  public class DefinitionBase : IDeepCopyable
   {
     Property _nameProperty;
 
@@ -39,54 +38,27 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       Init();
     }
-    public DefinitionBase(DefinitionBase v)
-    {
-      Name = v.Name;
-      Init();
-    }
-
-    public object Clone()
-    {
-      DefinitionBase result = new DefinitionBase(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
 
     void Init()
     {
       _nameProperty = new Property(typeof(string), "");
     }
 
-    /// <summary>
-    /// Gets or sets the name property.
-    /// </summary>
-    /// <value>The name property.</value>
-    public Property NameProperty
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      get
-      {
-        return _nameProperty;
-      }
-      set
-      {
-        _nameProperty = value;
-      }
+      DefinitionBase d = source as DefinitionBase;
+      Name = copyManager.GetCopy(d.Name);
     }
 
-    /// <summary>
-    /// Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
+    public Property NameProperty
+    {
+      get { return _nameProperty; }
+    }
+
     public string Name
     {
-      get
-      {
-        return _nameProperty.GetValue() as string;
-      }
-      set
-      {
-        _nameProperty.SetValue(value);
-      }
+      get { return _nameProperty.GetValue() as string; }
+      set { _nameProperty.SetValue(value); }
     }
   }
 }

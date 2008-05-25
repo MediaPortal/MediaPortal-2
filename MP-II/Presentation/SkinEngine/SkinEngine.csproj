@@ -97,26 +97,22 @@
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
-    <Compile Include="Controls\Animations\ColorKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
-    <Compile Include="Controls\Animations\DoubleKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\IKeyFrame.cs" />
-    <Compile Include="Controls\Animations\KeyFrameBase.cs" />
+    <Compile Include="Controls\Animations\ValueKeyFrame.cs" />
     <Compile Include="Controls\Animations\KeySpline.cs" />
     <Compile Include="Controls\Animations\ParallelTimeline.cs" />
     <Compile Include="Controls\Animations\PointAnimation.cs" />
     <Compile Include="Controls\Animations\PointAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\PointKeyFrame.cs" />
-    <Compile Include="Controls\Animations\PointKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\SplineColorKeyFrame.cs" />
     <Compile Include="Controls\Animations\SplineDoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\SplinePointKeyFrame.cs" />
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\StoryboardContext.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
-    <Compile Include="Controls\Animations\TimelineCollection.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\Bindings\Command.cs" />
     <Compile Include="Controls\Bindings\CommandGroup.cs" />
@@ -160,6 +156,7 @@
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
     <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
+    <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\TextBox.cs" />
     <Compile Include="Controls\Visuals\VisualAssetContext.cs" />
     <Compile Include="Controls\Visuals\Border.cs" />
@@ -174,7 +171,6 @@
     <Compile Include="Controls\Visuals\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\HeaderedItemsControl.cs" />
     <Compile Include="Controls\Visuals\Image.cs" />
-    <Compile Include="Controls\Visuals\ItemCollection.cs" />
     <Compile Include="Controls\Visuals\ItemsControl.cs" />
     <Compile Include="Controls\Visuals\ItemsPanelTemplate.cs" />
     <Compile Include="Controls\Visuals\ItemsPresenter.cs" />
@@ -189,7 +185,6 @@
     <Compile Include="Controls\Visuals\Shapes\Ellipse.cs" />
     <Compile Include="Controls\Visuals\Shapes\Line.cs" />
     <Compile Include="Controls\Visuals\Shapes\Path.cs" />
-    <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\Shapes\Polygon.cs" />
     <Compile Include="Controls\Visuals\Shapes\Rectangle.cs" />
     <Compile Include="Controls\Visuals\Shapes\Shape.cs" />
@@ -203,7 +198,6 @@
     <Compile Include="Controls\Visuals\Styles\ControlTemplate.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
     <Compile Include="Controls\Visuals\Styles\Style.cs" />
-    <Compile Include="Controls\Visuals\Styles\SetterCollection.cs" />
     <Compile Include="Controls\Visuals\TreeView.cs" />
     <Compile Include="Controls\Visuals\TreeViewItem.cs" />
     <Compile Include="Controls\Visuals\Triggers\BeginStoryboard.cs" />
@@ -211,8 +205,6 @@
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\Trigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerAction.cs" />
-    <Compile Include="Controls\Visuals\Triggers\TriggerActionCollection.cs" />
-    <Compile Include="Controls\Visuals\Triggers\TriggerCollection.cs" />
     <Compile Include="Controls\Visuals\UIElement.cs" />
     <Compile Include="Controls\Visuals\UIElementCollection.cs" />
     <Compile Include="Controls\Visuals\Visual.cs" />
@@ -228,9 +220,6 @@
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="Effects\EffectParameters.cs" />
-    <Compile Include="ElementRegistration\MseElements.cs" />
-    <Compile Include="ElementRegistration\MseTypeConverter.cs" />
-    <Compile Include="Exceptions\MseExceptions.cs" />
     <Compile Include="ExtendedMatrix.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
@@ -242,11 +231,13 @@
     <Compile Include="InputManager\InputManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Loader\MseAttachedPropertyDataDescriptor.cs" />
+    <Compile Include="Loader\MpfAttachedPropertyDataDescriptor.cs" />
     <Compile Include="MarkupExtensions\BindingDependency.cs" />
     <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
+    <Compile Include="MpfElements\MpfCopyManager.cs" />
+    <Compile Include="MpfElements\MseElements.cs" />
     <Compile Include="XamlParser\NameScope.cs" />
     <Compile Include="XamlParser\DataDescriptors.cs" />
     <Compile Include="Models\Model.cs" />
@@ -305,7 +296,7 @@
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
     <Compile Include="Controls\Resources\Include.cs" />
-    <Compile Include="Loader\MseNamespaceHandler.cs" />
+    <Compile Include="Loader\MpfNamespaceHandler.cs" />
     <Compile Include="Loader\SkinLoaderContext.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
     <Compile Include="Loader\XamlLoader.cs" />
@@ -332,7 +323,7 @@
     <Compile Include="XamlParser\Parsers\MarkupExtensionInvocationParser.cs" />
     <Compile Include="XamlParser\ReflectionHelper.cs" />
     <Compile Include="XamlParser\TypeConverter.cs" />
-    <Compile Include="XamlParser\XamlExceptions.cs" />
+    <Compile Include="XamlParser\Exceptions.cs" />
     <Compile Include="XamlParser\XamlNamespace\XamlNamespaceHandler.cs" />
     <Compile Include="XamlParser\XamlNamespace\ArrayMarkupExtension.cs" />
     <Compile Include="XamlParser\XamlNamespace\XDataDirective.cs" />

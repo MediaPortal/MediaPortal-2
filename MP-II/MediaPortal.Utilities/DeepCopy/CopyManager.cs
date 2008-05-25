@@ -1,0 +1,145 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+namespace MediaPortal.Utilities.DeepCopy
+{
+  /// <summary>
+  /// Implementing class for interface <see cref="ICopyManager"/>. For specification
+  /// see the interface documentation.
+  /// </summary>
+  public class CopyManager : ICopyManager
+  {
+    protected IDictionary<object, object> identities = new Dictionary<object, object>();
+    protected LinkedList<IDeepCopyable> toBeCompleted = new LinkedList<IDeepCopyable>();
+
+    T ICopyManager.GetCopy<T>(T source)
+    {
+      if (source == null)
+        return default(T);
+      if (identities.ContainsKey(source))
+        return (T) identities[source];
+      T result;
+      if (CopyHook(source, out result))
+        return result;
+      if (source is IDeepCopyable)
+      {
+        result = CreateCopyForInstance(source);
+        // The copy process for the new instance will be completed later
+        toBeCompleted.AddLast((IDeepCopyable)source);
+      }
+      else
+      { // No copying of instances which do not implement IDeepCopyable
+        result = source;
+      }
+      AddIdentity(source, result);
+      return result;
+    }
+
+    protected void AddIdentity<T>(T source, T result)
+    {
+      identities.Add(source, result);
+    }
+
+    /// <summary>
+    /// May be overridden by subclasses to prevent the copying process or
+    /// to execute another copying process for special instances.
+    /// </summary>
+    /// <param name="source">Source object to be copied.</param>
+    /// <param name="result">Resulting object copied from
+    /// the <paramref name="source"/> object.</param>
+    protected virtual bool CopyHook<T>(T source, out T result)
+    {
+      result = default(T);
+      return false;
+    }
+
+    /// <summary>
+    /// Creates a copy for the specified <paramref name="source"/> instance.
+    /// Subclasses can override this method to create copied instances
+    /// depending on their own needs.
+    /// </summary>
+    protected virtual T CreateCopyForInstance<T>(T source)
+    {
+      ConstructorInfo ci = source.GetType().GetConstructor(new Type[] {});
+      if (ci == null)
+        throw new ArgumentException(string.Format("Type '{0}' doesn't implement a standard constructor", typeof(T).Name));
+      return (T) ci.Invoke(null);
+    }
+
+    /// <summary>
+    /// Performs the deep copy of the specified <paramref name="source"/>
+    /// object to the specified <paramref name="target"/> object.
+    /// </summary>
+    /// <remarks>
+    /// This method can be overridden in subclasses to step in the deep copy
+    /// behavior.
+    /// </remarks>
+    protected virtual void DoDeepCopy<T>(T source, T target) where T: IDeepCopyable
+    {
+      target.DeepCopy(source, this);
+    }
+
+    /// <summary>
+    /// Returns the deep copy of the specified object <paramref name="o"/>.
+    /// </summary>
+    /// <remarks>
+    /// If this method is called recursively for the same object <c>o</c> before
+    /// the object has finished its deep copy, all calls after the first call
+    /// for object <c>o</c> will return the current, not yet finished copy of
+    /// <c>o</c>.
+    /// </remarks>
+    protected T GetDeepCopy<T>(T o)
+    {
+      object result = ((ICopyManager) this).GetCopy(o);
+      while (toBeCompleted.Count > 0)
+      {
+        IDeepCopyable source = toBeCompleted.First.Value;
+        toBeCompleted.RemoveFirst();
+        IDeepCopyable target = (IDeepCopyable)identities[source];
+        if (target != null)
+          // If we wanted to avoid recursive calls for the same object, we would
+          // have to mark the target object as to be currently processed. We would
+          // also have to check this marking at the beginning of this method.
+          DoDeepCopy(source, target);
+      }
+      return (T) result;
+    }
+
+    /// <summary>
+    /// Creates a deep copy of object <paramref name="o"/> and returns it.
+    /// This method will create a new object graph starting at the given object.
+    /// </summary>
+    /// <param name="o">Object to be copied. This object may implement the
+    /// interface <see cref="IDeepCopyable"/>, or may not.</param>
+    /// <returns>Deep copy of the specified object.</returns>
+    public static T DeepCopy<T>(T o)
+    {
+      return new CopyManager().GetDeepCopy(o);
+    }
+  }
+}

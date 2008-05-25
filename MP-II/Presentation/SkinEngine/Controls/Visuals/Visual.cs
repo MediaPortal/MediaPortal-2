@@ -22,12 +22,12 @@
 #endregion
 
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
-  using Controls;
-  using MarkupExtensions;
-
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };
   public enum Orientation { Vertical, Horizontal };
@@ -35,27 +35,21 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
   public class Visual : DependencyObject
   {
+    #region Private fields
+
     Property _visualParentProperty;
     Property _focusedElement;
     bool _history;
+
+    #endregion
+
     public Window Window;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Visual"/> class.
-    /// </summary>
-    public Visual(): base()
-    {
-      Init();
-    }
+    #region Ctor
 
-    public Visual(Visual v): base(v)
+    public Visual()
     {
       Init();
-      History = v.History;
-      VisualParent = v.VisualParent;
-      Window = v.Window;
-      // As Context is a derived property, it is not neccessary to copy it here.
-      //Context = v.Context;
     }
 
     void Init()
@@ -65,6 +59,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _focusedElement = new Property(typeof(UIElement), null);
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Visual v = source as Visual;
+      History = copyManager.GetCopy(v.History);
+      VisualParent = copyManager.GetCopy(v.VisualParent);
+      Window = copyManager.GetCopy(v.Window);
+    }
+
+    #endregion
+
     /// <summary>
     /// Gets or sets the context.
     /// Hint: This property comes from frodos implementation, originally declared
@@ -73,8 +78,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// for bindings - as long as this system isn't reworked, we join those two concepts.
     /// We store the context in the <see cref="DependencyObject.DataContext"/>
     /// (See <see cref="BindingMarkupExtension"/>).
-    /// TODO: Rework the templating system - maybe remove this property and create a
-    /// real logical tree?
+    /// TODO: Rework the templating system - remove this property and create a logical tree
     /// </summary>
     /// <value>The context.</value>
     public object Context
@@ -88,49 +92,30 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (DataContext == null && value == null)
           return;
         if (DataContext == null)
-          DataContext = new BindingMarkupExtension(this);
-        DataContext.Source = value;
+        {
+          BindingMarkupExtension dc = new BindingMarkupExtension(this);
+          dc.Source = value; // Set the context value before setting the DataContext property
+          DataContext = dc;
+        }
+        else
+          DataContext.Source = value;
       }
     }
 
-    /// <summary>
-    /// Gets the visual parent property.
-    /// </summary>
-    /// <value>The visual parent property.</value>
     public Property VisualParentProperty
     {
-      get
-      {
-        return _visualParentProperty;
-      }
+      get { return _visualParentProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the visual parent.
-    /// </summary>
-    /// <value>The visual parent.</value>
     public UIElement VisualParent
     {
-      get
-      {
-        return (UIElement)_visualParentProperty.GetValue();
-      }
-      set
-      {
-        _visualParentProperty.SetValue(value);
-      }
+      get { return (UIElement)_visualParentProperty.GetValue(); }
+      set { _visualParentProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets the default focused element property.
-    /// </summary>
-    /// <value>The visual parent property.</value>
     public Property FocusedElementProperty
     {
-      get
-      {
-        return _focusedElement;
-      }
+      get { return _focusedElement; }
     }
 
     /// <summary>
@@ -139,65 +124,43 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <value>The focused element.</value>
     public UIElement FocusedElement
     {
-      get
-      {
-        return _focusedElement.GetValue() as UIElement;
-      }
-      set
-      {
-        _focusedElement.SetValue(value);
-      }
+      get { return _focusedElement.GetValue() as UIElement; }
+      set { _focusedElement.SetValue(value); }
+    }
+
+    public bool History
+    {
+      get { return _history; }
+      set { _history = value; }
     }
 
     /// <summary>
-    /// returns if the point lies inside the object.
+    /// Returns the information if the specified point is located inside this object.
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
+    /// <param name="x">The x coordinate.</param>
+    /// <param name="y">The y coordinate.</param>
     /// <returns></returns>
     public virtual bool InsideObject(double x, double y)
     {
       return false;
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public virtual void DoRender()
-    {
-    }
+    { }
 
-    /// <summary>
-    /// Renders this instance.
-    /// </summary>
     public virtual void Render()
     {
       DoRender();
     }
 
-    public bool History
-    {
-      get
-      {
-        return _history;
-      }
-      set
-      {
-        _history = value;
-      }
-    }
-
     public virtual void DoBuildRenderTree()
-    {
-    }
+    { }
     
     public virtual void BuildRenderTree()
-    {
-    }
+    { }
     
     public virtual void DestroyRenderTree()
-    {
-    }
+    { }
   }
 }
 

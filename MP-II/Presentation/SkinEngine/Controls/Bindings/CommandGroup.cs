@@ -21,55 +21,45 @@
 */
 
 #endregion
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class CommandGroup : List<InvokeCommand>, IAddChild, ICloneable
+  public class CommandGroup : List<InvokeCommand>, IAddChild, IDeepCopyable
   {
+    #region Ctor
+
     public CommandGroup()
     {
+      Init();
     }
 
-    public CommandGroup(CommandGroup c)
+    void Init() { }
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      foreach (InvokeCommand cmd in c)
-      {
-        Add((InvokeCommand)cmd.Clone());
-      }
+      CommandGroup cg = source as CommandGroup;
+      foreach (InvokeCommand ic in this)
+        Add(copyManager.GetCopy(ic));
     }
 
-
-    public virtual object Clone()
-    {
-      return new CommandGroup(this);
-    }
-
-    void Init()
-    {
-    }
+    #endregion
 
     public void Execute(UIElement element)
     {
       foreach (InvokeCommand cmd in this)
-      {
         cmd.Execute(element);
-      }
     }
-
 
     #region IAddChild Members
 
     public void AddChild(object o)
     {
-      Add((InvokeCommand)o);
+      Add((InvokeCommand) o);
     }
 
     #endregion

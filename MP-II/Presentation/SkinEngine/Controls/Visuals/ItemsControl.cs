@@ -22,14 +22,14 @@
 
 #endregion
 
-using System;
 using System.Diagnostics;
 using System.Collections;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine.Controls.Panels;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -37,8 +37,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
   /// Represents a control that can be used to present a collection of items.
   /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemscontrol.aspx
   /// </summary>
-  public class ItemsControl : Control
+  public abstract class ItemsControl : Control
   {
+    #region Private fields
+
     Property _itemsSourceProperty;
     Property _itemTemplateProperty;
     Property _itemTemplateSelectorProperty;
@@ -50,36 +52,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
     bool _templateApplied;
     protected Panel _itemsHostPanel;
 
-    #region ctor
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ItemsControl"/> class.
-    /// </summary>
+    protected ItemsCollection _attachedItemsCollection = null;
+
+    #endregion
+
+    #region Ctor
+
     public ItemsControl()
     {
       Init();
-    }
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ItemsControl"/> class.
-    /// </summary>
-    /// <param name="c">The c.</param>
-    public ItemsControl(ItemsControl c)
-      : base(c)
-    {
-      Init();
-      ItemsSource = c.ItemsSource;
-      ItemTemplate = c.ItemTemplate;
-      ItemTemplateSelector = c.ItemTemplateSelector;
-      ItemContainerStyle = c.ItemContainerStyle;
-      ItemContainerStyleSelector = c.ItemContainerStyleSelector;
-      ItemsPanel = c.ItemsPanel;
-      _prepare = false;
-    }
-
-    public override object Clone()
-    {
-      ItemsControl result = new ItemsControl(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -91,27 +72,47 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _itemContainerStyleSelectorProperty = new Property(typeof(StyleSelector), null);
       _itemsPanelProperty = new Property(typeof(ItemsPanelTemplate), null);
       _currentItem = new Property(typeof(object), null);
-      _itemsSourceProperty.Attach(new PropertyChangedHandler(OnItemsSourceChanged));
-      _itemTemplateProperty.Attach(new PropertyChangedHandler(OnItemTemplateChanged));
-      _itemsPanelProperty.Attach(new PropertyChangedHandler(OnItemsPanelChanged));
-      _itemContainerStyleProperty.Attach(new PropertyChangedHandler(OnItemContainerStyleChanged));
+      _itemsSourceProperty.Attach(OnItemsSourceChanged);
+      _itemTemplateProperty.Attach(OnItemTemplateChanged);
+      _itemsPanelProperty.Attach(OnItemsPanelChanged);
+      _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
 
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ItemsControl c = source as ItemsControl;
+      ItemsSource = copyManager.GetCopy(c.ItemsSource);
+      ItemTemplateSelector = copyManager.GetCopy(c.ItemTemplateSelector);
+      ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
+      ItemContainerStyleSelector = copyManager.GetCopy(c.ItemContainerStyleSelector);
+      _prepare = false;
+
+      // Don't take part in the outer copying process for the HeaderTemplate and
+      // ItemsPanel properties here -
+      // we need a finished copied template here. As the templates don't have references to their
+      // containing instances, it is safe to do a self-contained deep copy of it.
+      ItemTemplate = MpfCopyManager.DeepCopy(c.ItemTemplate);
+      ItemsPanel = MpfCopyManager.DeepCopy(c.ItemsPanel);
+    }
+
     #endregion
 
-    #region event handlers
+    #region Event handlers
 
     void OnItemsSourceChanged(Property property)
     {
-      if (ItemsSource is Property)
+      if (_attachedItemsCollection != null)
       {
-        Property p = (Property)ItemsSource;
-        p.Attach(OnItemsSourcePropChanged);
+        _attachedItemsCollection.Changed -= OnCollectionChanged;
+        _attachedItemsCollection = null;
       }
-      else if (ItemsSource is ItemsCollection)
+      ItemsCollection coll = ItemsSource as ItemsCollection;
+      if (coll != null)
       {
-        ItemsCollection coll = (ItemsCollection)ItemsSource;
         coll.Changed += OnCollectionChanged;
+        _attachedItemsCollection = coll;
       }
       _prepare = true;
       Invalidate();
@@ -127,22 +128,23 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnHasFocusChanged(Property property)
     {
       if (HasFocus)
-      {
         SetFocusOnFirstItem();
-      }
     }
+
     void OnItemsSourcePropChanged(Property property)
     {
       _prepare = true;
       if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
+
     void OnItemTemplateChanged(Property property)
     {
       _prepare = true;
       if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
+
     void OnItemsPanelChanged(Property property)
     {
       _templateApplied = false;
@@ -150,235 +152,136 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
+
     void OnItemContainerStyleChanged(Property property)
     {
       _prepare = true;
       if (Window!=null) Window.Invalidate(this);
       Invalidate();
     }
+
     #endregion
 
-    #region properties
+    #region Public properties
+
     /// <summary>
-    /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
+    /// Gets or sets the template that defines the panel that controls the layout of items.
     /// </summary>
-    /// <value>The items panel property.</value>
     public Property ItemsPanelProperty
     {
-      get
-      {
-        return _itemsPanelProperty;
-      }
-      set
-      {
-        _itemsPanelProperty = value;
-      }
+      get { return _itemsPanelProperty; }
     }
 
     /// <summary>
-    /// Gets or sets the template that defines the panel that controls the layout of items. This is a dependency property.
+    /// Gets or sets the template that defines the panel that controls the layout of items.
     /// </summary>
-    /// <value>The items panel.</value>
     public ItemsPanelTemplate ItemsPanel
     {
-      get
-      {
-        return _itemsPanelProperty.GetValue() as ItemsPanelTemplate;
-      }
-      set
-      {
-        _itemsPanelProperty.SetValue(value);
-      }
+      get { return _itemsPanelProperty.GetValue() as ItemsPanelTemplate; }
+      set { _itemsPanelProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Gets or sets a collection used to generate the content of the ItemsControl. This is a dependency property.
+    /// Gets or sets a collection used to generate the content of the ItemsControl.
     /// </summary>
-    /// <value>The items source property.</value>
     public Property ItemsSourceProperty
     {
-      get
-      {
-        return _itemsSourceProperty;
-      }
+      get { return _itemsSourceProperty; }
     }
 
     /// <summary>
-    /// Gets or sets a collection used to generate the content of the ItemsControl. This is a dependency property.
+    /// Gets or sets a collection used to generate the content of the ItemsControl.
     /// </summary>
-    /// <value>The items source.</value>
     public IEnumerable ItemsSource
     {
-      get
-      {
-        return _itemsSourceProperty.GetValue() as IEnumerable;
-      }
-      set
-      {
-        _itemsSourceProperty.SetValue(value);
-      }
+      get { return _itemsSourceProperty.GetValue() as IEnumerable; }
+      set { _itemsSourceProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Gets or sets the Style that is applied to the container element generated for each item. This is a dependency property.
+    /// Gets or sets the Style that is applied to the container element generated for each item.
     /// </summary>
-    /// <value>The item container style property.</value>
     public Property ItemContainerStyleProperty
     {
-      get
-      {
-        return _itemContainerStyleProperty;
-      }
-      set
-      {
-        _itemContainerStyleProperty = value;
-      }
+      get { return _itemContainerStyleProperty; }
     }
 
     /// <summary>
-    /// Gets or sets the Style that is applied to the container element generated for each item. This is a dependency property.
+    /// Gets or sets the Style that is applied to the container element generated for each item.
     /// </summary>
-    /// <value>The item container style.</value>
     public Style ItemContainerStyle
     {
-      get
-      {
-        return _itemContainerStyleProperty.GetValue() as Style;
-      }
-      set
-      {
-        _itemContainerStyleProperty.SetValue(value);
-      }
+      get { return _itemContainerStyleProperty.GetValue() as Style; }
+      set { _itemContainerStyleProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element. This is a dependency property.
+    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element.
     /// </summary>
-    /// <value>The item container style selector property.</value>
     public Property ItemContainerStyleSelectorProperty
     {
-      get
-      {
-        return _itemContainerStyleSelectorProperty;
-      }
-      set
-      {
-        _itemContainerStyleSelectorProperty = value;
-      }
+      get { return _itemContainerStyleSelectorProperty; }
     }
 
     /// <summary>
-    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element. This is a dependency property.
+    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element.
     /// </summary>
-    /// <value>The item container style selector.</value>
     public StyleSelector ItemContainerStyleSelector
     {
-      get
-      {
-        return _itemContainerStyleSelectorProperty.GetValue() as StyleSelector;
-      }
-      set
-      {
-        _itemContainerStyleSelectorProperty.SetValue(value);
-      }
+      get { return _itemContainerStyleSelectorProperty.GetValue() as StyleSelector; }
+      set { _itemContainerStyleSelectorProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Gets or sets the DataTemplate used to display each item. This is a dependency property.
+    /// Gets or sets the DataTemplate used to display each item.
     /// </summary>
-    /// <value>The item template property.</value>
     public Property ItemTemplateProperty
     {
-      get
-      {
-        return _itemTemplateProperty;
-      }
-      set
-      {
-        _itemTemplateProperty = value;
-      }
+      get { return _itemTemplateProperty; }
     }
 
     /// <summary>
-    /// Gets or sets the DataTemplate used to display each item. This is a dependency property.
+    /// Gets or sets the DataTemplate used to display each item.
     /// </summary>
-    /// <value>The item template.</value>
     public DataTemplate ItemTemplate
     {
-      get
-      {
-        return _itemTemplateProperty.GetValue() as DataTemplate;
-      }
-      set
-      {
-        _itemTemplateProperty.SetValue(value);
-      }
+      get { return _itemTemplateProperty.GetValue() as DataTemplate; }
+      set { _itemTemplateProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Gets or sets the custom logic for choosing a template used to display each item. This is a dependency property.
+    /// Gets or sets the custom logic for choosing a template used to display each item.
     /// </summary>
-    /// <value>The item template selector property.</value>
     public Property ItemTemplateSelectorProperty
     {
-      get
-      {
-        return _itemTemplateSelectorProperty;
-      }
-      set
-      {
-        _itemTemplateSelectorProperty = value;
-      }
+      get { return _itemTemplateSelectorProperty; }
     }
 
     /// <summary>
-    /// Gets or sets the custom logic for choosing a template used to display each item. This is a dependency property.
+    /// Gets or sets the custom logic for choosing a template used to display each item.
     /// </summary>
-    /// <value>The item template selector.</value>
     public DataTemplateSelector ItemTemplateSelector
     {
-      get
-      {
-        return _itemTemplateSelectorProperty.GetValue() as DataTemplateSelector;
-      }
-      set
-      {
-        _itemTemplateSelectorProperty.SetValue(value);
-      }
+      get { return _itemTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
+      set { _itemTemplateSelectorProperty.SetValue(value); }
     }
 
     public Property CurrentItemProperty
     {
-      get
-      {
-        return _currentItem;
-      }
-      set
-      {
-        _currentItem = value;
-      }
+      get { return _currentItem; }
     }
 
-    /// <summary>
-    /// Gets or sets the item template selector.
-    /// </summary>
-    /// <value>The item template selector.</value>
     public object CurrentItem
     {
-      get
-      {
-        return _currentItem.GetValue();
-      }
-      set
-      {
-        _currentItem.SetValue(value);
-      }
+      get { return _currentItem.GetValue(); }
+      set { _currentItem.SetValue(value); }
     }
+
     #endregion
 
     public override void Reset()
     {
-      Trace.WriteLine("Reset:" + this.Name);
+      Trace.WriteLine("Reset:" + Name);
       base.Reset();
       _prepare = true;
       if (Window!=null) Window.Invalidate(this);
@@ -392,12 +295,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       return FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
     }
-    #region item generation
-    /// <summary>
-    /// Prepares this instance.
-    /// </summary>
-    /// <returns></returns>
-    bool Prepare()
+
+    #region Item generation
+
+    protected virtual bool Prepare()
     {
       if (ItemsSource == null) return false;
       if (ItemsPanel == null) return false;
@@ -409,12 +310,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       IEnumerator enumer = ItemsSource.GetEnumerator();
       if (enumer.MoveNext() == false) return true;
       enumer.Reset();
-      if (this is TreeViewItem)
-      {
-        TreeViewItem item = (TreeViewItem)this;
-        if (!item.IsExpanded) return true;
-      }
-      DateTime dtStart = DateTime.Now;
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
       if (!_templateApplied)
@@ -429,11 +324,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _itemsHostPanel = presenter.FindItemsHost() as Panel;
       }
       if (_itemsHostPanel == null) return false;
-
       int itemCount = _itemsHostPanel.Children.Count;
+      // FIXME Albert78: remove the focus variables (together with focus preparation section at end)?
       int focusedIndex = -1;
       FrameworkElement focusedItem = null;
-      for (int i = 0; i < _itemsHostPanel.Children.Count; ++i)
+      for (int i = 0; i < itemCount; ++i)
       {
         focusedItem = _itemsHostPanel.Children[i].FindFocusedItem() as FrameworkElement;
         if (focusedItem != null)
@@ -448,151 +343,64 @@ namespace Presentation.SkinEngine.Controls.Visuals
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
       {
-        if (this is ListView)
-        {
-          ListViewItem container = new ListViewItem();
-          container.Context = enumer.Current;
-          container.Style = ItemContainerStyle;
-          container.ContentTemplate = ItemTemplate;
-          container.ContentTemplateSelector = ItemTemplateSelector;
-          container.Content = (FrameworkElement)ItemTemplate.LoadContent(Window);
-          container.VisualParent = _itemsHostPanel;
-          //container.Name = String.Format("ItemsControl.{0} #{1}", container, index++);
-          if (enumer.Current is ListItem)
-          {
-            if (((ListItem)enumer.Current).Selected)
-            {
-              focusedContainer = container;
-            }
-          }
-          children.Add(container);
-        }
-        else if (this is TreeView)
-        {
-          TreeViewItem container = new TreeViewItem();
-          container.Context = enumer.Current;
-          container.Style = ItemContainerStyle;
-          container.TemplateControl = new ItemsPresenter();
-          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = container; 
-          container.ItemsPanel = ItemsPanel;
-          if (enumer.Current is ListItem)
-          {
-            ListItem listItem = (ListItem)enumer.Current;
-            container.ItemsSource = listItem.SubItems;
-          }
-          container.Name = String.Format("{0}.{1}", this.Name, index++);
-          //container.TemplateControl.Name = "itemspresenter for childs of :" + container.Name;
-
-          container.Style = ItemContainerStyle;
-          container.HeaderTemplateSelector = this.ItemTemplateSelector;
-          container.HeaderTemplate = ItemTemplate;
-          FrameworkElement element = container.Style.Get(Window);
-          element.Context = enumer.Current;
-          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent(Window);
-
-          container.Header = (FrameworkElement)element;
-
-          ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
-          if (p != null) p.IsVisible = false;
-
-          if (enumer.Current is ListItem)
-          {
-            if (((ListItem)enumer.Current).Selected)
-            {
-              focusedContainer = container;
-            }
-          }
-          children.Add(container);
-        }
-        else
-        {
-          _itemsHostPanel.IsItemsHost = false;
-          TreeViewItem container = new TreeViewItem();
-          TreeViewItem item = (TreeViewItem)this;
-          //container.Name = String.Format("{0}.{1}", item.Name, index++);
-          container.Context = enumer.Current;
-          //container.Style = ItemContainerStyle;
-          container.ItemsPanel = ItemsPanel;
-          container.Style = this.Style;
-          container.HeaderTemplateSelector = item.HeaderTemplateSelector;
-          container.HeaderTemplate = item.HeaderTemplate;
-          FrameworkElement element = container.Style.Get(Window);
-          //container.TemplateControl.Name = "itemspresenter for childs of :" + container.Name;
-          element.Context = enumer.Current;
-          ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
-          headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent(Window);
-
-          container.TemplateControl = new ItemsPresenter();
-          container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
-          container.TemplateControl.VisualParent = container; 
-          container.Header = (FrameworkElement)element;
-          ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
-          if (p != null) p.IsVisible = false;
-
-          if (enumer.Current is ListItem)
-          {
-            ListItem listItem = (ListItem)enumer.Current;
-            container.ItemsSource = listItem.SubItems;
-          }
-
-          if (enumer.Current is ListItem)
-          {
-            if (((ListItem)enumer.Current).Selected)
-            {
-              focusedContainer = container;
-            }
-          }
-          children.Add(container);
-        }
+        FrameworkElement container = PrepareItemContainer(enumer.Current);
+        children.Add(container);
+        if (enumer.Current is ListItem)
+          if (((ListItem) enumer.Current).Selected)
+            focusedContainer = container;
+        container.Name = string.Format("{0}.{1}", Name, index++);
       }
       children.SetParent(_itemsHostPanel);
-      //if (!(this is TreeView))
-      //_itemsHostPanel.Name = "ItemsPanel of :" + this.Name;
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
-      if (this is ListView)
-      {
-        if (focusedItem != null)
-        {
-          IScrollInfo info = _itemsHostPanel as IScrollInfo;
-          if (info != null)
-          {
-            info.ResetScroll();
-          }
-          //        result = true;
-          _itemsHostPanel.UpdateLayout();
-          focusedItem.HasFocus = false;
-          if (_itemsHostPanel.Children.Count <= focusedIndex)
-          {
-            float x = (float)_itemsHostPanel.Children[0].ActualPosition.X;
-            float y = (float)_itemsHostPanel.Children[0].ActualPosition.Y;
-            _itemsHostPanel.OnMouseMove(x, y);
-          }
-          else
-          {
-            float x = (float)focusedItem.ActualPosition.X;
-            float y = (float)focusedItem.ActualPosition.Y;
-            _itemsHostPanel.OnMouseMove(x, y);
-          }
-        }
-        else if (focusedContainer != null)
-        {
-          _itemsHostPanel.UpdateLayout();
-          focusedContainer.OnMouseMove((float)focusedContainer.ActualPosition.X, (float)focusedContainer.ActualPosition.Y);
-        }
-      }
-      TimeSpan ts = DateTime.Now - dtStart;
-      Trace.WriteLine(String.Format("ItemsControl.Prepare:{0} {1} msec {2}", this.Name, ts.TotalMilliseconds, _itemsHostPanel.Children.Count));
+      // FIXME Albert78: remove the following section?
+      // We'll try with this region commented out
+      //if (this is ListView)
+      //{
+      //  if (focusedItem != null)
+      //  {
+      //    IScrollInfo info = _itemsHostPanel as IScrollInfo;
+      //    if (info != null)
+      //    {
+      //      info.ResetScroll();
+      //    }
+      //    //        result = true;
+      //    _itemsHostPanel.UpdateLayout();
+      //    focusedItem.HasFocus = false;
+      //    if (_itemsHostPanel.Children.Count <= focusedIndex)
+      //    {
+      //      float x = _itemsHostPanel.Children[0].ActualPosition.X;
+      //      float y = _itemsHostPanel.Children[0].ActualPosition.Y;
+      //      _itemsHostPanel.OnMouseMove(x, y);
+      //    }
+      //    else
+      //    {
+      //      float x = focusedItem.ActualPosition.X;
+      //      float y = focusedItem.ActualPosition.Y;
+      //      _itemsHostPanel.OnMouseMove(x, y);
+      //    }
+      //  }
+      //  else if (focusedContainer != null)
+      //  {
+      //    _itemsHostPanel.UpdateLayout();
+      //    focusedContainer.OnMouseMove(focusedContainer.ActualPosition.X, focusedContainer.ActualPosition.Y);
+      //  }
+      //}
       return true;
     }
+
+    protected virtual void PrepareFocus(FrameworkElement focusedItem, FrameworkElement focusedContainer)
+    { }
+
+    protected abstract FrameworkElement PrepareItemContainer(object dataItem);
+
     public override void UpdateLayout()
     {
       DoUpdateItems();
       base.UpdateLayout();
     }
+
     public bool DoUpdateItems()
     {
       if (_prepare)
@@ -610,6 +418,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       DoUpdateItems();
       base.DoRender();
     }
+
     public override bool HasFocus
     {
       get
@@ -631,6 +440,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
     }
+
     public void SetFocusOnFirstItem()
     {
       ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
@@ -647,6 +457,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
     }
+
     #endregion
 
     public override void Allocate()

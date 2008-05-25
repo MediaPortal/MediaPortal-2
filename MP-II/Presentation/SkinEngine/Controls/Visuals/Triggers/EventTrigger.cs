@@ -24,27 +24,24 @@
 
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Animations;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class EventTrigger : Trigger
   {
+    #region Private fields
+
     Property _routedEventProperty;
     Property _storyBoardProperty;
+
+    #endregion
+
+    #region Ctor
 
     public EventTrigger()
     {
       Init();
-    }
-
-    public EventTrigger(EventTrigger t)
-      : base(t)
-    {
-      Init();
-      RoutedEvent = t.RoutedEvent;
-      Storyboard = t.Storyboard;
-
     }
 
     void Init()
@@ -53,76 +50,44 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       _storyBoardProperty = new Property(typeof(Timeline), null);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      EventTrigger result = new EventTrigger(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      EventTrigger t = source as EventTrigger;
+      RoutedEvent = copyManager.GetCopy(t.RoutedEvent);
+      Storyboard = copyManager.GetCopy(t.Storyboard);
     }
 
-    /// <summary>
-    /// Gets or sets the routed event property.
-    /// </summary>
-    /// <value>The routed event property.</value>
+    #endregion
+
+    #region Public properties
+
     public Property RoutedEventProperty
     {
-      get
-      {
-        return _routedEventProperty;
-      }
-      set
-      {
-        _routedEventProperty = value;
-      }
+      get { return _routedEventProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the routed event.
-    /// </summary>
-    /// <value>The routed event.</value>
     public string RoutedEvent
     {
-      get
-      {
-        return (string)_routedEventProperty.GetValue();
-      }
-      set
-      {
-        _routedEventProperty.SetValue(value);
-      }
+      get { return (string)_routedEventProperty.GetValue(); }
+      set { _routedEventProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the storyboard property.
-    /// </summary>
-    /// <value>The storyboard property.</value>
     public Property StoryboardProperty
     {
-      get
-      {
-        return _storyBoardProperty;
-      }
-      set
-      {
-        _storyBoardProperty = value;
+      get { return _storyBoardProperty; }
+      set { _storyBoardProperty = value; }
+    }
+
+    public Timeline Storyboard
+    {
+      get { return _storyBoardProperty.GetValue() as Timeline; }
+      set { _storyBoardProperty.SetValue(value);
       }
     }
 
-    /// <summary>
-    /// Gets or sets the storyboard.
-    /// </summary>
-    /// <value>The storyboard.</value>
-    public Timeline Storyboard
-    {
-      get
-      {
-        return _storyBoardProperty.GetValue() as Timeline;
-      }
-      set
-      {
-        _storyBoardProperty.SetValue(value);
-      }
-    }
+    #endregion
+
     public override void Setup(UIElement element)
     {
       /*

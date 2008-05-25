@@ -35,37 +35,17 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
   public class Ellipse : Shape
   {
-
     public Ellipse()
     {
       Init();
     }
 
-    public Ellipse(Ellipse s)
-      : base(s)
-    {
-      Init();
-    }
-
-    public override object Clone()
-    {
-      Ellipse result = new Ellipse(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
-    {
-    }
+    { }
 
-
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
-
 
       double w = ActualWidth;
       double h = ActualHeight;
@@ -106,7 +86,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
               if (_fillAsset.VertexBuffer != null)
               {
                 Fill.SetupBrush(this, ref verts);
-
 
                 PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
                 _verticesCountFill = (verts.Length / 3);
@@ -167,7 +146,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         }
       }
       //border brush
-
 
       ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
       ActualWidth = w;

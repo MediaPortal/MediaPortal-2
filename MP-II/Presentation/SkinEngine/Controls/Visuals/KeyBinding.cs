@@ -25,35 +25,25 @@
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class KeyBinding : FrameworkElement
   {
+    #region Private fields
+
     Property _commandParameter;
     Property _keyProperty;
     Command _command;
+
+    #endregion
+
+    #region Ctor
+
     public KeyBinding()
     {
       Init();
-    }
-
-    public KeyBinding(KeyBinding b)
-      : base(b)
-    {
-      Init();
-
-      Command = b.Command;
-      CommandParameter = b.CommandParameter;
-      KeyPress = b.KeyPress;
-    }
-
-    public override object Clone()
-    {
-      KeyBinding result = new KeyBinding(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -64,91 +54,52 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Focusable = false;
     }
 
-    /// <summary>
-    /// Gets or sets the key.
-    /// </summary>
-    /// <value>The key.</value>
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      KeyBinding b = source as KeyBinding;
+      Command = copyManager.GetCopy(b.Command);
+      CommandParameter = copyManager.GetCopy(b.CommandParameter);
+      KeyPress = copyManager.GetCopy(b.KeyPress);
+    }
+
+    #endregion
+
+    #region Public properties
+
     public string KeyPress
     {
-      get
-      {
-        return _keyProperty.GetValue() as string;
-      }
-      set
-      {
-        _keyProperty.SetValue(value);
-      }
+      get { return _keyProperty.GetValue() as string; }
+      set { _keyProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the key property.
-    /// </summary>
-    /// <value>The key property.</value>
     public Property KeyPressProperty
     {
-      get
-      {
-        return _keyProperty;
-      }
-      set
-      {
-        _keyProperty = value;
-      }
+      get { return _keyProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the command.
-    /// </summary>
-    /// <value>The command.</value>
     public Command Command
     {
-      get
-      {
-        return _command;
-      }
-      set
-      {
-        _command = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the command parameter property.
-    /// </summary>
-    /// <value>The command parameter property.</value>
-    public Property CommandParameterProperty
-    {
-      get
-      {
-        return _commandParameter;
-      }
-      set
-      {
-        _commandParameter = value;
-      }
+      get { return _command; }
+      set { _command = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
+    public Property CommandParameterProperty
+    {
+      get { return _commandParameter; }
+    }
+
     public object CommandParameter
     {
-      get
-      {
-        return _commandParameter.GetValue();
-      }
-      set
-      {
-        _commandParameter.SetValue(value);
-      }
+      get { return _commandParameter.GetValue(); }
+      set { _commandParameter.SetValue(value); }
     }
+
+    #endregion
+
     public override void DoRender()
-    {
-    }
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
+    { }
+
     public override void OnKeyPressed(ref Key key)
     {
       if (key == MediaPortal.Control.InputManager.Key.None)

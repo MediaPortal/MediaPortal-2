@@ -33,10 +33,14 @@ using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
+
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
   {
+    #region Private/protected fields
+
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
 
     protected Property _alignmentXProperty;
@@ -50,25 +54,13 @@ namespace Presentation.SkinEngine.Controls.Panels
     protected PrimitiveContext _backgroundContext;
     UIEvent _lastEvent = UIEvent.None;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Panel"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public Panel()
     {
       Init();
-    }
-    public Panel(Panel p)
-      : base(p)
-    {
-      Init();
-      AlignmentX = p.AlignmentX;
-      AlignmentY = p.AlignmentY;
-      if (p.Background != null)
-        Background = (Brush)p.Background.Clone();
-      foreach (UIElement el in p.Children)
-      {
-        Children.Add((UIElement)el.Clone());
-      }
     }
 
     void Init()
@@ -83,6 +75,20 @@ namespace Presentation.SkinEngine.Controls.Panels
       _renderOrder = new List<UIElement>();
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Panel p = source as Panel;
+      AlignmentX = copyManager.GetCopy(p.AlignmentX);
+      AlignmentY = copyManager.GetCopy(p.AlignmentY);
+      Background = copyManager.GetCopy(p.Background);
+      foreach (UIElement el in p.Children)
+        Children.Add(copyManager.GetCopy(el));
+    }
+
+    #endregion
+
+    /// FIXME Albert78: this method is never called?
     void OnBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.OpacityChange;
@@ -98,11 +104,13 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       Invalidate();
     }
+
     /// <summary>
     /// Called when a non layout property value has been changed
     /// we're simply calling Free() which will do a performlayout
     /// </summary>
     /// <param name="property">The property.</param>
+    /// FIXME Albert78: this method is never called?
     protected void OnPropertyChanged(Property property)
     {
       if (_backgroundAsset != null)
@@ -111,52 +119,30 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-
     public Property BackgroundProperty
     {
-      get
-      {
-        return _backgroundProperty;
-      }
+      get { return _backgroundProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the background brush
-    /// </summary>
-    /// <value>The background.</value>
     public Brush Background
     {
-      get
-      {
-        return (Brush) _backgroundProperty.GetValue();
-      }
-      set
-      {
-        _backgroundProperty.SetValue(value);
-        if (value != null)
+      get { return (Brush) _backgroundProperty.GetValue(); }
+      set {
+        // FIXME Albert78: Is it necessary to attach to the brush here?
+        // If yes, detach from old brush before attaching to new
+        if (value != _backgroundProperty.GetValue())
         {
-          value.ClearAttachedEvents();
+          _backgroundProperty.SetValue(value);
           value.Attach(OnBrushPropertyChanged);
         }
       }
     }
 
-    /// <summary>
-    /// Gets or sets the children property.
-    /// </summary>
-    /// <value>The children property.</value>
     public Property ChildrenProperty
     {
-      get
-      {
-        return _childrenProperty;
-      }
+      get { return _childrenProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the children.
-    /// </summary>
-    /// <value>The children.</value>
     public UIElementCollection Children
     {
       get
@@ -174,22 +160,11 @@ namespace Presentation.SkinEngine.Controls.Panels
       if (Window!=null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// Gets or sets the alignment X property.
-    /// </summary>
-    /// <value>The alignment X property.</value>
     public Property AlignmentXProperty
     {
-      get
-      {
-        return _alignmentXProperty;
-      }
+      get { return _alignmentXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment X.
-    /// </summary>
-    /// <value>The alignment X.</value>
     public AlignmentX AlignmentX
     {
       get
@@ -197,28 +172,14 @@ namespace Presentation.SkinEngine.Controls.Panels
         return _alignmentXProperty == null ? AlignmentX.Center :
           (AlignmentX)_alignmentXProperty.GetValue();
       }
-      set
-      {
-        _alignmentXProperty.SetValue(value);
-      }
+      set { _alignmentXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment Y property.
-    /// </summary>
-    /// <value>The alignment Y property.</value>
     public Property AlignmentYProperty
     {
-      get
-      {
-        return _alignmentYProperty;
-      }
+      get { return _alignmentYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment Y.
-    /// </summary>
-    /// <value>The alignment Y.</value>
     public AlignmentY AlignmentY
     {
       get
@@ -226,10 +187,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         return _alignmentYProperty == null ? AlignmentY.Top :
           (AlignmentY)_alignmentYProperty.GetValue();
       }
-      set
-      {
-        _alignmentYProperty.SetValue(value);
-      }
+      set { _alignmentYProperty.SetValue(value); }
     }
 
     public override void Invalidate()
@@ -285,9 +243,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         _lastEvent = UIEvent.None;
       }
     }
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
+
     public override void DoRender()
     {
       UpdateRenderOrder();
@@ -318,9 +274,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       SkinContext.RemoveOpacity();
     }
 
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
     public void PerformLayout()
     {
       //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
@@ -401,11 +354,6 @@ namespace Presentation.SkinEngine.Controls.Panels
     }
 
 
-    /// <summary>
-    /// Called when the mouse moves
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       foreach (UIElement element in Children)
@@ -427,10 +375,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       if (Window!=null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
       foreach (UIElement element in Children)
@@ -441,11 +385,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
     public override UIElement FindElement(string name)
     {
       foreach (UIElement element in Children)
@@ -475,11 +414,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return false;
     }
 
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
     public override UIElement FindElementType(Type t)
     {
       foreach (UIElement element in Children)
@@ -490,10 +424,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return base.FindElementType(t);
     }
 
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindItemsHost()
     {
       foreach (UIElement element in Children)
@@ -504,10 +434,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return base.FindItemsHost();
     }
 
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
       foreach (UIElement element in Children)
@@ -518,15 +444,8 @@ namespace Presentation.SkinEngine.Controls.Panels
       return null;
     }
 
+    #region Focus prediction
 
-    #region focus prediction
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -570,12 +489,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -619,12 +532,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -668,12 +575,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -717,9 +618,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-
     #endregion
-
 
     protected virtual void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p)
     {
@@ -742,6 +641,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         p.Y += (DesiredSize.Height - child.DesiredSize.Height);
       }
     }
+
     public override void Reset()
     {
       base.Reset();
@@ -751,6 +651,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         element.Reset();
       }
     }
+
     public override void Deallocate()
     {
       base.Deallocate();
@@ -773,6 +674,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         _backgroundContext = null;
       }
     }
+
     public override void Allocate()
     {
       base.Allocate();
@@ -812,6 +714,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         child.BuildRenderTree();
       }
     }
+
     public override void DestroyRenderTree()
     {
       if (_backgroundContext != null)

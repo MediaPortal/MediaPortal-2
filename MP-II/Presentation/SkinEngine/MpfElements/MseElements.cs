@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,16 +24,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Presentation.SkinEngine.Controls.Brushes;
+using Presentation.SkinEngine.Controls.Panels;
+using Presentation.SkinEngine.Controls.Transforms;
+using Presentation.SkinEngine.Controls.Visuals;
+using SlimDX;
+using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
+using Presentation.SkinEngine.Controls.Visuals.Shapes;
 
-namespace Presentation.SkinEngine.ElementRegistrations
+namespace Presentation.SkinEngine.MpfElements
 {                            
   /// <summary>
   /// This class holds a registration for all elements which can be instanciated
-  /// by a XAML file.
+  /// by a XAML file. It also holds static methods for type conversions
+  /// between special types and for copying instances.
   /// </summary>
   public class MseElements
   {
     #region Variables
+
     /// <summary>
     /// Registration for all elements the loader can create from a XAML file.
     /// </summary>
@@ -55,7 +65,6 @@ namespace Presentation.SkinEngine.ElementRegistrations
       objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
       objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
       objectClassRegistrations.Add("Button", typeof(SkinEngine.Controls.Visuals.Button));
-      objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       objectClassRegistrations.Add("CheckBox", typeof(SkinEngine.Controls.Visuals.CheckBox));
       objectClassRegistrations.Add("Label", typeof(SkinEngine.Controls.Visuals.Label));
       objectClassRegistrations.Add("ListView", typeof(SkinEngine.Controls.Visuals.ListView));
@@ -142,9 +151,268 @@ namespace Presentation.SkinEngine.ElementRegistrations
 
     #endregion
 
-    #region Properties           
+    #region Public properties           
+
     public static IDictionary<string, Type> ObjectClassRegistrations
     { get { return objectClassRegistrations; } }
+
+    #endregion
+
+    #region Public methods
+    
+    public static bool ConvertType(object value, Type targetType, out object result)
+    {
+      result = value;
+      if (value == null)
+      {
+        result = value;
+        return true;
+      }
+      else if (targetType == typeof(Transform))
+      {
+        string v = value.ToString();
+        string[] parts = v.Split(new char[] { ',' });
+        if (parts.Length == 6)
+        {
+          float[] f = new float[parts.Length];
+          for (int i = 0; i < parts.Length; ++i)
+          {
+            object obj;
+            TypeConverter.Convert(parts[i], typeof(double), out obj);
+            f[i] = (float) obj;
+          }
+          System.Drawing.Drawing2D.Matrix matrix2d = new System.Drawing.Drawing2D.Matrix(f[0], f[1], f[2], f[3], f[4], f[5]);
+          Static2dMatrix matrix = new Static2dMatrix();
+          matrix.Set2DMatrix(matrix2d);
+          result = matrix;
+          return true;
+        }
+      }
+      else if (targetType == typeof(Vector2))
+      {
+        result = Convert2Vector2(value.ToString());
+        return true;
+      }
+      else if (targetType == typeof(Vector3))
+      {
+        result = Convert2Vector3(value.ToString());
+        return true;
+      }
+      else if (targetType == typeof(Vector4))
+      {
+        result = Convert2Vector4(value.ToString());
+        return true;
+      }
+      else if (targetType == typeof(Brush))
+      {
+        SolidColorBrush b = new SolidColorBrush();
+        b.Color = (System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(value.ToString());
+        result = b;
+        return true;
+      }
+      else if (targetType == typeof(PointCollection))
+      {
+        PointCollection coll = new PointCollection();
+        string text = value.ToString();
+        string[] parts = text.Split(new char[] { ',', ' ' });
+        for (int i = 0; i < parts.Length; i += 2)
+        {
+          System.Drawing.Point p = new System.Drawing.Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
+          coll.Add(p);
+        }
+        result = coll;
+        return true;
+      }
+      else if (targetType == typeof(GridLength))
+      {
+        string text = value.ToString();
+        if (text == "Auto")
+        {
+          result = new GridLength(GridUnitType.Star, 1.0);
+        }
+        else if (text.IndexOf('*') < 0)
+        {
+          double v = double.Parse(text);
+          result = new GridLength(GridUnitType.Pixel, v);
+        }
+        else
+        {
+          int pos = text.IndexOf('*');
+          text = text.Substring(0, pos);
+          object obj;
+          TypeConverter.Convert(text, typeof(double), out obj);
+          result = new GridLength(GridUnitType.Star, (double) obj);
+        }
+        return true;
+      }
+      else if (targetType.IsAssignableFrom(typeof(FrameworkElement)) && value is string)
+      {
+        Label resultLabel = new Label();
+        resultLabel.Text = (string)value;
+        // FIXME Albert78: Use default font (from FontManager?) rather than hard coded font
+        resultLabel.Font = "font12";
+        result = resultLabel;
+        return true;
+      }
+      result = value;
+      return false;
+    }
+
+    public static bool CopyMpfObject(object source, out object target)
+    {
+      target = null;
+      if (source == null)
+        return true;
+      Type t = source.GetType();
+      if (t == typeof(Vector2))
+      {
+        Vector2 vec = (Vector2) source;
+        Vector2 result = new Vector2();
+        result.X = vec.X;
+        result.Y = vec.Y;
+        target = result;
+        return true;
+      }
+      else if (t == typeof(Vector3))
+      {
+        Vector3 vec = (Vector3) source;
+        Vector3 result = new Vector3();
+        result.X = vec.X;
+        result.Y = vec.Y;
+        result.Z = vec.Z;
+        target = result;
+        return true;
+      }
+      else if (t == typeof(Vector4))
+      {
+        Vector4 vec = (Vector4) source;
+        Vector4 result = new Vector4();
+        result.X = vec.X;
+        result.Y = vec.Y;
+        result.W = vec.W;
+        result.Z = vec.Z;
+        target = result;
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Private/protected methods
+
+    /// <summary>
+    /// Converts a string to a <see cref="Vector2"/>.
+    /// </summary>
+    /// <param name="coordsString">The coordinates in "0.2,0.4" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2" will result in a vector (3.5, 7.2),
+    /// the string "5.6" will result in a vector (5.6, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0).</param>
+    /// <returns>New <see cref="Vector2"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector2 Convert2Vector2(string coordsString)
+    {
+      if (coordsString == null)
+      {
+        return new Vector2(0, 0);
+      }
+      Vector2 vec = new Vector2();
+      string[] coords = coordsString.Split(new char[] { ',' });
+      object obj;
+      if (coords.Length > 0)
+      {
+        TypeConverter.Convert(coords[0], typeof(float), out obj);
+        vec.X = (float) obj;
+      }
+      if (coords.Length > 1)
+      {
+        TypeConverter.Convert(coords[1], typeof(float), out obj);
+        vec.Y = (float) obj;
+      }
+      return vec;
+    }
+
+    /// <summary>
+    /// Converts a string to a <see cref="Vector3"/>.
+    /// </summary>
+    /// <param name="coordsString">The coordinates in "0.2,0.4,0.1" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2,5.2" will result in a vector (3.5, 7.2, 5.2),
+    /// the string "5.6" will result in a vector (5.6, 0, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0, 0).</param>
+    /// <returns>New <see cref="Vector3"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector3 Convert2Vector3(string coordsString)
+    {
+      if (coordsString == null)
+      {
+        return new Vector3(0, 0, 0);
+      }
+      Vector3 vec = new Vector3();
+      string[] coords = coordsString.Split(new char[] { ',' });
+      object obj;
+      if (coords.Length > 0)
+      {
+        TypeConverter.Convert(coords[0], typeof(float), out obj);
+        vec.X = (float) obj;
+      }
+      if (coords.Length > 1)
+      {
+        TypeConverter.Convert(coords[1], typeof(float), out obj);
+        vec.Y = (float) obj;
+      }
+      if (coords.Length > 2)
+      {
+        TypeConverter.Convert(coords[2], typeof(float), out obj);
+        vec.Z = (float) obj;
+      }
+      return vec;
+    }
+
+    /// <summary>
+    /// Converts a string to a <see cref="Vector4"/>.
+    /// </summary>
+    /// <param name="coordsString">The coordinates in "0.2,0.4,0.1,0.6" format. This method
+    /// will fill as many coordinates in the result vector as specified in the
+    /// comma separated string. So the string "3.5,7.2,5.2,2.8" will result in a
+    /// vector (3.5, 7.2, 5.2, 2.8),
+    /// the string "5.6" will result in a vector (5.6, 0, 0, 0),
+    /// an empty or a <code>null</code> string will result in a vector (0, 0, 0, 0).</param>
+    /// <returns>New <see cref="Vector4"/> instance with the specified coordinates,
+    /// never <code>null</code>.</returns>
+    protected static Vector4 Convert2Vector4(string coordsString)
+    {
+      if (coordsString == null)
+      {
+        return new Vector4(0, 0, 0, 0);
+      }
+      Vector4 vec = new Vector4();
+      string[] coords = coordsString.Split(new char[] { ',' });
+      object obj;
+      if (coords.Length > 0)
+      {
+        TypeConverter.Convert(coords[0], typeof(float), out obj);
+        vec.X = (float) obj;
+      }
+      if (coords.Length > 1)
+      {
+        TypeConverter.Convert(coords[1], typeof(float), out obj);
+        vec.Y = (float) obj;
+      }
+      if (coords.Length > 2)
+      {
+        TypeConverter.Convert(coords[2], typeof(float), out obj);
+        vec.W = (float) obj;
+      }
+      if (coords.Length > 3)
+      {
+        TypeConverter.Convert(coords[3], typeof(float), out obj);
+        vec.Z = (float) obj;
+      }
+      return vec;
+    }
+
     #endregion
   }
 }

@@ -50,7 +50,6 @@ namespace Presentation.SkinEngine
       Point P;
     }
 
-    #region variables
     [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
     public static extern int MsgWaitForMultipleObjects(int nCount, int pHandles, bool fWaitAll, int dwMilliseconds, int dwWakeMask);
 
@@ -63,6 +62,7 @@ namespace Presentation.SkinEngine
     [DllImport("user32.dll")]
     static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
 
+    #region Variables
 
     private List<Window> _windows;
     private Window _currentWindow;
@@ -74,11 +74,9 @@ namespace Presentation.SkinEngine
     private string _dialogTitle;
     private string[] _dialogLines = new string[3];
     private bool _dialogResponse;  // Yes = true, No = false
+
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WindowManager"/> class.
-    /// </summary>
     public WindowManager()
     {
       _windows = new List<Window>();
@@ -516,7 +514,6 @@ namespace Presentation.SkinEngine
       lock (_history)
       {
         ServiceScope.Get<ILogger>().Debug("WindowManager: Show previous window");
-        Window window = _history[_history.Count - 1];
         if (_currentDialog != null)
         {
           CloseDialog();
@@ -527,6 +524,7 @@ namespace Presentation.SkinEngine
         {
           return;
         }
+        Window window = _history[_history.Count - 1];
         _previousWindow = _currentWindow;
         if (_previousWindow != null)
         {

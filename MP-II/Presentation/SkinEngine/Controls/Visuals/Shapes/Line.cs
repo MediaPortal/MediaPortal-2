@@ -31,38 +31,26 @@ using Presentation.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
   public class Line : Shape
   {
+    #region Private fields
 
     Property _x1Property;
     Property _y1Property;
     Property _x2Property;
     Property _y2Property;
 
+    #endregion
+
+    #region Ctor
+
     public Line()
     {
       Init();
-    }
-
-    public Line(Line s)
-      : base(s)
-    {
-      Init();
-      X1 = s.X1;
-      Y1 = s.Y1;
-      X2 = s.X2;
-      Y2 = s.Y2;
-    }
-
-    public override object Clone()
-    {
-      Line result = new Line(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -77,138 +65,68 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _y2Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Line l = source as Line;
+      X1 = copyManager.GetCopy(l.X1);
+      Y1 = copyManager.GetCopy(l.Y1);
+      X2 = copyManager.GetCopy(l.X2);
+      Y2 = copyManager.GetCopy(l.Y2);
+    }
+
+    #endregion
+
     void OnCoordinateChanged(Property property)
     {
       Invalidate();
       if (Window!=null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// Gets or sets the x1 property.
-    /// </summary>
-    /// <value>The x1 property.</value>
     public Property X1Property
     {
-      get
-      {
-        return _x1Property;
-      }
-      set
-      {
-        _x1Property = value;
-      }
+      get { return _x1Property; }
     }
 
-    /// <summary>
-    /// Gets or sets the x1.
-    /// </summary>
-    /// <value>The x1.</value>
     public double X1
     {
-      get
-      {
-        return (double)_x1Property.GetValue();
-      }
-      set
-      {
-        _x1Property.SetValue(value);
-      }
+      get { return (double)_x1Property.GetValue(); }
+      set { _x1Property.SetValue(value); }
     }
 
     public Property Y1Property
     {
-      get
-      {
-        return _y1Property;
-      }
-      set
-      {
-        _y1Property = value;
-      }
+      get { return _y1Property; }
     }
 
-    /// <summary>
-    /// Gets or sets the y1.
-    /// </summary>
-    /// <value>The y1.</value>
     public double Y1
     {
-      get
-      {
-        return (double)_y1Property.GetValue();
-      }
-      set
-      {
-        _y1Property.SetValue(value);
-      }
+      get { return (double)_y1Property.GetValue(); }
+      set { _y1Property.SetValue(value); }
     }
 
-
-    /// <summary>
-    /// Gets or sets the x2 property.
-    /// </summary>
-    /// <value>The x2 property.</value>
     public Property X2Property
     {
-      get
-      {
-        return _x2Property;
-      }
-      set
-      {
-        _x2Property = value;
-      }
+      get { return _x2Property; }
     }
 
-    /// <summary>
-    /// Gets or sets the x2.
-    /// </summary>
-    /// <value>The x2.</value>
     public double X2
     {
-      get
-      {
-        return (double)_x2Property.GetValue();
-      }
-      set
-      {
-        _x2Property.SetValue(value);
-      }
+      get { return (double)_x2Property.GetValue(); }
+      set { _x2Property.SetValue(value); }
     }
 
     public Property Y2Property
     {
-      get
-      {
-        return _y2Property;
-      }
-      set
-      {
-        _y2Property = value;
-      }
+      get { return _y2Property; }
     }
 
-    /// <summary>
-    /// Gets or sets the y2.
-    /// </summary>
-    /// <value>The y2.</value>
     public double Y2
     {
-      get
-      {
-        return (double)_y2Property.GetValue();
-      }
-      set
-      {
-        _y2Property.SetValue(value);
-      }
+      get { return (double)_y2Property.GetValue(); }
+      set { _y2Property.SetValue(value); }
     }
 
-
-
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Line.PerformLayout() " + this.Name);
@@ -276,10 +194,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
 
     }
+
     /*
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -309,7 +225,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
       //SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
-    }*/
+    }
+    */
+
     public override void Measure(SizeF availableSize)
     {
       using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
@@ -348,7 +266,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    #region Get the desired Rounded Rectangle path.
+    /// <summary>
+    /// Get the desired Rounded Rectangle path.
+    /// </summary>
     private GraphicsPath GetLine(RectangleF baseRect)
     {
       float x1 = (float)(X1);
@@ -386,7 +306,5 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
       return mPath;
     }
-    #endregion
-
   }
 }

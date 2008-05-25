@@ -26,6 +26,8 @@ using System.Text;
 using MediaPortal.Presentation.Properties;
 #endregion
 
+using MediaPortal.Utilities.DeepCopy;
+
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class ColumnDefinition : DefinitionBase
@@ -35,44 +37,28 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       Init();
     }
-    public ColumnDefinition(ColumnDefinition v)
-    {
-      Width = v.Width;
-      Init();
-    }
-
-    public object Clone()
-    {
-      return new ColumnDefinition(this);
-    }
 
     void Init()
     {
       _widthProperty = new Property(typeof(GridLength), new GridLength());
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ColumnDefinition d = source as ColumnDefinition;
+      Width = copyManager.GetCopy(d.Width);
+    }
+
     public Property WidthProperty
     {
-      get
-      {
-        return _widthProperty;
-      }
-      set
-      {
-        _widthProperty = value;
-      }
+      get { return _widthProperty; }
     }
 
     public GridLength Width
     {
-      get
-      {
-        return _widthProperty.GetValue() as GridLength;
-      }
-      set
-      {
-        _widthProperty.SetValue(value);
-      }
+      get { return _widthProperty.GetValue() as GridLength; }
+      set { _widthProperty.SetValue(value); }
     }
   }
 }

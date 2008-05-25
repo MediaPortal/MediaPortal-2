@@ -25,83 +25,67 @@
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine.Effects;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class VisualBrush : TileBrush
   {
+    #region Private fields
+
     Property _visualProperty;
     EffectAsset _effect;
     Texture _textureOpacity;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VisualBrush"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public VisualBrush()
     {
       Init();
     }
 
-    public VisualBrush(VisualBrush b)
-      : base(b)
-    {
-      Init();
-      Visual = b.Visual;
-    }
     void Init()
     {
       _visualProperty = new Property(typeof(FrameworkElement), null);
       _effect = ContentManager.GetEffect("normal");
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      VisualBrush result = new VisualBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      VisualBrush b = source as VisualBrush;
+      Visual = copyManager.GetCopy(b.Visual);
     }
 
-    /// <summary>
-    /// Gets or sets the visual property.
-    /// </summary>
-    /// <value>The visual property.</value>
+    #endregion
+
+    #region Public properties
+
     public Property VisualProperty
     {
-      get
-      {
-        return _visualProperty;
-      }
-      set
-      {
-        _visualProperty = value;
-      }
+      get { return _visualProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the visual.
-    /// </summary>
-    /// <value>The visual.</value>
     public FrameworkElement Visual
     {
-      get
-      {
-        return (FrameworkElement)_visualProperty.GetValue();
-      }
-      set
-      {
-        _visualProperty.SetValue(value);
-      }
+      get { return (FrameworkElement)_visualProperty.GetValue(); }
+      set { _visualProperty.SetValue(value); }
     }
+
+    #endregion
+
     public override void SetupBrush(FrameworkElement element, ref SkinEngine.DirectX.PositionColored2Textured[] verts)
     {
       UpdateBounds(element, ref verts);
       base.SetupBrush(element, ref verts);
       _textureOpacity = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
     }
+
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (this.Visual == null) return false;

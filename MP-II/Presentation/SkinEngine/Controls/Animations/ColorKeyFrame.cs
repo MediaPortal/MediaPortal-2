@@ -22,52 +22,22 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
 using System.Drawing;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class ColorKeyFrame : KeyFrameBase, IKeyFrame
+  public class ColorKeyFrame : ValueKeyFrame<Color>
   {
-    Property _keyValueProperty;
-
     #region Ctor
 
-    public ColorKeyFrame(): base()
+    public ColorKeyFrame()
     {
       Init();
-    }
-
-    public ColorKeyFrame(ColorKeyFrame k): base(k)
-    {
-      Init();
-      Value = k.Value;
     }
 
     void Init()
     {
-      _keyValueProperty = new Property(typeof(Color), Color.White);
-    }
-
-    #endregion
-
-    #region properties
-
-    public Property ValueProperty
-    {
-      get { return _keyValueProperty; }
-    }
-
-    public Color Value
-    {
-      get { return (Color)_keyValueProperty.GetValue(); }
-      set { _keyValueProperty.SetValue(value); }
-    }
-
-    object IKeyFrame.Value
-    {
-      get { return this.Value; }
-      set { this.Value = (Color)value; }
+      Value = Color.White;
     }
 
     #endregion

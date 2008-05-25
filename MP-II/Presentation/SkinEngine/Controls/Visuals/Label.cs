@@ -32,12 +32,14 @@ using Font = Presentation.SkinEngine.Fonts.Font;
 using FontRender = Presentation.SkinEngine.Fonts.FontRender;
 using FontBufferAsset = Presentation.SkinEngine.Fonts.FontBufferAsset;
 using FontManager = Presentation.SkinEngine.Fonts.FontManager;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Label : Control
   {
+    #region Private fields
+
     Property _textProperty;
     Property _colorProperty;
     Property _scrollProperty;
@@ -49,40 +51,41 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Color _colorCache = Color.White;
     bool _update = false;
 
+    #endregion
+
+    #region Ctor
+
     public Label()
     {
       Init();
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
     }
 
-    public Label(Label lbl)
-      : base(lbl)
-    {
-      Init();
-      Text = lbl.Text;
-      Color = lbl.Color;
-      Scroll = lbl.Scroll;
-      Font = lbl.Font;
-      _label = new StringId(Text);
-    }
     void Init()
     {
       _textProperty = new Property(typeof(string), "");
       _colorProperty = new Property(typeof(Color), Color.White);
       _scrollProperty = new Property(typeof(bool), false);
       _fontProperty = new Property(typeof(string), "font13");
-      _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
-      _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
-      _scrollProperty.Attach(new PropertyChangedHandler(OnScrollChanged));
-      _colorProperty.Attach(new PropertyChangedHandler(OnColorChanged));
+
+      _fontProperty.Attach(OnFontChanged);
+      _textProperty.Attach(OnTextChanged);
+      _scrollProperty.Attach(OnScrollChanged);
+      _colorProperty.Attach(OnColorChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Label result = new Label(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      Label l = source as Label;
+      Text = copyManager.GetCopy(l.Text);
+      Color = copyManager.GetCopy(l.Color);
+      Scroll = copyManager.GetCopy(l.Scroll);
+      Font = copyManager.GetCopy(l.Font);
+      _label = new StringId(Text);
     }
+
+    #endregion
 
     void OnColorChanged(Property prop)
     {
@@ -90,6 +93,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _update = true;
       if (Window != null) Window.Invalidate(this);
     }
+
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
@@ -97,12 +101,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
       // Invalidate();
     }
+
     void OnScrollChanged(Property prop)
     {
       _scrollCache = (bool)_scrollProperty.GetValue();
       _update = true;
       if (Window != null) Window.Invalidate(this);
     }
+
     void OnFontChanged(Property prop)
     {
       if (_asset != null)
@@ -118,100 +124,40 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public Property FontProperty
     {
-      get
-      {
-        return _fontProperty;
-      }
-      set
-      {
-        _fontProperty = value;
-      }
+      get { return _fontProperty; }
     }
 
     public string Font
     {
-      get
-      {
-        return _fontProperty.GetValue() as string;
-      }
-      set
-      {
-        _fontProperty.SetValue(value);
-      }
+      get { return _fontProperty.GetValue() as string; }
+      set { _fontProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the text property.
-    /// </summary>
-    /// <value>The text property.</value>
     public Property TextProperty
     {
-      get
-      {
-        return _textProperty;
-      }
-      set
-      {
-        _textProperty = value;
-      }
+      get { return _textProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the text.
-    /// </summary>
-    /// <value>The text.</value>
     public string Text
     {
-      get
-      {
-        return _textProperty.GetValue() as string;
-      }
-      set
-      {
-        _textProperty.SetValue(value);
-      }
+      get { return _textProperty.GetValue() as string; }
+      set { _textProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the color property.
-    /// </summary>
-    /// <value>The color property.</value>
     public Property ColorProperty
     {
-      get
-      {
-        return _colorProperty;
-      }
-      set
-      {
-        _colorProperty = value;
-      }
+      get { return _colorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the color.
-    /// </summary>
-    /// <value>The color.</value>
     public Color Color
     {
-      get
-      {
-        return _colorCache;
-      }
-      set
-      {
-        _colorProperty.SetValue(value);
-      }
+      get { return _colorCache; }
+      set { _colorProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the scroll property.
-    /// </summary>
-    /// <value>The scroll.</value>
     public Property ScrollProperty
     {
       get { return _scrollProperty; }
-      set { _scrollProperty = value; }
     }
 
     public bool Scroll
@@ -235,10 +181,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _renderer = new FontRender(_asset.Font);
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
@@ -276,17 +218,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       AllocFont();
@@ -372,6 +307,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       SkinContext.RemoveTransform();
 
     }
+
     public override void DestroyRenderTree()
     {
       Trace.WriteLine("lbl DestroyRenderTree:" + Text);
@@ -380,9 +316,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _renderer = null;
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (SkinContext.UseBatching == false)
@@ -499,12 +432,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _renderer.Free();
       _renderer = null;
     }
+
     public override void BecomesHidden()
     {
      // Trace.WriteLine("lbl BecomesHidden:" + Text);
       if (_renderer != null)
         _renderer.Free();
     }
+
     public override void BecomesVisible()
     {
       Trace.WriteLine("lbl BecomesVisible:" + Text);
@@ -527,7 +462,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _update = false;
     }
-
   }
 }
 

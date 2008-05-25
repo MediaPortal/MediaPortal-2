@@ -638,11 +638,17 @@ namespace Presentation.SkinEngine.XamlParser
     /// <returns><c>true</c>, if the method could handle the assignment, else <c>false</c>.</returns>
     protected bool CheckHandleCollectionAssignment(object maybeCollectionTarget, object value)
     {
-      if (maybeCollectionTarget is IList)
+      if (maybeCollectionTarget == null)
+        return false;
+      Type targetType = maybeCollectionTarget.GetType();
+      Type listType;
+      Type entryType;
+      ReflectionHelper.FindImplementedListType(targetType, out listType, out entryType);
+      if (listType != null)
       {
-        IList asList = (IList)maybeCollectionTarget;
+        MethodInfo mi = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] {entryType});
         foreach (object child in (IList)Convert(value, typeof(IList)))
-          asList.Add(child);
+          mi.Invoke(maybeCollectionTarget, new object[] {child});
         return true;
       }
       else if (maybeCollectionTarget is IDictionary)

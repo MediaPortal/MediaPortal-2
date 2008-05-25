@@ -43,7 +43,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public BrushTexture(GradientStopCollection stops, bool opacityBrush, string name)
     {
       _opacityBrush = opacityBrush;
-      _stops = (GradientStopCollection)stops.Clone();
+      _stops = stops;
       Allocate();
       IWindowManager mgr = ServiceScope.Get<IWindowManager>();
       _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.CurrentWindow.Name, name);
@@ -65,11 +65,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       if (stops.Count != _stops.Count)
         return false;
-      for (int i = 0; i < _stops.Count; ++i)
+      for (int i = 0; i < _stops.Count; i++)
       {
         if (_stops[i].Offset != stops[i].Offset)
           return false;
-        if (_stops[i].Color != stops[i].Color)
+        if (!_stops[i].Color.Equals(stops[i].Color))
           return false;
       }
       return true;
@@ -77,10 +77,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     public bool OpacityBrush
     {
-      get
-      {
-        return _opacityBrush;
-      }
+      get { return _opacityBrush; }
     }
 
     public Texture Texture
@@ -96,6 +93,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
         return _texture;
       }
     }
+
     void CreateGradient()
     {
       ///@optimize: use brush-cache
@@ -163,26 +161,22 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     }
 
-
     #region IAsset Members
 
     public void KeepAlive()
     {
       _lastTimeUsed = SkinContext.Now;
     }
+
     public bool IsAllocated
     {
-      get
-      {
-        return (_texture != null);
-      }
+      get { return (_texture != null); }
     }
 
     public bool CanBeDeleted
     {
       get
       {
-
         if (!IsAllocated)
         {
           return false;
@@ -207,11 +201,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
       return false;
     }
 
+    #endregion
 
     public override string ToString()
     {
       return _name;
     }
-    #endregion
   }
 }

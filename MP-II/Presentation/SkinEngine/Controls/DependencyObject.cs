@@ -22,10 +22,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls
 {
@@ -36,24 +36,20 @@ namespace Presentation.SkinEngine.Controls
   /// needed for
   /// <see cref="Presentation.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: ICloneable
+  public class DependencyObject: IDeepCopyable
   {
+    #region Protected fields
+
     protected IDictionary<string, Property> _attachedProperties = null; // Lazy initialized
     protected Property _dataContextProperty;
+
+    #endregion
+
+    #region Ctor
 
     public DependencyObject()
     {
       Init();
-    }
-
-    public DependencyObject(DependencyObject other)
-    {
-      Init();
-      // Copy attached properties
-      _attachedProperties = new Dictionary<string, Property>();
-      if (other._attachedProperties != null)
-        foreach (KeyValuePair<string, Property> kvp in other._attachedProperties)
-          _attachedProperties[kvp.Key] = new Property(kvp.Value.PropertyType, kvp.Value.GetValue());
     }
 
     void Init()
@@ -61,12 +57,22 @@ namespace Presentation.SkinEngine.Controls
       _dataContextProperty = new Property(typeof(BindingMarkupExtension), null);
     }
 
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      DependencyObject d = source as DependencyObject;
+      if (d._attachedProperties != null)
+        foreach (KeyValuePair<string, Property> kvp in d._attachedProperties)
+          SetAttachedPropertyValue(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()));
+      DataContext = copyManager.GetCopy(d.DataContext);
+    }
+
+    #endregion
+
+    #region Public properties
+
     public Property DataContextProperty
     {
-      get
-      {
-        return _dataContextProperty;
-      }
+      get { return _dataContextProperty; }
     }
 
     /// <summary>
@@ -74,15 +80,11 @@ namespace Presentation.SkinEngine.Controls
     /// </summary>
     public BindingMarkupExtension DataContext
     {
-      get
-      {
-        return (BindingMarkupExtension) _dataContextProperty.GetValue();
-      }
-      set
-      {
-        _dataContextProperty.SetValue(value);
-      }
+      get { return (BindingMarkupExtension) _dataContextProperty.GetValue(); }
+      set { _dataContextProperty.SetValue(value); }
     }
+
+    #endregion
 
     public BindingMarkupExtension GetOrCreateDataContext()
     {
@@ -124,15 +126,6 @@ namespace Presentation.SkinEngine.Controls
         _attachedProperties[name] = result;
       }
       return result;
-    }
-
-    #endregion
-
-    #region ICloneable implementation
-
-    public virtual object Clone()
-    {
-      throw new Exception(string.Format("The clone method has to be overridden in type '{0}'", GetType().Name));
     }
 
     #endregion

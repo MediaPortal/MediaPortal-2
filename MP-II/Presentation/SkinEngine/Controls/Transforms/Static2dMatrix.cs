@@ -23,37 +23,37 @@
 #endregion
 
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class Static2dMatrix: Transform
   {
+    #region Private fields
+
     float[] _elements;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SkewTransform"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public Static2dMatrix()
     {
       Init();
     }
-    public Static2dMatrix(Static2dMatrix r)
-      : base(r)
+
+    void Init()
+    { }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      _elements = (float[])r._elements.Clone();
+      base.DeepCopy(source, copyManager);
+      Static2dMatrix m = source as Static2dMatrix;
+      _elements = (float[]) m._elements.Clone();
       CreateMatrix();
     }
 
-    void Init()
-    {
-    }
-
-    public override object Clone()
-    {
-      Static2dMatrix result = new Static2dMatrix(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
+    #endregion
 
     public void Set2DMatrix(System.Drawing.Drawing2D.Matrix matrix2d)
     {

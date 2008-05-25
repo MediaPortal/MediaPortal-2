@@ -26,12 +26,14 @@ using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using RectangleF = System.Drawing.RectangleF;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class VirtualizingStackPanel : Panel, IScrollInfo
   {
+    #region Private fields
+
     Property _orientationProperty;
     int _startIndex;
     int _endIndex;
@@ -39,75 +41,51 @@ namespace Presentation.SkinEngine.Controls.Panels
     double _lineHeight;
     double _lineWidth;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StackPanel"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public VirtualizingStackPanel()
     {
       Init();
-    }
-    public VirtualizingStackPanel(VirtualizingStackPanel v)
-      : base(v)
-    {
-      Init();
-      Orientation = v.Orientation;
     }
 
     void Init()
     {
       _orientationProperty = new Property(typeof(Orientation), Orientation.Vertical);
-      _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _startIndex = 0;
       _endIndex = 0;
       _lineWidth = 0.0;
       _lineHeight = 0.0;
       _controlCount = 0;
 
+      _orientationProperty.Attach(OnPropertyInvalidate);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      VirtualizingStackPanel result = new VirtualizingStackPanel(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      VirtualizingStackPanel p = source as VirtualizingStackPanel;
+      Orientation = copyManager.GetCopy(p.Orientation);
     }
 
-    /// <summary>
-    /// Gets or sets the orientation property.
-    /// </summary>
-    /// <value>The orientation property.</value>
+    #endregion
+
+    #region Public properties
+
     public Property OrientationProperty
     {
-      get
-      {
-        return _orientationProperty;
-      }
-      set
-      {
-        _orientationProperty = value;
-      }
+      get { return _orientationProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the orientation.
-    /// </summary>
-    /// <value>The orientation.</value>
     public Orientation Orientation
     {
-      get
-      {
-        return (Orientation)_orientationProperty.GetValue();
-      }
-      set
-      {
-        _orientationProperty.SetValue(value);
-      }
+      get { return (Orientation)_orientationProperty.GetValue(); }
+      set { _orientationProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
+    #endregion
+
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       //      Trace.WriteLine(String.Format("VirtualizingStackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
@@ -190,18 +168,11 @@ namespace Presentation.SkinEngine.Controls.Panels
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
 
       base.Measure(availableSize);
       //      Trace.WriteLine(String.Format("VirtualizingStackPanel.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
       //      Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
@@ -305,10 +276,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       base.Arrange(layoutRect);
       FreeUnused();
     }
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
-    /// 
+
     protected override void RenderChildren()
     {
       lock (_orientationProperty)
@@ -334,6 +302,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     }
 
     #region IScrollInfo Members
+
     void FreeUnused()
     {
       UpdateRenderOrder(); 
@@ -353,11 +322,13 @@ namespace Presentation.SkinEngine.Controls.Panels
         index++;
       }
     }
+
     public override void Reset()
     {
       _startIndex = 0;
       base.Reset();
     }
+
     public bool LineDown(PointF point)
     {
       if (this.Orientation == Orientation.Vertical)
@@ -551,19 +522,14 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public double LineHeight
     {
-      get
-      {
-        return _lineHeight;
-      }
+      get { return _lineHeight; }
     }
 
     public double LineWidth
     {
-      get
-      {
-        return _lineWidth;
-      }
+      get { return _lineWidth; }
     }
+
     public void Home(PointF point)
     {
       lock (_orientationProperty)
@@ -574,6 +540,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         OnMouseMove((float)(Children[0].ActualPosition.X), (float)(Children[0].ActualPosition.Y));
       }
     }
+
     public void End(PointF point)
     {
       lock (_orientationProperty)
@@ -585,17 +552,15 @@ namespace Presentation.SkinEngine.Controls.Panels
         OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
       }
     }
+
     public void ResetScroll()
     {
       _startIndex = 0;
       //FreeUnused();
     }
+
     #endregion
 
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
       int index = 0;
@@ -614,11 +579,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    /// <summary>
-    /// Called when the mouse moves
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       int index = 0;
@@ -636,14 +596,8 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    #region focus prediction
+    #region Focus prediction
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -696,12 +650,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -754,12 +702,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -812,12 +754,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref MediaPortal.Control.InputManager.Key key, bool strict)
     {
       FrameworkElement bestMatch = null;
@@ -870,8 +806,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       return bestMatch;
     }
 
-
     #endregion
-
   }
 }

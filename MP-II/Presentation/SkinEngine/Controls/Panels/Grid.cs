@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
@@ -44,31 +44,11 @@ namespace Presentation.SkinEngine.Controls.Panels
     Property _rowDefinitionsProperty;
     Property _columnDefinitionsProperty;
 
-    #region ctor
+    #region Ctor
+
     public Grid()
     {
       Init();
-    }
-    public Grid(Grid v)
-      : base(v)
-    {
-      Init();
-      foreach (RowDefinition row in v.RowDefinitions)
-      {
-        RowDefinitions.Add(row);
-      }
-
-      foreach (ColumnDefinition row in v.ColumnDefinitions)
-      {
-        ColumnDefinitions.Add(row);
-      }
-    }
-
-    public override object Clone()
-    {
-      Grid result = new Grid(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -76,67 +56,45 @@ namespace Presentation.SkinEngine.Controls.Panels
       _rowDefinitionsProperty = new Property(typeof(RowDefinitionsCollection), new RowDefinitionsCollection());
       _columnDefinitionsProperty = new Property(typeof(ColumnDefinitionsCollection), new ColumnDefinitionsCollection());
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Grid g = source as Grid;
+      foreach (RowDefinition row in g.RowDefinitions)
+        RowDefinitions.Add(copyManager.GetCopy(row));
+      foreach (ColumnDefinition col in g.ColumnDefinitions)
+        ColumnDefinitions.Add(copyManager.GetCopy(col));
+    }
+
     #endregion
 
     #region properties
-    /// <summary>
-    /// Gets or sets the row definitions property.
-    /// </summary>
-    /// <value>The row definitions property.</value>
+
     public Property RowDefinitionsProperty
     {
-      get
-      {
-        return _rowDefinitionsProperty;
-      }
-      set
-      {
-        _rowDefinitionsProperty = value;
-      }
+      get { return _rowDefinitionsProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the row definitions.
-    /// </summary>
-    /// <value>The row definitions.</value>
     public RowDefinitionsCollection RowDefinitions
     {
-      get
-      {
-        return _rowDefinitionsProperty.GetValue() as RowDefinitionsCollection;
-      }
+      get { return _rowDefinitionsProperty.GetValue() as RowDefinitionsCollection; }
     }
 
-    /// <summary>
-    /// Gets or sets the column definitions property.
-    /// </summary>
-    /// <value>The column definitions property.</value>
     public Property ColumnDefinitionsProperty
     {
-      get
-      {
-        return _columnDefinitionsProperty;
-      }
-      set
-      {
-        _columnDefinitionsProperty = value;
-      }
+      get { return _columnDefinitionsProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the column definitions.
-    /// </summary>
-    /// <value>The column definitions.</value>
     public ColumnDefinitionsCollection ColumnDefinitions
     {
-      get
-      {
-        return _columnDefinitionsProperty.GetValue() as ColumnDefinitionsCollection;
-      }
+      get { return _columnDefinitionsProperty.GetValue() as ColumnDefinitionsCollection; }
     }
+
     #endregion
 
-    #region measure & arrange
+    #region Measure & arrange
+
     /// <summary>
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
@@ -199,7 +157,6 @@ namespace Presentation.SkinEngine.Controls.Panels
 
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
 
       float d = (float)Math.Abs(_desiredSize.Width - 480.0 * SkinContext.Zoom.Width);
 

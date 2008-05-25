@@ -24,29 +24,38 @@
 
 using System;
 using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public abstract class KeyFrameBase: DependencyObject
+  public abstract class ValueKeyFrame<T>: DependencyObject, IKeyFrame
   {
+    #region Private fields
+
     Property _keyTimeProperty;
+    Property _keyValueProperty;
+
+    #endregion
 
     #region Ctor
 
-    public KeyFrameBase(): base()
+    public ValueKeyFrame()
     {
       Init();
-    }
-
-    public KeyFrameBase(KeyFrameBase k): base(k)
-    {
-      Init();
-      KeyTime = k.KeyTime;
     }
 
     void Init()
     {
       _keyTimeProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 0));
+      _keyValueProperty = new Property(typeof(T), null); // Will be initialized in subclasses
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ValueKeyFrame<T> kf = source as ValueKeyFrame<T>;
+      KeyTime = copyManager.GetCopy(kf.KeyTime);
+      Value = copyManager.GetCopy(kf.Value);
     }
 
     #endregion
@@ -58,10 +67,31 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _keyTimeProperty; }
     }
 
+    public Property ValueProperty
+    {
+      get { return _keyValueProperty; }
+    }
+
+    public T Value
+    {
+      get { return (T) _keyValueProperty.GetValue(); }
+      set { _keyValueProperty.SetValue(value); }
+    }
+
+    #endregion
+
+    #region IKeyFrame implementation
+
     public TimeSpan KeyTime
     {
       get { return (TimeSpan)_keyTimeProperty.GetValue(); }
       set { _keyTimeProperty.SetValue(value); }
+    }
+
+    object IKeyFrame.Value
+    {
+      get { return this.Value; }
+      set { this.Value = (T) value; }
     }
 
     #endregion

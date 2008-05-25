@@ -26,18 +26,18 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.ElementRegistrations;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Loader
 {
-  public class MseNamespaceHandler: INamespaceHandler
+  public class MpfNamespaceHandler: INamespaceHandler
   {
     #region Protected methods
 
     internal IDataDescriptor GetAttachedProperty(string propertyProvider,
         string propertyName, object targetObject)
     {
-      return new MseAttachedPropertyDataDescriptor(this, targetObject, propertyProvider, propertyName);
+      return new MpfAttachedPropertyDataDescriptor(this, targetObject, propertyProvider, propertyName);
     }
 
     internal static MethodInfo GetAttachedPropertyGetter(string propertyProvider,
@@ -56,7 +56,7 @@ namespace Presentation.SkinEngine.Loader
       }
       catch
       {
-        throw new XamlParserException("Element type '{0}' is not present in MseNamespaceHandler",
+        throw new XamlParserException("Element type '{0}' is not present in MpfNamespaceHandler",
           typeName);
       }
     }
@@ -104,8 +104,8 @@ namespace Presentation.SkinEngine.Loader
     public IDataDescriptor GetAttachedProperty(string propertyProvider,
       string propertyName, object targetObject, string namespaceURI)
     {
-      MseAttachedPropertyDataDescriptor result;
-      if (!MseAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
+      MpfAttachedPropertyDataDescriptor result;
+      if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
           this, targetObject, propertyProvider, propertyName, out result))
         throw new InvalidOperationException(string.Format(
             "Attached property '{0}.{1}' is not available on target object '{2}'",

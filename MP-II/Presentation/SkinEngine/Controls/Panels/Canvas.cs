@@ -22,10 +22,10 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
@@ -36,35 +36,22 @@ namespace Presentation.SkinEngine.Controls.Panels
     protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
     protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
 
-    public Canvas()
-    {
-    }
+    public Canvas() { }
     
-    public Canvas(Canvas v)
-      : base(v)
-    {
-    }
-
-    public override object Clone()
-    {
-      Canvas result = new Canvas(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// Measures the size in layout required for child elements and determines
+    /// the <see cref="UIElement.DesiredSize"/>.
     /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
+    /// <param name="availableSize">The maximum available size that is available.</param>
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        _desiredSize.Width = availableSize.Width - marginWidth;
       if (Height <= 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {
@@ -79,7 +66,11 @@ namespace Presentation.SkinEngine.Controls.Panels
         child.Measure(new Size(0, 0));
         rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
       }
-      _originalSize = _desiredSize;
+      // Next lines added by Albert78, 20.5.08
+      if (Width <= 0)
+        _desiredSize.Width = Math.Max(_desiredSize.Width, rect.Right);
+      if (Height <= 0)
+        _desiredSize.Height = Math.Max(_desiredSize.Height, rect.Bottom);
 
       if (LayoutTransform != null)
       {
@@ -103,10 +94,10 @@ namespace Presentation.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("canvas.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      layoutRect.X += Margin.X * SkinContext.Zoom.Width;
+      layoutRect.Y += Margin.Y * SkinContext.Zoom.Height;
+      layoutRect.Width -= (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      layoutRect.Height -= (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
       //SkinContext.FinalLayoutTransform.TransformRect(ref layoutRect);
 
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
@@ -120,15 +111,14 @@ namespace Presentation.SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
-
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
         PointF p = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
           ((float) GetTop(child) * SkinContext.Zoom.Height));
         SkinContext.FinalLayoutTransform.TransformPoint(ref p);
-        p.X += (float)this.ActualPosition.X;
-        p.Y += (float)this.ActualPosition.Y;
+        p.X += ActualPosition.X;
+        p.Y += ActualPosition.Y;
 
         SizeF s = child.DesiredSize;
 
@@ -144,7 +134,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
         if (Window!=null) Window.Invalidate(this);
       }
       base.Arrange(layoutRect);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Canvas
-    xmlns="www.team-mediaportal.com/2008/mse/directx"
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model AssemblyName=Menu,ClassName=HomeMenu},Path=Instance}"
     FocusedElement="{Binding ElementName=mainMenu}"
@@ -24,9 +24,9 @@
         </LinearGradientBrush>
       </Label.OpacityMask>
     </Label>
-    <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-      <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding Path=Plugins}" />
-      <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
+    <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+      <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding Path=Plugins,Mode=OneTime}" />
+      <Button x:Name="VideoWindow" Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
     </StackPanel>
   </DockPanel>
   <Include Source="osd.xaml"/>

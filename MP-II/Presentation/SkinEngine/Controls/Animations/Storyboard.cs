@@ -19,10 +19,10 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -34,16 +34,6 @@ namespace Presentation.SkinEngine.Controls.Animations
     public Storyboard()
     { }
     
-    public Storyboard(Storyboard a): base(a)
-    { }
-
-    public override object Clone()
-    {
-      Storyboard result = new Storyboard(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     #region Attached properties
 
     /// <summary>

@@ -22,95 +22,69 @@
 
 #endregion
 
-using System;
 using System.Reflection;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class Command : ICloneable
+  public class Command : IDeepCopyable
   {
     MethodInfo _info;
     object _object;
     object _parameter;
 
+    #region Ctor
+
     public Command()
+    { }
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Command c = source as Command;
+      _info = copyManager.GetCopy(c._info);
+      _object = copyManager.GetCopy(c._object);
+      _parameter = copyManager.GetCopy(c._parameter);
     }
-
-    public Command(Command c)
-    {
-      Object = c.Object;
-      Method = c.Method;
-      Parameter = c.Parameter;
-    }
-
-    #region ICloneable Members
-
-    public virtual object Clone()
-    {
-      return new Command(this);
-    }
-
 
     #endregion
 
+    #region Public properties
+
     public MethodInfo Method
     {
-      get
-      {
-        return _info;
-      }
-      set
-      {
-        _info = value;
-      }
+      get { return _info; }
+      set { _info = value; }
     }
 
     public object Object
     {
-      get
-      {
-        return _object;
-      }
-      set
-      {
-        _object = value;
-      }
+      get { return _object; }
+      set { _object = value; }
     }
 
     public object Parameter
     {
-      get
-      {
-        return _parameter;
-      }
-      set
-      {
-        _parameter = value;
-      }
+      get { return _parameter; }
+      set { _parameter = value; }
     }
+
+    #endregion
 
     public virtual void Execute(object commandParameter, bool hasParameter)
     {
+      // FIXME Albert78: set hasParameter in Parameter property setter?
       if (commandParameter != null || hasParameter)
-      {
         _info.Invoke(_object, new object[] { commandParameter });
-      }
       else
-      {
         _info.Invoke(_object, null);
-      }
     }
+
     public virtual void Execute()
     {
       if (Parameter != null)
-      {
         _info.Invoke(_object, new object[] { Parameter });
-      }
       else
-      {
         _info.Invoke(_object, null);
-      }
     }
   }
 }

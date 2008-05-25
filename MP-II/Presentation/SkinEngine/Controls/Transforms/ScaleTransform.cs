@@ -24,48 +24,52 @@
 
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class ScaleTransform : Transform
   {
+    #region Private fields
+
     Property _centerXProperty;
     Property _centerYProperty;
     Property _scaleXProperty;
     Property _scaleYProperty;
+
+    #endregion
+
+    #region Ctor
+
     public ScaleTransform()
     {
       Init();
     }
 
-    public ScaleTransform(ScaleTransform r)
-      : base(r)
-    {
-      Init();
-      CenterX = r.CenterX;
-      CenterY = r.CenterY;
-      ScaleX = r.ScaleX;
-      ScaleY = r.ScaleY;
-    }
     void Init()
     {
       _centerYProperty = new Property(typeof(double), 0.0);
       _centerXProperty = new Property(typeof(double), 0.0);
       _scaleXProperty = new Property(typeof(double), 0.0);
       _scaleYProperty = new Property(typeof(double), 0.0);
+
       _centerYProperty.Attach(OnPropertyChanged);
       _centerXProperty.Attach(OnPropertyChanged);
       _scaleXProperty.Attach(OnPropertyChanged);
       _scaleYProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      ScaleTransform result = new ScaleTransform(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      ScaleTransform t = source as ScaleTransform;
+      CenterX = copyManager.GetCopy(t.CenterX);
+      CenterY = copyManager.GetCopy(t.CenterY);
+      ScaleX = copyManager.GetCopy(t.ScaleX);
+      ScaleY = copyManager.GetCopy(t.ScaleY);
     }
+
+    #endregion
 
     protected void OnPropertyChanged(Property property)
     {
@@ -73,140 +77,55 @@ namespace Presentation.SkinEngine.Controls.Transforms
       Fire();
     }
 
-    /// <summary>
-    /// Gets or sets the center X property.
-    /// </summary>
-    /// <value>The center X property.</value>
+    #region Public properties
+
     public Property CenterXProperty
     {
-      get
-      {
-        return _centerXProperty;
-      }
-      set
-      {
-        _centerXProperty = value;
-      }
+      get { return _centerXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the center X.
-    /// </summary>
-    /// <value>The center X.</value>
     public double CenterX
     {
-      get
-      {
-        return (double)_centerXProperty.GetValue();
-      }
-      set
-      {
-        _centerXProperty.SetValue(value);
-      }
+      get { return (double)_centerXProperty.GetValue(); }
+      set { _centerXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y property.
-    /// </summary>
-    /// <value>The center Y property.</value>
     public Property CenterYProperty
     {
-      get
-      {
-        return _centerYProperty;
-      }
-      set
-      {
-        _centerYProperty = value;
-      }
+      get { return _centerYProperty; }
+      set { _centerYProperty = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the center Y.
-    /// </summary>
-    /// <value>The center Y.</value>
     public double CenterY
     {
-      get
-      {
-        return (double)_centerYProperty.GetValue();
-      }
-      set
-      {
-        _centerYProperty.SetValue(value);
-      }
+      get { return (double)_centerYProperty.GetValue(); }
+      set { _centerYProperty.SetValue(value); }
     }
 
-
-
-
-    /// <summary>
-    /// Gets or sets the scale X property.
-    /// </summary>
-    /// <value>The scale X property.</value>
     public Property ScaleXProperty
     {
-      get
-      {
-        return _scaleXProperty;
-      }
-      set
-      {
-        _scaleXProperty = value;
-      }
+      get { return _scaleXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the scale X.
-    /// </summary>
-    /// <value>The scale X.</value>
     public double ScaleX
     {
-      get
-      {
-        return (double)_scaleXProperty.GetValue();
-      }
-      set
-      {
-        _scaleXProperty.SetValue(value);
-      }
+      get { return (double)_scaleXProperty.GetValue(); }
+      set { _scaleXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the scale Y property.
-    /// </summary>
-    /// <value>The scale Y property.</value>
     public Property ScaleYProperty
     {
-      get
-      {
-        return _scaleYProperty;
-      }
-      set
-      {
-        _scaleYProperty = value;
-      }
+      get { return _scaleYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the scale Y.
-    /// </summary>
-    /// <value>The scale Y.</value>
     public double ScaleY
     {
-      get
-      {
-        return (double)_scaleYProperty.GetValue();
-      }
-      set
-      {
-        _scaleYProperty.SetValue(value);
-      }
+      get { return (double)_scaleYProperty.GetValue(); }
+      set { _scaleYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
+    #endregion
+
     public override void UpdateTransform()
     {
       base.UpdateTransform();

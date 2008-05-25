@@ -22,127 +22,90 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
-  public class GradientStop : Property, ICloneable
+  public class GradientStop : Property, IDeepCopyable
   {
+    #region Private fields
+
     Property _colorProperty;
     Property _offsetProperty;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GradientStop"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public GradientStop(): base(null)
     {
       Init();
     }
 
-    public GradientStop(GradientStop b): base(null)
-    {
-      Init();
-      Color = b.Color;
-      Offset = b.Offset;
-    }
-    void Init()
-    {
-      _colorProperty = new Property(typeof(Color), Color.White);
-      _offsetProperty = new Property(typeof(double), 0.0);
-      _colorProperty.Attach(OnColorChanged);
-      _offsetProperty.Attach(OnOffsetChanged);
-    }
-
-    public virtual object Clone()
-    {
-      return new GradientStop(this);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GradientStop"/> class.
-    /// </summary>
-    /// <param name="offset">The offset.</param>
-    /// <param name="color">The color.</param>
     public GradientStop(double offset, Color color): base(null)
     {
       _colorProperty = new Property(typeof(Color), color);
       _offsetProperty = new Property(typeof(double), offset);
     }
 
-    public void OnColorChanged(Property prop)
+    void Init()
+    {
+      _colorProperty = new Property(typeof(Color), Color.White);
+      _offsetProperty = new Property(typeof(double), 0.0);
+
+      _colorProperty.Attach(OnPropertyChanged);
+      _offsetProperty.Attach(OnPropertyChanged);
+    }
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      GradientStop s = source as GradientStop;
+      Color = copyManager.GetCopy(s.Color);
+      Offset = copyManager.GetCopy(s.Offset);
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected void OnPropertyChanged(Property prop)
     {
       Fire();
     }
 
-    public void OnOffsetChanged(Property prop)
-    {
-      Fire();
-    }
+    #endregion
 
-    /// <summary>
-    /// Gets or sets the color property.
-    /// </summary>
-    /// <value>The color property.</value>
+    #region Public properties
+
     public Property ColorProperty
     {
-      get
-      {
-        return _colorProperty;
-      }
-      set
-      {
-        _colorProperty = value;
-      }
+      get { return _colorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the color.
-    /// </summary>
-    /// <value>The color.</value>
     public Color Color
     {
-      get
-      {
-        return (Color) _colorProperty.GetValue();
-      }
-      set
-      {
-        _colorProperty.SetValue(value);
-      }
+      get { return (Color) _colorProperty.GetValue(); }
+      set { _colorProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the offset property.
-    /// </summary>
-    /// <value>The offset property.</value>
     public Property OffsetProperty
     {
-      get
-      {
-        return _offsetProperty;
-      }
-      set
-      {
-        _offsetProperty = value;
-      }
+      get { return _offsetProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the offset.
-    /// </summary>
-    /// <value>The offset.</value>
     public double Offset
     {
-      get
-      {
-        return (double) _offsetProperty.GetValue();
-      }
-      set
-      {
-        _offsetProperty.SetValue(value);
-      }
+      get { return (double) _offsetProperty.GetValue(); }
+      set { _offsetProperty.SetValue(value); }
+    }
+
+    #endregion
+
+    public override string ToString()
+    {
+      return Offset + ": " + Color.ToString();
     }
   }
 }

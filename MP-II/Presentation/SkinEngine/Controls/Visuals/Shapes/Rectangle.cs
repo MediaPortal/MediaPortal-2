@@ -31,43 +31,44 @@ using Presentation.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
   public class Rectangle : Shape
   {
+    #region Private fields
 
     Property _radiusXProperty;
     Property _radiusYProperty;
+
+    #endregion
+
+    #region Ctor
 
     public Rectangle()
     {
       Init();
     }
 
-    public Rectangle(Rectangle s)
-      : base(s)
-    {
-      Init();
-      RadiusX = s.RadiusX;
-      RadiusY = s.RadiusY;
-    }
-
-    public override object Clone()
-    {
-      Rectangle result = new Rectangle(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
       _radiusXProperty = new Property(typeof(double), 0.0);
       _radiusYProperty = new Property(typeof(double), 0.0);
-      _radiusXProperty.Attach(new PropertyChangedHandler(OnRadiusChanged));
-      _radiusYProperty.Attach(new PropertyChangedHandler(OnRadiusChanged));
+
+      _radiusXProperty.Attach(OnRadiusChanged);
+      _radiusYProperty.Attach(OnRadiusChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Rectangle r = source as Rectangle;
+      RadiusX = copyManager.GetCopy(r.RadiusX);
+      RadiusY = copyManager.GetCopy(r.RadiusY);
+    }
+
+    #endregion
 
     void OnRadiusChanged(Property property)
     {
@@ -75,76 +76,28 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       if (Window!=null) Window.Invalidate(this);
     }
 
-
-    /// <summary>
-    /// Gets or sets the fill property.
-    /// </summary>
-    /// <value>The fill property.</value>
     public Property RadiusXProperty
     {
-      get
-      {
-        return _radiusXProperty;
-      }
-      set
-      {
-        _radiusXProperty = value;
-      }
+      get { return _radiusXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the radius X.
-    /// </summary>
-    /// <value>The radius X.</value>
     public double RadiusX
     {
-      get
-      {
-        return (double)_radiusYProperty.GetValue();
-      }
-      set
-      {
-        _radiusYProperty.SetValue(value);
-      }
+      get { return (double)_radiusYProperty.GetValue(); }
+      set { _radiusYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the radius Y property.
-    /// </summary>
-    /// <value>The radius Y property.</value>
     public Property RadiusYProperty
     {
-      get
-      {
-        return _radiusYProperty;
-      }
-      set
-      {
-        _radiusYProperty = value;
-      }
+      get { return _radiusYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the radius Y.
-    /// </summary>
-    /// <value>The radius Y.</value>
     public double RadiusY
     {
-      get
-      {
-        return (double)_radiusYProperty.GetValue();
-      }
-      set
-      {
-        _radiusYProperty.SetValue(value);
-      }
+      get { return (double)_radiusYProperty.GetValue(); }
+      set { _radiusYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("Rectangle.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
@@ -175,9 +128,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
     }
     /*
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (!IsVisible) return;
@@ -230,11 +180,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
      // SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
     }
-*/
+    */
 
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
     protected override void PerformLayout()
     {
       //Trace.WriteLine("Rectangle.PerformLayout() " + this.Name + "  " + this._performLayout);
@@ -345,7 +292,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    #region Get the desired Rounded Rectangle path.
+    /// <summary>
+    /// Get the desired Rounded Rectangle path.
+    /// </summary>
     private GraphicsPath GetRoundedRect(RectangleF baseRect, float radiusX, float radiusY)
     {
       // if corner radius is less than or equal to zero, 
@@ -422,9 +371,10 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       path.Flatten();
       return path;
     }
-    #endregion
 
-    #region Gets the desired Capsular path.
+    /// <summary>
+    /// Gets the desired Capsular path.
+    /// </summary>
     private GraphicsPath GetCapsule(RectangleF baseRect)
     {
       float diameter;
@@ -477,7 +427,5 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       path.Transform(mtx);
       return path;
     }
-    #endregion
-
   }
 }

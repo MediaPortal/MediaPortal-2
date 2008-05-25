@@ -1,23 +1,42 @@
-using System;
-using System.Collections;
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Collections.Generic;
-using System.Text;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-  public class RowDefinitionsCollection : List<RowDefinition>, IAddChild
+  public class RowDefinitionsCollection : List<RowDefinition>, IAddChild, IDeepCopyable
   {
 
-    #region IAddChild Members
-
-    public void AddChild(object o)
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Add((RowDefinition)o);
+      RowDefinitionsCollection r = source as RowDefinitionsCollection;
+      foreach (RowDefinition rd in r)
+        Add(copyManager.GetCopy(rd));
     }
-
-    #endregion
-
 
     public float GetHeight(int row, int rowSpan)
     {
@@ -78,7 +97,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-
     public void SetAvailableSize(double height)
     {
       double fixedHeight = 0.0f;
@@ -114,7 +132,16 @@ namespace Presentation.SkinEngine.Controls.Panels
           row.Height.Length = height * (1.0 / totalStar);
         }
       }
-
     }
+
+    #region IAddChild Members
+
+    public void AddChild(object o)
+    {
+      Add((RowDefinition)o);
+    }
+
+    #endregion
+
   }
 }

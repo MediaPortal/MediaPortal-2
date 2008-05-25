@@ -21,22 +21,16 @@
 */
 
 #endregion
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using MediaPortal.Core;
+
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
+
 namespace Presentation.SkinEngine.Controls.Brushes
 {
-
-
   public enum BrushMappingMode
   {
     Absolute,
@@ -56,39 +50,25 @@ namespace Presentation.SkinEngine.Controls.Brushes
     Repeat
   };
 
-
   public class GradientBrush : Brush, IAddChild
   {
+    #region Private fields
+
     protected PositionColored2Textured[] _verts;
     Property _colorInterpolationModeProperty;
     Property _gradientStopsProperty;
     Property _spreadMethodProperty;
     Property _mappingModeProperty;
 
+    #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GradientBrush"/> class.
-    /// </summary>
+    #region Ctor
+
     public GradientBrush()
     {
       Init();
     }
 
-    public GradientBrush(GradientBrush b)
-      : base(b)
-    {
-      Init();
-      ColorInterpolationMode = b.ColorInterpolationMode;
-      SpreadMethod = b.SpreadMethod;
-      MappingMode = b.MappingMode;
-      foreach (GradientStop stop in b.GradientStops)
-      {
-        GradientStop s = new GradientStop();
-        s.Color = stop.Color;
-        s.Offset = stop.Offset;
-        GradientStops.Add(s);
-      }
-    }
     void Init()
     {
       _gradientStopsProperty = new Property(typeof(GradientStopCollection), new GradientStopCollection(this));
@@ -96,11 +76,24 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _spreadMethodProperty = new Property(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
       _mappingModeProperty = new Property(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
 
-      _gradientStopsProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _colorInterpolationModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _spreadMethodProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _mappingModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _gradientStopsProperty.Attach(OnPropertyChanged);
+      _colorInterpolationModeProperty.Attach(OnPropertyChanged);
+      _spreadMethodProperty.Attach(OnPropertyChanged);
+      _mappingModeProperty.Attach(OnPropertyChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      GradientBrush b = source as GradientBrush;
+      ColorInterpolationMode = copyManager.GetCopy(b.ColorInterpolationMode);
+      SpreadMethod = copyManager.GetCopy(b.SpreadMethod);
+      MappingMode = copyManager.GetCopy(b.MappingMode);
+      foreach (GradientStop stop in b.GradientStops)
+        GradientStops.Add(copyManager.GetCopy(stop));
+    }
+
+    #endregion
 
     /// <summary>
     /// Called when one of the gradients changed.
@@ -110,138 +103,55 @@ namespace Presentation.SkinEngine.Controls.Brushes
       OnPropertyChanged(GradientStopsProperty);
     }
 
-    /// <summary>
-    /// Gets or sets the color interpolation mode property.
-    /// </summary>
-    /// <value>The color interpolation mode property.</value>
+    #region Public properties
+
     public Property ColorInterpolationModeProperty
     {
-      get
-      {
-        return _colorInterpolationModeProperty;
-      }
-      set
-      {
-        _colorInterpolationModeProperty = value;
-      }
+      get { return _colorInterpolationModeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the color interpolation mode.
-    /// </summary>
-    /// <value>The color interpolation mode.</value>
     public ColorInterpolationMode ColorInterpolationMode
     {
-      get
-      {
-        return (ColorInterpolationMode)_colorInterpolationModeProperty.GetValue();
-      }
-      set
-      {
-        _colorInterpolationModeProperty.SetValue(value);
-      }
+      get { return (ColorInterpolationMode)_colorInterpolationModeProperty.GetValue(); }
+      set { _colorInterpolationModeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the gradient stops property.
-    /// </summary>
-    /// <value>The gradient stops property.</value>
     public Property GradientStopsProperty
     {
-      get
-      {
-        return _gradientStopsProperty;
-      }
-      set
-      {
-        _gradientStopsProperty = value;
-      }
+      get { return _gradientStopsProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the gradient stops.
-    /// </summary>
-    /// <value>The gradient stops.</value>
     public GradientStopCollection GradientStops
     {
-      get
-      {
-        return (GradientStopCollection)_gradientStopsProperty.GetValue();
-      }
-      set
-      {
-        _gradientStopsProperty.SetValue(value);
-      }
+      get { return (GradientStopCollection)_gradientStopsProperty.GetValue(); }
     }
 
-    /// <summary>
-    /// Gets or sets the mapping mode property.
-    /// </summary>
-    /// <value>The mapping mode property.</value>
     public Property MappingModeProperty
     {
-      get
-      {
-        return _mappingModeProperty;
-      }
-      set
-      {
-        _mappingModeProperty = value;
-      }
+      get { return _mappingModeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the mapping mode.
-    /// </summary>
-    /// <value>The mapping mode.</value>
     public BrushMappingMode MappingMode
     {
-      get
-      {
-        return (BrushMappingMode)_mappingModeProperty.GetValue();
-      }
-      set
-      {
-        _mappingModeProperty.SetValue(value);
-      }
+      get { return (BrushMappingMode)_mappingModeProperty.GetValue(); }
+      set { _mappingModeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the spread method property.
-    /// </summary>
-    /// <value>The spread method property.</value>
     public Property SpreadMethodProperty
     {
-      get
-      {
-        return _spreadMethodProperty;
-      }
-      set
-      {
-        _spreadMethodProperty = value;
-      }
+      get { return _spreadMethodProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the spread method.
-    /// </summary>
-    /// <value>The spread method.</value>
     public GradientSpreadMethod SpreadMethod
     {
-      get
-      {
-        return (GradientSpreadMethod)_spreadMethodProperty.GetValue();
-      }
-      set
-      {
-        _spreadMethodProperty.SetValue(value);
-      }
+      get { return (GradientSpreadMethod)_spreadMethodProperty.GetValue(); }
+      set { _spreadMethodProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Sets the color.
-    /// </summary>
-    /// <param name="vertexbuffer">The vertexbuffer.</param>
+    #endregion
+
+    #region Protected methods
+
     protected void SetColor(VertexBuffer vertexbuffer)
     {
       ColorValue color = ColorConverter.FromColor(GradientStops[0].Color);
@@ -253,74 +163,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
       PositionColored2Textured.Set(vertexbuffer, ref _verts);
     }
-    /*
-    protected void CreateGradient()
-    {
-      ///@optimize: use brush-cache
-      LockedRect rect = _gradientTexture.LockRectangle(0, LockFlags.None);
-      //int[,] buffer = (int[,])_gradientTexture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
-      float width = 256.0f;
-      byte[] data = new byte[4 * 512];
-      int offY = 256 * 4;
-      for (int i = 0; i < GradientStops.Count - 1; ++i)
-      {
-        GradientStop stopbegin = GradientStops[i];
-        GradientStop stopend = GradientStops[i + 1];
-        ColorValue colorStart = ColorConverter.FromColor(stopbegin.Color);
-        ColorValue colorEnd = ColorConverter.FromColor(stopend.Color);
-        int offsetStart = (int)(stopbegin.Offset * width);
-        int offsetEnd = (int)(stopend.Offset * width);
 
-        float distance = offsetEnd - offsetStart;
-        for (int x = offsetStart; x < offsetEnd; ++x)
-        {
-          float step = (x - offsetStart) / distance;
-          float r = step * (colorEnd.Red - colorStart.Red);
-          r += colorStart.Red;
-
-          float g = step * (colorEnd.Green - colorStart.Green);
-          g += colorStart.Green;
-
-          float b = step * (colorEnd.Blue - colorStart.Blue);
-          b += colorStart.Blue;
-
-          float a = step * (colorEnd.Alpha - colorStart.Alpha);
-          a += colorStart.Alpha;
-
-          if (IsOpacityBrush)
-          {
-            a *= 255;
-            r = a;
-            g = a;
-            b = 255;
-          }
-          else
-          {
-            a *= 255;
-            r *= 255;
-            g *= 255;
-            b *= 255;
-          }
-
-          int offx = x * 4;
-          data[offx] = (byte)b;
-          data[offx + 1] = (byte)g;
-          data[offx + 2] = (byte)r;
-          data[offx + 3] = (byte)a;
-
-          data[offY + offx] = (byte)b;
-          data[offY + offx + 1] = (byte)g;
-          data[offY + offx + 2] = (byte)r;
-          data[offY + offx + 3] = (byte)a;
-
-        }
-      }
-      rect.Data.Write(data, 0, 4 * 512);
-      _gradientTexture.UnlockRectangle(0);
-      rect.Data.Dispose();
-
-    }
-    */
+    #endregion
 
     #region IAddChild Members
 

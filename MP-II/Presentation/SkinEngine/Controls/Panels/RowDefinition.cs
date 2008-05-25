@@ -19,30 +19,21 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Properties;
+
 #endregion
+
+using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class RowDefinition : DefinitionBase
   {
     Property _heightProperty;
+
     public RowDefinition()
     {
       Init();
-    }
-    public RowDefinition(RowDefinition v)
-    {
-      Height = v.Height;
-      Init();
-    }
-
-    public object Clone()
-    {
-      return new RowDefinition(this);
     }
 
     void Init()
@@ -50,28 +41,22 @@ namespace Presentation.SkinEngine.Controls.Panels
       _heightProperty = new Property(typeof(GridLength), new GridLength());
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      RowDefinition rd = source as RowDefinition;
+      Height = copyManager.GetCopy(rd.Height);
+    }
+
     public Property HeightProperty
     {
-      get
-      {
-        return _heightProperty;
-      }
-      set
-      {
-        _heightProperty = value;
-      }
+      get { return _heightProperty; }
     }
 
     public GridLength Height
     {
-      get
-      {
-        return _heightProperty.GetValue() as GridLength;
-      }
-      set
-      {
-        _heightProperty.SetValue(value);
-      }
+      get { return _heightProperty.GetValue() as GridLength; }
+      set { _heightProperty.SetValue(value); }
     }
   }
 }

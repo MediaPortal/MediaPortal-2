@@ -24,63 +24,42 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Loader;
 using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Resources
 {
-  public class ResourceDictionary: Dictionary<string, object>, IInitializable, INameScope
+  public class ResourceDictionary: Dictionary<string, object>, IInitializable, INameScope, IDeepCopyable
   {
-    protected Property _sourceProperty = new Property(typeof(string), "");
-    protected Property _mergedDictionariesProperty = new Property(typeof(ICollection<ResourceDictionary>), new List<ResourceDictionary>());
+    protected string _source = "";
+    protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
 
     public ResourceDictionary() { }
 
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      ResourceDictionary rd = source as ResourceDictionary;
+      Source = copyManager.GetCopy(rd.Source);
+      foreach (ResourceDictionary crd in rd._mergedDictionaries)
+        _mergedDictionaries.Add(copyManager.GetCopy(crd));
+      foreach (KeyValuePair<string, object> kvp in rd._names)
+        _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      _parent = copyManager.GetCopy(rd._parent);
+    }
+
     public string Source
     {
-      get
-      {
-        return _sourceProperty.GetValue() as string;
-      }
-      set
-      {
-        _sourceProperty.SetValue(value);
-      }
+      get { return _source; }
+      set { _source = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the source property.
-    /// </summary>
-    /// <value>The source property.</value>
-    public Property SourceProperty
+    public IList<ResourceDictionary> MergedDictionaries
     {
-      get
-      {
-        return _sourceProperty;
-      }
-    }
-
-    public ICollection<ResourceDictionary> MergedDictionaries
-    {
-      get
-      {
-        return _mergedDictionariesProperty.GetValue() as ICollection<ResourceDictionary>;
-      }
-      set
-      {
-        _sourceProperty.SetValue(value);
-      }
-    }
-
-    public Property MergedDictionariesProperty
-    {
-      get
-      {
-        return _mergedDictionariesProperty;
-      }
+      get { return _mergedDictionaries; }
+      set { _mergedDictionaries = value; }
     }
 
     public void Merge(ResourceDictionary dict)

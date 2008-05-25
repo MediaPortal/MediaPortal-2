@@ -23,32 +23,24 @@
 #endregion
 
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ProgressBar : Control
   {
+    #region Private fields
+
     Property _valueProperty;
     FrameworkElement _partIndicator;
+
+    #endregion
+
+    #region Ctor
 
     public ProgressBar()
     {
       Init();
-    }
-
-    public ProgressBar(ProgressBar b)
-      : base(b)
-    {
-      Init(); ;
-      Value = b.Value;
-    }
-
-    public override object Clone()
-    {
-      ProgressBar result = new ProgressBar(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -57,6 +49,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _valueProperty = new Property(typeof(float), 0.0f);
       _valueProperty.Attach(new PropertyChangedHandler(OnValueChanged));
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ProgressBar pb = source as ProgressBar;
+      Value = copyManager.GetCopy(pb.Value);
+    }
+
+    #endregion
 
     void OnValueChanged(Property property)
     {
@@ -70,49 +71,23 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-
-    /// <summary>
-    /// Gets or sets the progress value property.
-    /// </summary>
-    /// <value>The progress value property.</value>
     public Property ValueProperty
     {
-      get
-      {
-        return _valueProperty;
-      }
-      set
-      {
-        _valueProperty = value;
-      }
+      get { return _valueProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the progress value.
-    /// </summary>
-    /// <value>The progress value.</value>
     public float Value
     {
-      get
-      {
-        return (float)_valueProperty.GetValue();
-      }
-      set
-      {
-        _valueProperty.SetValue(value);
-      }
+      get { return (float)_valueProperty.GetValue(); }
+      set { _valueProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (_partIndicator == null)
         _partIndicator = FindElement("PART_Indicator") as FrameworkElement;
       base.DoRender();
     }
-
   }
 }
 

@@ -72,6 +72,9 @@
     <Compile Include="CommandLine\CommandLine.cs" />
     <Compile Include="CommandLine\ICommandLineOptions.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="DeepCopy\CopyManager.cs" />
+    <Compile Include="DeepCopy\ICopyManager.cs" />
+    <Compile Include="DeepCopy\IDeepCopyable.cs" />
     <Compile Include="Drives\DriveUtils.cs" />
     <Compile Include="Files\FileUtils.cs" />
     <Compile Include="Localisation\LocalisationStrings.cs" />

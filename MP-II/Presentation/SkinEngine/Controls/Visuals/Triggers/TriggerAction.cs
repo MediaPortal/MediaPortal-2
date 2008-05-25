@@ -22,37 +22,17 @@
 
 #endregion
 
-using System;
 using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class TriggerAction: DependencyObject, ICloneable
+  public class TriggerAction: DependencyObject
   {
-    public TriggerAction(): base()
-    {
-    }
-
-    public TriggerAction(TriggerAction action): base(action)
-    {
-    }
-
-    public virtual object Clone()
-    {
-      TriggerAction result = new TriggerAction(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
+    public TriggerAction()
+    { }
 
     public virtual void Execute(UIElement element, Trigger trigger)
-    {
-    }
-
-    public virtual object GetOriginalValue(UIElement element)
-    {
-      return null;
-    }
+    { }
 
     public virtual void Setup(UIElement element)
     {

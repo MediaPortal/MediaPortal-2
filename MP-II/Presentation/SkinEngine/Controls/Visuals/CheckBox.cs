@@ -25,99 +25,68 @@
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class CheckBox : Button
   {
+    #region Private fields
+
     Property _isCheckedProperty;
     Command _checkedCommand;
     Command _unCheckedCommand;
+
+    #endregion
+
+    #region Ctor
+
     public CheckBox()
     {
       Init();
     }
 
-    public CheckBox(CheckBox box)
-      :base(box)
-    {
-      Init();
-      //IsChecked = box.IsChecked;
-      Checked = Checked;
-      Unchecked = Unchecked;
-    }
-
-    public override object Clone()
-    {
-      CheckBox result = new CheckBox(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
       _isCheckedProperty = new Property(typeof(bool), false);
+
       _isCheckedProperty.Attach(new PropertyChangedHandler(onPropChanged));
     }
-    void onPropChanged(Property p)
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      CheckBox cb = source as CheckBox;
+      IsChecked = copyManager.GetCopy(cb.IsChecked);
+      Checked = copyManager.GetCopy(cb.Checked);
+      Unchecked = copyManager.GetCopy(cb.Unchecked);
     }
-    /// <summary>
-    /// Gets or sets the is pressed property.
-    /// </summary>
-    /// <value>The is pressed property.</value>
+
+    #endregion
+
+    void onPropChanged(Property p)
+    { }
+
     public Property IsCheckedProperty
     {
-      get
-      {
-        return _isCheckedProperty;
-      }
-      set
-      {
-        _isCheckedProperty = value;
-      }
+      get { return _isCheckedProperty; }
     }
+
     public Command Checked
     {
-      get
-      {
-        return _checkedCommand;
-      }
-      set
-      {
-        _checkedCommand = value;
-      }
+      get { return _checkedCommand; }
+      set { _checkedCommand = value; }
     }
 
     public Command Unchecked
     {
-      get
-      {
-        return _unCheckedCommand;
-      }
-      set
-      {
-        _unCheckedCommand = value;
-      }
+      get { return _unCheckedCommand; }
+      set { _unCheckedCommand = value; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is pressed.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is pressed; otherwise, <c>false</c>.
-    /// </value>
     public bool IsChecked
     {
-      get
-      {
-        return (bool)_isCheckedProperty.GetValue();
-      }
-      set
-      {
-        _isCheckedProperty.SetValue(value);
-      }
+      get { return (bool)_isCheckedProperty.GetValue(); }
+      set { _isCheckedProperty.SetValue(value); }
     }
 
     public override void OnKeyPressed(ref Key key)
@@ -146,6 +115,5 @@ namespace Presentation.SkinEngine.Controls.Visuals
         return;
       }
     }
-
   }
 }

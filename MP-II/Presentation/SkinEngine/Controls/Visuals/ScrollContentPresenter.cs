@@ -22,8 +22,6 @@
 
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
-
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ScrollContentPresenter : ContentPresenter
@@ -33,21 +31,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Init();
     }
 
-    public ScrollContentPresenter(ScrollContentPresenter c)
-      : base(c)
-    {
-      Init();
-    }
-
-    public override object Clone()
-    {
-      ScrollContentPresenter result = new ScrollContentPresenter(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
-    {
-    }
+    { }
   }
 }

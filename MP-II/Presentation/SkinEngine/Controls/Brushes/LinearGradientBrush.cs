@@ -31,12 +31,14 @@ using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class LinearGradientBrush : GradientBrush, IAsset
   {
+    #region Private fields
+
     Texture _cacheTexture;
     double _height;
     double _width;
@@ -57,97 +59,34 @@ namespace Presentation.SkinEngine.Controls.Brushes
     EffectHandleAsset _handleSolidColor;
     EffectHandleAsset _handleAlphaTexture;
     BrushTexture _brushTexture;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LinearGradientBrush"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public LinearGradientBrush()
     {
       Init();
     }
-    public LinearGradientBrush(LinearGradientBrush b)
-      : base(b)
-    {
-      Init();
-      StartPoint = b.StartPoint;
-      EndPoint = b.EndPoint;
-    }
+
     void Init()
     {
       _startPointProperty = new Property(typeof(Vector2), new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(typeof(Vector2), new Vector2(1.0f, 1.0f));
-      _startPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _endPointProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+
+      _startPointProperty.Attach(OnPropertyChanged);
+      _endPointProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      LinearGradientBrush result = new LinearGradientBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      LinearGradientBrush b = source as LinearGradientBrush;
+      StartPoint = copyManager.GetCopy(b.StartPoint);
+      EndPoint = copyManager.GetCopy(b.EndPoint);
     }
 
-    /// <summary>
-    /// Gets or sets the start point property.
-    /// </summary>
-    /// <value>The start point property.</value>
-    public Property StartPointProperty
-    {
-      get
-      {
-        return _startPointProperty;
-      }
-      set
-      {
-        _startPointProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the start point.
-    /// </summary>
-    /// <value>The start point.</value>
-    public Vector2 StartPoint
-    {
-      get
-      {
-        return (Vector2)_startPointProperty.GetValue();
-      }
-      set
-      {
-        _startPointProperty.SetValue(value);
-      }
-    }
-    /// <summary>
-    /// Gets or sets the end point property.
-    /// </summary>
-    /// <value>The end point property.</value>
-    public Property EndPointProperty
-    {
-      get
-      {
-        return _endPointProperty;
-      }
-      set
-      {
-        _endPointProperty = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the end point.
-    /// </summary>
-    /// <value>The end point.</value>
-    public Vector2 EndPoint
-    {
-      get
-      {
-        return (Vector2)_endPointProperty.GetValue();
-      }
-      set
-      {
-        _endPointProperty.SetValue(value);
-      }
-    }
+    #endregion
 
     /// <summary>
     /// Called when a property changed.
@@ -158,10 +97,29 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _refresh = true;
       Fire();
     }
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
+
+    public Property StartPointProperty
+    {
+      get { return _startPointProperty; }
+    }
+
+    public Vector2 StartPoint
+    {
+      get { return (Vector2)_startPointProperty.GetValue(); }
+      set { _startPointProperty.SetValue(value); }
+    }
+
+    public Property EndPointProperty
+    {
+      get { return _endPointProperty; }
+    }
+
+    public Vector2 EndPoint
+    {
+      get { return (Vector2)_endPointProperty.GetValue(); }
+      set { _endPointProperty.SetValue(value); }
+    }
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       //      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
@@ -187,9 +145,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (Transform != null)
@@ -451,9 +406,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public override void EndRender()
     {
       if (_effect != null)
@@ -468,10 +420,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     #region IAsset Members
 
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get
@@ -480,12 +428,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -504,9 +446,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
     public bool Free(bool force)
     {
       if (_cacheTexture != null)

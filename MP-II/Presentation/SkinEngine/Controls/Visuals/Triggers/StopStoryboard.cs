@@ -24,69 +24,51 @@
 
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Animations;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
   public class StopStoryboard : TriggerAction
   {
-    Property _storyBoardProperty;
+    #region Private fields
+
+    Property _beginStoryBoardProperty;
+
+    #endregion
+
+    #region Ctor
 
     public StopStoryboard()
     {
       Init();
     }
 
-    public StopStoryboard(StopStoryboard action)
-      : base(action)
-    {
-      Init();
-      BeginStoryboardName = action.BeginStoryboardName;
-    }
-
-    public override object Clone()
-    {
-      StopStoryboard result = new StopStoryboard(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _storyBoardProperty = new Property(typeof(string), null);
+      _beginStoryBoardProperty = new Property(typeof(string), null);
     }
 
-    /// <summary>
-    /// Gets or sets the storyboard property.
-    /// </summary>
-    /// <value>The storyboard property.</value>
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      StopStoryboard s = source as StopStoryboard;
+      BeginStoryboardName = copyManager.GetCopy(s.BeginStoryboardName);
+    }
+
+    #endregion
+
     public Property BeginStoryboardNameProperty
     {
-      get
-      {
-        return _storyBoardProperty;
-      }
-      set
-      {
-        _storyBoardProperty = value;
-      }
+      get { return _beginStoryBoardProperty; }
+      set { _beginStoryBoardProperty = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the storyboard.
-    /// </summary>
-    /// <value>The storyboard.</value>
     public string BeginStoryboardName
     {
-      get
-      {
-        return _storyBoardProperty.GetValue() as string;
-      }
-      set
-      {
-        _storyBoardProperty.SetValue(value);
-      }
+      get { return _beginStoryBoardProperty.GetValue() as string; }
+      set { _beginStoryBoardProperty.SetValue(value); }
     }
+
     public override void Execute(UIElement element, Trigger trigger)
     {
       foreach (TriggerAction action in trigger.EnterActions)
@@ -96,7 +78,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         {
           //Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
           element.StopStoryboard(beginAction.Storyboard as Storyboard);
-
         }
       }
     }

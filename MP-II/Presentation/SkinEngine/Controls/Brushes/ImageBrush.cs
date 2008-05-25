@@ -27,106 +27,72 @@ using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
   public class ImageBrush : TileBrush
   {
+    #region Private fields
+
     Property _imageSourceProperty;
     Property _downloadProgressProperty;
     TextureAsset _tex;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ImageBrush"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public ImageBrush()
     {
       Init();
     }
-    public ImageBrush(ImageBrush b)
-      : base(b)
-    {
-      Init();
-      ImageSource = b.ImageSource;
-    }
+
     void Init()
     {
       _imageSourceProperty = new Property(typeof(string), null);
       _downloadProgressProperty = new Property(typeof(double), 0.0);
-      _imageSourceProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+
+      _imageSourceProperty.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      ImageBrush result = new ImageBrush(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      ImageBrush b = source as ImageBrush;
+      ImageSource = copyManager.GetCopy(b.ImageSource);
+      DownloadProgress = copyManager.GetCopy(b.DownloadProgress);
     }
 
-    /// <summary>
-    /// Gets or sets the image source property.
-    /// </summary>
-    /// <value>The image source property.</value>
+    #endregion
+
+    #region Public properties
+
     public Property ImageSourceProperty
     {
-      get
-      {
-        return _imageSourceProperty;
-      }
-      set
-      {
-        _imageSourceProperty = value;
-      }
+      get { return _imageSourceProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the image source.
-    /// </summary>
-    /// <value>The image source.</value>
     public string ImageSource
     {
-      get
-      {
-        return (string)_imageSourceProperty.GetValue();
-      }
-      set
-      {
-        _imageSourceProperty.SetValue(value);
-      }
+      get { return (string)_imageSourceProperty.GetValue(); }
+      set { _imageSourceProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the download progress property.
-    /// </summary>
-    /// <value>The download progress property.</value>
     public Property DownloadProgressProperty
     {
-      get
-      {
-        return _downloadProgressProperty;
-      }
-      set
-      {
-        _downloadProgressProperty = value;
-      }
+      get { return _downloadProgressProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the download progress.
-    /// </summary>
-    /// <value>The download progress.</value>
     public double DownloadProgress
     {
-      get
-      {
-        return (double)_downloadProgressProperty.GetValue();
-      }
-      set
-      {
-        _downloadProgressProperty.SetValue(value);
-      }
+      get { return (double)_downloadProgressProperty.GetValue(); }
+      set { _downloadProgressProperty.SetValue(value); }
     }
+
+    #endregion
+
+    #region Protected methods
 
     /// <summary>
     /// Called when a property changed.
@@ -137,17 +103,32 @@ namespace Presentation.SkinEngine.Controls.Brushes
       Free();
     }
 
-    /// <summary>
-    /// Frees this instance.
-    /// </summary>
+    protected override void Scale(ref float u, ref float v)
+    {
+      if (_tex == null) return;
+      u *= _tex.MaxU;
+      v *= _tex.MaxV;
+    }
+
+    protected override Vector2 BrushDimensions
+    {
+      get
+      {
+        if (_tex == null)
+          return base.BrushDimensions;
+        return new Vector2(_tex.Width, _tex.Height);
+      }
+    }
+
+    #endregion
+
+    #region Public methods
+
     public void Free()
     {
       _tex = null;
     }
 
-    /// <summary>
-    /// Allocates this instance.
-    /// </summary>
     public void Allocate()
     {
       bool thumb = true;
@@ -155,11 +136,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _tex.Allocate();
     }
 
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="verts">The verts.</param>
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       if (_tex == null)
@@ -169,9 +145,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Begins the render.
-    /// </summary>
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -183,38 +156,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
       return true;
     }
 
-    /// <summary>
-    /// Ends the render.
-    /// </summary>
     public override void EndRender()
     {
       //GraphicsDevice.Device.SetTexture(0, null);
     }
 
-    /// <summary>
-    /// Scales the specified u.
-    /// </summary>
-    /// <param name="u">The u.</param>
-    /// <param name="v">The v.</param>
-    protected override void Scale(ref float u, ref float v)
-    {
-      if (_tex == null) return;
-      u *= _tex.MaxU;
-      v *= _tex.MaxV;
-    }
-
-    /// <summary>
-    /// Gets the brush dimensions.
-    /// </summary>
-    /// <value>The brush dimensions.</value>
-    protected override Vector2 BrushDimensions
-    {
-      get
-      {
-        if (_tex == null)
-          return base.BrushDimensions;
-        return new Vector2(_tex.Width, _tex.Height);
-      }
-    }
+    #endregion
   }
 }

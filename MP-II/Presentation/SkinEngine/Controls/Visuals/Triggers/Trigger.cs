@@ -23,19 +23,21 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger: DependencyObject, ICloneable, IAddChild
+  public class Trigger: DependencyObject, IAddChild
   {
+    #region Private fields
+
     Property _propertyProperty;
     Property _valueProperty;
     Property _enterActionsProperty;
@@ -44,118 +46,84 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     PropertyChangedHandler _handler;
     UIElement _element;
 
+    #endregion
+
+    #region Ctor
+
     public Trigger(): base()
     {
       Init();
-    }
-
-    public Trigger(Trigger trig): base(trig)
-    {
-      Init();
-      Property = trig.Property;
-      Value = trig.Value;
-      foreach (TriggerAction ac in trig.EnterActions)
-      {
-        EnterActions.Add((TriggerAction)ac.Clone());
-      }
-      foreach (TriggerAction ac in trig.ExitActions)
-      {
-        ExitActions.Add((TriggerAction)ac.Clone());
-      }
-    }
-
-    public virtual object Clone()
-    {
-      Trigger result = new Trigger(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
     {
       _propertyProperty = new Property(typeof(string), "");
       _valueProperty = new Property(typeof(bool), false);
-      _enterActionsProperty = new Property(typeof(TriggerActionCollection), new TriggerActionCollection());
-      _exitActionsProperty = new Property(typeof(TriggerActionCollection), new TriggerActionCollection());
+      _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _handler = OnPropertyChanged;
       _propertyProperty.Attach(OnPropChanged);
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Trigger t = source as Trigger;
+      Property = copyManager.GetCopy(t.Property);
+      Value = copyManager.GetCopy(t.Value);
+      foreach (TriggerAction ac in t.EnterActions)
+        EnterActions.Add(copyManager.GetCopy(ac));
+      foreach (TriggerAction ac in t.ExitActions)
+        ExitActions.Add(copyManager.GetCopy(ac));
+    }
+
+    #endregion
+
+    #region Public properties
+
     public Property PropertyProperty
     {
-      get
-      {
-        return _propertyProperty;
-      }
+      get { return _propertyProperty; }
     }
 
     public string Property
     {
-      get
-      {
-        return _propertyProperty.GetValue() as string;
-      }
-      set
-      {
-        _propertyProperty.SetValue(value);
-      }
+      get { return _propertyProperty.GetValue() as string; }
+      set { _propertyProperty.SetValue(value); }
     }
-
 
     public Property ValueProperty
     {
-      get
-      {
-        return _valueProperty;
-      }
+      get { return _valueProperty; }
     }
 
     public bool Value
     {
-      get
-      {
-        return (bool)_valueProperty.GetValue();
-      }
-      set
-      {
-        _valueProperty.SetValue(value);
-      }
+      get { return (bool)_valueProperty.GetValue(); }
+      set { _valueProperty.SetValue(value); }
     }
 
-    /// Albert78: FIXME: Remove properties for List members? It doesn't make sense
-    /// to attach change handlers to them
     public Property EnterActionsProperty
     {
-      get
-      {
-        return _enterActionsProperty;
-      }
+      get { return _enterActionsProperty; }
     }
 
-    public TriggerActionCollection EnterActions
+    public IList<TriggerAction> EnterActions
     {
-      get
-      {
-        return (TriggerActionCollection)_enterActionsProperty.GetValue();
-      }
+      get { return (IList<TriggerAction>)_enterActionsProperty.GetValue(); }
     }
-
 
     public Property ExitActionsProperty
     {
-      get
-      {
-        return _exitActionsProperty;
-      }
+      get { return _exitActionsProperty; }
     }
 
-    public TriggerActionCollection ExitActions
+    public IList<TriggerAction> ExitActions
     {
-      get
-      {
-        return (TriggerActionCollection)_exitActionsProperty.GetValue();
-      }
+      get { return (IList<TriggerAction>)_exitActionsProperty.GetValue(); }
     }
+
+    #endregion
 
     public virtual void Setup(UIElement element)
     {
@@ -186,10 +154,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         if (action is Setter)
         {
           Setter s = (Setter)action;
-          if (s.TargetName == "lbl11")
-          {
-            // FIXME Albert78: Remove this
-          }
         }
         action.Setup(element);
       }
@@ -210,10 +174,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         //execute start actions
         foreach (TriggerAction action in EnterActions)
         {
-          if (action is Setter)
-          {
-            // FIXME Albert78: Remove this
-          }
           action.Execute(_element, this);
         }
       }
@@ -221,16 +181,12 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       {
         //execute stop actions
         foreach (TriggerAction action in ExitActions)
-        {
           action.Execute(_element, this);
-        }
         foreach (TriggerAction action in EnterActions)
         {
           Setter s = action as Setter;
           if (s != null)
-          {
             s.Restore(_element, this);
-          }
         }
       }
     }
@@ -242,13 +198,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       {
         //execute start actions
         foreach (TriggerAction action in EnterActions)
-        {
-          if (action is Setter)
-          {
-            // FIXME Albert78: Remove this
-          }
           action.Execute(_element, this);
-        }
       }
       else
       {
@@ -261,9 +211,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         {
           Setter s = action as Setter;
           if (s != null)
-          {
             s.Restore(_element, this);
-          }
         }
       }
     }

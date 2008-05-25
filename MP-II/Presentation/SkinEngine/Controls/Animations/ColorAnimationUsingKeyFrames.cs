@@ -19,91 +19,64 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public class ColorAnimationUsingKeyFrames : Timeline, IAddChild
   {
+    #region Private fields
+
     Property _keyFramesProperty;
+
+    #endregion
 
     #region Ctor
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColorAnimation"/> class.
-    /// </summary>
     public ColorAnimationUsingKeyFrames()
     {
       Init();
     }
 
-    public ColorAnimationUsingKeyFrames(ColorAnimationUsingKeyFrames a)
-      : base(a)
-    {
-      Init();
-      //foreach (ColorKeyFrame k in a.KeyFrames)
-      //{
-      //  KeyFrames.Add((ColorKeyFrame)k.Clone());
-      //}
-      _keyFramesProperty.SetValue(a.KeyFrames);
-    }
-
-    public override object Clone()
-    {
-      ColorAnimationUsingKeyFrames result = new ColorAnimationUsingKeyFrames(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
     {
-      _keyFramesProperty = new Property(typeof(ColorKeyFrameCollection), new ColorKeyFrameCollection());
+      _keyFramesProperty = new Property(typeof(IList<ColorKeyFrame>), new List<ColorKeyFrame>());
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ColorAnimationUsingKeyFrames a = source as ColorAnimationUsingKeyFrames;
+      IList<ColorKeyFrame> keyFrames = KeyFrames;
+      foreach (ColorKeyFrame kf in a.KeyFrames)
+        keyFrames.Add(copyManager.GetCopy(kf));
     }
 
     #endregion
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the target name property.
-    /// </summary>
-    /// <value>The target name property.</value>
     public Property KeyFramesProperty
     {
-      get
-      {
-        return _keyFramesProperty;
-      }
-      set
-      {
-        _keyFramesProperty = value;
-      }
+      get { return _keyFramesProperty; }
     }
-    /// <summary>
-    /// Gets or sets the name of the target.
-    /// </summary>
-    /// <value>The name of the target.</value>
-    public ColorKeyFrameCollection KeyFrames
+
+    public IList<ColorKeyFrame> KeyFrames
     {
-      get
-      {
-        return _keyFramesProperty.GetValue() as ColorKeyFrameCollection;
-      }
+      get { return _keyFramesProperty.GetValue() as IList<ColorKeyFrame>; }
     }
 
     #endregion
 
     #region Animation methods
 
-    /// <summary>
-    /// Animates the property.
-    /// </summary>
-    /// <param name="timepassed">The timepassed.</param>
     protected override void AnimateProperty(AnimationContext context, uint timepassed)
     {
       if (context.DataDescriptor == null) return;

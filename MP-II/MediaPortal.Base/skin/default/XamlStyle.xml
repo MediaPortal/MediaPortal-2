@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
-    xmlns="www.team-mediaportal.com/2008/mse/directx"
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
 >
@@ -60,13 +60,12 @@
 
   <!-- style for a normal button -->
   <Style x:Key="MpButton" TargetType="{x:Type Button}">
-    <Setter Property="FocusVisualStyle" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -104,7 +103,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" >
+            <Storyboard x:Key="pressedStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -138,7 +137,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" >
+            <Storyboard x:Key="disableStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -147,8 +146,8 @@
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
-          <Grid Margin="0,2,0,2" >
-            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4"  Margin="0,0,0,0" x:Name="shine" >
+          <Grid Margin="0,2,0,2">
+            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4"  Margin="0,0,0,0" x:Name="shine">
               <Rectangle.Fill>
                 <RadialGradientBrush GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -203,7 +202,6 @@
   <!-- style for a video button. shows video when present, otherwise a black rectangle -->
   <Style x:Key="buttonVideoWindow" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Background" Value="Black"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -252,14 +250,13 @@
   <!-- style for a radio toggle button-->
   <Style x:Key="MpRadioButton" BasedOn="{x:Null}" TargetType="{x:Type Button}">
 
-    <Setter Property="FocusVisualStyle" />
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate >
+        <ControlTemplate>
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -297,7 +294,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" >
+            <Storyboard x:Key="pressedStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -331,7 +328,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" >
+            <Storyboard x:Key="disableStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -341,7 +338,7 @@
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4" x:Name="shine"  >
+            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4" x:Name="shine">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -394,14 +391,13 @@
   <!-- style for a radio toggle button-->
   <Style x:Key="MpRadioButtonLeft" BasedOn="{x:Null}" TargetType="{x:Type Button}">
 
-    <Setter Property="FocusVisualStyle" />
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate >
+        <ControlTemplate>
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -439,7 +435,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" >
+            <Storyboard x:Key="pressedStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -473,7 +469,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" >
+            <Storyboard x:Key="disableStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -483,7 +479,7 @@
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle  Stroke="#FF2866BD" RadiusX="4" RadiusY="4"  x:Name="shine"  >
+            <Rectangle  Stroke="#FF2866BD" RadiusX="4" RadiusY="4"  x:Name="shine">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -536,14 +532,13 @@
   <!-- style for a radio toggle button-->
   <Style x:Key="MpCheckBox" TargetType="{x:Type CheckBox}">
 
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -581,7 +576,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" >
+            <Storyboard x:Key="pressedStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -615,7 +610,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" >
+            <Storyboard x:Key="disableStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -674,7 +669,6 @@
 
   <!-- style for a close button (used on dialog windows -->
   <Style x:Key="MpCloseButton" BasedOn="{x:Null}" TargetType="{x:Type Button}">
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1303,14 +1297,13 @@
 
   <Style x:Key="MpPlusMinButton" TargetType="{x:Type CheckBox}">
 
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -1348,7 +1341,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" >
+            <Storyboard x:Key="pressedStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -1382,7 +1375,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" >
+            <Storyboard x:Key="disableStoryBoard">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -1927,7 +1920,7 @@
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
               <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
             </Storyboard>
@@ -1955,7 +1948,7 @@
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
               <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
             </Storyboard>
@@ -1983,7 +1976,7 @@
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
               <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
             </Storyboard>
@@ -2011,7 +2004,7 @@
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard" >
+            <Storyboard x:Key="focusedStoryBoard">
               <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000"  Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
               <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000"  Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
             </Storyboard>
@@ -2087,25 +2080,13 @@
     </Grid>
   </DataTemplate>
   <Style x:Key="MpListView" TargetType="{x:Type ListView}">
-    <Setter Property="SnapsToDevicePixels" Value="true"/>
-    <Setter Property="OverridesDefaultStyle" Value="true"/>
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
-    <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
-    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-    <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
-    <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="MinHeight" Value="32"/>
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}" >
+        <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>
@@ -2162,25 +2143,13 @@
     </Grid>
   </DataTemplate>
   <Style x:Key="MpPlayListView" TargetType="{x:Type ListView}">
-    <Setter Property="SnapsToDevicePixels" Value="true"/>
-    <Setter Property="OverridesDefaultStyle" Value="true"/>
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
-    <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
-    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-    <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
-    <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="MinHeight" Value="32"/>
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="ItemTemplate" Value="{StaticResource itemPlayListTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource itemPlayListContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}" >
+        <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>
@@ -2212,25 +2181,13 @@
   </DataTemplate>
 
   <Style x:Key="MpListViewMenu" TargetType="{x:Type ListView}">
-    <Setter Property="SnapsToDevicePixels" Value="true"/>
-    <Setter Property="OverridesDefaultStyle" Value="true"/>
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
-    <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
-    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-    <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
-    <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="MinHeight" Value="32"/>
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="ItemTemplate" Value="{StaticResource itemMenuTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource itemMenuContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}" >
+        <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>
@@ -2281,25 +2238,13 @@
     </Setter>
   </Style>
   <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
-    <Setter Property="SnapsToDevicePixels" Value="true"/>
-    <Setter Property="OverridesDefaultStyle" Value="true"/>
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue"/>
-    <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local"/>
-    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-    <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
-    <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="MinHeight" Value="32"/>
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="ItemTemplate" Value="{StaticResource TreeItemTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type TreeView}" >
+        <ControlTemplate TargetType="{x:Type TreeView}">
           <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
             <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </ScrollViewer>
@@ -2337,25 +2282,13 @@
   </DataTemplate>
 
   <Style x:Key="MpDialogImage" TargetType="{x:Type ListView}">
-    <Setter Property="SnapsToDevicePixels" Value="true"/>
-    <Setter Property="OverridesDefaultStyle" Value="true"/>
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Continue" />
-    <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Local" />
-    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-    <Setter Property="IsSynchronizedWithCurrentItem" Value="True"/>
-    <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="MinHeight" Value="32"/>
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="ItemTemplate" Value="{StaticResource itemDialogImageTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource itemDialogImageContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}" >
+        <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>

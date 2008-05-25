@@ -27,23 +27,22 @@ using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using RectangleF = System.Drawing.RectangleF;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
   public class WrapPanel : Panel
   {
+    #region Private fields
+
     Property _orientationProperty;
     List<float> _sizeCol;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StackPanel"/> class.
-    /// </summary>
+
+    #endregion
+
+    #region Ctor
+
     public WrapPanel()
-    {
-      Init();
-    }
-    public WrapPanel(WrapPanel v)
-      : base(v)
     {
       Init();
     }
@@ -55,43 +54,24 @@ namespace Presentation.SkinEngine.Controls.Panels
       _sizeCol = new List<float>();
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      WrapPanel result = new WrapPanel(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      WrapPanel p = source as WrapPanel;
+      Orientation = copyManager.GetCopy(p.Orientation);
     }
 
-    /// <summary>
-    /// Gets or sets the orientation property.
-    /// </summary>
-    /// <value>The orientation property.</value>
+    #endregion
+
     public Property OrientationProperty
     {
-      get
-      {
-        return _orientationProperty;
-      }
-      set
-      {
-        _orientationProperty = value;
-      }
+      get { return _orientationProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the orientation.
-    /// </summary>
-    /// <value>The orientation.</value>
     public Orientation Orientation
     {
-      get
-      {
-        return (Orientation)_orientationProperty.GetValue();
-      }
-      set
-      {
-        _orientationProperty.SetValue(value);
-      }
+      get { return (Orientation)_orientationProperty.GetValue(); }
+      set { _orientationProperty.SetValue(value); }
     }
 
     public override void Measure(SizeF availableSize)
@@ -183,11 +163,10 @@ namespace Presentation.SkinEngine.Controls.Panels
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
 
       base.Measure(availableSize);
     }
+
     public override void Arrange(RectangleF finalRect)
     {
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);

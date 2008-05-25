@@ -23,45 +23,35 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
-using RectangleF = System.Drawing.RectangleF;
-using PointF = System.Drawing.PointF;
-using SizeF = System.Drawing.SizeF;
 using SlimDX.Direct3D9;
 using GeometryUtility;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
+
   public class Path : Shape
   {
+    #region Private fields
+
     Property _dataProperty;
     PrimitiveType _fillPrimitiveType;
     bool _fillDisabled;
 
+    #endregion
+
+    #region Ctor
 
     public Path()
     {
       Init();
-    }
-
-    public Path(Path s)
-      : base(s)
-    {
-      Init();
-      Data = s.Data;
-    }
-
-    public override object Clone()
-    {
-      Path result = new Path(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -69,36 +59,24 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _dataProperty = new Property(typeof(string), "");
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Path p = source as Path;
+      Data = copyManager.GetCopy(p.Data);
+    }
 
-    /// <summary>
-    /// Gets or sets the data property.
-    /// </summary>
-    /// <value>The data property.</value>
+    #endregion
+
     public Property DataProperty
     {
-      get
-      {
-        return _dataProperty;
-      }
-      set
-      {
-        _dataProperty = value;
-      }
+      get { return _dataProperty; }
     }
-    /// <summary>
-    /// Gets or sets the data.
-    /// </summary>
-    /// <value>The data.</value>
+
     public string Data
     {
-      get
-      {
-        return (string)_dataProperty.GetValue();
-      }
-      set
-      {
-        _dataProperty.SetValue(value);
-      }
+      get { return (string)_dataProperty.GetValue(); }
+      set { _dataProperty.SetValue(value); }
     }
 
     protected override void PerformLayout()
@@ -240,10 +218,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     }
 
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       bool isclosed;
@@ -303,7 +277,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
           if (txtpoints.Length == 1)
           {
             points = new PointF[1];
-            points[0].X = GetFloat(txtpoints[0]);
+            points[0].X = (float) TypeConverter.Convert(txtpoints[0], typeof(float));
           }
           else
           {
@@ -311,9 +285,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
             points = new PointF[c];
             for (int i = 0; i < c; i++)
             {
-              points[i].X = GetFloat(txtpoints[i * 2]);
+              points[i].X = (float)TypeConverter.Convert(txtpoints[i * 2], typeof(float));
               if (i + 1 < txtpoints.Length)
-                points[i].Y = GetFloat(txtpoints[i * 2 + 1]);
+                points[i].Y = (float)TypeConverter.Convert(txtpoints[i * 2 + 1], typeof(float));
             }
           }
         }
@@ -537,28 +511,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       }
       mPath.Flatten();
       return mPath;
-    }
-
-    static int useCommas = -1;
-    protected float GetFloat(string floatString)
-    {
-      if (useCommas == -1)
-      {
-        float test = 12.03f;
-        string comma = test.ToString();
-        useCommas = (comma.IndexOf(",") >= 0) ? 1 : 0;
-      }
-      if (useCommas == 1)
-      {
-        floatString = floatString.Replace(".", ",");
-      }
-      else
-      {
-        floatString = floatString.Replace(",", ".");
-      }
-      float f;
-      float.TryParse(floatString, out f);
-      return f;
     }
   }
 }

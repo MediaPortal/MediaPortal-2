@@ -25,43 +25,42 @@
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
   public class TransformGroup : Transform, IAddChild
   {
+    #region Private fields
+
     Property _childrenProperty;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TransformGroup"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public TransformGroup()
     {
       Init();
     }
-    public TransformGroup(TransformGroup g)
-      : base(g)
-    {
-      Init();
-      foreach (Transform t in g.Children)
-      {
-        Children.Add((Transform)t.Clone());
-      }
-    }
+
     void Init()
     {
       _childrenProperty = new Property(typeof(TransformCollection), new TransformCollection());
+
       _childrenProperty.Attach(OnPropertyChanged);
       Children.Attach(OnPropertyChanged);
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      TransformGroup result = new TransformGroup(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      TransformGroup g = source as TransformGroup;
+      foreach (Transform t in g.Children)
+        Children.Add(copyManager.GetCopy(t));
     }
+
+    #endregion
 
     protected void OnPropertyChanged(Property property)
     {
@@ -70,37 +69,16 @@ namespace Presentation.SkinEngine.Controls.Transforms
       Fire();
     }
 
-    /// <summary>
-    /// Gets or sets the children property.
-    /// </summary>
-    /// <value>The children property.</value>
     public Property ChildrenProperty
     {
-      get
-      {
-        return _childrenProperty;
-      }
-      set
-      {
-        _childrenProperty = value;
-      }
+      get { return _childrenProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the children.
-    /// </summary>
-    /// <value>The children.</value>
     public TransformCollection Children
     {
-      get
-      {
-        return (TransformCollection)_childrenProperty.GetValue();
-      }
+      get { return (TransformCollection)_childrenProperty.GetValue(); }
     }
 
-    /// <summary>
-    /// Updates the transform.
-    /// </summary>
     public override void UpdateTransform()
     {
       base.UpdateTransform();

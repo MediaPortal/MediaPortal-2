@@ -29,45 +29,30 @@ using Presentation.SkinEngine;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
+using MediaPortal.Presentation.Collections;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class HeaderedItemsControl : ItemsControl
   {
+    #region Private fields
+
     private Property _headerProperty;
     private Property _headerTemplateProperty;
     private Property _headerTemplateSelectorProperty;
     SizeF _baseDesiredSize;
     bool _wasExpanded = false;
     public string TempName;
-    #region ctor
+
+    #endregion
+
+    #region Ctor
+
     public HeaderedItemsControl()
     {
       Init();
-    }
-
-    public HeaderedItemsControl(HeaderedItemsControl c)
-      : base(c)
-    {
-      Init();
-      if (c.Header != null)
-      {
-        Header = (FrameworkElement)c.Header.Clone();
-        Header.VisualParent = this;
-        Header.SetWindow(Window);
-      }
-      if (c.HeaderTemplate != null)
-        HeaderTemplate = (DataTemplate)c.HeaderTemplate.Clone();
-      if (c.HeaderTemplateSelector != null)
-        HeaderTemplateSelector = c.HeaderTemplateSelector;
-    }
-
-    public override object Clone()
-    {
-      HeaderedItemsControl result = new HeaderedItemsControl(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -75,120 +60,69 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _headerProperty = new Property(typeof(FrameworkElement), null);
       _headerTemplateProperty = new Property(typeof(DataTemplate), null);
       _headerTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
-      _headerProperty.Attach(new PropertyChangedHandler(OnContentChanged));
+      _headerProperty.Attach(OnContentChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      HeaderedItemsControl c = source as HeaderedItemsControl;
+      Header = copyManager.GetCopy(c.Header);
+      HeaderTemplateSelector = copyManager.GetCopy(c.HeaderTemplateSelector);
+
+      // Don't take part in the outer copying process for the HeaderTemplate property here -
+      // we need a finished copied template here. As the template has no references to its
+      // containing instance, it is safe to do a self-contained deep copy of it.
+      HeaderTemplate = MpfCopyManager.DeepCopy(c.HeaderTemplate);
+    }
+
     #endregion
 
-    #region event handlers
+    #region Event handlers
+
     void OnContentChanged(Property property)
     {
       Header.VisualParent = this;
       Header.SetWindow(Window);
     }
+
     #endregion
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the header property.
-    /// </summary>
-    /// <value>The header property.</value>
+    #region Public properties
+
     public Property HeaderProperty
     {
-      get
-      {
-        return _headerProperty;
-      }
-      set
-      {
-        _headerProperty = value;
-      }
+      get { return _headerProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the header.
-    /// </summary>
-    /// <value>The header.</value>
     public FrameworkElement Header
     {
-      get
-      {
-        return _headerProperty.GetValue() as FrameworkElement;
-      }
-      set
-      {
-        _headerProperty.SetValue(value);
-      }
+      get { return _headerProperty.GetValue() as FrameworkElement; }
+      set { _headerProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the header template property.
-    /// </summary>
-    /// <value>The header template property.</value>
     public Property HeaderTemplateProperty
     {
-      get
-      {
-        return _headerTemplateProperty;
-      }
-      set
-      {
-        _headerTemplateProperty = value;
-      }
+      get { return _headerTemplateProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the header template.
-    /// </summary>
-    /// <value>The header template.</value>
     public DataTemplate HeaderTemplate
     {
-      get
-      {
-        return _headerTemplateProperty.GetValue() as DataTemplate;
-      }
-      set
-      {
-        _headerTemplateProperty.SetValue(value);
-      }
+      get { return _headerTemplateProperty.GetValue() as DataTemplate; }
+      set { _headerTemplateProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the header template selector property.
-    /// </summary>
-    /// <value>The header template selector property.</value>
     public Property HeaderTemplateSelectorProperty
     {
-      get
-      {
-        return _headerTemplateSelectorProperty;
-      }
-      set
-      {
-        _headerTemplateSelectorProperty = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets the header template selector.
-    /// </summary>
-    /// <value>The header template selector.</value>
-    public DataTemplateSelector HeaderTemplateSelector
-    {
-      get
-      {
-        return _headerTemplateSelectorProperty.GetValue() as DataTemplateSelector;
-      }
-      set
-      {
-        _headerTemplateSelectorProperty.SetValue(value);
-      }
+      get { return _headerTemplateSelectorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is expanded.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is expanded; otherwise, <c>false</c>.
-    /// </value>
+    public DataTemplateSelector HeaderTemplateSelector
+    {
+      get { return _headerTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
+      set { _headerTemplateSelectorProperty.SetValue(value); }
+    }
+
     public bool IsExpanded
     {
       get
@@ -219,13 +153,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         return _wasExpanded;
       }
     }
+
     #endregion
 
-    #region measure&arrange
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
+    #region Measure&arrange
+
     public override void Measure(SizeF availableSize)
     {
       MediaPortal.Presentation.Collections.ListItem listItem = (MediaPortal.Presentation.Collections.ListItem)Context;
@@ -239,7 +171,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (!_wasExpanded)
         {
           _desiredSize = Header.DesiredSize;
-          _originalSize = _desiredSize;
 
           //          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
           //              name, Header.DesiredSize.Width, Header.DesiredSize.Height));
@@ -252,17 +183,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         _desiredSize.Height += Header.DesiredSize.Height;
       }
-      _originalSize = _desiredSize;
       _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
       //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
       //        _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
@@ -334,10 +260,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
     #endregion
 
-    #region rendering
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
+    #region Rendering
+
     public override void DoRender()
     {
       lock (_headerProperty)
@@ -370,6 +294,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         base.DoBuildRenderTree();
       }
     }
+
     public override void DestroyRenderTree()
     {
       if (Header != null)
@@ -378,20 +303,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       base.DestroyRenderTree();
     }
-    #endregion
 
+    #endregion
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
       if (Header != null)
         Header.FireUIEvent(eventType, source);
     }
-    #region input handling
-    /// <summary>
-    /// Called when [mouse move].
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
+
+    #region Input handling
+
     public override void OnMouseMove(float x, float y)
     {
       if (!IsFocusScope) return;
@@ -405,10 +327,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
       lock (_headerProperty)
@@ -423,9 +341,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
     }
+
     #endregion
 
     #region FindXXX methods
+
     protected override ItemsPresenter FindItemsPresenter()
     {
       if (TemplateControl == null)
@@ -434,11 +354,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return TemplateControl.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
     }
-    /// <summary>
-    /// Find the element with name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
+
     public override UIElement FindElement(string name)
     {
       if (Header != null)
@@ -449,11 +365,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (!IsExpanded) return null;
       return base.FindElement(name);
     }
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
+
     public override UIElement FindElementType(Type t)
     {
       if (Header != null)
@@ -465,10 +377,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindElementType(t);
     }
 
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
+
     public override UIElement FindItemsHost()
     {
       if (Header != null)
@@ -480,13 +389,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return base.FindItemsHost();
     }
 
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
     public override UIElement FindFocusedItem()
     {
-
       if (Header != null)
       {
         UIElement found = Header.FindFocusedItem();
@@ -502,6 +406,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Header.Reset();
       base.Reset();
     }
+
     public override void Deallocate()
     {
       base.Deallocate();
@@ -510,6 +415,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Header.Deallocate();
       }
     }
+
     public override void Allocate()
     {
       base.Allocate();
@@ -520,14 +426,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
     #endregion
 
-    #region focus prediction
+    #region Focus prediction
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position above this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
@@ -539,12 +439,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return ((FrameworkElement)Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position below this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
@@ -556,12 +450,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return ((FrameworkElement)Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position left of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
@@ -573,12 +461,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return ((FrameworkElement)Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
-    /// <summary>
-    /// Predicts the next FrameworkElement which is position right of this FrameworkElement
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused FrameworkElement.</param>
-    /// <param name="key">The MediaPortal.Control.InputManager.Key.</param>
-    /// <returns></returns>
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
@@ -589,8 +471,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return ((FrameworkElement)Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
-    #endregion
 
+    #endregion
 
     public override void SetWindow(Window window)
     {
@@ -599,6 +481,35 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         Header.SetWindow(window);
       }
+    }
+
+    protected override FrameworkElement PrepareItemContainer(object dataItem)
+    {
+      _itemsHostPanel.IsItemsHost = false;
+      TreeViewItem container = new TreeViewItem();
+      container.Style = ItemContainerStyle;
+      container.Context = dataItem;
+      container.ItemsPanel = ItemsPanel;
+      container.HeaderTemplateSelector = HeaderTemplateSelector;
+      container.HeaderTemplate = HeaderTemplate;
+      FrameworkElement element = ItemContainerStyle.Get();
+      element.Context = dataItem;
+      ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
+
+      container.TemplateControl = new ItemsPresenter();
+      container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+      container.TemplateControl.VisualParent = container;
+      container.Header = element;
+      ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      if (p != null) p.IsVisible = false;
+
+      if (dataItem is ListItem)
+      {
+        ListItem listItem = (ListItem)dataItem;
+        container.ItemsSource = listItem.SubItems;
+      }
+      return container;
     }
   }
 }

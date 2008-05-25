@@ -22,50 +22,20 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
-
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class DoubleKeyFrame : KeyFrameBase, IKeyFrame
+  public class DoubleKeyFrame : ValueKeyFrame<double>
   {
-    Property _keyValueProperty;
+    #region Ctor
 
-    #region ctor
-    public DoubleKeyFrame(): base()
+    public DoubleKeyFrame()
     {
       Init();
-    }
-
-    public DoubleKeyFrame(DoubleKeyFrame k): base(k)
-    {
-      Init();
-      Value = k.Value;
     }
 
     void Init()
     {
-      _keyValueProperty = new Property(typeof(double), 0.0);
-    }
-
-    #endregion
-
-    #region Properties
-
-    public Property ValueProperty
-    {
-      get { return _keyValueProperty; }
-    }
-
-    public double Value
-    {
-      get { return (double)_keyValueProperty.GetValue(); }
-      set { _keyValueProperty.SetValue(value); }
-    }
-
-    object IKeyFrame.Value
-    {
-      get { return this.Value; }
-      set { this.Value = (double)value; }
+      Value = 0.0;
     }
 
     #endregion

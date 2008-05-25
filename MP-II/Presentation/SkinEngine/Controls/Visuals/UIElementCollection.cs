@@ -21,10 +21,9 @@
 */
 
 #endregion
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using Presentation.SkinEngine.Controls.Panels;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -100,6 +99,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
     }
+
     public void SetParent(UIElement parent)
     {
       _parent = parent;
@@ -162,7 +162,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
     }
-
 
     #region IEnumerable<UIElement> Members
 

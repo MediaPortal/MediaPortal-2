@@ -21,30 +21,27 @@
 */
 
 #endregion
+
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Localisation;
-using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Controls.Brushes;
 using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
 using Font = Presentation.SkinEngine.Fonts.Font;
 using FontRender = Presentation.SkinEngine.Fonts.FontRender;
 using FontBufferAsset = Presentation.SkinEngine.Fonts.FontBufferAsset;
 using FontManager = Presentation.SkinEngine.Fonts.FontManager;
+using MediaPortal.Utilities.DeepCopy;
 
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class TextBox : Control
   {
+    #region Private fields
+
     Property _caretIndexProperty;
     Property _textProperty;
     Property _textWrappingProperty;
@@ -58,22 +55,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
     // If we are editing the text.
     bool _editText = false; 
 
+    #endregion
+
+    #region Ctor
+
     public TextBox()
     {
       Init();
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
     }
 
-    public TextBox(TextBox textBox)
-      : base(textBox)
-    {
-      Init();
-      Text = textBox.Text;
-      Color = textBox.Color;
-      Font = textBox.Font;
-      TextWrapping = textBox.TextWrapping;
-      CaretIndex = textBox.CaretIndex;
-    }
     void Init()
     {
       _caretIndexProperty = new Property(typeof(int),0);
@@ -99,34 +90,18 @@ namespace Presentation.SkinEngine.Controls.Visuals
       BorderBrush = border;
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      return new TextBox(this);
+      base.DeepCopy(source, copyManager);
+      TextBox t = source as TextBox;
+      Text = copyManager.GetCopy(t.Text);
+      Color = copyManager.GetCopy(t.Color);
+      Font = copyManager.GetCopy(t.Font);
+      TextWrapping = copyManager.GetCopy(t.TextWrapping);
+      CaretIndex = copyManager.GetCopy(t.CaretIndex);
     }
 
-    // We need to override this one, so we can subscribe to raw data.
-    public override bool HasFocus
-    {
-      get
-      {
-        return base.HasFocus;
-      }
-      set
-      {
-        base.HasFocus = value;
-        IInputManager manager = ServiceScope.Get<IInputManager>();
-        
-        // We now have focus, so set that we need raw data
-        if (value == true)
-        {
-          manager.NeedRawKeyData = true;
-        }
-        else
-        {
-          manager.NeedRawKeyData = false;
-        }
-      }
-    }
+    #endregion
 
     void OnColorChanged(Property prop)
     {
@@ -161,144 +136,81 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
+    // We need to override this one, so we can subscribe to raw data.
+    public override bool HasFocus
+    {
+      get { return base.HasFocus; }
+      set
+      {
+        base.HasFocus = value;
+        IInputManager manager = ServiceScope.Get<IInputManager>();
+        
+        // We now have focus, so set that we need raw data
+        if (value == true)
+        {
+          manager.NeedRawKeyData = true;
+        }
+        else
+        {
+          manager.NeedRawKeyData = false;
+        }
+      }
+    }
 
     public Property CaretIndexProperty
     {
-      get
-      {
-        return _caretIndexProperty;
-      }
-      set
-      {
-        _caretIndexProperty = value;
-      }
+      get { return _caretIndexProperty; }
     }
 
     public int CaretIndex
     {
-      get
-      {
-        return (int)_caretIndexProperty.GetValue();
-      }
-      set
-      {
-        _caretIndexProperty.SetValue(value);
-      }
+      get { return (int)_caretIndexProperty.GetValue(); }
+      set { _caretIndexProperty.SetValue(value); }
     }
-
 
     public Property FontProperty
     {
-      get
-      {
-        return _fontProperty;
-      }
-      set
-      {
-        _fontProperty = value;
-      }
+      get { return _fontProperty; }
     }
 
     public string Font
     {
-      get
-      {
-        return _fontProperty.GetValue() as string;
-      }
-      set
-      {
-        _fontProperty.SetValue(value);
-      }
+      get { return _fontProperty.GetValue() as string; }
+      set { _fontProperty.SetValue(value); }
     }
 
     public Property TextWrappingProperty
     {
-      get
-      {
-        return _textWrappingProperty;
-      }
-      set
-      {
-        _textWrappingProperty = value;
-      }
+      get { return _textWrappingProperty; }
     }
 
     public string TextWrapping
     {
-      get
-      {
-        return _textWrappingProperty.GetValue() as string;
-      }
-      set
-      {
-        _textWrappingProperty.SetValue(value);
-      }
+      get { return _textWrappingProperty.GetValue() as string; }
+      set { _textWrappingProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the text property.
-    /// </summary>
-    /// <value>The text property.</value>
     public Property TextProperty
     {
-      get
-      {
-        return _textProperty;
-      }
-      set
-      {
-        _textProperty = value;
-      }
+      get { return _textProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the text.
-    /// </summary>
-    /// <value>The text.</value>
     public string Text
     {
-      get
-      {
-        return _textProperty.GetValue() as string;
-      }
-      set
-      {
-        _textProperty.SetValue(value);
-      }
+      get { return _textProperty.GetValue() as string; }
+      set { _textProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the color property.
-    /// </summary>
-    /// <value>The color property.</value>
     public Property ColorProperty
     {
-      get
-      {
-        return _colorProperty;
-      }
-      set
-      {
-        _colorProperty = value;
-      }
+      get { return _colorProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the color.
-    /// </summary>
-    /// <value>The color.</value>
     public Color Color
     {
-      get
-      {
-        return _colorCache;
-      }
-      set
-      {
-        _colorProperty.SetValue(value);
-      }
+      get { return _colorCache; }
+      set { _colorProperty.SetValue(value); }
     }
-
 
     void AllocFont()
     {
@@ -315,10 +227,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _renderer = new FontRender(_asset.Font);
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
@@ -359,17 +267,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       AllocFont();
@@ -455,6 +356,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       SkinContext.RemoveTransform();
 
     }
+
     public override void DestroyRenderTree()
     {
       if (_renderer != null)
@@ -462,9 +364,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _renderer = null;
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (SkinContext.UseBatching == false)
@@ -611,10 +510,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _update = false;
     }
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
+
     public override void OnKeyPressed(ref Key key)
     {
       Boolean predict = true;

@@ -26,48 +26,26 @@ using System;
 using System.Drawing;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Panels;
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {
+    #region Private fields
+
     string _startsWith = "";
     int _searchOffset = 0;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ScrollViewer"/> class.
-    /// </summary>
+
+    #endregion
+
     public ScrollViewer()
     {
       Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ScrollViewer"/> class.
-    /// </summary>
-    /// <param name="s">The s.</param>
-    public ScrollViewer(ScrollViewer s)
-      : base(s)
-    {
-      Init();
-    }
-
-    public override object Clone()
-    {
-      ScrollViewer result = new ScrollViewer(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
-
     void Init()
-    {
-    }
+    { }
 
-
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
       if (Content == null) return;
@@ -190,6 +168,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _searchOffset = 0;
       }
     }
+
     void OnHome(float x, float y)
     {
       IScrollInfo info = GetScrollInfo();
@@ -197,6 +176,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Panel element = (Panel)info;
       info.Home(new PointF(0, 0));
     }
+
     void OnEnd(float x, float y)
     {
       IScrollInfo info = GetScrollInfo();
@@ -286,7 +266,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       return false;
     }
-
 
     IScrollInfo GetScrollInfo()
     {

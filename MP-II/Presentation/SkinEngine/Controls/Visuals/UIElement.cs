@@ -19,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using System;
@@ -34,9 +35,11 @@ using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine.Controls.Resources;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Panels;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
+
   public enum VisibilityEnum
   {
     Visible = 0,
@@ -68,6 +71,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
   public class UIElement: Visual, IContentEnabled
   {
+    #region Private/protected fields
+
     Property _nameProperty;
     Property _focusableProperty;
     Property _isFocusScopeProperty;
@@ -85,7 +90,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _opacityProperty;
     Property _freezableProperty;
     protected SizeF _desiredSize;
-    protected SizeF _originalSize;
     protected SizeF _availableSize;
     protected RectangleF _finalRect;
     bool _isArrangeValid;
@@ -93,53 +97,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
     Command _loaded;
-    bool _bindingsInitialized;
     bool _triggersInitialized;
     bool _fireLoaded = true;
     bool _isVisible = true;
     double _opacityCache = 1.0;
     public bool TraceThis = false;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UIElement"/> class.
-    /// </summary>
-    public UIElement(): base()
+    #endregion
+
+    #region Ctor
+
+    public UIElement()
     {
       Init();
-    }
-
-    public UIElement(UIElement el): base(el)
-    {
-      Init();
-      Name = el.Name;
-      Focusable = el.Focusable;
-      IsFocusScope = el.IsFocusScope;
-      HasFocusProperty.SetValue(el.HasFocus);
-      ActualPosition = el.ActualPosition;
-      Margin = el.Margin;
-      Visibility = el.Visibility;
-      IsEnabled = el.IsEnabled;
-      IsItemsHost = el.IsItemsHost;
-      Freezable = el.Freezable;
-      Opacity = el.Opacity;
-      Loaded = el.Loaded;
-
-      if (OpacityMask != null)
-        OpacityMask = (Brushes.Brush)el.OpacityMask.Clone();
-
-      if (el.LayoutTransform != null)
-        LayoutTransform = (Transform)el.LayoutTransform.Clone();
-
-      if (el.RenderTransform != null)
-        RenderTransform = (Transform)el.RenderTransform.Clone();
-
-      RenderTransformOrigin = el.RenderTransformOrigin;
-      _resources.Merge(el.Resources);
-
-      foreach (Trigger t in el.Triggers)
-      {
-        Triggers.Add((Trigger)t.Clone());
-      }
     }
 
     void Init()
@@ -151,7 +121,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _acutalPositionProperty = new Property(typeof(Vector3), new Vector3(0, 0, 1));
       _marginProperty = new Property(typeof(Vector4), new Vector4(0, 0, 0, 0));
       _resources = new ResourceDictionary();
-      _triggerProperty = new Property(typeof(TriggerCollection), new TriggerCollection());
+      _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
       _renderTransformProperty = new Property(typeof(Transform), null);
       _layoutTransformProperty = new Property(typeof(Transform), null);
       _renderTransformOriginProperty = new Property(typeof(Vector2), new Vector2(0, 0));
@@ -166,24 +136,37 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _marginProperty.Attach(OnPropertyChanged);
       _visibilityProperty.Attach(OnVisibilityPropertyChanged);
       _opacityProperty.Attach(OnOpacityPropertyChanged);
+      _hasFocusProperty.Attach(OnFocusPropertyChanged);
     }
 
-
-    /// <summary>
-    /// Gets or sets the loaded event 
-    /// </summary>
-    /// <value>The loaded.</value>
-    public Command Loaded
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      get
-      {
-        return _loaded;
-      }
-      set
-      {
-        _loaded = value;
-      }
+      base.DeepCopy(source, copyManager);
+      UIElement el = source as UIElement;
+      Name = copyManager.GetCopy(el.Name);
+      Focusable = copyManager.GetCopy(el.Focusable);
+      IsFocusScope = copyManager.GetCopy(el.IsFocusScope);
+      // We do not copy the focus flag, only one element can have focus
+      //HasFocus = copyManager.GetCopy(el.HasFocus);
+      ActualPosition = copyManager.GetCopy(el.ActualPosition);
+      Margin = copyManager.GetCopy(el.Margin);
+      Visibility = copyManager.GetCopy(el.Visibility);
+      IsEnabled = copyManager.GetCopy(el.IsEnabled);
+      IsItemsHost = copyManager.GetCopy(el.IsItemsHost);
+      Freezable = copyManager.GetCopy(el.Freezable);
+      Opacity = copyManager.GetCopy(el.Opacity);
+      Loaded = copyManager.GetCopy(el.Loaded);
+      OpacityMask = copyManager.GetCopy(el.OpacityMask);
+      LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
+      RenderTransform = copyManager.GetCopy(el.RenderTransform);
+      RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
+      _resources.Merge(el.Resources);
+
+      foreach (Trigger t in el.Triggers)
+        Triggers.Add(copyManager.GetCopy(t));
     }
+
+    #endregion
 
     void OnOpacityPropertyChanged(Property property)
     {
@@ -204,9 +187,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
         FireUIEvent(UIEvent.Visible, this);
     }
 
-    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
+    void OnFocusPropertyChanged(Property property)
     {
+      if (HasFocus)
+      {
+        FocusManager.FocusedElement = this;
+        FireEvent("OnGotFocus");
+      }
+      else
+        FireEvent("OnLostFocus");
     }
+
+    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
+    { }
 
     /// <summary>
     /// Called when a property value has been changed
@@ -219,197 +212,99 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
-    /// <summary>
-    /// Gets or sets the resources.
-    /// </summary>
-    /// <value>The resources.</value>
-    public ResourceDictionary Resources
-    {
-      get
-      {
-        return _resources;
-      }
-    }
-
     public void SetResources(ResourceDictionary resources)
     {
       _resources = resources;
     }
 
+    #region Public properties
+
+    public Command Loaded
+    {
+      get { return _loaded; }
+      set { _loaded = value; }
+    }
+
+    public ResourceDictionary Resources
+    {
+      get { return _resources; }
+    }
+
     public ExtendedMatrix FinalLayoutTransform
     {
-      get
-      {
-        return _finalLayoutTransform;
-      }
+      get { return _finalLayoutTransform; }
     }
 
-    /// <summary>
-    /// Gets or sets the opacity property.
-    /// </summary>
-    /// <value>The opacity property.</value>
     public Property OpacityProperty
     {
-      get
-      {
-        return _opacityProperty;
-      }
-      set
-      {
-        _opacityProperty = value;
-      }
+      get { return _opacityProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the opacity.
-    /// </summary>
-    /// <value>The opacity.</value>
     public double Opacity
     {
       get
       {
-        return _opacityCache;// (double)_opacityProperty.GetValue();
+        return _opacityCache; // (double)_opacityProperty.GetValue();
       }
       set
       {
+        _opacityCache = value;
         _opacityProperty.SetValue(value);
       }
     }
 
-    /// <summary>
-    /// Gets or sets the freezable property.
-    /// </summary>
-    /// <value>The freezable property.</value>
     public Property FreezableProperty
     {
-      get
-      {
-        return _freezableProperty;
-      }
+      get { return _freezableProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="UIElement"/> is freezable.
-    /// </summary>
-    /// <value><c>true</c> if freezable; otherwise, <c>false</c>.</value>
     public bool Freezable
     {
-      get
-      {
-        return (bool)_freezableProperty.GetValue();
-      }
-      set
-      {
-        _freezableProperty.SetValue(value);
-      }
+      get { return (bool)_freezableProperty.GetValue(); }
+      set { _freezableProperty.SetValue(value); }
     }
 
     public Property OpacityMaskProperty
     {
-      get
-      {
-        return _opacityMaskProperty;
-      }
+      get { return _opacityMaskProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the opacity mask.
-    /// </summary>
-    /// <value>The opacity mask.</value>
     public Brushes.Brush OpacityMask
     {
-      get
-      {
-        return (Brushes.Brush) _opacityMaskProperty.GetValue();
-      }
-      set
-      {
-        _opacityMaskProperty.SetValue(value);
-      }
+      get { return (Brushes.Brush) _opacityMaskProperty.GetValue(); }
+      set { _opacityMaskProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the is items host property.
-    /// </summary>
-    /// <value>The is items host property.</value>
     public Property IsItemsHostProperty
     {
-      get
-      {
-        return _isItemsHostProperty;
-      }
+      get { return _isItemsHostProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this element hosts items or not
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is items host; otherwise, <c>false</c>.
-    /// </value>
     public bool IsItemsHost
     {
-      get
-      {
-        return (bool)_isItemsHostProperty.GetValue();
-      }
-      set
-      {
-        _isItemsHostProperty.SetValue(value);
-      }
+      get { return (bool)_isItemsHostProperty.GetValue(); }
+      set { _isItemsHostProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the is enabled property.
-    /// </summary>
-    /// <value>The is enabled property.</value>
     public Property IsEnabledProperty
     {
-      get
-      {
-        return _isEnabledProperty;
-      }
+      get { return _isEnabledProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is enabled.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
-    /// </value>
     public bool IsEnabled
     {
-      get
-      {
-        return (bool)_isEnabledProperty.GetValue();
-      }
-      set
-      {
-        _isEnabledProperty.SetValue(value);
-      }
+      get { return (bool)_isEnabledProperty.GetValue(); }
+      set { _isEnabledProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the visibility property.
-    /// </summary>
-    /// <value>The visibility property.</value>
     public Property VisibilityProperty
     {
-      get
-      {
-        return _visibilityProperty;
-      }
+      get { return _visibilityProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the visibility.
-    /// </summary>
-    /// <value>The visibility.</value>
     public VisibilityEnum Visibility
     {
-      get
-      {
-        return (VisibilityEnum)_visibilityProperty.GetValue();
-      }
+      get { return (VisibilityEnum)_visibilityProperty.GetValue(); }
       set
       {
         //Trace.WriteLine(String.Format("set {0} :{1}", this.Name, value));
@@ -417,80 +312,35 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers property.
-    /// </summary>
-    /// <value>The triggers property.</value>
     public Property TriggersProperty
     {
-      get
-      {
-        return _triggerProperty;
-      }
+      get { return _triggerProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers.
-    /// </summary>
-    /// <value>The triggers.</value>
-    public TriggerCollection Triggers
+    public IList<Trigger> Triggers
     {
-      get
-      {
-        return (TriggerCollection)_triggerProperty.GetValue();
-      }
+      get { return (IList<Trigger>)_triggerProperty.GetValue(); }
     }
 
-    /// <summary>
-    /// Gets or sets the actual position.
-    /// </summary>
-    /// <value>The actual position.</value>
     public Property ActualPositionProperty
     {
-      get
-      {
-        return _acutalPositionProperty;
-      }
+      get { return _acutalPositionProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the actual position.
-    /// </summary>
-    /// <value>The actual position.</value>
     public Vector3 ActualPosition
     {
-      get
-      {
-        return (Vector3) _acutalPositionProperty.GetValue();
-      }
-      set
-      {
-        _acutalPositionProperty.SetValue(value);
-      }
+      get { return (Vector3) _acutalPositionProperty.GetValue(); }
+      set { _acutalPositionProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the name property.
-    /// </summary>
-    /// <value>The name property.</value>
     public Property NameProperty
     {
-      get
-      {
-        return _nameProperty;
-      }
+      get { return _nameProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
     public string Name
     {
-      get
-      {
-        return _nameProperty.GetValue() as string;
-      }
+      get { return _nameProperty.GetValue() as string; }
       set
       {
         INameScope ns = FindNameScope();
@@ -502,118 +352,42 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the element has focus property.
-    /// </summary>
-    /// <value>The has focus property.</value>
     public Property HasFocusProperty
     {
-      get
-      {
-        return _hasFocusProperty;
-      }
+      get { return _hasFocusProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this uielement has focus.
-    /// </summary>
-    /// <value><c>true</c> if this uielement has focus; otherwise, <c>false</c>.</value>
     public virtual bool HasFocus
     {
-      get
-      {
-        return (bool)_hasFocusProperty.GetValue();
-      }
-      set
-      {
-        if (value != HasFocus)
-        {
-          _hasFocusProperty.SetValue(value);
-          if (value)
-          {
-            FocusManager.FocusedElement = this;
-            //Trace.WriteLine(String.Format("focus:{0}", this.GetType()));
-            FireEvent("OnGotFocus");
-          }
-          else
-          {
-            //Trace.WriteLine(String.Format("no focus:{0}", this.GetType()));
-            FireEvent("OnLostFocus");
-          }
-        }
-      }
+      get { return (bool)_hasFocusProperty.GetValue(); }
+      set { _hasFocusProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the is focusable property.
-    /// </summary>
-    /// <value>The is focusable property.</value>
     public Property FocusableProperty
     {
-      get
-      {
-        return _focusableProperty;
-      }
+      get { return _focusableProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the is focusable.
-    /// </summary>
-    /// <value>The is focusable.</value>
     public bool Focusable
     {
-      get
-      {
-        return (bool)_focusableProperty.GetValue();
-      }
-      set
-      {
-        _focusableProperty.SetValue(value);
-      }
+      get { return (bool)_focusableProperty.GetValue(); }
+      set { _focusableProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the is focus scope property.
-    /// </summary>
-    /// <value>The is focus scope property.</value>
     public Property IsFocusScopeProperty
     {
-      get
-      {
-        return _isFocusScopeProperty;
-      }
+      get { return _isFocusScopeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is focus scope.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is focus scope; otherwise, <c>false</c>.
-    /// </value>
     public bool IsFocusScope
     {
-      get
-      {
-        return (bool)_isFocusScopeProperty.GetValue();
-      }
-      set
-      {
-        _isFocusScopeProperty.SetValue(value);
-      }
+      get { return (bool)_isFocusScopeProperty.GetValue(); }
+      set { _isFocusScopeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is visible.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is visible; otherwise, <c>false</c>.
-    /// </value>
     public bool IsVisible
     {
-      get
-      {
-        return _isVisible;
-      }
+      get { return _isVisible; }
       set
       {
         if (value)
@@ -623,153 +397,67 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the margin property.
-    /// </summary>
-    /// <value>The margin property.</value>
     public Property MarginProperty
     {
-      get
-      {
-        return _marginProperty;
-      }
+      get { return _marginProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the margin.
-    /// </summary>
-    /// <value>The margin.</value>
     public Vector4 Margin
     {
-      get
-      {
-        return (Vector4)_marginProperty.GetValue();
-      }
-      set
-      {
-        _marginProperty.SetValue(value);
-      }
+      get { return (Vector4)_marginProperty.GetValue(); }
+      set { _marginProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the layout transform property.
-    /// </summary>
-    /// <value>The layout transform property.</value>
     public Property LayoutTransformProperty
     {
-      get
-      {
-        return _layoutTransformProperty;
-      }
+      get { return _layoutTransformProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the layout transform.
-    /// </summary>
-    /// <value>The layout transform.</value>
     public Transform LayoutTransform
     {
-      get
-      {
-        return _layoutTransformProperty.GetValue() as Transform;
-      }
-      set
-      {
-        _layoutTransformProperty.SetValue(value);
-      }
+      get { return _layoutTransformProperty.GetValue() as Transform; }
+      set { _layoutTransformProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the render transform.
-    /// </summary>
-    /// <value>The render transform.</value>
     public Property RenderTransformProperty
     {
-      get
-      {
-        return _renderTransformProperty;
-      }
+      get { return _renderTransformProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the render transform.
-    /// </summary>
-    /// <value>The render transform.</value>
     public Transform RenderTransform
     {
-      get
-      {
-        return (Transform) _renderTransformProperty.GetValue();
-      }
-      set
-      {
-        _renderTransformProperty.SetValue(value);
-      }
+      get { return (Transform) _renderTransformProperty.GetValue(); }
+      set { _renderTransformProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the render transform origin.
-    /// </summary>
-    /// <value>The render transform origin.</value>
     public Property RenderTransformOriginProperty
     {
-      get
-      {
-        return _renderTransformOriginProperty;
-      }
+      get { return _renderTransformOriginProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the render transform origin.
-    /// </summary>
-    /// <value>The render transform origin.</value>
     public Vector2 RenderTransformOrigin
     {
-      get
-      {
-        return (Vector2) _renderTransformOriginProperty.GetValue();
-      }
-      set
-      {
-        _renderTransformOriginProperty.SetValue(value);
-      }
+      get { return (Vector2) _renderTransformOriginProperty.GetValue(); }
+      set { _renderTransformOriginProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this UIElement has been layout
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this UIElement is arrange valid; otherwise, <c>false</c>.
-    /// </value>
     public bool IsArrangeValid
     {
-      get
-      {
-        return _isArrangeValid;
+      get {
+        // FIXME Albert78: This variable avoids the Invalidate call to set the _isLayoutInvalid variable
+        // What is the meaning of this property??? If it is not necessary, remove it
+        return true;// _isArrangeValid;
       }
-      set
-      {
-        _isArrangeValid = value;
-      }
+      set { _isArrangeValid = value; }
     }
 
-    /// <summary>
-    /// Gets desired size
-    /// </summary>
-    /// <value>The desired size.</value>
     public SizeF DesiredSize
     {
-      get
-      {
-        return _desiredSize;
-      }
+      get { return _desiredSize; }
     }
 
-    /// <summary>
-    /// Gets the size for brush.
-    /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
+    #endregion
+
     public virtual void GetSizeForBrush(out double width, out double height)
     {
       width = 0.0;
@@ -777,20 +465,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
+    /// Will measure this element according to the <paramref name="availableSize"/>
+    /// given. This method will fill the <see cref="DesiredSize"/> property.
     /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements. </param>
-    /// <returns>The size that this element determines it needs during layout, based on its calculations of child element sizes.</returns>
+    /// <param name="availableSize">Maximum size which is available for this element.</param>
     public virtual void Measure(SizeF availableSize)
     {
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
-    /// Arranges the UI element 
-    /// and positions it in the finalrect
+    /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
+    /// <param name="finalRect">The final size that the parent computes for the child element.</param>
     public virtual void Arrange(RectangleF finalRect)
     {
       IsArrangeValid = true;
@@ -800,13 +487,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Invalidates the layout of this uielement.
-    /// If dimensions change, it will invalidate the parent visual so 
-    /// the parent will re-layout itself and its children
+    /// Invalidates the layout of this UIElement.
+    /// If dimensions change, it will invalidate the parent visual so the parent
+    /// will re-layout itself and its children
     /// </summary>
     public virtual void Invalidate()
     {
-      if (!IsArrangeValid) return;
+      if (!IsArrangeValid) return; // FIXME Albert78: Why this line??????
       _isLayoutInvalid = true;
       if (VisualParent == null)
         _availableSize = new SizeF(0, 0);
@@ -960,16 +647,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     public virtual void OnMouseMove(float x, float y)
-    {
-    }
+    { }
 
     /// <summary>
     /// Handles keypresses
     /// </summary>
     /// <param name="key">The key.</param>
     public virtual void OnKeyPressed(ref Key key)
-    {
-    }
+    { }
+
     public virtual bool ReplaceElementType(Type t, UIElement newElement)
     {
       return false;

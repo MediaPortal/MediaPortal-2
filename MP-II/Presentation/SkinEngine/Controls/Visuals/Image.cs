@@ -26,7 +26,7 @@ using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -51,6 +51,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
   public class Image : Control
   {
+    #region Private fields
+
     Property _fallbackSourceProperty;
     Property _imageSourceProperty;
     Property _stretchDirectionProperty;
@@ -65,19 +67,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Vector3 _pos;
     bool _performImageLayout;
 
+    #endregion
+
+    #region Ctor
+
     public Image()
     {
       Init();
-    }
-
-    public Image(Image img)
-      : base(img)
-    {
-      Init();
-      Source = img.Source;
-      FallbackSource = img.FallbackSource;
-      StretchDirection = img.StretchDirection;
-      Thumbnail = img.Thumbnail;
     }
 
     void Init()
@@ -91,12 +87,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Image result = new Image(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      Image i = source as Image;
+      Source = copyManager.GetCopy(i.Source);
+      FallbackSource = copyManager.GetCopy(i.FallbackSource);
+      StretchDirection = copyManager.GetCopy(i.StretchDirection);
+      Thumbnail = copyManager.GetCopy(i.Thumbnail);
     }
+
+    #endregion
 
     /// <summary>
     /// Called when a property changed. 
@@ -108,6 +109,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _performImageLayout = true;
       if (Window != null) Window.Invalidate(this);
     }
+
     /// <summary>
     /// Called when the imagesource has been changed
     /// Simply invalidates the image, the renderer will automaticly create a new one
@@ -129,172 +131,62 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// Gets or sets the stretch property.
-    /// </summary>
-    /// <value>The stretch property.</value>
     public Property StretchProperty
     {
-      get
-      {
-        return _stretchProperty;
-      }
-      set
-      {
-        _stretchProperty = value;
-      }
+      get { return _stretchProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stretch.
-    /// </summary>
-    /// <value>The stretch.</value>
     public Stretch Stretch
     {
-      get
-      {
-        return (Stretch)_stretchProperty.GetValue();
-      }
-      set
-      {
-        _stretchProperty.SetValue(value);
-      }
+      get { return (Stretch)_stretchProperty.GetValue(); }
+      set { _stretchProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the thumbnail property.
-    /// </summary>
-    /// <value>The thumbnail property.</value>
     public Property ThumbnailProperty
     {
-      get
-      {
-        return _thumbnailProperty;
-      }
-      set
-      {
-        _thumbnailProperty = value;
-      }
+      get { return _thumbnailProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="Image"/> is thumbnail.
-    /// </summary>
-    /// <value><c>true</c> if thumbnail; otherwise, <c>false</c>.</value>
     public bool Thumbnail
     {
-      get
-      {
-        return (bool)_thumbnailProperty.GetValue();
-      }
-      set
-      {
-        _thumbnailProperty.SetValue(value);
-      }
+      get { return (bool)_thumbnailProperty.GetValue(); }
+      set { _thumbnailProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the image source property.
-    /// </summary>
-    /// <value>The image source property.</value>
     public Property SourceProperty
     {
-      get
-      {
-        return _imageSourceProperty;
-      }
-      set
-      {
-        _imageSourceProperty = value;
-      }
+      get { return _imageSourceProperty; }
+      set { _imageSourceProperty = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the image source.
-    /// </summary>
-    /// <value>The image source.</value>
     public string Source
     {
-      get
-      {
-        return (string)_imageSourceProperty.GetValue();
-      }
-      set
-      {
-        _imageSourceProperty.SetValue(value);
-      }
+      get { return (string)_imageSourceProperty.GetValue(); }
+      set { _imageSourceProperty.SetValue(value); }
     }
 
     public Property FallbackSourceProperty
     {
-      get
-      {
-        return _fallbackSourceProperty;
-      }
-      set
-      {
-        _fallbackSourceProperty = value;
-      }
+      get { return _fallbackSourceProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the image source.
-    /// </summary>
-    /// <value>The image source.</value>
     public string FallbackSource
     {
-      get
-      {
-        return (string)_fallbackSourceProperty.GetValue();
-      }
-      set
-      {
-        _fallbackSourceProperty.SetValue(value);
-      }
+      get { return (string)_fallbackSourceProperty.GetValue(); }
+      set { _fallbackSourceProperty.SetValue(value); }
     }
 
-
-
-
-    /// <summary>
-    /// Gets or sets the stretch direction property.
-    /// </summary>
-    /// <value>The stretch direction property.</value>
     public Property StretchDirectionProperty
     {
-      get
-      {
-        return _stretchDirectionProperty;
-      }
-      set
-      {
-        _stretchDirectionProperty = value;
-      }
+      get { return _stretchDirectionProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stretch direction.
-    /// </summary>
-    /// <value>The stretch direction.</value>
     public StretchDirection StretchDirection
     {
-      get
-      {
-        return (StretchDirection)_stretchDirectionProperty.GetValue();
-      }
-      set
-      {
-        _stretchDirectionProperty.SetValue(value);
-      }
+      get { return (StretchDirection)_stretchDirectionProperty.GetValue(); }
+      set { _stretchDirectionProperty.SetValue(value); }
     }
 
-
-
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
@@ -330,10 +222,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
@@ -377,12 +265,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-      _originalSize = _desiredSize;
-
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
-
 
     public override void DoBuildRenderTree()
     {
@@ -476,6 +361,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       SkinContext.RemoveOpacity();
     }
+
     public override void DestroyRenderTree()
     {
       if (_renderImage != null)
@@ -490,9 +376,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Renders the visual
-    /// </summary>
     public override void DoRender()
     {
       if (!IsEnabled && Opacity == 0.0) return;
@@ -601,9 +484,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Performs the layout.
-    /// </summary>
     void PerformLayout(VertextBufferAsset asset)
     {
       //Trace.WriteLine("Image.PerformLayout()");
@@ -764,6 +644,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       base.Deallocate();
     }
+
     public override void BecomesHidden()
     {
       if (_renderImage != null)
@@ -771,6 +652,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (_renderFallback != null)
         _renderFallback.Free();
     }
+
     public override void BecomesVisible()
     { 
 
@@ -779,6 +661,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (_renderFallback != null)
         _renderFallback.Alloc();
     }
+
     public override void Update()
     {
       base.Update();

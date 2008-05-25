@@ -24,27 +24,32 @@
 
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Loader;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Resources
 {
-  using System.Collections.Generic;
-
-  public class Include : IInclude, IInitializable
+  public class Include : IInclude, IInitializable, IDeepCopyable
   {
+    #region Private fields
+
     object _content;
     string _includeName;
 
+    #endregion
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Include i = source as Include;
+      _content = copyManager.GetCopy(i._content);
+      Source = copyManager.GetCopy(i.Source);
+    }
+
     #region Public properties    
+
     public string Source
     {
-      get
-      {
-        return _includeName;
-      }
-      set
-      {
-        _includeName = value;
-      }
+      get { return _includeName; }
+      set { _includeName = value; }
     }
 
     #endregion
@@ -53,10 +58,7 @@ namespace Presentation.SkinEngine.Controls.Resources
 
     public object Content
     {
-      get
-      {
-        return _content;
-      }
+      get { return _content; }
     }               
 
     #endregion

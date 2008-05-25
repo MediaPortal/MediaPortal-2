@@ -27,12 +27,14 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Button : ContentControl
   {
+    #region Private fields
+
     Property _isPressedProperty;
 
     Property _commandParameter;
@@ -40,36 +42,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Command _contextMenuCommand;
     Property _contextMenuCommandParameterProperty;
 
-    #region ctor
+    #endregion
+
+    #region Ctor
+
     public Button()
     {
       Init();
-    }
-
-    public Button(Button b)
-      : base(b)
-    {
-      Init();
-      IsPressed = b.IsPressed;
-
-
-      Command = b.Command;
-      CommandParameter = b.CommandParameter;
-
-      ContextMenuCommand = b.ContextMenuCommand;
-      ContextMenuCommandParameter = b.ContextMenuCommandParameter;
-      /*if (b.Style != null)
-      {
-        Style = b.Style;
-        OnStyleChanged(StyleProperty);
-      }*/
-    }
-
-    public override object Clone()
-    {
-      Button result = new Button(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
     }
 
     void Init()
@@ -82,21 +61,24 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Focusable = true;
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Button b = source as Button;
+      IsPressed = copyManager.GetCopy(b.IsPressed);
+      Command = copyManager.GetCopy(b.Command);
+      CommandParameter = copyManager.GetCopy(b.CommandParameter);
+      ContextMenuCommand = copyManager.GetCopy(b.ContextMenuCommand);
+      ContextMenuCommandParameter = copyManager.GetCopy(b.ContextMenuCommandParameter);
+    }
+
     #endregion
 
     #region Public properties
-    /// <summary>
-    /// Gets or sets a value indicating whether this uielement has focus.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this uielement has focus; otherwise, <c>false</c>.
-    /// </value>
+
     public override bool HasFocus
     {
-      get
-      {
-        return base.HasFocus;
-      }
+      get { return base.HasFocus; }
       set
       {
         base.HasFocus = value;
@@ -106,144 +88,58 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the is pressed.
-    /// </summary>
-    /// <value>The is pressed.</value>
     public Property IsPressedProperty
     {
-      get
-      {
-        return _isPressedProperty;
-      }
-      set
-      {
-        _isPressedProperty = value;
-      }
+      get { return _isPressedProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is pressed.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is pressed; otherwise, <c>false</c>.
-    /// </value>
     public bool IsPressed
     {
-      get
-      {
-        return (bool)_isPressedProperty.GetValue();
-      }
-      set
-      {
-        _isPressedProperty.SetValue(value);
-      }
+      get { return (bool)_isPressedProperty.GetValue(); }
+      set { _isPressedProperty.SetValue(value); }
     }
 
     #region Command properties
-    /// <summary>
-    /// Gets or sets the command.
-    /// </summary>
-    /// <value>The command.</value>
+
     public Command Command
     {
-      get
-      {
-        return _command;
-      }
-      set
-      {
-        _command = value;
-      }
+      get { return _command; }
+      set { _command = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the command parameter property.
-    /// </summary>
-    /// <value>The command parameter property.</value>
     public Property CommandParameterProperty
     {
-      get
-      {
-        return _commandParameter;
-      }
-      set
-      {
-        _commandParameter = value;
-      }
+      get { return _commandParameter; }
+      set { _commandParameter = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
     public object CommandParameter
     {
-      get
-      {
-        return _commandParameter.GetValue();
-      }
-      set
-      {
-        _commandParameter.SetValue(value);
-      }
+      get { return _commandParameter.GetValue(); }
+      set { _commandParameter.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command.
-    /// </summary>
-    /// <value>The context menu command.</value>
     public Command ContextMenuCommand
     {
-      get
-      {
-        return _contextMenuCommand;
-      }
-      set
-      {
-        _contextMenuCommand = value;
-      }
+      get { return _contextMenuCommand; }
+      set { _contextMenuCommand = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command parameter property.
-    /// </summary>
-    /// <value>The context menu command parameter property.</value>
     public Property ContextMenuCommandParameterProperty
     {
-      get
-      {
-        return _contextMenuCommandParameterProperty;
-      }
-      set
-      {
-        _contextMenuCommandParameterProperty = value;
-      }
+      get { return _contextMenuCommandParameterProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the context menu command parameter.
-    /// </summary>
-    /// <value>The context menu command parameter.</value>
     public object ContextMenuCommandParameter
     {
-      get
-      {
-        return _contextMenuCommandParameterProperty.GetValue();
-      }
-      set
-      {
-        _contextMenuCommandParameterProperty.SetValue(value);
-      }
+      get { return _contextMenuCommandParameterProperty.GetValue(); }
+      set { _contextMenuCommandParameterProperty.SetValue(value); }
     }
 
     #endregion
+
     #endregion
     
-    /// <summary>
-    /// Handles keypresses
-    /// </summary>
-    /// <param name="key">The key.</param>
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
@@ -263,6 +159,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
           else
             Command.Method.Invoke(Command.Object, null);
         }
+        // FIXME: Replace this by a TemplateBinding associating the Button's Command and parameter with the
+        // ListItem's Command and parameter
         if (Context is ListItem)
         {
           ListItem listItem = Context as ListItem;

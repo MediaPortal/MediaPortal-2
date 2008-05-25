@@ -81,4 +81,15 @@ namespace Presentation.SkinEngine.XamlParser
     public XamlLoadException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
+
+  /// <summary>
+  /// Thrown if a type conversion didn't succeed.
+  /// </summary>
+  public class ConvertException : ApplicationException
+  {
+    public ConvertException(string msg, params object[] args):
+      base(string.Format(msg, args)) { }
+    public ConvertException(string msg, Exception ex, params object[] args):
+      base(string.Format(msg, args), ex) { }
+  }
 }

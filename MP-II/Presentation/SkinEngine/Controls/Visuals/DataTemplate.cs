@@ -23,48 +23,48 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
+  /// <summary>
+  /// Specifies the visual structure and behavioral aspects of a Control that can be shared across multiple instances of the control.
+  /// </summary>
   public class DataTemplate : FrameworkTemplate
   {
+    #region Private fields
+
     Property _triggerProperty;
 
-    #region ctor
-    /// <summary>
-    /// pecifies the visual structure and behavioral aspects of a Control that can be shared across multiple instances of the control.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public DataTemplate()
     {
       Init();
     }
-    public DataTemplate(DataTemplate ct)
-      : base(ct)
-    {
-      Init();
-      foreach (Trigger t in ct.Triggers)
-      {
-        Triggers.Add((Trigger)t.Clone());
-      }
-    }
+
     void Init()
     {
-      _triggerProperty = new Property(typeof(TriggerCollection), new TriggerCollection());
+      _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
     }
 
-    public override object Clone()
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      DataTemplate result = new DataTemplate(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
+      base.DeepCopy(source, copyManager);
+      DataTemplate dt = source as DataTemplate;
+      foreach (Trigger t in dt.Triggers)
+        Triggers.Add(copyManager.GetCopy(t));
     }
 
     #endregion
 
-    #region properties
+    #region Public properties
+
     /// <summary>
     /// Gets or sets the type of the target (not used here, but required for real xaml)
     /// </summary>
@@ -80,34 +80,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers property.
-    /// </summary>
-    /// <value>The triggers property.</value>
     public Property TriggersProperty
     {
-      get
-      {
-        return _triggerProperty;
-      }
-      set
-      {
-        _triggerProperty = value;
-      }
+      get { return _triggerProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the triggers.
-    /// </summary>
-    /// <value>The triggers.</value>
-    public TriggerCollection Triggers
+    public IList<Trigger> Triggers
     {
-      get
-      {
-        return (TriggerCollection)_triggerProperty.GetValue();
-      }
+      get { return (IList<Trigger>)_triggerProperty.GetValue(); }
     }
-    #endregion
 
+    #endregion
   }
 }

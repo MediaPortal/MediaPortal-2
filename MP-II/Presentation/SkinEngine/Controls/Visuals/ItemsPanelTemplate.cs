@@ -22,26 +22,16 @@
 
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
-
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ItemsPanelTemplate : FrameworkTemplate
   {
     public ItemsPanelTemplate()
     {
+      Init();
     }
 
-    public ItemsPanelTemplate(ItemsPanelTemplate t)
-      : base(t)
-    {
-    }
-
-    public override object Clone()
-    {
-      ItemsPanelTemplate result = new ItemsPanelTemplate(this);
-      BindingMarkupExtension.CopyBindings(this, result);
-      return result;
-    }
+    void Init()
+    { }
   }
 }

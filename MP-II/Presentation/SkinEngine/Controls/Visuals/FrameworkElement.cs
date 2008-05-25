@@ -32,6 +32,7 @@ using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -53,6 +54,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
   public class FrameworkElement: UIElement
   {
+    #region Private fields
 
     Property _widthProperty;
     Property _heightProperty;
@@ -71,34 +73,20 @@ namespace Presentation.SkinEngine.Controls.Visuals
     double _actualHeightCache;
     VisualAssetContext _opacityMaskContext;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FrameworkElement"/> class.
-    /// </summary>
+    #endregion
+
+    #region Ctor
+
     public FrameworkElement()
     {
       Init();
       Attach();
     }
 
-    public FrameworkElement(FrameworkElement el)
-      : base((UIElement)el)
-    {
-      Init();
-      Width = el.Width;
-      Height = el.Height;
-      Style = el.Style;
-      Attach();
-      ActualWidth = el.ActualWidth;
-      ActualHeight = el.ActualHeight;
-      this.HorizontalAlignment = el.HorizontalAlignment;
-      this.VerticalAlignment = el.VerticalAlignment;
-    }
-
     void Init()
     {
       _widthProperty = new Property(typeof(double), 0.0);
       _heightProperty = new Property(typeof(double), 0.0);
-
 
       _acutalWidthProperty = new Property(typeof(double), 0.0);
       _actualHeightProperty = new Property(typeof(double), 0.0);
@@ -109,19 +97,35 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _widthProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _heightProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _actualHeightProperty.Attach(new PropertyChangedHandler(OnActualHeightChanged));
-      _acutalWidthProperty.Attach(new PropertyChangedHandler(OnActualWidthChanged));
-      _styleProperty.Attach(new PropertyChangedHandler(OnStyleChanged));
-      _horizontalAlignmentProperty.Attach(new PropertyChangedHandler(OnHorizontalAlignmentChanged));
-      _verticalAlignmentProperty.Attach(new PropertyChangedHandler(OnVerticalAlignmentChanged));
+      _widthProperty.Attach(OnPropertyChanged);
+      _heightProperty.Attach(OnPropertyChanged);
+      _actualHeightProperty.Attach(OnActualHeightChanged);
+      _acutalWidthProperty.Attach(OnActualWidthChanged);
+      _styleProperty.Attach(OnStyleChanged);
+      _horizontalAlignmentProperty.Attach(OnHorizontalAlignmentChanged);
+      _verticalAlignmentProperty.Attach(OnVerticalAlignmentChanged);
     }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      FrameworkElement fe = source as FrameworkElement;
+      Width = copyManager.GetCopy(fe.Width);
+      Height = copyManager.GetCopy(fe.Height);
+      Style = copyManager.GetCopy(fe.Style);
+      ActualWidth = copyManager.GetCopy(fe.ActualWidth);
+      ActualHeight = copyManager.GetCopy(fe.ActualHeight);
+      this.HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
+      this.VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
+    }
+
+    #endregion
 
     protected void OnHorizontalAlignmentChanged(Property property)
     {
       _horizontalAlignmentCache = (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue();
     }
+
     protected void OnVerticalAlignmentChanged(Property property)
     {
       _verticalAlignmentCache = (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue();
@@ -133,11 +137,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Style.Set(this);
       Invalidate();
     }
+
     void OnActualHeightChanged(Property property)
     {
       _actualHeightCache = (double)_actualHeightProperty.GetValue();
       _updateOpacityMask = true;
     }
+
     void OnActualWidthChanged(Property property)
     {
       _actualWidthCache = (double)_acutalWidthProperty.GetValue();
@@ -155,213 +161,81 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
-    #region properties
-    /// <summary>
-    /// Gets or sets the width property.
-    /// </summary>
-    /// <value>The width property.</value>
+    #region Public properties
+
     public Property WidthProperty
     {
-      get
-      {
-        return _widthProperty;
-      }
-      set
-      {
-        _widthProperty = value;
-      }
+      get { return _widthProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the width.
-    /// </summary>
-    /// <value>The width.</value>
     public double Width
     {
-      get
-      {
-        return (double)_widthProperty.GetValue();
-      }
-      set
-      {
-        _widthProperty.SetValue(value);
-      }
+      get { return (double)_widthProperty.GetValue(); }
+      set { _widthProperty.SetValue(value); }
     }
-    /// <summary>
-    /// Gets or sets the height property.
-    /// </summary>
-    /// <value>The height property.</value>
+
     public Property HeightProperty
     {
-      get
-      {
-        return _heightProperty;
-      }
-      set
-      {
-        _heightProperty = value;
-      }
+      get { return _heightProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the height.
-    /// </summary>
-    /// <value>The height.</value>
     public double Height
     {
-      get
-      {
-        return (double)_heightProperty.GetValue();
-      }
-      set
-      {
-        _heightProperty.SetValue(value);
-      }
+      get { return (double)_heightProperty.GetValue(); }
+      set { _heightProperty.SetValue(value); }
     }
 
-
-    /// <summary>
-    /// Gets or sets the width property.
-    /// </summary>
-    /// <value>The width property.</value>
     public Property ActualWidthProperty
     {
-      get
-      {
-        return _acutalWidthProperty;
-      }
-      set
-      {
-        _acutalWidthProperty = value;
-      }
+      get { return _acutalWidthProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the width.
-    /// </summary>
-    /// <value>The width.</value>
     public double ActualWidth
     {
-      get
-      {
-        return _actualWidthCache;
-      }
-      set
-      {
-        _acutalWidthProperty.SetValue(value);
-      }
+      get { return _actualWidthCache; }
+      set { _acutalWidthProperty.SetValue(value); }
     }
-    /// <summary>
-    /// Gets or sets the height property.
-    /// </summary>
-    /// <value>The height property.</value>
+
     public Property ActualHeightProperty
     {
-      get
-      {
-        return _actualHeightProperty;
-      }
-      set
-      {
-        _actualHeightProperty = value;
-      }
+      get { return _actualHeightProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the height.
-    /// </summary>
-    /// <value>The height.</value>
     public double ActualHeight
     {
-      get
-      {
-        return _actualHeightCache;
-      }
-      set
-      {
-        _actualHeightProperty.SetValue(value);
-      }
+      get { return _actualHeightCache; }
+      set { _actualHeightProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the horizontal alignment property.
-    /// </summary>
-    /// <value>The horizontal alignment property.</value>
     public Property HorizontalAlignmentProperty
     {
-      get
-      {
-        return _horizontalAlignmentProperty;
-      }
-      set
-      {
-        _horizontalAlignmentProperty = value;
-      }
+      get { return _horizontalAlignmentProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the horizontal alignment.
-    /// </summary>
-    /// <value>The horizontal alignment.</value>
     public HorizontalAlignmentEnum HorizontalAlignment
     {
-      get
-      {
-        return _horizontalAlignmentCache;
-      }
+      get { return _horizontalAlignmentCache; }
       set
       {
+        _horizontalAlignmentCache = value;
         _horizontalAlignmentProperty.SetValue(value);
       }
     }
 
-    /// <summary>
-    /// Gets or sets the vertical alignment property.
-    /// </summary>
-    /// <value>The vertical alignment property.</value>
     public Property VerticalAlignmentProperty
     {
-      get
-      {
-        return _verticalAlignmentProperty;
-      }
-      set
-      {
-        _verticalAlignmentProperty = value;
-      }
+      get { return _verticalAlignmentProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the vertical alignment.
-    /// </summary>
-    /// <value>The vertical alignment.</value>
     public VerticalAlignmentEnum VerticalAlignment
     {
-      get
-      {
-        return _verticalAlignmentCache;
-      }
-      set
-      {
-        _verticalAlignmentProperty.SetValue(value);
-      }
+      get { return _verticalAlignmentCache; }
+      set { _verticalAlignmentProperty.SetValue(value);  }
     }
-    #endregion
 
-    /// <summary>
-    /// Gets or sets the control style property.
-    /// </summary>
-    /// <value>The control style property.</value>
     public Property StyleProperty
     {
-      get
-      {
-        return _styleProperty;
-      }
-      set
-      {
-        _styleProperty = value;
-      }
+      get { return _styleProperty; }
     }
 
     /// <summary>
@@ -370,22 +244,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <value>The control style.</value>
     public Style Style
     {
-      get
-      {
-        return _styleProperty.GetValue() as Style;
-      }
-      set
-      {
-        _styleProperty.SetValue(value);
-      }
+      get { return _styleProperty.GetValue() as Style; }
+      set { _styleProperty.SetValue(value); }
     }
 
+    #endregion
 
-    /// <summary>
-    /// Called when the mouse moves
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public override void OnMouseMove(float x, float y)
     {
       if (x >= ActualPosition.X && x < ActualPosition.X + ActualWidth)
@@ -416,7 +280,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
 
-    #region focus & control predicition
+    #region Focus & control predicition
 
     /// <summary>
     /// Predicts the next control which is position above this control
@@ -553,10 +417,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-
-    /// <summary>
-    /// Renders this instance.
-    /// </summary>
     public override void Render()
     {
       try
@@ -669,7 +529,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
         else
         {
-
           //no opacity mask
           //apply rendertransform
           if (RenderTransform != null)
@@ -698,6 +557,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _inRender = false;
       }
     }
+
     public override void BuildRenderTree()
     {
       if (!IsVisible) return;
@@ -726,14 +586,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       SkinContext.RemoveOpacity();
     }
 
-    #region opacitymask
-
-    #region IAsset Members
-
-
-
-
-    #endregion
+    #region Opacitymask
 
     /// <summary>
     /// Updates the opacity mask texture
@@ -829,6 +682,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       _updateOpacityMask = false;
     }
+
     #endregion
 
     public override void Allocate()

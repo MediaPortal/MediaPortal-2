@@ -21,15 +21,14 @@
 */
 
 #endregion
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IEnumerable<GradientStop>, ICloneable
+  public class GradientStopCollection : IEnumerable<GradientStop>
   {
     public class GradientStopEnumerator : IEnumerator<GradientStop>
     {
@@ -52,7 +51,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       {
       }
 
-      object System.Collections.IEnumerator.Current
+      object IEnumerator.Current
       {
         get
         {
@@ -72,53 +71,35 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
+    #region Private fields
+
     GradientBrush _parent;
     List<GradientStop> _elements;
     PropertyChangedHandler _handler;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GradientStopCollection"/> class.
-    /// </summary>
-    /// <param name="parent">The parent.</param>
+    #endregion
+
+    #region Ctor
+
     public GradientStopCollection(GradientBrush parent)
     {
       _parent = parent;
       Init();
     }
 
-    public GradientStopCollection(GradientStopCollection b)
-    {
-      Init();
-      _parent = b._parent;
-      foreach (GradientStop stop in b._elements)
-      {
-        Add((GradientStop)stop.Clone());
-      }
-    }
     void Init()
     {
       _elements = new List<GradientStop>();
-      _handler = new PropertyChangedHandler(OnStopChanged);
+      _handler = OnStopChanged;
     }
 
-    public virtual object Clone()
-    {
-      return new GradientStopCollection(this);
-    }
+    #endregion
 
-    /// <summary>
-    /// Called when [stop changed].
-    /// </summary>
-    /// <param name="prop">The prop.</param>
     void OnStopChanged(Property prop)
     {
       _parent.OnGradientsChanged();
     }
 
-    /// <summary>
-    /// Adds the specified element.
-    /// </summary>
-    /// <param name="element">The element.</param>
     public void Add(GradientStop element)
     {
       element.Attach(_handler);
@@ -126,10 +107,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _parent.OnGradientsChanged();
     }
 
-    /// <summary>
-    /// Removes the specified element.
-    /// </summary>
-    /// <param name="element">The element.</param>
     public void Remove(GradientStop element)
     {
       if (_elements.Contains(element))
@@ -140,41 +117,22 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _parent.OnGradientsChanged();
     }
 
-    /// <summary>
-    /// Clears this instance.
-    /// </summary>
     public void Clear()
     {
       foreach (GradientStop stop in _elements)
-      {
         stop.Detach(_handler);
-      }
       _elements.Clear();
       _parent.OnGradientsChanged();
     }
 
-    /// <summary>
-    /// Gets the count.
-    /// </summary>
-    /// <value>The count.</value>
     public int Count
     {
-      get
-      {
-        return _elements.Count;
-      }
+      get { return _elements.Count; }
     }
 
-    /// <summary>
-    /// Gets or sets the <see cref="SkinEngine.Controls.Brushes.GradientStop"/> at the specified index.
-    /// </summary>
-    /// <value></value>
     public GradientStop this[int index]
     {
-      get
-      {
-        return _elements[index];
-      }
+      get { return _elements[index]; }
       set
       {
         if (value != _elements[index])
@@ -190,12 +148,6 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     #region IEnumerable<GradientStop> Members
 
-    /// <summary>
-    /// Returns an enumerator that iterates through the collection.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
-    /// </returns>
     public IEnumerator<GradientStop> GetEnumerator()
     {
       return new GradientStopEnumerator(_elements);
@@ -205,17 +157,20 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     #region IEnumerable Members
 
-    /// <summary>
-    /// Returns an enumerator that iterates through a collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.IEnumerator"></see> object that can be used to iterate through the collection.
-    /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return new GradientStopEnumerator(_elements);
     }
 
     #endregion
+
+    public override string ToString()
+    {
+      string[] stops = new string[_elements.Count];
+      int i = 0;
+      foreach (GradientStop stop in _elements)
+        stops[i++] = stop.ToString();
+      return string.Join(", ", stops);
+    }
   }
 }

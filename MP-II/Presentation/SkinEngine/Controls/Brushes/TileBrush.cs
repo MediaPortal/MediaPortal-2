@@ -21,17 +21,12 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
+
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
-
 using SlimDX;
-using SlimDX.Direct3D;
-using SlimDX.Direct3D9;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -48,32 +43,23 @@ namespace Presentation.SkinEngine.Controls.Brushes
     FlipY
   };
 
-
-  /// <summary>
-  /// 
-  /// </summary>
   public class TileBrush : Brush
   {
+    #region Private fields
+
     Property _alignmentXProperty;
     Property _alignmentYProperty;
     Property _stretchProperty;
     Property _viewPortProperty;
     Property _tileModeProperty;
 
+    #endregion
+
+    #region Ctor
+
     public TileBrush()
     {
       Init();
-    }
-
-    public TileBrush(TileBrush b)
-      : base(b)
-    {
-      Init();
-      AlignmentX = b.AlignmentX;
-      AlignmentY = b.AlignmentY;
-      Stretch = b.Stretch;
-      Tile = b.Tile;
-      ViewPort = b.ViewPort;
     }
 
     void Init()
@@ -84,179 +70,85 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _tileModeProperty = new Property(typeof(TileMode), TileMode.None);
       _viewPortProperty = new Property(typeof(Vector4), new Vector4(0, 0, 1, 1));
 
-      _alignmentXProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _alignmentYProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _stretchProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _tileModeProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
-      _viewPortProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _alignmentXProperty.Attach(OnPropertyChanged);
+      _alignmentYProperty.Attach(OnPropertyChanged);
+      _stretchProperty.Attach(OnPropertyChanged);
+      _tileModeProperty.Attach(OnPropertyChanged);
+      _viewPortProperty.Attach(OnPropertyChanged);
     }
 
-    /// <summary>
-    /// Gets or sets the alignment X property.
-    /// </summary>
-    /// <value>The alignment X property.</value>
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      TileBrush b = source as TileBrush;
+      AlignmentX = copyManager.GetCopy(b.AlignmentX);
+      AlignmentY = copyManager.GetCopy(b.AlignmentY);
+      Stretch = copyManager.GetCopy(b.Stretch);
+      Tile = copyManager.GetCopy(b.Tile);
+      ViewPort = copyManager.GetCopy(b.ViewPort);
+    }
+
+    #endregion
+
+    #region Public properties
+
     public Property AlignmentXProperty
     {
-      get
-      {
-        return _alignmentXProperty;
-      }
-      set
-      {
-        _alignmentXProperty = value;
-      }
+      get { return _alignmentXProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment X.
-    /// </summary>
-    /// <value>The alignment X.</value>
     public AlignmentX AlignmentX
     {
-      get
-      {
-        return (AlignmentX)_alignmentXProperty.GetValue();
-      }
-      set
-      {
-        _alignmentXProperty.SetValue(value);
-      }
+      get { return (AlignmentX)_alignmentXProperty.GetValue(); }
+      set { _alignmentXProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment Y property.
-    /// </summary>
-    /// <value>The alignment Y property.</value>
     public Property AlignmentYProperty
     {
-      get
-      {
-        return _alignmentYProperty;
-      }
-      set
-      {
-        _alignmentYProperty = value;
-      }
+      get { return _alignmentYProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the alignment Y.
-    /// </summary>
-    /// <value>The alignment Y.</value>
     public AlignmentY AlignmentY
     {
-      get
-      {
-        return (AlignmentY)_alignmentYProperty.GetValue();
-      }
-      set
-      {
-        _alignmentYProperty.SetValue(value);
-      }
+      get { return (AlignmentY)_alignmentYProperty.GetValue(); }
+      set { _alignmentYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the stretch property.
-    /// </summary>
-    /// <value>The stretch property.</value>
     public Property StretchProperty
     {
-      get
-      {
-        return _stretchProperty;
-      }
-      set
-      {
-        _stretchProperty = value;
-      }
+      get { return _stretchProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the stretch.
-    /// </summary>
-    /// <value>The stretch.</value>
     public Stretch Stretch
     {
-      get
-      {
-        return (Stretch)_stretchProperty.GetValue();
-      }
-      set
-      {
-        _stretchProperty.SetValue(value);
-      }
+      get { return (Stretch)_stretchProperty.GetValue(); }
+      set { _stretchProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the view port property.
-    /// </summary>
-    /// <value>The view port property.</value>
     public Property ViewPortProperty
     {
-      get
-      {
-        return _viewPortProperty;
-      }
-      set
-      {
-        _viewPortProperty = value;
-      }
+      get { return _viewPortProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the view port.
-    /// </summary>
-    /// <value>The view port.</value>
     public Vector4 ViewPort
     {
-      get
-      {
-        return (Vector4)_viewPortProperty.GetValue();
-      }
-      set
-      {
-        _viewPortProperty.SetValue(value);
-      }
+      get { return (Vector4)_viewPortProperty.GetValue(); }
+      set { _viewPortProperty.SetValue(value); }
     }
 
-
-    /// <summary>
-    /// Gets or sets the tile property.
-    /// </summary>
-    /// <value>The tile property.</value>
     public Property TileProperty
     {
-      get
-      {
-        return _tileModeProperty;
-      }
-      set
-      {
-        _tileModeProperty = value;
-      }
+      get { return _tileModeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the tile.
-    /// </summary>
-    /// <value>The tile.</value>
     public TileMode Tile
     {
-      get
-      {
-        return (TileMode)_tileModeProperty.GetValue();
-      }
-      set
-      {
-        _tileModeProperty.SetValue(value);
-      }
+      get { return (TileMode)_tileModeProperty.GetValue(); }
+      set { _tileModeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Setups the brush.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="verts"></param>
+    #endregion
+
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
       // todo here:
@@ -330,25 +222,12 @@ namespace Presentation.SkinEngine.Controls.Brushes
       }
     }
 
-    /// <summary>
-    /// Scales the specified u.
-    /// </summary>
-    /// <param name="u">The u.</param>
-    /// <param name="v">The v.</param>
     protected virtual void Scale(ref float u, ref float v)
-    {
-    }
+    { }
 
-    /// <summary>
-    /// Gets the brush dimensions.
-    /// </summary>
-    /// <value>The brush dimensions.</value>
     protected virtual Vector2 BrushDimensions
     {
-      get
-      {
-        return new Vector2(1, 1);
-      }
+      get { return new Vector2(1, 1); }
     }
   }
 }

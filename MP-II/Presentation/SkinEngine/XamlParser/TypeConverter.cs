@@ -60,6 +60,27 @@ namespace Presentation.SkinEngine.XamlParser
       set { _customTypeConverter = value; }
     }
 
+    public static bool ConvertEntryType(ICollection col, Type entryType, out ICollection result)
+    {
+      if (entryType == null)
+      {
+        result = col;
+        return true;
+      }
+      result = null;
+      List<object> res = new List<object>();
+      foreach (object o in col)
+      {
+        object obj = o;
+        if (!entryType.IsAssignableFrom(obj.GetType()))
+          if (!Convert(obj, entryType, out obj))
+            return false;
+        res.Add(obj);
+      }
+      result = res;
+      return true;
+    }
+
     /// <summary>
     /// Converts the specified <paramref name="obj"/> to a collection.
     /// If the object supports the interface <see cref="ICollection"/> itself,
@@ -69,26 +90,42 @@ namespace Presentation.SkinEngine.XamlParser
     /// as single contents.
     /// </summary>
     /// <param name="obj">The object to convert to a collection.</param>
-    /// <returns>Collection containing the contents of obj or obj itself.</returns>
-    protected static ICollection ToCollection(object obj)
+    /// <param name="entryType">Type to convert the collection entries to or <c>null</c>.</param>
+    /// <param name="result">Collection containing the contents of obj or obj itself.</param>
+    /// <returns><c>true</c>, if the conversion was successful, else <c>false</c>.</returns>
+    protected static bool ToCollection(object obj, Type entryType, out ICollection result)
     {
+      result = null;
       if (obj is IInclude)
         obj = ((IInclude)obj).Content;
       if (obj is ICollection)
-        return (ICollection)obj;
+        return ConvertEntryType((ICollection) obj, entryType, out result);
       else if (obj is IEnumerable)
       {
-        IList<object> result = new List<object>();
+        List<object> col = new List<object>();
         foreach (object o in (IEnumerable)obj)
-          result.Add(o);
-        return (ICollection)result;
+          col.Add(o);
+        return ConvertEntryType(col, entryType, out result);
       }
       else
       {
-        IList<object> result = new List<object>();
-        result.Add(obj);
-        return (ICollection)result;
+        List<object> res = new List<object>();
+        object o;
+        if (entryType != null && !Convert(obj, entryType, out o))
+          return false;
+        res.Add(obj);
+        result = res;
+        return true;
       }
+    }
+
+    public static object Convert(object value, Type targetType)
+    {
+      object result;
+      if (Convert(value, targetType, out result))
+        return result;
+      else
+        throw new ConvertException("Could not convert object '{0}' to type '{1}'", value, targetType.Name);
     }
 
     public static bool Convert(object val, Type targetType, out object result)
@@ -133,14 +170,14 @@ namespace Presentation.SkinEngine.XamlParser
 
       // Built-in type conversions
 
-      if (typeof(string).IsAssignableFrom(val.GetType()) && targetType == typeof(Type))
+      if (typeof(string) == val.GetType() && targetType == typeof(Type))
       { // string -> Type
         result = Type.GetType(val.ToString());
         return true;
       }
 
       // Enumerations
-      if (typeof(string).IsAssignableFrom(val.GetType()) && targetType.IsEnum)
+      if (typeof(string) == val.GetType() && targetType.IsEnum)
       { // string -> Enum
         FieldInfo fi = targetType.GetField(val.ToString(), BindingFlags.Public | BindingFlags.Static);
         result = fi.GetValue(null);
@@ -149,10 +186,17 @@ namespace Presentation.SkinEngine.XamlParser
 
       // Collection types
 
-      if (typeof(ICollection).IsAssignableFrom(targetType)) // Targets IList & ICollection
+      Type collectionType;
+      Type entryType = null;
+      ReflectionHelper.FindImplementedCollectionType(targetType, out collectionType, out entryType);
+
+      if (collectionType != null) // Targets IList, ICollection, IList<>, ICollection<>
       {
         IList<object> resultList = new List<object>();
-        foreach (object entry in ToCollection(val))
+        ICollection col;
+        if (!ToCollection(val, entryType, out col))
+          return false;
+        foreach (object entry in col)
           resultList.Add(entry);
         result = resultList;
         return true;
@@ -160,7 +204,10 @@ namespace Presentation.SkinEngine.XamlParser
       if (typeof(IAddChild).IsAssignableFrom(targetType)) // Target IAddChild
       {
         IAddChild resultAC = (IAddChild)Activator.CreateInstance(targetType);
-        foreach (object entry in ToCollection(val))
+        ICollection col;
+        if (!ToCollection(val, null, out col))
+          return false;
+        foreach (object entry in col)
           resultAC.AddChild(entry);
         result = resultAC;
         return true;
