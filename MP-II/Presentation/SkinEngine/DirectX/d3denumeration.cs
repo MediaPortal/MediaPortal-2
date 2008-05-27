@@ -187,8 +187,6 @@ namespace Presentation.SkinEngine.DirectX
     public int AppMinStencilBits = 0;
     public bool AppUsesDepthBuffer = true;
     public bool AppUsesMixedVP = false; // whether app can take advantage of mixed vp mode
-    public bool AppRequiresWindowed = false;
-    public bool AppRequiresFullscreen = false;
 
 
     /// <summary>
@@ -303,14 +301,6 @@ namespace Presentation.SkinEngine.DirectX
           }
           foreach (bool isWindowed in isWindowedArray)
           {
-            if (!isWindowed && AppRequiresWindowed)
-            {
-              continue;
-            }
-            if (isWindowed && AppRequiresFullscreen)
-            {
-              continue;
-            }
             if (
               !Direct3D.CheckDeviceType(deviceInfo.AdapterOrdinal, deviceInfo.DevType, adapterFormat, backBufferFormat,
                                        isWindowed))
