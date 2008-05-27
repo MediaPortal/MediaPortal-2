@@ -135,7 +135,10 @@ namespace Presentation.SkinEngine.DirectX
 
       try
       {
-        ChooseInitialSettings();
+        if (!FindBestModes())
+        {
+          System.Environment.Exit(0);
+        }
 
         /*
 
@@ -441,24 +444,22 @@ namespace Presentation.SkinEngine.DirectX
 
 
     /// <summary>
-    /// Choose the initial settings for the application
+    /// Find the best fullscreen / windowed modes.
     /// </summary>
     /// <returns>true if the settings were initialized</returns>
-    public bool ChooseInitialSettings()
+    public bool FindBestModes()
     {
 
-      bool foundFullscreenMode = FindBestFullscreenMode(false, false);
-      bool foundWindowedMode = FindBestWindowedMode(false, false);
-      //if (startFullscreen && foundFullscreenMode)
-      //{
-      //  graphicsSettings.IsWindowed = false;
-      //}
-
-      if (!foundFullscreenMode && !foundWindowedMode)
+      if (!FindBestFullscreenMode(false, false))
       {
-        throw new NoCompatibleDevicesException();
+        ServiceScope.Get<ILogger>().Critical("d3dSetup: failed to find best fullscreen mode.");
+        return false;
       }
-
+      if (!FindBestWindowedMode(false, false))
+      {
+        ServiceScope.Get<ILogger>().Critical("d3dSetup: failed to find best windowed mode.");
+        return false;
+      }
       return true;
     }
 
