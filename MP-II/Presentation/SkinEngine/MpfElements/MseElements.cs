@@ -79,6 +79,7 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
       objectClassRegistrations.Add("DataTemplateSelector", typeof(SkinEngine.Controls.Visuals.DataTemplateSelector));
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
+      objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
 
       // Resources
       objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.Controls.Resources.ResourceDictionary));
