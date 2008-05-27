@@ -283,29 +283,6 @@ namespace Presentation.SkinEngine.GUI
         manager.KeyPressed(key);
         e.Handled = true;
       }
-      if (e.KeyChar == 'i')
-      {
-        PlayerCollection coll = ServiceScope.Get<PlayerCollection>();
-        if (coll.Count > 0)
-        {
-          VideoPlayer player = coll[0] as VideoPlayer;
-          if (player != null)
-          {
-            if (player.Effect == null)
-            {
-              SkinEngine.Effects.EffectAsset effect = ContentManager.GetEffect("smartzoom");
-              if (effect != null)
-              {
-                player.Effect = effect;
-              }
-            }
-            else
-            {
-              player.Effect = null;
-            }
-          }
-        }
-      }
     }
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
@@ -417,7 +394,7 @@ namespace Presentation.SkinEngine.GUI
     protected override void OnSizeChanged(EventArgs e)
     {
       base.OnSizeChanged(e);
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), WindowState);
+      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), WindowState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -435,7 +412,7 @@ namespace Presentation.SkinEngine.GUI
 
     protected override void OnResizeEnd(EventArgs e)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), WindowState);
+      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), WindowState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -530,7 +507,7 @@ namespace Presentation.SkinEngine.GUI
       FontManager.Free();
       ContentManager.Free();
 
-      // Must be done before reset. Otherwise we will loose device after reset.
+      // Must be done before reset. Otherwise we will lose the device after reset.
       if (newFullscreen)
       {
         Location = new Point(0, 0);
