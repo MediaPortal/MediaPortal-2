@@ -309,6 +309,13 @@ namespace Presentation.SkinEngine.GUI
       const int WMSZ_BOTTOM = 6;
       const int WMSZ_BOTTOMLEFT = 7;
       const int WMSZ_BOTTOMRIGHT = 8;
+      const int WM_SYSCHAR = 0x106;
+
+      // Hande 'beep'
+      if (m.Msg == WM_SYSCHAR)
+      {
+        return;
+      }
 
       if (m.Msg == WM_SIZING && m.HWnd == Handle)
       {
