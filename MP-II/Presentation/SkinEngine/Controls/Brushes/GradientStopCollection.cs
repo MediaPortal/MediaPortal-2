@@ -25,7 +25,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
-using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Brushes
@@ -89,18 +88,18 @@ namespace Presentation.SkinEngine.Controls.Brushes
       Init();
     }
 
+    public GradientStopCollection(GradientStopCollection source)
+    {
+      _parent = null;
+      Init();
+      foreach (GradientStop s in source)
+        Add(new GradientStop(s.Offset, s.Color));
+    }
+
     void Init()
     {
       _elements = new List<GradientStop>();
       _handler = OnStopChanged;
-    }
-
-    public virtual void DeepCopy(GradientStopCollection source)
-    {
-      for(int i=0;i<source.Count;i++)
-      {
-        Add(MpfCopyManager.DeepCopy(source[i]));
-      }
     }
 
     #endregion

@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Presentation.SkinEngine.Controls.Brushes
@@ -59,12 +57,9 @@ namespace Presentation.SkinEngine.Controls.Brushes
           return _cache[i];
         }
       }
-      // Here we must do a deep copy of the source. if we don't, then the cache will change
-      // when we change the source. Resulting in that we always get a hit in the cache.
-      GradientStopCollection stopsDeepCopy = new GradientStopCollection(null);
-      stopsDeepCopy.DeepCopy(stops);
-
-      BrushTexture brush = new BrushTexture(stopsDeepCopy, opacitybrush, null);
+      // Here we must do a copy of the gradient stops. If we don't, the cache will change
+      // when the stops are changed outside.
+      BrushTexture brush = new BrushTexture(new GradientStopCollection(stops), opacitybrush, null);
       _cache.Add(brush);
       return brush;
     }
