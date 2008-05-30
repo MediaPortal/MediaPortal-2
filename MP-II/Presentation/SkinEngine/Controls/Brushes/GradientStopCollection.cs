@@ -25,6 +25,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {
@@ -93,10 +95,19 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _handler = OnStopChanged;
     }
 
+    public virtual void DeepCopy(GradientStopCollection source)
+    {
+      for(int i=0;i<source.Count;i++)
+      {
+        Add(MpfCopyManager.DeepCopy(source[i]));
+      }
+    }
+
     #endregion
 
     void OnStopChanged(Property prop)
     {
+      if (_parent != null)
       _parent.OnGradientsChanged();
     }
 
@@ -104,6 +115,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       element.Attach(_handler);
       _elements.Add(element);
+      if (_parent != null)
       _parent.OnGradientsChanged();
     }
 
@@ -114,6 +126,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
         _elements.Remove(element);
         element.Detach(_handler);
       }
+      if (_parent != null)
       _parent.OnGradientsChanged();
     }
 
@@ -122,6 +135,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       foreach (GradientStop stop in _elements)
         stop.Detach(_handler);
       _elements.Clear();
+      if (_parent != null)
       _parent.OnGradientsChanged();
     }
 
@@ -140,6 +154,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
           _elements[index].Detach(_handler);
           _elements[index] = value;
           _elements[index].Attach(_handler);
+          if (_parent != null)
           _parent.OnGradientsChanged();
         }
       }

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Presentation.SkinEngine.Controls.Brushes
@@ -52,14 +54,18 @@ namespace Presentation.SkinEngine.Controls.Brushes
     {
       for (int i = 0; i < _cache.Count; ++i)
       {
-        if (_cache[i].OpacityBrush == opacitybrush && _cache[i].IsSame(stops))
+        if ((_cache[i].OpacityBrush == opacitybrush) && _cache[i].IsSame(stops))
         {
           return _cache[i];
         }
       }
-      BrushTexture brush = new BrushTexture(stops, opacitybrush, null);
+      // Here we must do a deep copy of the source. if we don't, then the cache will change
+      // when we change the source. Resulting in that we always get a hit in the cache.
+      GradientStopCollection stopsDeepCopy = new GradientStopCollection(null);
+      stopsDeepCopy.DeepCopy(stops);
+
+      BrushTexture brush = new BrushTexture(stopsDeepCopy, opacitybrush, null);
       _cache.Add(brush);
-//      Trace.WriteLine(String.Format("brushes:{0}", _cache.Count));
       return brush;
     }
 
