@@ -1,6 +1,6 @@
 <menu>
   <items>
-    <item text="[weathersetup.1]" image="" command="WindowManager.ShowDialog" parameter="dialogWeatherLocations"/>
+    <item text="[weathersetup.1]" image="" command="WindowManager.ShowDialog" parameter="dialogWeatherSearch"/>
     <item text="[weathersetup.3]" image="" command="Weather:WeatherModel.Refresh" parameter=""/>
   </items>
 </menu>

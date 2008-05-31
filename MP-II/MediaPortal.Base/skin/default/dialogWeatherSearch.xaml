@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Canvas
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance}"
+    FocusedElement="{Binding ElementName=mainMenu}"
+    History="False">
+  <Canvas.Resources>
+    <ResourceDictionary Source="XamlStyle.xml"/>
+  </Canvas.Resources>
+
+  <Border Canvas.Left="106" Canvas.Top="44" Width="405" Height="265" Background="#AFFFFFFF" CornerRadius="10">
+    <Canvas Width="385" Height="245" Background="{StaticResource dialogBackGroundBrush}" >
+      <Label Font="font13" Canvas.Left="25" Canvas.Top="0" Text="[system.5]" Width="100"  Color="#FFADADAD" VerticalAlignment="Top"/>
+      <Label Font="font13" Canvas.Left="136" Canvas.Top="0" Text="[weathersetup.1]" Width="300"  Color="#FFF1E994" VerticalAlignment="Top"/>
+      <Button x:Name="closebtn" Canvas.Left="310" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
+      <Label Font="font13" Canvas.Left="25" Canvas.Top="70" Text="[weathersetup.0]" Width="300"  Color="White" VerticalAlignment="Top"/>
+      <TextBox Font="font13" Canvas.Left="25" Canvas.Top="100" BorderThickness="3" Height = "30" Width="250" Text="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=SearchCity, Mode=OneWayToSource}"/>
+      <Button Canvas.Left="150" Canvas.Top="150" Name="Button1" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Done">[system.done]</Button>
+      <Button Canvas.Left="250" Canvas.Top="150" Name="Button2" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
+    </Canvas>
+  </Border>
+</Canvas>
