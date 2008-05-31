@@ -685,14 +685,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return null;
     }
 
-    public virtual INameScope FindNameScope()
-    {
-      if (this is INameScope)
-        return this as INameScope;
-      else
-        return !(VisualParent is UIElement) ? null : ((UIElement) VisualParent).FindNameScope();
-    }
-
     /// <summary>
     /// Finds the element of type t.
     /// </summary>

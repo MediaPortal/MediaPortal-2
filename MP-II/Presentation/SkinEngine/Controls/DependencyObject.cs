@@ -109,6 +109,14 @@ namespace Presentation.SkinEngine.Controls
       return DataContext;
     }
 
+    public virtual INameScope FindNameScope()
+    {
+      if (this is INameScope)
+        return this as INameScope;
+      else
+        return LogicalParent == null ? null : LogicalParent.FindNameScope();
+    }
+
     #region Attached properties implementation
 
     public void SetAttachedPropertyValue<T>(string name, T value)
