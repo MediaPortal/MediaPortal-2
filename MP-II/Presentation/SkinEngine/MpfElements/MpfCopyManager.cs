@@ -65,7 +65,7 @@ namespace Presentation.SkinEngine.MpfElements
         return true;
       }
       object res;
-      if (MseElements.CopyMpfObject(source, out res))
+      if (Registration.CopyMpfObject(source, out res))
       {
         result = (T) res;
         return true;

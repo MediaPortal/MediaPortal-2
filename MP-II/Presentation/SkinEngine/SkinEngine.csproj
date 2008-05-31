@@ -231,13 +231,14 @@
     <Compile Include="InputManager\InputManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Loader\MpfAttachedPropertyDataDescriptor.cs" />
     <Compile Include="MarkupExtensions\BindingDependency.cs" />
     <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
+    <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
-    <Compile Include="MpfElements\MseElements.cs" />
+    <Compile Include="MpfElements\Registration.cs" />
+    <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
     <Compile Include="XamlParser\NameScope.cs" />
     <Compile Include="XamlParser\DataDescriptors.cs" />
     <Compile Include="Models\Model.cs" />
@@ -296,7 +297,6 @@
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
     <Compile Include="Controls\Resources\Include.cs" />
-    <Compile Include="Loader\MpfNamespaceHandler.cs" />
     <Compile Include="Loader\SkinLoaderContext.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
     <Compile Include="Loader\XamlLoader.cs" />

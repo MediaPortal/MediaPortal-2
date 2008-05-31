@@ -492,15 +492,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       container.ItemsPanel = ItemsPanel;
       container.HeaderTemplateSelector = HeaderTemplateSelector;
       container.HeaderTemplate = HeaderTemplate;
-      FrameworkElement element = ItemContainerStyle.Get();
-      element.Context = dataItem;
-      ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      FrameworkElement containerTemplateControl = ItemContainerStyle.Get();
+      containerTemplateControl.Context = dataItem;
+      ContentPresenter headerContentPresenter = containerTemplateControl.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
       headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
       container.TemplateControl = new ItemsPresenter();
       container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
       container.TemplateControl.VisualParent = container;
-      container.Header = element;
+      container.Header = containerTemplateControl;
       ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
       if (p != null) p.IsVisible = false;
 

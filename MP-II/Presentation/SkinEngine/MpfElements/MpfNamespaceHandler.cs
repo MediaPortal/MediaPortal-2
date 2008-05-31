@@ -28,7 +28,7 @@ using System.Reflection;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.MpfElements;
 
-namespace Presentation.SkinEngine.Loader
+namespace Presentation.SkinEngine.MpfElements
 {
   public class MpfNamespaceHandler: INamespaceHandler
   {
@@ -52,7 +52,7 @@ namespace Presentation.SkinEngine.Loader
     {
       try
       {
-        return MseElements.ObjectClassRegistrations[typeName];
+        return Registration.ObjectClassRegistrations[typeName];
       }
       catch
       {

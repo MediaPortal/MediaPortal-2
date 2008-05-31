@@ -83,7 +83,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     }
 
     /// <summary>
-    /// Gets or sets the type of the target this setter can be applied to.
+    /// Gets or sets the type of the target element this style can be applied to.
     /// </summary>
     public Type TargetType
     {
@@ -97,18 +97,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       {
         if (setter.Property == "Template")
         {
-          FrameworkElement source;
           FrameworkElement element;
           if (setter.Value is FrameworkTemplate)
-          {
-            source = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
-            element = source;
-          }
+            element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
           else
-          {
-            source = (FrameworkElement)setter.Value;
-            element = MpfCopyManager.DeepCopy(source);
-          }
+            element = MpfCopyManager.DeepCopy(setter.Value) as FrameworkElement;
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")

@@ -58,7 +58,7 @@ namespace Presentation.SkinEngine.Loader
         fullFileName = skinFile;
       }
       Parser parser = new Parser(fullFileName, parser_ImportNamespace, parser_GetEventHandler);
-      parser.SetCustomTypeConverter(MseElements.ConvertType);
+      parser.SetCustomTypeConverter(Registration.ConvertType);
       DateTime dt = DateTime.Now;
       object obj = parser.Parse();
       TimeSpan ts = DateTime.Now - dt;

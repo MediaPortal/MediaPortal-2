@@ -40,7 +40,7 @@ namespace Presentation.SkinEngine.MpfElements
   /// by a XAML file. It also holds static methods for type conversions
   /// between special types and for copying instances.
   /// </summary>
-  public class MseElements
+  public class Registration
   {
     #region Variables
 
@@ -48,7 +48,7 @@ namespace Presentation.SkinEngine.MpfElements
     /// Registration for all elements the loader can create from a XAML file.
     /// </summary>
     protected static IDictionary<string, Type> objectClassRegistrations = new Dictionary<string, Type>();
-    static MseElements()
+    static Registration()
     {                            
       // Panels
       objectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));

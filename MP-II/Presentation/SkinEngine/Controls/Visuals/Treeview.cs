@@ -209,14 +209,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
         container.ItemsSource = listItem.SubItems;
       }
 
-      container.HeaderTemplateSelector = this.ItemTemplateSelector;
+      container.HeaderTemplateSelector = ItemTemplateSelector;
       container.HeaderTemplate = ItemTemplate;
-      FrameworkElement element = ItemContainerStyle.Get();
-      element.Context = dataItem;
-      ContentPresenter headerContentPresenter = element.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      FrameworkElement containerTemplateControl = ItemContainerStyle.Get();
+      containerTemplateControl.Context = dataItem;
+      ContentPresenter headerContentPresenter = containerTemplateControl.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
       headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
-      container.Header = element;
+      container.Header = containerTemplateControl;
 
       ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
       if (p != null) p.IsVisible = false;

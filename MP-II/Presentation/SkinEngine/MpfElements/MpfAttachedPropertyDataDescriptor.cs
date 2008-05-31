@@ -27,7 +27,7 @@ using System.Reflection;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Presentation.Properties;
 
-namespace Presentation.SkinEngine.Loader
+namespace Presentation.SkinEngine.MpfElements
 {
   public class MpfAttachedPropertyDataDescriptor: DependencyPropertyDataDescriptor
   {
