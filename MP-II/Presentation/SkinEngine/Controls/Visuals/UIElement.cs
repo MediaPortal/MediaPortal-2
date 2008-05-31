@@ -93,6 +93,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     protected SizeF _availableSize;
     protected RectangleF _finalRect;
     bool _isArrangeValid;
+    bool _isTemplateRoot;
     ResourceDictionary _resources;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
@@ -132,6 +133,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _opacityProperty = new Property(typeof(double), 1.0);
 
       _opacityMaskProperty = new Property(typeof(Brushes.Brush), null);
+      _isTemplateRoot = false;
 
       _marginProperty.Attach(OnPropertyChanged);
       _visibilityProperty.Attach(OnVisibilityPropertyChanged);
@@ -160,6 +162,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
+      _isTemplateRoot = copyManager.GetCopy(el._isTemplateRoot);
       _resources.Merge(el.Resources);
 
       foreach (Trigger t in el.Triggers)
@@ -176,9 +179,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnVisibilityPropertyChanged(Property property)
     {
-      if (VisualParent != null)
+      if (VisualParent is UIElement)
       {
-        VisualParent.Invalidate();
+        ((UIElement) VisualParent).Invalidate();
       }
       _isVisible = (Visibility == VisibilityEnum.Visible);
       if (!_isVisible)
@@ -456,6 +459,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _desiredSize; }
     }
 
+    public bool IsTemplateRoot
+    {
+      get { return _isTemplateRoot; }
+      set { _isTemplateRoot = value; }
+    }
+
     #endregion
 
     public virtual void GetSizeForBrush(out double width, out double height)
@@ -528,10 +537,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
           return;
         }
       }
-      if (VisualParent != null)
+      if (VisualParent is UIElement)
       {
-        VisualParent.Invalidate();
-        VisualParent.UpdateLayout();
+        ((UIElement) VisualParent).Invalidate();
+        ((UIElement) VisualParent).UpdateLayout();
       }
       else
       {
@@ -575,9 +584,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         return Resources[resourceKey];
       }
-      if (VisualParent != null)
+      if (VisualParent is UIElement)
       {
-        return VisualParent.FindResource(resourceKey);
+        return ((UIElement) VisualParent).FindResource(resourceKey);
       }
       return null;
     }
@@ -678,11 +687,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public virtual INameScope FindNameScope()
     {
-      // FIXME: Search up the logical tree rather than the visual tree
       if (this is INameScope)
         return this as INameScope;
       else
-        return VisualParent == null ? null : VisualParent.FindNameScope();
+        return !(VisualParent is UIElement) ? null : ((UIElement) VisualParent).FindNameScope();
     }
 
     /// <summary>

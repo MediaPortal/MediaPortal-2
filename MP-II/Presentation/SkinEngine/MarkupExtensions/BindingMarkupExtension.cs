@@ -335,7 +335,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Returns the information if this binding already got call to its
-    /// <see cref="Bind(IDocumentContext)"/> method.
+    /// <see cref="Bind()"/> method.
     /// </summary>
     public bool Bound
     {
@@ -408,7 +408,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void AttachToTargetObject(object obj)
     {
-      // TODO Albert78: What, if obj is no DependencyObject? Throw an Exception?
+      // We could check here if obj is a DependencyObject and throw an Exception.
+      // But by now, we will permit an arbitrary object.
       _contextObject = obj;
       ICollection<BindingMarkupExtension> bindingsOfObject;
       if (_objects2Bindings.ContainsKey(_contextObject))
@@ -461,8 +462,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void ResetEventHandlerAttachments()
     {
-      foreach (Property dataContext in _attachedProperties)
-        dataContext.Detach(OnDataContextChange);
+      foreach (Property property in _attachedProperties)
+        property.Detach(OnDataContextChange);
       _attachedProperties.Clear();
       if (_attachedSource != null)
       {
@@ -472,8 +473,64 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
+    /// Returns the data context of the specified <paramref name="obj"/>.
+    /// </summary>
+    /// <param name="obj">The target object to search the data context.</param>
+    /// <param name="dataContext">The data context on object <paramref name="obj"/> or
+    /// <c>null</c>, if no data context is present on the object.</param>
+    /// <returns><c>true</c>, if a data context was found. In this case, the returned
+    /// <paramref name="dataContext"/> is not-null. <c>false</c> else.</returns>
+    /// <remarks>
+    /// This method attaches change handlers to all relevant properties on the searched path.
+    /// </remarks>
+    protected bool GetDataContext(object obj, out BindingMarkupExtension dataContext)
+    {
+      if (!(obj is DependencyObject))
+      {
+        dataContext = null;
+        return false;
+      }
+      DependencyObject current = (DependencyObject) obj;
+      Property dataContextProperty = current.DataContextProperty;
+      AttachToSourcePathProperty(dataContextProperty);
+      dataContext = dataContextProperty.GetValue() as BindingMarkupExtension;
+      return dataContext != null;
+    }
+
+    /// <summary>
+    /// This method does the walk in the visual or logical tree, depending on the existance
+    /// of the visual tree for the specified <paramref name="obj"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method attaches change handlers to all relevant properties on the searched path.
+    /// </remarks>
+    /// <param name="obj">The object to get the parent of.</param>
+    /// <param name="parent">The parent to walk up.</param>
+    /// <returns><c>true</c>, if a valid parent was found. In this case, the
+    /// <paramref name="parent"/> parameter references a not-null parent.
+    /// <c>false</c>, if no valid parent was found.</returns>
+    protected bool FindParent(DependencyObject obj, out DependencyObject parent)
+    {
+      Visual v = obj as Visual;
+      Property parentProperty;
+      if (v != null)
+      { // The visual tree has priority to search our parent
+        parentProperty = v.VisualParentProperty;
+        AttachToSourcePathProperty(parentProperty);
+      }
+      else
+      {
+        // If no visual parent exists, use the logical tree
+        parentProperty = obj.LogicalParentProperty;
+        AttachToSourcePathProperty(parentProperty);
+      }
+      parent = parentProperty.GetValue() as DependencyObject;
+      return parent != null;
+    }
+
+    /// <summary>
     /// Returns an <see cref="IDataDescriptor"/> for the binding in the nearest filled
-    /// data context of a parent element in the visual tree.
+    /// data context of a parent element in the visual or logical tree.
     /// </summary>
     /// <param name="result">Returns the data descriptor for the data context, if it
     /// could resolved.</param>
@@ -484,45 +541,34 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected bool FindDataContext(out IDataDescriptor result)
     {
       result = null;
-      // FIXME Albert78: Use logical tree -> DependencyObject
-      Visual current = _contextObject as Visual;
+
+      DependencyObject current = _contextObject as DependencyObject;
       if (current == null)
         return false;
       if (UsedAsDataContext)
       {
         // If we are already the data context, step one level up and start the search at our parent
-        // FIXME Albert78: Use logical tree
-        AttachToSourcePathProperty(current.VisualParentProperty);
-        current = current.VisualParent;
+        if (!FindParent(current, out current))
+          return false;
       }
       while (current != null)
       {
-        Property dataContextProperty = current.DataContextProperty;
-        AttachToSourcePathProperty(dataContextProperty); // Attach to changes on every data context property on the path
-        BindingMarkupExtension parent = (BindingMarkupExtension) dataContextProperty.GetValue();
-        if (parent != null)
-        {
-          if (parent.Evaluate(out result))
-            return true;
-          else
-          {
-            // Could not evaluate the parent, but attach to parent anyway;
-            // maybe our parent will evaluate later
-            AttachToSource(parent.EvaluatedSourceValue);
-            return false;
-          }
+        BindingMarkupExtension parentBinding;
+        if (GetDataContext(current, out parentBinding))
+        { // Data context found
+          bool res = parentBinding.Evaluate(out result);
+          AttachToSource(parentBinding.EvaluatedSourceValue);
+          return res;
         }
-        // FIXME Albert78: Use logical tree
-        AttachToSourcePathProperty(current.VisualParentProperty);
-        current = current.VisualParent;
+        if (!FindParent(current, out current))
+          return false;
       }
       return false;
     }
 
     /// <summary>
     /// Does the lookup for our binding source data. This includes evaluation of our source
-    /// properties, the lookup for the data context and the search up the visual tree
-    /// (FIXME Albert78: Use logical tree).
+    /// properties, the lookup for the data context and the search up the visual or logical tree.
     /// </summary>
     /// <param name="result">Resulting source descriptor, if it could be resolved.</param>
     /// <returns></returns>
@@ -534,13 +580,53 @@ namespace Presentation.SkinEngine.MarkupExtensions
         result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
       else if (_typeOfSource == SourceType.RelativeSource)
       {
-        // FIXME Albert78: Use logical tree
-        if (!RelativeSource.Evaluate(_contextObject as Visual, out result))
+        if (!(_contextObject is DependencyObject))
           return false;
+        DependencyObject current = (DependencyObject) _contextObject;
+        switch (RelativeSource.Mode)
+        {
+          case RelativeSourceMode.Self:
+            result = new ValueDataDescriptor(current);
+            return true;
+          case RelativeSourceMode.TemplatedParent:
+            while (current != null)
+            {
+              DependencyObject last = current;
+              FindParent(last, out current);
+              if (last is UIElement && ((UIElement) last).IsTemplateRoot)
+              {
+                result = new ValueDataDescriptor(current);
+                return true;
+              }
+            }
+            return false;
+          case RelativeSourceMode.FindAncestor:
+            if (current == null || !FindParent(current, out current)) // Start from the first ancestor
+              return false;
+            int ct = RelativeSource.AncestorLevel;
+            while (current != null)
+            {
+              if (RelativeSource.AncestorType == null || RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
+                ct -= 1;
+              if (ct == 0)
+              {
+                result = new ValueDataDescriptor(current);
+                return true;
+              }
+              if (!FindParent(current, out current))
+                return false;
+            }
+            return false;
+          //case RelativeSourceMode.PreviousData:
+          //  // TODO: implement this
+          //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
+          default:
+            // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
+            throw new NotImplementedException();
+        }
       }
       else if (_typeOfSource == SourceType.ElementName)
       {
-        // FIXME Albert78: use NameScope based on logical tree
         if (!(_contextObject is UIElement))
           return false;
         object obj = ((UIElement) _contextObject).FindElement(ElementName);
@@ -679,6 +765,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     #endregion
+
+    public virtual void Dispose()
+    {
+      ResetEventHandlerAttachments();
+    }
 
     #region IBinding implementation
 

@@ -89,9 +89,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       set
       {
-        if (DataContext == null && value == null)
-          return;
-        if (DataContext == null)
+        if (value == null)
+        {
+          if (DataContext != null)
+            DataContext.Dispose();
+          DataContext = null;
+        }
+        else if (DataContext == null)
         {
           BindingMarkupExtension dc = new BindingMarkupExtension(this);
           dc.Source = value; // Set the context value before setting the DataContext property
@@ -107,7 +111,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _visualParentProperty; }
     }
 
-    public UIElement VisualParent
+    public Visual VisualParent
     {
       get { return (UIElement)_visualParentProperty.GetValue(); }
       set { _visualParentProperty.SetValue(value); }

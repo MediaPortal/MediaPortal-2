@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine.Controls
 {
@@ -35,13 +36,15 @@ namespace Presentation.SkinEngine.Controls
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
   /// needed for
   /// <see cref="Presentation.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
+  /// TODO: Documentation of logical tree
   /// </summary>
-  public class DependencyObject: IDeepCopyable
+  public class DependencyObject: IDeepCopyable, IInitializable
   {
     #region Protected fields
 
     protected IDictionary<string, Property> _attachedProperties = null; // Lazy initialized
     protected Property _dataContextProperty;
+    protected Property _logicalParentProperty;
 
     #endregion
 
@@ -55,6 +58,7 @@ namespace Presentation.SkinEngine.Controls
     void Init()
     {
       _dataContextProperty = new Property(typeof(BindingMarkupExtension), null);
+      _logicalParentProperty = new Property(typeof(DependencyObject), null);
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -64,6 +68,7 @@ namespace Presentation.SkinEngine.Controls
         foreach (KeyValuePair<string, Property> kvp in d._attachedProperties)
           SetAttachedPropertyValue(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()));
       DataContext = copyManager.GetCopy(d.DataContext);
+      LogicalParent = copyManager.GetCopy(d.LogicalParent);
     }
 
     #endregion
@@ -82,6 +87,17 @@ namespace Presentation.SkinEngine.Controls
     {
       get { return (BindingMarkupExtension) _dataContextProperty.GetValue(); }
       set { _dataContextProperty.SetValue(value); }
+    }
+
+    public Property LogicalParentProperty
+    {
+      get { return _logicalParentProperty; }
+    }
+
+    public DependencyObject LogicalParent
+    {
+      get { return (DependencyObject) _logicalParentProperty.GetValue(); }
+      set { _logicalParentProperty.SetValue(value); }
     }
 
     #endregion
@@ -126,6 +142,17 @@ namespace Presentation.SkinEngine.Controls
         _attachedProperties[name] = result;
       }
       return result;
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
+    public virtual void Initialize(IParserContext context)
+    {
+      IEnumerator<ElementContextInfo> eeci = (context.ContextStack as IEnumerable<ElementContextInfo>).GetEnumerator();
+      if (eeci.MoveNext() && eeci.MoveNext())
+        LogicalParent = eeci.Current.Instance as DependencyObject;
     }
 
     #endregion

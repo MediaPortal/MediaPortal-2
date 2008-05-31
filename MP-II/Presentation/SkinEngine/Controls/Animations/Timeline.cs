@@ -33,7 +33,7 @@ namespace Presentation.SkinEngine.Controls.Animations
   public enum RepeatBehavior { None, Forever };
   public enum FillBehaviour { HoldEnd, Stop };
 
-  public class Timeline: DependencyObject, IInitializable
+  public class Timeline: DependencyObject
   {
     Property _beginTimeProperty;
     Property _accellerationProperty;
@@ -339,8 +339,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region IInitializable implementation
 
-    public void Initialize(IParserContext context)
+    public override void Initialize(IParserContext context)
     {
+      base.Initialize(context);
       if (String.IsNullOrEmpty(Storyboard.GetTargetName(this)) || String.IsNullOrEmpty(Storyboard.GetTargetProperty(this)))
       {
         _propertyExpression = null;

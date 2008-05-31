@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.XamlParser;
@@ -29,8 +30,16 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class CommandGroup : List<InvokeCommand>, IAddChild, IDeepCopyable
+  using System.Collections;
+
+  public class CommandGroup : DependencyObject, IAddChild, IEnumerable<InvokeCommand>, IDeepCopyable
   {
+    #region Protected fields
+
+    protected IList<InvokeCommand> _elements;
+
+    #endregion
+
     #region Ctor
 
     public CommandGroup()
@@ -38,16 +47,32 @@ namespace Presentation.SkinEngine.Controls.Bindings
       Init();
     }
 
-    void Init() { }
-
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public CommandGroup(UIElement owner)
     {
+      Owner = owner;
+      Init();
+    }
+
+    void Init()
+    {
+      _elements = new List<InvokeCommand>();
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
       CommandGroup cg = source as CommandGroup;
-      foreach (InvokeCommand ic in this)
-        Add(copyManager.GetCopy(ic));
+      foreach (InvokeCommand ic in cg._elements)
+        _elements.Add(copyManager.GetCopy(ic));
     }
 
     #endregion
+
+    public UIElement Owner
+    {
+      get { return LogicalParent as UIElement; }
+      set { LogicalParent = value; }
+    }
 
     public void Execute(UIElement element)
     {
@@ -59,7 +84,30 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
     public void AddChild(object o)
     {
-      Add((InvokeCommand) o);
+      InvokeCommand c = o as InvokeCommand;
+      if (c == null)
+        throw new ArgumentException(string.Format("Can only add elements of type {0} to {1}",
+          typeof(InvokeCommand).Name, typeof(CommandGroup).Name));
+      c.Setup(Owner);
+      _elements.Add(c);
+    }
+
+    #endregion
+
+    #region IEnumerable<InvokeCommand> implementation
+
+    IEnumerator<InvokeCommand> IEnumerable<InvokeCommand>.GetEnumerator()
+    {
+      return _elements.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IEnumerable implementation
+
+    public IEnumerator GetEnumerator()
+    {
+      return ((IEnumerable<InvokeCommand>) this).GetEnumerator();
     }
 
     #endregion

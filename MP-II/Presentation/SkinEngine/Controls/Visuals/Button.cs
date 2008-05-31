@@ -159,7 +159,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
           else
             Command.Method.Invoke(Command.Object, null);
         }
-        // FIXME: Replace this by a TemplateBinding associating the Button's Command and parameter with the
+        // FIXME: Replace this with a TemplateBinding associating the Button's Command and parameter with the
         // ListItem's Command and parameter
         if (Context is ListItem)
         {

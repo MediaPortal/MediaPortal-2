@@ -173,7 +173,7 @@ namespace Presentation.SkinEngine.XamlParser
       if (typeof(string) == val.GetType() && targetType == typeof(Type))
       { // string -> Type
         result = Type.GetType(val.ToString());
-        return true;
+        return result != null;
       }
 
       // Enumerations

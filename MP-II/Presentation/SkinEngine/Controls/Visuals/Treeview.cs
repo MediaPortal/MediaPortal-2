@@ -53,7 +53,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void Init()
     {
       _commandParameter = new Property(typeof(object), null);
-      _commands = new Property(typeof(CommandGroup), new CommandGroup());
+      _commands = new Property(typeof(CommandGroup), new CommandGroup(this));
       _command = null;
       _contextMenuCommandParameterProperty = new Property(typeof(object), null);
       _contextMenuCommand = null;
@@ -70,7 +70,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       ContextMenuCommand = copyManager.GetCopy(tv.ContextMenuCommand);
       ContextMenuCommandParameter = copyManager.GetCopy(tv.ContextMenuCommandParameter);
-      Commands = copyManager.GetCopy(tv.Commands);
+      foreach (InvokeCommand command in tv.Commands)
+        Commands.AddChild(copyManager.GetCopy(command));
     }
 
     #endregion
@@ -95,7 +96,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public CommandGroup Commands
     {
       get { return _commands.GetValue() as CommandGroup; }
-      set { _commands.SetValue(value); }
+      set
+      {
+        _commands.SetValue(value);
+        ((CommandGroup) _commands.GetValue()).Owner = this;
+      }
     }
 
     public Command Command
@@ -177,7 +182,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       else
       {
         while (element.Context == null && element.VisualParent != null)
-          element = element.VisualParent;
+          element = element.VisualParent as UIElement;
         CurrentItem = element.Context;
       }
       if (SelectionChanged != null)

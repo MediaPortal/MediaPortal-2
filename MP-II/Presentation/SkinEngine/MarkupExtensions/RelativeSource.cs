@@ -22,62 +22,93 @@
 
 #endregion
 
-using System;
-using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.XamlParser;
+using System;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
+  public enum RelativeSourceMode
+  {
+    //PreviousData, // Not implemented yet
+    TemplatedParent,
+    Self,
+    FindAncestor
+  }
 
   /// <summary>
-  /// Implements the RelativeSource markup extension. This class will create a
-  /// <see cref="BindingDependency"/> to handle updates between the two
-  /// referenced properties/values, if all required parameters are specified.
+  /// Implements the RelativeSource evaluable markup extension.
+  /// This class mainly acts as a data object.
   /// </summary>
-  public class RelativeSource
+  public class RelativeSource : IEvaluableMarkupExtension
   {
-    public static RelativeSource Self = new RelativeSource("Self");
-    public static RelativeSource TemplatedParent = new RelativeSource("TemplatedParent");
-    // TODO: Not implemented yet
-//    public static RelativeSource PreviousData = new RelativeSource("PreviousData");
+    //public static RelativeSource PreviousData = new RelativeSource(RelativeSourceMode.PreviousData);
+    public static RelativeSource TemplatedParent = new RelativeSource(RelativeSourceMode.TemplatedParent);
+    public static RelativeSource Self = new RelativeSource(RelativeSourceMode.Self);
 
-    protected string _name;
+    #region Protected fields
 
-    public RelativeSource(string name)
+    protected RelativeSourceMode _mode = RelativeSourceMode.Self;
+    protected int _ancestorLevel = 1;
+    protected Type _ancestorType = null;
+
+    #endregion
+
+    #region Ctor
+
+    public RelativeSource()
+    { }
+
+    public RelativeSource(RelativeSourceMode mode)
     {
-      _name = name;
+      _mode = mode;
     }
 
-    public bool Evaluate(Visual obj, out IDataDescriptor result)
+    #endregion
+
+    #region Public properties
+
+    public RelativeSourceMode Mode
     {
-      result = null;
-      if (obj == null)
-        return false;
-      if (this == Self)
-      {
-        result = new ValueDataDescriptor(obj);
-        return true;
-      }
-      else if (this == TemplatedParent)
-      {
-        // FIXME Albert78: Use logical tree
-        obj = obj.VisualParent;
-        // FIXME: This doesn't work. We will have to find the templated parent here,
-        // not the first control which is a Control!
-        while (obj != null && obj.VisualParent != null && !(obj is Control))
-          obj = obj.VisualParent;
-        if (obj == null)
-          return false;
-        result = new ValueDataDescriptor(obj);
-        return true;
-      }
-      else
-        throw new NotImplementedException();
+      get { return _mode; }
+      set { _mode = value; }
     }
+
+    public int AncestorLevel
+    {
+      get { return _ancestorLevel; }
+      set
+      {
+        _ancestorLevel = value;
+        _mode = RelativeSourceMode.FindAncestor;
+      }
+    }
+
+    public Type AncestorType
+    {
+      get { return _ancestorType; }
+      set
+      {
+        _ancestorType = value;
+        _mode = RelativeSourceMode.FindAncestor;
+      }
+    }
+
+    #endregion
 
     public override string ToString()
     {
-      return _name;
+      return _mode.ToString();
     }
+
+    #region IEvaluableMarkupExtension implementation
+
+    public object Evaluate(IParserContext context)
+    {
+      // Evaluation of the desired relative source will be perforned in BindingMarkupExtension
+      // with use of this object
+      return this;
+    }
+
+    #endregion
   }
 }
