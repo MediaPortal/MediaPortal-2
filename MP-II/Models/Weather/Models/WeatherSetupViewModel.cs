@@ -55,6 +55,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Collections;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Properties;
 
 using Models.Weather.Grabbers;
 
@@ -71,6 +72,7 @@ namespace Models.Weather
     // Listcollection to expose _locationsExposed
 
     private ItemsCollection _mainMenu;
+    private Property _searchCity;
 
     #region IPlugin Members
     public void Initialize(string id)
@@ -85,6 +87,7 @@ namespace Models.Weather
     /// </summary>
     public WeatherSetupViewModel()
     {
+      _searchCity = new Property(typeof(string), "");
       // see if we already have a weather catcher in servicescope, if not, add one (for testing purposes)
       if (!ServiceScope.IsRegistered<IWeatherCatcher>())
       {
@@ -108,6 +111,19 @@ namespace Models.Weather
 
         return _mainMenu;
       }
+    }
+    /// <summary>
+    /// exposes the current location to the skin
+    /// </summary>
+    public string SearchCity
+    {
+      get { return _searchCity.GetValue() as string; }
+      set { _searchCity.SetValue(value); }
+    }
+
+    public Property SearchCityProperty
+    {
+      get { return _searchCity; }
     }
 
     /// <summary>
