@@ -24,6 +24,7 @@
 
 using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -125,9 +126,11 @@ namespace Presentation.SkinEngine.Controls.Panels
       ColumnDefinitions.SetAvailableSize(w);
       RowDefinitions.SetAvailableSize(h);
 
+      // Set the Width/Hight of the Columns/Rows according to the sizes of the children.
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible) continue;
+        if (!child.IsVisible) 
+          continue;
         int col = GetColumn(child);
         int row = GetRow(child);
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
@@ -141,13 +144,23 @@ namespace Presentation.SkinEngine.Controls.Panels
         RowDefinitions.SetHeight(row, GetRowSpan(child), child.DesiredSize.Height);
       }
 
+      // Now measure again with the correct values (so the children get updated)
+      foreach (FrameworkElement child in Children)
+      {
+        if (!child.IsVisible)
+          continue;
+        int col = GetColumn(child);
+        int row = GetRow(child);
+        if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
+        if (col < 0) col = 0;
+        if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
+        if (row < 0) row = 0;
+
+        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, GetColumnSpan(child)), RowDefinitions.GetHeight(row, GetRowSpan(child))));
+      }
 
       _desiredSize.Width = (float)ColumnDefinitions.TotalWidth;
       _desiredSize.Height = (float)RowDefinitions.TotalHeight;
-
-      if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
-
 
       if (LayoutTransform != null)
       {
@@ -157,8 +170,6 @@ namespace Presentation.SkinEngine.Controls.Panels
 
       _desiredSize.Width += marginWidth;
       _desiredSize.Height += marginHeight;
-
-      float d = (float)Math.Abs(_desiredSize.Width - 480.0 * SkinContext.Zoom.Width);
 
       base.Measure(availableSize);
       //Trace.WriteLine(String.Format("Grid.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
