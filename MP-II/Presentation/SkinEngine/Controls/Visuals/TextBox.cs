@@ -242,7 +242,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         float h = _asset.Font.LineHeight;
         size = new SizeF((float)availableSize.Width, (float)(h));
         if (availableSize.Width == 0)
-          size.Width = _asset.Font.AverageWidth * Text.Length;
+          size.Width = _asset.Font.Width(Text.ToString());
 
       }
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
@@ -532,14 +532,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
       else if (key == MediaPortal.Control.InputManager.Key.Left)
       {
         if (CaretIndex > 0)
+        {
           CaretIndex = CaretIndex - 1;
-        predict = false;
+          predict = false;
+        }
       }
       else if (key == MediaPortal.Control.InputManager.Key.Right)
       {
         if (CaretIndex < Text.Length)
+        {
           CaretIndex = CaretIndex + 1;
-        predict = false;
+          predict = false;
+        }
+        
       }
       else if (key == MediaPortal.Control.InputManager.Key.Home)
       {
@@ -548,12 +553,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       else if (key == MediaPortal.Control.InputManager.Key.End)
       {
         CaretIndex = Text.Length;
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Enter)
-      {
-        //Nothing
-      }
-      else
+      } 
+      else if (key != MediaPortal.Control.InputManager.Key.Up && 
+               key != MediaPortal.Control.InputManager.Key.Down &&
+               key != MediaPortal.Control.InputManager.Key.Enter)
       {
         Text = Text.Insert(CaretIndex, key.Name);
         CaretIndex = CaretIndex + 1;

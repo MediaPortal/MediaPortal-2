@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using System.IO;
 using SlimDX;
 using SlimDX.Direct3D;
@@ -104,10 +105,23 @@ namespace Presentation.SkinEngine.Fonts
     {
       get { return _charSet.LineHeight; }
     }
-    public float AverageWidth
+
+
+    public float Width(string text)
     {
-      get { return _charSet.AverageWidth; }
+      float width = 0;
+      
+      for (int i = 0; i < text.Length; i++)
+      {
+        char chk = text[i];
+        if (chk >= _charSet.Characters.Length)
+          throw new ArgumentException("Width index out of range.");
+
+        width += _charSet.Characters[chk].XAdvance;
+      }
+      return width;
     }
+
     public float Height
     {
       get { return _charSet.Height; }
@@ -474,7 +488,8 @@ namespace Presentation.SkinEngine.Fonts
       for (int i = 0; i < text.Length; i++)
       {
         char chk = text[i];
-        if (chk >= _charSet.Characters.Length) continue;
+        if (chk >= _charSet.Characters.Length)
+          throw new ArgumentException("GetProcessedQuads index out of range.");
         BitmapCharacter c = _charSet.Characters[text[i]];
         float xOffset = c.XOffset * sizeScale;
         float yOffset = c.YOffset * sizeScale;
@@ -489,7 +504,7 @@ namespace Presentation.SkinEngine.Fonts
         }
 
         // Newline
-        if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance >= maxWidth))
+        if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance > maxWidth))
         {
           if (y + yOffset + height + _charSet.LineHeight * sizeScale > b.TextBox.Bottom)
           {
@@ -985,26 +1000,6 @@ namespace Presentation.SkinEngine.Fonts
         {
           Characters[i] = new BitmapCharacter();
         }
-      }
-    }
-    public float AverageWidth
-    {
-      get
-      {
-        if (_averageWidth > 0) return _averageWidth;
-
-        float w = 0;
-        float count = 0;
-        for (int i = 0; i < MaxCharacters; i++)
-        {
-          if (Characters[i].Width > 0)
-          {
-            w += Characters[i].Width;
-            count++;
-          }
-        }
-        _averageWidth = (w / count) * 1.5f;
-        return _averageWidth;
       }
     }
   } ;

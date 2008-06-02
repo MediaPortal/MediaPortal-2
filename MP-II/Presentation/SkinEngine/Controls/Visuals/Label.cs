@@ -184,9 +184,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
-
-      //Trace.WriteLine(String.Format("Label.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-   
+ 
       InitializeTriggers();
       AllocFont();
 
@@ -194,7 +192,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         size = new SizeF((float)availableSize.Width, (float)_asset.Font.LineHeight);
         if (availableSize.Width == 0)
-          size.Width = _asset.Font.AverageWidth * _label.ToString().Length;
+          size.Width = _asset.Font.Width(_label.ToString());
       }
       float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
@@ -220,12 +218,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _desiredSize.Height += marginHeight;
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      //Trace.WriteLine(String.Format("label.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       AllocFont();
       _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      //Trace.WriteLine(String.Format("label.Arrange :{0} {1}x{2}", this.Name, (int)finalRect.Width, (int)finalRect.Height));
+
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
       layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
@@ -310,7 +311,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void DestroyRenderTree()
     {
-      Trace.WriteLine("lbl DestroyRenderTree:" + Text);
       if (_renderer != null)
         _renderer.Free();
       _renderer = null;
