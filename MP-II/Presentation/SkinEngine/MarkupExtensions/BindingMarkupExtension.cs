@@ -114,6 +114,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     // State variables
     protected object _contextObject = null; // Bound to which object?
     protected bool _bound = false; // Did we already bind?
+    protected bool _retryBinding = false; // UpdateBinding() has to be called again
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
     protected IList<Property> _attachedProperties = new List<Property>(); // To which data context properties are we attached?
@@ -384,7 +385,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
     protected void OnSourceValueChange(IDataDescriptor sourceValue)
     {
-      if (_bound)
+      if (_bound && _retryBinding)
         UpdateBinding();
     }
 
@@ -700,7 +701,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected virtual bool UpdateBinding()
     {
-      _bound = false;
       // Avoid recursive calls: For instance, this can occur when
       // the later call to Evaluate will change our evaluated source value, which
       // will cause a recursive call to UpdateBinding.
@@ -709,14 +709,19 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _isUpdatingBinding = true;
       try
       {
+        _bound = false;
         if (UsedAsDataContext) // This is the case only for the DataContext property
         { // We are a DataContext rather than a real binding
           _targetDataDescriptor.Value = this;
+          _retryBinding = false;
           return true;
         }
         IDataDescriptor sourceDd;
         if (!Evaluate(out sourceDd))
+        {
+          _retryBinding = true;
           return false;
+        }
 
         bool attachToSource = false;
         bool attachToTarget = false;
@@ -741,6 +746,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         {
           ResetEventHandlerAttachments();
           _targetDataDescriptor.Value = sourceDd.Value;
+          _retryBinding = false;
           return true; // In this case, we have finished with only assigning the value
         }
         if (bindingDependency != null)
@@ -755,6 +761,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
           //change handler and call bd.UpdateSource() in the handler notification method
           throw new NotImplementedException();
         }
+        _retryBinding = false;
         return true;
       }
       finally
