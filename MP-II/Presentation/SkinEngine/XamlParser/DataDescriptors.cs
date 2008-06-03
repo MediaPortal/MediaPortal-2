@@ -568,7 +568,7 @@ namespace Presentation.SkinEngine.XamlParser
         _value = value;
         if (_value != null && _value.SupportsChangeNotification)
           _value.Attach(OnSourceValueChange);
-        if (valueChanged)
+        if (valueChanged && _valueChanged != null)
           _valueChanged(this);
       }
     }
