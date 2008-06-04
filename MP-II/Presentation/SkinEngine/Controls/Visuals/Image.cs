@@ -113,7 +113,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <summary>
     /// Called when the imagesource has been changed
     /// Simply invalidates the image, the renderer will automaticly create a new one
-    /// with the new imagesource
+    /// with the new image source
     /// </summary>
     /// <param name="property">The property.</param>
     void OnImageChanged(Property property)
@@ -124,8 +124,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
         ContentManager.Remove(_image);
         _image = null;
 
-        _renderImage.Free();
-        _renderImage = null;
+        if (_renderImage != null)
+        {
+          _renderImage.Free();
+          _renderImage = null;
+        }
       }
       _performImageLayout = true;
       if (Window != null) Window.Invalidate(this);
