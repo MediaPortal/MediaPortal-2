@@ -229,7 +229,7 @@ namespace Presentation.SkinEngine.MpfElements
         string text = value.ToString();
         if (text == "Auto")
         {
-          result = new GridLength(GridUnitType.Star, 1.0);
+          result = new GridLength(GridUnitType.Auto, 0.0);
         }
         else if (text.IndexOf('*') < 0)
         {
@@ -240,9 +240,16 @@ namespace Presentation.SkinEngine.MpfElements
         {
           int pos = text.IndexOf('*');
           text = text.Substring(0, pos);
-          object obj;
-          TypeConverter.Convert(text, typeof(double), out obj);
-          result = new GridLength(GridUnitType.Star, (double) obj);
+          if (text.Length > 0)
+          {
+            object obj;
+            TypeConverter.Convert(text, typeof(double), out obj);
+            result = new GridLength(GridUnitType.Star, (double)obj);
+          }
+          else
+          {
+            result = new GridLength(GridUnitType.Star, 1.0);
+          }
         }
         return true;
       }
