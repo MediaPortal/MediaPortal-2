@@ -31,7 +31,7 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-
+using Presentation.SkinEngine.Models;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -86,7 +86,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       if (obj == null)
       {
-        Model m = ModelManager.Instance.GetModelByName(parts[0]);
+        Model m = ModelManager.Instance.GetModelByInternalName(parts[0]);
         if (m == null)
           return null;
         obj = m.Instance;
