@@ -24,6 +24,7 @@
 
 using System;
 using System.Drawing;
+using System.Diagnostics;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
@@ -77,9 +78,9 @@ namespace Presentation.SkinEngine.Controls.Panels
       float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
       float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
+      if (Width == 0)
         _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
+      if (Height == 0)
         _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
@@ -92,14 +93,24 @@ namespace Presentation.SkinEngine.Controls.Panels
       SizeF sizeTop = new SizeF();
       SizeF sizeLeft = new SizeF();
       SizeF sizeCenter = new SizeF();
+      int count = 0;
       foreach (UIElement child in Children)
       {
-        if (!child.IsVisible) continue;
-        if (size.Width < 0) size.Width = 0;
-        if (size.Height < 0) size.Height = 0;
-        child.Measure(size);
+        count++;
+        if (!child.IsVisible)
+          continue;
+        if (size.Width < 0)
+          size.Width = 0;
+        if (size.Height < 0)
+          size.Height = 0;
+        
         if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
         {
+          if (count == Children.Count && LastChildFill)
+            child.Measure(size);
+          else
+            child.Measure(new SizeF(size.Width, 0));
+
           size.Height -= child.DesiredSize.Height;
           sizeTop.Height += child.DesiredSize.Height;
           if (child.DesiredSize.Width > sizeTop.Width)
@@ -107,6 +118,11 @@ namespace Presentation.SkinEngine.Controls.Panels
         }
         else if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
         {
+          if (count == Children.Count && LastChildFill)
+            child.Measure(size);
+          else
+            child.Measure(new SizeF(0, size.Height));
+
           size.Width -= child.DesiredSize.Width;
           sizeLeft.Width += child.DesiredSize.Width;
           if (child.DesiredSize.Height > sizeLeft.Height)
@@ -115,8 +131,10 @@ namespace Presentation.SkinEngine.Controls.Panels
         else if (GetDock(child) == Dock.Center)
         {
           child.Measure(size);
+
           size.Width -= child.DesiredSize.Width;
           size.Height -= child.DesiredSize.Height;
+          
           if (child.DesiredSize.Width > sizeCenter.Width)
             sizeCenter.Width = child.DesiredSize.Width;
           if (child.DesiredSize.Height > sizeCenter.Height)
@@ -152,7 +170,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += Margin.X * SkinContext.Zoom.Width;
@@ -178,7 +196,10 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         count++;
-        if (!child.IsVisible) continue;
+        Trace.WriteLine(String.Format("DockPanel:arrange {0} {1}", count, child.Name));
+
+        if (!child.IsVisible)
+          continue;
         if (GetDock(child) == Dock.Top)
         {
 
