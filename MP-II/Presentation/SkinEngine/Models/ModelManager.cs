@@ -24,13 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.Models
 {
   /// <summary>
   /// Singleton class to manage loading and caching model instances.
@@ -47,17 +45,15 @@ namespace Presentation.SkinEngine
     /// <summary>
     /// Model cache.
     /// </summary>
-    private readonly List<Model> _models;
+    private readonly IDictionary<string, Model> _models = new Dictionary<string, Model>();
 
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ModelManager"/> class.
+    /// Private constructor - this singleton class will only be instantiated by the
+    /// property getter of <see cref="Instance"/>.
     /// </summary>
-    private ModelManager()
-    {
-      _models = new List<Model>();
-    }
+    private ModelManager() { }
 
     /// <summary>
     /// Returns the Singleton ModelManager instance.
@@ -68,33 +64,23 @@ namespace Presentation.SkinEngine
       get
       {
         if (_instance == null)
-        {
           _instance = new ModelManager();
-        }
         return _instance;
       }
     }
 
     /// <summary>
-    /// Determines whether the modelmanager did already load the specified model.
+    /// Determines whether the ModelManager did already load the specified model.
     /// </summary>
-    /// <param name="assembly">Assembly name of the model to check.</param>
+    /// <param name="assemblyName">Assembly name of the model to check.</param>
     /// <param name="className">Class name of the model to check.</param>
     /// <returns>
-    /// 	<c>true</c> if the specified model was already load into the model cache,
-    ///   else <c>false</c>.
+    /// <c>true</c> if the specified model was already load into the model cache,
+    /// else <c>false</c>.
     /// </returns>
-    public bool Contains(string assembly, string className)
+    public bool Contains(string assemblyName, string className)
     {
-      for (int i = 0; i < _models.Count; ++i)
-      {
-        Model m = _models[i];
-        if (m.Assembly == assembly && m.ClassName == className)
-        {
-          return true;
-        }
-      }
-      return false;
+      return _models.ContainsKey(GetInternalModelName(assemblyName, className));
     }
 
     /// <summary>
@@ -112,7 +98,7 @@ namespace Presentation.SkinEngine
       {
         result = Load(assemblyName, className);
         if (result != null)
-          _models.Add(result);
+          _models.Add(GetInternalModelName(assemblyName, className), result);
       }
       return result;
     }
@@ -120,21 +106,13 @@ namespace Presentation.SkinEngine
     /// <summary>
     /// Returns the specified model from the model cache.
     /// </summary>
-    /// <param name="assembly">Assembly name of the model to retrieve.</param>
+    /// <param name="assemblyName">Assembly name of the model to retrieve.</param>
     /// <param name="className">Class name of the model to retrieve.</param>
     /// <returns><see cref="Model"/> instance or <c>null</c>, if the model
     /// was not loaded yet.</returns>
-    public Model GetModel(string assembly, string className)
+    public Model GetModel(string assemblyName, string className)
     {
-      for (int i = 0; i < _models.Count; ++i)
-      {
-        Model m = _models[i];
-        if (m.Assembly == assembly && m.ClassName == className)
-        {
-          return m;
-        }
-      }
-      return null;
+      return GetModelByInternalName(GetInternalModelName(assemblyName, className));
     }
 
     /// <summary>
@@ -145,17 +123,12 @@ namespace Presentation.SkinEngine
     /// This method is a convenience method for method
     /// <see cref="GetModel(string,string)"/>.
     /// </summary>
-    /// <param name="name">Name of the model to retrieve. The model name is of
+    /// <param name="internalName">Name of the model to retrieve. The model name is of
     /// the form <c>[model.Assembly]:[model.ClassName]</c>.</param>
     /// <returns></returns>
-    public Model GetModelByName(string name)
+    public Model GetModelByInternalName(string internalName)
     {
-      int index = name.IndexOf(':');
-      if (index == -1)
-        return null;
-      string assembly = name.Substring(0, index);
-      string className = name.Substring(index + 1);
-      return GetModel(assembly, className);
+      return _models[internalName];
     }
 
     /// <summary>
@@ -187,6 +160,11 @@ namespace Presentation.SkinEngine
         ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model assemblyName: {0} class: {1}", ex, assemblyName, className);
       }
       return null;
+    }
+
+    protected static string GetInternalModelName(string assemblyName, string className)
+    {
+      return assemblyName + ":" + className;
     }
   }
 }

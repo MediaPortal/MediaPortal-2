@@ -23,15 +23,16 @@
 #endregion
 
 using System;
-using System.Reflection;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.Models
 {
+  /// <summary>
+  /// Encapsulates a model instance for the SkinEngine. This is a data object which
+  /// only holds the model access values.
+  /// </summary>
   public class Model
   {
-    #region variables
+    #region Private fields
 
     private readonly string _assembly;
     private readonly string _className;
@@ -90,37 +91,6 @@ namespace Presentation.SkinEngine
     public object Instance
     {
       get { return _instance; }
-    }
-
-    /// <summary>
-    /// Invokes a property on the model
-    /// </summary>
-    /// <param name="propertyName">Name of the property.</param>
-    /// <returns></returns>
-    public object InvokePropertyGet(string propertyName)
-    {
-      try
-      {
-        string[] parts = propertyName.Split(new char[] {'.'});
-        int partNr = 0;
-        object obj = _instance;
-        while (partNr < parts.Length)
-        {
-          obj =
-            _type.InvokeMember(parts[partNr],
-                               BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static |
-                               BindingFlags.GetProperty, Type.DefaultBinder, obj, null);
-          partNr++;
-        }
-        return obj;
-      }
-      catch (Exception ex)
-      {
-        ILogger logger = ServiceScope.Get<ILogger>();
-        logger.Error("ModelManager: Exception while calling {0}.{1}.{2}", Assembly, ClassName, propertyName);
-        logger.Error(ex);
-      }
-      return null;
     }
   }
 }

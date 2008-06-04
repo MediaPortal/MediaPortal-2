@@ -22,12 +22,12 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
+using Presentation.SkinEngine.Models;
 
 namespace Presentation.SkinEngine.Commands
 {
@@ -87,7 +87,7 @@ namespace Presentation.SkinEngine.Commands
       {
         return model.Instance;
       }*/
-      Model model = ModelManager.Instance.GetModelByName(name);
+      Model model = ModelManager.Instance.GetModelByInternalName(name);
       if (model != null)
       {
         return model.Instance;

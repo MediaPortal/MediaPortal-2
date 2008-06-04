@@ -23,6 +23,7 @@
 #endregion
 
 using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.Models;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -60,7 +61,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       if (AssemblyName == null || ClassName == null)
         throw new XamlBindingException("GetModelMarkupExtension: Both properties AssemblyName and ClassName have to be set");
-      Model model = SkinEngine.ModelManager.Instance.GetOrLoadModel(AssemblyName, ClassName);
+      Model model = ModelManager.Instance.GetOrLoadModel(AssemblyName, ClassName);
       if (model == null)
         throw new XamlBindingException("XamlLoader: Unknown model: {0}.{1}", AssemblyName, ClassName);
       return model;

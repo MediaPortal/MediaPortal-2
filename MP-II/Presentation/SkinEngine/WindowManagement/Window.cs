@@ -271,7 +271,6 @@ namespace Presentation.SkinEngine
     {
       Trace.WriteLine("Window Show: " + Name);
       FocusManager.FocusedElement = null;
-      VisualTreeHelper.Instance.SetRootElement(_visual);
       SkinContext.IsValid = false;
       lock (_visual)
       {

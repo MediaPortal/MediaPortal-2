@@ -632,26 +632,18 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Starts the storyboard.
-    /// </summary>
-    /// <param name="board">The board.</param>
     public void StartStoryboard(Storyboard board)
     {
       Window.Animator.StartStoryboard(board, this);
     }
 
-    /// <summary>
-    /// Stops the storyboard.
-    /// </summary>
-    /// <param name="board">The board.</param>
     public void StopStoryboard(Storyboard board)
     {
       Window.Animator.StopStoryboard(board, this);
     }
 
     /// <summary>
-    /// Called when the mouse moves
+    /// Will be called when the mouse moves.
     /// </summary>
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
@@ -659,7 +651,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     { }
 
     /// <summary>
-    /// Handles keypresses
+    /// Will be called when a key is pressed. Derived classes may override this method
+    /// to implement special key handling code.
     /// </summary>
     /// <param name="key">The key.</param>
     public virtual void OnKeyPressed(ref Key key)
