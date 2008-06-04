@@ -128,7 +128,10 @@ namespace Presentation.SkinEngine.Models
     /// <returns></returns>
     public Model GetModelByInternalName(string internalName)
     {
-      return _models[internalName];
+      if (_models.ContainsKey(internalName))
+        return _models[internalName];
+      else
+        return null;
     }
 
     /// <summary>
