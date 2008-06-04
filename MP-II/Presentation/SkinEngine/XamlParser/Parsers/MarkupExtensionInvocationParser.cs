@@ -123,7 +123,7 @@ namespace Presentation.SkinEngine.XamlParser
     /// of the form
     /// <code>
     /// 1)
-    /// [Identifier]=[Value]
+    /// [Name]=[Value]
     /// </code>
     /// or
     /// <code>
@@ -146,56 +146,93 @@ namespace Presentation.SkinEngine.XamlParser
       if (index >= expr.Length)
         throw new XamlParserException("Markup extension expression '{0}': '=' expected at position {1}", expr, index);
 
-      name = null;
-      if (expr[index] == '{') // Escaped value or markup extension invocation value
+      string nameOrValue;
+      index = ParseNameOrValue(expr, index, out nameOrValue);
+      index = ParserHelper.SkipSpaces(expr, index);
+      if (index < expr.Length && expr[index] == '=')
       {
-        return ParseValue(expr, index, out value);
-      }
-      int start = index;
-      // Remains to check: name=value or simple values
-      index = expr.IndexOfAny(new char[] {' ', ',', '}', '='}, index);
-      if (index == -1 || expr[index] != '=') // Check if name=value
-      { // No name=value, ergo value
-        value = expr.Substring(start); // We have here a simple value, we don't need to parse via ParseValue()
-        index = expr.Length;
+        name = nameOrValue;
+        index += 1;
+        index = ParseNameOrValue(expr, index, out value);
+        index = ParserHelper.SkipSpaces(expr, index);
       }
       else
-      { // expr[index] == '=', ergo name=value
-        name = expr.Substring(start, index-start);
-        // No spaces here!
-        index++;
-        // No spaces here!
-        // Value
-        index = ParseValue(expr, index, out value);
+      {
+        name = null;
+        value = nameOrValue;
       }
       return index;
     }
 
     /// <summary>
-    /// Parses a value expression in a markup extension parameter declaration.
+    /// Parses a parameter name or value in a markup extension parameter declaration
+    /// in both syntaxes
+    /// <code>
+    /// 1)
+    /// [Name]=[Value]
+    /// </code>
+    /// or
+    /// <code>
+    /// 2)
+    /// [Value]
+    /// </code>
+    /// The returned value will indicate the index in this string following
+    /// the parameter declaration.
     /// </summary>
-    private static int ParseValue(string expr, int index, out string value)
+    /// <remarks>
+    /// The parser handles the {} escape syntax at the beginning of the name
+    /// expression to escape all curly braces, as well as the \ escape syntax
+    /// to escape the next character.
+    /// The method maintains a level counter which matches opening to
+    /// closing curly braces ({ and }), and returns only if the parsing
+    /// position reached the expression end or is not inside a { and } pair.
+    /// The parser returns if one of the characters ',', '=' or ' ' is found.
+    /// </remarks>
+    private static int ParseNameOrValue(string expr, int index, out string nameOrValue)
     {
-      bool escaped = false;
-      if (expr.StartsWith("{}")) // Escape sequence, start reading after {}
-      {
+      bool curlyBracesEscaped = false;
+      if (expr.StartsWith("{}"))
+      { // Escaping sequence for curly braces, start reading after {}
         index += 2;
-        escaped = true;
+        curlyBracesEscaped = true;
       }
       int start = index;
       int level = 0;
-      while (index < expr.Length &&
-          (level > 0 || expr[index] != '}' && expr[index] != ' ' && expr[index] != ','))
+      while (index < expr.Length)
       {
-        if (!escaped && expr[index] == '{')
-          level++;
-        else if (!escaped && expr[index] == '}')
-          level--;
+        switch (expr[index])
+        {
+          case '{':
+            if (!curlyBracesEscaped)
+              level++;
+            break;
+          case '}':
+            if (!curlyBracesEscaped)
+              level--;
+            if (level == 0)
+            {
+              index++; // Closing curly brace will be returned too
+              goto Finished;
+            }
+            break;
+          case ',':
+          case '=':
+          case ' ':
+            if (level == 0)
+              goto Finished;
+            break;
+          case '\\':
+            if (index+1 == expr.Length || expr[index+1] == ' ')
+              // No next character to escape
+              throw new XamlParserException("Markup extension expression '{0}': escaped sequence termination error at position {1}", expr, index);
+            // Escape the next character
+            index++;
+            break;
+        }
         index++;
       }
-      if (level > 0)
-        throw new XamlParserException("Markup extension expression '{0}': '}' expected at position {1}", expr, index);
-      value = expr.Substring(start, index-start);
+      Finished:
+      nameOrValue = expr.Substring(start, index-start);
       return index;
     }
   }
