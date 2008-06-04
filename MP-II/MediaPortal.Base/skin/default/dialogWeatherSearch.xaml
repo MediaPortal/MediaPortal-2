@@ -9,15 +9,19 @@
     <ResourceDictionary Source="XamlStyle.xml"/>
   </Canvas.Resources>
 
-  <Border Canvas.Left="106" Canvas.Top="44" Width="405" Height="265" Background="#AFFFFFFF" CornerRadius="10">
-    <Canvas Width="385" Height="245" Background="{StaticResource dialogBackGroundBrush}" >
-      <Label Font="font13" Canvas.Left="25" Canvas.Top="0" Text="[system.5]" Width="100"  Color="#FFADADAD" VerticalAlignment="Top"/>
-      <Label Font="font13" Canvas.Left="136" Canvas.Top="0" Text="[weathersetup.1]" Width="300"  Color="#FFF1E994" VerticalAlignment="Top"/>
-      <Button x:Name="closebtn" Canvas.Left="310" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
-      <Label Font="font13" Canvas.Left="25" Canvas.Top="70" Text="[weathersetup.0]" Width="300"  Color="White" VerticalAlignment="Top"/>
-      <TextBox Font="font13" Canvas.Left="25" Canvas.Top="100" BorderThickness="3" Height = "30" Width="250" Text="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchCity,Mode=OneWayToSource}"/>
-      <Button Canvas.Left="150" Canvas.Top="150" Name="Button1" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Done">[system.done]</Button>
-      <Button Canvas.Left="250" Canvas.Top="150" Name="Button2" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
-    </Canvas>
+  <Border Canvas.Left="156" Canvas.Top="144" Width="405" Height="185" Background="#AFFFFFFF" CornerRadius="10">
+    <DockPanel Width="385" Height="165" LastChildFill="False" Background="{StaticResource dialogBackGroundBrush}" >
+	  <StackPanel Name="StackPanel1" DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal">
+	     <Label Margin="10" Width="100" Font="font13" Text="[system.5]" Color="#FFADADAD"/>
+         <Label Margin="10" Width="200" Font="font13" Text="[weathersetup.1]"  Color="#FFF1E994"/>
+		 <Button Margin="10" HorizontalAlignment="Right" x:Name="closebtn" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
+	  </StackPanel>
+	  <Label Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  Text="[weathersetup.0]" Color="White"/>
+      <TextBox Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  BorderThickness="3" Height = "30" Width="250" Text="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchCity,Mode=OneWayToSource}"/>
+	  <StackPanel Name="StackPanel2" Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Right" Orientation="Horizontal">
+		<Button Name="Button1" Margin="10" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Done">[system.done]</Button>
+		<Button Name="Button2" Margin="10" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
+	  </StackPanel>
+    </DockPanel>
   </Border>
 </Canvas>
