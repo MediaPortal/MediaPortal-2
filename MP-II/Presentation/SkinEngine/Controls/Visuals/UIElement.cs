@@ -69,7 +69,80 @@ namespace Presentation.SkinEngine.Controls.Visuals
     #endregion
   }
 
-  public class UIElement: Visual, IContentEnabled
+  /// <summary>
+  /// Delegate interface which decides if an element fulfills a special condition.
+  /// </summary>
+  public interface IFinder
+  {
+    /// <summary>
+    /// Query method which decides if the specified <paramref name="current"/>
+    /// element fulfills the condition exposed by this class.
+    /// </summary>
+    /// <returns><c>true</c> if the specified <paramref name="current"/> element
+    /// fulfills the condition exposed by this class, else <c>false</c>.</returns>
+    bool Query(UIElement current);
+  }
+
+  /// <summary>
+  /// Finder implementation which looks for elements of a specified type.
+  /// </summary>
+  public class TypeFinder : IFinder
+  {
+    protected Type _type;
+
+    public TypeFinder(Type type)
+    {
+      _type = type;
+    }
+
+    public bool Query(UIElement current)
+    {
+      return _type == current.GetType();
+    }
+  }
+
+  /// <summary>
+  /// Finder implementation which looks for elements of a specified name.
+  /// </summary>
+  public class NameFinder : IFinder
+  {
+    protected string _name;
+
+    public NameFinder(string name)
+    {
+      _name = name;
+    }
+
+    public bool Query(UIElement current)
+    {
+      return _name == current.Name;
+    }
+  }
+
+  /// <summary>
+  /// Finder implementation which looks for focused elements.
+  /// </summary>
+  public class FocusFinder : IFinder
+  {
+    private static FocusFinder _instance = null;
+
+    public bool Query(UIElement current)
+    {
+      return current.HasFocus;
+    }
+
+    public static FocusFinder Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new FocusFinder();
+        return _instance;
+      }
+    }
+  }
+
+  public class UIElement : Visual, IContentEnabled
   {
     #region Private/protected fields
 
@@ -163,7 +236,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
       _isTemplateRoot = copyManager.GetCopy(el._isTemplateRoot);
-      _resources.Merge(el.Resources);
+      // Simply reuse the Resources
+      SetResources(el._resources);
 
       foreach (Trigger t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
@@ -574,19 +648,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Finds the resource with the given keyname
+    /// Finds the resource with the given resource key.
     /// </summary>
-    /// <param name="resourceKey">The key name.</param>
-    /// <returns>resource, or null if not found.</returns>
+    /// <param name="resourceKey">The resource key.</param>
+    /// <returns>Resource with the specified key, or <c>null</c> if not found.</returns>
     public object FindResource(string resourceKey)
     {
       if (Resources.ContainsKey(resourceKey))
       {
         return Resources[resourceKey];
       }
-      if (VisualParent is UIElement)
+      if (LogicalParent is UIElement)
       {
-        return ((UIElement) VisualParent).FindResource(resourceKey);
+        return ((UIElement)LogicalParent).FindResource(resourceKey);
       }
       return null;
     }
@@ -664,56 +738,30 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Find the element with name
+    /// Steps the structure down (in direction to the child elements) along
+    /// the visual tree to find an <see cref="UIElement"/> which fulfills the
+    /// condition specified by <paramref name="finder"/>. This method has to be
+    /// overridden in all descendants exposing visual children, for every child
+    /// this method has to be called.
+    /// For performance reasons, this method does a depth-first search.
     /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public virtual UIElement FindElement(string name)
+    /// <param name="finder">Callback interface which decides if an element
+    /// is the element searched for.</param>
+    /// <returns><see cref="UIElement"/> for which the specified
+    /// <paramref name="finder"/> delegate returned <c>true</c>.</returns>
+    public virtual UIElement FindElement(IFinder finder)
     {
-      INameScope nameScope = FindNameScope();
-      if (nameScope != null)
-        return nameScope.FindName(name) as UIElement;
-      else if (Name == name)
+      if (finder.Query(this))
         return this;
-      return null;
-    }
-
-    /// <summary>
-    /// Finds the element of type t.
-    /// </summary>
-    /// <param name="t">The t.</param>
-    /// <returns></returns>
-    public virtual UIElement FindElementType(Type t)
-    {
-      if (GetType() == t) return this;
-      return null;
-    }
-
-    /// <summary>
-    /// Finds the the element which is a ItemsHost
-    /// </summary>
-    /// <returns></returns>
-    public virtual UIElement FindItemsHost()
-    {
-      if (IsItemsHost) return this;
-      return null;
-    }
-
-    /// <summary>
-    /// Finds the focused item.
-    /// </summary>
-    /// <returns></returns>
-    public virtual UIElement FindFocusedItem()
-    {
-      if (HasFocus) return this;
-      return null;
+      else
+        return null;
     }
 
     #region IContentEnabled members
 
     public bool FindContentProperty(out IDataDescriptor dd)
     {
-      ContentPresenter contentPresenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter contentPresenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       if (contentPresenter != null)
       {
         return ReflectionHelper.FindPropertyDescriptor(contentPresenter, "Content", out dd);

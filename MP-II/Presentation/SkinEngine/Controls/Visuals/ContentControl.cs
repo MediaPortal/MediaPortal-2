@@ -77,9 +77,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnContentChanged(Property property)
     {
-      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       if (presenter == null)
-        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
       if (presenter != null)
       {
         presenter.Content = Content;
@@ -88,9 +88,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnContentTemplateChanged(Property property)
     {
-      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       if (presenter == null)
-        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
       if (presenter != null)
       {
         presenter.ContentTemplate = ContentTemplate;
@@ -99,9 +99,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnContentTemplateSelectorChanged(Property property)
     {
-      ContentPresenter presenter = FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       if (presenter == null)
-        presenter = FindElementType(typeof(ScrollContentPresenter)) as ContentPresenter;
+        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
       if (presenter != null)
       {
         presenter.ContentTemplateSelector = ContentTemplateSelector;
@@ -156,29 +156,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region findXXX methods
-
-    public override UIElement FindElementType(Type t)
+    public override UIElement FindElement(IFinder finder)
     {
+      UIElement found = base.FindElement(finder);
+      if (found != null) return found;
       if (Content != null)
       {
-        UIElement o = Content.FindElementType(t);
-        if (o != null) return o;
-        if (Content.GetType() == t) return Content;
+        found = Content.FindElement(finder);
+        return found;
       }
-      return base.FindElementType(t);
+      return null;
     }
-
-    public override UIElement FindElement(string name)
-    {
-      if (Content != null)
-      {
-        UIElement o = Content.FindElement(name);
-        if (o != null) return o;
-      }
-      return base.FindElement(name);
-    }
-
-    #endregion
   }
 }

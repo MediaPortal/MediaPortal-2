@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -180,10 +180,7 @@ namespace Presentation.SkinEngine
     public bool HasFocus
     {
       get { return _hasFocus; }
-      set
-      {
-        _hasFocus = value;
-      }
+      set { _hasFocus = value; }
     }
 
     public bool IsAnimating

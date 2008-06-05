@@ -50,7 +50,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       if (Content == null) return;
       UIElement element = (UIElement)Content;
-      FrameworkElement focusedElement = element.FindFocusedItem() as FrameworkElement;
+      FrameworkElement focusedElement = element.FindElement(FocusFinder.Instance) as FrameworkElement;
       if (focusedElement == null)
       {
         _startsWith = "";
@@ -271,7 +271,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       IScrollInfo info = Content as IScrollInfo;
       if (info != null) return info;
-      UIElement element = Content.FindItemsHost();
+      UIElement element = Content.FindElement(ItemsHostFinder.Instance);
       info = element as IScrollInfo;
       return info;
     }

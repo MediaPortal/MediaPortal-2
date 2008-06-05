@@ -24,24 +24,33 @@
 
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Loader;
-using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.Controls.Visuals;
 
 namespace Presentation.SkinEngine.Controls.Resources
 {
-  public class Include : IInclude, IInitializable, IDeepCopyable
+  public class Include : IInclude, IInitializable
   {
     #region Private fields
 
-    object _content;
-    string _includeName;
+    protected object _content = null;
+    protected string _includeName = null;
+    protected ResourceDictionary _resources;
 
     #endregion
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public Include()
     {
-      Include i = source as Include;
-      _content = copyManager.GetCopy(i._content);
-      Source = copyManager.GetCopy(i.Source);
+      Init();
+    }
+
+    void Init()
+    {
+      _resources = new ResourceDictionary();
+    }
+
+    public void SetResources(ResourceDictionary resources)
+    {
+      _resources = resources;
     }
 
     #region Public properties    
@@ -50,6 +59,11 @@ namespace Presentation.SkinEngine.Controls.Resources
     {
       get { return _includeName; }
       set { _includeName = value; }
+    }
+
+    public ResourceDictionary Resources
+    {
+      get { return _resources; }
     }
 
     #endregion
@@ -69,6 +83,10 @@ namespace Presentation.SkinEngine.Controls.Resources
     {
       XamlLoader loader = new XamlLoader();
       _content = loader.Load(_includeName);
+      if (_content is UIElement)
+        ((UIElement) _content).Resources.Merge(Resources);
+      else if (_content is ResourceDictionary)
+        ((ResourceDictionary) _content).Merge(Resources);
     }
 
     #endregion

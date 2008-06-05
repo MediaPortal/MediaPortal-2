@@ -164,9 +164,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the template that defines the panel that controls the layout of items.
-    /// </summary>
     public Property ItemsPanelProperty
     {
       get { return _itemsPanelProperty; }
@@ -181,9 +178,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _itemsPanelProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets a collection used to generate the content of the ItemsControl.
-    /// </summary>
     public Property ItemsSourceProperty
     {
       get { return _itemsSourceProperty; }
@@ -198,9 +192,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _itemsSourceProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the Style that is applied to the container element generated for each item.
-    /// </summary>
     public Property ItemContainerStyleProperty
     {
       get { return _itemContainerStyleProperty; }
@@ -215,9 +206,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _itemContainerStyleProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element.
-    /// </summary>
     public Property ItemContainerStyleSelectorProperty
     {
       get { return _itemContainerStyleSelectorProperty; }
@@ -232,9 +220,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _itemContainerStyleSelectorProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the DataTemplate used to display each item.
-    /// </summary>
     public Property ItemTemplateProperty
     {
       get { return _itemTemplateProperty; }
@@ -249,9 +234,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _itemTemplateProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Gets or sets the custom logic for choosing a template used to display each item.
-    /// </summary>
     public Property ItemTemplateSelectorProperty
     {
       get { return _itemTemplateSelectorProperty; }
@@ -291,12 +273,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _itemsHostPanel.SetChildren(new UIElementCollection(_itemsHostPanel));
       }
     }
-    protected virtual ItemsPresenter FindItemsPresenter()
-    {
-      return FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
-    }
 
     #region Item generation
+
+    protected ItemsPresenter FindItemsPresenter()
+    {
+      return FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
+    }
 
     protected virtual bool Prepare()
     {
@@ -321,22 +304,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       if (_itemsHostPanel == null)
       {
-        _itemsHostPanel = presenter.FindItemsHost() as Panel;
+        _itemsHostPanel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;
       }
       if (_itemsHostPanel == null) return false;
-      int itemCount = _itemsHostPanel.Children.Count;
-      // FIXME Albert78: remove the focus variables (together with focus preparation section at end)?
-      int focusedIndex = -1;
-      FrameworkElement focusedItem = null;
-      for (int i = 0; i < itemCount; ++i)
-      {
-        focusedItem = _itemsHostPanel.Children[i].FindFocusedItem() as FrameworkElement;
-        if (focusedItem != null)
-        {
-          focusedIndex = i;
-          break;
-        }
-      }
       _itemsHostPanel.Children.Clear();
       int index = 0;
       FrameworkElement focusedContainer = null;
@@ -354,44 +324,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 
-      // FIXME Albert78: remove the following section?
-      // We'll try with this region commented out
-      //if (this is ListView)
-      //{
-      //  if (focusedItem != null)
-      //  {
-      //    IScrollInfo info = _itemsHostPanel as IScrollInfo;
-      //    if (info != null)
-      //    {
-      //      info.ResetScroll();
-      //    }
-      //    //        result = true;
-      //    _itemsHostPanel.UpdateLayout();
-      //    focusedItem.HasFocus = false;
-      //    if (_itemsHostPanel.Children.Count <= focusedIndex)
-      //    {
-      //      float x = _itemsHostPanel.Children[0].ActualPosition.X;
-      //      float y = _itemsHostPanel.Children[0].ActualPosition.Y;
-      //      _itemsHostPanel.OnMouseMove(x, y);
-      //    }
-      //    else
-      //    {
-      //      float x = focusedItem.ActualPosition.X;
-      //      float y = focusedItem.ActualPosition.Y;
-      //      _itemsHostPanel.OnMouseMove(x, y);
-      //    }
-      //  }
-      //  else if (focusedContainer != null)
-      //  {
-      //    _itemsHostPanel.UpdateLayout();
-      //    focusedContainer.OnMouseMove(focusedContainer.ActualPosition.X, focusedContainer.ActualPosition.Y);
-      //  }
-      //}
       return true;
     }
-
-    protected virtual void PrepareFocus(FrameworkElement focusedItem, FrameworkElement focusedContainer)
-    { }
 
     protected abstract FrameworkElement PrepareItemContainer(object dataItem);
 
@@ -419,40 +353,41 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DoRender();
     }
 
-    public override bool HasFocus
-    {
-      get
-      {
-        return (FindFocusedItem() != null);
-      }
-      set
-      {
-        if (value)
-        {
-          if (!HasFocus)
-            SetFocusOnFirstItem();
-        }
-        else
-        {
-          UIElement element = FindFocusedItem();
-          if (element != null)
-            element.HasFocus = false;
-        }
-      }
-    }
+    // FIXME Albert78: Remove this?
+    //public override bool HasFocus
+    //{
+    //  get
+    //  {
+    //    return (FindElement(FocusFinder.Instance) != null);
+    //  }
+    //  set
+    //  {
+    //    if (value)
+    //    {
+    //      if (!HasFocus)
+    //        SetFocusOnFirstItem();
+    //    }
+    //    else
+    //    {
+    //      UIElement element = FindElement(FocusFinder.Instance);
+    //      if (element != null)
+    //        element.HasFocus = false;
+    //    }
+    //  }
+    //}
 
     public void SetFocusOnFirstItem()
     {
-      ItemsPresenter presenter = FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      ItemsPresenter presenter = FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
       if (presenter != null)
       {
-        Panel panel = presenter.FindItemsHost() as Panel;
+        Panel panel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;
         if (panel != null)
         {
           if (panel.Children != null && panel.Children.Count > 0)
           {
             FrameworkElement element = (FrameworkElement)panel.Children[0];
-            element.OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
+            element.OnMouseMove(element.ActualPosition.X, element.ActualPosition.Y);
           }
         }
       }

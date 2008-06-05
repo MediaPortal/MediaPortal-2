@@ -278,42 +278,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    public override UIElement FindElement(string name)
+    public override UIElement FindElement(IFinder finder)
     {
+      UIElement found = base.FindElement(finder);
+      if (found != null) return found;
       if (Content != null)
       {
-        UIElement found = Content.FindElement(name);
-        if (found != null) return found;
-      }
-      return base.FindElement(name);
-    }
-
-    public override UIElement FindElementType(Type t)
-    {
-      if (Content != null)
-      {
-        UIElement found = Content.FindElementType(t);
-        if (found != null) return found;
-      }
-      return base.FindElementType(t);
-    }
-
-    public override UIElement FindItemsHost()
-    {
-      if (Content != null)
-      {
-        UIElement found = Content.FindItemsHost();
-        if (found != null) return found;
-      }
-      return base.FindItemsHost();
-    }
-
-    public override UIElement FindFocusedItem()
-    {
-      if (HasFocus) return this;
-      if (Content != null)
-      {
-        UIElement found = Content.FindFocusedItem();
+        found = Content.FindElement(finder);
         return found;
       }
       return null;

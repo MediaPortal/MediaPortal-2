@@ -344,60 +344,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region FindXXX methods
-
-    protected override ItemsPresenter FindItemsPresenter()
+    public override UIElement FindElement(IFinder finder)
     {
-      if (TemplateControl == null)
-      {
-        return base.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
-      }
-      return TemplateControl.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
-    }
-
-    public override UIElement FindElement(string name)
-    {
+      UIElement found = base.FindElement(finder);
+      if (found != null) return found;
       if (Header != null)
       {
-        UIElement found = Header.FindElement(name);
-        if (found != null) return found;
+        found = Header.FindElement(finder);
+        return found;
       }
-      if (!IsExpanded) return null;
-      return base.FindElement(name);
-    }
-
-    public override UIElement FindElementType(Type t)
-    {
-      if (Header != null)
-      {
-        UIElement found = Header.FindElementType(t);
-        if (found != null) return found;
-      }
-      if (!IsExpanded) return null;
-      return base.FindElementType(t);
-    }
-
-
-    public override UIElement FindItemsHost()
-    {
-      if (Header != null)
-      {
-        UIElement found = Header.FindItemsHost();
-        if (found != null) return found;
-      }
-      if (!IsExpanded) return null;
-      return base.FindItemsHost();
-    }
-
-    public override UIElement FindFocusedItem()
-    {
-      if (Header != null)
-      {
-        UIElement found = Header.FindFocusedItem();
-        if (found != null) return found;
-      }
-      if (!IsExpanded) return null;
-      return base.FindFocusedItem();
+      return null;
     }
 
     public override void Reset()
@@ -424,7 +380,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Header.Allocate();
       }
     }
-    #endregion
 
     #region Focus prediction
 
@@ -436,7 +391,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
-      return ((FrameworkElement)Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      return (Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
@@ -447,29 +402,29 @@ namespace Presentation.SkinEngine.Controls.Visuals
         element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
-      return ((FrameworkElement)Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      return (Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
-      if (IsExpanded && base.FindFocusedItem() != null)
+      if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
       {
         element = base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
-      return ((FrameworkElement)Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      return (Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       FrameworkElement element;
-      if (IsExpanded && base.FindFocusedItem() != null)
+      if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
       {
         element = base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
-      return ((FrameworkElement)Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      return (Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
 
     #endregion
@@ -494,14 +449,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
       container.HeaderTemplate = HeaderTemplate;
       FrameworkElement containerTemplateControl = ItemContainerStyle.Get();
       containerTemplateControl.Context = dataItem;
-      ContentPresenter headerContentPresenter = containerTemplateControl.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter headerContentPresenter = containerTemplateControl.FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
       container.TemplateControl = new ItemsPresenter();
       container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
       container.TemplateControl.VisualParent = container;
       container.Header = containerTemplateControl;
-      ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      ItemsPresenter p = container.Header.FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
       if (p != null) p.IsVisible = false;
 
       if (dataItem is ListItem)

@@ -172,7 +172,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void UpdateCurrentItem()
     {
-      UIElement element = FindFocusedItem();
+      UIElement element = FindElement(FocusFinder.Instance);
       if (element == null)
       {
         CurrentItem = null;

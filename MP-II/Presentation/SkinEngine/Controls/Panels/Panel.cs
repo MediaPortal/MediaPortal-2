@@ -37,6 +37,30 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
+  /// <summary>
+  /// Finder implementation which looks for a panel which has its
+  /// <see cref="Panel.ItemsHost"/> property set.
+  /// </summary>
+  public class ItemsHostFinder: IFinder
+  {
+    private static ItemsHostFinder _instance = null;
+
+    public bool Query(UIElement current)
+    {
+      return current is Panel && ((Panel) current).IsItemsHost;
+    }
+
+    public static ItemsHostFinder Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new ItemsHostFinder();
+        return _instance;
+      }
+    }
+  }
+
   public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
   {
     #region Private/protected fields
@@ -385,16 +409,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    public override UIElement FindElement(string name)
-    {
-      foreach (UIElement element in Children)
-      {
-        UIElement found = element.FindElement(name);
-        if (found != null) return found;
-      }
-      return base.FindElement(name);
-    }
-
     public override bool ReplaceElementType(Type t, UIElement newElement)
     {
       for (int i = 0; i < Children.Count; ++i)
@@ -414,31 +428,13 @@ namespace Presentation.SkinEngine.Controls.Panels
       return false;
     }
 
-    public override UIElement FindElementType(Type t)
+    public override UIElement FindElement(IFinder finder)
     {
+      UIElement found = base.FindElement(finder);
+      if (found != null) return found;
       foreach (UIElement element in Children)
       {
-        UIElement found = element.FindElementType(t);
-        if (found != null) return found;
-      }
-      return base.FindElementType(t);
-    }
-
-    public override UIElement FindItemsHost()
-    {
-      foreach (UIElement element in Children)
-      {
-        UIElement found = element.FindItemsHost();
-        if (found != null) return found;
-      }
-      return base.FindItemsHost();
-    }
-
-    public override UIElement FindFocusedItem()
-    {
-      foreach (UIElement element in Children)
-      {
-        UIElement found = element.FindFocusedItem();
+        found = element.FindElement(finder);
         if (found != null) return found;
       }
       return null;

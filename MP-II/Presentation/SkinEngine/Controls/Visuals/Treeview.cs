@@ -174,7 +174,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void UpdateCurrentItem()
     {
-      UIElement element = FindFocusedItem();
+      UIElement element = FindElement(FocusFinder.Instance);
       if (element == null)
       {
         CurrentItem = null;
@@ -213,12 +213,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       container.HeaderTemplate = ItemTemplate;
       FrameworkElement containerTemplateControl = ItemContainerStyle.Get();
       containerTemplateControl.Context = dataItem;
-      ContentPresenter headerContentPresenter = containerTemplateControl.FindElementType(typeof(ContentPresenter)) as ContentPresenter;
+      ContentPresenter headerContentPresenter = containerTemplateControl.FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
       container.Header = containerTemplateControl;
 
-      ItemsPresenter p = container.Header.FindElementType(typeof(ItemsPresenter)) as ItemsPresenter;
+      ItemsPresenter p = container.Header.FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
       if (p != null) p.IsVisible = false;
       return container;
     }

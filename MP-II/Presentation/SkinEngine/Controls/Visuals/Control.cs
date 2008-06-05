@@ -493,43 +493,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region findXXX methods
 
-    public override UIElement FindElement(string name)
+    public override UIElement FindElement(IFinder finder)
     {
+      UIElement found = base.FindElement(finder);
+      if (found != null) return found;
       if (_templateControl != null)
       {
-        UIElement o = _templateControl.FindElement(name);
-        if (o != null) return o;
-      }
-      return base.FindElement(name);
-    }
-
-    public override UIElement FindElementType(Type t)
-    {
-      if (_templateControl != null)
-      {
-        UIElement o = _templateControl.FindElementType(t);
-        if (o != null) return o;
-      }
-      return base.FindElementType(t);
-    }
-
-    public override UIElement FindItemsHost()
-    {
-      if (_templateControl != null)
-      {
-        UIElement o = _templateControl.FindItemsHost();
-        if (o != null) return o;
-      }
-      return base.FindItemsHost(); ;
-    }
-
-    public override UIElement FindFocusedItem()
-    {
-      if (base.HasFocus) return this;
-      if (_templateControl != null)
-      {
-        UIElement o = _templateControl.FindFocusedItem();
-        if (o != null) return o;
+        found = _templateControl.FindElement(finder);
+        return found;
       }
       return null;
     }

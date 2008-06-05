@@ -42,7 +42,6 @@ namespace Presentation.SkinEngine.Controls.Animations
     Property _durationProperty;
     Property _repeatBehaviourProperty;
     Property _fillBehaviourProperty;
-    Property _visualParentProperty;
     protected PathExpression _propertyExpression = null;
     protected object OriginalValue;
 
@@ -62,7 +61,6 @@ namespace Presentation.SkinEngine.Controls.Animations
       _durationProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(typeof(RepeatBehavior), RepeatBehavior.None);
       _fillBehaviourProperty = new Property(typeof(FillBehaviour), FillBehaviour.HoldEnd);
-      _visualParentProperty = new Property(typeof(UIElement), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -76,7 +74,6 @@ namespace Presentation.SkinEngine.Controls.Animations
       Duration = copyManager.GetCopy(t.Duration);
       FillBehaviour = copyManager.GetCopy(t.FillBehaviour);
       RepeatBehavior = copyManager.GetCopy(t.RepeatBehavior);
-      VisualParent = copyManager.GetCopy(t.VisualParent);
       _propertyExpression = copyManager.GetCopy(t._propertyExpression);
     }
 
@@ -160,27 +157,6 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       get { return (FillBehaviour)_fillBehaviourProperty.GetValue(); }
       set { _fillBehaviourProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Gets the visual parent property.
-    /// FIXME Albert78: Still needed? Don't we always use <see cref="AnimationContext.VisualParent"/>?
-    /// </summary>
-    /// <value>The visual parent property.</value>
-    public Property VisualParentProperty
-    {
-      get { return _visualParentProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the visual parent.
-    /// FIXME Albert78: Still needed? Don't we always use <see cref="AnimationContext.VisualParent"/>?
-    /// </summary>
-    /// <value>The visual parent.</value>
-    public UIElement VisualParent
-    {
-      get { return (UIElement)_visualParentProperty.GetValue(); }
-      set { _visualParentProperty.SetValue(value); }
     }
 
     #endregion
