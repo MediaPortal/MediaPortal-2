@@ -198,6 +198,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       TreeViewItem container = new TreeViewItem();
       container.Style = ItemContainerStyle;
+      container.ItemContainerStyle = ItemContainerStyle; // TreeItems also have to build containers...
       container.Context = dataItem;
       container.TemplateControl = new ItemsPresenter();
       container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);

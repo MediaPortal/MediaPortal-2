@@ -443,6 +443,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _itemsHostPanel.IsItemsHost = false;
       TreeViewItem container = new TreeViewItem();
       container.Style = ItemContainerStyle;
+      container.ItemContainerStyle = ItemContainerStyle; // TreeItems also have to build containers...
       container.Context = dataItem;
       container.ItemsPanel = ItemsPanel;
       container.HeaderTemplateSelector = HeaderTemplateSelector;
