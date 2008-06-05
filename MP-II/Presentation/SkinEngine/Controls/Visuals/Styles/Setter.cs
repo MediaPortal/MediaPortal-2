@@ -187,7 +187,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         if (TypeConverter.Convert(Value, dd.DataType, out obj))
           SetterValue = obj;
       }
-
+      // We have to copy the SetterValue because the Setter doesn't belong exclusively
+      // to the UIElement. It may be part of a style for example, which is shared across
+      // multiple controls.
       dd.Value = MpfCopyManager.DeepCopy(SetterValue);
     }
   }

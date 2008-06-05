@@ -309,15 +309,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (_itemsHostPanel == null) return false;
       _itemsHostPanel.Children.Clear();
       int index = 0;
-      FrameworkElement focusedContainer = null;
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
       {
         FrameworkElement container = PrepareItemContainer(enumer.Current);
         children.Add(container);
         if (enumer.Current is ListItem)
-          if (((ListItem) enumer.Current).Selected)
-            focusedContainer = container;
         container.Name = string.Format("{0}.{1}", Name, index++);
       }
       children.SetParent(_itemsHostPanel);

@@ -115,8 +115,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Style = copyManager.GetCopy(fe.Style);
       ActualWidth = copyManager.GetCopy(fe.ActualWidth);
       ActualHeight = copyManager.GetCopy(fe.ActualHeight);
-      this.HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
-      this.VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
+      HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
+      VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
     }
 
     #endregion

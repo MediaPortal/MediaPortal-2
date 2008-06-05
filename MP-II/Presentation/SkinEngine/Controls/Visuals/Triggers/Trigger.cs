@@ -50,7 +50,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #region Ctor
 
-    public Trigger(): base()
+    public Trigger()
     {
       Init();
     }
@@ -136,7 +136,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       }
       if (!String.IsNullOrEmpty(Property))
       {
-
         _element = element;
         Type t = element.GetType();
         PropertyInfo pinfo = t.GetProperty(Property + "Property");
@@ -151,10 +150,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       }
       foreach (TriggerAction action in EnterActions)
       {
-        if (action is Setter)
-        {
-          Setter s = (Setter)action;
-        }
         action.Setup(element);
       }
       foreach (TriggerAction action in ExitActions)
