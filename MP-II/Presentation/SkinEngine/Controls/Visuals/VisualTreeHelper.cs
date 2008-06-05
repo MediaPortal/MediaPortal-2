@@ -29,12 +29,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
   public class VisualTreeHelper
   {
 
-    public object FindElementType(UIElement root, Type t)
+    public static UIElement FindElementType(UIElement root, Type t)
     {
       return root.FindElement(new TypeFinder(t));
     }
 
-    public object FindElement(UIElement root, string name)
+    public static UIElement FindElement(UIElement root, string name)
     {
       return root.FindElement(new NameFinder(name));
     }

@@ -153,14 +153,14 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         return result;
       else
         throw new ArgumentException(
-          string.Format("Property '{0}' cannot be set on element '{1}'", this.Property, element));
+          string.Format("Property '{0}' cannot be set on element '{1}'", Property, element));
     }
 
     public void Restore(UIElement element, Trigger trigger)
     {
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
-        target = element.FindElement(TargetName);
+        target = VisualTreeHelper.FindElement(element, TargetName);
       if (target == null)
         target = element;
       IDataDescriptor dd = GetPropertyDescriptor(target);
@@ -172,7 +172,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     {
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
-        target = element.FindElement(TargetName);
+        target = VisualTreeHelper.FindElement(element, TargetName);
       if (target == null)
         target = element;
       IDataDescriptor dd = GetPropertyDescriptor(target);

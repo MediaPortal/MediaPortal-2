@@ -630,7 +630,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       {
         if (!(_contextObject is UIElement))
           return false;
-        object obj = ((UIElement) _contextObject).FindElement(ElementName);
+        object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
         if (obj == null)
           return false;
         result = new ValueDataDescriptor(obj);
