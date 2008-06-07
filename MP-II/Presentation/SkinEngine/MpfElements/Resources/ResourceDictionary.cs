@@ -28,7 +28,7 @@ using Presentation.SkinEngine.Loader;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Resources
+namespace Presentation.SkinEngine.MpfElements.Resources
 {
   public class ResourceDictionary: Dictionary<string, object>, IInitializable, INameScope, IDeepCopyable
   {

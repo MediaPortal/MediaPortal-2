@@ -24,7 +24,7 @@
 
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Resources;
+using Presentation.SkinEngine.MpfElements.Resources;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {

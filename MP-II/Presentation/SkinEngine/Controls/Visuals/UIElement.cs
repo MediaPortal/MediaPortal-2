@@ -32,7 +32,7 @@ using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using Presentation.SkinEngine.Controls.Animations;
 using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.Controls.Resources;
+using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;

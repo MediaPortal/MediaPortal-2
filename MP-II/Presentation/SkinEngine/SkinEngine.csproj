@@ -179,7 +179,6 @@
     <Compile Include="Controls\Visuals\ListView.cs" />
     <Compile Include="Controls\Visuals\ListViewItem.cs" />
     <Compile Include="Controls\Visuals\ProgressBar.cs" />
-    <Compile Include="Controls\Resources\ResourceDictionary.cs" />
     <Compile Include="Controls\Visuals\ScrollContentPresenter.cs" />
     <Compile Include="Controls\Visuals\ScrollViewer.cs" />
     <Compile Include="Controls\Visuals\Shapes\Ellipse.cs" />
@@ -239,6 +238,8 @@
     <Compile Include="MpfElements\MpfCopyManager.cs" />
     <Compile Include="MpfElements\Registration.cs" />
     <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
+    <Compile Include="MpfElements\Resources\Include.cs" />
+    <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />
     <Compile Include="XamlParser\NameScope.cs" />
     <Compile Include="XamlParser\DataDescriptors.cs" />
     <Compile Include="Models\Model.cs" />
@@ -296,7 +297,6 @@
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
-    <Compile Include="Controls\Resources\Include.cs" />
     <Compile Include="Loader\SkinLoaderContext.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
     <Compile Include="Loader\XamlLoader.cs" />

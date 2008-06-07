@@ -82,7 +82,7 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
 
       // Resources
-      objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.Controls.Resources.ResourceDictionary));
+      objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));
       
       // Brushes
       objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));
@@ -138,7 +138,7 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Controls.Bindings.InvokeCommand));
 
       // Include
-      objectClassRegistrations.Add("Include", typeof(SkinEngine.Controls.Resources.Include));
+      objectClassRegistrations.Add("Include", typeof(SkinEngine.MpfElements.Resources.Include));
 
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));

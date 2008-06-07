@@ -22,7 +22,7 @@
 
 #endregion
 
-using Presentation.SkinEngine.Controls.Resources;
+using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;

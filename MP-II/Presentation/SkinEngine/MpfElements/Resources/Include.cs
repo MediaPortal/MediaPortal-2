@@ -26,7 +26,7 @@ using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Loader;
 using Presentation.SkinEngine.Controls.Visuals;
 
-namespace Presentation.SkinEngine.Controls.Resources
+namespace Presentation.SkinEngine.MpfElements.Resources
 {
   public class Include : IInclude, IInitializable
   {
