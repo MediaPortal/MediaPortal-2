@@ -36,6 +36,9 @@ using Presentation.SkinEngine.XamlParser;
 
 namespace Presentation.SkinEngine
 {
+  /// <summary>
+  /// Window class respresenting a logical screen represented by a particular skin.
+  /// </summary>
   public class Window: NameScope, IWindow
   {
     #region Enums
@@ -87,7 +90,7 @@ namespace Presentation.SkinEngine
     /// <summary>
     /// Initializes a new instance of the <see cref="Window"/> class.
     /// </summary>
-    /// <param name="name">The name.</param>
+    /// <param name="name">The logical screen name.</param>
     public Window(string name)
     {
       if (name == null)
@@ -102,25 +105,19 @@ namespace Presentation.SkinEngine
       _history = true;
       _opened = new Property(typeof(bool), true);
       _name = name;
-      _keyPressHandler = new KeyPressedHandler(OnKeyPressed);
-      _mouseMoveHandler = new MouseMoveHandler(OnMouseMove);
+      _keyPressHandler = OnKeyPressed;
+      _mouseMoveHandler = OnMouseMove;
       _animator = new Animator();
     }
 
     public Animator Animator
     {
-      get
-      {
-        return _animator;
-      }
+      get { return _animator; }
     }
 
     public UIElement Visual
     {
-      get
-      {
-        return _visual;
-      }
+      get { return _visual; }
       set
       {
         _visual = value;
@@ -135,10 +132,7 @@ namespace Presentation.SkinEngine
 
     public FrameworkElement RootElement
     {
-      get
-      {
-        return _visual as FrameworkElement;
-      }
+      get { return _visual as FrameworkElement; }
     }
 
     public bool History
@@ -185,10 +179,7 @@ namespace Presentation.SkinEngine
 
     public bool IsAnimating
     {
-      get
-      {
-        return false;
-      }
+      get { return false; }
     }
 
     /// <summary>
@@ -213,8 +204,8 @@ namespace Presentation.SkinEngine
       {
         lock (_visual)
         {
-          this._animator.Animate();
-          this.Update();
+          _animator.Animate();
+          Update();
         }
         return;
       }
@@ -224,7 +215,7 @@ namespace Presentation.SkinEngine
         lock (_visual)
         {
           _visual.Render();
-          this._animator.Animate();
+          _animator.Animate();
         }
       }
       if (_setFocusedElement)
@@ -285,6 +276,7 @@ namespace Presentation.SkinEngine
         SkinContext.IsValid = true;
       }
     }
+
     /// <summary>
     /// Called when window should be hidden
     /// </summary>

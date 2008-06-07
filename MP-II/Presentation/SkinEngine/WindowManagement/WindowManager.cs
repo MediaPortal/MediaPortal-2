@@ -34,11 +34,14 @@ using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 
 using Presentation.SkinEngine.Loader;
+using MediaPortal.Control.InputManager;
 
 namespace Presentation.SkinEngine
 {
   public class WindowManager : IWindowManager
   {
+    public const string STARTUP_SCREEN = "home";
+
     [StructLayout(LayoutKind.Sequential)]
     public struct MSG
     {
@@ -64,11 +67,10 @@ namespace Presentation.SkinEngine
 
     #region Variables
 
-    private List<Window> _windows;
+    private readonly Dictionary<string, Window> _windowCache = new Dictionary<string, Window>();
+    private readonly Stack<string> _history = new Stack<string>();
     private Window _currentWindow;
     private Window _currentDialog;
-    private Window _previousWindow = null; // FIXME Albert78: Remove this reference - not needed
-    private List<Window> _history = new List<Window>();
     public Utils _utils = new Utils();
 
     private string _dialogTitle;
@@ -79,7 +81,6 @@ namespace Presentation.SkinEngine
 
     public WindowManager()
     {
-      _windows = new List<Window>();
       ServiceScope.Get<IPlayerFactory>().Register(new SkinEngine.Players.PlayerFactory());
     }
 
@@ -90,29 +91,18 @@ namespace Presentation.SkinEngine
     {
       WindowSettings settings = new WindowSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      if (settings.Skin == "")
+      if (string.IsNullOrEmpty(settings.Skin))
       {
         settings.Skin = "default";
         settings.Theme = "default";
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }
       SkinContext.SkinName = settings.Skin;
-      //SkinContext.ThemeName = settings.Theme;
+      SkinContext.ThemeName = settings.Theme;
 
-      ShowWindow("home");
+      ShowWindow(STARTUP_SCREEN);
     }
 
-    public void SwitchTheme(string newThemeName)
-    {
-    }
-
-    public string ThemeName
-    {
-      get
-      {
-        return "";
-      }
-    }
 #if NOTDEF
     public void SwitchTheme(string newThemeName)
     {
@@ -155,23 +145,18 @@ namespace Presentation.SkinEngine
       settings.Theme = newThemeName;
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
-
-    public string ThemeName
-    {
-      get
-      {
-        return SkinContext.ThemeName;
-      }
-    }
+#else
+    public void SwitchTheme(string newThemeName)
+    {}
 #endif
+
     /// <summary>
-    /// Switches to the skin specified.
+    /// Switches to the specified skin.
     /// </summary>
-    /// <param name="newSkinName">name of the skin.</param>
+    /// <param name="newSkinName">Name of the skin.</param>
     public void SwitchSkin(string newSkinName)
     {
-#if NOTUSED
-      if (newSkinName == SkinContext.SkinName) return;
+      if (newSkinName == SkinName) return;
       CloseDialog();
       lock (_history)
       {
@@ -179,33 +164,28 @@ namespace Presentation.SkinEngine
         string windowName = _currentWindow.Name;
         _currentDialog = null;
         _currentWindow = null;
-        _previousWindow = null;
 
-        _windows.Clear();
+        _windowCache.Clear();
 
         IInputManager inputMgr = ServiceScope.Get<IInputManager>();
         inputMgr.Reset();
         ServiceScope.Get<PlayerCollection>().Dispose();
-        Scripts.ScriptManager.Instance.Reload();
         Fonts.FontManager.Free();
         ContentManager.Clear();
 
         SkinContext.SkinName = newSkinName;
         SkinContext.ThemeName = "default";
-        ThemeLoader loader = new ThemeLoader();
-        SkinContext.Theme = loader.Load(SkinContext.ThemeName);
         Fonts.FontManager.Reload();
         Fonts.FontManager.Alloc();
 
-        for (int i = 0; i < _history.Count; ++i)
-        {
-          _history[i] = GetWindow(_history[i].Name);
-        }
+        // FIXME: History may not be recoverable, if the new skin is not compatible.
+        // What to do then?
 
         _currentWindow = GetWindow(windowName);
         _currentWindow.HasFocus = true;
         _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.Show(true);
+        _currentWindow.AttachInput();
+        _currentWindow.Show();
 
       }
       WindowSettings settings = new WindowSettings();
@@ -213,19 +193,22 @@ namespace Presentation.SkinEngine
       settings.Skin = newSkinName;
       settings.Theme = "default";
       ServiceScope.Get<ISettingsManager>().Save(settings);
-#endif
     }
 
     /// <summary>
-    /// Gets the name of the skin.
+    /// Gets the name of the currently active skin.
     /// </summary>
-    /// <value>The name of the skin.</value>
     public string SkinName
     {
-      get
-      {
-        return SkinContext.SkinName;
-      }
+      get { return SkinContext.SkinName; }
+    }
+
+    /// <summary>
+    /// Gets the name of the currently active theme.
+    /// </summary>
+    public string ThemeName
+    {
+      get { return SkinContext.ThemeName; }
     }
 
     /// <summary>
@@ -251,12 +234,8 @@ namespace Presentation.SkinEngine
       SkinContext.Now = DateTime.Now;
       lock (_history)
       {
-        lock (_windows)
+        lock (_windowCache)
         {
-          if (_previousWindow != null)
-          {
-            _previousWindow.Render();
-          }
           if (_currentWindow != null)
           {
             _currentWindow.Render();
@@ -278,22 +257,15 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Determines wether the windowmanager contains a window with the specified name
+    /// Determines wether the windowmanager cache contains a window with the specified name.
     /// </summary>
-    /// <param name="windowName">Name of the window.</param>
+    /// <param name="windowName">Name of the window to check.</param>
     /// <returns>
-    /// 	<c>true</c> if window exists; otherwise, <c>false</c>.
+    /// <c>true</c> if window exists; otherwise, <c>false</c>.
     /// </returns>
     public bool Contains(string windowName)
     {
-      foreach (Window window in _windows)
-      {
-        if (window.Name == windowName)
-        {
-          return true;
-        }
-      }
-      return false;
+      return _windowCache.ContainsKey(windowName);
     }
 
     /// <summary>
@@ -313,24 +285,21 @@ namespace Presentation.SkinEngine
           // TODO: Wait cursor
           //_currentWindow.WaitCursorVisible = true;
         }
-        foreach (Window window in _windows)
-        {
-          if (window.Name == windowName)
-          {
-            return window;
-          }
-        }
-        Window win = new Window(windowName);
+
+        if (Contains(windowName))
+          return _windowCache[windowName];
+
+        Window result = new Window(windowName);
         try
         {
           XamlLoader loader = new XamlLoader();
           UIElement root = loader.Load(windowName + ".xaml") as UIElement;
           if (root == null) return null;
-          win.Visual = root;
+          result.Visual = root;
           // Don't show window here.
           // That is done at the appriopriate time by all methods calling this one.
           // Calling show here will result in the model loading its data twice.
-          _windows.Add(win);
+          _windowCache.Add(windowName, result);
         }
         catch (Exception ex)
         {
@@ -338,7 +307,7 @@ namespace Presentation.SkinEngine
           // TODO Albert78: Show error dialog with skin loading message
           return null;
         }
-        return win;
+        return result;
       }
       finally
       {
@@ -356,18 +325,17 @@ namespace Presentation.SkinEngine
     /// </summary>
     public void CloseDialog()
     {
-      if (_currentDialog != null)
+      if (_currentDialog == null)
+        return;
+      lock (_history)
       {
-        lock (_history)
-        {
-          _currentDialog.WindowState = Window.State.Closing;
-          _currentDialog.DetachInput();
-          _currentDialog.Hide();
-          _currentDialog = null;
+        _currentDialog.WindowState = Window.State.Closing;
+        _currentDialog.DetachInput();
+        _currentDialog.Hide();
+        _currentDialog = null;
 
-          _currentWindow.AttachInput();
-          _currentWindow.Show();
-        }
+        _currentWindow.AttachInput();
+        _currentWindow.Show();
       }
     }
 
@@ -403,18 +371,12 @@ namespace Presentation.SkinEngine
     {
       CloseDialog();
 
-      lock (_windows)
+      lock (_windowCache)
       {
         string name = _currentWindow.Name;
         _currentWindow = null;
-        foreach (Window window in _windows)
-        {
-          if (window.Name == name)
-          {
-            _windows.Remove(window);
-            break;
-          }
-        }
+        if (_windowCache.ContainsKey(name))
+          _windowCache.Remove(name);
         _currentWindow = GetWindow(name);
       }
       if (_currentWindow == null)
@@ -430,7 +392,7 @@ namespace Presentation.SkinEngine
     }
 
     /// <summary>
-    /// Shows the window with the specified name
+    /// Shows the window with the specified name.
     /// </summary>
     /// <param name="windowName">Name of the window.</param>
     public void ShowWindow(string windowName)
@@ -441,13 +403,14 @@ namespace Presentation.SkinEngine
       {
         return;
       }
-      if (window.History)
-      {
-        _history.Add(window);
-      }
 
       lock (_history)
       {
+        if (window.History)
+        {
+          _history.Push(window.Name);
+        }
+
         if (_currentDialog != null)
         {
           _currentDialog.WindowState = Window.State.Closing;
@@ -455,64 +418,34 @@ namespace Presentation.SkinEngine
           _currentDialog.Hide();
           _currentDialog = null;
         }
-        _previousWindow = _currentWindow;
-        if (_previousWindow != null)
+        Window previousWindow = _currentWindow;
+        if (previousWindow != null)
         {
-          _previousWindow.WindowState = Window.State.Closing;
-          _previousWindow.HasFocus = false;
-          _previousWindow.DetachInput();
+          previousWindow.WindowState = Window.State.Closing;
+          previousWindow.HasFocus = false;
+          previousWindow.DetachInput();
         }
         _currentWindow = window;
         _currentWindow.WindowState = Window.State.Running;
         _currentWindow.AttachInput();
         _currentWindow.Show();
 
-        if (_previousWindow != null)
-          _previousWindow.Hide();
-        _previousWindow = null;
-
-        // Albert78, 23.3.08: Why this code?
-        //if (_currentWindow != null && _currentWindow.Name == "login")
-        //{
-        //  Thread tStart = new Thread(new ThreadStart(ShowHomeMenu));
-        //  tStart.Start();
-        //}
+        if (previousWindow != null)
+          previousWindow.Hide();
       }
     }
 
-    // Albert78, 23.3.08: See comment at the end of method ShowWindow. This method is nowhere else used than
-    // in the region commented out there
-    //void ShowHomeMenu()
-    //{
-    //  while (_currentWindow.IsAnimating) Thread.Sleep(10);
-
-    //  _previousWindow = _currentWindow;
-
-    //  _previousWindow.WindowState = Window.State.Closing;
-    //  _previousWindow.HasFocus = false;
-    //  _previousWindow.DetachInput();
-
-
-
-    //  _currentWindow = GetWindow("home");
-    //  _history.Add(_currentWindow);
-    //  _currentWindow.WindowState = Window.State.Running;
-    //  _currentWindow.AttachInput();
-    //  _currentWindow.Show();
-    //  _previousWindow.Hide();
-    //}
-
     /// <summary>
-    /// Shows the previous window.
+    /// Shows the previous window from the window history.
     /// </summary>
     public void ShowPreviousWindow()
     {
-      if (_history.Count == 0)
-      {
-        return;
-      }
       lock (_history)
       {
+        if (_history.Count == 0)
+        {
+          return;
+        }
         ServiceScope.Get<ILogger>().Debug("WindowManager: Show previous window");
         if (_currentDialog != null)
         {
@@ -524,25 +457,23 @@ namespace Presentation.SkinEngine
         {
           return;
         }
-        Window window = _history[_history.Count - 1];
-        _previousWindow = _currentWindow;
-        if (_previousWindow != null)
+        Window previousWindow = _currentWindow;
+        if (previousWindow != null)
         {
-          _previousWindow.WindowState = Window.State.Closing;
-          _previousWindow.DetachInput();
+          previousWindow.WindowState = Window.State.Closing;
+          previousWindow.DetachInput();
         }
         if (_currentWindow.History)
-        {
-          _history.RemoveAt(_history.Count - 1);
-        }
-        _currentWindow = _history[_history.Count - 1];
+          _history.Pop();
+
+        string windowName = _history.Peek();
+        _currentWindow = GetWindow(windowName);
         _currentWindow.WindowState = Window.State.Running;
         _currentWindow.AttachInput();
         _currentWindow.Show();
 
-        if (_previousWindow != null)
-          _previousWindow.Hide();
-        _previousWindow = null;
+        if (previousWindow != null)
+          previousWindow.Hide();
       }
     }
 
