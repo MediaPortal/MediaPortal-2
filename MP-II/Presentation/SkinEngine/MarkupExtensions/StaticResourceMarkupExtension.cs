@@ -59,8 +59,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
       object result = null;
-      // FIXME Albert78: Our current visual element's implementation doesn't support a materialized
-      // logical tree, so we have to use the parser's context stack
+      // Step up the parser's context stack to find the resource.
+      // It doesn't suffice to just step up the logical tree because we
+      // may also have to find resources in resource dicrionaries which are
+      // still being built - That's why the parser's context stack maintains
+      // a dictionary of current keyed elements.
       foreach (ElementContextInfo current in context.ContextStack)
       {
         if (current.ContainsKey(_resourceKey))
