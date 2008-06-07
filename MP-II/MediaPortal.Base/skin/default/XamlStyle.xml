@@ -657,7 +657,14 @@
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
-              <Setter Property="Visibility" TargetName="check" Value="Visible"/>
+			  <Trigger.ExitActions>
+                <Setter Property="Visibility" TargetName="check" Value="Visible"/>
+			  </Trigger.ExitActions>
+            </Trigger>
+			<Trigger Property="IsChecked" Value="False">
+			  <Trigger.ExitActions>
+                <Setter Property="Visibility" TargetName="check" Value="Hidden"/>
+			  </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
