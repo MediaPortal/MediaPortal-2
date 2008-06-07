@@ -577,72 +577,76 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       ResetEventHandlerAttachments();
       result = null;
-      if (_typeOfSource == SourceType.SourceProperty)
-        result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
-      else if (_typeOfSource == SourceType.RelativeSource)
+      switch (_typeOfSource)
       {
-        if (!(_contextObject is DependencyObject))
-          return false;
-        DependencyObject current = (DependencyObject) _contextObject;
-        switch (RelativeSource.Mode)
-        {
-          case RelativeSourceMode.Self:
-            result = new ValueDataDescriptor(current);
-            return true;
-          case RelativeSourceMode.TemplatedParent:
-            while (current != null)
-            {
-              DependencyObject last = current;
-              FindParent(last, out current);
-              if (last is UIElement && ((UIElement) last).IsTemplateRoot)
-              {
-                result = new ValueDataDescriptor(current);
-                return true;
-              }
-            }
+        case SourceType.DataContext:
+          if (!FindDataContext(out result))
             return false;
-          case RelativeSourceMode.FindAncestor:
-            if (current == null || !FindParent(current, out current)) // Start from the first ancestor
+          break;
+        case SourceType.SourceProperty:
+          result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
+          break;
+        case SourceType.RelativeSource:
+          if (!(_contextObject is DependencyObject))
+            return false;
+          DependencyObject current = (DependencyObject) _contextObject;
+          switch (RelativeSource.Mode)
+          {
+            case RelativeSourceMode.Self:
+              result = new ValueDataDescriptor(current);
+              return true;
+            case RelativeSourceMode.TemplatedParent:
+              while (current != null)
+              {
+                DependencyObject last = current;
+                FindParent(last, out current);
+                if (last is UIElement && ((UIElement) last).IsTemplateRoot)
+                {
+                  result = new ValueDataDescriptor(current);
+                  return true;
+                }
+              }
               return false;
-            int ct = RelativeSource.AncestorLevel;
-            while (current != null)
-            {
-              if (RelativeSource.AncestorType == null || RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
-                ct -= 1;
-              if (ct == 0)
-              {
-                result = new ValueDataDescriptor(current);
-                return true;
-              }
-              if (!FindParent(current, out current))
+            case RelativeSourceMode.FindAncestor:
+              if (current == null || !FindParent(current, out current)) // Start from the first ancestor
                 return false;
-            }
+              int ct = RelativeSource.AncestorLevel;
+              while (current != null)
+              {
+                if (RelativeSource.AncestorType == null ||
+                    RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
+                  ct -= 1;
+                if (ct == 0)
+                {
+                  result = new ValueDataDescriptor(current);
+                  return true;
+                }
+                if (!FindParent(current, out current))
+                  return false;
+              }
+              return false;
+              //case RelativeSourceMode.PreviousData:
+              //  // TODO: implement this
+              //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
+            default:
+              // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
+              throw new NotImplementedException(
+                  string.Format("RelativeSourceMode '{0}' is not implemented", RelativeSource.Mode));
+          }
+          break;
+        case SourceType.ElementName:
+          if (!(_contextObject is UIElement))
             return false;
-          //case RelativeSourceMode.PreviousData:
-          //  // TODO: implement this
-          //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
-          default:
-            // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
-            throw new NotImplementedException();
-        }
+          object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
+          if (obj == null)
+            return false;
+          result = new ValueDataDescriptor(obj);
+          break;
+        default:
+          // Should never occur. If so, we have forgotten to handle a SourceType
+          throw new NotImplementedException(
+              string.Format("SourceType '{0}' is not implemented", _typeOfSource));
       }
-      else if (_typeOfSource == SourceType.ElementName)
-      {
-        if (!(_contextObject is UIElement))
-          return false;
-        object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
-        if (obj == null)
-          return false;
-        result = new ValueDataDescriptor(obj);
-      }
-      else if (_typeOfSource == SourceType.DataContext)
-      {
-        if (!FindDataContext(out result))
-          return false;
-      }
-      else
-        // Should never occur. If so, we have forgotten to handle a SourceType
-        throw new NotImplementedException();
       if (result != null)
         AttachToSource(result);
       return true;
@@ -759,7 +763,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         {
           //FIXME: attach to LostFocus event of the next visual in context stack, create
           //change handler and call bd.UpdateSource() in the handler notification method
-          throw new NotImplementedException();
+          throw new NotImplementedException("UpdateSourceTrigger.LostFocus is not implemented");
         }
         _retryBinding = false;
         return true;
