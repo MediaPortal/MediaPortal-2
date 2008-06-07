@@ -228,6 +228,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Visibility = copyManager.GetCopy(el.Visibility);
       IsEnabled = copyManager.GetCopy(el.IsEnabled);
       IsItemsHost = copyManager.GetCopy(el.IsItemsHost);
+      // FIXME Albert78: Implement Freezing
       Freezable = copyManager.GetCopy(el.Freezable);
       Opacity = copyManager.GetCopy(el.Opacity);
       Loaded = copyManager.GetCopy(el.Loaded);

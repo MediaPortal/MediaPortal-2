@@ -179,7 +179,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       else
       {
-        while (element.Context == null && element.VisualParent != null)
+        while (!(element is ListViewItem) && element.VisualParent != null)
           element = element.VisualParent as UIElement;
         CurrentItem = element.Context;
       }
