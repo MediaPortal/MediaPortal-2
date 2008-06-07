@@ -132,6 +132,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _focusedElement.SetValue(value); }
     }
 
+    /// <summary>
+    /// Flag to be set on a root Visual to switch if the enclosing window
+    /// should be added to the window history.
+    /// FIXME Albert78: Choose another solution for this.
+    /// </summary>
     public bool History
     {
       get { return _history; }
