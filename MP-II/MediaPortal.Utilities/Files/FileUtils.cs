@@ -110,5 +110,22 @@ namespace MediaPortal.Utilities.Files
       return path.Length > 0 &&
         (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
+
+    /// <summary>
+    /// Returns all files in the specified directory. The method traverses recursively
+    /// through the directory tree.
+    /// </summary>
+    /// <param name="dir">Root directory to start the search from.</param>
+    /// <returns>List of all files under the specified root directory.</returns>
+    public static IList<FileInfo> GetAllFilesRecursively(DirectoryInfo dir)
+    {
+      IList<FileInfo> result = new List<FileInfo>();
+      foreach (FileInfo file in dir.GetFiles())
+        result.Add(file);
+      foreach (DirectoryInfo subDir in dir.GetDirectories())
+        foreach (FileInfo file in GetAllFilesRecursively(subDir))
+          result.Add(file);
+      return result;
+    }
   }
 }
