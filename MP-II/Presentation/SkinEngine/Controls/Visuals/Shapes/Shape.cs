@@ -440,8 +440,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
     static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction, ExtendedMatrix finalTransLayoutform)
     {
-      double ang = (float)Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
+      double ang = Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
       double pi2 = Math.PI / 2.0; //90gr
+
       if (direction == PolygonDirection.Clockwise)
         ang += pi2;
       else
@@ -541,31 +542,69 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     /// <param name="cy">The cy.</param>
     /// <param name="thickNess">The thick ness.</param>
     /// <returns></returns>
-    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform, bool center)
     {
       PolygonDirection direction = PointsDirection(path);
-      return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
+      return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform, center);
     }
 
-    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
+    /// <summary>
+    /// Converts the graphics path to an array of vertices using trianglestrip.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="thickNess">The thickness of the line.</param>
+    /// <param name="isClosed">True if we should connect the first and last point.</param>
+    /// <param name="PolygonDirection">The polygon direction.</param>
+    /// <param name="PositionColored2Textured">The generated verts.</param>
+    /// <param name="PolygonDirection">finalLayoutTransform.</param>
+    /// <param name="isCenterFill">True if center fill otherwise left hand fill.</param>
+    /// <returns>vertex buffer</returns>
+    /// 
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform, bool isCenterFill)
     {
       verts = null;
-      if (path.PointCount <= 0) return null;
-      // thickNess /= 2.0f;
+      if (path.PointCount <= 0) 
+        return null;
+
       float thicknessW = thickNess * SkinContext.Zoom.Width;
       float thicknessH = thickNess * SkinContext.Zoom.Height;
       PointF[] points = path.PathPoints;
-      int pointCount = points.Length;
-      int verticeCount = (pointCount) * 2 * 3;
+      PointF[] newPoints = new PointF[points.Length];
+      int pointCount;
+      int lastPoint;
+      float x=0.0f, y=0.0f;
 
+      if (isClosed)
+        pointCount = points.Length;
+      else
+        pointCount = points.Length - 1;
+
+      int verticeCount = pointCount * 2 * 3;
       VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
       verts = new PositionColored2Textured[verticeCount];
 
-      float x, y;
-      for (int i = 0; i < (pointCount); ++i)
+      // If center fill then we must move the points half the inset.
+      if (isCenterFill)
+      {
+        lastPoint = points.Length - 1;
+
+        for (int i = 0; i < points.Length - 1; i++)
+        {
+          PointF nextpoint = GetNextPoint(points, i, points.Length);
+          GetInset(nextpoint, points[i], out x, out y, (double)-thicknessW / 2.0, (double)-thicknessH / 2.0, direction, finalLayoutTransform);
+          newPoints[i].X = x;
+          newPoints[i].Y = y;
+        }
+        newPoints[lastPoint].X = points[lastPoint].X + (x - points[lastPoint - 1].X);
+        newPoints[lastPoint].Y = points[lastPoint].Y + (y - points[lastPoint - 1].Y);
+        points = newPoints;
+      }
+
+      for (int i = 0; i < pointCount; i++)
       {
         int offset = i * 6;
-        PointF nextpoint = GetNextPoint(points, i, pointCount);
+
+        PointF nextpoint = GetNextPoint(points, i, points.Length);
         GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction, finalLayoutTransform);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
@@ -575,8 +614,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         verts[offset + 4].Position = new Vector3(x, y, 1);
 
         verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
-
-
       }
       return vertexBuffer;
     }

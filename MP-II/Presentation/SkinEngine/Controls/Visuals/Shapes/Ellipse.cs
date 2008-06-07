@@ -118,7 +118,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
               if (_borderAsset.VertexBuffer != null)
               {
                 Stroke.SetupBrush(this, ref verts);

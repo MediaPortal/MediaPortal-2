@@ -550,7 +550,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
                 _borderAsset = new VisualAssetContext("Border._borderAsset:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
               if (_borderAsset.VertexBuffer != null)
               {
                 BorderBrush.SetupBrush(this, ref verts);

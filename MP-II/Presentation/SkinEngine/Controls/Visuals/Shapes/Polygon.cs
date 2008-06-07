@@ -155,7 +155,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
               }
               using (path = GetPolygon(rect))
               {
-                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
                 if (_borderAsset.VertexBuffer != null)
                 {
                   Stroke.SetupBrush(this, ref verts);

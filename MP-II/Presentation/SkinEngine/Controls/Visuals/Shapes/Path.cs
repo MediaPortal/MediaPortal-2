@@ -173,22 +173,12 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Path._borderContext:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              /*
-               * Mr Hipp - CalculateLinePoints does not work.
-               * 
-               if (_fillDisabled)
-                 _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
-               else
-                _borderAsset.VertexBuffer = CalculateLinePoints(path, (float)StrokeThickness, false, mode, out verts);
-              */
-
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts, _finalLayoutTransform, true);
               if (_borderAsset.VertexBuffer != null)
               {
                 Stroke.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                //_verticesCountBorder = verts.Length - 2;// (verts.Length / 3);
                 _verticesCountBorder = verts.Length / 3;
               }
             }
