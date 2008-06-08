@@ -152,8 +152,6 @@ namespace Presentation.SkinEngine.GUI
       }
       _windowState = WindowState;
 
-      _previousPosition = Location;
-
       // GraphicsDevice has to be initialized after the correct size was set on this form
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
@@ -529,6 +527,7 @@ namespace Presentation.SkinEngine.GUI
       // Must be done before reset. Otherwise we will lose the device after reset.
       if (newFullscreen)
       {
+        _previousPosition = Location;
         Location = new Point(0, 0);
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = Screen.PrimaryScreen.Bounds.Size;
