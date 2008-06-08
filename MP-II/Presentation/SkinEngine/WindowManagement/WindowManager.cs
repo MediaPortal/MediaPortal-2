@@ -94,10 +94,10 @@ namespace Presentation.SkinEngine
         Fonts.FontManager.Alloc();
 
         // If the new skin is not "compatible" with the new skin (which means that
-        // the screen names do not match), we need to clean the history. We will
+        // the screen names do not match), we need to tidy up the history. We will
         // simply remove all screens from the history which are not present in
         // the new skin. At least the first screen (the home screen) will hopefully remain,
-        // if the new screen isn't broken.
+        // if the new skin isn't broken.
         string[] oldScreens = _history.ToArray();
         _history.Clear();
         for (int i = oldScreens.Length - 1; i >= 0; i-- )
