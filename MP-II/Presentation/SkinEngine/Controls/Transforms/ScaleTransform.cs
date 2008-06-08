@@ -25,6 +25,7 @@
 using MediaPortal.Presentation.Properties;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {

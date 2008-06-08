@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {

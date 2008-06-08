@@ -27,7 +27,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Manager class which caches all skins which are available in the system.

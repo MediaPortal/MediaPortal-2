@@ -26,6 +26,7 @@ using System;
 using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {

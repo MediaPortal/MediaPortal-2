@@ -22,12 +22,11 @@
 
 #endregion
 
-using System;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {

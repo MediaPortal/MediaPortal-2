@@ -23,20 +23,11 @@
 #endregion
 
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
-using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Rectangle = System.Drawing.Rectangle;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

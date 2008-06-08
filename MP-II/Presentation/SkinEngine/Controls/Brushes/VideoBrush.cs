@@ -34,6 +34,7 @@ using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
 using Rectangle = System.Drawing.Rectangle;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

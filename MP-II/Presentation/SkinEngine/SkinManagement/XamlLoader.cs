@@ -31,7 +31,7 @@ using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements;
 using System.IO;
 
-namespace Presentation.SkinEngine.Loader
+namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
   /// This is the loader class for XAML files. It uses a XAML parser to read the

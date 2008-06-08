@@ -48,6 +48,7 @@ using Presentation.SkinEngine;
 using Presentation.SkinEngine.Commands;
 using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Players;
+using Presentation.SkinEngine.SkinManagement;
 
 using Presentation.SkinEngine.Settings;
 

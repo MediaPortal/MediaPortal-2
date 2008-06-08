@@ -35,7 +35,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.SkinManagement
 {                         
   /// <summary>
   /// Holds context variables which are used by the skin controls.

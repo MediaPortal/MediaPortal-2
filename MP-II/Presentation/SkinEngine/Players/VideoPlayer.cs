@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -37,15 +36,12 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
-
 using MediaPortal.Media.MediaManager;
-
-using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.Players.Vmr9;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Players
 {

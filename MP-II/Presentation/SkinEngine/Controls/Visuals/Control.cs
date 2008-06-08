@@ -38,6 +38,7 @@ using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

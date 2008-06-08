@@ -21,12 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Diagnostics;
+
 using System.Collections.Generic;
-using System.Text;
 using Presentation.SkinEngine;
-using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.SkinManagement;
+
 namespace Presentation.SkinEngine.Rendering
 {
   /// <summary>

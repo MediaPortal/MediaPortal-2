@@ -33,6 +33,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

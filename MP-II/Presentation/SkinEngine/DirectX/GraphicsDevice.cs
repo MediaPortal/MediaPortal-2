@@ -37,6 +37,7 @@ using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {

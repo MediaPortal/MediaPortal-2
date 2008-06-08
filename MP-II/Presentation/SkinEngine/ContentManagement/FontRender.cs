@@ -25,11 +25,12 @@
 using System;
 using System.Drawing;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.SkinManagement;
+
 namespace Presentation.SkinEngine.Fonts
 {
   public class FontRender

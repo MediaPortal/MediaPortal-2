@@ -34,7 +34,7 @@ using FontRender = Presentation.SkinEngine.Fonts.FontRender;
 using FontBufferAsset = Presentation.SkinEngine.Fonts.FontBufferAsset;
 using FontManager = Presentation.SkinEngine.Fonts.FontManager;
 using MediaPortal.Utilities.DeepCopy;
-
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

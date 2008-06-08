@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SlimDX;
 using SlimDX.Direct3D9;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Effects
 {

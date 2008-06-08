@@ -30,6 +30,7 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Players
 {

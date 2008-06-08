@@ -24,26 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Globalization;
-using System.Windows.Forms;
-using System.Diagnostics; // for 'FileVersionInfo'
-using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
-using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
-
 using MediaPortal.Media.MediaManager;
-
-using Presentation.SkinEngine.Commands;
+using Presentation.SkinEngine.SkinManagement;
 
 
 namespace Presentation.SkinEngine.Players

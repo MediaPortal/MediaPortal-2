@@ -29,7 +29,7 @@ using Presentation.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
 using SlimDX;
-using Presentation.SkinEngine.MarkupExtensions;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {

@@ -39,6 +39,7 @@ using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 // changes possible:
 // - opacity

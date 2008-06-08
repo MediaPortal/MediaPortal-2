@@ -32,13 +32,9 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PathManager;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.Players;
-using Presentation.SkinEngine.Players.Geometry;
 using Presentation.ThumbnailGenerator;
-using Geometry = Presentation.SkinEngine.Players.Geometry.Geometry;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {

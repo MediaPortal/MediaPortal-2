@@ -35,7 +35,6 @@ using DirectShowLib;
 using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
@@ -43,9 +42,8 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.Players;
 using SlimDX;
-using SlimDX.Direct3D9;
-using Presentation.SkinEngine.Commands;
 using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Players
 {

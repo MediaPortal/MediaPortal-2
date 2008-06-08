@@ -36,6 +36,7 @@ using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

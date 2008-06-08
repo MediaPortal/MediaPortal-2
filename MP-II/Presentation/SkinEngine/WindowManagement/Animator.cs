@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Animations;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {

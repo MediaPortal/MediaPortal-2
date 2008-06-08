@@ -28,6 +28,7 @@ using MediaPortal.Presentation.WindowManager;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

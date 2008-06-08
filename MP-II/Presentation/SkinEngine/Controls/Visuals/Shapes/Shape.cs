@@ -36,6 +36,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using GeometryUtility;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {

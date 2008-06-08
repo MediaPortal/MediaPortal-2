@@ -241,9 +241,11 @@
     <Compile Include="MpfElements\Resources\ApplicationResources.cs" />
     <Compile Include="MpfElements\Resources\Include.cs" />
     <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />
+    <Compile Include="SkinManagement\SkinContext.cs" />
     <Compile Include="SkinManagement\Theme.cs" />
     <Compile Include="SkinManagement\Skin.cs" />
     <Compile Include="SkinManagement\SkinManager.cs" />
+    <Compile Include="SkinManagement\XamlLoader.cs" />
     <Compile Include="XamlParser\NameScope.cs" />
     <Compile Include="XamlParser\DataDescriptors.cs" />
     <Compile Include="Models\Model.cs" />
@@ -297,12 +299,10 @@
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Fullscreen.cs" />
-    <Compile Include="SkinContext.cs" />
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
-    <Compile Include="Loader\XamlLoader.cs" />
     <Compile Include="WindowManagement\Animator.cs" />
     <Compile Include="WindowManagement\Utils.cs" />
     <Compile Include="WindowManagement\Window.cs" />

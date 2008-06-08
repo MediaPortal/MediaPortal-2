@@ -27,6 +27,7 @@ using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

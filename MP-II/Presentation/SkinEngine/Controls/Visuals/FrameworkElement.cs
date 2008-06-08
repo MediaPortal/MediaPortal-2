@@ -33,6 +33,7 @@ using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

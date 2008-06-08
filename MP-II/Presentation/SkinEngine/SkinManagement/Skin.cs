@@ -27,9 +27,8 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Files;
-using Presentation.SkinEngine.Loader;
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Represents a skin - which is a logical construct consisting of a logical name

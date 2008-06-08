@@ -28,9 +28,8 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Files;
 using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.Loader;
 
-namespace Presentation.SkinEngine
+namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Holds theme files for its <see cref="ParentSkin"/>.

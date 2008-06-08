@@ -29,6 +29,7 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Fonts
 {

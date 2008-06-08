@@ -27,6 +27,7 @@ using MediaPortal.Presentation.Properties;
 using RectangleF = System.Drawing.RectangleF;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {

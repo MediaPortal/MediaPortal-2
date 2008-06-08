@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {

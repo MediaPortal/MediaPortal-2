@@ -32,6 +32,7 @@ using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
 using MediaPortal.Presentation.Collections;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

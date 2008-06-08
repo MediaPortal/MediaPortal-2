@@ -35,6 +35,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Logging;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Effects;
+using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Players.Subtitles
 {
