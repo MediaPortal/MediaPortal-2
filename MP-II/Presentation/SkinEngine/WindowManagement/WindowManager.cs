@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -92,8 +93,27 @@ namespace Presentation.SkinEngine
         Fonts.FontManager.Reload();
         Fonts.FontManager.Alloc();
 
-        // FIXME: History may not be recoverable, if the new skin is not compatible.
-        // What to do then?
+        // If the new skin is not "compatible" with the new skin (which means that
+        // the screen names do not match), we need to clean the history. We will
+        // simply remove all screens from the history which are not present in
+        // the new skin. At least the first screen (the home screen) will hopefully remain,
+        // if the new screen isn't broken.
+        string[] oldScreens = _history.ToArray();
+        _history.Clear();
+        for (int i = oldScreens.Length - 1; i >= 0; i-- )
+        {
+          string screenName = oldScreens[i];
+          FileInfo skinFile = SkinContext.Skin.GetSkinFile(screenName);
+          if (skinFile != null)
+            _history.Push(screenName);
+        }
+        if (SkinContext.Skin.GetSkinFile(windowName) == null && _history.Count > 0)
+          windowName = _history.Peek();
+        if (windowName == null)
+          // This should never occur because our old history always should have contained
+          // at least the home screen, which should be present in all skins.
+          // But we never know. This is our last fallback.
+          windowName = STARTUP_SCREEN;
 
         _currentWindow = GetWindow(windowName);
         _currentWindow.HasFocus = true;
