@@ -4,9 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Service Players}}"
     IsVisible="{Binding Path=OSD.IsMouseUsed}">
-  <Canvas.Resources>
-    <ResourceDictionary Source="styles_osd.xml"/>
-  </Canvas.Resources>
+
   <Image Source="osd_background.png" Canvas.Left="330" Canvas.Top="542" Height="10" Width="198" IsVisible="{Binding Path=OSD.IsVideo}"/>
   <Image Source="osd_background.png" Canvas.Left="330" Canvas.Top="542" Height="10" Width="198" IsVisible="{Binding Path=OSD.IsAudio}"/>
   <Canvas IsVisible="{Binding Path=OSD.IsMouseUsed}" Canvas.Left="350" Canvas.Top="530" >
