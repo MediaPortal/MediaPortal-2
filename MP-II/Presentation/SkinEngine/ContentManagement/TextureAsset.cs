@@ -173,85 +173,70 @@ namespace Presentation.SkinEngine
         return;
       }
       byte[] thumbData = null;
-      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
       ImageInformation info = new ImageInformation();
 
 
       if (_state == State.Unknown)
       {
-        _sourceFileName = String.Format(@"skin\{0}\themes\{1}\media\{2}", SkinContext.SkinName, SkinContext.ThemeName, _textureName);
-        if (File.Exists(_sourceFileName))
+        FileInfo sourceFile = SkinContext.GetResourceFromThemeOrSkin(
+            Skin.MEDIA_DIRECTORY + "\\" + _textureName);
+        if (sourceFile != null && sourceFile.Exists)
         {
+          _sourceFileName = sourceFile.FullName;
           _state = State.Created;
-        }
-        else
-        {
-          _sourceFileName = String.Format(@"{0}\{1}\Media\{2}", skinPath, SkinContext.SkinName, _textureName);
-          if (File.Exists(_sourceFileName))
-          {
-            _state = State.Created;
-          }
         }
 
         if (_state == State.Unknown)
         {
-          //if (File.Exists(_textureName))
-          //{
-          //  _sourceFileName = _textureName;
-          //  _state = State.Created;
-          //}
-          //else
+          Uri uri;
+          if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
           {
-            Uri uri = null;
-            if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
-            {
-              ServiceScope.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
-              _state = State.DoesNotExist;
-              return;
-            }
+            ServiceScope.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
+            _state = State.DoesNotExist;
+            return;
+          }
 
 
-            if (!uri.IsFile)
+          if (!uri.IsFile)
+          {
+            if (_state == State.Unknown)
             {
-              if (_state == State.Unknown)
+              if (_webClient == null)
               {
-                if (_webClient == null)
-                {
-                  _state = State.Creating;
-                  _webClient = new WebClient();
-                  //_webClient.Proxy = null;
-                  _webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable);
-                  _webClient.DownloadDataCompleted += _webClient_DownloadDataCompleted;
-                  _webClient.DownloadDataAsync(uri);
-                  return;
-                }
+                _state = State.Creating;
+                _webClient = new WebClient();
+                //_webClient.Proxy = null;
+                _webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable);
+                _webClient.DownloadDataCompleted += _webClient_DownloadDataCompleted;
+                _webClient.DownloadDataAsync(uri);
+                return;
+              }
+            }
+          }
+          else
+          {
+            _sourceFileName = uri.LocalPath;
+            if (UseThumbNail)
+            {
+              bool exists = Generator.Instance.Exists(_sourceFileName);
+              if (exists)
+              {
+                thumbData = Generator.Instance.GetThumbNail(_sourceFileName);
+                _state = State.Created;
+              }
+              else if (Generator.Instance.IsCreating(_sourceFileName))
+              {
+                _state = State.Creating;
+              }
+              else
+              {
+                Generator.Instance.CreateThumbnail(_sourceFileName);
+                _state = State.Creating;
               }
             }
             else
             {
-              _sourceFileName = uri.LocalPath;
-              if (UseThumbNail)
-              {
-                bool exists = Generator.Instance.Exists(_sourceFileName);
-                if (exists)
-                {
-                  thumbData = Generator.Instance.GetThumbNail(_sourceFileName);
-                  _state = State.Created;
-                }
-                else if (Generator.Instance.IsCreating(_sourceFileName))
-                {
-                  _state = State.Creating;
-                }
-                else
-                {
-                  Generator.Instance.CreateThumbnail(_sourceFileName);
-                  _state = State.Creating;
-                }
-              }
-              else
-              {
-                _state = State.Created;
-              }
+              _state = State.Created;
             }
           }
         }

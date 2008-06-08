@@ -28,6 +28,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
+using MediaPortal.Utilities.Files;
 using Presentation.SkinEngine.XamlParser.XamlNamespace;
 
 namespace Presentation.SkinEngine.XamlParser
@@ -167,9 +168,9 @@ namespace Presentation.SkinEngine.XamlParser
     protected ConvertTypeDlgt _customTypeConverter = null;
 
     /// <summary>
-    /// The name of the XAML file to process.
+    /// The XAML file to process.
     /// </summary>
-    protected FileInfo _xamlFileName;
+    protected FileInfo _xamlFile;
 
     /// <summary>
     /// The document being processed.
@@ -207,12 +208,12 @@ namespace Presentation.SkinEngine.XamlParser
     /// register all necessary namespace handlers. To start the parsing operation, call
     /// method <see cref="Parse()"/>.
     /// </remarks>
-    /// <param name="xamlFileName">The name of the XAML file to parse in this parser.</param>
+    /// <param name="xamlFile">The XAML file to parse in this parser.</param>
     /// <param name="importNamespace">Delegate to be called when importing
     /// a new XML/XAML namespace.</param>
     /// <param name="getEventHandler">Delegate to be called when an event handler method
     /// should be assigned.</param>
-    public Parser(string xamlFileName, ImportNamespaceDlgt importNamespace,
+    public Parser(FileInfo xamlFile, ImportNamespaceDlgt importNamespace,
         GetEventHandlerDlgt getEventHandler)
     {
       if (importNamespace == null)
@@ -222,15 +223,16 @@ namespace Presentation.SkinEngine.XamlParser
         throw new ArgumentNullException("The GetEventHandler delegate must not be null");
       _getEventHandler = getEventHandler;
       XmlDocument doc = new XmlDocument();
-      if (File.Exists(xamlFileName))
+      if (xamlFile.Exists)
       {
-        doc.Load(xamlFileName);
-        _xamlFileName = new FileInfo(xamlFileName);
+        _xamlFile = xamlFile;
+        using (FileStream fs = _xamlFile.OpenRead())
+          doc.Load(fs);
         _xmlDocument = doc;
       }
       else
       {
-        throw new IOException(string.Format("XAML file '{0}' does not exist", xamlFileName));
+        throw new IOException(string.Format("XAML file '{0}' does not exist", xamlFile.FullName));
       }
     }
 
@@ -243,7 +245,7 @@ namespace Presentation.SkinEngine.XamlParser
     /// </summary>
     public FileInfo XAMLFileName
     {
-      get { return _xamlFileName; }
+      get { return _xamlFile; }
     }
 
     /// <summary>
@@ -285,7 +287,7 @@ namespace Presentation.SkinEngine.XamlParser
         return _rootObject;
       }
       else
-        throw new XamlParserException("XAML Parser for file '{0}': Parse() method was invoked multiple times", _xamlFileName);
+        throw new XamlParserException("XAML Parser for file '{0}': Parse() method was invoked multiple times", _xamlFile);
     }
 
     #endregion
@@ -904,6 +906,14 @@ namespace Presentation.SkinEngine.XamlParser
     /// <see cref="IParserContext.ContextStack"/>
     public ElementContextStack ContextStack
     { get { return _elementContextStack; } }
+
+    /// <see cref="IParserContext.LoadXaml(string)"/>
+    public object LoadXaml(string fileName)
+    {
+      Parser subParser = new Parser(new FileInfo(FileUtils.CombinePaths(_xamlFile.DirectoryName, fileName)),
+          _importCustomNamespace, _getEventHandler);
+      return subParser.Parse();
+    }
 
     /// <see cref="IParserContext.LookupNamespace(string,out string,out string)"/>
     public void LookupNamespace(string elementName, out string localName, out string namespaceURI)

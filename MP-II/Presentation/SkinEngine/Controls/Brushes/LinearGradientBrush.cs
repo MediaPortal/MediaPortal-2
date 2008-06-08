@@ -225,11 +225,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
             Trace.WriteLine("LinearGradientBrush:Create cached texture");
             float w = (float)_width;
             float h = (float)_height;
-            float cx = ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
-            float cy = ((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+            float cx = GraphicsDevice.Width / (float) SkinContext.Skin.Width;
+            float cy = GraphicsDevice.Height / (float) SkinContext.Skin.Height;
 
             bool copy = true;
-            if ((int)w == SkinContext.Width && (int)h == SkinContext.Height)
+            if ((int)w == SkinContext.Skin.Width && (int)h == SkinContext.Skin.Height)
             {
               copy = false;
               w /= 2;
@@ -240,8 +240,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
             //next put the control at position (0,0,0)
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
-            m.Matrix *= Matrix.Translation(new Vector3(-(float)(_position.X + 1), -(float)(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling((float)((((float)SkinContext.Width) * cx) / w), (float)((((float)SkinContext.Height * cy)) / h), 1.0f);
+            m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
+            m.Matrix *= Matrix.Scaling(((SkinContext.Skin.Width) * cx) / w, (SkinContext.Skin.Height * cy) / h, 1.0f);
 
             SkinContext.AddTransform(m);
 
@@ -257,10 +257,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
                   GraphicsDevice.Device.StretchRect(backBuffer,
-                                                         new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
-                                                         cacheSurface,
-                                                         new System.Drawing.Rectangle((int)0, (int)0, (int)(w), (int)(h)),
-                                                         TextureFilter.None);
+                      new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                      cacheSurface,
+                      new System.Drawing.Rectangle(0, 0, (int) w, (int) h),
+                      TextureFilter.None);
 
                 }
                 //change the rendertarget to the opacitytexture

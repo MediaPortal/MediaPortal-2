@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -144,13 +145,13 @@ namespace Presentation.SkinEngine.Fonts
       _fonts = new Dictionary<string, Font>();
 
       XmlDocument doc = new XmlDocument();
-      // Albert78, 26.3.08: FIXME overwork the path resolution
-      doc.Load(String.Format(@"skin\{0}\font.xml", SkinContext.SkinName));
+      FileInfo fontFile = SkinContext.GetResourceFromThemeOrSkin(Skin.FONT_META_FILE);
+      if (fontFile == null || !fontFile.Exists)
+        return;
+      doc.Load(fontFile.FullName);
       XmlNodeList nodes = doc.SelectNodes("/fonts/font");
       foreach (XmlNode node in nodes)
-      {
         LoadFont(node);
-      }
     }
   }
 }

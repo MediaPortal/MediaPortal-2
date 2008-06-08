@@ -38,6 +38,7 @@ namespace Models.Settings
 {
   // FIXME Albert78: Move this into the SkinEngine and integrate the settings into the
   // main settings
+  // Rework the whole class
   public class Appearance : IPlugin
   {
     ItemsCollection _mainMenu;
@@ -74,8 +75,10 @@ namespace Models.Settings
       for (int i = 0; i < skins.Length; ++i)
       {
         ListItem item = new ListItem("Name", skins[i].Substring(5));
-        item.Add("CoverArt", String.Format(@"{0}\media\preview.png", Path.GetFullPath(skins[i])));
-        item.Add("defaulticon", String.Format(@"{0}\media\preview.png", Path.GetFullPath(skins[i])));
+        // FIXME Albert78: Use the SkinContext resolving mechanism here, after this class was moved
+        // to SkinEngine project
+        item.Add("CoverArt", String.Format("preview.png"));
+        item.Add("defaulticon", String.Format("preview.png"));
         _skins.Add(item);
       }
 
@@ -190,6 +193,7 @@ namespace Models.Settings
 
       IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
       windowMgr.SwitchSkin(skinChoosen);
+      GetThemes();
     }
 
     /// <summary>

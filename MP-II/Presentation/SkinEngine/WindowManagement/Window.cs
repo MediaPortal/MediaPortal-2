@@ -385,7 +385,7 @@ namespace Presentation.SkinEngine
     public void Reset()
     {
       Trace.WriteLine("Window Reset: " + Name);
-      SkinContext.Zoom = new System.Drawing.SizeF(((float)GraphicsDevice.Width) / SkinContext.Width, ((float)GraphicsDevice.Height) / SkinContext.Height);
+      GraphicsDevice.InitializeZoom();
       _visual.Invalidate();
       _visual.Initialize();
       _visual.Reset();

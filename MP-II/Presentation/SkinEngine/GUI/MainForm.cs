@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -41,9 +40,6 @@ using MediaPortal.Core.UserManagement;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.AutoPlay;
 
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.Importers;
-
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
@@ -52,7 +48,6 @@ using Presentation.SkinEngine;
 using Presentation.SkinEngine.Commands;
 using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Players;
-using Presentation.SkinEngine.Loader;
 
 using Presentation.SkinEngine.Settings;
 
@@ -74,6 +69,7 @@ namespace Presentation.SkinEngine.GUI
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
     private string _displaySetting;
+    private WindowManager _windowManager;
 
     public MainForm()
     {
@@ -102,9 +98,12 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Add<IMenuBuilder>(menuBuilder);
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IWindowManager service");
-      WindowManager windowManager = new WindowManager();
-      ServiceScope.Add<IWindowManager>(windowManager);
+      _windowManager = new WindowManager();
+      ServiceScope.Add<IWindowManager>(_windowManager);
 
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerFactory service");
+      PlayerFactory playerFactory = new PlayerFactory();
+      ServiceScope.Get<IPlayerFactory>().Register(playerFactory);
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerCollection service");
       MediaPlayers players = new MediaPlayers();
@@ -115,51 +114,66 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Add<IUserService>(userservice);
       //**********************************************************
 
-      _previousMousePosition = new Point(-1, -1);
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      // Albert78 FIXME: Make primary screen configurable
-      Rectangle screen = Screen.PrimaryScreen.Bounds;
-      ClientSize = new Size((int) SkinContext.Width, (int) SkinContext.Height);
-      fixed_aspect_ratio = SkinContext.Height / SkinContext.Width;
+      SkinContext.Form = this;
+      AppSettings appSettings = new AppSettings();
+      ServiceScope.Get<ISettingsManager>().Load(appSettings);
 
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Load skin");
+      WindowSettings windowSettings = new WindowSettings();
+      ServiceScope.Get<ISettingsManager>().Load(windowSettings);
+      if (string.IsNullOrEmpty(windowSettings.Skin))
+      {
+        windowSettings.Skin = "default";
+        windowSettings.Theme = "default";
+        ServiceScope.Get<ISettingsManager>().Save(windowSettings);
+      }
+      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
+      SkinContext.PrepareSkinAndTheme(windowSettings.Skin, windowSettings.Theme);
+
+      _previousMousePosition = new Point(-1, -1);
+      ClientSize = new Size(SkinContext.Skin.Width, SkinContext.Skin.Height);
+      fixed_aspect_ratio = SkinContext.Skin.Height / (float)SkinContext.Skin.Width;
 
       // Remember prev size
       _previousClientSize = ClientSize;
 
       // Set-up for fullscreen
-      if (settings.FullScreen)
+      if (appSettings.FullScreen)
       {
         Location = new Point(0, 0);
+        // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
         _mode = ScreenMode.ExclusiveMode;
-        _displaySetting = GraphicsDevice.DesktopDisplayMode;
       }
       _windowState = WindowState;
-      CheckTopMost();
+
+      _previousPosition = Location;
+
+      // GraphicsDevice has to be initialized after the correct size was set on this form
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
+      _directX = new GraphicsDevice(this, appSettings.FullScreen);
+
+      _displaySetting = GraphicsDevice.DesktopDisplayMode;
     }
 
 
     private void MainForm_Load(object sender, EventArgs e)
     {
-      SkinContext.Form = this;
-      _previousPosition = Location;
+      CheckTopMost();
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize directx");
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      _directX = new GraphicsDevice(this, settings.FullScreen);
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Load skin");
-      ServiceScope.Get<IWindowManager>().LoadSkin();
+      SkinContext.ActivateTheme();
+
+      _windowManager.ShowStartupScreen();
+
       StartRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
 
       // The form is active, so let's start listening on AutoPlay events
-      ServiceScope.Get<IAutoPlay>().StartListening(this.Handle);
+      ServiceScope.Get<IAutoPlay>().StartListening(Handle);
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -171,8 +185,6 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
-      MediaPortal.Utilities.Win32.Window.EnableStartBar(true);
-      MediaPortal.Utilities.Win32.Window.ShowStartBar(true);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
     }
 
@@ -181,8 +193,7 @@ namespace Presentation.SkinEngine.GUI
       // The render loop is restarted after toggle windowed / fullscreen
       // Make sure we invalidate all windows so the layout is re-done 
       // Big window layout does not fitt small window ;-)
-      WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-      manager.Reset();
+      _windowManager.Reset();
 
       _fpsTimer = DateTime.Now;
       _fpsCounter = 0;
@@ -250,10 +261,10 @@ namespace Presentation.SkinEngine.GUI
       _previousMousePosition.Y = e.Y;
       float x = e.X;
       float y = e.Y;
-      //x *= (((float)SkinContext.Width) / ((float)this.ClientSize.Width));
-      //y *= (((float)SkinContext.Height) / ((float)this.ClientSize.Height));
-      //x *= (SkinContext.Width / GraphicsDevice.Width);
-      //y *= (SkinContext.Height / GraphicsDevice.Height);
+      //x *= SkinContext.Skin.Width / (float) ClientSize.Width;
+      //y *= SkinContext.Skin.Height / (float) ClientSize.Height;
+      //x *= (SkinContext.Skin.Width / (float) GraphicsDevice.Width;
+      //y *= SkinContext.Skin.Height / (float) GraphicsDevice.Height;
       //      this.Text = String.Format("{0},{1}", x.ToString("f2"), y.ToString("f2"));
       ServiceScope.Get<IInputManager>().MouseMove(x, y);
     }
@@ -443,7 +454,7 @@ namespace Presentation.SkinEngine.GUI
 
         if (WindowState != FormWindowState.Minimized)
         {
-          GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), string.Empty);
+          GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), _displaySetting);
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Allocate fonts");
           FontManager.Alloc();
           ServiceScope.Get<IWindowManager>().Reset();
@@ -518,7 +529,7 @@ namespace Presentation.SkinEngine.GUI
       if (newFullscreen)
       {
         Location = new Point(0, 0);
-        // Albert78 FIXME: Make primary screen configurable
+        // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
       }
@@ -536,7 +547,7 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}, displaySetting = {2}", newFullscreen, mode, displaySetting);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
-      GraphicsDevice.Reset(this, (mode == ScreenMode.ExclusiveMode), displaySetting);
+      GraphicsDevice.Reset(this, mode == ScreenMode.ExclusiveMode, displaySetting);
 
       FontManager.Alloc();
 

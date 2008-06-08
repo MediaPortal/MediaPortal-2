@@ -83,8 +83,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _stretchDirectionProperty = new Property(typeof(StretchDirection), StretchDirection.Both);
       _thumbnailProperty = new Property(typeof(bool), false);
       _stretchProperty = new Property(typeof(Stretch), Stretch.None);
-      _imageSourceProperty.Attach(new PropertyChangedHandler(OnImageChanged));
-      _stretchDirectionProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
+      _imageSourceProperty.Attach(OnImageChanged);
+      _stretchDirectionProperty.Attach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -190,13 +190,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      layoutRect.X += Margin.X;
+      layoutRect.Y += Margin.Y;
+      layoutRect.Width -= Margin.X + Margin.W;
+      layoutRect.Height -= Margin.Y + Margin.Z;
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -217,7 +217,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         if (_finalRect!= finalRect)
           _performImageLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
 
       IsArrangeValid = true;
@@ -227,19 +227,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
 
       //Trace.WriteLine(String.Format("Image.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 
       InitializeTriggers();
 
-      float w = (float)Width * SkinContext.Zoom.Width;
-      float h = (float)Height * SkinContext.Zoom.Height;
+      float w = (float) Width * SkinContext.Zoom.Width;
+      float h = (float) Height * SkinContext.Zoom.Height;
       if (w <= 0 && availableSize.Width > 0)
-        w = ((float)availableSize.Width) - marginWidth;
+        w = (availableSize.Width) - marginWidth;
       if (h <= 0 && availableSize.Width > 0)
-        h = ((float)availableSize.Height) - marginHeight;
+        h = (availableSize.Height) - marginHeight;
 
       if (_image != null)
       {
@@ -497,14 +497,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
         {
           if (asset.Texture.Width > 0)
           {
-            imgScale.X = (float)(ActualWidth / ((float)asset.Texture.Width));
+            imgScale.X = (float)(ActualWidth / (float) asset.Texture.Width);
           }
         }
         if (Height > 0.0f)
         {
           if (asset.Texture.Height > 0)
           {
-            imgScale.Y = (float)(ActualHeight / ((float)asset.Texture.Height));
+            imgScale.Y = (float)(ActualHeight / (float) asset.Texture.Height);
           }
         }
 
@@ -512,20 +512,20 @@ namespace Presentation.SkinEngine.Controls.Visuals
         float height = (float)ActualHeight;
         float width = (float)ActualWidth;
         float pixelRatio = 1.0f;
-        float fSourceFrameRatio = ((float)asset.Texture.Width) / ((float)asset.Texture.Height);
+        float fSourceFrameRatio = asset.Texture.Width / (float) asset.Texture.Height;
         float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
         if (this.Stretch == Stretch.Uniform || this.Stretch == Stretch.UniformToFill)
         {
 
           if (this.Stretch == Stretch.Uniform)
           {
-            float fNewWidth = (float)width;
+            float fNewWidth = width;
             float fNewHeight = fNewWidth / fOutputFrameRatio;
 
             // make sure the height is not larger than the maximum
             if (fNewHeight > ActualHeight)
             {
-              fNewHeight = (float)height;
+              fNewHeight = height;
               fNewWidth = fNewHeight * fOutputFrameRatio;
             }
 
@@ -552,49 +552,49 @@ namespace Presentation.SkinEngine.Controls.Visuals
         float iSourceHeight = asset.Texture.Height;
         if (Stretch == Stretch.UniformToFill)
         {
-          float imageWidth = (float)asset.Texture.Width;
-          float imageHeight = (float)asset.Texture.Height;
+          float imageWidth = asset.Texture.Width;
+          float imageHeight = asset.Texture.Height;
           // suggested by ziphnor
           //float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-          float fSourcePixelRatio = fSourceFrameRatio / ((float)imageWidth / (float)imageHeight);
-          float fCroppedOutputFrameRatio = fSourcePixelRatio * ((float)imageWidth / (float)imageHeight) / pixelRatio;
+          float fSourcePixelRatio = fSourceFrameRatio / (imageWidth / imageHeight);
+          float fCroppedOutputFrameRatio = fSourcePixelRatio * (imageWidth / imageHeight) / pixelRatio;
 
           // calculate AR compensation (see http://www.iki.fi/znark/video/conversion)
           // assume that the movie is widescreen first, so use full height
           float fVertBorder = 0;
-          float fNewHeight = (float)(height);
+          float fNewHeight = height;
           float fNewWidth = fNewHeight * fOutputFrameRatio;
-          float fHorzBorder = (fNewWidth - (float)width) / 2.0f;
-          float fFactor = fNewWidth / ((float)imageWidth);
+          float fHorzBorder = (fNewWidth - width) / 2.0f;
+          float fFactor = fNewWidth / imageWidth;
           fFactor *= pixelRatio;
           fHorzBorder = fHorzBorder / fFactor;
 
           if ((int)fNewWidth < width)
           {
             fHorzBorder = 0;
-            fNewWidth = (float)(width);
+            fNewWidth = width;
             fNewHeight = fNewWidth / fOutputFrameRatio;
-            fVertBorder = (fNewHeight - (float)height) / 2.0f;
-            fFactor = fNewWidth / ((float)imageWidth);
+            fVertBorder = (fNewHeight - height) / 2.0f;
+            fFactor = fNewWidth / imageWidth;
             fFactor *= pixelRatio;
             fVertBorder = fVertBorder / fFactor;
           }
           iSourceX = fHorzBorder;
           iSourceY = fVertBorder;
-          iSourceWidth = ((float)imageWidth - 2.0f * fHorzBorder);
-          iSourceHeight = ((float)imageHeight - 2.0f * fVertBorder);
+          iSourceWidth = (imageWidth - 2.0f * fHorzBorder);
+          iSourceHeight = (imageHeight - 2.0f * fVertBorder);
         }
         // x-offset in texture
-        float uoffs = ((float)(iSourceX)) / ((float)asset.Texture.Width);
+        float uoffs = iSourceX / (float) asset.Texture.Width;
 
         // y-offset in texture
-        float voffs = ((float)iSourceY) / ((float)asset.Texture.Height);
+        float voffs = iSourceY / (float)asset.Texture.Height;
 
         // width copied from texture
-        float u = ((float)iSourceWidth) / ((float)asset.Texture.Width);
+        float u = iSourceWidth / (float)asset.Texture.Width;
 
         // height copied from texture
-        float v = ((float)iSourceHeight) / ((float)asset.Texture.Height);
+        float v = iSourceHeight / (float)asset.Texture.Height;
 
 
         if (uoffs < 0 || uoffs > 1)

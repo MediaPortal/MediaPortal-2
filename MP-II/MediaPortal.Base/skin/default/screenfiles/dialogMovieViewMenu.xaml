@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Canvas
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance}"
+    FocusedElement="{Binding ElementName=mainMenu}"
+    History="False">
+
+  <Border Canvas.Left="106" Canvas.Top="44" Width="520" Height="365" Background="#AFFFFFFF" CornerRadius="10">
+    <Canvas Width="500" Height="345" Background="{StaticResource dialogBackGroundBrush}" >
+      <Label Font="font13" Canvas.Left="25" Canvas.Top="0" Text="[system.5]" Width="100"  Color="#FFADADAD" VerticalAlignment="Top"/>
+      <Label Font="font13" Canvas.Left="136" Canvas.Top="0" Text="[movies.5]" Width="300"  Color="#FFF1E994" VerticalAlignment="Top"/>
+      <Button x:Name="closebtn" Canvas.Left="440" Canvas.Top="10" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
+      <ListView x:Name="mainMenu" Canvas.Left="34" Canvas.Top="40" Height="380" Width="400" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding Views}" >
+        <ListView.Commands>
+          <CommandGroup>
+            <InvokeCommand
+                Command="{Command Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance.SelectView}"
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
+            <InvokeCommand Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
+          </CommandGroup>
+        </ListView.Commands>
+      </ListView>
+    </Canvas>
+  </Border>
+</Canvas>

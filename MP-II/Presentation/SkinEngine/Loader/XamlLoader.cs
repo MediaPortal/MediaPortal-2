@@ -29,6 +29,7 @@ using MediaPortal.Core.Logging;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements;
+using System.IO;
 
 namespace Presentation.SkinEngine.Loader
 {
@@ -49,15 +50,9 @@ namespace Presentation.SkinEngine.Loader
     /// <param name="skinFile">The XAML skin file.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public object Load(string skinFile)
+    public static object Load(FileInfo skinFile)
     {
-      // FIXME: rework the XAML file lookup mechanism
-      string fullFileName = String.Format(@"skin\{0}\{1}", SkinContext.SkinName, skinFile);
-      if (System.IO.File.Exists(skinFile))
-      {
-        fullFileName = skinFile;
-      }
-      Parser parser = new Parser(fullFileName, parser_ImportNamespace, parser_GetEventHandler);
+      Parser parser = new Parser(skinFile, parser_ImportNamespace, parser_GetEventHandler);
       parser.SetCustomTypeConverter(Registration.ConvertType);
       DateTime dt = DateTime.Now;
       object obj = parser.Parse();

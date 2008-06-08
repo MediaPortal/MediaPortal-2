@@ -24,15 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
-using SlimDX;
 using System.Runtime.InteropServices;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using System.Threading;
 using DirectShowLib;
-using System.IO;
 using System.Drawing.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
@@ -472,8 +468,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
         subtitle.timeOut = sub.timeOut;
         subtitle.presentTime = sub.timeStamp / 90000.0f + startPos;
 
-        subtitle.height = (uint)SkinContext.Height;
-        subtitle.width = (uint)SkinContext.Width;
+        subtitle.height = (uint)SkinContext.Skin.Height;
+        subtitle.width = (uint)SkinContext.Skin.Width;
         subtitle.firstScanLine = 0;
 
         lock (subtitles)
@@ -500,8 +496,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
     public static Bitmap RenderText(LineContent[] lc)
     {
 
-      int w = (int)SkinContext.Width;
-      int h = (int)SkinContext.Height;
+      int w = (int)SkinContext.Skin.Width;
+      int h = (int)SkinContext.Skin.Height;
 
       Bitmap bmp = new Bitmap(w, h);
 
@@ -736,8 +732,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
         float rationW = 1, rationH = 1;
 
         Rectangle movieRect = player.MovieRectangle;
-        rationH = movieRect.Height / ((float)SkinContext.Height);
-        rationW = movieRect.Width / ((float)SkinContext.Width);
+        rationH = movieRect.Height / ((float)SkinContext.Skin.Height);
+        rationW = movieRect.Width / ((float)SkinContext.Skin.Width);
 
         wx = (movieRect.Right) - (movieRect.Width / 2) - (int)(((float)currentSubtitle.width * rationW) / 2);
         wy = movieRect.Top + (int)(rationH * (float)currentSubtitle.firstScanLine);

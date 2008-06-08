@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Loader;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -75,8 +74,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     {
       if (!string.IsNullOrEmpty(Source))
       {
-        XamlLoader loader = new XamlLoader();
-        ResourceDictionary mergeDict = loader.Load(Source) as ResourceDictionary;
+        ResourceDictionary mergeDict = context.LoadXaml(Source) as ResourceDictionary;
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", Source));
         Merge(mergeDict);
@@ -84,10 +82,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       if (MergedDictionaries.Count > 0)
       {
         foreach (ResourceDictionary dictionary in MergedDictionaries)
-        {
-          XamlLoader loader = new XamlLoader();
           Merge(dictionary);
-        }
       }
     }
 

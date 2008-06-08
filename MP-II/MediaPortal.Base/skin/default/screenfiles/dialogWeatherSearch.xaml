@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Canvas
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance}"
+    FocusedElement="{Binding ElementName=mainMenu}"
+    History="False">
+
+  <Border Canvas.Left="156" Canvas.Top="144" Width="405" Height="185" Background="#AFFFFFFF" CornerRadius="10">
+    <DockPanel Width="385" Height="165" LastChildFill="False" Background="{StaticResource dialogBackGroundBrush}" >
+	  <StackPanel Name="StackPanel1" DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal">
+	     <Label Margin="10" Width="100" Font="font13" Text="[system.5]" Color="#FFADADAD"/>
+         <Label Margin="10" Width="200" Font="font13" Text="[weathersetup.1]"  Color="#FFF1E994"/>
+		 <Button Margin="10" HorizontalAlignment="Right" x:Name="closebtn" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
+	  </StackPanel>
+	  <Label Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  Text="[weathersetup.0]" Color="White"/>
+      <TextBox Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  BorderThickness="3" Height = "30" Width="250" Text="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchCity,Mode=OneWayToSource}"/>
+	  <StackPanel Name="StackPanel2" Margin="10" DockPanel.Dock="Top" HorizontalAlignment="Right" Orientation="Horizontal">
+		<Button Name="Button1" Margin="10" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Done">[system.done]</Button>
+		<Button Name="Button2" Margin="10" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
+	  </StackPanel>
+    </DockPanel>
+  </Border>
+</Canvas>

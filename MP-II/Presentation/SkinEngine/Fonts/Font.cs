@@ -25,10 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Diagnostics;
 using System.IO;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
@@ -130,162 +128,167 @@ namespace Presentation.SkinEngine.Fonts
     /// <summary>Parses the FNT file.</summary>
     private void ParseFNTFile()
     {
-      string fntFile = String.Format(@"skin\{0}\fonts\{1}", SkinContext.SkinName, _fntFile);
+      FileInfo fontFile = SkinContext.GetResourceFromThemeOrSkin(
+          Skin.FONTS_DIRECTORY + "\\" + _fntFile);
 
-      StreamReader stream = new StreamReader(fntFile);
-      string line;
-      char[] separators = new char[] { ' ', '=' };
-      while ((line = stream.ReadLine()) != null)
+      if (fontFile == null || !fontFile.Exists)
+        throw new Exception(string.Format("Font file '{0}' not found", fontFile.FullName));
+      
+      using (StreamReader stream = new StreamReader(fontFile.FullName))
       {
-        string[] tokens = line.Split(separators);
-        if (tokens[0] == "info")
+        string line;
+        char[] separators = new char[] {' ', '='};
+        while ((line = stream.ReadLine()) != null)
         {
-          // Get rendered size
-          for (int i = 1; i < tokens.Length; i++)
+          string[] tokens = line.Split(separators);
+          if (tokens[0] == "info")
           {
-            if (tokens[i] == "size")
+            // Get rendered size
+            for (int i = 1; i < tokens.Length; i++)
             {
-              _charSet.RenderedSize = int.Parse(tokens[i + 1]);
-            }
-          }
-        }
-        else if (tokens[0] == "common")
-        {
-          // Fill out BitmapCharacterSet fields
-          for (int i = 1; i < tokens.Length; i++)
-          {
-            if (tokens[i] == "lineHeight")
-            {
-              _charSet.LineHeight = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "base")
-            {
-              _charSet.Base = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "scaleW")
-            {
-              _charSet.Width = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "scaleH")
-            {
-              _charSet.Height = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "pages")
-            {
-              //
-            }
-          }
-        }
-        else if (tokens[0] == "page")
-        {
-          int pageId = 0;
-          for (int i = 1; i < tokens.Length; i++)
-          {
-            if (tokens[i] == "id")
-            {
-              pageId = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "file")
-            {
-              string name = tokens[i + 1];
-              name = name.Substring(1, name.Length - 2);
-              _pages[pageId] = name;
-              _textureFile = name;
-            }
-          }
-        }
-        else if (tokens[0] == "chars")
-        {
-          for (int i = 1; i < tokens.Length; i++)
-          {
-            if (tokens[i] == "count")
-            {
-              int charCount = int.Parse(tokens[i + 1]);
-              _charSet.Allocate(charCount);
-            }
-          }
-        }
-
-        else if (tokens[0] == "char")
-        {
-          // New BitmapCharacter
-          int index = 0;
-          for (int i = 1; i < tokens.Length; i++)
-          {
-            if (tokens[i] == "id")
-            {
-              index = int.Parse(tokens[i + 1]);
-              ;
-              if (index > _charSet.MaxCharacters)
+              if (tokens[i] == "size")
               {
-                break;
+                _charSet.RenderedSize = int.Parse(tokens[i + 1]);
               }
             }
-            else if (tokens[i] == "x")
+          }
+          else if (tokens[0] == "common")
+          {
+            // Fill out BitmapCharacterSet fields
+            for (int i = 1; i < tokens.Length; i++)
             {
-              _charSet.Characters[index].X = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "y")
-            {
-              _charSet.Characters[index].Y = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "width")
-            {
-              _charSet.Characters[index].Width = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "height")
-            {
-              _charSet.Characters[index].Height = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "xoffset")
-            {
-              _charSet.Characters[index].XOffset = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "yoffset")
-            {
-              _charSet.Characters[index].YOffset = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "xadvance")
-            {
-              _charSet.Characters[index].XAdvance = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "page")
-            {
-              _charSet.Characters[index].Page = int.Parse(tokens[i + 1]);
+              if (tokens[i] == "lineHeight")
+              {
+                _charSet.LineHeight = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "base")
+              {
+                _charSet.Base = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "scaleW")
+              {
+                _charSet.Width = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "scaleH")
+              {
+                _charSet.Height = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "pages")
+              {
+                //
+              }
             }
           }
-        }
-        else if (tokens[0] == "kernings")
-        {
-          //skip kernings count...
-        }
-        else if (tokens[0] == "kerning")
-        {
-          // Build kerning list
-          int index = 0;
-          Kerning k = new Kerning();
-          for (int i = 1; i < tokens.Length; i++)
+          else if (tokens[0] == "page")
           {
-            if (tokens[i] == "first")
+            int pageId = 0;
+            for (int i = 1; i < tokens.Length; i++)
             {
-              index = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "second")
-            {
-              k.Second = int.Parse(tokens[i + 1]);
-            }
-            else if (tokens[i] == "amount")
-            {
-              k.Amount = int.Parse(tokens[i + 1]);
+              if (tokens[i] == "id")
+              {
+                pageId = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "file")
+              {
+                string name = tokens[i + 1];
+                name = name.Substring(1, name.Length - 2);
+                _pages[pageId] = name;
+                _textureFile = name;
+              }
             }
           }
-          if (index >= 0 && index < _charSet.MaxCharacters)
+          else if (tokens[0] == "chars")
           {
-            _charSet.Characters[index].KerningList.Add(k);
+            for (int i = 1; i < tokens.Length; i++)
+            {
+              if (tokens[i] == "count")
+              {
+                int charCount = int.Parse(tokens[i + 1]);
+                _charSet.Allocate(charCount);
+              }
+            }
+          }
+
+          else if (tokens[0] == "char")
+          {
+            // New BitmapCharacter
+            int index = 0;
+            for (int i = 1; i < tokens.Length; i++)
+            {
+              if (tokens[i] == "id")
+              {
+                index = int.Parse(tokens[i + 1]);
+                ;
+                if (index > _charSet.MaxCharacters)
+                {
+                  break;
+                }
+              }
+              else if (tokens[i] == "x")
+              {
+                _charSet.Characters[index].X = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "y")
+              {
+                _charSet.Characters[index].Y = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "width")
+              {
+                _charSet.Characters[index].Width = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "height")
+              {
+                _charSet.Characters[index].Height = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "xoffset")
+              {
+                _charSet.Characters[index].XOffset = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "yoffset")
+              {
+                _charSet.Characters[index].YOffset = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "xadvance")
+              {
+                _charSet.Characters[index].XAdvance = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "page")
+              {
+                _charSet.Characters[index].Page = int.Parse(tokens[i + 1]);
+              }
+            }
+          }
+          else if (tokens[0] == "kernings")
+          {
+            //skip kernings count...
+          }
+          else if (tokens[0] == "kerning")
+          {
+            // Build kerning list
+            int index = 0;
+            Kerning k = new Kerning();
+            for (int i = 1; i < tokens.Length; i++)
+            {
+              if (tokens[i] == "first")
+              {
+                index = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "second")
+              {
+                k.Second = int.Parse(tokens[i + 1]);
+              }
+              else if (tokens[i] == "amount")
+              {
+                k.Amount = int.Parse(tokens[i + 1]);
+              }
+            }
+            if (index >= 0 && index < _charSet.MaxCharacters)
+            {
+              _charSet.Characters[index].KerningList.Add(k);
+            }
           }
         }
       }
-      stream.Close();
     }
 
     /// <summary>Call when the device is created.</summary>
@@ -296,8 +299,9 @@ namespace Presentation.SkinEngine.Fonts
       {
         return;
       }
-      string fileName = String.Format(@"skin\{0}\fonts\{1}", SkinContext.SkinName, _textureFile);
-      if (File.Exists(fileName))
+      FileInfo textureFile = SkinContext.GetResourceFromThemeOrSkin(
+          Skin.FONTS_DIRECTORY + "\\" + _textureFile);
+      if (textureFile != null && textureFile.Exists)
       {
         if (_texture != null)
         {
@@ -305,9 +309,9 @@ namespace Presentation.SkinEngine.Fonts
           ContentManager.TextureReferences--;
         }
 
-        _texture = Texture.FromFile(device, fileName,
-                                          _charSet.Width, _charSet.Height, 1, Usage.None, Format.Dxt3, Pool.Default,
-                                          Filter.Linear, Filter.Linear, 0);
+        _texture = Texture.FromFile(device, textureFile.FullName,
+            _charSet.Width, _charSet.Height, 1, Usage.None, Format.Dxt3, Pool.Default,
+            Filter.Linear, Filter.Linear, 0);
         ContentManager.TextureReferences++;
       }
     }

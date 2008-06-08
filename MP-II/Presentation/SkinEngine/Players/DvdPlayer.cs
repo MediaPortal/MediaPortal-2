@@ -892,8 +892,8 @@ namespace Presentation.SkinEngine.Players
           float y = (int)(lParam >> 16);
 
           //scale to skin coordinates
-          x *= (SkinContext.Width / SkinContext.Form.ClientSize.Width);
-          y *= (SkinContext.Height / SkinContext.Form.ClientSize.Height);
+          x *= (SkinContext.Skin.Width / SkinContext.Form.ClientSize.Width);
+          y *= (SkinContext.Skin.Height / SkinContext.Form.ClientSize.Height);
 
 
           Vector3 upperLeft = _vertices[0].Position;

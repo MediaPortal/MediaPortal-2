@@ -24,16 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Drawing;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
-
-using Presentation.SkinEngine.Loader;
 using MediaPortal.Control.InputManager;
 
 namespace Presentation.SkinEngine
@@ -41,29 +37,6 @@ namespace Presentation.SkinEngine
   public class WindowManager : IWindowManager
   {
     public const string STARTUP_SCREEN = "home";
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct MSG
-    {
-      public IntPtr hwnd;
-      public uint message;
-      public IntPtr wParam;
-      public IntPtr lParam;
-      public uint time;
-      Point P;
-    }
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-    public static extern int MsgWaitForMultipleObjects(int nCount, int pHandles, bool fWaitAll, int dwMilliseconds, int dwWakeMask);
-
-    [DllImport("user32.dll")]
-    static extern bool PeekMessage(out MSG lpMsg, IntPtr hWnd, uint MsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
-
-    [DllImport("user32.dll")]
-    static extern bool TranslateMessage([In] ref MSG lpMsg);
-
-    [DllImport("user32.dll")]
-    static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
 
     #region Variables
 
@@ -79,88 +52,28 @@ namespace Presentation.SkinEngine
 
     #endregion
 
-    public WindowManager()
+    public void ShowStartupScreen()
     {
-      ServiceScope.Get<IPlayerFactory>().Register(new SkinEngine.Players.PlayerFactory());
-    }
-
-    /// <summary>
-    /// Loads the skin.
-    /// </summary>
-    public void LoadSkin()
-    {
-      WindowSettings settings = new WindowSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      if (string.IsNullOrEmpty(settings.Skin))
-      {
-        settings.Skin = "default";
-        settings.Theme = "default";
-        ServiceScope.Get<ISettingsManager>().Save(settings);
-      }
-      SkinContext.SkinName = settings.Skin;
-      SkinContext.ThemeName = settings.Theme;
-
       ShowWindow(STARTUP_SCREEN);
     }
 
-#if NOTDEF
     public void SwitchTheme(string newThemeName)
     {
-      if (newThemeName == SkinContext.ThemeName) return;
-      CloseDialog();
-      lock (_history)
-      {
-        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to theme: {0}", newThemeName);
-        string windowName = _currentWindow.Name;
-        _currentDialog = null;
-        _currentWindow = null;
-        _previousWindow = null;
-
-        _windows.Clear();
-
-        IInputManager inputMgr = ServiceScope.Get<IInputManager>();
-        inputMgr.Reset();
-        ServiceScope.Get<PlayerCollection>().Dispose();
-        Scripts.ScriptManager.Instance.Reload();
-        Fonts.FontManager.Free();
-        ContentManager.Clear();
-
-        SkinContext.ThemeName = newThemeName;
-        Fonts.FontManager.Reload();
-        Fonts.FontManager.Alloc();
-
-        for (int i = 0; i < _history.Count; ++i)
-        {
-          _history[i] = GetWindow(_history[i].Name);
-        }
-
-        _currentWindow = GetWindow(windowName);
-        _currentWindow.HasFocus = true;
-        _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.Show(true);
-
-      }
-      WindowSettings settings = new WindowSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.Theme = newThemeName;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      SwitchSkinAndTheme(SkinContext.Skin.Name, newThemeName);
     }
-#else
-    public void SwitchTheme(string newThemeName)
-    {}
-#endif
 
-    /// <summary>
-    /// Switches to the specified skin.
-    /// </summary>
-    /// <param name="newSkinName">Name of the skin.</param>
     public void SwitchSkin(string newSkinName)
     {
-      if (newSkinName == SkinName) return;
+      SwitchSkinAndTheme(newSkinName, null);
+    }
+
+    public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
+    {
+      if (newSkinName == SkinName && newThemeName == ThemeName) return;
       CloseDialog();
       lock (_history)
       {
-        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to skin: {0}", newSkinName);
+        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to skin '{0}'", newSkinName);
         string windowName = _currentWindow.Name;
         _currentDialog = null;
         _currentWindow = null;
@@ -173,8 +86,9 @@ namespace Presentation.SkinEngine
         Fonts.FontManager.Free();
         ContentManager.Clear();
 
-        SkinContext.SkinName = newSkinName;
-        SkinContext.ThemeName = "default";
+        SkinContext.PrepareSkinAndTheme(newSkinName, newThemeName);
+        SkinContext.ActivateTheme();
+
         Fonts.FontManager.Reload();
         Fonts.FontManager.Alloc();
 
@@ -190,8 +104,9 @@ namespace Presentation.SkinEngine
       }
       WindowSettings settings = new WindowSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.Skin = newSkinName;
-      settings.Theme = "default";
+      settings.Skin = SkinContext.Skin.Name;
+      Theme theme = SkinContext.Theme;
+      settings.Theme = theme == null ? null : theme.Name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
@@ -200,7 +115,7 @@ namespace Presentation.SkinEngine
     /// </summary>
     public string SkinName
     {
-      get { return SkinContext.SkinName; }
+      get { return SkinContext.Skin == null ? null : SkinContext.Skin.Name; }
     }
 
     /// <summary>
@@ -208,7 +123,7 @@ namespace Presentation.SkinEngine
     /// </summary>
     public string ThemeName
     {
-      get { return SkinContext.ThemeName; }
+      get { return SkinContext.Theme == null ? null : SkinContext.Theme.Name; }
     }
 
     /// <summary>
@@ -292,8 +207,7 @@ namespace Presentation.SkinEngine
         Window result = new Window(windowName);
         try
         {
-          XamlLoader loader = new XamlLoader();
-          UIElement root = loader.Load(windowName + ".xaml") as UIElement;
+          UIElement root = SkinContext.Skin.LoadSkinFile(windowName) as UIElement;
           if (root == null) return null;
           result.Visual = root;
           // Don't show window here.
@@ -401,6 +315,7 @@ namespace Presentation.SkinEngine
       Window window = GetWindow(windowName);
       if (window == null)
       {
+        //TODO: Show error screen
         return;
       }
 

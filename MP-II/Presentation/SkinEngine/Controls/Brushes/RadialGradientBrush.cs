@@ -182,7 +182,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _position = new Vector3((float)element.ActualPosition.X, (float)element.ActualPosition.Y, (float)element.ActualPosition.Z); ;
+        _position = new Vector3((float)element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z); ;
 
         if (_brushTexture == null)
         {
@@ -245,11 +245,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
         if (MappingMode == BrushMappingMode.Absolute)
         {
-          g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-          g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+          g_focus[0] = ((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
+          g_focus[1] = ((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
 
-          g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-          g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+          g_center[0] = ((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
+          g_center[1] = ((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
 
           g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
           g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
@@ -280,11 +280,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
             float w = (float)_width;
             float h = (float)_height;
-            float cx = 1.0f;// ((float)GraphicsDevice.Width) / ((float)SkinContext.Width);
-            float cy = 1.0f;//((float)GraphicsDevice.Height) / ((float)SkinContext.Height);
+            float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.Skin.Width;
+            float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.Skin.Height;
 
             bool copy = true;
-            if ((int)w >= SkinContext.Width && (int)h >= SkinContext.Height)
+            if ((int)w >= SkinContext.Skin.Width && (int)h >= SkinContext.Skin.Height)
             {
               copy = false;
               w /= 2;
@@ -429,11 +429,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
         if (MappingMode == BrushMappingMode.Absolute)
         {
-          g_focus[0] = (float)(((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-          g_focus[1] = (float)(((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+          g_focus[0] = ((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
+          g_focus[1] = ((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
 
-          g_center[0] = (float)(((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width);
-          g_center[1] = (float)(((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height);
+          g_center[0] = ((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
+          g_center[1] = ((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
 
           g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
           g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);

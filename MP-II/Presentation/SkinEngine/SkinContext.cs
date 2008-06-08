@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.Players.Geometry;
@@ -42,12 +44,12 @@ namespace Presentation.SkinEngine
   {
     public static bool UseBatching = false;
     public static bool IsValid = false;
-    #region variables
 
-    private static string _skinName = "default";
-    private static string _themeName = "default";
-    private static float _skinWidth = 720;
-    private static float _skinHeight = 576;
+    #region Private fields
+
+    private static SkinManager _skinManager = new SkinManager();
+    private static Skin _skin = null;
+    private static Theme _theme = null;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
     private static List<double> _opacity = new List<double>();
@@ -72,18 +74,54 @@ namespace Presentation.SkinEngine
     public static uint TimePassed;
     public static System.Drawing.SizeF _skinZoom = new System.Drawing.SizeF(1, 1);
     public static float Z = 0.0f;
+
     #endregion
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
     internal extern static Int32 ShowCursor(bool bShow);
 
-    static public void AddOpacity(double opacity)
+    /// <summary>
+    /// Prepares the skin and theme, this will load the skin and theme instances and
+    /// set it as the current skin. After calling this method, the <see cref="Skin"/> and
+    /// <see cref="Theme"/> properties contents can be requested.
+    /// To activate the skin, <see cref="ActivateTheme"/> has to be called
+    /// after this method.
+    /// </summary>
+    /// <param name="skinName">The skin to be prepared.</param>
+    /// <param name="themeName">The theme name for the specified skin to be prepared,
+    /// or <c>null</c> for the default theme of the skin.</param>
+    public static void PrepareSkinAndTheme(string skinName, string themeName)
+    {
+      _skin = _skinManager.Skins[skinName];
+      if (_skin == null)
+        _skin = _skinManager.DefaultSkin;
+      if (_skin == null)
+        throw new Exception(string.Format("Could not load skin '{0}'", skinName));
+      _theme = themeName == null ? null : _skin.Themes[themeName];
+      if (_theme == null)
+        _theme = _skin.DefaultTheme;
+      ApplicationResources.Instance.Clear();
+    }
+
+    /// <summary>
+    /// Has to be called after a call to <see cref="PrepareSkinAndTheme(string,string)"/>
+    /// to activate the theme.
+    /// This method must not be called before the DirectX render device is ready.
+    /// </summary>
+    public static void ActivateTheme()
+    {
+      ResourceDictionary rd = _theme == null ? null : _theme.LoadStyles();
+      if (rd != null)
+        ApplicationResources.Instance.Merge(rd);
+    }
+
+    public static void AddOpacity(double opacity)
     {
       _finalOpacity *= opacity;
       _opacity.Add(_finalOpacity);
     }
 
-    static public void RemoveOpacity()
+    public static void RemoveOpacity()
     {
       _opacity.RemoveAt(_opacity.Count - 1);
       if (_opacity.Count > 0)
@@ -94,16 +132,29 @@ namespace Presentation.SkinEngine
         _finalOpacity = 1.0;
     }
 
-    static public double Opacity
+    /// <summary>
+    /// Returns a resource which may be located in a relative path under the directory
+    /// of the current skin or unter the directory of the current theme.
+    /// </summary>
+    /// <param name="resourceName">Relative file name of the resource to retrieve,
+    /// for example <i>shaders/blur.fx</i>. The file name must be relative, else the
+    /// resource won't be found.</param>
+    /// <returns>File describing the requested resource file.</returns>
+    public static FileInfo GetResourceFromThemeOrSkin(string resourceName)
     {
-      get
-      {
-        return _finalOpacity;
-      }
+      FileInfo result = _theme == null ? null : _theme.GetResourceFile(resourceName);
+      if (result == null)
+        result = _skin == null ? null : _skin.GetResourceFile(resourceName);
+      return result;
+    }
+
+    public static double Opacity
+    {
+      get { return _finalOpacity; }
     }
 
     /// <summary>
-    /// Gets or sets the Applications' main windows form.
+    /// Gets or sets the Application's main windows form.
     /// </summary>
     /// <value>The form.</value>
     public static Form Form
@@ -112,60 +163,26 @@ namespace Presentation.SkinEngine
       set
       {
         _form = value;
-        Application.Idle += new EventHandler(Application_Idle);
+        Application.Idle += Application_Idle;
       }
     }
 
     /// <summary>
-    /// Gets or sets the name of the skin currently in use
+    /// Gets or sets the skin currently in use.
     /// </summary>
-    /// <value>The name of the skin.</value>
-    public static string SkinName
+    public static Skin @Skin
     {
-      get
-      {
-        return _skinName;
-      }
-      set
-      {
-        _skinName = value;
-      }
+      get { return _skin; }
+      set { _skin = value; }
     }
 
     /// <summary>
-    /// Gets or sets the name of the theme currently in use
+    /// Gets or sets the theme currently in use.
     /// </summary>
-    /// <value>The name of the theme.</value>
-    public static string ThemeName
+    public static Theme @Theme
     {
-      get
-      {
-        return _themeName;
-      }
-      set
-      {
-        _themeName = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the width of the skin
-    /// </summary>
-    /// <value>The width.</value>
-    public static float Width
-    {
-      get { return _skinWidth; }
-      set { _skinWidth = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the height of the skin
-    /// </summary>
-    /// <value>The height.</value>
-    public static float Height
-    {
-      get { return _skinHeight; }
-      set { _skinHeight = value; }
+      get { return _theme; }
+      set { _theme = value; }
     }
 
     public static System.Drawing.SizeF Zoom
@@ -176,15 +193,10 @@ namespace Presentation.SkinEngine
 
     public static List<ExtendedMatrix> Transforms
     {
-      get
-      {
-        return _groupTransforms;
-      }
-      set
-      {
-        _groupTransforms = value;
-      }
+      get { return _groupTransforms; }
+      set { _groupTransforms = value; }
     }
+
     /// <summary>
     /// Adds the transform matrix to the current transform stack
     /// </summary>

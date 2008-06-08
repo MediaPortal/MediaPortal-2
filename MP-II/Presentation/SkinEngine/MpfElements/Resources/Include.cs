@@ -23,7 +23,6 @@
 #endregion
 
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.Loader;
 using Presentation.SkinEngine.Controls.Visuals;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
@@ -81,8 +80,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     public virtual void Initialize(IParserContext context)
     {
-      XamlLoader loader = new XamlLoader();
-      _content = loader.Load(_includeName);
+      _content = context.LoadXaml(_includeName);
       if (_content is UIElement)
         ((UIElement) _content).Resources.Merge(Resources);
       else if (_content is ResourceDictionary)

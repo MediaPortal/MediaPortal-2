@@ -319,14 +319,11 @@ namespace Presentation.SkinEngine
       }
 
 
-      int gw = (int)Width;
-      int gh = (int)Height;
-      gw = (int)Width;
-      gh = (int)Height;
-      SkinContext.Zoom = new SizeF(((float)Width) / SkinContext.Width, ((float)Height) / SkinContext.Height);
-
-      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
-      mgr.Utils.Zoom = SkinContext.Zoom;
+      int gw = Width;
+      int gh = Height;
+      gw = Width;
+      gh = Height;
+      InitializeZoom();
       Point camera = new Point(gw / 2, gh / 2);
       // and calculate the offset from the screen center
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
@@ -361,6 +358,14 @@ namespace Presentation.SkinEngine
       ////GraphicsDevice.TransformWorld = Matrix.Identity;
       //GraphicsDevice.TransformView = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
       //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
+    }
+
+    public static void InitializeZoom()
+    {
+      SkinContext.Zoom = new SizeF(Width / (float)SkinContext.Skin.Width, Height / (float)SkinContext.Skin.Height);
+
+      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
+      mgr.Utils.Zoom = SkinContext.Zoom;
     }
 
     /// <summary>

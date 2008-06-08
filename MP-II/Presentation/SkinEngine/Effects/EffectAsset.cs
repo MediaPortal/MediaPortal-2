@@ -25,12 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Security;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Effects
@@ -63,17 +60,13 @@ namespace Presentation.SkinEngine.Effects
     /// </summary>
     public void Allocate()
     {
-      string effectFile = String.Format(@"skin\{0}\shaders\{1}.fx", SkinContext.SkinName, _effectName);
-      if (File.Exists(effectFile))
+      FileInfo effectFile = SkinContext.GetResourceFromThemeOrSkin(
+          string.Format(@"{0}\{1}.fx", Skin.SHADERS_DIRECTORY ,_effectName));
+      if (effectFile != null && effectFile.Exists)
       {
-        string effectShader = "";
-        using (System.IO.FileStream stream = new FileStream(effectFile, FileMode.Open, FileAccess.Read))
-        {
-          using (StreamReader reader = new StreamReader(stream))
-          {
-            effectShader = reader.ReadToEnd();
-          }
-        }
+        string effectShader;
+        using (StreamReader reader = new StreamReader(effectFile.FullName))
+          effectShader = reader.ReadToEnd();
         Version vertexShaderVersion = GraphicsDevice.Device.GetDeviceCaps().VertexShaderVersion;
         Version pixelShaderVersion = GraphicsDevice.Device.GetDeviceCaps().PixelShaderVersion;
 
