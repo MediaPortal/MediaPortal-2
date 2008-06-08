@@ -220,6 +220,7 @@ namespace Presentation.SkinEngine.XamlParser
       _importCustomNamespace = importNamespace;
       if (getEventHandler == null)
         throw new ArgumentNullException("The GetEventHandler delegate must not be null");
+      _getEventHandler = getEventHandler;
       XmlDocument doc = new XmlDocument();
       if (File.Exists(xamlFileName))
       {
