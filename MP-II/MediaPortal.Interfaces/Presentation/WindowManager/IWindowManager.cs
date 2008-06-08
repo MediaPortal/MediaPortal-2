@@ -25,7 +25,8 @@
 namespace MediaPortal.Presentation.WindowManager
 {
   /// <summary>
-  /// interface for a generic window manager
+  /// Interface for a generic window manager. This interface is used by the MediaPortal
+  /// application to communicate with the window manager.
   /// </summary>
   public interface IWindowManager
   {
@@ -42,14 +43,14 @@ namespace MediaPortal.Presentation.WindowManager
 
     /// <summary>
     /// Prepares the window by loading & initializing the window 
-    /// but dont show it (yet)
+    /// but doesn't show it (yet).
     /// </summary>
     /// <param name="window">The window.</param>
     void PrepareWindow(string window);
 
     /// <summary>
     /// Shows the window.
-    /// If window is not yet prepared, then this method will prepare the window and then show it
+    /// If window is not yet prepared, then this method will prepare the window and then show it.
     /// </summary>
     /// <param name="windowName">Name of the window.</param>
     void ShowWindow(string windowName);
@@ -66,7 +67,7 @@ namespace MediaPortal.Presentation.WindowManager
     IWindow CurrentWindow { get; }
 
     /// <summary>
-    /// Resets the currently opened windows
+    /// Resets the currently opened windows.
     /// </summary>
     void Reset();
 
@@ -76,33 +77,25 @@ namespace MediaPortal.Presentation.WindowManager
     void Reload();
 
     /// <summary>
-    /// Initially loads the skin. This method will be called when the GUI
-    /// was initialized.
+    /// Switches the GUI to the specified skin, using the default theme of the skin.
     /// </summary>
-    void LoadSkin();
-
-    /// <summary>
-    /// switches the gui to another skin
-    /// </summary>
-    /// <param name="newSkinName">name of the skin to use.</param>
+    /// <param name="newSkinName">Logical name of the skin.</param>
     void SwitchSkin(string newSkinName);
 
     /// <summary>
-    /// Gets the name of the current skin used.
+    /// Gets the logical name of the current skin used.
     /// </summary>
-    /// <value>The name of the current skin used.</value>
     string SkinName { get;}
 
     /// <summary>
-    /// Switches the gui to a different theme.
+    /// Switches the GUI to the specified theme.
     /// </summary>
-    /// <param name="newThemeName">name of the theme.</param>
+    /// <param name="newThemeName">Logical name of the theme.</param>
     void SwitchTheme(string newThemeName);
 
     /// <summary>
-    /// Gets the name of the current theme used
+    /// Gets the name of the current theme used.
     /// </summary>
-    /// <value>The name of the current theme used.</value>
     string ThemeName { get;}
 
     /// <summary>
