@@ -2176,7 +2176,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Button Height="32" Style="{StaticResource MpButton}"/>
+          <Button Style="{StaticResource MpButton}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
