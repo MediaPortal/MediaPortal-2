@@ -115,8 +115,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       
       // Width / Height is not set.
@@ -170,10 +170,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.X * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Y * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.X + Margin.W) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
+      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
+      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;

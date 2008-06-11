@@ -194,7 +194,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _isFocusScopeProperty = new Property(typeof(bool), true);
       _hasFocusProperty = new Property(typeof(bool), false);
       _acutalPositionProperty = new Property(typeof(Vector3), new Vector3(0, 0, 1));
-      _marginProperty = new Property(typeof(Vector4), new Vector4(0, 0, 0, 0));
+      _marginProperty = new Property(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
       _renderTransformProperty = new Property(typeof(Transform), null);
@@ -481,9 +481,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _marginProperty; }
     }
 
-    public Vector4 Margin
+    public Thickness Margin
     {
-      get { return (Vector4)_marginProperty.GetValue(); }
+      get { return (Thickness)_marginProperty.GetValue(); }
       set { _marginProperty.SetValue(value); }
     }
 

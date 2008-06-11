@@ -193,10 +193,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Height);
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -455,7 +455,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
 
       container.TemplateControl = new ItemsPresenter();
-      container.TemplateControl.Margin = new SlimDX.Vector4(64, 0, 0, 0);
+      container.TemplateControl.Margin = new Thickness(64, 0, 0, 0);
       container.TemplateControl.VisualParent = container;
       container.Header = containerTemplateControl;
       ItemsPresenter p = container.Header.FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;

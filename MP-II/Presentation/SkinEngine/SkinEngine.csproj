@@ -158,6 +158,7 @@
     <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
     <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\TextBox.cs" />
+    <Compile Include="Controls\Visuals\Thickness.cs" />
     <Compile Include="Controls\Visuals\VisualAssetContext.cs" />
     <Compile Include="Controls\Visuals\Border.cs" />
     <Compile Include="Controls\Visuals\Button.cs" />

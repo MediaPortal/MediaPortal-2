@@ -204,6 +204,12 @@ namespace Presentation.SkinEngine.MpfElements
         result = Convert2Vector4(value.ToString());
         return true;
       }
+      else if (targetType == typeof(Thickness))
+      {
+        Thickness t = new Thickness(value.ToString());
+        result = t;
+        return true;
+      }
       else if (targetType == typeof(Brush))
       {
         SolidColorBrush b = new SolidColorBrush();

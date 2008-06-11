@@ -77,8 +77,8 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
       _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
         _desiredSize.Width = (float)(availableSize.Width - marginWidth);
@@ -171,10 +171,10 @@ namespace Presentation.SkinEngine.Controls.Panels
     public override void Arrange(RectangleF finalRect)
     {
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.X);
-      layoutRect.Y += (float)(Margin.Y);
-      layoutRect.Width -= (float)(Margin.X + Margin.W);
-      layoutRect.Height -= (float)(Margin.Y + Margin.Z);
+      layoutRect.X += (float)(Margin.Left);
+      layoutRect.Y += (float)(Margin.Top);
+      layoutRect.Width -= (float)(Margin.Left + Margin.Right);
+      layoutRect.Height -= (float)(Margin.Top + Margin.Bottom);
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;

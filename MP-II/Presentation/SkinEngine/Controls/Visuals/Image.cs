@@ -194,10 +194,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void Arrange(RectangleF finalRect)
     {
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.X;
-      layoutRect.Y += Margin.Y;
-      layoutRect.Width -= Margin.X + Margin.W;
-      layoutRect.Height -= Margin.Y + Margin.Z;
+      layoutRect.X += Margin.Left;
+      layoutRect.Y += Margin.Top;
+      layoutRect.Width -= Margin.Left + Margin.Right;
+      layoutRect.Height -= Margin.Top + Margin.Bottom;
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -228,8 +228,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void Measure(SizeF availableSize)
     {
-      float marginWidth = (Margin.X + Margin.W) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Y + Margin.Z) * SkinContext.Zoom.Height;
+      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
 
       //Trace.WriteLine(String.Format("Image.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 

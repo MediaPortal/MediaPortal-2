@@ -195,8 +195,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (availableSize.Width == 0)
           size.Width = _asset.Font.Width(_label.ToString());
       }
-      float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
+      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
       _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
         _desiredSize.Width = (float)(size.Width - marginWidth);
@@ -230,10 +230,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (float)(Margin.X * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Y * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
+      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
+      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
+      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
       ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;

@@ -218,8 +218,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         if (Width > 0) bounds.Width = (float)(Width * SkinContext.Zoom.Width);
         if (Height > 0) bounds.Height = (float)(Height * SkinContext.Zoom.Height);
 
-        float marginWidth = (float)((Margin.X + Margin.W) * SkinContext.Zoom.Width);
-        float marginHeight = (float)((Margin.Y + Margin.Z) * SkinContext.Zoom.Height);
+        float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
+        float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
         _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
         if (availableSize.Width > 0 && Width <= 0)
           _desiredSize.Width = (float)(availableSize.Width - marginWidth);
