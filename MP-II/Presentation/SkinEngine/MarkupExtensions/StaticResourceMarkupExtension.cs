@@ -22,6 +22,7 @@
 
 #endregion
 
+using Presentation.SkinEngine.SkinManagement;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements.Resources;
@@ -58,35 +59,34 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
-      object result = null;
       // Step up the parser's context stack to find the resource.
-      // It doesn't suffice to just step up the logical tree because we
-      // may also have to find resources in resource dicrionaries which are
-      // still being built - That's why the parser's context stack maintains
-      // a dictionary of current keyed elements.
+      // The logical tree is not yet defined at the load time of the
+      // XAML file. This is the reason we have to step up the parser's context
+      // stack. We will have to simulate the process of finding a resource
+      // which is normally done by <see cref="FindResource(string)"/>.
+      // The parser's context stack maintains a dictionary of current keyed
+      // elements for each stack level because the according resource
+      // dictionaries are not built yet.
       foreach (ElementContextInfo current in context.ContextStack)
       {
         if (current.ContainsKey(_resourceKey))
+          return current.GetKeyedElement(_resourceKey);
+        else if (current.Instance is UIElement &&
+            ((UIElement) current.Instance).Resources.ContainsKey(_resourceKey))
         {
-          result = current.GetKeyedElement(_resourceKey);
-          break;
-        }
-        else if (current.Instance is UIElement)
-        {
-          result = ((UIElement)current.Instance).FindResource(_resourceKey);
-          if (result != null)
-            break;
+          // Don't call UIElement.FindResource here, because the logical tree
+          // may be not set up yet.
+          return ((UIElement) current.Instance).Resources[_resourceKey];
         }
         else if (current.Instance is ResourceDictionary)
         {
-          ResourceDictionary rd = (ResourceDictionary)current.Instance;
+          ResourceDictionary rd = (ResourceDictionary) current.Instance;
           if (rd.ContainsKey(_resourceKey))
-          {
-            result = rd[_resourceKey];
-            break;
-          }
+            return rd[_resourceKey];
         }
       }
+
+      object result = SkinContext.SkinResources.FindStyle(_resourceKey);
 
       if (result == null)
         throw new XamlBindingException("StaticResourceMarkupExtension: Resource '{0}' not found", _resourceKey);

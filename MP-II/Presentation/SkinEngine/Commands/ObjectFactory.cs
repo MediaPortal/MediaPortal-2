@@ -92,12 +92,6 @@ namespace Presentation.SkinEngine.Commands
       {
         return model.Instance;
       }
-      WindowManager windowManager = (WindowManager)ServiceScope.Get<IWindowManager>();
-      if (windowManager.Contains(name))
-      {
-        return windowManager.GetWindow(name);
-      }
-
       return null;
     }
   }

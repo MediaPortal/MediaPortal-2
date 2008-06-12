@@ -363,10 +363,7 @@ namespace Presentation.SkinEngine
 
     public static void InitializeZoom()
     {
-      SkinContext.Zoom = new SizeF(Width / (float)SkinContext.Skin.Width, Height / (float)SkinContext.Skin.Height);
-
-      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
-      mgr.Utils.Zoom = SkinContext.Zoom;
+      SkinContext.Zoom = new SizeF(Width / (float)SkinContext.SkinWidth, Height / (float)SkinContext.SkinHeight);
     }
 
     /// <summary>

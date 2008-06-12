@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -44,9 +43,12 @@ namespace Presentation.SkinEngine
 
     private readonly Dictionary<string, Window> _windowCache = new Dictionary<string, Window>();
     private readonly Stack<string> _history = new Stack<string>();
-    private Window _currentWindow;
-    private Window _currentDialog;
-    public Utils _utils = new Utils();
+    private Window _currentWindow = null;
+    private Window _currentDialog = null;
+    private Skin _skin = null;
+    private Theme _theme = null;
+    private static SkinManager _skinManager = new SkinManager();
+    public TimeUtils _utils = new TimeUtils();
 
     private string _dialogTitle;
     private string[] _dialogLines = new string[3];
@@ -54,14 +56,257 @@ namespace Presentation.SkinEngine
 
     #endregion
 
+    public WindowManager()
+    {
+      WindowSettings windowSettings = new WindowSettings();
+      ServiceScope.Get<ISettingsManager>().Load(windowSettings);
+
+      string skinName = windowSettings.Skin;
+      string themeName = windowSettings.Theme;
+      if (string.IsNullOrEmpty(skinName))
+      {
+        skinName = SkinManager.DEFAULT_SKIN;
+        themeName = null;
+      }
+
+      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
+      ServiceScope.Get<ILogger>().Debug("WindowManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
+      PrepareSkinAndTheme(skinName, themeName);
+
+      // Update the settings with our current skin/theme values
+      if (windowSettings.Skin != SkinName || windowSettings.Theme != ThemeName)
+      {
+        windowSettings.Skin = _skin.Name;
+        windowSettings.Theme = _theme == null ? null : _theme.Name;
+        ServiceScope.Get<ISettingsManager>().Save(windowSettings);
+      }
+    }
+
+    /// <summary>
+    /// Prepares the skin and theme, this will load the skin and theme instances and
+    /// set it as the current skin and theme in the <see cref="SkinContext"/>.
+    /// After calling this method, the <see cref="SkinContext.SkinResources"/>
+    /// contents can be requested.
+    /// </summary>
+    /// <param name="skinName">The name of the skin to be prepared.</param>
+    /// <param name="themeName">The name of the theme for the specified skin to be prepared,
+    /// or <c>null</c> for the default theme of the skin.</param>
+    protected void PrepareSkinAndTheme(string skinName, string themeName)
+    {
+      Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
+      if (skin == null)
+        skin = _skinManager.DefaultSkin;
+      if (skin == null)
+        throw new Exception(string.Format("Skin '{0}' not found", skinName));
+      Theme theme = themeName == null ? null :
+          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+      if (theme == null)
+        theme = skin.DefaultTheme;
+
+      // Initialize SkinContext with new values
+      SkinContext.SkinResources = theme == null ? skin : (SkinResources) theme;
+      SkinContext.SkinName = skin.Name;
+      SkinContext.ThemeName = theme == null ? null : theme.Name;
+      SkinContext.SkinHeight = skin.Height;
+      SkinContext.SkinWidth = skin.Width;
+
+      // Release old resources
+      if (_skin != null && _skin != skin && _skin != _skinManager.DefaultSkin)
+        _skin.Release();
+      if (_theme != null && _theme != theme && _theme != _skinManager.DefaultSkin.DefaultTheme)
+        _theme.Release();
+
+      _skin = skin;
+      _theme = theme;
+    }
+
+    protected void InternalCloseWindow()
+    {
+      if (_currentWindow == null)
+        return;
+      lock (_history)
+      {
+        _currentWindow.WindowState = Window.State.Closing;
+        _currentWindow.HasFocus = false;
+        _currentWindow.DetachInput();
+        _currentWindow.Hide();
+        _currentWindow = null;
+      }
+    }
+
+    protected void InternalCloseCurrentWindows()
+    {
+      CloseDialog();
+      InternalCloseWindow();
+    }
+
+    protected void InternalShowWindow(Window window)
+    {
+      CloseDialog();
+      lock (_history)
+      {
+        _currentWindow = window;
+        _currentWindow.HasFocus = true;
+        _currentWindow.WindowState = Window.State.Running;
+        _currentWindow.AttachInput();
+        _currentWindow.Show();
+      }
+    }
+
     public void ShowStartupScreen()
     {
       ShowWindow(STARTUP_SCREEN);
     }
 
+    /// <summary>
+    /// Renders the current window and dialog.
+    /// </summary>
+    public void Render()
+    {
+      TimeUtils.Update();
+      SkinContext.Now = DateTime.Now;
+      lock (_history)
+      {
+        lock (_windowCache)
+        {
+          if (_currentWindow != null)
+            _currentWindow.Render();
+          if (_currentDialog != null)
+            _currentDialog.Render();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Switches the active skin and theme. This method will set the skin with
+    /// the specified <paramref name="newSkinName"/> and the theme belonging
+    /// to this skin with the specified <paramref name="newThemeName"/>, or the
+    /// default theme for this skin.
+    /// </summary>
+    public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
+    {
+      if (newSkinName == _skin.Name &&
+          newThemeName == (_theme == null ? null : _theme.Name)) return;
+
+      lock (_history)
+      {
+        ServiceScope.Get<ILogger>().Info("WindowManager: Switching to skin '{0}', theme '{1}'",
+            newSkinName, newThemeName);
+
+        string currentWindowName = _currentWindow == null ? null : _currentWindow.Name;
+        bool currentWindowInHistory = _currentWindow == null ? false : _currentWindow.History;
+
+        InternalCloseCurrentWindows();
+
+        _windowCache.Clear();
+
+        IInputManager inputMgr = ServiceScope.Get<IInputManager>();
+        inputMgr.Reset();
+        // FIXME Albert78: Find a better way to make PlayerCollection observe the change of the
+        // current skin, also InputManager, FontManager and ContentManager
+        ServiceScope.Get<PlayerCollection>().Dispose();
+        Fonts.FontManager.Free();
+        ContentManager.Clear();
+
+        PrepareSkinAndTheme(newSkinName, newThemeName);
+
+        Fonts.FontManager.Reload();
+        Fonts.FontManager.Alloc();
+
+        // We will clear the history because we cannot guarantee that the screens in the
+        // history will be compatible with the new skin.
+        _history.Clear();
+        _history.Push(STARTUP_SCREEN);
+        if (currentWindowInHistory && _skin.GetSkinFile(currentWindowName) != null)
+          _history.Push(currentWindowName);
+
+        if (_currentWindow == null && _skin.GetSkinFile(currentWindowName) != null)
+          _currentWindow = GetWindow(currentWindowName);
+        if (_currentWindow == null)
+          _currentWindow = GetWindow(_history.Peek());
+        if (_currentWindow == null)
+        {
+          // The window is broken in the new skin
+          if (_skin == _skinManager.DefaultSkin)
+              // We're already loading the default skin, it seems to be broken
+            throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");
+          // Try it again with the default skin
+          SwitchSkinAndTheme(SkinManager.DEFAULT_SKIN, null);
+          return;
+        }
+
+        InternalShowWindow(_currentWindow);
+      }
+      WindowSettings settings = new WindowSettings();
+      ServiceScope.Get<ISettingsManager>().Load(settings);
+      settings.Skin = SkinName;
+      settings.Theme = ThemeName;
+      ServiceScope.Get<ISettingsManager>().Save(settings);
+    }
+
+    /// <summary>
+    /// Loads the specified screen from the current skin.
+    /// </summary>
+    /// <param name="windowName">The window to load.</param>
+    protected UIElement LoadSkinFile(string windowName)
+    {
+      return SkinContext.SkinResources.LoadSkinFile(windowName) as UIElement;
+    }
+
+    /// <summary>
+    /// Gets the window with the specified name. If the window is already loaded, the cached window
+    /// will be returned. Else, a new window instance will be created and loaded from the XAML resource
+    /// specified by the <paramref name="windowName"/>.
+    /// </summary>
+    /// <param name="windowName">Name of the window to return.</param>
+    /// <returns>Window or <c>null</c>, if an error occured loading the window.</returns>
+    public Window GetWindow(string windowName)
+    {
+      try
+      {
+        // show waitcursor while loading a new window
+        if (_currentWindow != null)
+        {
+          // TODO: Wait cursor
+          //_currentWindow.WaitCursorVisible = true;
+        }
+
+        if (_windowCache.ContainsKey(windowName))
+          return _windowCache[windowName];
+
+        Window result = new Window(windowName);
+        try
+        {
+          UIElement root = LoadSkinFile(windowName);
+          if (root == null) return null;
+          result.Visual = root;
+          // Don't show window here.
+          // That is done at the appriopriate time by all methods calling this one.
+          // Calling show here will result in the model loading its data twice.
+          _windowCache.Add(windowName, result);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin file for window '{0}'", ex, windowName);
+          // TODO Albert78: Show error dialog with skin loading message
+          return null;
+        }
+        return result;
+      }
+      finally
+      {
+        // hide the waitcursor again
+        if (_currentWindow != null)
+        {
+          // TODO: Wait cursor
+          //_currentWindow.WaitCursorVisible = false;
+        }
+      }
+    }
+
     public void SwitchTheme(string newThemeName)
     {
-      SwitchSkinAndTheme(SkinContext.Skin.Name, newThemeName);
+      SwitchSkinAndTheme(SkinContext.SkinName, newThemeName);
     }
 
     public void SwitchSkin(string newSkinName)
@@ -69,74 +314,12 @@ namespace Presentation.SkinEngine
       SwitchSkinAndTheme(newSkinName, null);
     }
 
-    public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
-    {
-      if (newSkinName == SkinName && newThemeName == ThemeName) return;
-      CloseDialog();
-      lock (_history)
-      {
-        ServiceScope.Get<ILogger>().Info("WindowManager: Switch to skin '{0}'", newSkinName);
-        string windowName = _currentWindow.Name;
-        _currentDialog = null;
-        _currentWindow = null;
-
-        _windowCache.Clear();
-
-        IInputManager inputMgr = ServiceScope.Get<IInputManager>();
-        inputMgr.Reset();
-        ServiceScope.Get<PlayerCollection>().Dispose();
-        Fonts.FontManager.Free();
-        ContentManager.Clear();
-
-        SkinContext.PrepareSkinAndTheme(newSkinName, newThemeName);
-        SkinContext.ActivateTheme();
-
-        Fonts.FontManager.Reload();
-        Fonts.FontManager.Alloc();
-
-        // If the new skin is not "compatible" with the new skin (which means that
-        // the screen names do not match), we need to tidy up the history. We will
-        // simply remove all screens from the history which are not present in
-        // the new skin. At least the first screen (the home screen) will hopefully remain,
-        // if the new skin isn't broken.
-        string[] oldScreens = _history.ToArray();
-        _history.Clear();
-        for (int i = oldScreens.Length - 1; i >= 0; i-- )
-        {
-          string screenName = oldScreens[i];
-          FileInfo skinFile = SkinContext.Skin.GetSkinFile(screenName);
-          if (skinFile != null)
-            _history.Push(screenName);
-        }
-        if (SkinContext.Skin.GetSkinFile(windowName) == null && _history.Count > 0)
-          windowName = _history.Peek();
-        if (windowName == null)
-          // This should never occur because our old history always should have contained
-          // at least the home screen, which should be present in all skins.
-          // But we never know. This is our last fallback.
-          windowName = STARTUP_SCREEN;
-
-        _currentWindow = GetWindow(windowName);
-        _currentWindow.HasFocus = true;
-        _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
-
-      }
-      WindowSettings settings = new WindowSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.Skin = SkinContext.Skin.Name;
-      Theme theme = SkinContext.Theme;
-      settings.Theme = theme == null ? null : theme.Name;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-    }
-
     /// <summary>
     /// Gets the name of the currently active skin.
     /// </summary>
     public string SkinName
     {
-      get { return SkinContext.Skin == null ? null : SkinContext.Skin.Name; }
+      get { return _skin.Name; }
     }
 
     /// <summary>
@@ -144,7 +327,7 @@ namespace Presentation.SkinEngine
     /// </summary>
     public string ThemeName
     {
-      get { return SkinContext.Theme == null ? null : SkinContext.Theme.Name; }
+      get { return _theme == null ? null : _theme.Name; }
     }
 
     /// <summary>
@@ -161,102 +344,16 @@ namespace Presentation.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Renders the current window
-    /// </summary>
-    public void Render()
-    {
-      Utils.Update();
-      SkinContext.Now = DateTime.Now;
-      lock (_history)
-      {
-        lock (_windowCache)
-        {
-          if (_currentWindow != null)
-          {
-            _currentWindow.Render();
-          }
-          if (_currentDialog != null)
-          {
-            _currentDialog.Render();
-          }
-
-        }
-      }
-    }
-
     public void Reset()
     {
       if (_currentDialog != null)
         _currentDialog.Reset();
+      if (_currentWindow != null)
       _currentWindow.Reset();
     }
 
     /// <summary>
-    /// Determines wether the windowmanager cache contains a window with the specified name.
-    /// </summary>
-    /// <param name="windowName">Name of the window to check.</param>
-    /// <returns>
-    /// <c>true</c> if window exists; otherwise, <c>false</c>.
-    /// </returns>
-    public bool Contains(string windowName)
-    {
-      return _windowCache.ContainsKey(windowName);
-    }
-
-    /// <summary>
-    /// Gets the window with the specified name. If the window is already load, the cached window
-    /// will be returned. Else, a new window instance will be created and load from the XAML resource
-    /// specified by the <paramref name="windowName"/>.
-    /// </summary>
-    /// <param name="windowName">Name of the window to return.</param>
-    /// <returns></returns>
-    public Window GetWindow(string windowName)
-    {
-      try
-      {
-        // show waitcursor while loading a new window
-        if (_currentWindow != null)
-        {   
-          // TODO: Wait cursor
-          //_currentWindow.WaitCursorVisible = true;
-        }
-
-        if (Contains(windowName))
-          return _windowCache[windowName];
-
-        Window result = new Window(windowName);
-        try
-        {
-          UIElement root = SkinContext.Skin.LoadSkinFile(windowName) as UIElement;
-          if (root == null) return null;
-          result.Visual = root;
-          // Don't show window here.
-          // That is done at the appriopriate time by all methods calling this one.
-          // Calling show here will result in the model loading its data twice.
-          _windowCache.Add(windowName, result);
-        }
-        catch (Exception ex)
-        {
-          ServiceScope.Get<ILogger>().Error("XamlLoader: Error loading skin file for window '{0}'", ex, windowName);
-          // TODO Albert78: Show error dialog with skin loading message
-          return null;
-        }
-        return result;
-      }
-      finally
-      {
-        // hide the waitcursor again
-        if (_currentWindow != null)
-        {   
-          // TODO: Wait cursor
-          //_currentWindow.WaitCursorVisible = false;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Closes the dialog.
+    /// Closes the opened dialog, if one is open.
     /// </summary>
     public void CloseDialog()
     {
@@ -269,29 +366,36 @@ namespace Presentation.SkinEngine
         _currentDialog.Hide();
         _currentDialog = null;
 
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
+        if (_currentWindow != null)
+        {
+          _currentWindow.AttachInput();
+          _currentWindow.Show();
+        }
       }
     }
 
     /// <summary>
-    /// opens a dialog
+    /// Shows the dialog with the specified name.
     /// </summary>
-    /// <param name="window">The window.</param>
-    public void ShowDialog(string window)
+    /// <param name="dialogName">The dialog name.</param>
+    public void ShowDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("WindowManager: Show dialog: {0}", window);
+      ServiceScope.Get<ILogger>().Debug("WindowManager: Show dialog: {0}", dialogName);
       CloseDialog();
-      _currentDialog = GetWindow(window);
-      if (_currentDialog == null)
+      lock (_history)
       {
-        return;
-      }
-      _currentWindow.DetachInput();
+        _currentDialog = GetWindow(dialogName);
+        if (_currentDialog == null)
+        {
+          return;
+        }
+        _currentWindow.DetachInput();
 
-      _currentDialog.AttachInput();
-      _currentDialog.Show();
-      _currentDialog.WindowState = Window.State.Running;
+        _currentDialog.AttachInput();
+        _currentDialog.Show();
+        _currentDialog.WindowState = Window.State.Running;
+      }
+
       while (_currentDialog != null)
       {
         System.Windows.Forms.Application.DoEvents();
@@ -305,20 +409,20 @@ namespace Presentation.SkinEngine
     public void Reload()
     {
       CloseDialog();
+      InternalCloseWindow();
 
+      Window currentWindow;
       lock (_windowCache)
       {
         string name = _currentWindow.Name;
-        _currentWindow = null;
         if (_windowCache.ContainsKey(name))
           _windowCache.Remove(name);
-        _currentWindow = GetWindow(name);
+        currentWindow = GetWindow(name);
       }
-      if (_currentWindow == null)
+      if (currentWindow == null)
+        // Error message was shown in GetWindow()
         return;
-      _currentWindow.WindowState = Window.State.Running;
-      _currentWindow.AttachInput();
-      _currentWindow.Show();
+      InternalShowWindow(currentWindow);
     }
 
     public void PrepareWindow(string windowName)
@@ -333,41 +437,21 @@ namespace Presentation.SkinEngine
     public void ShowWindow(string windowName)
     {
       ServiceScope.Get<ILogger>().Debug("WindowManager: Show window: {0}", windowName);
-      Window window = GetWindow(windowName);
-      if (window == null)
-      {
-        //TODO: Show error screen
+      Window newWindow = GetWindow(windowName);
+      if (newWindow == null)
+        // Error message was shown in GetWindow()
         return;
-      }
 
       lock (_history)
       {
-        if (window.History)
+        if (newWindow.History)
         {
-          _history.Push(window.Name);
+          _history.Push(newWindow.Name);
         }
 
-        if (_currentDialog != null)
-        {
-          _currentDialog.WindowState = Window.State.Closing;
-          _currentDialog.DetachInput();
-          _currentDialog.Hide();
-          _currentDialog = null;
-        }
-        Window previousWindow = _currentWindow;
-        if (previousWindow != null)
-        {
-          previousWindow.WindowState = Window.State.Closing;
-          previousWindow.HasFocus = false;
-          previousWindow.DetachInput();
-        }
-        _currentWindow = window;
-        _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
-
-        if (previousWindow != null)
-          previousWindow.Hide();
+        CloseDialog();
+        InternalCloseWindow();
+        InternalShowWindow(newWindow);
       }
     }
 
@@ -393,27 +477,21 @@ namespace Presentation.SkinEngine
         {
           return;
         }
-        Window previousWindow = _currentWindow;
-        if (previousWindow != null)
-        {
-          previousWindow.WindowState = Window.State.Closing;
-          previousWindow.DetachInput();
-        }
+
         if (_currentWindow.History)
           _history.Pop();
+        InternalCloseWindow();
 
-        string windowName = _history.Peek();
-        _currentWindow = GetWindow(windowName);
-        _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
-
-        if (previousWindow != null)
-          previousWindow.Hide();
+        Window newWindow = GetWindow(_history.Peek());
+        if (newWindow == null)
+          // Error message was shown in GetWindow()
+          return;
+        InternalShowWindow(newWindow);
       }
     }
 
-    public Utils Utils
+    // FIXME Albert78: Move this, if needed, to an own service in ServiceScope
+    public TimeUtils TimeUtils
     {
       get
       {

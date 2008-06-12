@@ -623,7 +623,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         FrameworkElement element = this as FrameworkElement;
         if (element == null)
         {
-          SizeF size = new SizeF(SkinContext.Skin.Width * SkinContext.Zoom.Width, SkinContext.Skin.Height * SkinContext.Zoom.Height);
+          SizeF size = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
           Measure(size);
           Arrange(new RectangleF(0, 0, size.Width, size.Height));
         }
@@ -631,8 +631,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
         {
           float w = (float)element.Width * SkinContext.Zoom.Width;
           float h = (float)element.Height * SkinContext.Zoom.Height;
-          if (w == 0) w = SkinContext.Skin.Width * SkinContext.Zoom.Width;
-          if (h == 0) h = SkinContext.Skin.Height * SkinContext.Zoom.Height;
+          if (w == 0) w = SkinContext.SkinWidth * SkinContext.Zoom.Width;
+          if (h == 0) h = SkinContext.SkinHeight * SkinContext.Zoom.Height;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
           Measure(new SizeF(w, h));
@@ -664,11 +664,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         return ((UIElement)LogicalParent).FindResource(resourceKey);
       }
-      else if (ApplicationResources.Instance.ContainsKey(resourceKey))
-      {
-        return ApplicationResources.Instance[resourceKey];
-      }
-      return null;
+      else
+        return SkinContext.SkinResources.FindStyle(resourceKey);
     }
 
     public void InitializeTriggers()

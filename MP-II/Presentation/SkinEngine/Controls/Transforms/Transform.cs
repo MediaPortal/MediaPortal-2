@@ -22,6 +22,7 @@
 
 #endregion
 
+using Presentation.SkinEngine.SkinManagement;
 using SlimDX;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
@@ -51,8 +52,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      WindowManager mgr = (WindowManager)ServiceScope.Get<IWindowManager>();
-      mgr.Utils.ZoomProperty.Attach(OnZoomChanged);
+      SkinContext.ZoomProperty.Attach(OnZoomChanged);
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

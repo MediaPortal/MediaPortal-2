@@ -61,7 +61,7 @@ namespace Presentation.SkinEngine.Effects
     /// </summary>
     public void Allocate()
     {
-      FileInfo effectFile = SkinContext.GetResourceFromThemeOrSkin(
+      FileInfo effectFile = SkinContext.SkinResources.GetResourceFile(
           string.Format(@"{0}\{1}.fx", Skin.SHADERS_DIRECTORY ,_effectName));
       if (effectFile != null && effectFile.Exists)
       {

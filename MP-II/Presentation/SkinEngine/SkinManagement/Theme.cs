@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,117 +22,37 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Files;
-using Presentation.SkinEngine.MpfElements.Resources;
 
 namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
-  /// Holds theme files for its <see cref="ParentSkin"/>.
+  /// Holds resource files for a theme.
   /// </summary>
-  /// <remarks>
-  /// This class will eager load its resources.
-  /// </remarks>
-  public class Theme
+  public class Theme: SkinResources
   {
-    public const string STYLES_DIRECTORY = "styles";
+    public const string THEME_META_FILE = "theme.xml";
 
-    #region Variables
-
-    /// <summary>
-    /// Holds all known resource files in this skin, stored as a dictionary: The key is the unified
-    /// resource file name (relative path name starting at the beginning of the skinfile directory),
-    /// the value is the <see cref="FileInfo"/> instance of the resource file.
-    /// </summary>
-    protected IDictionary<string, FileInfo> _resourceFiles = new Dictionary<string, FileInfo>();
-
-    // Meta information
-    protected string _name;
-    protected Skin _parentSkin;
-
-    #endregion
-
-    public Theme(string name, Skin parentSkin)
-    {
-      _name = name;
-      _parentSkin = parentSkin;
-    }
-
-    public string Name
-    {
-      get { return _name; }
-    }
+    public Theme(string name, Skin parentSkin): base(name, parentSkin)
+    { }
 
     /// <summary>
     /// Returns the <see cref="Skin"/> this theme belongs to.
     /// </summary>
     public Skin ParentSkin
     {
-      get { return _parentSkin; }
+      get { return InheritedSkinResources as Skin; }
     }
 
     /// <summary>
-    /// Returns the resource file for the specified resource name.
+    /// Adds the resources in the specified directory.
     /// </summary>
-    /// <param name="resourceName">Name of the resource. This is the
-    /// path of the resource relative to the skin directory.</param>
-    /// <returns></returns>
-    public FileInfo GetResourceFile(string resourceName)
+    /// <param name="themeDirectory">Directory whose contents should be added
+    /// to the file cache.</param>
+    protected override void LoadDirectory(DirectoryInfo themeDirectory)
     {
-      if (_resourceFiles.ContainsKey(resourceName))
-        return _resourceFiles[resourceName];
-      else
-        return null;
-    }
-
-    /// <summary>
-    /// Loads all styles <see cref="ResourceDirectory"/>s stored in this theme.
-    /// </summary>
-    /// <returns>Resource dictionary containing all style resources of this theme.</returns>
-    public ResourceDictionary LoadStyles()
-    {
-      ResourceDictionary result = new ResourceDictionary();
-      foreach (KeyValuePair<string, FileInfo> resource in _resourceFiles)
-      {
-        if (resource.Key.StartsWith(STYLES_DIRECTORY))
-        {
-          ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
-          result.Merge(rd);
-        }
-      }
-      return result;
-    }
-
-    /// <summary>
-    /// Adds a directory with search information for this theme.
-    /// </summary>
-    /// <param name="themeDirectory">Directory containing theme information. The
-    /// specified directory should be one of the root directories for this theme.</param>
-    public void AddThemeDirectory(DirectoryInfo themeDirectory)
-    {
-      LoadDirectory(themeDirectory);
-    }
-
-    protected void LoadDirectory(DirectoryInfo themeDirectory)
-    {
-      ILogger logger = ServiceScope.Get<ILogger>();
-      // Add resource files for this directory
-      int directoryNameLength = themeDirectory.FullName.Length;
-      foreach (FileInfo resourceFile in FileUtils.GetAllFilesRecursively(themeDirectory))
-      {
-        string resourceName = resourceFile.FullName;
-        resourceName = resourceName.Substring(directoryNameLength);
-        if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-          resourceName = resourceName.Substring(1);
-        if (_resourceFiles.ContainsKey(resourceName))
-          logger.Info("Duplicate resource file for skin '{0}': '{1}', '{2}'", _name, _resourceFiles[resourceName].FullName, resourceName);
-        else
-          _resourceFiles[resourceName] = resourceFile;
-      }
+      base.LoadDirectory(themeDirectory);
+      // TODO: Load meta information file
     }
   }
 }

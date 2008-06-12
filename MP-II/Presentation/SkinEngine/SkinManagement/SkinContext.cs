@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,11 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows.Forms;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MpfElements.Resources;
-using SlimDX;
 using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.Players.Geometry;
 using MediaPortal.Core;
@@ -47,9 +44,11 @@ namespace Presentation.SkinEngine.SkinManagement
 
     #region Private fields
 
-    private static SkinManager _skinManager = new SkinManager();
-    private static Skin _skin = null;
-    private static Theme _theme = null;
+    private static string _skinName = null;
+    private static string _themeName = null;
+    private static SkinResources _skinResources = new SkinResources("[not initialized]", null); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
+    private static int _skinWidth = 0;
+    private static int _skinHeight = 0;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
     private static List<double> _opacity = new List<double>();
@@ -58,9 +57,6 @@ namespace Presentation.SkinEngine.SkinManagement
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
     private static ExtendedMatrix _tempTransform = null;
     private static Form _form;
-    private static bool _gradientInUse;
-    private static Vector3 _gradientPosition;
-    private static Vector2 _gradientSize;
     private static DateTime _mouseTimer;
     private static bool _isRendering = false;
     private static Geometry _geometry = new Geometry();
@@ -72,48 +68,13 @@ namespace Presentation.SkinEngine.SkinManagement
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
     public static uint TimePassed;
-    public static System.Drawing.SizeF _skinZoom = new System.Drawing.SizeF(1, 1);
+    private static Property _zoomProperty = new Property(typeof(System.Drawing.SizeF), new System.Drawing.SizeF(1, 1));
     public static float Z = 0.0f;
 
     #endregion
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
     internal extern static Int32 ShowCursor(bool bShow);
-
-    /// <summary>
-    /// Prepares the skin and theme, this will load the skin and theme instances and
-    /// set it as the current skin. After calling this method, the <see cref="Skin"/> and
-    /// <see cref="Theme"/> properties contents can be requested.
-    /// To activate the skin, <see cref="ActivateTheme"/> has to be called
-    /// after this method.
-    /// </summary>
-    /// <param name="skinName">The skin to be prepared.</param>
-    /// <param name="themeName">The theme name for the specified skin to be prepared,
-    /// or <c>null</c> for the default theme of the skin.</param>
-    public static void PrepareSkinAndTheme(string skinName, string themeName)
-    {
-      _skin = _skinManager.Skins[skinName];
-      if (_skin == null)
-        _skin = _skinManager.DefaultSkin;
-      if (_skin == null)
-        throw new Exception(string.Format("Could not load skin '{0}'", skinName));
-      _theme = themeName == null ? null : _skin.Themes[themeName];
-      if (_theme == null)
-        _theme = _skin.DefaultTheme;
-      ApplicationResources.Instance.Clear();
-    }
-
-    /// <summary>
-    /// Has to be called after a call to <see cref="PrepareSkinAndTheme(string,string)"/>
-    /// to activate the theme.
-    /// This method must not be called before the DirectX render device is ready.
-    /// </summary>
-    public static void ActivateTheme()
-    {
-      ResourceDictionary rd = _theme == null ? null : _theme.LoadStyles();
-      if (rd != null)
-        ApplicationResources.Instance.Merge(rd);
-    }
 
     public static void AddOpacity(double opacity)
     {
@@ -130,22 +91,6 @@ namespace Presentation.SkinEngine.SkinManagement
       }
       else
         _finalOpacity = 1.0;
-    }
-
-    /// <summary>
-    /// Returns a resource which may be located in a relative path under the directory
-    /// of the current skin or unter the directory of the current theme.
-    /// </summary>
-    /// <param name="resourceName">Relative file name of the resource to retrieve,
-    /// for example <i>shaders/blur.fx</i>. The file name must be relative, else the
-    /// resource won't be found.</param>
-    /// <returns>File describing the requested resource file.</returns>
-    public static FileInfo GetResourceFromThemeOrSkin(string resourceName)
-    {
-      FileInfo result = _theme == null ? null : _theme.GetResourceFile(resourceName);
-      if (result == null)
-        result = _skin == null ? null : _skin.GetResourceFile(resourceName);
-      return result;
     }
 
     public static double Opacity
@@ -168,27 +113,63 @@ namespace Presentation.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Gets or sets the skin currently in use.
+    /// Gets or sets the width of the current skin.
     /// </summary>
-    public static Skin @Skin
+    public static int SkinWidth
     {
-      get { return _skin; }
-      set { _skin = value; }
+      get { return _skinWidth; }
+      set { _skinWidth = value; }
     }
 
     /// <summary>
-    /// Gets or sets the theme currently in use.
+    /// Gets or sets the height of the current skin.
     /// </summary>
-    public static Theme @Theme
+    public static int SkinHeight
     {
-      get { return _theme; }
-      set { _theme = value; }
+      get { return _skinHeight; }
+      set { _skinHeight = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the skin resources currently in use.
+    /// A query to this resource collection will automatically fallback on the
+    /// next resource collection in the priority chain. For example,
+    /// if a requested resource is not present, it will fallback to the
+    /// default theme/skin.
+    /// </summary>
+    public static SkinResources @SkinResources
+    {
+      get { return _skinResources; }
+      set { _skinResources = value; }
+    }
+
+    /// <summary>
+    /// Gets the name of the currently active skin.
+    /// </summary>
+    public static string SkinName
+    {
+      get { return _skinName; }
+      set { _skinName = value; }
+    }
+
+    /// <summary>
+    /// Gets the name of the currently active theme.
+    /// </summary>
+    public static string ThemeName
+    {
+      get { return _themeName; }
+      set { _themeName = value; }
+    }
+
+    public static Property ZoomProperty
+    {
+      get { return _zoomProperty; }
     }
 
     public static System.Drawing.SizeF Zoom
     {
-      get { return _skinZoom; }
-      set { _skinZoom = value; }
+      get { return (System.Drawing.SizeF) _zoomProperty.GetValue(); }
+      set { _zoomProperty.SetValue(value); }
     }
 
     public static List<ExtendedMatrix> Transforms

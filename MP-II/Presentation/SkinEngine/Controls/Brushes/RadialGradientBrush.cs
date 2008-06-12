@@ -281,11 +281,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
             float w = (float)_width;
             float h = (float)_height;
-            float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.Skin.Width;
-            float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.Skin.Height;
+            float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
+            float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
             bool copy = true;
-            if ((int)w >= SkinContext.Skin.Width && (int)h >= SkinContext.Skin.Height)
+            if ((int)w >= SkinContext.SkinWidth && (int)h >= SkinContext.SkinHeight)
             {
               copy = false;
               w /= 2;

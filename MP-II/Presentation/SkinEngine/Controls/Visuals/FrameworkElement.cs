@@ -441,8 +441,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
           float w = (float)ActualWidth;
           float h = (float)ActualHeight;
-          float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.Skin.Width;
-          float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.Skin.Height;
+          float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
+          float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
           List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
           SkinContext.Transforms = new List<ExtendedMatrix>();

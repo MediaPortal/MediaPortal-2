@@ -226,11 +226,11 @@ namespace Presentation.SkinEngine.Controls.Brushes
             Trace.WriteLine("LinearGradientBrush:Create cached texture");
             float w = (float)_width;
             float h = (float)_height;
-            float cx = GraphicsDevice.Width / (float) SkinContext.Skin.Width;
-            float cy = GraphicsDevice.Height / (float) SkinContext.Skin.Height;
+            float cx = GraphicsDevice.Width / (float) SkinContext.SkinWidth;
+            float cy = GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
             bool copy = true;
-            if ((int)w == SkinContext.Skin.Width && (int)h == SkinContext.Skin.Height)
+            if ((int)w == SkinContext.SkinWidth && (int)h == SkinContext.SkinHeight)
             {
               copy = false;
               w /= 2;
@@ -242,7 +242,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
             m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling(((SkinContext.Skin.Width) * cx) / w, (SkinContext.Skin.Height * cy) / h, 1.0f);
+            m.Matrix *= Matrix.Scaling(((SkinContext.SkinWidth) * cx) / w, (SkinContext.SkinHeight * cy) / h, 1.0f);
 
             SkinContext.AddTransform(m);
 

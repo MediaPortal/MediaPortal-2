@@ -129,7 +129,7 @@ namespace Presentation.SkinEngine.Fonts
     /// <summary>Parses the FNT file.</summary>
     private void ParseFNTFile()
     {
-      FileInfo fontFile = SkinContext.GetResourceFromThemeOrSkin(
+      FileInfo fontFile = SkinContext.SkinResources.GetResourceFile(
           Skin.FONTS_DIRECTORY + "\\" + _fntFile);
 
       if (fontFile == null || !fontFile.Exists)
@@ -300,7 +300,7 @@ namespace Presentation.SkinEngine.Fonts
       {
         return;
       }
-      FileInfo textureFile = SkinContext.GetResourceFromThemeOrSkin(
+      FileInfo textureFile = SkinContext.SkinResources.GetResourceFile(
           Skin.FONTS_DIRECTORY + "\\" + _textureFile);
       if (textureFile != null && textureFile.Exists)
       {

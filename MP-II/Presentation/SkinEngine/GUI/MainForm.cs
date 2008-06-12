@@ -78,7 +78,6 @@ namespace Presentation.SkinEngine.GUI
       //following stuff should be dynamicly build offcourse
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting");
 
-
       ServiceScope.Add<IApplication>(this);
       ServiceScope.Add<IInputMapper>(new InputMapper());
 
@@ -113,6 +112,7 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create UserService service");
       UserService userservice = new UserService();
       ServiceScope.Add<IUserService>(userservice);
+
       //**********************************************************
 
       InitializeComponent();
@@ -122,26 +122,14 @@ namespace Presentation.SkinEngine.GUI
       AppSettings appSettings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(appSettings);
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Load skin");
-      WindowSettings windowSettings = new WindowSettings();
-      ServiceScope.Get<ISettingsManager>().Load(windowSettings);
-      if (string.IsNullOrEmpty(windowSettings.Skin))
-      {
-        windowSettings.Skin = "default";
-        windowSettings.Theme = "default";
-        ServiceScope.Get<ISettingsManager>().Save(windowSettings);
-      }
-      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      SkinContext.PrepareSkinAndTheme(windowSettings.Skin, windowSettings.Theme);
-
       _previousMousePosition = new Point(-1, -1);
-      ClientSize = new Size(SkinContext.Skin.Width, SkinContext.Skin.Height);
-      fixed_aspect_ratio = SkinContext.Skin.Height / (float)SkinContext.Skin.Width;
+      ClientSize = new Size(SkinContext.SkinWidth, SkinContext.SkinHeight);
+      fixed_aspect_ratio = SkinContext.SkinHeight/(float) SkinContext.SkinWidth;
 
       // Remember prev size
       _previousClientSize = ClientSize;
 
-      // Set-up for fullscreen
+      // Setup for fullscreen
       if (appSettings.FullScreen)
       {
         Location = new Point(0, 0);
@@ -152,19 +140,18 @@ namespace Presentation.SkinEngine.GUI
       }
       _windowState = WindowState;
 
-      // GraphicsDevice has to be initialized after the correct size was set on this form
+      // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       _displaySetting = GraphicsDevice.DesktopDisplayMode;
-    }
 
+      FontManager.Reload();
+    }
 
     private void MainForm_Load(object sender, EventArgs e)
     {
       CheckTopMost();
-
-      SkinContext.ActivateTheme();
 
       _windowManager.ShowStartupScreen();
 
@@ -177,14 +164,14 @@ namespace Presentation.SkinEngine.GUI
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Closing");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop players");
       ServiceScope.Get<PlayerCollection>().Dispose();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Closing");
     }
 
     private void RenderLoop()
@@ -260,10 +247,10 @@ namespace Presentation.SkinEngine.GUI
       _previousMousePosition.Y = e.Y;
       float x = e.X;
       float y = e.Y;
-      //x *= SkinContext.Skin.Width / (float) ClientSize.Width;
-      //y *= SkinContext.Skin.Height / (float) ClientSize.Height;
-      //x *= (SkinContext.Skin.Width / (float) GraphicsDevice.Width;
-      //y *= SkinContext.Skin.Height / (float) GraphicsDevice.Height;
+      //x *= SkinContext.SkinWidth / (float) ClientSize.Width;
+      //y *= SkinContext.SkinHeight / (float) ClientSize.Height;
+      //x *= (SkinContext.SkinWidth / (float) GraphicsDevice.Width;
+      //y *= SkinContext.SkinHeight / (float) GraphicsDevice.Height;
       //      this.Text = String.Format("{0},{1}", x.ToString("f2"), y.ToString("f2"));
       ServiceScope.Get<IInputManager>().MouseMove(x, y);
     }

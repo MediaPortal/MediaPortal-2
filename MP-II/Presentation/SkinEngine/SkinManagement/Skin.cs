@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,7 +26,6 @@ using System.IO;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Files;
 
 namespace Presentation.SkinEngine.SkinManagement
 {
@@ -49,32 +48,13 @@ namespace Presentation.SkinEngine.SkinManagement
   /// To avoid heavy load times at startup, this class will only collect its resource files
   /// when requested (lazy initializing).
   /// </remarks>
-  public class Skin
+  public class Skin: SkinResources
   {
     public const string SKIN_META_FILE = "skin.xml";
     public const string THEMES_DIRECTORY = "themes";
-    public const string THEME_META_FILE = THEMES_DIRECTORY + "\\theme.xml";
-    public const string SCREENFILES_DIRECTORY = "screenfiles";
     public const string DEFAULT_THEME = "default";
-    public const string FONTS_DIRECTORY = "fonts";
-    public const string FONT_META_FILE = FONTS_DIRECTORY + "\\fonts.xml";
-    public const string SHADERS_DIRECTORY = "shaders";
-    public const string MEDIA_DIRECTORY = "media";
 
-    #region Variables
-
-    /// <summary>
-    /// Holds a list of directories which will be loaded when the skin gets lazy initialized.
-    /// </summary>
-    protected IList<DirectoryInfo> _skinDirectories = new List<DirectoryInfo>();
-
-    /// <summary>
-    /// Holds all known resource files in this skin, stored as a dictionary: The key is the unified
-    /// resource file name (relative path name starting at the beginning of the skinfile directory),
-    /// the value is the <see cref="FileInfo"/> instance of the resource file.
-    /// This instance will be lazy initialized.
-    /// </summary>
-    protected IDictionary<string, FileInfo> _resourceFiles = null;
+    #region Protected fields
 
     /// <summary>
     /// Holds all known skin files, stored as a dictionary: The key is the theme name,
@@ -83,24 +63,16 @@ namespace Presentation.SkinEngine.SkinManagement
     protected IDictionary<string, Theme> _themes = null;
 
     // Meta information of the skin
-    protected string _name;
-
     protected int _width;
     protected int _height;
 
     #endregion
 
-    public Skin(string name)
+    public Skin(string name): base(name, null)
     {
-      _name = name;
       // FIXME: read those parameters from skin metadata
       _width = 720;
       _height = 576;
-    }
-
-    public string Name
-    {
-      get { return _name; }
     }
 
     public int Width
@@ -117,7 +89,7 @@ namespace Presentation.SkinEngine.SkinManagement
     {
       get
       {
-        CheckInitialized();
+        CheckResourcesInitialized();
         return _themes;
       }
     }
@@ -126,98 +98,46 @@ namespace Presentation.SkinEngine.SkinManagement
     {
       get
       {
-        CheckInitialized();
-        return _themes[DEFAULT_THEME]; 
+        CheckResourcesInitialized();
+        if (_themes.ContainsKey(DEFAULT_THEME))
+          return _themes[DEFAULT_THEME];
+        IEnumerator<KeyValuePair<string, Theme>> enumer = _themes.GetEnumerator();
+        if (enumer.MoveNext())
+          return enumer.Current.Value;
+        return null;
       }
     }
 
     /// <summary>
-    /// Adds a directory to the internal skinfile resources.
-    /// This method will add all relevant skin files in the specified directory to the
-    /// skin file cache.
+    /// Releases all lazy initialized resources. This will reduce the memory consumption
+    /// of this instance.
+    /// When requested again, the skin resources will be loaded again automatically.
     /// </summary>
-    /// <param name="skinDirectory">Directory which is the root of a directory tree
-    /// for this skin.</param>
-    public void AddSkinDirectory(DirectoryInfo skinDirectory)
+    public override void Release()
     {
-      _skinDirectories.Add(skinDirectory);
-    }
-
-    /// <summary>
-    /// Returns the resource file for the specified resource name.
-    /// </summary>
-    /// <param name="resourceName">Name of the resource. This is the
-    /// path of the resource relative to the skin directory.</param>
-    /// <returns></returns>
-    public FileInfo GetResourceFile(string resourceName)
-    {
-      CheckInitialized();
-      if (_resourceFiles.ContainsKey(resourceName))
-        return _resourceFiles[resourceName];
-      else
-        return null;
-    }
-
-    /// <summary>
-    /// Returns the skin file for the specified screen name.
-    /// </summary>
-    /// <param name="screenName">Logical name of the screen.</param>
-    /// <returns></returns>
-    public FileInfo GetSkinFile(string screenName)
-    {
-      string key = SCREENFILES_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
-      return GetResourceFile(key);
-    }
-
-    /// <summary>
-    /// Loads the skin file with the specified name and returns its root element.
-    /// </summary>
-    /// <param name="screenName">Logical name of the screen.</param>
-    /// <returns>Root element of the loaded skin or <c>null</c>, if the screen
-    /// is not defined in this skin.</returns>
-    public object LoadSkinFile(string screenName)
-    {
-      FileInfo skinFile = GetSkinFile(screenName);
-      if (skinFile == null)
-        return null;
-      return XamlLoader.Load(skinFile);
+      base.Release();
+      _themes = null;
     }
 
     /// <summary>
     /// Will trigger the lazy initialization on request.
     /// </summary>
-    protected void CheckInitialized()
+    protected override void CheckResourcesInitialized()
     {
-      if (_resourceFiles == null || _themes == null)
-      {
-        _resourceFiles = new Dictionary<string, FileInfo>();
+      if (_themes == null)
         _themes = new Dictionary<string, Theme>();
-        foreach (DirectoryInfo skinDirectory in _skinDirectories)
-          LoadDirectory(skinDirectory);
-      }
+      base.CheckResourcesInitialized();
     }
 
     /// <summary>
-    /// Adds the specified directory to the cache of resource files.
-    /// Also adds the themes in the specified directory.
+    /// Adds the resources and themes in the specified directory.
     /// </summary>
-    /// <param name="skinDirectory">Directory to add to the file cache.</param>
-    protected void LoadDirectory(DirectoryInfo skinDirectory)
+    /// <param name="skinDirectory">Directory whose contents should be added
+    /// to the file cache.</param>
+    protected override void LoadDirectory(DirectoryInfo skinDirectory)
     {
+      base.LoadDirectory(skinDirectory);
       ILogger logger = ServiceScope.Get<ILogger>();
-      // Add resource files for this directory
-      int directoryNameLength = skinDirectory.FullName.Length;
-      foreach (FileInfo resourceFile in FileUtils.GetAllFilesRecursively(skinDirectory))
-      {
-        string resourceName = resourceFile.FullName;
-        resourceName = resourceName.Substring(directoryNameLength);
-        if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-          resourceName = resourceName.Substring(1);
-        if (_resourceFiles.ContainsKey(resourceName))
-          logger.Info("Duplicate resource file for skin '{0}': '{1}', '{2}'", _name, _resourceFiles[resourceName].FullName, resourceName);
-        else
-          _resourceFiles[resourceName] = resourceFile;
-      }
       // Add themes
       foreach (DirectoryInfo themesDirectory in skinDirectory.GetDirectories(THEMES_DIRECTORY))
         // Iterate over 0 or 1 "themes" directories
@@ -229,8 +149,9 @@ namespace Presentation.SkinEngine.SkinManagement
             theme = _themes[themeName];
           else
             theme = _themes[themeName] = new Theme(themeName, this);
-          theme.AddThemeDirectory(themeDirectory);
+          theme.AddRootDirectory(themeDirectory);
         }
+      // TODO: Load meta information file
     }
   }
 }

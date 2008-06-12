@@ -174,7 +174,7 @@ namespace Presentation.SkinEngine
 
       if (_state == State.Unknown)
       {
-        FileInfo sourceFile = SkinContext.GetResourceFromThemeOrSkin(
+        FileInfo sourceFile = SkinContext.SkinResources.GetResourceFile(
             Skin.MEDIA_DIRECTORY + "\\" + _textureName);
         if (sourceFile != null && sourceFile.Exists)
         {

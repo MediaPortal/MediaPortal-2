@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -469,8 +469,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
         subtitle.timeOut = sub.timeOut;
         subtitle.presentTime = sub.timeStamp / 90000.0f + startPos;
 
-        subtitle.height = (uint)SkinContext.Skin.Height;
-        subtitle.width = (uint)SkinContext.Skin.Width;
+        subtitle.height = (uint)SkinContext.SkinHeight;
+        subtitle.width = (uint)SkinContext.SkinWidth;
         subtitle.firstScanLine = 0;
 
         lock (subtitles)
@@ -497,8 +497,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
     public static Bitmap RenderText(LineContent[] lc)
     {
 
-      int w = (int)SkinContext.Skin.Width;
-      int h = (int)SkinContext.Skin.Height;
+      int w = (int)SkinContext.SkinWidth;
+      int h = (int)SkinContext.SkinHeight;
 
       Bitmap bmp = new Bitmap(w, h);
 
@@ -733,8 +733,8 @@ namespace Presentation.SkinEngine.Players.Subtitles
         float rationW = 1, rationH = 1;
 
         Rectangle movieRect = player.MovieRectangle;
-        rationH = movieRect.Height / ((float)SkinContext.Skin.Height);
-        rationW = movieRect.Width / ((float)SkinContext.Skin.Width);
+        rationH = movieRect.Height / ((float)SkinContext.SkinHeight);
+        rationW = movieRect.Width / ((float)SkinContext.SkinWidth);
 
         wx = (movieRect.Right) - (movieRect.Width / 2) - (int)(((float)currentSubtitle.width * rationW) / 2);
         wy = movieRect.Top + (int)(rationH * (float)currentSubtitle.firstScanLine);

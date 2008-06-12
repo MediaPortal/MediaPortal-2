@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -54,11 +54,11 @@ namespace Presentation.SkinEngine.SkinManagement
 
     public Skin DefaultSkin
     {
-      get { return _skins[DEFAULT_SKIN]; }
+      get { return _skins.ContainsKey(DEFAULT_SKIN) ? _skins[DEFAULT_SKIN] : null; }
     }
 
     /// <summary>
-    /// Will reload all skin information from the system.
+    /// Will reload all skin information from the file system.
     /// </summary>
     public void ReloadSkins()
     {
@@ -73,15 +73,24 @@ namespace Presentation.SkinEngine.SkinManagement
           skin = _skins[skinName];
         else
           skin = _skins[skinName] = new Skin(skinDirectory.Name);
-        skin.AddSkinDirectory(skinDirectory);
+        skin.AddRootDirectory(skinDirectory);
       }
+      // Setup the resource chain: Inherit the default theme resources for all
+      // skins other than the default skin
+      Skin defaultSkin = DefaultSkin;
+      SkinResources inheritedResources = defaultSkin == null ? null : defaultSkin.DefaultTheme;
+      if (inheritedResources == null)
+        inheritedResources = defaultSkin;
+      foreach (KeyValuePair<string, Skin> kvp in _skins)
+        if (kvp.Value != defaultSkin)
+          kvp.Value.InheritedSkinResources = inheritedResources;
     }
 
     /// <summary>
     /// Returns the skin with the specified name.
     /// </summary>
     /// <param name="skinName">Name of the skin to retrieve.</param>
-    /// <returns><see cref="Skin"/> instance with the specified name, or <c>null</c> if the
+    /// <returns><see cref="SkinManagement.Skin"/> instance with the specified name, or <c>null</c> if the
     /// skin could not be found.</returns>
     public Skin GetSkin(string skinName)
     {

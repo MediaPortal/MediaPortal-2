@@ -1,20 +1,17 @@
+
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
 using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine
 {
-  public class Utils
+  public class TimeUtils
   {
 
     Property _currentTimeProperty = new Property(typeof(string), DateTime.Now.ToShortTimeString());
     Property _hourAngleProperty = new Property(typeof(double), 0.0);
     Property _minuteAngleProperty = new Property(typeof(double), 0.0);
-    Property _zoomProperty = new Property(typeof(SizeF), new SizeF(1, 1));
 
-    public Utils()
+    public TimeUtils()
     {
 
     }
@@ -87,30 +84,6 @@ namespace Presentation.SkinEngine
       set
       {
         _minuteAngleProperty.SetValue(value);
-      }
-    }
-
-    public Property ZoomProperty
-    {
-      get
-      {
-        return _zoomProperty;
-      }
-      set
-      {
-        _zoomProperty = value;
-      }
-    }
-
-    public SizeF Zoom
-    {
-      get
-      {
-        return (SizeF)_zoomProperty.GetValue();
-      }
-      set
-      {
-        _zoomProperty.SetValue(value);
       }
     }
 

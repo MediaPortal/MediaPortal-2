@@ -37,11 +37,6 @@ namespace Presentation.SkinEngine.Fonts
   {
     private static Dictionary<string, Font> _fonts;
 
-    static FontManager()
-    {
-      Reload();
-    }
-
     private static void LoadFont(XmlNode node)
     {
       try
@@ -144,15 +139,16 @@ namespace Presentation.SkinEngine.Fonts
     public static void Reload()
     {
       _fonts = new Dictionary<string, Font>();
-
-      XmlDocument doc = new XmlDocument();
-      FileInfo fontFile = SkinContext.GetResourceFromThemeOrSkin(Skin.FONT_META_FILE);
-      if (fontFile == null || !fontFile.Exists)
-        return;
-      doc.Load(fontFile.FullName);
-      XmlNodeList nodes = doc.SelectNodes("/fonts/font");
-      foreach (XmlNode node in nodes)
-        LoadFont(node);
+      IDictionary<string, FileInfo> fontResources =
+          SkinContext.SkinResources.GetResourceFiles(
+              SkinResources.FONTS_DIRECTORY + "\\" + Path.DirectorySeparatorChar + ".*\\.xml");
+      foreach (KeyValuePair<string, FileInfo> kvp in fontResources)
+      {
+        FileInfo fontFile = kvp.Value;
+        XmlDocument doc = new XmlDocument();
+        doc.Load(fontFile.FullName);
+        LoadFont(doc.DocumentElement);
+      }
     }
   }
 }
