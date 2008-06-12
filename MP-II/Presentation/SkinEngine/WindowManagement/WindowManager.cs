@@ -193,8 +193,8 @@ namespace Presentation.SkinEngine
         ServiceScope.Get<ILogger>().Info("WindowManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
-        string currentWindowName = _currentWindow == null ? null : _currentWindow.Name;
-        bool currentWindowInHistory = _currentWindow == null ? false : _currentWindow.History;
+        string currentScreenName = _currentWindow == null ? null : _currentWindow.Name;
+        bool currentScreenInHistory = _currentWindow == null ? false : _currentWindow.History;
 
         InternalCloseCurrentWindows();
 
@@ -217,11 +217,11 @@ namespace Presentation.SkinEngine
         // history will be compatible with the new skin.
         _history.Clear();
         _history.Push(STARTUP_SCREEN);
-        if (currentWindowInHistory && _skin.GetSkinFile(currentWindowName) != null)
-          _history.Push(currentWindowName);
+        if (currentScreenInHistory && _skin.GetSkinFile(currentScreenName) != null)
+          _history.Push(currentScreenName);
 
-        if (_currentWindow == null && _skin.GetSkinFile(currentWindowName) != null)
-          _currentWindow = GetWindow(currentWindowName);
+        if (_currentWindow == null && _skin.GetSkinFile(currentScreenName) != null)
+          _currentWindow = GetWindow(currentScreenName);
         if (_currentWindow == null)
           _currentWindow = GetWindow(_history.Peek());
         if (_currentWindow == null)
@@ -247,20 +247,21 @@ namespace Presentation.SkinEngine
     /// <summary>
     /// Loads the specified screen from the current skin.
     /// </summary>
-    /// <param name="windowName">The window to load.</param>
-    protected UIElement LoadSkinFile(string windowName)
+    /// <param name="screenName">The screen to load.</param>
+    protected UIElement LoadSkinFile(string screenName)
     {
-      return SkinContext.SkinResources.LoadSkinFile(windowName) as UIElement;
+      return SkinContext.SkinResources.LoadSkinFile(screenName) as UIElement;
     }
 
     /// <summary>
-    /// Gets the window with the specified name. If the window is already loaded, the cached window
-    /// will be returned. Else, a new window instance will be created and loaded from the XAML resource
-    /// specified by the <paramref name="windowName"/>.
+    /// Gets the window displaying the screen with the specified name. If the window is
+    /// already loaded, the cached window will be returned. Else, a new window instance
+    /// will be created for the specified <paramref name="screenName"/> and loaded from
+    /// a skin file.
     /// </summary>
-    /// <param name="windowName">Name of the window to return.</param>
+    /// <param name="screenName">Name of the screen to return the window instance for.</param>
     /// <returns>Window or <c>null</c>, if an error occured loading the window.</returns>
-    public Window GetWindow(string windowName)
+    public Window GetWindow(string screenName)
     {
       try
       {
@@ -271,23 +272,23 @@ namespace Presentation.SkinEngine
           //_currentWindow.WaitCursorVisible = true;
         }
 
-        if (_windowCache.ContainsKey(windowName))
-          return _windowCache[windowName];
+        if (_windowCache.ContainsKey(screenName))
+          return _windowCache[screenName];
 
-        Window result = new Window(windowName);
+        Window result = new Window(screenName);
         try
         {
-          UIElement root = LoadSkinFile(windowName);
+          UIElement root = LoadSkinFile(screenName);
           if (root == null) return null;
           result.Visual = root;
           // Don't show window here.
           // That is done at the appriopriate time by all methods calling this one.
           // Calling show here will result in the model loading its data twice.
-          _windowCache.Add(windowName, result);
+          _windowCache.Add(screenName, result);
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin file for window '{0}'", ex, windowName);
+          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin file for window '{0}'", ex, screenName);
           // TODO Albert78: Show error dialog with skin loading message
           return null;
         }
