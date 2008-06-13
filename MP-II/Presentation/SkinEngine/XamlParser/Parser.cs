@@ -509,10 +509,10 @@ namespace Presentation.SkinEngine.XamlParser
           Type t = elementContext.Instance.GetType();
           // Search Property value
           IDataDescriptor dd;
-          if (value != null &&
-              ReflectionHelper.FindPropertyDescriptor(elementContext.Instance, memberName, out dd))
+          if (ReflectionHelper.FindPropertyDescriptor(elementContext.Instance, memberName, out dd))
           { // Property assignment
-            HandlePropertyAssignment(dd, value);
+            if (value != null)
+              HandlePropertyAssignment(dd, value);
             return;
           }
           EventInfo evt = t.GetEvent(memberName);
