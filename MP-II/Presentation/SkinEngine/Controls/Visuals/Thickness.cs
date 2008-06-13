@@ -23,43 +23,35 @@
 #endregion
 
 using System;
-using System.Globalization;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
-  public class Thickness
+  public class Thickness : IDeepCopyable
   {
-    protected static readonly NumberFormatInfo NUMBERFORMATINFO = CultureInfo.InvariantCulture.NumberFormat;
+    float _left = 0;
+    float _top = 0;
+    float _right = 0;
+    float _bottom = 0;
 
-    float _left;
-    float _top;
-    float _right;
-    float _bottom;
-
-    public Thickness(string thicknessString)
+    public Thickness()
     {
-      string[] coords = thicknessString.Split(new char[] { ',' });
-      if (coords.Length == 1)
-      {
-        float.TryParse(coords[0], NumberStyles.Any, NUMBERFORMATINFO, out _left);
-        _top = _left;
-        _right = _left;
-        _bottom = _left;
-      }
-      if (coords.Length == 2)
-      {
-        float.TryParse(coords[0], NumberStyles.Any, NUMBERFORMATINFO, out _left);
-        float.TryParse(coords[1], NumberStyles.Any, NUMBERFORMATINFO, out _top);
-        _right = _left;
-        _bottom = _top;
-      }
-      if (coords.Length == 4)
-      {
-        float.TryParse(coords[0], NumberStyles.Any, NUMBERFORMATINFO, out _left);
-        float.TryParse(coords[1], NumberStyles.Any, NUMBERFORMATINFO, out _top);
-        float.TryParse(coords[2], NumberStyles.Any, NUMBERFORMATINFO, out _right);
-        float.TryParse(coords[3], NumberStyles.Any, NUMBERFORMATINFO, out _bottom);
-      }
+    }
+
+    public Thickness(float thickness)
+    {
+      _left = thickness;
+      _top = thickness;
+      _right = thickness;
+      _bottom = thickness;
+    }
+
+    public Thickness(float left, float top)
+    {
+      _left = left;
+      _top = top;
+      _right = left;
+      _bottom = top;
     }
 
     public Thickness(float left, float top, float right, float bottom)
@@ -68,6 +60,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _top = top;
       _right = right;
       _bottom = bottom;
+    }
+
+    public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Thickness b = source as Thickness;
+      _left = b._left;
+      _top = b._top;
+      _right = b._right;
+      _bottom = b._bottom;
     }
 
     public float Left 

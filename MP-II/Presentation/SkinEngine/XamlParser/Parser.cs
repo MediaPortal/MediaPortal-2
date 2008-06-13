@@ -893,10 +893,18 @@ namespace Presentation.SkinEngine.XamlParser
     protected object Convert(object val, Type targetType)
     {
       object result;
-      if (TypeConverter.Convert(val, targetType, out result))
-        return result;
-      else
+      try
+      {
+        if (TypeConverter.Convert(val, targetType, out result))
+          return result;
+        else
+          throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
+
+      }
+      catch (ArgumentException e)
+      {
         throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
+      }
     }
 
     #endregion

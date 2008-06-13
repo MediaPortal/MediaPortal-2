@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine.Controls.Panels;
 using Presentation.SkinEngine.Controls.Transforms;
@@ -43,6 +44,8 @@ namespace Presentation.SkinEngine.MpfElements
   public class Registration
   {
     #region Variables
+
+    protected static readonly NumberFormatInfo NUMBERFORMATINFO = CultureInfo.InvariantCulture.NumberFormat;
 
     /// <summary>
     /// Registration for all elements the loader can create from a XAML file.
@@ -206,7 +209,25 @@ namespace Presentation.SkinEngine.MpfElements
       }
       else if (targetType == typeof(Thickness))
       {
-        Thickness t = new Thickness(value.ToString());
+        Thickness t;
+        float[] numberList = parseNumberList(value.ToString());
+
+        if (numberList.Length == 1)
+        {
+          t = new Thickness(numberList[0]);
+        }
+        else if (numberList.Length == 2)
+        {
+          t = new Thickness(numberList[0], numberList[1]);
+        }
+        else if (numberList.Length == 4)
+        {
+          t = new Thickness(numberList[0], numberList[1], numberList[2], numberList[3]);
+        }
+        else
+        {
+          throw new ArgumentException("Invalid # of parameters");
+        }
         result = t;
         return true;
       }
@@ -382,6 +403,27 @@ namespace Presentation.SkinEngine.MpfElements
         vec.Z = (float) obj;
       }
       return vec;
+    }
+
+
+    /// <summary>
+    /// Parses a comma separated list of numbers (floats)
+    /// </summary>
+    /// <param name="numbersString">The string representing the list of numbers</param>
+    /// <returns>An array of floats</returns>
+    /// 
+    protected static float[] parseNumberList(string numbersString)
+    {
+      string[] numbers = numbersString.Split(new char[] { ',' });
+      if (numbers.Length == 0)
+        throw new ArgumentException("Empty list");
+      float[] result = new float[numbers.Length];
+      for (int i = 0; i < numbers.Length; i++)
+      {
+        if (!float.TryParse(numbers[i], NumberStyles.Any, NUMBERFORMATINFO, out result[i]))
+          throw new ArgumentException("Not a number (float)");
+      }
+      return result;
     }
 
     /// <summary>
