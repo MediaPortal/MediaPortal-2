@@ -24,6 +24,8 @@
 
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.SkinManagement;
+using System.IO;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {
@@ -52,8 +54,13 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       _resources = resources;
     }
 
-    #region Public properties    
+    #region Public properties
 
+    /// <summary>
+    /// Gets or sets the source file to be included by this instance.
+    /// The value has to be a relative resource path, which will be searched as a resource
+    /// in the current skin context (See <see cref="SkinContext.SkinResources"/>).
+    /// </summary>
     public string Source
     {
       get { return _includeName; }
@@ -80,7 +87,10 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     public virtual void Initialize(IParserContext context)
     {
-      _content = context.LoadXaml(_includeName);
+      FileInfo includeFile = SkinContext.SkinResources.GetResourceFile(_includeName);
+      if (includeFile == null)
+        throw new XamlLoadException("Could not open include file '{0}'", _includeName);
+      _content = context.LoadXaml(includeFile.FullName);
       if (_content is UIElement)
         ((UIElement) _content).Resources.Merge(Resources);
       else if (_content is ResourceDictionary)

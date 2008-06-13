@@ -27,5 +27,5 @@
       <Button x:Name="VideoWindow" Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
     </StackPanel>
   </DockPanel>
-  <Include Source="osd.xaml"/>
+  <Include Source="screenfiles\osd.xaml"/>
 </Canvas>

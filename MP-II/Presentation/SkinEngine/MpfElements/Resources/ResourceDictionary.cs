@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Presentation.SkinEngine.SkinManagement;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -49,6 +51,11 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       _parent = copyManager.GetCopy(rd._parent);
     }
 
+    /// <summary>
+    /// Gets or sets the source file for a dictionary to be merged into this dictionary.
+    /// The value has to be a relative resource path, which will be searched as a resource
+    /// in the current skin context (See <see cref="SkinContext.SkinResources"/>).
+    /// </summary>
     public string Source
     {
       get { return _source; }
@@ -72,11 +79,14 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     public void Initialize(IParserContext context)
     {
-      if (!string.IsNullOrEmpty(Source))
+      if (!string.IsNullOrEmpty(_source))
       {
-        ResourceDictionary mergeDict = context.LoadXaml(Source) as ResourceDictionary;
+        FileInfo includeFile = SkinContext.SkinResources.GetResourceFile(_source);
+        if (includeFile == null)
+          throw new XamlLoadException("Could not open include file '{0}'", _source);
+        ResourceDictionary mergeDict = context.LoadXaml(includeFile.FullName) as ResourceDictionary;
         if (mergeDict == null)
-          throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", Source));
+          throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);
       }
       if (MergedDictionaries.Count > 0)

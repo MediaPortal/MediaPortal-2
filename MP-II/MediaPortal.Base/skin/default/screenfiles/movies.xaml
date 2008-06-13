@@ -229,5 +229,5 @@
     </Canvas>
   </Canvas>
   -->
-<Include Source="osd.xaml"/>
+<Include Source="screenfiles\osd.xaml"/>
 </Canvas>
