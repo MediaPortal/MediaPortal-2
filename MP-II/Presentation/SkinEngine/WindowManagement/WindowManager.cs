@@ -257,7 +257,7 @@ namespace Presentation.SkinEngine
     /// Gets the window displaying the screen with the specified name. If the window is
     /// already loaded, the cached window will be returned. Else, a new window instance
     /// will be created for the specified <paramref name="screenName"/> and loaded from
-    /// a skin file.
+    /// a skin file. The window will not be shown yet.
     /// </summary>
     /// <param name="screenName">Name of the screen to return the window instance for.</param>
     /// <returns>Window or <c>null</c>, if an error occured loading the window.</returns>
@@ -281,9 +281,6 @@ namespace Presentation.SkinEngine
           UIElement root = LoadSkinFile(screenName);
           if (root == null) return null;
           result.Visual = root;
-          // Don't show window here.
-          // That is done at the appriopriate time by all methods calling this one.
-          // Calling show here will result in the model loading its data twice.
           _windowCache.Add(screenName, result);
         }
         catch (Exception ex)
