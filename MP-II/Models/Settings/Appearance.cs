@@ -71,14 +71,17 @@ namespace Models.Settings
       }
 
       _skins = new ItemsCollection();
-      string[] skins = Directory.GetDirectories("skin");
+      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
+      string[] skins = Directory.GetDirectories(skinPath);
       for (int i = 0; i < skins.Length; ++i)
       {
-        ListItem item = new ListItem("Name", skins[i].Substring(5));
+        string skinName = new DirectoryInfo(skins[i]).Name;
+        ListItem item = new ListItem("Name", skinName);
         // FIXME Albert78: Use the SkinContext resolving mechanism here, after this class was moved
         // to SkinEngine project
-        item.Add("CoverArt", String.Format("preview.png"));
-        item.Add("defaulticon", String.Format("preview.png"));
+        string previewImagePath = String.Format("{0}\\{1}\\themes\\default\\media\\preview.png", skinPath, skinName);
+        item.Add("CoverArt", previewImagePath);
+        item.Add("defaulticon", previewImagePath);
         _skins.Add(item);
       }
 
@@ -87,10 +90,10 @@ namespace Models.Settings
       _fullScreen.Add(new ListItem("Name", new StringId("system", "no")));
 
       _themes = new ItemsCollection();
-      GetThemes();
+      UpdateThemes();
     }
 
-    void GetThemes()
+    void UpdateThemes()
     {
       IWindowManager mgr = ServiceScope.Get<IWindowManager>();
       string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
@@ -99,12 +102,11 @@ namespace Models.Settings
       _themes.Clear();
       for (int i = 0; i < themes.Length; ++i)
       {
-        string themeName = themes[i];
-        int pos = themeName.LastIndexOf(@"\");
-        if (pos > 0) themeName = themeName.Substring(pos + 1);
+        DirectoryInfo themeDirectory = new DirectoryInfo(themes[i]);
+        string themeName = themeDirectory.Name;
 
         ListItem item = new ListItem("Name", themeName);
-        item.Add("CoverArt", String.Format(@"{0}\media\preview.png", Path.GetFullPath(themes[i])));
+        item.Add("CoverArt", String.Format(@"{0}\media\preview.png", themeDirectory.FullName));
         _themes.Add(item);
       }
     }
@@ -193,7 +195,7 @@ namespace Models.Settings
 
       IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
       windowMgr.SwitchSkin(skinChoosen);
-      GetThemes();
+      UpdateThemes();
     }
 
     /// <summary>
