@@ -29,9 +29,11 @@ using System.Text;
 using System.Xml.Serialization;
 using System.IO;
 using System.Globalization;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Localisation.Strings;
 
-namespace MediaPortal.Utilities.Localisation
+namespace MediaPortal.Services.Localisation
 {
   public class LocalisationStrings
   {
@@ -299,8 +301,9 @@ namespace MediaPortal.Utilities.Localisation
             TextReader r = new StreamReader(path, encoding);
             strings = (StringFile)s.Deserialize(r);
           }
-          catch (Exception)
+          catch (Exception ex)
           {
+            ServiceScope.Get<ILogger>().Error("Failed decode {0} : {1}",path, ex.ToString());
             return;
           }
 

@@ -27,7 +27,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Localisation;
 
 
 namespace MediaPortal.Services.Localisation
