@@ -32,7 +32,7 @@ namespace Presentation.SkinEngine.Controls.Bindings
 {
   using System.Collections;
 
-  public class CommandGroup : DependencyObject, IAddChild, IEnumerable<InvokeCommand>, IDeepCopyable
+  public class CommandGroup : DependencyObject, IAddChild<InvokeCommand>, IEnumerable<InvokeCommand>, IDeepCopyable
   {
     #region Protected fields
 
@@ -82,14 +82,13 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(InvokeCommand o)
     {
-      InvokeCommand c = o as InvokeCommand;
-      if (c == null)
+      if (o == null)
         throw new ArgumentException(string.Format("Can only add elements of type {0} to {1}",
           typeof(InvokeCommand).Name, typeof(CommandGroup).Name));
-      c.Setup(Owner);
-      _elements.Add(c);
+      o.Setup(Owner);
+      _elements.Add(o);
     }
 
     #endregion

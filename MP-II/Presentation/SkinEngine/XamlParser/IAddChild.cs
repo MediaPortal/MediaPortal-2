@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Presentation.SkinEngine.XamlParser
 {
   /// <summary>
@@ -33,21 +29,21 @@ namespace Presentation.SkinEngine.XamlParser
   /// a content property to add them to.
   /// </summary>
   /// <remarks>
-  /// The standard way for visual elements to expose their ability to have children
+  /// The standard way for visual elements to expose their ability to have a content
   /// is, they implement the interface <see cref="IContentEnabled"/>, and the parser
-  /// automatically assigns the children to their so defined content property.
+  /// automatically assigns the content to their so defined content property.
   /// In the case that the children collection should not be exposed to the outside world
   /// (via a content property), or that the class of the children collection does not
   /// expose a default constructor (which is necessary to type-convert to it), the
   /// visual element can implement this interface.
   /// </remarks>
-  public interface IAddChild
+  public interface IAddChild<T>
   {
     /// <summary>
     /// Adds a child element to this visual element.
     /// </summary>
     /// <param name="o">Child instanciated by the parser. The type of <paramref name="o"/>
     /// is the type the parser created for the corresponding XAML element in the XAML file.</param>
-    void AddChild(object o);
+    void AddChild(T o);
   }
 }

@@ -34,7 +34,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger: DependencyObject, IAddChild
+  public class Trigger: DependencyObject, IAddChild<TriggerAction>
   {
     #region Private fields
 
@@ -213,9 +213,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(TriggerAction o)
     {
-      EnterActions.Add((TriggerAction) o);
+      EnterActions.Add(o);
     }
 
     #endregion

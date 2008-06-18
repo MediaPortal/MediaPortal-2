@@ -30,6 +30,7 @@ using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine.Controls.Panels;
 using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
 using Presentation.SkinEngine.Controls.Visuals.Shapes;
@@ -86,6 +87,8 @@ namespace Presentation.SkinEngine.MpfElements
 
       // Resources
       objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));
+      objectClassRegistrations.Add("Include", typeof(SkinEngine.MpfElements.Resources.Include));
+      objectClassRegistrations.Add("ResourceWrapper", typeof(SkinEngine.MpfElements.Resources.ResourceWrapper));
       
       // Brushes
       objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));
@@ -140,14 +143,12 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("CommandGroup", typeof(SkinEngine.Controls.Bindings.CommandGroup));
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Controls.Bindings.InvokeCommand));
 
-      // Include
-      objectClassRegistrations.Add("Include", typeof(SkinEngine.MpfElements.Resources.Include));
-
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));
-      objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));
+      objectClassRegistrations.Add("DynamicResource", typeof(SkinEngine.MarkupExtensions.DynamicResourceMarkupExtension));
       objectClassRegistrations.Add("Binding", typeof(SkinEngine.MarkupExtensions.BindingMarkupExtension));
       objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingMarkupExtension));
+      objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));
       objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.GetModelMarkupExtension));
       objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceScopeMarkupExtension));
       objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
@@ -155,7 +156,7 @@ namespace Presentation.SkinEngine.MpfElements
 
     #endregion
 
-    #region Public properties           
+    #region Public properties
 
     public static IDictionary<string, Type> ObjectClassRegistrations
     { get { return objectClassRegistrations; } }
@@ -172,6 +173,8 @@ namespace Presentation.SkinEngine.MpfElements
         result = value;
         return true;
       }
+      else if (value.GetType() == typeof(ResourceWrapper))
+        return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
       else if (targetType == typeof(Transform))
       {
         string v = value.ToString();

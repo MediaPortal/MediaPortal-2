@@ -29,9 +29,11 @@ using Presentation.SkinEngine.MpfElements.Resources;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
+  /// <summary>
+  /// Implements the MPF StaticResource markup extension.
+  /// </summary>
   public class StaticResourceMarkupExtension: IEvaluableMarkupExtension
   {
-
     #region Protected fields
 
     protected string _resourceKey;
@@ -86,7 +88,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         }
       }
 
-      object result = SkinContext.SkinResources.FindStyle(_resourceKey);
+      object result = SkinContext.SkinResources.FindStyleResource(_resourceKey);
 
       if (result == null)
         throw new XamlBindingException("StaticResourceMarkupExtension: Resource '{0}' not found", _resourceKey);

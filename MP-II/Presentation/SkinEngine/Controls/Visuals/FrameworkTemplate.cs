@@ -42,7 +42,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: NameScope, IAddChild, IDeepCopyable
+  public class FrameworkTemplate: NameScope, IAddChild<UIElement>, IDeepCopyable
   {
     #region Private fields
 
@@ -94,9 +94,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
     
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(UIElement o)
     {
-      _templateElement = o as UIElement;
+      _templateElement = o;
       _templateElement.Resources.Merge(Resources);
     }
 

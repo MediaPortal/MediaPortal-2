@@ -31,6 +31,8 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {
+  public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
+
   public class ResourceDictionary: Dictionary<string, object>, IInitializable, INameScope, IDeepCopyable
   {
     protected string _source = "";
@@ -50,6 +52,8 @@ namespace Presentation.SkinEngine.MpfElements.Resources
         _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
       _parent = copyManager.GetCopy(rd._parent);
     }
+
+    public event ResourcesChangedHandler ResourcesChanged;
 
     /// <summary>
     /// Gets or sets the source file for a dictionary to be merged into this dictionary.
@@ -73,6 +77,13 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       IEnumerator<KeyValuePair<string, object>> enumer = dict.GetEnumerator();
       while (enumer.MoveNext())
         this[enumer.Current.Key] = enumer.Current.Value;
+      FireChanged();
+    }
+
+    protected void FireChanged()
+    {
+      if (ResourcesChanged != null)
+        ResourcesChanged(this);
     }
 
     #region IInitializable implementation
@@ -94,6 +105,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
         foreach (ResourceDictionary dictionary in MergedDictionaries)
           Merge(dictionary);
       }
+      FireChanged();
     }
 
     #endregion

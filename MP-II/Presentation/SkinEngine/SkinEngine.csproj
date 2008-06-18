@@ -232,7 +232,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MarkupExtensions\BindingDependency.cs" />
+    <Compile Include="MarkupExtensions\BindingBase.cs" />
     <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\DynamicResourceMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
     <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
@@ -241,6 +243,7 @@
     <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
     <Compile Include="MpfElements\Resources\Include.cs" />
     <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />
+    <Compile Include="MpfElements\Resources\ResourceWrapper.cs" />
     <Compile Include="SkinManagement\SkinContext.cs" />
     <Compile Include="SkinManagement\SkinResources.cs" />
     <Compile Include="SkinManagement\Theme.cs" />

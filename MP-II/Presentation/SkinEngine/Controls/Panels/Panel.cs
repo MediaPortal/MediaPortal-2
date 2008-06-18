@@ -62,7 +62,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     }
   }
 
-  public class Panel : FrameworkElement, IAddChild, IUpdateEventHandler
+  public class Panel : FrameworkElement, IAddChild<UIElement>, IUpdateEventHandler
   {
     #region Private/protected fields
 
@@ -690,9 +690,9 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(UIElement o)
     {
-      Children.Add((UIElement)o);
+      Children.Add(o);
     }
 
     #endregion

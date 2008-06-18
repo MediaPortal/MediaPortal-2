@@ -188,11 +188,33 @@ namespace Presentation.SkinEngine.XamlParser
       return false;
     }
 
+    /// <summary>
+    /// Tries to find an implemented <see cref="ICollection"/> or <see cref="ICollection{T}"/>
+    /// interface and returns it. If the resulting collection is a generic type,
+    /// the entry type (type parameter T) of this collection will be returned too.
+    /// </summary>
+    /// <param name="type">The type to examine.</param>
+    /// <param name="collectionType">Returns the collection type found. If an implemented
+    /// generic collection type was found, this type will be returned. Else, if the standard
+    /// collection type is implemented, this type will be returned.</param>
+    /// <param name="entryType">Returns the entry type (type parameter T) of the implemented
+    /// generic type, if any.</param>
     public static void FindImplementedCollectionType(Type type, out Type collectionType, out Type entryType)
     {
       FindImplementedCollectionOrListType(type, typeof(ICollection), typeof(ICollection<>), out collectionType, out entryType);
     }
 
+    /// <summary>
+    /// Tries to find an implemented <see cref="IList"/> or <see cref="IList{T}"/>
+    /// interface and returns it. If the resulting list is a generic type,
+    /// the entry type (type parameter T) of this list will be returned too.
+    /// </summary>
+    /// <param name="type">The type to examine.</param>
+    /// <param name="listType">Returns the list type found. If an implemented
+    /// generic list type was found, this type will be returned. Else, if the standard
+    /// list type is implemented, this type will be returned.</param>
+    /// <param name="entryType">Returns the entry type (type parameter T) of the implemented
+    /// generic type, if any.</param>
     public static void FindImplementedListType(Type type, out Type listType, out Type entryType)
     {
       FindImplementedCollectionOrListType(type, typeof(IList), typeof(IList<>), out listType, out entryType);
@@ -234,6 +256,41 @@ namespace Presentation.SkinEngine.XamlParser
         resultEntryType = null;
         return;
       }
+    }
+
+    /// <summary>
+    /// Finds the first implemented <see cref="IAddChild{T}"/> interface type of the specified
+    /// <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">Type to examine.</param>
+    /// <param name="method">If the specified <paramref name="type"/> implements the
+    /// <see cref="IAddChild{T}"/> interface, this parameter returns the
+    /// <see cref="IAddChild{T}.AddChild"/> method.</param>
+    /// <param name="entryType">If the specified <paramref name="type"/> implements the
+    /// <see cref="IAddChild{T}"/> interface, this parameter returns the entry type
+    /// (type parameter T) of the implemented <see cref="IAddChild{T}"/> interface type.
+    /// <returns><c>true</c>, if the specified type implements <see cref="IAddChild{T}"/>,
+    /// else <c>false</c>.</returns>
+    public static bool IsIAddChild(Type type, out MethodInfo method, out Type entryType)
+    {
+      method = null;
+      entryType = null;
+      foreach (Type interfaceType in type.GetInterfaces())
+      {
+        if (interfaceType.IsGenericType)
+        {
+          Type iact = typeof(IAddChild<>);
+          Type et = interfaceType.GetGenericArguments()[0];
+          iact = iact.MakeGenericType(et);
+          if (iact.IsAssignableFrom(type))
+          {
+            method = type.GetMethod("AddChild", new Type[] {et});
+            entryType = et;
+            return true;
+          }
+        }
+      }
+      return false;
     }
   }
 }

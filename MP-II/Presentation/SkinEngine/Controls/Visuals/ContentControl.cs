@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
@@ -30,7 +29,7 @@ using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
-  public class ContentControl : Control, IAddChild
+  public class ContentControl : Control, IAddChild<FrameworkElement>
   {
     #region Private fields
 
@@ -149,9 +148,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(FrameworkElement o)
     {
-      Content = (o as FrameworkElement);
+      Content = o;
     }
 
     #endregion

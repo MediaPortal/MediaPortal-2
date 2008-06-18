@@ -88,6 +88,8 @@ namespace Presentation.SkinEngine.XamlParser
     /// will be copied into a new object implementing <see cref="ICollection"/>.
     /// Else, a new <see cref="ICollection"/> will be created with <paramref name="obj"/>
     /// as single contents.
+    /// A string won't be treated as a collection of characters but will be treated as if
+    /// it was no collection.
     /// </summary>
     /// <param name="obj">The object to convert to a collection.</param>
     /// <param name="entryType">Type to convert the collection entries to or <c>null</c>.</param>
@@ -98,25 +100,28 @@ namespace Presentation.SkinEngine.XamlParser
       result = null;
       if (obj is IInclude)
         obj = ((IInclude)obj).Content;
-      if (obj is ICollection)
-        return ConvertEntryType((ICollection) obj, entryType, out result);
-      else if (obj is IEnumerable)
+      if (obj.GetType() != typeof(string)) // Don't treat strings as a collection of characters
       {
-        List<object> col = new List<object>();
-        foreach (object o in (IEnumerable)obj)
-          col.Add(o);
-        return ConvertEntryType(col, entryType, out result);
+        if (obj is ICollection)
+          return ConvertEntryType((ICollection) obj, entryType, out result);
+        else if (obj is IEnumerable)
+        {
+          List<object> col = new List<object>();
+          foreach (object o1 in (IEnumerable) obj)
+            col.Add(o1);
+          return ConvertEntryType(col, entryType, out result);
+        }
       }
-      else
-      {
-        List<object> res = new List<object>();
-        object o;
-        if (entryType != null && !Convert(obj, entryType, out o))
-          return false;
+      List<object> res = new List<object>();
+      object o2;
+      if (entryType == null)
         res.Add(obj);
-        result = res;
-        return true;
-      }
+      else if (Convert(obj, entryType, out o2))
+        res.Add(o2);
+      else
+        res.Add(obj);
+      result = res;
+      return true;
     }
 
     public static object Convert(object value, Type targetType)
@@ -170,14 +175,14 @@ namespace Presentation.SkinEngine.XamlParser
 
       // Built-in type conversions
 
-      if (typeof(string) == val.GetType() && targetType == typeof(Type))
+      if (val.GetType() == typeof(string) && targetType == typeof(Type))
       { // string -> Type
         result = Type.GetType(val.ToString());
         return result != null;
       }
 
       // Enumerations
-      if (typeof(string) == val.GetType() && targetType.IsEnum)
+      if (val.GetType() == typeof(string) && targetType.IsEnum)
       { // string -> Enum
         FieldInfo fi = targetType.GetField(val.ToString(), BindingFlags.Public | BindingFlags.Static);
         result = fi.GetValue(null);
@@ -187,7 +192,7 @@ namespace Presentation.SkinEngine.XamlParser
       // Collection types
 
       Type collectionType;
-      Type entryType = null;
+      Type entryType;
       ReflectionHelper.FindImplementedCollectionType(targetType, out collectionType, out entryType);
 
       if (collectionType != null) // Targets IList, ICollection, IList<>, ICollection<>
@@ -201,20 +206,10 @@ namespace Presentation.SkinEngine.XamlParser
         result = resultList;
         return true;
       }
-      if (typeof(IAddChild).IsAssignableFrom(targetType)) // Target IAddChild
+      if (val is ICollection && ((ICollection) val).Count == 1) // From collection to non-collection target
       {
-        IAddChild resultAC = (IAddChild)Activator.CreateInstance(targetType);
-        ICollection col;
-        if (!ToCollection(val, null, out col))
-          return false;
-        foreach (object entry in col)
-          resultAC.AddChild(entry);
-        result = resultAC;
-        return true;
-      }
-      if (val is ICollection && ((ICollection)val).Count == 1) // From collection to non-collection target
-      { // 
-        ICollection sourceCol = (ICollection)val;
+        // 
+        ICollection sourceCol = (ICollection) val;
         IEnumerator enumerator = sourceCol.GetEnumerator();
         enumerator.MoveNext();
         return Convert(enumerator.Current, targetType, out result);

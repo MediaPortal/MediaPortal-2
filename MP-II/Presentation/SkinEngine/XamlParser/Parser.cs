@@ -410,15 +410,14 @@ namespace Presentation.SkinEngine.XamlParser
           object value = ParseValue(currentElement);
           if (value != null)
           {
-            IDataDescriptor dd = null;
+            IDataDescriptor dd;
             if (elementContext.Instance is IContentEnabled &&
                 ((IContentEnabled) elementContext.Instance).FindContentProperty(out dd))
             {
               HandlePropertyAssignment(dd, value);
             }
             else if (CheckHandleCollectionAssignment(elementContext.Instance, value))
-            {
-            }
+            { }
             else
               throw new XamlBindingException("Visual element '{0}' doesn't support adding children",
                                              currentElement.Name);
@@ -646,12 +645,13 @@ namespace Presentation.SkinEngine.XamlParser
       Type targetType = maybeCollectionTarget.GetType();
       Type listType;
       Type entryType;
+      MethodInfo method;
       ReflectionHelper.FindImplementedListType(targetType, out listType, out entryType);
       if (listType != null)
       {
-        MethodInfo mi = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] {entryType});
+        method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] {entryType});
         foreach (object child in (IList)Convert(value, typeof(IList)))
-          mi.Invoke(maybeCollectionTarget, new object[] {child});
+          method.Invoke(maybeCollectionTarget, new object[] {child});
         return true;
       }
       else if (maybeCollectionTarget is IDictionary)
@@ -681,11 +681,10 @@ namespace Presentation.SkinEngine.XamlParser
           asDict.Add(de.Key, de.Value);
         return true;
       }
-      else if (maybeCollectionTarget is IAddChild)
+      if (ReflectionHelper.IsIAddChild(maybeCollectionTarget.GetType(), out method, out entryType))
       {
-        IAddChild asAddChild = (IAddChild)maybeCollectionTarget;
         foreach (object child in (ICollection)Convert(value, typeof(ICollection)))
-          asAddChild.AddChild(child);
+          method.Invoke(maybeCollectionTarget, new object[] {Convert(child, entryType)});
         return true;
       }
       else
@@ -892,9 +891,9 @@ namespace Presentation.SkinEngine.XamlParser
 
     protected object Convert(object val, Type targetType)
     {
-      object result;
       try
       {
+        object result;
         if (TypeConverter.Convert(val, targetType, out result))
           return result;
         else

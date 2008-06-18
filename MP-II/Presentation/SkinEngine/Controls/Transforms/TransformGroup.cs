@@ -29,7 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms
 {
-  public class TransformGroup : Transform, IAddChild
+  public class TransformGroup : Transform, IAddChild<Transform>
   {
     #region Private fields
 
@@ -105,9 +105,9 @@ namespace Presentation.SkinEngine.Controls.Transforms
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(Transform o)
     {
-      Children.Add((Transform)o);
+      Children.Add(o);
     }
 
     #endregion

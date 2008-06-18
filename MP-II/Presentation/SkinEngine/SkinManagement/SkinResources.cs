@@ -33,10 +33,12 @@ using Presentation.SkinEngine.MpfElements.Resources;
 namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
-  /// Encapsulates a collection of resources from different root directories.
+  /// Encapsulates a collection of resources from a set of root directories.
   /// </summary>
   /// <remarks>
-  /// This class will lazy load its resources on the first access.
+  /// This class will lazy load its resources on the first access. When the
+  /// resources of this instance are no longer needed, method <see cref="Release()"/>
+  /// can be called to reduce the memory consumption of this class.
   /// </remarks>
   public class SkinResources
   {
@@ -51,14 +53,20 @@ namespace Presentation.SkinEngine.SkinManagement
     protected IList<DirectoryInfo> _rootDirectories = new List<DirectoryInfo>();
 
     /// <summary>
+    /// Lazy initialized resource file dictionary.
+    /// </summary>
+    /// <remarks>
     /// Holds all known resource files from our resource directories, stored in
     /// a dictionary: The key is the unified resource file name
     /// (relative path name starting at the beginning of the skinfile directory),
     /// the value is the <see cref="FileInfo"/> instance of the resource file.
-    /// </summary>
+    /// </remarks>
     protected IDictionary<string, FileInfo> _localResourceFiles = null;
 
-    protected ResourceDictionary _localStyleResources;
+    /// <summary>
+    /// Lazy initialized style resources.
+    /// </summary>
+    protected ResourceDictionary _localStyleResources = null;
     protected SkinResources _inheritedSkinResources;
 
     // Meta information
@@ -87,7 +95,7 @@ namespace Presentation.SkinEngine.SkinManagement
       set { _inheritedSkinResources = value; }
     }
 
-    public object FindStyle(string resourceKey)
+    public object FindStyleResource(string resourceKey)
     {
       CheckStylesInitialized();
       if (_localStyleResources.ContainsKey(resourceKey))
@@ -97,7 +105,7 @@ namespace Presentation.SkinEngine.SkinManagement
       // If we wanted strictly not to mix resources between themes, the next
       // if-block should be removed. This will avoid the fallback to our inherited resources.
       else if (_inheritedSkinResources != null)
-        return _inheritedSkinResources.FindStyle(resourceKey);
+        return _inheritedSkinResources.FindStyleResource(resourceKey);
       else
         return null;
     }

@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -22,36 +22,45 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.MarkupExtensions
+using Presentation.SkinEngine.XamlParser;
+using MediaPortal.Utilities.DeepCopy;
+
+namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  /// <summary>
-  /// Implements the MPF TemplateBinding markup extension.
-  /// </summary>
-  public class TemplateBindingMarkupExtension: BindingMarkupExtension
+  public class ResourceWrapper : IContentEnabled, IDeepCopyable
   {
-    public TemplateBindingMarkupExtension()
+    #region Private fields
+
+    protected object _resource = null;
+
+    #endregion
+
+    #region Ctor
+
+    public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      RelativeSource = RelativeSource.TemplatedParent;
+      ResourceWrapper rw = (ResourceWrapper) source;
+      Resource = copyManager.GetCopy(rw.Resource);
     }
 
-    public TemplateBindingMarkupExtension(string path) : base(path)
+    #endregion
+
+    #region Public properties
+
+    public object Resource
     {
-      RelativeSource = RelativeSource.TemplatedParent;
+      get { return _resource; }
+      set { _resource = value; }
     }
 
-    public TemplateBindingMarkupExtension(TemplateBindingMarkupExtension other, object newTarget):
-        base(other, newTarget) { }
+    #endregion
 
-    public override BindingBase CloneAndRetarget(object newTarget)
+    #region IContentEnabled implementation
+
+    public bool FindContentProperty(out IDataDescriptor dd)
     {
-      return new TemplateBindingMarkupExtension(this, newTarget);
-    }
-
-    #region Protected methods
-
-    protected override string BindingTypeName
-    {
-      get { return "TemplateBinding"; }
+      dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Resource"));
+      return true;
     }
 
     #endregion

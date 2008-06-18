@@ -359,6 +359,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _isItemsHostProperty; }
     }
 
+    // TODO Albert78: Move this property to Panel class
     public bool IsItemsHost
     {
       get { return (bool)_isItemsHostProperty.GetValue(); }
@@ -665,7 +666,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         return ((UIElement)LogicalParent).FindResource(resourceKey);
       }
       else
-        return SkinContext.SkinResources.FindStyle(resourceKey);
+        return SkinContext.SkinResources.FindStyleResource(resourceKey);
     }
 
     public void InitializeTriggers()

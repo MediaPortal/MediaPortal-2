@@ -30,7 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class PointAnimationUsingKeyFrames : Timeline, IAddChild
+  public class PointAnimationUsingKeyFrames : Timeline, IAddChild<PointKeyFrame>
   {
     #region Private fields
 
@@ -142,9 +142,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(PointKeyFrame o)
     {
-      KeyFrames.Add((PointKeyFrame)o);
+      KeyFrames.Add(o);
     }
 
     #endregion

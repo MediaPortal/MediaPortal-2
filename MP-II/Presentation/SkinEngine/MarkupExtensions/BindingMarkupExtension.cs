@@ -57,7 +57,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
   }
 
   /// <summary>
-  /// Implements the Binding markup extension.
+  /// Implements the MPF Binding markup extension.
   /// </summary>
   /// <remarks>
   /// This class has two main functions:
@@ -67,7 +67,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// </list>
   /// <para>
   /// In both cases, the class has to evaluate a <i>source value</i> which is specified
-  /// by the binding properties and the context the binding is in, and which will
+  /// by the binding properties and the binding's context, and which will
   /// be used by subordinated bindings, which use this binding as data context, or as
   /// source value for the target property bound with this binding. Be careful
   /// with the term <i>source value</i> (or <i>evaluated source value</i>). There
@@ -94,12 +94,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// <see cref="BindingMarkupExtension.UpdateSourceTrigger"/>.
   /// </para>
   /// </remarks>
-  public class BindingMarkupExtension: IBinding
+  public class BindingMarkupExtension: BindingBase
   {
-    #region Private/protected fields
-
-    protected static IDictionary<object, ICollection<BindingMarkupExtension>> _objects2Bindings =
-        new Dictionary<object, ICollection<BindingMarkupExtension>>();
+    #region Protected fields
 
     // Binding configuration properties
     protected SourceType _typeOfSource = SourceType.DataContext;
@@ -112,13 +109,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
         new Property(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
 
     // State variables
-    protected object _contextObject = null; // Bound to which object?
-    protected bool _bound = false; // Did we already bind?
     protected bool _retryBinding = false; // UpdateBinding() has to be called again
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
-    protected IList<Property> _attachedProperties = new List<Property>(); // To which data context properties are we attached?
-    protected IDataDescriptor _targetDataDescriptor = null; // Bound to which property?
+    protected IList<Property> _attachedProperties = new List<Property>(); // To which data contexts and other properties are we attached?
 
     // Derived properties
     protected PathExpression _compiledPath = null;
@@ -145,9 +139,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <i>data context</i>. The new instance has to be configured before it
     /// can be used as data context.
     /// </summary>
-    public BindingMarkupExtension(DependencyObject contextObject)
+    public BindingMarkupExtension(DependencyObject contextObject):
+        base(contextObject)
     {
-      AttachToTargetObject(contextObject);
       InitChangeHandlers();
     }
 
@@ -173,7 +167,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// </summary>
     /// <param name="other">Other Binding to copy.</param>
     /// <param name="newTarget">New target object for this Binding.</param>
-    public BindingMarkupExtension(BindingMarkupExtension other, object newTarget)
+    public BindingMarkupExtension(BindingMarkupExtension other, object newTarget):
+        base(other, newTarget)
     {
       Source = other.Source;
       ElementName = other.ElementName;
@@ -184,51 +179,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
       CheckTypeOfSource();
       InitChangeHandlers();
 
-      // Copy values initialized by the Prepare(IParserContext,IDataDescriptor) call,
-      // retargeted to the newTarget.
-      _targetDataDescriptor = other._targetDataDescriptor == null ? null :
-          other._targetDataDescriptor.Retarget(newTarget);
-
       _compiledPath = other._compiledPath;
       _negate = other._negate;
-      AttachToTargetObject(newTarget);
     }
 
-    /// <summary>
-    /// Given a <paramref name="sourceObject"/>, which has possibly attached
-    /// bindings targeted to it, this method will copy those bindings
-    /// retargeted at the specified <paramref name="targetObject"/>.
-    /// </summary>
-    /// <remarks>
-    /// A typical usage of this method would be the cloning of a gui object,
-    /// where the clone should behave exactly as the original object.
-    /// </remarks>
-    /// <param name="sourceObject">Object, whose bindings (which are targeted
-    /// at it) will be copied.</param>
-    /// <param name="targetObject">Object, to which the copied bindings will
-    /// be retargeted.</param>
-    public static void CopyBindings(object sourceObject, object targetObject)
-    {
-      if (_objects2Bindings.ContainsKey(sourceObject))
-      {
-        ICollection<BindingMarkupExtension> bindings = _objects2Bindings[sourceObject];
-        foreach (BindingMarkupExtension binding in bindings)
-        {
-          BindingMarkupExtension newBinding = binding.CloneAndRetarget(targetObject);
-          if (binding.Bound)
-            newBinding.UpdateBinding();
-        }
-      }
-    }
-
-    /// <summary>
-    /// Will clone this binding and retarget it to the specified new target object.
-    /// </summary>
-    /// <param name="newTarget">Target object the new binding should bind to.</param>
-    /// <returns>New, retargeted binding instance. The new binding instance has the same
-    /// function to the new target object as this binding has on the associated
-    /// <see cref="_contextObject"/>.</returns>
-    protected virtual BindingMarkupExtension CloneAndRetarget(object newTarget)
+    public override BindingBase CloneAndRetarget(object newTarget)
     {
       return new BindingMarkupExtension(this, newTarget);
     }
@@ -254,6 +209,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _sourceProperty; }
     }
 
+    /// <summary>
+    /// Specifies an object to be used as binding source object.
+    /// Only one of the properties <see cref="Source"/>, <see cref="RelativeSource"/>
+    /// and <see cref="ElementName"/> can be set on this instance.
+    /// </summary>
     public object Source
     {
       get { return SourceProperty.GetValue(); }
@@ -265,6 +225,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _relativeSourceProperty; }
     }
 
+    /// <summary>
+    /// Specifies a binding source object relative to our
+    /// <see cref="_contextObject">context object</see>. The context object is
+    /// the target object this binding is applied to.
+    /// Only one of the properties <see cref="Source"/>, <see cref="RelativeSource"/>
+    /// and <see cref="ElementName"/> can be set on this instance.
+    /// </summary>
     public RelativeSource @RelativeSource
     {
       get { return (RelativeSource) RelativeSourceProperty.GetValue(); }
@@ -279,6 +246,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _elementNameProperty; }
     }
 
+    /// <summary>
+    /// Specifies an object with the given name to be used as binding source object.
+    /// Only one of the properties <see cref="Source"/>, <see cref="RelativeSource"/>
+    /// and <see cref="ElementName"/> can be set on this instance.
+    /// </summary>
     public string ElementName
     {
       get { return (string) ElementNameProperty.GetValue(); }
@@ -290,6 +262,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _pathProperty; }
     }
 
+    /// <summary>
+    /// Specifies a property evaluation path starting at the binding source
+    /// object. The path syntax is the syntax used and defined by the class
+    /// <see cref="PathExpression"/>.
+    /// </summary>
     public string Path
     {
       get { return (string) PathProperty.GetValue(); }
@@ -332,15 +309,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public IDataDescriptor EvaluatedSourceValue
     {
       get { return _evaluatedSourceValue; }
-    }
-
-    /// <summary>
-    /// Returns the information if this binding already got call to its
-    /// <see cref="Bind()"/> method.
-    /// </summary>
-    public bool Bound
-    {
-      get { return _bound; }
     }
 
     #endregion
@@ -407,19 +375,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _targetDataDescriptor == null || _targetDataDescriptor.DataType == typeof(BindingMarkupExtension); }
     }
 
-    protected void AttachToTargetObject(object obj)
-    {
-      // We could check here if obj is a DependencyObject and throw an Exception.
-      // But by now, we will permit an arbitrary object.
-      _contextObject = obj;
-      ICollection<BindingMarkupExtension> bindingsOfObject;
-      if (_objects2Bindings.ContainsKey(_contextObject))
-        bindingsOfObject = _objects2Bindings[_contextObject];
-      else
-        _objects2Bindings[_contextObject] = bindingsOfObject = new List<BindingMarkupExtension>();
-      bindingsOfObject.Add(this);
-    }
-
+    /// <summary>
+    /// Will check if the property settings affecting the binding source
+    /// aren't conflicting.
+    /// </summary>
+    /// <exception name="XamlBindingException">If the binding's properties
+    /// affecting the binding source (<see cref="Source"/>, <see cref="RelativeSource"/>
+    /// and <see cref="ElementName"/>) are conflicting.</exception>
     protected void CheckTypeOfSource()
     {
       int sourcePropertiesSet = 0;
@@ -443,6 +405,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
         throw new XamlBindingException("Conflicting binding property configuration: More than one source property is set");
     }
 
+    /// <summary>
+    /// Attaches a change handler to the specified data descriptor
+    /// <paramref name="source"/>, which will be used as binding source.
+    /// </summary>
     protected void AttachToSource(IDataDescriptor source)
     {
       if (source != null && source.SupportsChangeNotification)
@@ -452,6 +418,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
       }
     }
 
+    /// <summary>
+    /// Attaches a change handler to the specified <paramref name="sourcePathProperty"/>,
+    /// which is located in the resolving path to the source value. We will attach
+    /// a change handler to every property, whose change will potentially affect
+    /// the object evaluated as binding source.
+    /// </summary>
     protected void AttachToSourcePathProperty(Property sourcePathProperty)
     {
       if (sourcePathProperty != null)
@@ -461,6 +433,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
       }
     }
 
+    /// <summary>
+    /// Will reset all event handler attachments to source property and
+    /// source path properties. This should be called before the evaluation path
+    /// to the binding's source will be processed again.
+    /// </summary>
     protected void ResetEventHandlerAttachments()
     {
       foreach (Property property in _attachedProperties)
@@ -556,11 +533,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
       {
         BindingMarkupExtension parentBinding;
         if (GetDataContext(current, out parentBinding))
-        { // Data context found
-          bool res = parentBinding.Evaluate(out result);
-          AttachToSource(parentBinding.EvaluatedSourceValue);
-          return res;
-        }
+          // Data context found
+          return parentBinding.Evaluate(out result);
         if (!FindParent(current, out current))
           return false;
       }
@@ -577,79 +551,81 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       ResetEventHandlerAttachments();
       result = null;
-      switch (_typeOfSource)
+      try
       {
-        case SourceType.DataContext:
-          if (!FindDataContext(out result))
-            return false;
-          break;
-        case SourceType.SourceProperty:
-          result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
-          break;
-        case SourceType.RelativeSource:
-          if (!(_contextObject is DependencyObject))
-            return false;
-          DependencyObject current = (DependencyObject) _contextObject;
-          switch (RelativeSource.Mode)
-          {
-            case RelativeSourceMode.Self:
-              result = new ValueDataDescriptor(current);
-              return true;
-            case RelativeSourceMode.TemplatedParent:
-              while (current != null)
-              {
-                DependencyObject last = current;
-                FindParent(last, out current);
-                if (last is UIElement && ((UIElement) last).IsTemplateRoot)
-                {
-                  result = new ValueDataDescriptor(current);
-                  return true;
-                }
-              }
+        switch (_typeOfSource)
+        {
+          case SourceType.DataContext:
+            return FindDataContext(out result);
+          case SourceType.SourceProperty:
+            result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
+            return true;
+          case SourceType.RelativeSource:
+            if (!(_contextObject is DependencyObject))
               return false;
-            case RelativeSourceMode.FindAncestor:
-              if (current == null || !FindParent(current, out current)) // Start from the first ancestor
+            DependencyObject current = (DependencyObject) _contextObject;
+            switch (RelativeSource.Mode)
+            {
+              case RelativeSourceMode.Self:
+                result = new ValueDataDescriptor(current);
+                return true;
+              case RelativeSourceMode.TemplatedParent:
+                while (current != null)
+                {
+                  DependencyObject last = current;
+                  FindParent(last, out current);
+                  if (last is UIElement && ((UIElement) last).IsTemplateRoot)
+                  {
+                    result = new ValueDataDescriptor(current);
+                    return true;
+                  }
+                }
                 return false;
-              int ct = RelativeSource.AncestorLevel;
-              while (current != null)
-              {
-                if (RelativeSource.AncestorType == null ||
-                    RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
-                  ct -= 1;
-                if (ct == 0)
-                {
-                  result = new ValueDataDescriptor(current);
-                  return true;
-                }
-                if (!FindParent(current, out current))
+              case RelativeSourceMode.FindAncestor:
+                if (current == null || !FindParent(current, out current)) // Start from the first ancestor
                   return false;
-              }
+                int ct = RelativeSource.AncestorLevel;
+                while (current != null)
+                {
+                  if (RelativeSource.AncestorType == null ||
+                      RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
+                    ct -= 1;
+                  if (ct == 0)
+                  {
+                    result = new ValueDataDescriptor(current);
+                    return true;
+                  }
+                  if (!FindParent(current, out current))
+                    return false;
+                }
+                return false;
+                //case RelativeSourceMode.PreviousData:
+                //  // TODO: implement this
+                //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
+              default:
+                // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
+                throw new NotImplementedException(
+                    string.Format("RelativeSourceMode '{0}' is not implemented", RelativeSource.Mode));
+            }
+            break;
+          case SourceType.ElementName:
+            if (!(_contextObject is UIElement))
               return false;
-              //case RelativeSourceMode.PreviousData:
-              //  // TODO: implement this
-              //  throw new NotImplementedException(RelativeSourceMode.PreviousData.ToString());
-            default:
-              // Should never occur. If so, we have forgotten to handle a RelativeSourceMode
-              throw new NotImplementedException(
-                  string.Format("RelativeSourceMode '{0}' is not implemented", RelativeSource.Mode));
-          }
-          break;
-        case SourceType.ElementName:
-          if (!(_contextObject is UIElement))
-            return false;
-          object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
-          if (obj == null)
-            return false;
-          result = new ValueDataDescriptor(obj);
-          break;
-        default:
-          // Should never occur. If so, we have forgotten to handle a SourceType
-          throw new NotImplementedException(
-              string.Format("SourceType '{0}' is not implemented", _typeOfSource));
+            object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
+            if (obj == null)
+              return false;
+            result = new ValueDataDescriptor(obj);
+            return true;
+          default:
+            // Should never occur. If so, we have forgotten to handle a SourceType
+            throw new NotImplementedException(
+                string.Format("SourceType '{0}' is not implemented", _typeOfSource));
+        }
       }
-      if (result != null)
+      finally
+      {
         AttachToSource(result);
-      return true;
+      }
     }
 
     /// <summary>
@@ -784,10 +760,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region IBinding implementation
 
-    public virtual void Prepare(IParserContext context, IDataDescriptor dd)
+    public override void Prepare(IParserContext context, IDataDescriptor dd)
     {
-      AttachToTargetObject(context.ContextStack.CurrentElementContext.Instance);
-      _targetDataDescriptor = dd;
+      base.Prepare(context, dd);
       string path = Path ?? "";
       _negate = path.StartsWith("!");
       if (_negate)
@@ -795,7 +770,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _compiledPath = string.IsNullOrEmpty(path) ? null : PathExpression.Compile(context, path);
     }
 
-    public virtual bool Bind()
+    public override bool Bind()
     {
       return UpdateBinding();
     }

@@ -51,7 +51,7 @@ using Presentation.SkinEngine.SkinManagement;
 namespace Presentation.SkinEngine.Controls.Visuals
 {
 
-  public class Border : Shape, IAddChild, IUpdateEventHandler
+  public class Border : Shape, IAddChild<FrameworkElement>, IUpdateEventHandler
   {
     #region Private fields
 
@@ -731,9 +731,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(FrameworkElement o)
     {
-      _content = (FrameworkElement)o;
+      _content = o;
       _content.VisualParent = this;
     }
 

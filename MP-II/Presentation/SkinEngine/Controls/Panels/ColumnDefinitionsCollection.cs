@@ -29,7 +29,7 @@ using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
-  public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild, IDeepCopyable
+  public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild<ColumnDefinition>, IDeepCopyable
   {
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -40,9 +40,9 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(ColumnDefinition o)
     {
-      Add((ColumnDefinition)o);
+      Add(o);
     }
 
     #endregion

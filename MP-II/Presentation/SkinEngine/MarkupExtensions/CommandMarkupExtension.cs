@@ -30,7 +30,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 {
 
   /// <summary>
-  /// Implements the Command markup extension.
+  /// Implements the MPF Command markup extension.
   /// </summary>
   public class CommandMarkupExtension: BindingMarkupExtension
   {
@@ -52,7 +52,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _parameter = other._parameter;
     }
 
-    protected override BindingMarkupExtension CloneAndRetarget(object newTarget)
+    public override BindingBase CloneAndRetarget(object newTarget)
     {
       return new CommandMarkupExtension(this, newTarget);
     }

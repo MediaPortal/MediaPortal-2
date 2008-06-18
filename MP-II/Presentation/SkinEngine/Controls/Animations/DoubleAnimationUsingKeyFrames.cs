@@ -29,7 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class DoubleAnimationUsingKeyFrames: Timeline, IAddChild
+  public class DoubleAnimationUsingKeyFrames: Timeline, IAddChild<DoubleKeyFrame>
   {
     #region Private fields
 
@@ -144,9 +144,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(DoubleKeyFrame o)
     {
-      KeyFrames.Add((DoubleKeyFrame)o);
+      KeyFrames.Add(o);
     }
 
     #endregion

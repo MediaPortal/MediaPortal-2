@@ -50,7 +50,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     Repeat
   };
 
-  public class GradientBrush : Brush, IAddChild
+  public class GradientBrush : Brush, IAddChild<GradientStop>
   {
     #region Private fields
 
@@ -168,9 +168,9 @@ namespace Presentation.SkinEngine.Controls.Brushes
 
     #region IAddChild Members
 
-    public void AddChild(object o)
+    public void AddChild(GradientStop o)
     {
-      GradientStops.Add((GradientStop)o);
+      GradientStops.Add(o);
     }
 
     #endregion

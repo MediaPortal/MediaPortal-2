@@ -30,7 +30,7 @@ using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles      
 {
-  public class Style: NameScope, IAddChild, IImplicitKey, IDeepCopyable
+  public class Style: NameScope, IAddChild<Setter>, IImplicitKey, IDeepCopyable
   {
     #region Private fields
 
@@ -128,9 +128,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     #region IAddChild implementation
 
-    public void AddChild(object o)
+    public void AddChild(Setter o)
     {
-      _setters.Add((Setter)o);
+      _setters.Add(o);
     }
 
     #endregion
