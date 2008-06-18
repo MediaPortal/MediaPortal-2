@@ -1,0 +1,7 @@
+<menu>
+  <items>
+    <item text="[settings.menuLanguage]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsLanguage"/>
+    <item text="[settings.audioLanguage]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsAudioLanguage"/>
+	<item text="[settings.subtitleLanguage]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsSubtitleLanguage"/>
+  </items>
+</menu>
