@@ -34,6 +34,8 @@ using MediaPortal.Presentation.Players;
 
 namespace Presentation.SkinEngine.SkinManagement
 {                         
+  public delegate void SkinResourcesChangedHandler(SkinResources newResources);
+
   /// <summary>
   /// Holds context variables which are used by the skin controls.
   /// </summary>
@@ -72,6 +74,8 @@ namespace Presentation.SkinEngine.SkinManagement
     public static float Z = 0.0f;
 
     #endregion
+
+    public static event SkinResourcesChangedHandler SkinResourcesChanged;
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
     internal extern static Int32 ShowCursor(bool bShow);
@@ -140,7 +144,12 @@ namespace Presentation.SkinEngine.SkinManagement
     public static SkinResources @SkinResources
     {
       get { return _skinResources; }
-      set { _skinResources = value; }
+      set
+      {
+        _skinResources = value;
+        if (SkinResourcesChanged != null)
+          SkinResourcesChanged(_skinResources);
+      }
     }
 
     /// <summary>
