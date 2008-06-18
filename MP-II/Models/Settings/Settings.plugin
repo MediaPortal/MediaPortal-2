@@ -12,9 +12,11 @@
   </Runtime>
   <Register location = "/Models/Settings">
     <Class id = "General" class = "Models.Settings.General"/>
-	<Class id = "RefreshrateSettings" class = "Models.Settings.RefreshrateSettings"/>
-	<Class id = "Appearance" class = "Models.Settings.Appearance"/>
-	<Class id = "MusicSettings" class = "Models.Settings.MusicSettings"/>
+	  <Class id = "Appearance" class = "Models.Settings.Appearance"/>
+		<Class id = "Language" class = "Models.Settings.Language"/>
+		<Class id = "ScreenSettings" class = "Models.Settings.ScreenSettings"/>
+		<Class id = "RefreshrateSettings" class = "Models.Settings.RefreshrateSettings"/>
+	  <Class id = "MusicSettings" class = "Models.Settings.MusicSettings"/>
     <Class id = "VideoSettings" class = "Models.Settings.VideoSettings"/>
   </Register>
 </Plugin>

@@ -42,7 +42,6 @@ namespace Models.Settings
 {
   public class MusicSettings : IPlugin
   {
-    ItemsCollection _mainMenu;
     BassPlayerSettings _settings;
     
     #region IPlugin Members
@@ -60,23 +59,6 @@ namespace Models.Settings
       // Load the Settings
       _settings = new BassPlayerSettings();
       ServiceScope.Get<ISettingsManager>().Load(_settings);
-    }
-
-    /// <summary>
-    /// Exposes the main Music-settings menu to the skin
-    /// </summary>
-    /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
-    {
-      get
-      {
-        if (_mainMenu == null)
-        {
-          IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-music-main"));
-        }
-        return _mainMenu;
-      }
     }
 
     /// <summary>

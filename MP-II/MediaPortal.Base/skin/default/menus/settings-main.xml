@@ -1,12 +1,11 @@
 <menu>
   <items>
     <item text="[settings.appearance]" image="" command="WindowManager.ShowWindow" parameter="settingsAppearance"/>
-    <item text="[settings.tvsetup]" image="" command="WindowManager.ShowWindow" parameter="settingsMonitorSetup"/>
-    <item text="[settings.audiosetup]" image="" command="WindowManager.ShowWindow" parameter="settingsAudioSetup"/>
+	<item text="[settings.language]" image="" command="WindowManager.ShowWindow" parameter="settingsLanguage"/>
+	<item text="[settings.screen]" image="" command="WindowManager.ShowWindow" parameter="settingsScreen"/>
     <item text="[settings.playback]" image="" command="WindowManager.ShowWindow" parameter="settingsPlayback"/>
-    <item text="[settings.refreshrate]" image="" command="WindowManager.ShowWindow" parameter="settingsRefreshrate"/>
     <item text="[settings.music]" image="" command="WindowManager.ShowWindow" parameter="settingsMusic"/>
-    <item text="[shares.shares]" image="" command="WindowManager.ShowWindow" parameter="shares"/>
+    <item text="[settings.shares]" image="" command="WindowManager.ShowWindow" parameter="shares"/>
   </items>
 
 </menu>

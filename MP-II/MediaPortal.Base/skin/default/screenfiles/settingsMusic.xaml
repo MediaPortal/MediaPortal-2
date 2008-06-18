@@ -2,8 +2,7 @@
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=settings,ClassName=MusicSettings},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}">
+    DataContext="{Binding Source={Model AssemblyName=settings,ClassName=MusicSettings},Path=Instance}">
 
   <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
     <Label Margin="60,0,0,0"  Font="font26"  Text="[settings.music]" Height="50" Width="300"/>
@@ -21,11 +20,6 @@
         </LinearGradientBrush>
       </Label.OpacityMask>
     </Label>
-    <StackPanel Canvas.Left="0" Canvas.Top="100"   Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-      <ListView  x:Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
-      <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
-    </StackPanel>
-
     <StackPanel Canvas.Left="230" Canvas.Top="100" Width="240" >
       <CheckBox Style="{StaticResource MpRadioButton}" IsChecked="{Binding IsEnabledFadeOut}" Checked="{Binding EnableFadeOut}" Unchecked="{Binding DisableFadeOut}" Height="32">
         <Label Font="font13" Text="[music.settingsfade]" Height="32"/>

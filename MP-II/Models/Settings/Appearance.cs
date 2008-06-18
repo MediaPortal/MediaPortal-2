@@ -36,14 +36,11 @@ using MediaPortal.Presentation.MenuManager;
 
 namespace Models.Settings
 {
-  // FIXME Albert78: Move this into the SkinEngine and integrate the settings into the
-  // main settings
-  // Rework the whole class
+
   public class Appearance : IPlugin
   {
     ItemsCollection _mainMenu;
-    ItemsCollection _languages;
-    ItemsCollection _fullScreen;
+
     ItemsCollection _skins;
     ItemsCollection _themes;
 
@@ -63,13 +60,6 @@ namespace Models.Settings
 
       CultureInfo[] langs = localProvider.AvailableLanguages();
 
-      _languages = new ItemsCollection();
-      for (int i = 0; i < langs.Length; ++i)
-      {
-        ListItem item = new ListItem("Name", langs[i].EnglishName);
-        _languages.Add(item);
-      }
-
       _skins = new ItemsCollection();
       string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
       string[] skins = Directory.GetDirectories(skinPath);
@@ -84,10 +74,6 @@ namespace Models.Settings
         item.Add("defaulticon", previewImagePath);
         _skins.Add(item);
       }
-
-      _fullScreen = new ItemsCollection();
-      _fullScreen.Add(new ListItem("Name", new StringId("system", "yes")));
-      _fullScreen.Add(new ListItem("Name", new StringId("system", "no")));
 
       _themes = new ItemsCollection();
       UpdateThemes();
@@ -125,54 +111,6 @@ namespace Models.Settings
     }
 
     /// <summary>
-    /// Sets the current language used.
-    /// </summary>
-    void SetSelectedLanguage()
-    {
-
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
-
-      foreach (ListItem item in _languages)
-      {
-        item.Selected = (item.Label("Name").Evaluate(null, null) == localProvider.CurrentCulture.EnglishName);
-      }
-    }
-
-    /// <summary>
-    /// Exposes all languages available to the skinengine.
-    /// </summary>
-    /// <value>The languages.</value>
-    public ItemsCollection Languages
-    {
-      get
-      {
-        SetSelectedLanguage();
-        return _languages;
-      }
-    }
-
-    /// <summary>
-    /// Method for the skin to set the language.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    public void SetLanguage(ListItem item)
-    {
-      if (item == null) return;
-      string langChoosen = item.Label("Name").Evaluate(null, null);
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
-      CultureInfo[] langs = localProvider.AvailableLanguages();
-      for (int i = 0; i < langs.Length; ++i)
-      {
-        if (langs[i].EnglishName == langChoosen)
-        {
-          localProvider.ChangeLanguage(langs[i].Name);
-          IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
-          windowMgr.CurrentWindow.Reset();
-          return;
-        }
-      }
-    }
-    /// <summary>
     /// Exposes all skins available to the skinengine.
     /// </summary>
     /// <value>The skins.</value>
@@ -198,6 +136,7 @@ namespace Models.Settings
       UpdateThemes();
     }
 
+    
     /// <summary>
     /// exposes the main settings menu to the skin
     /// </summary>
@@ -212,36 +151,6 @@ namespace Models.Settings
           _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-appearance"));
         }
         return _mainMenu;
-      }
-    }
-    /// <summary>
-    /// exposes the fullscreen options to the skin
-    /// </summary>
-    /// <value>The full screen.</value>
-    public ItemsCollection FullScreen
-    {
-      get
-      {
-        IApplication app = ServiceScope.Get<IApplication>();
-        _fullScreen[0].Selected = app.IsFullScreen;
-        _fullScreen[1].Selected = !app.IsFullScreen;
-        return _fullScreen;
-      }
-    }
-    /// <summary>
-    /// method for the skin to set fullscreen/windowed mode.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    public void SetFullScreen(ListItem item)
-    {
-      IApplication app = ServiceScope.Get<IApplication>();
-      if (item == _fullScreen[0])
-      {
-        app.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
-      }
-      else
-      {
-        app.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
       }
     }
     /// <summary>

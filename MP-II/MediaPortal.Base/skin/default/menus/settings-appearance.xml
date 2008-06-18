@@ -1,9 +1,6 @@
 <menu>
   <items>
-    <item text="[settings.1]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsSkin"/>
+    <item text="[settings.skin]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsSkin"/>
     <item text="[settings.theme]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsTheme"/>
-    <item text="[settings.2]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsLanguage"/>
-    <item text="[settings.4]" image="" command="WindowManager.ShowDialog" parameter="dialogSettingsFullscreen"/>
   </items>
-
 </menu>

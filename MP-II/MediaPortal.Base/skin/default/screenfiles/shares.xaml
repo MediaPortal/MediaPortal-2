@@ -6,9 +6,9 @@
     FocusedElement="{Binding ElementName=mainMenu}">
 
   <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[shares.shares]" Height="50"/>
+    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.shares]" Height="50"/>
 
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[shares.shares]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
+    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.shares]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
       <Label.RenderTransform>
         <TransformGroup>
           <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
