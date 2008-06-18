@@ -227,25 +227,33 @@
     <String name="sspeed" text="Slutarhastighet"/>
     <String name="fstop" text="F Stop"/>
   </Section>
-  <Section name="settings">
-    <String name="0" text="Inställningar"/>
-    <String name="1" text="Skal"/>
-    <String name="2" text="Språk"/>
-    <String name="3" text="Spara"/>
-    <String name="4" text="Fullskärm"/>
-    <String name="theme" text="Tema"/>
-    <String name="mpg2videocodec" text="MPEG-2 videokodec"/>
-    <String name="h264videocodec" text="H-264 videokodec"/>
-    <String name="xvidvideocodec" text="DivX/XVID videokodec"/>
-    <String name="audiocodec" text="Ljudkodec"/>
-    <String name="playback" text="Uppspelning"/>
-    <String name="refreshrate" text="Skärmuppdatering"/>
-    <String name="5" text="Uppdatering"/>
+  <Section name="refreshrate">
+    <String name="5" text="Kontroll"/>
     <String name="6" text="24 BPS"/>
     <String name="7" text="25 BPS"/>
     <String name="8" text="30 BPS"/>
     <String name="9" text="Standard BPS"/>
-    <String name="music" text="Musik"/>
+  </Section>
+  <Section name="settings">
+    <String name="0" text="Inställningar"/>
+    <String name="language" text="Språk"/>
+    <String name="menulanguage" text="Menyer"/>
+	<String name="audiolanguage" text="Audio"/>
+	<String name="subtitlelanguage" text="Undertexter"/>
+	<String name="screen" text="Skärm"/>
+    <String name="fullscreen" text="Fullskärm"/>
+	<String name="refreshrate" text="Skärmuppdatering"/>
+    <String name="appearance" text="Utseende"/>
+    <String name="theme" text="Tema"/>
+    <String name="skin" text="Skal"/>
+	<String name="shares" text="Bibliotek"/>
+	<String name="music" text="Musik"/>
+    <String name="playback" text="Uppspelning"/>
+    <String name="mpg2videocodec" text="MPEG-2 videokodec"/>
+    <String name="h264videocodec" text="H-264 videokodec"/>
+    <String name="xvidvideocodec" text="DivX/XVID videokodec"/>
+    <String name="audiocodec" text="Ljudkodec"/>
+    <String name="refreshrate" text="Skärmuppdatering"/>
     <String name="appearance" text="Utseende"/>
     <String name="audiosetup" text="Ljudinställningar"/>
     <String name="speakersetup" text="Välj anslutningstyp för högtalare"/>
@@ -262,8 +270,9 @@
     <String name="monitorlcd" text="LCD/Plasma"/>
     <String name="monitorprojector" text="Projektor"/>
     <String name="monitorarsetup" text="Välj skärmformat"/>
-    <String name="monitornormal" text="Normal (4:3)"/>
-    <String name="monitorwide" text="Wide (16:9)"/>
+	<String name="aspect" text="Aspekt"/>
+    <String name="aspectnormal" text="Normal (4:3)"/>
+    <String name="aspectwide" text="Wide (16:9)"/>
     <String name="monitorbuildin" text="Inbyggd"/>
     <String name="next" text="Nästa"/>
     <String name="back" text="Tillbaka"/>
