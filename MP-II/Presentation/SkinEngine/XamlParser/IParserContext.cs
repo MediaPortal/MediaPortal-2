@@ -37,11 +37,11 @@ namespace Presentation.SkinEngine.XamlParser
     ElementContextStack ContextStack { get; }
 
     /// <summary>
-    /// Loads the XAML file with the specified <paramref name="fileName"/> in the current
-    /// directory context. The search for the file will be defined by the owner of the
-    /// parser.
+    /// Loads the XAML file with the specified <paramref name="fileName"/> with
+    /// a parser instance configured the same as this instance.
     /// </summary>
-    /// <param name="fileName">Name of the file to load.</param>
+    /// <param name="fileName">Name of the file to load, relative to this
+    /// parser's file.</param>
     /// <returns>Root element created from the XAML file.</returns>
     object LoadXaml(string fileName);
 
