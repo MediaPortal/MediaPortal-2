@@ -72,6 +72,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     protected Property _alignmentYProperty;
     protected Property _childrenProperty;
     protected Property _backgroundProperty;
+    protected Property _isItemsHostProperty;
     protected bool _performLayout = true;
     protected List<UIElement> _renderOrder;
     bool _updateRenderOrder = true;
@@ -94,6 +95,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
       _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Top);
       _backgroundProperty = new Property(typeof(Brush), null);
+      _isItemsHostProperty = new Property(typeof(bool), false);
 
       _alignmentXProperty.Attach(OnPropertyInvalidate);
       _alignmentYProperty.Attach(OnPropertyInvalidate);
@@ -107,6 +109,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       AlignmentX = copyManager.GetCopy(p.AlignmentX);
       AlignmentY = copyManager.GetCopy(p.AlignmentY);
       Background = copyManager.GetCopy(p.Background);
+      IsItemsHost = copyManager.GetCopy(p.IsItemsHost);
       foreach (UIElement el in p.Children)
         Children.Add(copyManager.GetCopy(el));
     }
@@ -213,6 +216,17 @@ namespace Presentation.SkinEngine.Controls.Panels
           (AlignmentY)_alignmentYProperty.GetValue();
       }
       set { _alignmentYProperty.SetValue(value); }
+    }
+
+    public Property IsItemsHostProperty
+    {
+      get { return _isItemsHostProperty; }
+    }
+
+    public bool IsItemsHost
+    {
+      get { return (bool)_isItemsHostProperty.GetValue(); }
+      set { _isItemsHostProperty.SetValue(value); }
     }
 
     public override void Invalidate()

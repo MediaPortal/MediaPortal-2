@@ -159,7 +159,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _layoutTransformProperty;
     Property _visibilityProperty;
     Property _isEnabledProperty;
-    Property _isItemsHostProperty;
     Property _opacityMaskProperty;
     Property _opacityProperty;
     Property _freezableProperty;
@@ -202,7 +201,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _renderTransformOriginProperty = new Property(typeof(Vector2), new Vector2(0, 0));
       _visibilityProperty = new Property(typeof(VisibilityEnum), VisibilityEnum.Visible);
       _isEnabledProperty = new Property(typeof(bool), true);
-      _isItemsHostProperty = new Property(typeof(bool), false);
       _freezableProperty = new Property(typeof(bool), false);
       _opacityProperty = new Property(typeof(double), 1.0);
 
@@ -228,7 +226,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Margin = copyManager.GetCopy(el.Margin);
       Visibility = copyManager.GetCopy(el.Visibility);
       IsEnabled = copyManager.GetCopy(el.IsEnabled);
-      IsItemsHost = copyManager.GetCopy(el.IsItemsHost);
       // FIXME Albert78: Implement Freezing
       Freezable = copyManager.GetCopy(el.Freezable);
       Opacity = copyManager.GetCopy(el.Opacity);
@@ -352,18 +349,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       get { return (Brushes.Brush) _opacityMaskProperty.GetValue(); }
       set { _opacityMaskProperty.SetValue(value); }
-    }
-
-    public Property IsItemsHostProperty
-    {
-      get { return _isItemsHostProperty; }
-    }
-
-    // TODO Albert78: Move this property to Panel class
-    public bool IsItemsHost
-    {
-      get { return (bool)_isItemsHostProperty.GetValue(); }
-      set { _isItemsHostProperty.SetValue(value); }
     }
 
     public Property IsEnabledProperty
