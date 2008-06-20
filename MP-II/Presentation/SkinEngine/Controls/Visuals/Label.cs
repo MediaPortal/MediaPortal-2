@@ -191,9 +191,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       if (_label != null && _asset != null)
       {
-        size = new SizeF((float)availableSize.Width, (float)_asset.Font.LineHeight);
+        size = new SizeF((float)availableSize.Width, (float)_asset.Font.LineHeight * SkinContext.Zoom.Height);
         if (availableSize.Width == 0)
-          size.Width = _asset.Font.Width(_label.ToString());
+          size.Width = _asset.Font.Width(_label.ToString()) * SkinContext.Zoom.Width;
       }
       float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
       float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
@@ -219,7 +219,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _desiredSize.Height += marginHeight;
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-      //Trace.WriteLine(String.Format("label.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+      //Trace.WriteLine(String.Format("label.measure :{0} {1}x{2} returns {3}x{4}", _label.ToString(), (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
