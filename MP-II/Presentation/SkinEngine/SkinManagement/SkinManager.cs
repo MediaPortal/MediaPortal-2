@@ -47,6 +47,13 @@ namespace Presentation.SkinEngine.SkinManagement
       ReloadSkins();
     }
 
+    /// <summary>
+    /// Returns all available skins which were discovered by the skin manager.
+    /// </summary>
+    /// <remarks>
+    /// Be careful: The returned skins may contain <see cref="Skin"/> instances which are not 
+    /// <see cref="Skin.IsValid">valid</see>.
+    /// </remarks>
     public IDictionary<string, Skin> Skins
     {
       get { return _skins; }

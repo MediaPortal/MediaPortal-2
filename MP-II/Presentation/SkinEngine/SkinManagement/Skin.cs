@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
@@ -31,28 +33,22 @@ namespace Presentation.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Represents a skin - which is a logical construct consisting of a logical name
-  /// (skin name), some meta information (like the preferred size and the preview image)
+  /// (skin name), some meta information (like a description, the native size and the preview image)
   /// and a set of skin files.
   /// This class provides methods for requesting the meta information, available skin files,
   /// loading skin files and requesting available themes.
   /// </summary>
   /// <remarks>
-  /// Skins may contain resources from different directories. All directory contents of a
-  /// skin are added in a defined precedence. All the directory contents are added to the skin
-  /// resource files.
-  /// It is possible for a directory of a higher precedence to replace contents of directories
-  /// of lower precedence.
-  /// This class doesn't provide a sort of <i>reload</i> method, because to correctly
-  /// reload a skin, we would have to check again all skin directories. This is not the
-  /// job of this class, as it only manages skin directories which are given to it.
-  /// To avoid heavy load times at startup, this class will only collect its resource files
-  /// when requested (lazy initializing).
+  /// The meta information will be read from a file <i>skin.xml</i> located in one of the
+  /// skin resource directories.
   /// </remarks>
   public class Skin: SkinResources
   {
     public const string SKIN_META_FILE = "skin.xml";
     public const string THEMES_DIRECTORY = "themes";
-    public const string DEFAULT_THEME = "default";
+
+    public const int MIN_SKIN_DESCRIPTOR_VERSION_HIGH = 1;
+    public const int MIN_SKIN_DESCRIPTOR_VERSION_LOW = 0;
 
     #region Protected fields
 
@@ -63,26 +59,53 @@ namespace Presentation.SkinEngine.SkinManagement
     protected IDictionary<string, Theme> _themes = null;
 
     // Meta information of the skin
-    protected int _width;
-    protected int _height;
+    protected bool _metadataInitialized = false;
+    protected int _nativeWidth = -1;
+    protected int _nativeHeight = -1;
+    protected string _author = null;
+    protected string _description = null;
+    protected string _usageNote = null;
+    protected string _previewResourceKey = null;
+    protected string _specVersion = null;
+    protected string _skinVersion = null;
+    protected string _skinEngineVersion = null;
+    protected string _defaultThemeName = null;
 
     #endregion
 
     public Skin(string name): base(name, null)
     {
-      // FIXME: read those parameters from skin metadata
-      _width = 720;
-      _height = 576;
     }
 
-    public int Width
+    /// <summary>
+    /// Returns the information if the resources of this skin are complete
+    /// (i.e. if the skin meta file is present).
+    /// </summary>
+    public override bool IsValid
     {
-      get { return _width; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _metadataInitialized;
+      }
     }
 
-    public int Height
+    public int NativeWidth
     {
-      get { return _height; }
+      get
+      {
+        CheckMetadataInitialized();
+        return _nativeWidth;
+      }
+    }
+
+    public int NativeHeight
+    {
+      get
+      {
+        CheckMetadataInitialized();
+        return _nativeHeight;
+      }
     }
 
     public IDictionary<string, Theme> Themes
@@ -99,8 +122,8 @@ namespace Presentation.SkinEngine.SkinManagement
       get
       {
         CheckResourcesInitialized();
-        if (_themes.ContainsKey(DEFAULT_THEME))
-          return _themes[DEFAULT_THEME];
+        if (_defaultThemeName != null && _themes.ContainsKey(_defaultThemeName))
+          return _themes[_defaultThemeName];
         IEnumerator<KeyValuePair<string, Theme>> enumer = _themes.GetEnumerator();
         if (enumer.MoveNext())
           return enumer.Current.Value;
@@ -117,6 +140,93 @@ namespace Presentation.SkinEngine.SkinManagement
     {
       base.Release();
       _themes = null;
+    }
+
+    /// <summary>
+    /// Will trigger the lazy metadata initialization on request.
+    /// </summary>
+    protected void CheckMetadataInitialized()
+    {
+      if (_metadataInitialized)
+        return;
+      FileInfo metaFile = GetResourceFile(SKIN_META_FILE);
+      _metadataInitialized = LoadMetadata(metaFile);
+    }
+
+    protected bool LoadMetadata(FileInfo metaFile)
+    {
+      try
+      {
+        XmlDocument doc = new XmlDocument();
+        using (FileStream fs = metaFile.OpenRead())
+          doc.Load(fs);
+        XmlElement themeElement = doc.DocumentElement;
+
+        bool versionOk = false;
+        foreach (XmlAttribute attr in themeElement.Attributes)
+        {
+          switch (attr.Name)
+          {
+            case "Version":
+              CheckVersion(attr.Value, MIN_SKIN_DESCRIPTOR_VERSION_HIGH, MIN_SKIN_DESCRIPTOR_VERSION_LOW);
+              _specVersion = attr.Value;
+              versionOk = true;
+              break;
+            case "Name":
+              if (_name != null && _name != attr.Value)
+                throw new ArgumentException("Theme name '" + _name + "' doesn't correspond to specified name '" + attr.Value + "'");
+              else
+                _name = attr.Value;
+              break;
+            default:
+              throw new ArgumentException("Attribute '" + attr.Name + "' is unknown");
+          }
+        }
+        if (!versionOk)
+          throw new ArgumentException("Attribute 'Version' expected");
+
+        foreach (XmlNode child in themeElement.ChildNodes)
+        {
+          switch (child.Name)
+          {
+            case "ShortDescription":
+              _description = child.InnerText;
+              break;
+            case "UsageNote":
+              _usageNote = child.InnerText;
+              break;
+            case "Preview":
+              _previewResourceKey = child.InnerText;
+              break;
+            case "Author":
+              _author = child.InnerText;
+              break;
+            case "SkinVersion":
+              _skinVersion = child.InnerText;
+              break;
+            case "SkinEngine":
+              _skinEngineVersion = child.InnerText;
+              break;
+            case "NativeWidth":
+              _nativeWidth = Int32.Parse(child.InnerText);
+              break;
+            case "NativeHeight":
+              _nativeHeight = Int32.Parse(child.InnerText);
+              break;
+            case "DefaultTheme":
+              _defaultThemeName = child.InnerText;
+              break;
+            default:
+              throw new ArgumentException("Error parsing skin descriptor: child element '" + child.Name + "' is unknown");
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor: " + e.Message, e);
+        return false;
+      }
+      return true;
     }
 
     /// <summary>

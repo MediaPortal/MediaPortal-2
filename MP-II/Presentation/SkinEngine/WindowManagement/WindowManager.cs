@@ -108,8 +108,8 @@ namespace Presentation.SkinEngine
       SkinContext.SkinResources = theme == null ? skin : (SkinResources) theme;
       SkinContext.SkinName = skin.Name;
       SkinContext.ThemeName = theme == null ? null : theme.Name;
-      SkinContext.SkinHeight = skin.Height;
-      SkinContext.SkinWidth = skin.Width;
+      SkinContext.SkinHeight = skin.NativeHeight;
+      SkinContext.SkinWidth = skin.NativeWidth;
 
       // Release old resources
       if (_skin != null && _skin != skin && _skin != _skinManager.DefaultSkin)

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -36,8 +37,17 @@ namespace Presentation.SkinEngine.SkinManagement
   /// Encapsulates a collection of resources from a set of root directories.
   /// </summary>
   /// <remarks>
-  /// This class will lazy load its resources on the first access. When the
-  /// resources of this instance are no longer needed, method <see cref="Release()"/>
+  /// Instances may represent resources from different directories. All directory contents
+  /// are added in a defined precedence. All the directory contents are added to the collection
+  /// of resource files.
+  /// It is possible for a directory of a higher precedence to replace contents of directories
+  /// of lower precedence.
+  /// This class doesn't provide a sort of <i>reload</i> method, because to correctly
+  /// reload all resources, we would have to check again all root directories. This is not the
+  /// job of this class, as it only manages the contents of the root directories which were given to it.
+  /// To avoid heavy load times at startup, this class will collect its resource files
+  /// only when requested (lazy initializing).
+  /// When the resources of this instance are no longer needed, method <see cref="Release()"/>
   /// can be called to reduce the memory consumption of this class.
   /// </remarks>
   public class SkinResources
@@ -78,6 +88,14 @@ namespace Presentation.SkinEngine.SkinManagement
     {
       _name = name;
       _inheritedSkinResources = inherited;
+    }
+
+    /// <summary>
+    /// Returns the information if this resources are ready to be used.
+    /// </summary>
+    public virtual bool IsValid
+    {
+      get { return true; }
     }
 
     public string Name
@@ -251,6 +269,26 @@ namespace Presentation.SkinEngine.SkinManagement
         else
           _localResourceFiles[resourceName] = resourceFile;
       }
+    }
+
+    /// <summary>
+    /// Helper method to check the given version string to be equal or greater than the specified version number.
+    /// </summary>
+    protected static void CheckVersion(string versionStr, int expectedHigh, int expectedLow)
+    {
+      string[] numbers = versionStr.Split(new char[] { '.' });
+      int verMax = Int32.Parse(numbers[0]);
+      int verMin = 0;
+      if (numbers.Length > 1)
+        verMin = Int32.Parse(numbers[1]);
+      if (numbers.Length > 2)
+        throw new ArgumentException("Illegal version number '" + versionStr + "', expected format: '#.#'");
+      if (verMax >= expectedHigh)
+        return;
+      if (verMin >= expectedLow)
+        return;
+      throw new ArgumentException("Version number '" + versionStr +
+          "' is too low, at least '" + expectedHigh + "." + expectedLow + "' is needed");
     }
   }
 }
