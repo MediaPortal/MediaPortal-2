@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using SlimDX;
@@ -58,7 +59,7 @@ namespace Presentation.SkinEngine.Fonts
     EffectAsset _effect;
     /// <summary>Creates a new bitmap font.</summary>
     /// <param name="fntFile">Font file name.</param>
-    /// <param name="size"></param>
+    /// <param name="size">Default font size. May be less that size in fnt file</param>
     public Font(string fntFile, float size)
     {
       _pages = new Dictionary<int, string>();
@@ -102,7 +103,7 @@ namespace Presentation.SkinEngine.Fonts
 
     public float LineHeight
     {
-      get { return _charSet.LineHeight; }
+      get { return _defaultSize /_charSet.RenderedSize *_charSet.LineHeight; }
     }
 
 
@@ -117,8 +118,17 @@ namespace Presentation.SkinEngine.Fonts
           throw new ArgumentException("Width index out of range.");
 
         width += _charSet.Characters[chk].XAdvance;
+        if (i != text.Length - 1)
+        {
+          _nextChar = text[i+1];
+          Kerning kern = _charSet.Characters[chk].KerningList.Find(FindKerningNode);
+          if (kern != null)
+          {
+            width += kern.Amount;
+          }
+        }
       }
-      return width;
+      return _defaultSize / _charSet.RenderedSize * width;
     }
 
     public float Height
@@ -511,6 +521,7 @@ namespace Presentation.SkinEngine.Fonts
         // Newline
         if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance > maxWidth))
         {
+          //Trace.WriteLine("lineWidth xAdvance maxWidth " + lineWidth + " " + xAdvance + " " + maxWidth);
           if (y + yOffset + height + _charSet.LineHeight * sizeScale > b.TextBox.Bottom)
           {
             textFits = false;

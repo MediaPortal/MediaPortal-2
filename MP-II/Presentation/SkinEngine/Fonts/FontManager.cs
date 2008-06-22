@@ -42,11 +42,7 @@ namespace Presentation.SkinEngine.Fonts
       try
       {
         XmlNode nodeName = node.Attributes.GetNamedItem("name");
-        if (nodeName == null)
-        {
-          return;
-        }
-        if (nodeName.Value == null)
+        if (nodeName == null || nodeName.Value == null)
         {
           return;
         }
@@ -58,11 +54,7 @@ namespace Presentation.SkinEngine.Fonts
         ServiceScope.Get<ILogger>().Debug("FontManager: LoadFont: {0}", fontName);
 
         XmlNode nodeFace = node.Attributes.GetNamedItem("face");
-        if (nodeFace == null)
-        {
-          return;
-        }
-        if (nodeFace.Value == null)
+        if (nodeFace == null || nodeFace.Value == null)
         {
           return;
         }
@@ -73,11 +65,7 @@ namespace Presentation.SkinEngine.Fonts
         }
 
         XmlNode nodeSize = node.Attributes.GetNamedItem("size");
-        if (nodeSize == null)
-        {
-          return;
-        }
-        if (nodeSize.Value == null)
+        if (nodeSize == null || nodeSize.Value == null)
         {
           return;
         }
