@@ -67,7 +67,6 @@ namespace Presentation.SkinEngine.Controls.Panels
         child.Measure(new Size(0, 0));
         rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
       }
-      // Next lines added by Albert78, 20.5.08
       if (Width <= 0)
         _desiredSize.Width = Math.Max(_desiredSize.Width, rect.Right);
       if (Height <= 0)
