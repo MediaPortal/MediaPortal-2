@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Text.RegularExpressions;
-
 namespace MediaPortal.Core.Localisation
 {
   /// <summary>
@@ -69,7 +66,7 @@ namespace MediaPortal.Core.Localisation
     /// Creates a new string descriptor given a label describing the string. This label may come
     /// from a skin file, for example.
     /// </summary>
-    /// <param name="skinLabel">A label describing the localized string. This label has to be in the
+    /// <param name="label">A label describing the localized string. This label has to be in the
     /// form <c>[section.name]</c>.</param>
     public StringId(string label)
     {
@@ -137,7 +134,7 @@ namespace MediaPortal.Core.Localisation
     /// Tests if the given string is of form <c>[section.name]</c> and hence can be looked up
     /// in a language resource.
     /// </summary>
-    /// <param name="testString">The label to be tested.</param>
+    /// <param name="label">The label to be tested.</param>
     /// <returns>true, if the given label is in the correct form to describe a language resource
     /// string, else false</returns>
     public static bool IsResourceString(string label)
