@@ -62,7 +62,7 @@ namespace Presentation.SkinEngine.SkinManagement
 
     /// <summary>
     /// Returns the information if the resources of this skin are complete
-    /// (i.e. if the theme meta file is present).
+    /// (i.e. if the theme meta file could be read).
     /// </summary>
     public override bool IsValid
     {
