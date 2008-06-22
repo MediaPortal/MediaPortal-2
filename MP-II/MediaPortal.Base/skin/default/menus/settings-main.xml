@@ -1,8 +1,8 @@
 <menu>
   <items>
     <item text="[settings.appearance]" image="" command="WindowManager.ShowWindow" parameter="settingsAppearance"/>
-	<item text="[settings.language]" image="" command="WindowManager.ShowWindow" parameter="settingsLanguage"/>
-	<item text="[settings.screen]" image="" command="WindowManager.ShowWindow" parameter="settingsScreen"/>
+    <item text="[settings.language]" image="" command="WindowManager.ShowWindow" parameter="settingsLanguage"/>
+    <item text="[settings.screen]" image="" command="WindowManager.ShowWindow" parameter="settingsScreen"/>
     <item text="[settings.playback]" image="" command="WindowManager.ShowWindow" parameter="settingsPlayback"/>
     <item text="[settings.music]" image="" command="WindowManager.ShowWindow" parameter="settingsMusic"/>
     <item text="[settings.shares]" image="" command="WindowManager.ShowWindow" parameter="shares"/>
