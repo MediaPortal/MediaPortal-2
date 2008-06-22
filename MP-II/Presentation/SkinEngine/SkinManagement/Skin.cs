@@ -90,6 +90,12 @@ namespace Presentation.SkinEngine.SkinManagement
       }
     }
 
+    /// <summary>
+    /// Returns the widht, this skin was designed for. All sizes given in
+    /// the skinfiles and its theme are based on this skin width. This value
+    /// will be needed to calculate the width scale factor to render the screens in
+    /// the whole screen width.
+    /// </summary>
     public int NativeWidth
     {
       get
@@ -99,6 +105,12 @@ namespace Presentation.SkinEngine.SkinManagement
       }
     }
 
+    /// <summary>
+    /// Returns the height, this skin was designed for. All sizes given in
+    /// the skinfiles and its theme are based on this skin height. This value
+    /// will be needed to calculate the height scale factor to render the screens in
+    /// the whole screen height.
+    /// </summary>
     public int NativeHeight
     {
       get
@@ -108,6 +120,11 @@ namespace Presentation.SkinEngine.SkinManagement
       }
     }
 
+    /// <summary>
+    /// Returns all themes defined in this skin. Some of the returned themes may
+    /// not be valid. To check if a theme is valid, use method <see cref="Theme.IsValid"/>.
+    /// </summary>
+    /// <value>The returned dictionary maps theme names to themes.</value>
     public IDictionary<string, Theme> Themes
     {
       get
@@ -117,6 +134,11 @@ namespace Presentation.SkinEngine.SkinManagement
       }
     }
 
+    /// <summary>
+    /// Returns the default theme of this skin.
+    /// </summary>
+    /// <value>Default theme of this skin, or the first theme, or <c>null</c> if no
+    /// themes are defined.</value>
     public Theme DefaultTheme
     {
       get
@@ -261,7 +283,6 @@ namespace Presentation.SkinEngine.SkinManagement
             theme = _themes[themeName] = new Theme(themeName, this);
           theme.AddRootDirectory(themeDirectory);
         }
-      // TODO: Load meta information file
     }
   }
 }

@@ -158,16 +158,5 @@ namespace Presentation.SkinEngine.SkinManagement
       }
       return true;
     }
-
-    /// <summary>
-    /// Adds the resources in the specified directory.
-    /// </summary>
-    /// <param name="themeDirectory">Directory whose contents should be added
-    /// to the file cache.</param>
-    protected override void LoadDirectory(DirectoryInfo themeDirectory)
-    {
-      base.LoadDirectory(themeDirectory);
-      // TODO: Load meta information file
-    }
   }
 }
