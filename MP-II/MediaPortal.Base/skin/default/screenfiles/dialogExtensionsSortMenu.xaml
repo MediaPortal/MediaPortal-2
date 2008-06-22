@@ -16,7 +16,7 @@
           <CommandGroup>
             <InvokeCommand
                 Command="{Command Source={Model AssemblyName=MyExtensions,ClassName=Model},Path=Instance.Sort}"
-                CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"/>
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
             <InvokeCommand Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
           </CommandGroup>
         </ListView.Commands>
