@@ -281,7 +281,7 @@ namespace Presentation.SkinEngine.XamlParser
         string key;
         _rootObject = Instantiate(_xmlDocument.DocumentElement, out key);
         if (key != null)
-          throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML top element");
+          throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
         foreach (IBinding binding in _lateBindings)
           binding.Bind();
         return _rootObject;
@@ -328,7 +328,7 @@ namespace Presentation.SkinEngine.XamlParser
         foreach (XmlAttribute attr in currentElement.Attributes)
         {
           // We have to sort out namespace declarations.
-          // For both declarations xmlns="..." and xmlns:xx"...", the parser returns the
+          // For both declarations xmlns="..." and xmlns:xx="...", the parser returns the
           // namespace URI "http://www.w3.org/2000/xmlns/" (static constant
           /// <see cref="XMLNS_NS_URI"/>) for the attribute, so we check for this
           /// namespace URI. The value of the attribute (for example
