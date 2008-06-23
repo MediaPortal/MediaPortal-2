@@ -48,12 +48,13 @@ namespace MediaPortal.Services.Localisation
     #endregion
 
     #region Variables
-    readonly Dictionary<string, List<List<StringSection>>> _lazyLanguageStrings;
+    readonly Dictionary<string, List<StringSection>[]> _lazyLanguageStrings;
     readonly Dictionary<string, Dictionary<string, StringLocalised>> _languageStrings;
     readonly Dictionary<string, CultureInfo> _availableLanguages;
     readonly List<string> _languageDirectories;
     readonly string _systemDirectory;
     readonly string _userDirectory;
+    readonly int _numbTypes;
     CultureInfo _currentLanguage;
     bool _userLanguage;
     #endregion
@@ -72,6 +73,9 @@ namespace MediaPortal.Services.Localisation
       _availableLanguages = new Dictionary<string, CultureInfo>();
       GetAvailableLangauges();
 
+      // Get the number of Language Types
+      _numbTypes = Enum.GetValues(typeof(LanguageType)).Length;
+
       // If the language cannot be found default to Local language or English
       if (cultureName != null && _availableLanguages.ContainsKey(cultureName))
         _currentLanguage = _availableLanguages[cultureName];
@@ -82,7 +86,7 @@ namespace MediaPortal.Services.Localisation
         throw (new ArgumentException("No available language found"));
 
       _languageStrings = new Dictionary<string, Dictionary<string, StringLocalised>>();
-      _lazyLanguageStrings = new Dictionary<string, List<List<StringSection>>>();
+      _lazyLanguageStrings = new Dictionary<string, List<StringSection>[]>();
 
       CheckUserStrings();
       ReloadAll();
@@ -314,76 +318,62 @@ namespace MediaPortal.Services.Localisation
 
             if (!_lazyLanguageStrings.ContainsKey(section.name))
             {
-              List<List<StringSection>> lazyLoad = new List<List<StringSection>>();
-              foreach (LanguageType langType in Enum.GetValues(typeof(LanguageType)))
-                lazyLoad.Add(new List<StringSection>());
+              List<StringSection>[] lazyLoadSections = new List<StringSection>[_numbTypes];
+              for (int languageType = 0; languageType < _numbTypes; languageType++)
+                lazyLoadSections[languageType] = new List<StringSection>();
 
-              _lazyLanguageStrings.Add(section.name, lazyLoad);
+              _lazyLanguageStrings.Add(section.name, lazyLoadSections);
             }
 
             _lazyLanguageStrings[section.name][(int)type].Add(section);
-
-            //Dictionary<string, StringLocalised> newSection;
-            //if (_languageStrings.ContainsKey(section.name))
-            //{
-            //  newSection = _languageStrings[section.name];
-            //  _languageStrings.Remove(section.name);
-            //}
-            //else
-            //{
-            //  newSection = new Dictionary<string, StringLocalised>();
-            //}
-
-            //foreach (StringLocalised languageString in section.localisedStrings)
-            //{
-            //  if (!newSection.ContainsKey(languageString.name))
-            //  {
-            //    languageString.language = language;
-            //    newSection.Add(languageString.name, languageString);
-            //  }
-            //}
-
-            //if (newSection.Count > 0)
-            //  _languageStrings.Add(section.name, newSection);
           }
-
         }
       }
     }
 
+    /// <summary>
+    /// Copies the the strings from lazyLanguageStrings for sectionName to the LanguageString dictionary.
+    /// </summary>
+    /// <param name="sectionName">Name of the section for which the strings should be loaded.</param>
     private void LoadLazyStrings(string sectionName)
     {
+      // Check to see if there are strings for sectionName in lazyLanguageStrings
       if (_lazyLanguageStrings.ContainsKey(sectionName))
       {
-        foreach (LanguageType type in Enum.GetValues(typeof(LanguageType)))
-        {
-          foreach (StringSection section in _lazyLanguageStrings[sectionName][(int)type])
-          {
-            Dictionary<string, StringLocalised> newSection;
-            if (_languageStrings.ContainsKey(section.name))
-            {
-              newSection = _languageStrings[section.name];
-              _languageStrings.Remove(section.name);
-            }
-            else
-            {
-              newSection = new Dictionary<string, StringLocalised>();
-            }
+        Dictionary<string, StringLocalised> newSection;
 
+        // Is this section already in LanguageStrings
+        // It is possible new strings have been added to be lazy loaded after some inital strings where loaded.
+        if (_languageStrings.ContainsKey(sectionName))
+        {
+          newSection = _languageStrings[sectionName];
+          _languageStrings.Remove(sectionName);
+        }
+        else
+        {
+          newSection = new Dictionary<string, StringLocalised>();
+        }
+
+        // Copy language strings over using the Language type hierarchy.
+        for (int languageType = 0; languageType < _numbTypes; languageType++)
+        {
+          foreach (StringSection section in _lazyLanguageStrings[sectionName][languageType])
+          {
             foreach (StringLocalised languageString in section.localisedStrings)
             {
               if (!newSection.ContainsKey(languageString.name))
               {
-                //languageString.language = language;
                 newSection.Add(languageString.name, languageString);
               }
             }
-
-            if (newSection.Count > 0)
-              _languageStrings.Add(section.name, newSection);
           }
         }
 
+        // Add strings to dictionary
+        if (newSection.Count > 0)
+          _languageStrings.Add(sectionName, newSection);
+
+        // remove strings from lazy load
         _lazyLanguageStrings.Remove(sectionName);
       }
     }
