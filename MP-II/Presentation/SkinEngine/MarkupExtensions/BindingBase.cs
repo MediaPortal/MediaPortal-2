@@ -22,11 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls;
 
 namespace Presentation.SkinEngine.MarkupExtensions
