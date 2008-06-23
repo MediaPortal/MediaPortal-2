@@ -251,23 +251,7 @@ namespace Presentation.SkinEngine
     /// <param name="screenName">The screen to load.</param>
     protected UIElement LoadSkinFile(string screenName)
     {
-      object rootElement = SkinContext.SkinResources.LoadSkinFile(screenName);
-      return ExtractUIElement(rootElement);
-    }
-
-    /// <summary>
-    /// Given a root element parsed from a XAML file, this method extracts the root
-    /// <see cref="UIElement"/>. This will resolve includes.
-    /// </summary>
-    /// <param name="rootElement">Root element parsed from a XAML file.</param>
-    /// <returns><see cref="UIElement"/> instance found in the specified
-    /// <paramref name="rootElement"/>.</returns>
-    protected UIElement ExtractUIElement(object rootElement)
-    {
-      if (rootElement is Include)
-        return ExtractUIElement(((Include)rootElement).Content);
-      else
-        return rootElement as UIElement;
+      return SkinContext.SkinResources.LoadSkinFile(screenName) as UIElement;
     }
 
     /// <summary>

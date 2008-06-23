@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
 using MediaPortal.Utilities.Files;
+using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.XamlParser.XamlNamespace;
 
 namespace Presentation.SkinEngine.XamlParser
@@ -66,11 +67,7 @@ namespace Presentation.SkinEngine.XamlParser
   /// is built up, together with the context information of all parent elements
   /// up to the top of the tree. After the parsing process has finished,
   /// the <see cref="Parser.Parse()"/> method returns the root element
-  /// of the created element tree. After the parsing process, the parser instance
-  /// should only be accessed by its implemented <see cref="IDocumentContext"/>
-  /// interface, where
-  /// <see cref="IDocumentContext.Convert(object,Type,out object)">type conversions</see>
-  /// are still available and the created root element will be accessible.
+  /// of the created element tree.
   /// </para>
   /// <para>
   /// <b>XML Namespaces</b><br/>
@@ -279,7 +276,7 @@ namespace Presentation.SkinEngine.XamlParser
       if (_rootObject == null)
       {
         string key;
-        _rootObject = Instantiate(_xmlDocument.DocumentElement, out key);
+        _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
         if (key != null)
           throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
         foreach (IBinding binding in _lateBindings)
@@ -288,6 +285,20 @@ namespace Presentation.SkinEngine.XamlParser
       }
       else
         throw new XamlParserException("XAML Parser for file '{0}': Parse() method was invoked multiple times", _xamlFile);
+    }
+
+        /// <summary>
+    /// Given a root element parsed from a XAML file, this method extracts the root
+    /// element, if the given <paramref name="rootElement"/> is an include.
+    /// </summary>
+    /// <param name="rootElement">Root element parsed from a XAML file.</param>
+    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
+    protected object UnwrapIncludes(object rootElement)
+    {
+      if (rootElement is Include)
+        return UnwrapIncludes(((Include) rootElement).Content);
+      else
+        return rootElement;
     }
 
     #endregion
