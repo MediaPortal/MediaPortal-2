@@ -78,7 +78,6 @@ namespace Presentation.SkinEngine
     private bool _attachedInput = false;
 
     private Property _opened;
-    private string _defaultFocus;
     private Thread _thread;
     public event EventHandler OnClose;
     private bool _history;
