@@ -156,7 +156,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// </summary>
     /// <remarks>
     /// This method must not be called before the
-    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> method was called.
+    /// <see cref="BindingBase.Prepare(IParserContext,IDataDescriptor)"/> method was called.
     /// </remarks>
     protected bool UpdateTarget()
     {
@@ -164,9 +164,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
       DependencyObject current = _contextObject as DependencyObject;
       while (current != null)
       {
+        ResourceDictionary resources = null;
         if (current is UIElement)
+          resources = ((UIElement) current).Resources;
+        else if (current is ResourceDictionary)
+          resources = (ResourceDictionary) current;
+        if (resources != null)
         {
-          ResourceDictionary resources = ((UIElement) current).Resources;
           // Attach change handler to resource dictionary
           AttachToResources(resources);
           if (resources.ContainsKey(_resourceKey))
