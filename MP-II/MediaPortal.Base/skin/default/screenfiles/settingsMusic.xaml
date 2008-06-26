@@ -1,33 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<?xml version="1.0" encoding="utf-8"?>
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=settings,ClassName=MusicSettings},Path=Instance}">
+    Source="screenfiles\master.xaml"
+    >
+  <Include.Resources>
 
-  <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <Label Margin="60,0,0,0"  Font="font26"  Text="[settings.music]" Height="50" Width="300"/>
+    <!-- Header_Text -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[settings.music]"/>
 
-    <Label Margin="60,50,0,0"  Font="font26"  Text="[settings.music]" Height="50" Width="300" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-      <Label.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-        </TransformGroup>
-      </Label.RenderTransform>
-      <Label.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#FF000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-      </Label.OpacityMask>
-    </Label>
-    <StackPanel Canvas.Left="230" Canvas.Top="100" Width="240" >
-      <CheckBox Style="{StaticResource MpRadioButton}" IsChecked="{Binding IsEnabledFadeOut}" Checked="{Binding EnableFadeOut}" Unchecked="{Binding DisableFadeOut}" Height="32">
-        <Label Font="font13" Text="[music.settingsfade]" Height="32"/>
-      </CheckBox>
-      <CheckBox Style="{StaticResource MpRadioButton}" IsChecked="{Binding IsGaplessPlayback}" Checked="{Binding EnableGapless}" Unchecked="{Binding DisableGapless}" Height="32">
-        <Label Font="font13" Text="[music.settingsgapless]"  Height="32"/>
-      </CheckBox>
-    </StackPanel>
+    <!-- DataContext -->
+    <Model x:Key="DataContext" AssemblyName="settings" ClassName="MusicSettings"/>
 
-  </Canvas>
-</Canvas>
+    <!-- Client_Element -->
+    <ResourceWrapper x:Key="Client_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource DataContext}}">
+        <CheckBox Style="{StaticResource MpRadioButton}" IsChecked="{Binding IsEnabledFadeOut}" Checked="{Binding EnableFadeOut}" Unchecked="{Binding DisableFadeOut}" Height="32">
+          <Label Font="font13" Text="[music.settingsfade]" Height="32"/>
+        </CheckBox>
+        <CheckBox Style="{StaticResource MpRadioButton}" IsChecked="{Binding IsGaplessPlayback}" Checked="{Binding EnableGapless}" Unchecked="{Binding DisableGapless}" Height="32">
+          <Label Font="font13" Text="[music.settingsgapless]"  Height="32"/>
+        </CheckBox>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

@@ -22,24 +22,29 @@
 
 #endregion
 
+using System.Collections.Generic;
+using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  public class ResourceWrapper : IContentEnabled, IDeepCopyable
+  public class ResourceWrapper : DependencyObject, INameScope, IContentEnabled, IDeepCopyable
   {
-    #region Private fields
+    #region Protected fields
 
     protected object _resource = null;
+    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected INameScope _parent = null;
 
     #endregion
 
     #region Ctor
 
-    public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      ResourceWrapper rw = (ResourceWrapper) source;
+      base.DeepCopy(source, copyManager);
+      ResourceWrapper rw = (ResourceWrapper)source;
       Resource = copyManager.GetCopy(rw.Resource);
     }
 
@@ -61,6 +66,35 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     {
       dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Resource"));
       return true;
+    }
+
+    #endregion
+
+    #region INameScope implementation
+
+    public object FindName(string name)
+    {
+      if (_names.ContainsKey(name))
+        return _names[name];
+      else if (_parent != null)
+        return _parent.FindName(name);
+      else
+        return null;
+    }
+
+    public void RegisterName(string name, object instance)
+    {
+      _names.Add(name, instance);
+    }
+
+    public void UnregisterName(string name)
+    {
+      _names.Remove(name);
+    }
+
+    public void RegisterParent(INameScope parent)
+    {
+      _parent = parent;
     }
 
     #endregion

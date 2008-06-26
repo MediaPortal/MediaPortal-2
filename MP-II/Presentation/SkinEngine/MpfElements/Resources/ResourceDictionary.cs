@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.SkinManagement;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
@@ -33,17 +35,19 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: Dictionary<string, object>, IInitializable, INameScope, IDeepCopyable
+  public class ResourceDictionary: DependencyObject, IDictionary<string, object>, IInitializable, INameScope, IDeepCopyable
   {
     protected string _source = "";
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
+    protected IDictionary<string, object> _resources = new Dictionary<string, object>();
 
     public ResourceDictionary() { }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      base.DeepCopy(source, copyManager);
       ResourceDictionary rd = source as ResourceDictionary;
       Source = copyManager.GetCopy(rd.Source);
       foreach (ResourceDictionary crd in rd._mergedDictionaries)
@@ -66,6 +70,11 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       set { _source = value; }
     }
 
+    public IDictionary<string, object> UnderlayingDictionary
+    {
+      get { return _resources; }
+    }
+
     public IList<ResourceDictionary> MergedDictionaries
     {
       get { return _mergedDictionaries; }
@@ -74,13 +83,13 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     public void Merge(ResourceDictionary dict)
     {
-      IEnumerator<KeyValuePair<string, object>> enumer = dict.GetEnumerator();
+      IEnumerator<KeyValuePair<string, object>> enumer = ((IDictionary<string, object>) dict).GetEnumerator();
       while (enumer.MoveNext())
         this[enumer.Current.Key] = enumer.Current.Value;
       FireChanged();
     }
 
-    protected void FireChanged()
+    public void FireChanged()
     {
       if (ResourcesChanged != null)
         ResourcesChanged(this);
@@ -135,6 +144,112 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     public void RegisterParent(INameScope parent)
     {
       _parent = parent;
+    }
+
+    #endregion
+
+    #region IDictionary<string,object> implementation
+
+    public bool ContainsKey(string key)
+    {
+      return _resources.ContainsKey(key);
+    }
+
+    public void Add(string key, object value)
+    {
+      _resources.Add(key, value);
+      FireChanged();
+    }
+
+    public bool Remove(string key)
+    {
+      return _resources.Remove(key);
+      FireChanged();
+    }
+
+    public bool TryGetValue(string key, out object value)
+    {
+      return _resources.TryGetValue(key, out value);
+    }
+
+    public object this[string key]
+    {
+      get { return _resources[key]; }
+      set
+      {
+        _resources[key] = value;
+        FireChanged();
+      }
+    }
+
+    public ICollection<string> Keys
+    {
+      get { return _resources.Keys; }
+    }
+
+    public ICollection<object> Values
+    {
+      get { return _resources.Values; }
+    }
+
+    #endregion
+
+    #region ICollection<KeyValuePair<string,object>> implementation
+
+    public void Add(KeyValuePair<string, object> item)
+    {
+      _resources.Add(item);
+      FireChanged();
+    }
+
+    public void Clear()
+    {
+      _resources.Clear();
+      FireChanged();
+    }
+
+    public bool Contains(KeyValuePair<string, object> item)
+    {
+      return _resources.Contains(item);
+    }
+
+    public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+    {
+      _resources.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(KeyValuePair<string, object> item)
+    {
+      return _resources.Remove(item);
+      FireChanged();
+    }
+
+    public int Count
+    {
+      get { return _resources.Count; }
+    }
+
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    #endregion
+
+    #region IEnumerable<KeyValuePair<string,object>> implementation
+
+    IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+    {
+      return _resources.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IEnumerable implementation
+
+    public IEnumerator GetEnumerator()
+    {
+      return _resources.GetEnumerator();
     }
 
     #endregion

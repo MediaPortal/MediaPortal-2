@@ -130,7 +130,7 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
-    <Compile Include="Controls\DependencyObject.cs" />
+    <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\IScrollInfo.cs">
       <SubType>Code</SubType>
     </Compile>

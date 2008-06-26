@@ -93,8 +93,10 @@ namespace Presentation.SkinEngine.Controls.Panels
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(SizeF availableSize)
     {
+      // TODO: Remove this
       if (this.Name == "StackPanel_Nisse")
       Trace.WriteLine(String.Format("StackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
+      //
 
       float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
       float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;

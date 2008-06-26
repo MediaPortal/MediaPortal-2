@@ -1,38 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<?xml version="1.0" encoding="utf-8"?>
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=MyExtensions,ClassName=Model},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}">
+    Source="screenfiles\master_menu.xaml"
+    >
+  <Include.Resources>
 
- <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[extensions.myextensions]" Height="50"/>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[extensions.myextensions]"/>
 
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[extensions.myextensions]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-      <Label.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-        </TransformGroup>
-      </Label.RenderTransform>
-      <Label.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#FF000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-      </Label.OpacityMask>
-    </Label>
-    <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-      <ListView  x:Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenuInfo}" />
-      <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
-    </StackPanel>
-  <StackPanel DockPanel.Dock="Left" Margin="20,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-      <Label x:Name="headerReflection"  Font="font13" Margin="130,100,0,0" Text="{Binding SelectedPackage.LongNameProperty}" Width="500" Height="32"/>
+    <!-- DataContext -->
+    <Model x:Key="DataContext" AssemblyName="MyExtensions" ClassName="Model"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{StaticResource DataContext}" Path="MainMenuInfo" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource DataContext}}"
+          DockPanel.Dock="Left" Margin="20,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
+        <Label x:Name="headerReflection"  Font="font13" Margin="130,100,0,0" Text="{Binding SelectedPackage.LongNameProperty}" Width="500" Height="32"/>
         <Label x:Name="headerReflection1"  Font="font13" Margin="130,140,0,0" Text="{Binding SelectedPackage.AuthorProperty}" Width="500" Height="32"/>
         <Label x:Name="headerReflection2"  Font="font13" Margin="130,175,0,0" Text="{Binding SelectedPackage.DescriptionProperty}" Width="500" Height="132"/>
         <Label x:Name="headerReflection3"  Font="font13" Margin="30,195,0,0" Text="[extensions.dependon]" Width="500" Height="132"/>
-		  <ListView x:Name="list" Style="{StaticResource MpListViewMenu}" Margin="30,220,0,0" ItemsSource="{Binding SelectedPackage.DependOn}" />
+        <ListView x:Name="list" Style="{StaticResource MpListViewMenu}" Margin="30,220,0,0" ItemsSource="{Binding SelectedPackage.DependOn}" />
         <ListView x:Name="listver" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SelectedPackage.Versions}" Margin="0,200,0,0" />
-  </StackPanel>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>
+
 <!-- 	<group name="maingroup">
 	<controls>
 		<include source="background.xml"/>
@@ -80,5 +80,3 @@
 	<animation trigger="onwindowopen" type="fade" from="0" to="1"  duration="800"/>
 </group>
 </skin> -->
- </DockPanel>
-</Canvas>

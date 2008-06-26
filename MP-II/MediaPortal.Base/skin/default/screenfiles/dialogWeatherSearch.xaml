@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}"
-    History="False">
+    Source="screenfiles\master_dialog.xaml"
+    >
+  <Include.Resources>
 
-  <Border Canvas.Left="156" Canvas.Top="144" Width="405" Height="195" Background="#AFFFFFFF" CornerRadius="10">
-    <DockPanel Width="385" Height="175" LastChildFill="False" Background="{StaticResource dialogBackGroundBrush}" >
-	  <StackPanel Name="StackPanel1" DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal">
-	     <Label Margin="10,5,10,5" Width="100" Font="font13" Text="[system.5]" Color="#FFADADAD"/>
-         <Label Margin="10,5,10,5" Width="190" Font="font13" Text="[weathersetup.1]"  Color="#FFF1E994"/>
-		 <Button HorizontalAlignment="Right" x:Name="closebtn" Style="{StaticResource MpCloseButton}" Command="{Command Source={Service WindowManager},Path=CloseDialog}" />
-	  </StackPanel>
-	  <Label Margin="10,5,10,5" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  Text="[weathersetup.0]" Color="White"/>
-      <TextBox Margin="10,5,10,5" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13"  BorderThickness="3" Height = "30" Width="250" Text="{Binding Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchCity,Mode=OneWayToSource}"/>
-	  <StackPanel x:Name="StackPanel_Nisse" DockPanel.Dock="Top" HorizontalAlignment="Right" Orientation="Horizontal">
-		<Button Name="Button1" Margin="5" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Done">[system.done]</Button>
-		<Button Name="Button2" Margin="5" Style="{StaticResource MpButton}" Command="{Command Source={Model AssemblyName=Weather,ClassName=WeatherSetupModel},Path=Instance.SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
-	  </StackPanel>
-    </DockPanel>
-  </Border>
-</Canvas>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text1" Resource="[system.5]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[weathersetup.1]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" AssemblyName="Weather" ClassName="WeatherSetupModel"/>
+
+    <!-- Contents_Element -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource DataContext}}" Orientation="Vertical">
+        <Label Margin="10,5,10,5" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13" Text="[weathersetup.0]" Color="White"/>
+        <TextBox Margin="10,5,10,5" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13" BorderThickness="3" Height="30" Width="250"
+            Text="{Binding Path=SearchCity,Mode=OneWayToSource}"/>
+    	  <StackPanel x:Name="StackPanel_Nisse" DockPanel.Dock="Top" HorizontalAlignment="Right" Orientation="Horizontal">
+      	  <Button Name="Button1" Margin="5" Style="{StaticResource MpButton}"
+              Command="{Command Path=SearchLocations}" CommandParameter="Done">[system.done]</Button>
+    	    <Button Name="Button2" Margin="5" Style="{StaticResource MpButton}"
+              Command="{Command Path=SearchLocations}" CommandParameter="Cancel">[system.cancel]</Button>
+        </StackPanel>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

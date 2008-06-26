@@ -1,82 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}"
+    Source="screenfiles\master_menu.xaml"
     >
+  <Include.Resources>
 
-  <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <DockPanel.Resources>
-      <Storyboard x:Key="focusOutStoryboard">
-        <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="movieList" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.1500000" Value="0.5"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.2"/>
-        </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="movieList" Storyboard.TargetProperty="RenderTransform.Children[1].ScaleX">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.5"/>
-        </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="movieList" Storyboard.TargetProperty="RenderTransform.Children[1].ScaleY">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.5"/>
-        </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="movieList" Storyboard.TargetProperty="RenderTransform.Children[0].X">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="100"/>
-        </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="movieList" Storyboard.TargetProperty="RenderTransform.Children[0].Y">
-          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="100"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-    </DockPanel.Resources>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[movies.3]"/>
 
-    <DockPanel >
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50"/>
+    <!-- DataContext -->
+    <Model x:Key="DataContext" AssemblyName="mymovies" ClassName="Model"/>
 
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.3]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-        <Label.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-          </TransformGroup>
-        </Label.RenderTransform>
-        <Label.OpacityMask>
-          <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-            <GradientStop Offset="0.0" Color="#FF000000" />
-            <GradientStop Offset="1.0" Color="#00000000" />
-          </LinearGradientBrush>
-        </Label.OpacityMask>
-      </Label>
-      <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MainMenu}" />
-        <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
-      </StackPanel>
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{StaticResource DataContext}" Path="MainMenu" Mode="OneTime"/>
+    </ResourceWrapper>
 
-      <ListView x:Name="movieList" Width="480" Height="480" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}" Command="{Command Path=Select}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}" ContextMenuCommand="{Command Source={Service WindowManager},Path=ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu" SelectionChanged="{Command Path=OnSelectionChange}">
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <ListView DataContext="{Binding Source={StaticResource DataContext}}"
+          x:Name="MovieList" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}"
+          Command="{Command Path=Select}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"
+          ContextMenuCommand="{Command Source={Service WindowManager},Path=ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"
+          SelectionChanged="{Command Path=OnSelectionChange}">
+        <ListView.Resources>
+          <Storyboard x:Key="focusOutStoryboard">
+            <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="Opacity">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.1500000" Value="0.5"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.2"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="RenderTransform.Children[1].ScaleX">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.5"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="RenderTransform.Children[1].ScaleY">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0.5"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="RenderTransform.Children[0].X">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="100"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="RenderTransform.Children[0].Y">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="100"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </ListView.Resources>
         <ListView.RenderTransform>
           <TransformGroup>
             <TranslateTransform X="0" Y="0"/>
             <ScaleTransform ScaleX="1" ScaleY="1"/>
           </TransformGroup>
         </ListView.RenderTransform>
+        <ListView.Triggers>
+          <Trigger Property="{Binding videoButton.HasFocus}" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="focusOutStoryboard" Storyboard="{StaticResource focusOutStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="focusOutStoryboard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </ListView.Triggers>
       </ListView>
+    </ResourceWrapper>
 
-    </DockPanel>
+  </Include.Resources>
+</Include>
 
-    <DockPanel.Triggers>
-      <Trigger Property="{Binding videoButton.HasFocus}" Value="True">
-        <Trigger.EnterActions>
-          <BeginStoryboard x:Name="focusOutStoryboard" Storyboard="{StaticResource focusOutStoryboard}"/>
-        </Trigger.EnterActions>
-        <Trigger.ExitActions>
-          <StopStoryboard BeginStoryboardName="focusOutStoryboard"/>
-        </Trigger.ExitActions>
-      </Trigger>
-
-    </DockPanel.Triggers>
-  </DockPanel>
   <!--
   <Canvas Left="200" Top="100" LayoutTransform="8,0,0,8,0,0" >
     <Canvas Width="44.6638426184654" Height="41.0901996187121">
@@ -228,6 +222,4 @@
       </Canvas>
     </Canvas>
   </Canvas>
-  -->
-<Include Source="screenfiles\osd.xaml"/>
-</Canvas>
+-->

@@ -1,45 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<?xml version="1.0" encoding="utf-8"?>
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=settings,ClassName=Appearance},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}"
-    History="False">
+    Source="screenfiles\master.xaml"
+    > <!-- TODO: History=False -->
+  <Include.Resources>
 
-  <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50"/>
+    <!-- Header_Text -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[settings.tvsetup]"/>
 
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[settings.tvsetup]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-      <Label.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-        </TransformGroup>
-      </Label.RenderTransform>
-      <Label.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#FF000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-      </Label.OpacityMask>
-    </Label>
+    <!-- Client_Element -->
+    <ResourceWrapper x:Key="Client_Element">
+      <DockPanel>
+        <Label Margin="60,0,0,0" Font="font13" Text="[settings.monitorarsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
+        <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
+          <CheckBox  x:Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+            <Label Font="font13" Text="[settings.monitornormal]" />
+          </CheckBox>
+          <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
+            <Label Font="font13"   Text="[settings.monitorwide]"  />
+          </CheckBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsMonitorSetup">
+            <Label Font="font13" Text="[settings.back]" Height="32" />
+          </Button>
+          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsSkin">
+            <Label Font="font13" Text="[settings.finish]" Height="32" />
+          </Button>
+        </StackPanel>
+      </DockPanel>
+    </ResourceWrapper>
 
-    <Label Margin="60,0,0,0" Font="font13" Text="[settings.monitorarsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
-    <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
-      <CheckBox  x:Name="mainMenu" Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-        <Label Font="font13" Text="[settings.monitornormal]" />
-      </CheckBox>
-      <CheckBox  Style="{StaticResource MpRadioButtonLeft}" Height="32" >
-        <Label Font="font13"   Text="[settings.monitorwide]"  />
-      </CheckBox>
-    </StackPanel>
-    <StackPanel Orientation="Horizontal">
-      <Button Style="{StaticResource MpButton}"  Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsMonitorSetup">
-        <Label Font="font13" Text="[settings.back]" Height="32" />
-      </Button>
-      <Button Style="{StaticResource MpButton}"  Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsSkin">
-        <Label Font="font13" Text="[settings.finish]" Height="32" />
-      </Button>
-    </StackPanel>
-
-  </DockPanel>
-</Canvas>
+  </Include.Resources>
+</Include>

@@ -2062,6 +2062,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <DataTemplate x:Key="itemListTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
@@ -2086,6 +2087,7 @@
 
     </Grid>
   </DataTemplate>
+
   <Style x:Key="MpListView" TargetType="{x:Type ListView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>

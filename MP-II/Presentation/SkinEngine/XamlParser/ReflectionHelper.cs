@@ -196,7 +196,8 @@ namespace Presentation.SkinEngine.XamlParser
     /// <param name="type">The type to examine.</param>
     /// <param name="collectionType">Returns the collection type found. If an implemented
     /// generic collection type was found, this type will be returned. Else, if the standard
-    /// collection type is implemented, this type will be returned.</param>
+    /// collection type is implemented, this type will be returned. If no collection type is
+    /// implemented, this value will be <c>null</c>.</param>
     /// <param name="entryType">Returns the entry type (type parameter T) of the implemented
     /// generic type, if any.</param>
     public static void FindImplementedCollectionType(Type type, out Type collectionType, out Type entryType)
@@ -212,7 +213,8 @@ namespace Presentation.SkinEngine.XamlParser
     /// <param name="type">The type to examine.</param>
     /// <param name="listType">Returns the list type found. If an implemented
     /// generic list type was found, this type will be returned. Else, if the standard
-    /// list type is implemented, this type will be returned.</param>
+    /// list type is implemented, this type will be returned. If no list type is
+    /// implemented, this value will be <c>null</c>.</param>
     /// <param name="entryType">Returns the entry type (type parameter T) of the implemented
     /// generic type, if any.</param>
     public static void FindImplementedListType(Type type, out Type listType, out Type entryType)
@@ -230,9 +232,10 @@ namespace Presentation.SkinEngine.XamlParser
       foreach (Type interfaceType in type.GetInterfaces())
       {
         Type collectionType = nonGenericType;
-        if (interfaceType.IsGenericType)
+        Type[] genericArguments;
+        if (interfaceType.IsGenericType && (genericArguments = interfaceType.GetGenericArguments()).Length == 1)
         {
-          Type entryType = interfaceType.GetGenericArguments()[0];
+          Type entryType = genericArguments[0];
           collectionType = genericType;
           collectionType = collectionType.MakeGenericType(entryType);
           if (collectionType.IsAssignableFrom(type))
@@ -254,6 +257,63 @@ namespace Presentation.SkinEngine.XamlParser
       {
         resultCollectionType = nge.Current;
         resultEntryType = null;
+        return;
+      }
+    }
+
+    /// <summary>
+    /// Tries to find an implemented <see cref="IDictionary"/> or <see cref="IDictionary{TKey,TValue}"/>
+    /// interface and returns it. If the resulting dictionary is a generic type,
+    /// the key type (type parameter TKey) and the value type (type parameter TValue) of this dictionary
+    /// will be returned too.
+    /// </summary>
+    /// <param name="type">The type to examine.</param>
+    /// <param name="resultDictionaryType">Returns the dictionary type found. If an implemented
+    /// generic dictionary type was found, this type will be returned. Else, if the standard
+    /// dictionary type is implemented, this type will be returned. If no dictionary type is
+    /// implemented, this value will be <c>null</c>.</param>
+    /// <param name="resultKeyType">Returns the key type (type parameter TKey) of the implemented
+    /// generic type, if any.</param>
+    /// <param name="resultValueType">Returns the value type (type parameter TValue) of the implemented
+    /// generic type, if any.</param>
+    public static void FindImplementedDictionaryType(Type type,
+      out Type resultDictionaryType, out Type resultKeyType, out Type resultValueType)
+    {
+      resultDictionaryType = null;
+      resultKeyType = null;
+      resultValueType = null;
+      IDictionary<Type, KeyValuePair<Type, Type>> foundGeneric = new Dictionary<Type, KeyValuePair<Type, Type>>();
+      IList<Type> foundNonGeneric = new List<Type>();
+      foreach (Type interfaceType in type.GetInterfaces())
+      {
+        Type collectionType = typeof(IDictionary);
+        Type[] genericArguments;
+        if (interfaceType.IsGenericType && (genericArguments = interfaceType.GetGenericArguments()).Length == 2)
+        {
+          Type keyType = genericArguments[0];
+          Type valueType = genericArguments[1];
+          collectionType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
+          if (collectionType.IsAssignableFrom(type))
+            if (!foundGeneric.ContainsKey(collectionType))
+              foundGeneric.Add(collectionType, new KeyValuePair<Type, Type>(keyType, valueType));
+        }
+        else if (collectionType.IsAssignableFrom(type))
+          foundNonGeneric.Add(collectionType);
+      }
+      IEnumerator<KeyValuePair<Type, KeyValuePair<Type, Type>>> ge = foundGeneric.GetEnumerator();
+      if (ge.MoveNext())
+      {
+        resultDictionaryType = ge.Current.Key;
+        resultKeyType = ge.Current.Value.Key;
+        resultValueType = ge.Current.Value.Value;
+        return;
+      }
+      IEnumerator<Type> nge = foundNonGeneric.GetEnumerator();
+      if (nge.MoveNext())
+      {
+        resultDictionaryType = nge.Current;
+        resultKeyType = null;
+        resultValueType = null;
         return;
       }
     }

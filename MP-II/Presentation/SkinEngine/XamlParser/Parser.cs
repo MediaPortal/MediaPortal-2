@@ -651,47 +651,38 @@ namespace Presentation.SkinEngine.XamlParser
     /// <returns><c>true</c>, if the method could handle the assignment, else <c>false</c>.</returns>
     protected bool CheckHandleCollectionAssignment(object maybeCollectionTarget, object value)
     {
-      if (maybeCollectionTarget == null)
+      if (maybeCollectionTarget == null || value == null)
         return false;
       Type targetType = maybeCollectionTarget.GetType();
-      Type listType;
+      // Check for List
+      Type resultType;
       Type entryType;
       MethodInfo method;
-      ReflectionHelper.FindImplementedListType(targetType, out listType, out entryType);
-      if (listType != null)
+      ReflectionHelper.FindImplementedListType(targetType, out resultType, out entryType);
+      if (resultType != null)
       {
         method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] {entryType});
         foreach (object child in (IList)Convert(value, typeof(IList)))
           method.Invoke(maybeCollectionTarget, new object[] {child});
         return true;
       }
-      else if (maybeCollectionTarget is IDictionary)
+      // Check for Dictionary
+      Type keyType;
+      Type valueType;
+      ReflectionHelper.FindImplementedDictionaryType(targetType, out resultType, out keyType, out valueType);
+      Type sourceDictType;
+      Type sourceKeyType;
+      Type sourceValueType;
+      ReflectionHelper.FindImplementedDictionaryType(value.GetType(), out sourceDictType, out sourceKeyType, out sourceValueType);
+      if (resultType != null && sourceDictType != null)
       {
-        IDictionary asDict = (IDictionary)maybeCollectionTarget;
-        if (!(value is IDictionary) && value is ICollection)
-        { // Try to build implicit keys for each element
-          IDictionary<object, object> result = new Dictionary<object, object>();
-          foreach (object o in (ICollection)value)
-          {
-            try
-            {
-              result.Add(ReflectionHelper.GetImplicitKey(o), o);
-            }
-            catch
-            {
-              throw new XamlBindingException("XAML parser: object '{0}' needs child elements with keys", maybeCollectionTarget);
-            }
-          }
-          value = result;
-        }
-        if (!(value is IDictionary))
-          throw new XamlBindingException(
-            "Cannot assign children to elemet of type '{0}' without a key attribute",
-            maybeCollectionTarget.GetType().Name);
-        foreach (DictionaryEntry de in (IDictionary)value)
-          asDict.Add(de.Key, de.Value);
+        PropertyInfo targetItemProperty = keyType == null ? targetType.GetProperty("Item") : targetType.GetProperty("Item", new Type[] {keyType});
+        MethodInfo targetItemSetter = targetItemProperty.GetSetMethod();
+        foreach (KeyValuePair<object, object> kvp in (IEnumerable) value)
+          targetItemSetter.Invoke(maybeCollectionTarget, new object[] {kvp.Key, kvp.Value});
         return true;
       }
+      // Check for IAddChild
       if (ReflectionHelper.IsIAddChild(maybeCollectionTarget.GetType(), out method, out entryType))
       {
         foreach (object child in (ICollection)Convert(value, typeof(ICollection)))
@@ -966,13 +957,15 @@ namespace Presentation.SkinEngine.XamlParser
         binding.Prepare(this, dd);
         if (!binding.Bind())
           AddLateBinding(binding);
+        return;
       }
       else if (value is IEvaluableMarkupExtension)
       {
-        IEvaluableMarkupExtension me = (IEvaluableMarkupExtension)value;
-        dd.Value = me.Evaluate(this);
+        IEvaluableMarkupExtension me = (IEvaluableMarkupExtension) value;
+        value = me.Evaluate(this);
       }
-      else if (dd.SupportsWrite &&
+
+      if (dd.SupportsWrite &&
           (value == null || dd.DataType.IsAssignableFrom(value.GetType())))
         dd.Value = value;
       else if (CheckHandleCollectionAssignment(dd.Value, value))

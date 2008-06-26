@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}"
+    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model}}"
+    FocusedElement="{Binding ElementName=MainMenu}"
     History="False">
 
   <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576"/>
@@ -19,12 +19,12 @@
     </Canvas.OpacityMask>
   </Canvas>
 
-  <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
-    <Label Font="font26"  Text="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
+  <Grid Canvas.Left="20" Canvas.Top="30" Width="700" Height="50">
+    <Label Font="font26" Text="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
   </Grid>
-  <Image Canvas.Left="170" Canvas.Top="90"  Source="logo_stop.png" />
-  <Label Canvas.Left="240" Canvas.Top="100"  Font="font26"  Text="[playback.33]" Width="500"  Height="50" Color="#7FFFFFFF"/>
+  <Image Canvas.Left="170" Canvas.Top="90"  Source="logo_stop.png"/>
+  <Label Canvas.Left="240" Canvas.Top="100"  Font="font26" Text="[playback.33]" Width="500" Height="50" Color="#7FFFFFFF"/>
   <Canvas Canvas.Left="240" Canvas.Top="170">
-  <ListView x:Name="mainMenu" Height="300" Width="200"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieStoppedMenu}" />
+  <ListView x:Name="MainMenu" Height="300" Width="200" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding MovieStoppedMenu}" />
   </Canvas>
 </Canvas>

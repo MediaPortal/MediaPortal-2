@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=music,ClassName=Model},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}"
     History="False"
     >
+<!-- TODO Albert78: Make more general - use master_dialog.xaml template, take button commands&texts from WindowManager, ... -->
 
   <Border Canvas.Left="106" Canvas.Top="44" Width="540" Height="365" Background="#AFFFFFFF" CornerRadius="10">
     <Canvas Width="500" Height="345" Background="{StaticResource dialogBackGroundBrush}" >

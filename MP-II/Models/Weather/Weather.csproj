@@ -114,7 +114,6 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>

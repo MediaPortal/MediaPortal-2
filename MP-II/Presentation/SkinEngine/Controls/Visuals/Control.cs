@@ -371,7 +371,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Measure&arrange
+    #region Measure&Arrange
 
     public override void Measure(SizeF availableSize)
     {

@@ -1,30 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Canvas
+<?xml version="1.0" encoding="utf-8"?>
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model},Path=Instance}"
-    FocusedElement="{Binding ElementName=mainMenu}">
+    Source="screenfiles\master_menu.xaml"
+    >
+  <Include.Resources>
 
-  <DockPanel Background="{StaticResource backGroundBrush}" Width="720" Height="576">
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.onlineresult]" Height="50"/>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[movies.onlineresult]"/>
 
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font26"  Text="[movies.onlineresult]" Height="50" Opacity="0.75" RenderTransformOrigin="0.5,0.5">
-      <Label.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-        </TransformGroup>
-      </Label.RenderTransform>
-      <Label.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#FF000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-      </Label.OpacityMask>
-    </Label>
-    <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-       <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font13"  Text="{Binding ImdbMovietile}" Height="50"/>
-      <ListView  x:Name="mainMenu" Height="300" Width="600"   Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding ImdbResultMovies}" />
-      <Button Style="{StaticResource buttonVideoWindow}" IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}"  Width="160" Height="120" VerticalAlignment="Bottom" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="fullscreenvideo"/>
-    </StackPanel>
-  </DockPanel>
-</Canvas>
+    <!-- DataContext -->
+    <Model x:Key="DataContext" AssemblyName="mymovies" ClassName="Model"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <!-- Empty main menu -->
+    </ResourceWrapper>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <DockPanel DataContext="{Binding Source={StaticResource DataContext}}"
+          Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+        <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font13" Text="{Binding ImdbMovietile}" Height="50"/>
+        <ListView  x:Name="MovieMenu" Height="300" Width="600" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding ImdbResultMovies}"/>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

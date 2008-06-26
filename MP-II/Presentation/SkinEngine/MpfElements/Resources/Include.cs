@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.SkinManagement;
@@ -92,9 +94,23 @@ namespace Presentation.SkinEngine.MpfElements.Resources
         throw new XamlLoadException("Could not open include file '{0}'", _includeName);
       _content = context.LoadXaml(includeFile.FullName);
       if (_content is UIElement)
-        ((UIElement) _content).Resources.Merge(Resources);
+        MergeResourceDictionaries(Resources, ((UIElement) _content).Resources);
       else if (_content is ResourceDictionary)
-        ((ResourceDictionary) _content).Merge(Resources);
+        MergeResourceDictionaries(Resources, (ResourceDictionary) _content);
+    }
+
+    public void MergeResourceDictionaries(ResourceDictionary source, ResourceDictionary target)
+    {
+      IEnumerator<KeyValuePair<string, object>> enumer = ((IDictionary<string, object>) source).GetEnumerator();
+      IDictionary<string, object> targetDictionary = target.UnderlayingDictionary;
+      while (enumer.MoveNext())
+      {
+        object entry = enumer.Current.Value;
+        targetDictionary[enumer.Current.Key] = entry;
+        if (entry is DependencyObject)
+          ((DependencyObject) entry).LogicalParent = target;
+      }
+      target.FireChanged();
     }
 
     #endregion

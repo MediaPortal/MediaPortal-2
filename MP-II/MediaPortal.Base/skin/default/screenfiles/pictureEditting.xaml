@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=mypicture,ClassName=PictureModel},Path=Instance}"
+    DataContext="{Binding Source={Model AssemblyName=mypicture,ClassName=PictureModel}}"
     FocusedElement="{Binding ElementName=cropButton}"
     History="False">
 
@@ -32,10 +32,10 @@
       <CheckBox x:Name="cropButton" Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
         <Label Font="font13" Text="[pictures.crop]"/>
       </CheckBox>
-      <CheckBox Style="{StaticResource MpRadioButton}" Height="32"  Command="{Command Path=Editor.TransformImage}"  Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
+      <CheckBox Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}"  Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
         <Label Font="font13" Text="[pictures.redeye]"/>
       </CheckBox>
-      <CheckBox Style="{StaticResource MpRadioButton}" Height="32"  Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
+      <CheckBox Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
         <Label Font="font13" Text="[pictures.contrast]"/>
       </CheckBox>
       <Button Style="{StaticResource MpButton}" Height="32" >

@@ -64,7 +64,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       Model model = ModelManager.Instance.GetOrLoadModel(AssemblyName, ClassName);
       if (model == null)
         throw new XamlBindingException("XamlLoader: Unknown model: {0}.{1}", AssemblyName, ClassName);
-      return model;
+      return model.Instance;
     }
 
     #endregion
