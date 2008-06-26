@@ -166,7 +166,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <see cref="Bind()"/> or <see cref="UpdateBinding()"/>.
     /// </summary>
     /// <param name="other">Other Binding to copy.</param>
-    /// <param name="newTarget">New target object for this Binding.</param>
+    /// <param name="newTarget">New target object for the new Binding.</param>
     public BindingMarkupExtension(BindingMarkupExtension other, object newTarget):
         base(other, newTarget)
     {
@@ -198,6 +198,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _updateSourceTriggerProperty.Attach(OnBindingPropertiesChange);
 
       _evaluatedSourceValue.Attach(OnSourceValueChange);
+    }
+
+    public override void Dispose()
+    {
+      ResetEventHandlerAttachments();
+      base.Dispose();
     }
 
     #endregion
@@ -724,7 +730,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         }
         else if (Mode == BindingMode.OneTime)
         {
-          ResetEventHandlerAttachments();
+          Dispose();
           _targetDataDescriptor.Value = sourceDd.Value;
           _retryBinding = false;
           return true; // In this case, we have finished with only assigning the value
@@ -752,11 +758,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     #endregion
-
-    public virtual void Dispose()
-    {
-      ResetEventHandlerAttachments();
-    }
 
     #region IBinding implementation
 

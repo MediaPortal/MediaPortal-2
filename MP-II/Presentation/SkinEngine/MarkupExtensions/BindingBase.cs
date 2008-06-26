@@ -119,6 +119,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <see cref="_contextObject"/>.</returns>
     public abstract BindingBase CloneAndRetarget(object newTarget);
 
+    public virtual void Dispose()
+    {
+      DetachFromTargetObject();
+    }
+
     #endregion
 
     #region Properties
@@ -138,6 +143,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
       else
         _objects2Bindings[_contextObject] = bindingsOfObject = new List<BindingBase>();
       bindingsOfObject.Add(this);
+    }
+
+    protected virtual void DetachFromTargetObject()
+    {
+      if (_objects2Bindings.ContainsKey(_contextObject))
+        _objects2Bindings[_contextObject].Remove(this);
     }
 
     #endregion
