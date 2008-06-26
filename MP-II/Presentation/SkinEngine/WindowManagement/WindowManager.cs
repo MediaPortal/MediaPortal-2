@@ -104,6 +104,11 @@ namespace Presentation.SkinEngine
       if (theme == null)
         theme = skin.DefaultTheme;
 
+      if (!skin.IsValid)
+        throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
+      if (theme != null)
+        if (!theme.IsValid)
+          throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
       // Initialize SkinContext with new values
       SkinContext.SkinResources = theme == null ? skin : (SkinResources) theme;
       SkinContext.SkinName = skin.Name;
@@ -209,7 +214,16 @@ namespace Presentation.SkinEngine
         Fonts.FontManager.Free();
         ContentManager.Clear();
 
-        PrepareSkinAndTheme(newSkinName, newThemeName);
+        try
+        {
+          PrepareSkinAndTheme(newSkinName, newThemeName);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin '{0}', theme '{1}'", ex, newSkinName, newThemeName);
+          // Continue with old skin
+          // TODO: Show error dialog
+        }
 
         Fonts.FontManager.Reload();
         Fonts.FontManager.Alloc();

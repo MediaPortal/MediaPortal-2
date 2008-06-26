@@ -143,7 +143,8 @@ namespace Presentation.SkinEngine.SkinManagement
     {
       get
       {
-        CheckResourcesInitialized();
+        CheckMetadataInitialized(); // Load default theme name
+        CheckResourcesInitialized(); // Load themes
         if (_defaultThemeName != null && _themes.ContainsKey(_defaultThemeName))
           return _themes[_defaultThemeName];
         IEnumerator<KeyValuePair<string, Theme>> enumer = _themes.GetEnumerator();
@@ -196,7 +197,7 @@ namespace Presentation.SkinEngine.SkinManagement
               break;
             case "Name":
               if (_name != null && _name != attr.Value)
-                throw new ArgumentException("Theme name '" + _name + "' doesn't correspond to specified name '" + attr.Value + "'");
+                throw new ArgumentException("Skin name '" + _name + "' doesn't correspond to specified name '" + attr.Value + "'");
               else
                 _name = attr.Value;
               break;
