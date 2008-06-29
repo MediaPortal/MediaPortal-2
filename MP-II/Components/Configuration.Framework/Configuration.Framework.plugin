@@ -13,6 +13,8 @@
     </Import>
   </Runtime>
 
+  <Resource type = "Language" />
+
   <Register location = "/Configuration/Settings">
     <Setting id = "general"
              text = "[configuration.settings.general]"
