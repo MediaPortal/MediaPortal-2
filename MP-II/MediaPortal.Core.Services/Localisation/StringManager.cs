@@ -22,12 +22,15 @@
 
 #endregion
 
+using System;
 using System.Globalization;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
-
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Services.Localisation
 {
@@ -36,44 +39,56 @@ namespace MediaPortal.Services.Localisation
   /// </summary>
   public class StringManager : ILocalisation
   {
-    public event LanguageChangeHandler LanguageChange;
-
+    #region Variables
     private LocalisationStrings _strings;
+    #endregion
 
+    #region Constructors/Destructors
     public StringManager()
     {
-      ServiceScope.Get<ILogger>().Info("StringsManager.1");
+      ServiceScope.Get<ILogger>().Debug("StringsManager: Loading Settings");
       RegionSettings settings = new RegionSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
 
-      ServiceScope.Get<ILogger>().Info("StringsManager.2");
       if (settings.Culture == string.Empty)
       {
-        ServiceScope.Get<ILogger>().Info("StringsManager.3");
+        ServiceScope.Get<ILogger>().Info("StringsManager: Culture Not found in settings");
         _strings = new LocalisationStrings("Language", null);
         settings.Culture = _strings.CurrentCulture.Name;
 
-        ServiceScope.Get<ILogger>().Info("StringsManager.4");
+        ServiceScope.Get<ILogger>().Info("StringsManager: Culture set to: " + _strings.CurrentCulture.Name);
         ServiceScope.Get<ISettingsManager>().Save(settings);
+        ServiceScope.Get<ILogger>().Info("StringsManager: Saving settings");
       }
       else
       {
-        ServiceScope.Get<ILogger>().Info("StringsManager.5");
+        ServiceScope.Get<ILogger>().Debug("StringsManager: Using culture: " + settings.Culture);
         _strings = new LocalisationStrings("Language", settings.Culture);
       }
-      ServiceScope.Get<ILogger>().Info("StringsManager.6");
+
+      IQueue queue = ServiceScope.Get<IMessageBroker>().Get(PluginMessaging.Queue);
+      queue.OnMessageReceive += new MessageReceivedHandler(OnPluginMessageReceive);
     }
 
     public StringManager(string directory, string cultureName)
     {
       _strings = new LocalisationStrings(directory, cultureName);
     }
+    #endregion
 
+    #region ILocalisation Implementation
+    #region Events
+    public event LanguageChangeHandler LanguageChange;
+    #endregion
+
+    #region proterties
     public CultureInfo CurrentCulture
     {
       get { return _strings.CurrentCulture; }
     }
+    #endregion
 
+    #region public methods
     public void ChangeLanguage(string cultureName)
     {
       _strings.ChangeLanguage(cultureName);
@@ -120,5 +135,36 @@ namespace MediaPortal.Services.Localisation
     {
       _strings.AddDirectory(stringsDirectory);
     }
+    #endregion
+    #endregion
+
+    #region Event Handlers
+    /// <summary>
+    /// Called when [plugin message is received].
+    /// Adds Plugin language resource folders to the Directory list when plugins are enabled.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    private void OnPluginMessageReceive(MPMessage message)
+    {
+      try
+      {
+        if (((PluginMessaging.NotificationType)message.MetaData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginEnable)
+        {
+          if (message.MetaData.ContainsKey(PluginMessaging.Resources))
+          {
+            foreach (PluginResource resource in (List<PluginResource>)message.MetaData[PluginMessaging.Resources])
+            {
+              if (resource.Type == PluginResource.ResourceType.Language)
+                AddDirectory(resource.Location);
+            }
+          }
+        }
+      }
+      catch (Exception)
+      {
+        ServiceScope.Get<ILogger>().Error("StringsManager: Error in Plugin Message");
+      }
+    }
+    #endregion
   }
 }

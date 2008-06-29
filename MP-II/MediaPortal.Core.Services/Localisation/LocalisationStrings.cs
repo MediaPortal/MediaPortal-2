@@ -38,12 +38,13 @@ namespace MediaPortal.Services.Localisation
   public class LocalisationStrings
   {
     #region Enums
+    // Language Heirarchy
     private enum LanguageType
     {
       User,
       Local,
       Parent,
-      Default,
+      Default
     }
     #endregion
 
