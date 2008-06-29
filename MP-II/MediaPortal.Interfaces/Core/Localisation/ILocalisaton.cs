@@ -38,17 +38,19 @@ namespace MediaPortal.Core.Localisation
   /// </remarks>
   public interface ILocalisation
   {
-    #region Properties
-
-    CultureInfo CurrentCulture { get; }
-
-    #endregion
-
+    #region events
     /// <summary>
     /// Will be called if the language changes, which makes all former returned localized
     /// strings invalid.
     /// </summary>
     event LanguageChangeHandler LanguageChange;
+    #endregion
+
+    #region Properties
+
+    CultureInfo CurrentCulture { get; }
+
+    #endregion
 
     #region Methods
 
