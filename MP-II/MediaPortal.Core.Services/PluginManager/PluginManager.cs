@@ -44,14 +44,21 @@ namespace MediaPortal.Services.PluginManager
   /// </summary>
   public class PluginManager: IPluginManager
   {
+    #region Variables
     private List<string> _pluginFiles;
     private List<string> _disabledPlugins;
     private PluginTree _pluginTree;
+    #endregion
 
+    #region Constructors/Destructors
     public PluginManager()
     {
       AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
       AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+
+      _pluginTree = new PluginTree();
+      _pluginFiles = new List<string>();
+      _disabledPlugins = new List<string>();
     }
 
 		~PluginManager()
@@ -59,6 +66,7 @@ namespace MediaPortal.Services.PluginManager
 			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
       AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
     }
+    #endregion
 
     #region Event handlers
     /// <summary>
@@ -135,9 +143,6 @@ namespace MediaPortal.Services.PluginManager
     private void LoadPlugins()
     {
       //Test data -> get from config in future
-      _pluginFiles = new List<string>();
-      _disabledPlugins = new List<string>();
-
       DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo(@"<APPLICATION_ROOT>\Plugins");
       foreach(DirectoryInfo pluginDirectory in plugins.GetDirectories())
       {
@@ -145,16 +150,8 @@ namespace MediaPortal.Services.PluginManager
         {
           _pluginFiles.Add(pluginFile.FullName);
         }
-       
-        // should be moved to better location in plugintree.load
-        // add resources section to .plugin file?
-        if (System.IO.Directory.Exists(Path.Combine(pluginDirectory.FullName, "Language")))
-        {
-          ServiceScope.Get<ILocalisation>().AddDirectory(Path.Combine(pluginDirectory.FullName, "Language"));
-        }
       }
 
-      _pluginTree = new PluginTree();
       _pluginTree.Load(_pluginFiles, _disabledPlugins);
 
       ServiceScope.Add<IPluginTree>(_pluginTree);
@@ -271,7 +268,7 @@ namespace MediaPortal.Services.PluginManager
 			{
 				foreach (PluginInfo info in _pluginTree.Plugins)
 				{
-					status.Add(String.Format("     {0}, Running = {1}, Loaded = {2}", info.ToString(), info.Enabled, info.Loaded));
+					status.Add(String.Format("     {0}, Enabled = {1}, Loaded = {2}, Running = {3}", info.ToString(), info.Enabled, info.Loaded, info.Running));
 				}
 			}
 			return status;
