@@ -63,8 +63,13 @@ namespace MediaPortal.Core.PluginManager
 
   	bool Loaded
   	{ 
-			get; set;
+			get;
   	}
+
+    bool Running
+    {
+      get;
+    }
     #endregion
 
     #region Public Methods
