@@ -37,6 +37,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.Messaging;
 
 using MediaPortal.Services.PathManager;
 using MediaPortal.Services.Threading;
@@ -44,6 +45,7 @@ using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
+using MediaPortal.Services.Messaging;
 
 
 namespace MediaPortal.Manager
@@ -94,6 +96,9 @@ namespace MediaPortal.Manager
         }
         ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
         ServiceScope.Add(logger);
+
+        logger.Debug("Manager: Registering Messaging");
+        ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
         logger.Debug("Manager: Registering Plugin Manager");
         ServiceScope.Add<IPluginManager>(new PluginManager());
