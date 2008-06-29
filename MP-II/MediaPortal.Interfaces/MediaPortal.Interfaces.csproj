@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\PluginManager\PluginMessaging.cs" />
+    <Compile Include="Core\PluginManager\PluginResource.cs" />
     <Compile Include="Presentation\Collections\ItemsCollection.cs" />
     <Compile Include="Presentation\Collections\ListItem.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
