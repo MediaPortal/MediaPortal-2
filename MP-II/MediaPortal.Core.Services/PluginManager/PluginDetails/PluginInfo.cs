@@ -32,10 +32,14 @@ using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
 namespace MediaPortal.Services.PluginManager.PluginDetails
 {
+  /// <summary>
+  /// PluginInfo contain all the information about a plugin
+  /// </summary>
   public sealed class PluginInfo : IPluginInfo
   {
     #region Variables
@@ -45,10 +49,12 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     PluginManifest _manifest;
     Dictionary<string, ExtensionPath> _extensionPaths;
     Dictionary<string, object> _instances;
+    List<PluginResource> _resources;
     bool _enabled;
-  	bool _loaded;
+    bool _loaded;
+    bool _running;
 
-  	//AddInAction _action = AddInAction.Disable;
+    //AddInAction _action = AddInAction.Disable;
     //List<string> bitmapResources = new List<string>();
     //List<string> stringResources = new List<string>();
     //string customErrorMessage;
@@ -64,7 +70,9 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       _manifest = new PluginManifest();
       _extensionPaths = new Dictionary<string, ExtensionPath>();
       _instances = new Dictionary<string, object>();
-    	_loaded = false;
+      _resources = new List<PluginResource>();
+      _loaded = false;
+      _running = false;
     }
     #endregion
 
@@ -145,6 +153,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       get { return _properties; }
     }
 
+    public List<PluginResource> Resources
+    {
+      get { return _resources; }
+    }
+
     //public List<string> BitmapResources {
     //  get {
     //    return bitmapResources;
@@ -172,21 +185,28 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       internal set
       {
         _enabled = value;
-        //this.Action = value ? AddInAction.Enable : AddInAction.Disable;
       }
     }
 
-		public bool Loaded
-		{
-			get
-			{
-				return _loaded;
-			}
-			set
-			{
-				_loaded = value;
-			}
-		}
+    public bool Loaded
+    {
+      get
+      {
+        return _loaded;
+      }
+      internal set
+      {
+        _loaded = value;
+      }
+    }
+
+    public bool Running
+    {
+      get
+      {
+        return _running;
+      }
+    }
 
     #endregion
 
@@ -201,7 +221,9 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         {
           _instances.Add(_manifest.Identity, (object)pluginInstance);
           ServiceScope.Get<ILogger>().Info("Initialising plugin: {0}", _properties["name"]);
-          pluginInstance.Initialize(_properties["name"]);  
+          pluginInstance.Initialize(_properties["name"]);
+          _running = true;
+          SendMessage(PluginMessaging.NotificationType.OnPluginStart);
         }
       }
 
@@ -245,6 +267,19 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       //  //MessageService.ShowError("Cannot create object: " + className + "\nFuture missing objects will not cause an error message.");
       //}
       return null;
+    }
+
+    private void SendMessage(PluginMessaging.NotificationType type)
+    {
+      IQueue queue = ServiceScope.Get<IMessageBroker>().Get(PluginMessaging.Queue);
+      MPMessage msg = new MPMessage();
+      msg.MetaData[PluginMessaging.PluginName] = Name;
+      msg.MetaData[PluginMessaging.Notification] = type;
+
+      if (_resources.Count > 0)
+        msg.MetaData[PluginMessaging.Resources] = _resources;
+
+      queue.Send(msg);
     }
     #endregion
 
@@ -317,11 +352,46 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
             case "Manifest":
               plugin.Manifest.ReadManifestSection(reader, hintPath);
               break;
+            case "Resource":
+              if (reader.AttributeCount == 0)
+              {
+                throw new PluginLoadException("Resource node requires at least ONE attribute.");
+              }
+              PluginResource newResource = new PluginResource();
+              string type = reader.GetAttribute(0);
+              try
+              {
+                newResource.Type = (PluginResource.ResourceType)Enum.Parse(typeof(PluginResource.ResourceType), type);
+              }
+              catch (Exception)
+              {
+                throw new PluginLoadException("Resource Unknown Type: " + type);
+              }
+
+              if (reader.AttributeCount == 2)
+              {
+                string resourceLocation = reader.GetAttribute(1);
+                if (Directory.Exists(Path.Combine(hintPath, resourceLocation)))
+                {
+                  newResource.Location = Path.Combine(hintPath, resourceLocation);
+                }
+                else
+                {
+                  throw new PluginLoadException("Resource unable to locate: " + resourceLocation);
+                }
+              }
+              else
+              {
+                newResource.Location = Path.Combine(hintPath, (string)type);
+              }
+              plugin._resources.Add(newResource);
+              break;
             default:
               throw new PluginLoadException("Unknown root path node:" + reader.LocalName);
           }
         }
       }
+      plugin.SendMessage(PluginMessaging.NotificationType.OnPluginEnable);
     }
 
     public static PluginInfo Load(TextReader textReader)
@@ -345,7 +415,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
                 SetupPlugin(reader, plugin, hintPath);
                 break;
               default:
-                throw new PluginLoadException("Unknown add-in file.");
+                throw new PluginLoadException("Unknown plugin file.");
             }
           }
         }
