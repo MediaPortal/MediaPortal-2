@@ -30,6 +30,10 @@ using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {
+  /// <summary>
+  /// Defines an area within which you can explicitly position child elements by using
+  /// coordinates that are relative to the Canvas area.
+  /// </summary>
   public class Canvas : Panel
   {
     protected const string LEFT_ATTACHED_PROPERTY = "Canvas.Left";
