@@ -95,7 +95,7 @@ namespace MediaPortal.Presentation.Properties
     /// Gets the value of the property
     /// </summary>
     /// <returns></returns>
-    public virtual object GetValue()
+    public object GetValue()
     {
       return _value;
     }
