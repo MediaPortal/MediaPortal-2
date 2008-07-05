@@ -35,9 +35,15 @@ namespace MediaPortal.Presentation.Properties
   /// </summary>
   public class Property
   {
-    private event PropertyChangedHandler PropertyChanged;
+    #region Protected fields and events
+
+    protected event PropertyChangedHandler PropertyChanged;
     protected object _value;
     protected Type _type;
+
+    #endregion
+
+    #region Ctor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Property"/> class
@@ -55,6 +61,7 @@ namespace MediaPortal.Presentation.Properties
     /// with an initial value.
     /// </summary>
     /// <param name="value">The property value.</param>
+    /// <param name="type">The type of the property.</param>
     public Property(Type type, object value)
     {
       _type = type;
@@ -62,8 +69,16 @@ namespace MediaPortal.Presentation.Properties
       SetValue(value);
     }
 
+    #endregion
+
+    #region Public properties
+
     public Type PropertyType
     { get { return _type; } }
+
+    #endregion
+
+    #region Public methods
 
     /// <summary>
     /// Returns the information if this property has a value,
@@ -107,9 +122,7 @@ namespace MediaPortal.Presentation.Properties
     public void Fire()
     {
       if (PropertyChanged != null)
-      {
         PropertyChanged(this);
-      }
     }
 
     /// <summary>
@@ -121,10 +134,6 @@ namespace MediaPortal.Presentation.Properties
     {
       PropertyChanged += handler;
     }
-    public void ClearAttachedEvents()
-    {
-      PropertyChanged = null;
-    }
 
     /// <summary>
     /// Detaches the specified event handler.
@@ -134,5 +143,12 @@ namespace MediaPortal.Presentation.Properties
     {
       PropertyChanged -= handler;
     }
+
+    public void ClearAttachedEvents()
+    {
+      PropertyChanged = null;
+    }
+
+    #endregion
   }
 }
