@@ -195,12 +195,14 @@ namespace Models.Music
     {
       get
       {
-        IImporterManager importer = ServiceScope.Get<IImporterManager>();
-        if (importer.Shares.Count == 0)
-        {
-          ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
-          Refresh();
-        }
+        // FIXME: Do not open a dialog during the evaluation of a property, this has to be
+        // solved in another way. Same in MyPicture class.
+        //IImporterManager importer = ServiceScope.Get<IImporterManager>();
+        //if (importer.Shares.Count == 0)
+        //{
+        //  ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
+        //  Refresh();
+        //}
         return _songs;
       }
     }
