@@ -60,6 +60,11 @@ namespace MediaPortal.Utilities.DeepCopy
       return result;
     }
 
+    public IDictionary<object, object> Identities
+    {
+      get { return identities; }
+    }
+
     protected void AddIdentity<T>(T source, T result)
     {
       identities.Add(source, result);

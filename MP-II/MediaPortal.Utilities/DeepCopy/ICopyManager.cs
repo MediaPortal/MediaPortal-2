@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace MediaPortal.Utilities.DeepCopy
 {
   /// <summary>
@@ -38,5 +40,10 @@ namespace MediaPortal.Utilities.DeepCopy
     /// returned instance may not have finished its copying process, so it is not
     /// save to access fields on the returned object.</returns>
     T GetCopy<T>(T source);
+
+    /// <summary>
+    /// Returns a map of to-be-copied objects mapped to their copied couterpart.
+    /// </summary>
+    IDictionary<object, object> Identities { get; }
   }
 }
