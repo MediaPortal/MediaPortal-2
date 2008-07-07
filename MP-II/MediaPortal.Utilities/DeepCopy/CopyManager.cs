@@ -34,15 +34,15 @@ namespace MediaPortal.Utilities.DeepCopy
   /// </summary>
   public class CopyManager : ICopyManager
   {
-    protected IDictionary<object, object> identities = new Dictionary<object, object>();
-    protected LinkedList<IDeepCopyable> toBeCompleted = new LinkedList<IDeepCopyable>();
+    protected IDictionary<object, object> _identities = new Dictionary<object, object>();
+    protected LinkedList<IDeepCopyable> _toBeCompleted = new LinkedList<IDeepCopyable>();
 
     T ICopyManager.GetCopy<T>(T source)
     {
       if (source == null)
         return default(T);
-      if (identities.ContainsKey(source))
-        return (T) identities[source];
+      if (_identities.ContainsKey(source))
+        return (T) _identities[source];
       T result;
       if (CopyHook(source, out result))
         return result;
@@ -50,7 +50,7 @@ namespace MediaPortal.Utilities.DeepCopy
       {
         result = CreateCopyForInstance(source);
         // The copy process for the new instance will be completed later
-        toBeCompleted.AddLast((IDeepCopyable)source);
+        _toBeCompleted.AddLast((IDeepCopyable)source);
       }
       else
       { // No copying of instances which do not implement IDeepCopyable
@@ -62,12 +62,12 @@ namespace MediaPortal.Utilities.DeepCopy
 
     public IDictionary<object, object> Identities
     {
-      get { return identities; }
+      get { return _identities; }
     }
 
     protected void AddIdentity<T>(T source, T result)
     {
-      identities.Add(source, result);
+      _identities.Add(source, result);
     }
 
     /// <summary>
@@ -121,11 +121,11 @@ namespace MediaPortal.Utilities.DeepCopy
     protected T GetDeepCopy<T>(T o)
     {
       object result = ((ICopyManager) this).GetCopy(o);
-      while (toBeCompleted.Count > 0)
+      while (_toBeCompleted.Count > 0)
       {
-        IDeepCopyable source = toBeCompleted.First.Value;
-        toBeCompleted.RemoveFirst();
-        IDeepCopyable target = (IDeepCopyable)identities[source];
+        IDeepCopyable source = _toBeCompleted.First.Value;
+        _toBeCompleted.RemoveFirst();
+        IDeepCopyable target = (IDeepCopyable)_identities[source];
         if (target != null)
           // If we wanted to avoid recursive calls for the same object, we would
           // have to mark the target object as to be currently processed. We would
