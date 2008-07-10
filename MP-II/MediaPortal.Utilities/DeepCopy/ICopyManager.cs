@@ -27,11 +27,29 @@ using System.Collections.Generic;
 namespace MediaPortal.Utilities.DeepCopy
 {
   /// <summary>
+  /// Delegate for an event handler called after a copying process has finished.
+  /// </summary>
+  /// <param name="copyManager">The copy manager used in the copying procedure.</param>
+  public delegate void CopyCompletedDlgt(ICopyManager copyManager);
+
+  /// <summary>
   /// Interface for providing access to instances copied from a source instance
   /// in a two-step deep copying process.
   /// </summary>
   public interface ICopyManager
   {
+    /// <summary>
+    /// Returns a map of to-be-copied objects mapped to their copied couterpart.
+    /// </summary>
+    IDictionary<object, object> Identities { get; }
+
+    /// <summary>
+    /// Event which whill be triggered after a copying process has finished for one object.
+    /// The time this event will be called may be the next time the copy manager gets the control
+    /// back, or maybe later.
+    /// </summary>
+    event CopyCompletedDlgt CopyCompleted;
+
     /// <summary>
     /// Returns the object which was copied from the specified <paramref name="source"/>
     /// object.
@@ -40,10 +58,5 @@ namespace MediaPortal.Utilities.DeepCopy
     /// returned instance may not have finished its copying process, so it is not
     /// save to access fields on the returned object.</returns>
     T GetCopy<T>(T source);
-
-    /// <summary>
-    /// Returns a map of to-be-copied objects mapped to their copied couterpart.
-    /// </summary>
-    IDictionary<object, object> Identities { get; }
   }
 }

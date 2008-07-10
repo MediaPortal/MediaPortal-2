@@ -72,11 +72,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      // FIXME Albert78: Need to change the order of those lines because BME.DeepCopy
-      // calls Bind() at the end. Put those lines in standard order after this was fixed.
+      base.DeepCopy(source, copyManager);
       DynamicResourceMarkupExtension drme = source as DynamicResourceMarkupExtension;
       ResourceKey = copyManager.GetCopy(drme.ResourceKey);
-      base.DeepCopy(source, copyManager);
     }
 
     #endregion

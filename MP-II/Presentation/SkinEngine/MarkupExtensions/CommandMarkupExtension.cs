@@ -49,11 +49,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      // We need to set our parameter first before BindingMarkupExtension binds
-      // in the base.DeepCopy call
+      base.DeepCopy(source, copyManager);
       CommandMarkupExtension cme = source as CommandMarkupExtension;
       CommandParameter = copyManager.GetCopy(cme.CommandParameter);
-      base.DeepCopy(source, copyManager);
     }
 
     #region Public properties

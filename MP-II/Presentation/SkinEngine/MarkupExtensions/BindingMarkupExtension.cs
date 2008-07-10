@@ -207,12 +207,15 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _negate = bme._negate;
       Attach();
 
-      // FIXME Albert78: register a method "OnCopyCompleted" in copyManager, which will call this
-      // when the binding copy is finished. Check also DynamicResourceMarkupExtension.DeepCopy.
       if (bme.Active)
-        Bind();
+        copyManager.CopyCompleted += OnCompleteBinding;
     }
-    
+
+    void OnCompleteBinding(ICopyManager copyManager)
+    {
+      Bind();
+    }
+
     #endregion
 
     #region Properties

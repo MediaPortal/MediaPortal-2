@@ -37,33 +37,6 @@ namespace MediaPortal.Utilities.DeepCopy
     protected IDictionary<object, object> _identities = new Dictionary<object, object>();
     protected LinkedList<IDeepCopyable> _toBeCompleted = new LinkedList<IDeepCopyable>();
 
-    T ICopyManager.GetCopy<T>(T source)
-    {
-      if (source == null)
-        return default(T);
-      if (_identities.ContainsKey(source))
-        return (T) _identities[source];
-      T result;
-      if (CopyHook(source, out result))
-        return result;
-      if (source is IDeepCopyable)
-      {
-        result = CreateCopyForInstance(source);
-        // The copy process for the new instance will be completed later
-        _toBeCompleted.AddLast((IDeepCopyable) source);
-      }
-      else
-        // No copying of instances which do not implement IDeepCopyable
-        result = source;
-      AddIdentity(source, result);
-      return result;
-    }
-
-    public IDictionary<object, object> Identities
-    {
-      get { return _identities; }
-    }
-
     protected void AddIdentity<T>(T source, T result)
     {
       _identities.Add(source, result);
@@ -131,6 +104,9 @@ namespace MediaPortal.Utilities.DeepCopy
           // also have to check this marking at the beginning of this method.
           DoDeepCopy(source, target);
       }
+      if (CopyCompleted != null)
+        CopyCompleted(this);
+      CopyCompleted = null;
       return (T) result;
     }
 
@@ -145,5 +121,34 @@ namespace MediaPortal.Utilities.DeepCopy
     {
       return new CopyManager().GetDeepCopy(o);
     }
+
+    public T GetCopy<T>(T source)
+    {
+      if (source == null)
+        return default(T);
+      if (_identities.ContainsKey(source))
+        return (T)_identities[source];
+      T result;
+      if (CopyHook(source, out result))
+        return result;
+      if (source is IDeepCopyable)
+      {
+        result = CreateCopyForInstance(source);
+        // The copy process for the new instance will be completed later
+        _toBeCompleted.AddLast((IDeepCopyable)source);
+      }
+      else
+        // No copying of instances which do not implement IDeepCopyable
+        result = source;
+      AddIdentity(source, result);
+      return result;
+    }
+
+    public IDictionary<object, object> Identities
+    {
+      get { return _identities; }
+    }
+
+    public event CopyCompletedDlgt CopyCompleted;
   }
 }
