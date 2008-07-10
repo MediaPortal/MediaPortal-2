@@ -5,44 +5,52 @@
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
 >
   <!-- default brush used to paint the background of a page/window -->
-  <RadialGradientBrush x:Key="backGroundBrush" GradientOrigin="0.186,0.311">
-    <GradientStop Color="#FF5C9AE6" Offset="0"/>
-    <GradientStop Color="#FF1253A3" Offset="1"/>
-  </RadialGradientBrush>
+  <ResourceWrapper x:Key="backGroundBrush" Freezable="true">
+    <RadialGradientBrush GradientOrigin="0.186,0.311">
+      <GradientStop Color="#FF5C9AE6" Offset="0"/>
+      <GradientStop Color="#FF1253A3" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
 
   <!-- default brush used to paint the background of a dialog -->
-  <RadialGradientBrush x:Key="dialogBackGroundBrush" GradientOrigin="0.186,0.311">
-    <RadialGradientBrush.RelativeTransform>
-      <TransformGroup>
-        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
-        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-        <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-        <TranslateTransform X="-0.036" Y="-0.146"/>
-      </TransformGroup>
-    </RadialGradientBrush.RelativeTransform>
-    <GradientStop Color="#EF105EB8" Offset="0"/>
-    <GradientStop Color="#EF0C4191" Offset="1"/>
-  </RadialGradientBrush>
+  <ResourceWrapper x:Key="dialogBackGroundBrush" Freezable="true">
+    <RadialGradientBrush GradientOrigin="0.186,0.311">
+      <RadialGradientBrush.RelativeTransform>
+        <TransformGroup>
+          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
+          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          <TranslateTransform X="-0.036" Y="-0.146"/>
+        </TransformGroup>
+      </RadialGradientBrush.RelativeTransform>
+      <GradientStop Color="#EF105EB8" Offset="0"/>
+      <GradientStop Color="#EF0C4191" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
 
   <!-- default brush for a submenu button -->
-  <RadialGradientBrush x:Key="MpSubMenuButtonBrush" GradientOrigin="0.85,0.82">
-    <RadialGradientBrush.RelativeTransform>
-      <TransformGroup>
-        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-        <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-        <TranslateTransform X="0.027" Y="-0.006"/>
-      </TransformGroup>
-    </RadialGradientBrush.RelativeTransform>
-    <GradientStop Color="#702A5EB4" Offset="0"/>
-    <GradientStop Color="#702A5EB4" Offset="1"/>
-  </RadialGradientBrush>
+  <ResourceWrapper x:Key="MpSubMenuButtonBrush" Freezable="true">
+    <RadialGradientBrush GradientOrigin="0.85,0.82">
+      <RadialGradientBrush.RelativeTransform>
+        <TransformGroup>
+          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          <TranslateTransform X="0.027" Y="-0.006"/>
+        </TransformGroup>
+      </RadialGradientBrush.RelativeTransform>
+      <GradientStop Color="#702A5EB4" Offset="0"/>
+      <GradientStop Color="#702A5EB4" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
 
-  <LinearGradientBrush x:Key="linearBrushRedGreenBlue" StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
-    <GradientStop Offset="0.0" Color="Red"/>
-    <GradientStop Offset="0.5" Color="Green"/>
-    <GradientStop Offset="1.0" Color="Blue"/>
-  </LinearGradientBrush>
+  <ResourceWrapper x:Key="linearBrushRedGreenBlue" Freezable="true">
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
+      <GradientStop Offset="0.0" Color="Red"/>
+      <GradientStop Offset="0.5" Color="Green"/>
+      <GradientStop Offset="1.0" Color="Blue"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
 
   <!-- template for a green progressbar -->
   <Style x:Key="MpProgressBar" TargetType="{x:Type Button}">
@@ -163,8 +171,7 @@
                 </RadialGradientBrush>
               </Rectangle.Fill>
             </Rectangle>
-            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="contentPresenter">
-            </ContentPresenter>
+            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="contentPresenter"/>
           </Grid>
           <ControlTemplate.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
@@ -911,6 +918,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpArrowButtonRight" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1041,6 +1049,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpArrowButtonUp" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1171,6 +1180,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpArrowButtonDown" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1303,12 +1313,10 @@
   </Style>
 
   <Style x:Key="MpPlusMinButton" TargetType="{x:Type CheckBox}">
-
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
-
             <!-- storyboard which shows the animation when a button has focus -->
             <Storyboard x:Key="focusedStoryBoard">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
@@ -1978,6 +1986,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpButtonRotateLeft" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -2006,6 +2015,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpButtonRotateRight" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -2035,13 +2045,11 @@
     </Setter>
   </Style>
 
-
-
   <Style x:Key="DefaultScrollViewerStyle">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ScrollContentPresenter Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+          <ScrollContentPresenter Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -2084,7 +2092,6 @@
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}" />
       <Label x:Name="ItemLabel"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="6" Text="{Binding [Name]}" Font="font13"/>
       <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4"  HorizontalAlignment="Right" Text="{Binding Size}" Font="font12"/>
-
     </Grid>
   </DataTemplate>
 
@@ -2124,6 +2131,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <DataTemplate x:Key="itemPlayListTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
@@ -2151,6 +2159,7 @@
       </Grid.Triggers>
     </Grid>
   </DataTemplate>
+
   <Style x:Key="MpPlayListView" TargetType="{x:Type ListView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
@@ -2183,6 +2192,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <DataTemplate x:Key="itemMenuTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
       <Label x:Name="MenuItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
@@ -2223,6 +2233,7 @@
       </Grid.Triggers>
     </Grid>
   </DataTemplate>
+
   <Style x:Key="TreeItemContainerStyle" TargetType="{x:Type TreeViewItem}">
     <Setter Property="Template">
       <Setter.Value>
@@ -2246,6 +2257,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
@@ -2279,6 +2291,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <DataTemplate x:Key="itemDialogImageTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="Grd1">
       <Grid.ColumnDefinitions>
