@@ -65,6 +65,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public Brush(): base(null)
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -76,18 +77,28 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _freezableProperty = new Property(typeof(bool), false);
       _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
       _orginalPosition = new System.Drawing.PointF(0, 0);
+    }
 
+    void Attach()
+    {
       _opacityProperty.Attach(OnPropertyChanged);
+    }
+
+    void Detach()
+    {
+      _opacityProperty.Detach(OnPropertyChanged);
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       Brush b = source as Brush;
       IsOpacityBrush = copyManager.GetCopy(b.IsOpacityBrush);
       Opacity = copyManager.GetCopy(b.Opacity);
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = copyManager.GetCopy(b.Freezable);
+      Attach();
     }
 
     #endregion

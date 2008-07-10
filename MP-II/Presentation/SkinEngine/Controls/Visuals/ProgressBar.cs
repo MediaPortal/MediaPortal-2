@@ -41,20 +41,32 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public ProgressBar()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       Focusable = false;
       _valueProperty = new Property(typeof(float), 0.0f);
-      _valueProperty.Attach(new PropertyChangedHandler(OnValueChanged));
+    }
+
+    void Attach()
+    {
+      _valueProperty.Attach(OnValueChanged);
+    }
+
+    void Detach()
+    {
+      _valueProperty.Detach(OnValueChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ProgressBar pb = source as ProgressBar;
       Value = copyManager.GetCopy(pb.Value);
+      Attach();
     }
 
     #endregion

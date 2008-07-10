@@ -27,12 +27,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
   public class ListViewItem : ContentControl
   {
     #region Ctor
-    public ListViewItem()
-    {
-      Init();
-    }
 
-    void Init()
+    public ListViewItem()
     { }
 
     #endregion

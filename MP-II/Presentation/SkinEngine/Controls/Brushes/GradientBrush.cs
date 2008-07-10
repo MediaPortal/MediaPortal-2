@@ -67,23 +67,38 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public GradientBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _gradientStopsProperty = new Property(typeof(GradientStopCollection), new GradientStopCollection(this));
-      _colorInterpolationModeProperty = new Property(typeof(ColorInterpolationMode), ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
+      _colorInterpolationModeProperty =
+        new Property(typeof(ColorInterpolationMode),
+                     ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new Property(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
       _mappingModeProperty = new Property(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
+    }
 
+    void Attach()
+    {
       _gradientStopsProperty.Attach(OnPropertyChanged);
       _colorInterpolationModeProperty.Attach(OnPropertyChanged);
       _spreadMethodProperty.Attach(OnPropertyChanged);
       _mappingModeProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _gradientStopsProperty.Detach(OnPropertyChanged);
+      _colorInterpolationModeProperty.Detach(OnPropertyChanged);
+      _spreadMethodProperty.Detach(OnPropertyChanged);
+      _mappingModeProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       GradientBrush b = source as GradientBrush;
       ColorInterpolationMode = copyManager.GetCopy(b.ColorInterpolationMode);
@@ -91,6 +106,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       MappingMode = copyManager.GetCopy(b.MappingMode);
       foreach (GradientStop stop in b.GradientStops)
         GradientStops.Add(copyManager.GetCopy(stop));
+      Attach();
     }
 
     #endregion

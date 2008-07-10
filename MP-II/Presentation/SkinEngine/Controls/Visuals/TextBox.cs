@@ -49,7 +49,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _fontProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
-    Color _colorCache = Color.Black;
     bool _update = false;
 
     // If we are editing the text.
@@ -62,19 +61,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public TextBox()
     {
       Init();
-      HorizontalAlignment = HorizontalAlignmentEnum.Left;
+      Attach();
     }
 
     void Init()
     {
-      _caretIndexProperty = new Property(typeof(int),0);
-      _textProperty = new Property(typeof(string),"");
-      _colorProperty = new Property(typeof(Color),Color.Black);
+      _caretIndexProperty = new Property(typeof(int), 0);
+      _textProperty = new Property(typeof(string), "");
+      _colorProperty = new Property(typeof(Color), Color.Black);
       _fontProperty = new Property(typeof(string), "font13");
-      _textWrappingProperty = new Property(typeof(string),"");
-      _fontProperty.Attach(new PropertyChangedHandler(OnFontChanged));
-      _textProperty.Attach(new PropertyChangedHandler(OnTextChanged));
-      _colorProperty.Attach(new PropertyChangedHandler(OnColorChanged));
+      _textWrappingProperty = new Property(typeof(string), "");
 
       // Yes, we can have focus
       Focusable = true;
@@ -88,10 +84,27 @@ namespace Presentation.SkinEngine.Controls.Visuals
       SolidColorBrush border = new SolidColorBrush();
       border.Color = Color.Black;
       BorderBrush = border;
+
+      HorizontalAlignment = HorizontalAlignmentEnum.Left;
+    }
+
+    void Attach()
+    {
+      _fontProperty.Attach(OnFontChanged);
+      _textProperty.Attach(OnTextChanged);
+      _colorProperty.Attach(OnColorChanged);
+    }
+
+    void Detach()
+    {
+      _fontProperty.Detach(OnFontChanged);
+      _textProperty.Detach(OnTextChanged);
+      _colorProperty.Detach(OnColorChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       TextBox t = source as TextBox;
       Text = copyManager.GetCopy(t.Text);
@@ -99,13 +112,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Font = copyManager.GetCopy(t.Font);
       TextWrapping = copyManager.GetCopy(t.TextWrapping);
       CaretIndex = copyManager.GetCopy(t.CaretIndex);
+      Attach();
     }
 
     #endregion
 
     void OnColorChanged(Property prop)
     {
-      _colorCache = (Color)_colorProperty.GetValue();
       _update = true;
       if (Window != null) Window.Invalidate(this);
     }
@@ -208,7 +221,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public Color Color
     {
-      get { return _colorCache; }
+      get { return (Color) _colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
 

@@ -56,22 +56,34 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public SolidColorBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _colorProperty = new Property(typeof(Color), Color.White);
       //ContentManager.Add(this);
-      _colorProperty.Attach(new PropertyChangedHandler(OnPropertyChanged));
       _effect = ContentManager.GetEffect("solidbrush");
       _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
     }
 
+    void Attach()
+    {
+      _colorProperty.Attach(OnPropertyChanged);
+    }
+
+    void Detach()
+    {
+      _colorProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       SolidColorBrush b = source as SolidColorBrush;
       Color = copyManager.GetCopy(b.Color);
+      Attach();
     }
 
     #endregion

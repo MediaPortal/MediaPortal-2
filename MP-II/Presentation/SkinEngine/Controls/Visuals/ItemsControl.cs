@@ -61,6 +61,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public ItemsControl()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -72,15 +73,27 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _itemContainerStyleSelectorProperty = new Property(typeof(StyleSelector), null);
       _itemsPanelProperty = new Property(typeof(ItemsPanelTemplate), null);
       _currentItem = new Property(typeof(object), null);
+    }
+
+    void Attach()
+    {
       _itemsSourceProperty.Attach(OnItemsSourceChanged);
       _itemTemplateProperty.Attach(OnItemTemplateChanged);
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
+    }
 
+    void Detach()
+    {
+      _itemsSourceProperty.Detach(OnItemsSourceChanged);
+      _itemTemplateProperty.Detach(OnItemTemplateChanged);
+      _itemsPanelProperty.Detach(OnItemsPanelChanged);
+      _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ItemsControl c = source as ItemsControl;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
@@ -88,13 +101,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       ItemContainerStyleSelector = copyManager.GetCopy(c.ItemContainerStyleSelector);
       _prepare = false;
-
-      // Don't take part in the outer copying process for the HeaderTemplate and
-      // ItemsPanel properties here -
-      // we need a finished copied template here. As the templates don't have references to their
-      // containing instances, it is safe to do a self-contained deep copy of it.
-      ItemTemplate = MpfCopyManager.DeepCopy(c.ItemTemplate);
-      ItemsPanel = MpfCopyManager.DeepCopy(c.ItemsPanel);
+      ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
+      ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
+      Attach();
     }
 
     #endregion

@@ -54,6 +54,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public HeaderedItemsControl()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -61,20 +62,27 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _headerProperty = new Property(typeof(FrameworkElement), null);
       _headerTemplateProperty = new Property(typeof(DataTemplate), null);
       _headerTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
+    }
+
+    void Attach()
+    {
       _headerProperty.Attach(OnContentChanged);
+    }
+
+    void Detach()
+    {
+      _headerProperty.Detach(OnContentChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       HeaderedItemsControl c = source as HeaderedItemsControl;
       Header = copyManager.GetCopy(c.Header);
       HeaderTemplateSelector = copyManager.GetCopy(c.HeaderTemplateSelector);
-
-      // Don't take part in the outer copying process for the HeaderTemplate property here -
-      // we need a finished copied template here. As the template has no references to its
-      // containing instance, it is safe to do a self-contained deep copy of it.
-      HeaderTemplate = MpfCopyManager.DeepCopy(c.HeaderTemplate);
+      HeaderTemplate = copyManager.GetCopy(c.HeaderTemplate);
+      Attach();
     }
 
     #endregion

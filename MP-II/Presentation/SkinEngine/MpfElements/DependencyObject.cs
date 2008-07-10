@@ -69,6 +69,8 @@ namespace Presentation.SkinEngine.Controls
           SetAttachedPropertyValue(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()));
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
+      foreach (BindingBase binding in BindingBase.GetBindingsOfObject(d))
+        copyManager.GetCopy(binding);
     }
 
     #endregion

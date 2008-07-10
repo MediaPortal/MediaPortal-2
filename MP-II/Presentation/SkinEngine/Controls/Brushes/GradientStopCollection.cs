@@ -25,7 +25,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

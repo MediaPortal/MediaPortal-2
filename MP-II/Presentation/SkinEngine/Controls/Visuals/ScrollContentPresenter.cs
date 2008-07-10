@@ -27,11 +27,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
   public class ScrollContentPresenter : ContentPresenter
   {
     public ScrollContentPresenter()
-    {
-      Init();
-    }
-
-    void Init()
     { }
   }
 }

@@ -68,23 +68,35 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public LinearGradientBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _startPointProperty = new Property(typeof(Vector2), new Vector2(0.0f, 0.0f));
       _endPointProperty = new Property(typeof(Vector2), new Vector2(1.0f, 1.0f));
+    }
 
+    void Attach()
+    {
       _startPointProperty.Attach(OnPropertyChanged);
       _endPointProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _startPointProperty.Detach(OnPropertyChanged);
+      _endPointProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       LinearGradientBrush b = source as LinearGradientBrush;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
+      Attach();
     }
 
     #endregion

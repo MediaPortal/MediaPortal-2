@@ -75,6 +75,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public RadialGradientBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -83,21 +84,34 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _gradientOriginProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
       _radiusXProperty = new Property(typeof(double), 0.5);
       _radiusYProperty = new Property(typeof(double), 0.5);
+    }
 
+    void Attach()
+    {
       _centerProperty.Attach(OnPropertyChanged);
       _gradientOriginProperty.Attach(OnPropertyChanged);
       _radiusXProperty.Attach(OnPropertyChanged);
       _radiusYProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _centerProperty.Detach(OnPropertyChanged);
+      _gradientOriginProperty.Detach(OnPropertyChanged);
+      _radiusXProperty.Detach(OnPropertyChanged);
+      _radiusYProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       RadialGradientBrush b = source as RadialGradientBrush;
       Center = copyManager.GetCopy(b.Center);
       GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
       RadiusX = copyManager.GetCopy(b.RadiusX);
       RadiusY = copyManager.GetCopy(b.RadiusY);
+      Attach();
     }
 
     #endregion

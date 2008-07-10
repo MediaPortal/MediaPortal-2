@@ -43,23 +43,35 @@ namespace Presentation.SkinEngine.Controls.Transforms
     public TranslateTransform()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _YProperty = new Property(typeof(double), 0.0);
       _XProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _YProperty.Attach(OnPropertyChanged);
       _XProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _YProperty.Detach(OnPropertyChanged);
+      _XProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       TranslateTransform t = source as TranslateTransform;
       X = copyManager.GetCopy(t.X);
       Y = copyManager.GetCopy(t.Y);
+      Attach();
     }
 
     #endregion

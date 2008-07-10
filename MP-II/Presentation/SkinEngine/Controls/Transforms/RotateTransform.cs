@@ -45,6 +45,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
     public RotateTransform()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -52,22 +53,35 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _centerYProperty = new Property(typeof(double), 0.0);
       _centerXProperty = new Property(typeof(double), 0.0);
       _angleProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _centerYProperty.Attach(OnPropertyChanged);
       _centerXProperty.Attach(OnPropertyChanged);
       _angleProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _centerYProperty.Detach(OnPropertyChanged);
+      _centerXProperty.Detach(OnPropertyChanged);
+      _angleProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       RotateTransform t = source as RotateTransform;
       CenterX = copyManager.GetCopy(t.CenterX);
       CenterY = copyManager.GetCopy(t.CenterY);
       Angle = copyManager.GetCopy(t.Angle);
+      Attach();
     }
 
     #endregion
+
     #region Protected methods
 
     protected void OnPropertyChanged(Property property)

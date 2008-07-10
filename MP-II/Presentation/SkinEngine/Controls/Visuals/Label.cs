@@ -48,8 +48,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     FontBufferAsset _asset;
     FontRender _renderer;
     StringId _label;
-    bool _scrollCache;
-    Color _colorCache = Color.White;
     bool _update = false;
 
     #endregion
@@ -59,7 +57,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public Label()
     {
       Init();
-      HorizontalAlignment = HorizontalAlignmentEnum.Left;
+      Attach();
     }
 
     void Init()
@@ -69,14 +67,28 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _scrollProperty = new Property(typeof(bool), false);
       _fontProperty = new Property(typeof(string), "font13");
 
+      HorizontalAlignment = HorizontalAlignmentEnum.Left;
+    }
+
+    void Attach()
+    {
       _fontProperty.Attach(OnFontChanged);
       _textProperty.Attach(OnTextChanged);
       _scrollProperty.Attach(OnScrollChanged);
       _colorProperty.Attach(OnColorChanged);
     }
 
+    void Detach()
+    {
+      _fontProperty.Detach(OnFontChanged);
+      _textProperty.Detach(OnTextChanged);
+      _scrollProperty.Detach(OnScrollChanged);
+      _colorProperty.Detach(OnColorChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Label l = source as Label;
       Text = copyManager.GetCopy(l.Text);
@@ -84,13 +96,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Scroll = copyManager.GetCopy(l.Scroll);
       Font = copyManager.GetCopy(l.Font);
       _label = new StringId(Text);
+      Attach();
     }
 
     #endregion
 
     void OnColorChanged(Property prop)
     {
-      _colorCache = (Color)_colorProperty.GetValue();
       _update = true;
       if (Window != null) Window.Invalidate(this);
     }
@@ -105,7 +117,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnScrollChanged(Property prop)
     {
-      _scrollCache = (bool)_scrollProperty.GetValue();
       _update = true;
       if (Window != null) Window.Invalidate(this);
     }
@@ -152,7 +163,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public Color Color
     {
-      get { return _colorCache; }
+      get { return (Color) _colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
 
@@ -163,7 +174,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public bool Scroll
     {
-      get { return _scrollCache; }
+      get { return (bool) _scrollProperty.GetValue(); }
       set { _scrollProperty.SetValue(value); }
     }
 

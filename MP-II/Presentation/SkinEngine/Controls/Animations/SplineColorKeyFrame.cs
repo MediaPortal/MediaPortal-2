@@ -57,6 +57,11 @@ namespace Presentation.SkinEngine.Controls.Animations
       _keySplineProperty.Attach(OnSplineChanged);
     }
 
+    void Detach()
+    {
+      _keySplineProperty.Detach(OnSplineChanged);
+    }
+
     void OnSplineChanged(Property prop)
     {
       if (KeySpline.X != 0 && KeySpline.Y != 0 && KeySpline.Z != 0 && KeySpline.W != 0)
@@ -65,9 +70,12 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       SplineColorKeyFrame kf = source as SplineColorKeyFrame;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
+      Attach();
+      OnSplineChanged(_keySplineProperty);
     }
 
     #endregion

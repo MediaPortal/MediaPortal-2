@@ -25,6 +25,5 @@
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class StyleSelector
-  {
-  }
+  { }
 }

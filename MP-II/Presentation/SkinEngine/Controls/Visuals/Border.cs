@@ -73,6 +73,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public Border()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -81,24 +82,39 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _backgroundProperty = new Property(typeof(Brush), null);
       _borderThicknessProperty = new Property(typeof(double), 1.0);
       _cornerRadiusProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _borderProperty.Attach(OnBorderBrushChanged);
       _backgroundProperty.Attach(OnBackgroundBrushChanged);
       _borderThicknessProperty.Attach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Attach(OnLayoutPropertyChanged);
     }
 
+    void Detach()
+    {
+      _borderProperty.Detach(OnBorderBrushChanged);
+      _backgroundProperty.Detach(OnBackgroundBrushChanged);
+      _borderThicknessProperty.Detach(OnLayoutPropertyChanged);
+      _cornerRadiusProperty.Detach(OnLayoutPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Border b = source as Border;
       BorderBrush = copyManager.GetCopy(b.BorderBrush);
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = copyManager.GetCopy(b.BorderThickness);
       CornerRadius = copyManager.GetCopy(b.CornerRadius);
+      Attach();
     }
 
     #endregion
+
+    #region Change event handlers
 
     void OnBackgroundBrushChanged(Property property)
     {
@@ -137,6 +153,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _performLayout = true;
       if (Window!=null) Window.Invalidate(this);
     }
+
+    #endregion
 
     #region Properties
 

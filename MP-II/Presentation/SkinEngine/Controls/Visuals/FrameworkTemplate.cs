@@ -85,7 +85,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public UIElement LoadContent()
     {
-      UIElement element = MpfCopyManager.DeepCopy(_templateElement);
+      UIElement element = MpfCopyManager.DeepCopyFixedLP(_templateElement);
       element.IsTemplateRoot = true;
       return element;
     }

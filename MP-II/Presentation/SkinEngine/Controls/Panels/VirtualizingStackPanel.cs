@@ -49,6 +49,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     public VirtualizingStackPanel()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -59,15 +60,25 @@ namespace Presentation.SkinEngine.Controls.Panels
       _lineWidth = 0.0;
       _lineHeight = 0.0;
       _controlCount = 0;
+    }
 
+    void Attach()
+    {
       _orientationProperty.Attach(OnPropertyInvalidate);
+    }
+
+    void Detach()
+    {
+      _orientationProperty.Detach(OnPropertyInvalidate);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       VirtualizingStackPanel p = source as VirtualizingStackPanel;
       Orientation = copyManager.GetCopy(p.Orientation);
+      Attach();
     }
 
     #endregion

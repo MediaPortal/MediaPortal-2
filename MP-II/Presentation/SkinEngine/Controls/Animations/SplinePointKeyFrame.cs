@@ -55,11 +55,19 @@ namespace Presentation.SkinEngine.Controls.Animations
       _keySplineProperty.Attach(OnSplineChanged);
     }
 
+    void Detach()
+    {
+      _keySplineProperty.Detach(OnSplineChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       SplinePointKeyFrame kf = source as SplinePointKeyFrame;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
+      Attach();
+      OnSplineChanged(_keySplineProperty);
     }
 
     #endregion

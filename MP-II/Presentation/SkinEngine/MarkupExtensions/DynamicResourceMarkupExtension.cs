@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements.Resources;
@@ -69,15 +70,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _resourceKey = resourceKey;
     }
 
-    public DynamicResourceMarkupExtension(DynamicResourceMarkupExtension other, object newTarget):
-        base(other, newTarget)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      _resourceKey = other._resourceKey;
-    }
-
-    public override BindingBase CloneAndRetarget(object newTarget)
-    {
-      return new DynamicResourceMarkupExtension(this, newTarget);
+      // FIXME Albert78: Need to change the order of those lines because BME.DeepCopy
+      // calls Bind() at the end. Put those lines in standard order after this was fixed.
+      DynamicResourceMarkupExtension drme = source as DynamicResourceMarkupExtension;
+      ResourceKey = copyManager.GetCopy(drme.ResourceKey);
+      base.DeepCopy(source, copyManager);
     }
 
     #endregion
@@ -92,7 +91,16 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #endregion
 
-    #region Protected methods
+    #region Protected methods & properties
+
+    /// <summary>
+    /// Returns the information if our data descriptor has a binding type, which means
+    /// this instance has to be assigned rather than its resolved resource.
+    /// </summary>
+    protected bool KeepBinding
+    {
+      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
+    }
 
     protected void OnResourcesChanged(ResourceDictionary changedResources)
     {
@@ -161,6 +169,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected bool UpdateTarget()
     {
       ResetEventHandlerAttachments();
+      if (KeepBinding)
+      { // This instance should be used rather than the evaluated source value
+        _targetDataDescriptor.Value = this;
+        return true;
+      }
       DependencyObject current = _contextObject as DependencyObject;
       while (current != null)
       {
@@ -201,6 +214,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override bool Bind()
     {
+      _active = true;
       if (_resourceKey == null)
         throw new XamlBindingException("DynamicResource: property 'ResourceKey' must be given");
       return UpdateTarget();

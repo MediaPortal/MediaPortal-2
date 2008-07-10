@@ -101,7 +101,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           if (setter.Value is FrameworkTemplate)
             element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
           else
-            element = MpfCopyManager.DeepCopy(setter.Value) as FrameworkElement;
+            element = MpfCopyManager.DeepCopyFixedLP(setter.Value) as FrameworkElement;
+          // FIXME Albert78: Don't apply the other setters on the template, apply
+          // them on the target object
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")

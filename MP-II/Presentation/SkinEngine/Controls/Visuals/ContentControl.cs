@@ -25,7 +25,6 @@
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -44,6 +43,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public ContentControl()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -51,23 +51,34 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _contentProperty = new Property(typeof(FrameworkElement), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
       _contentTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
+    }
 
+    void Attach()
+    {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentTemplateSelectorProperty.Attach(OnContentTemplateSelectorChanged);
       _contentProperty.Attach(OnContentChanged);
     }
 
+    void Detach()
+    {
+      _contentTemplateProperty.Detach(OnContentTemplateChanged);
+      _contentTemplateSelectorProperty.Detach(OnContentTemplateSelectorChanged);
+      _contentProperty.Detach(OnContentChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ContentControl c = source as ContentControl;
       Content = copyManager.GetCopy(c.Content);
       ContentTemplateSelector = copyManager.GetCopy(c.ContentTemplateSelector);
-
-      // Don't take part in the outer copying process for the ContentTemplate property here -
-      // we need a finished copied content template here. As the template has no references to its
-      // containing instance, it is safe to do a self-contained deep copy of it.
-      ContentTemplate = MpfCopyManager.DeepCopy(c.ContentTemplate);
+      ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
+      Attach();
+      OnContentChanged(ContentProperty);
+      OnContentTemplateChanged(ContentTemplateProperty);
+      OnContentTemplateSelectorChanged(ContentTemplateSelectorProperty);
     }
 
     #endregion

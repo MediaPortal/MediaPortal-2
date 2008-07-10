@@ -37,7 +37,6 @@ using Presentation.SkinEngine.Controls.Visuals.Shapes;
 using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -94,19 +93,30 @@ namespace Presentation.SkinEngine.Controls.Visuals
       DataContextProperty.Attach(OnDataContextPropertyChanged);
     }
 
+    void Detach()
+    {
+      _borderProperty.Detach(OnPropertyChanged);
+      _backgroundProperty.Detach(OnPropertyChanged);
+      _borderThicknessProperty.Detach(OnPropertyChanged);
+      _templateProperty.Detach(OnTemplateChanged);
+      _cornerRadiusProperty.Detach(OnPropertyChanged);
+
+      // FIXME Albert78: Remove this
+      DataContextProperty.Detach(OnDataContextPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Control c = source as Control;
       BorderBrush = copyManager.GetCopy(c.BorderBrush);
       Background = copyManager.GetCopy(c.Background);
       BorderThickness = copyManager.GetCopy(c.BorderThickness);
       CornerRadius = copyManager.GetCopy(c.CornerRadius);
-
-      // Don't take part in the outer copying process for the Template property here -
-      // we need a finished copied template here. As the template has no references to its
-      // containing instance, it is safe to do a self-contained deep copy of it.
-      Template = MpfCopyManager.DeepCopy(c.Template);
+      Template = copyManager.GetCopy(c.Template);
+      TemplateControl = copyManager.GetCopy(c.TemplateControl);
+      Attach();
     }
 
     #endregion
@@ -130,13 +140,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       if (_templateControl != null)
         _templateControl.Context = Context;
-    }
-
-    protected override void OnStyleChanged(Property property)
-    {
-      if (_templateProperty == null)
-        Init();
-      base.OnStyleChanged(property);
     }
 
     protected void OnTemplateChanged(Property property)

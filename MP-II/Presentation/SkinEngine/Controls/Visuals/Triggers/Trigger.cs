@@ -53,6 +53,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     public Trigger()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -62,11 +63,21 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _handler = OnPropertyChanged;
+    }
+
+    void Attach()
+    {
+      _propertyProperty.Attach(OnPropChanged);
+    }
+
+    void Detach()
+    {
       _propertyProperty.Attach(OnPropChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Trigger t = source as Trigger;
       Property = copyManager.GetCopy(t.Property);
@@ -75,6 +86,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         EnterActions.Add(copyManager.GetCopy(ac));
       foreach (TriggerAction ac in t.ExitActions)
         ExitActions.Add(copyManager.GetCopy(ac));
+      Attach();
     }
 
     #endregion

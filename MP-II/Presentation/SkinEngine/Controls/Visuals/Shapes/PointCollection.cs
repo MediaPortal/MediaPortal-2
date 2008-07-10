@@ -28,6 +28,5 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 {
   // Need to be a dedicated type because of special type conversion
   public class PointCollection : ArrayList
-  {
-  }
+  { }
 }

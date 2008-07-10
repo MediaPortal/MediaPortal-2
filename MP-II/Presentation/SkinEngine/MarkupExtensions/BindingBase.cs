@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls;
 
@@ -34,15 +35,19 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// There is a dictionary which stores all bindings which have been attached
   /// to target objects.
   /// </summary>
-  public abstract class BindingBase: IBinding
+  public abstract class BindingBase: IBinding, IDeepCopyable
   {
     #region Protected fields
 
     protected static IDictionary<object, ICollection<BindingBase>> _objects2Bindings =
         new Dictionary<object, ICollection<BindingBase>>();
 
+    // Empty enumerator for optimized use in method GetBindingsOfObject()
+    protected static readonly IEnumerable<BindingBase> EMPTY_BINDING_ENUMERABLE =
+      new List<BindingBase>();
+
     // State variables
-    protected bool _bound = false; // Did we already bind?
+    protected bool _active = false; // Should the binding react to changes of source properties?
     protected object _contextObject = null; // Bound to which object?
     protected IDataDescriptor _targetDataDescriptor = null; // Bound to which target property?
 
@@ -64,64 +69,24 @@ namespace Presentation.SkinEngine.MarkupExtensions
       AttachToTargetObject(contextObject);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="BindingBase"/> as a copy of the
-    /// specified <paramref name="other"/> binding. The new binding instance
-    /// will be re-targeted to the specified <paramref name="newTarget"/> object,
-    /// which means that its <see cref="_contextObject"/> and
-    /// <see cref="_targetDataDescriptor"/> will be changed to the
-    /// <paramref name="newTarget"/> object.
-    /// </summary>
-    /// <param name="other">Other Binding to copy.</param>
-    /// <param name="newTarget">New target object for this Binding.</param>
-    public BindingBase(BindingBase other, object newTarget)
-    {
-      // Copy values initialized by the Prepare(IParserContext,IDataDescriptor) call,
-      // retargeted to the newTarget.
-      _targetDataDescriptor = other._targetDataDescriptor == null ? null :
-          other._targetDataDescriptor.Retarget(newTarget);
-      AttachToTargetObject(newTarget);
-    }
-
-    /// <summary>
-    /// Given a <paramref name="sourceObject"/>, which has possibly attached
-    /// bindings targeted to it, this method will copy those bindings
-    /// retargeted at the specified <paramref name="targetObject"/>.
-    /// </summary>
-    /// <remarks>
-    /// A typical usage of this method would be the cloning of a gui object,
-    /// where the clone should behave exactly as the original object.
-    /// </remarks>
-    /// <param name="sourceObject">Object, whose bindings (which are targeted
-    /// at it) will be copied.</param>
-    /// <param name="targetObject">Object, to which the copied bindings will
-    /// be retargeted.</param>
-    public static void CopyBindings(object sourceObject, object targetObject)
-    {
-      if (_objects2Bindings.ContainsKey(sourceObject))
-      {
-        ICollection<BindingBase> bindings = _objects2Bindings[sourceObject];
-        foreach (BindingBase binding in bindings)
-        {
-          BindingBase newBinding = binding.CloneAndRetarget(targetObject);
-          if (binding.Bound)
-            newBinding.Bind();
-        }
-      }
-    }
-
-    /// <summary>
-    /// Will clone this binding and retarget it to the specified new target object.
-    /// </summary>
-    /// <param name="newTarget">Target object the new binding should bind to.</param>
-    /// <returns>New, retargeted binding instance. The new binding instance has the same
-    /// function to the new target object as this binding has on the associated
-    /// <see cref="_contextObject"/>.</returns>
-    public abstract BindingBase CloneAndRetarget(object newTarget);
-
     public virtual void Dispose()
     {
       DetachFromTargetObject();
+    }
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      BindingBase bb = source as BindingBase;
+      if (bb._targetDataDescriptor != null)
+      {
+        // Copy values initialized by the Prepare(IParserContext,IDataDescriptor) call,
+        // retargeted to the newTarget.
+        object newTarget = copyManager.GetCopy(bb._targetDataDescriptor.TargetObject);
+        _targetDataDescriptor = bb._targetDataDescriptor.Retarget(newTarget);
+      }
+      AttachToTargetObject(copyManager.GetCopy(bb._contextObject));
+      // _active property should be initialized after the copying procedure has ended
+      // by calling Bind()
     }
 
     #endregion
@@ -153,11 +118,25 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #endregion
 
+    /// <summary>
+    /// Returns all bindings which bind to properties of the specified
+    /// <paramref name="obj">object</paramref>, or which are its data context.
+    /// </summary>
+    /// <param name="obj">Object, whose bindings should be returned.</param>
+    /// <returns>Collection of bindings bound to the specified object.</returns>
+    public static IEnumerable<BindingBase> GetBindingsOfObject(object obj)
+    {
+      if (_objects2Bindings.ContainsKey(obj))
+        return _objects2Bindings[obj];
+      else
+        return EMPTY_BINDING_ENUMERABLE;
+    }
+
     #region IBinding implementation
 
-    public bool Bound
+    public bool Active
     {
-      get { return _bound; }
+      get { return _active; }
     }
 
     public virtual void Prepare(IParserContext context, IDataDescriptor dd)
@@ -168,7 +147,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public virtual bool Bind()
     {
-      _bound = true;
+      _active = true;
       return true;
     }
 

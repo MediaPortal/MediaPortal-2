@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
+using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls;
@@ -109,6 +110,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
         new Property(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
 
     // State variables
+    // FIXME Albert78: Replace _retryBinding with a variable _isUpToDate, which will
+    // also be used as a cache-valid-indicator for method UpdateSourceValue(bool forceUpdate)
     protected bool _retryBinding = false; // UpdateBinding() has to be called again
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
@@ -131,7 +134,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// </summary>
     public BindingMarkupExtension()
     {
-      InitChangeHandlers();
+      Attach();
     }
 
     /// <summary>
@@ -142,7 +145,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public BindingMarkupExtension(DependencyObject contextObject):
         base(contextObject)
     {
-      InitChangeHandlers();
+      Attach();
     }
 
     /// <summary>
@@ -154,41 +157,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public BindingMarkupExtension(string path)
     {
       Path = path;
-      InitChangeHandlers();
+      Attach();
     }
 
-    /// <summary>
-    /// Creates a new <see cref="BindingMarkupExtension"/> as a copy of the
-    /// specified <paramref name="other"/> binding. The new binding instance
-    /// will be re-targeted to the specified <paramref name="newTarget"/> object.
-    /// If the <paramref name="other"/> binding was already
-    /// <see cref="Bound"/>, this binding should be bound too by a call to
-    /// <see cref="Bind()"/> or <see cref="UpdateBinding()"/>.
-    /// </summary>
-    /// <param name="other">Other Binding to copy.</param>
-    /// <param name="newTarget">New target object for the new Binding.</param>
-    public BindingMarkupExtension(BindingMarkupExtension other, object newTarget):
-        base(other, newTarget)
-    {
-      Source = other.Source;
-      ElementName = other.ElementName;
-      RelativeSource = other.RelativeSource;
-      Path = other.Path;
-      Mode = other.Mode;
-      UpdateSourceTrigger = other.UpdateSourceTrigger;
-      CheckTypeOfSource();
-      InitChangeHandlers();
-
-      _compiledPath = other._compiledPath;
-      _negate = other._negate;
-    }
-
-    public override BindingBase CloneAndRetarget(object newTarget)
-    {
-      return new BindingMarkupExtension(this, newTarget);
-    }
-
-    protected void InitChangeHandlers()
+    protected void Attach()
     {
       _sourceProperty.Attach(OnBindingPropertiesChange);
       _elementNameProperty.Attach(OnBindingPropertiesChange);
@@ -200,12 +172,47 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _evaluatedSourceValue.Attach(OnSourceValueChange);
     }
 
+    protected void Detach()
+    {
+      _sourceProperty.Detach(OnBindingPropertiesChange);
+      _elementNameProperty.Detach(OnBindingPropertiesChange);
+      _relativeSourceProperty.Detach(OnBindingPropertiesChange);
+      _pathProperty.Detach(OnBindingPropertiesChange);
+      _modeProperty.Detach(OnBindingPropertiesChange);
+      _updateSourceTriggerProperty.Detach(OnBindingPropertiesChange);
+
+      _evaluatedSourceValue.Detach(OnSourceValueChange);
+    }
+
     public override void Dispose()
     {
-      ResetEventHandlerAttachments();
+      ResetChangeHandlerAttachments();
       base.Dispose();
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      base.DeepCopy(source, copyManager);
+      BindingMarkupExtension bme = source as BindingMarkupExtension;
+      Source = copyManager.GetCopy(bme.Source);
+      ElementName = copyManager.GetCopy(bme.ElementName);
+      RelativeSource = copyManager.GetCopy(bme.RelativeSource);
+      CheckTypeOfSource();
+      Path = copyManager.GetCopy(bme.Path);
+      Mode = copyManager.GetCopy(bme.Mode);
+      UpdateSourceTrigger = copyManager.GetCopy(bme.UpdateSourceTrigger);
+
+      _compiledPath = bme._compiledPath;
+      _negate = bme._negate;
+      Attach();
+
+      // FIXME Albert78: register a method "OnCopyCompleted" in copyManager, which will call this
+      // when the binding copy is finished. Check also DynamicResourceMarkupExtension.DeepCopy.
+      if (bme.Active)
+        Bind();
+    }
+    
     #endregion
 
     #region Properties
@@ -329,7 +336,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected void OnBindingPropertiesChange(Property property)
     {
       CheckTypeOfSource();
-      UpdateSourceValue();
+      if (_active)
+        UpdateSourceValue();
     }
 
     /// <summary>
@@ -339,7 +347,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="dd">The source data descriptor which changed.</param>
     protected void OnBindingSourceChange(IDataDescriptor dd)
     {
-      UpdateSourceValue();
+      if (_active)
+        UpdateSourceValue();
     }
 
     /// <summary>
@@ -349,7 +358,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="property">The data context property which changed its value.</param>
     protected void OnDataContextChange(Property property)
     {
-      UpdateSourceValue();
+      if (_active)
+        UpdateSourceValue();
     }
 
     /// <summary>
@@ -359,7 +369,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
     protected void OnSourceValueChange(IDataDescriptor sourceValue)
     {
-      if (_bound && _retryBinding)
+      if (_active && _retryBinding)
         UpdateBinding();
     }
 
@@ -378,7 +388,16 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected bool UsedAsDataContext
     {
-      get { return _targetDataDescriptor == null || _targetDataDescriptor.DataType == typeof(BindingMarkupExtension); }
+      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
+    }
+
+    /// <summary>
+    /// Returns the information if our data descriptor has a binding type, which means
+    /// this binding instance has to be assigned rather than its evaluated source value.
+    /// </summary>
+    protected bool KeepBinding
+    {
+      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
     }
 
     /// <summary>
@@ -440,11 +459,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
-    /// Will reset all event handler attachments to source property and
+    /// Will reset all change handler attachments to source property and
     /// source path properties. This should be called before the evaluation path
     /// to the binding's source will be processed again.
     /// </summary>
-    protected void ResetEventHandlerAttachments()
+    protected void ResetChangeHandlerAttachments()
     {
       foreach (Property property in _attachedProperties)
         property.Detach(OnDataContextChange);
@@ -486,12 +505,15 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// of the visual tree for the specified <paramref name="obj"/>.
     /// </summary>
     /// <remarks>
+    /// The tree walk will use the visual tree if the specified <paramref name="obj"/>
+    /// is a <see cref="Visual"/>, else it will use its logical tree.
     /// This method attaches change handlers to all relevant properties on the searched path.
     /// </remarks>
     /// <param name="obj">The object to get the parent of.</param>
-    /// <param name="parent">The parent to walk up.</param>
+    /// <param name="parent">The parent which was found navigating the visual or
+    /// logical tree.</param>
     /// <returns><c>true</c>, if a valid parent was found. In this case, the
-    /// <paramref name="parent"/> parameter references a not-null parent.
+    /// <paramref name="parent"/> parameter references a not-<c>null</c> parent.
     /// <c>false</c>, if no valid parent was found.</returns>
     protected bool FindParent(DependencyObject obj, out DependencyObject parent)
     {
@@ -503,8 +525,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         AttachToSourcePathProperty(parentProperty);
       }
       else
-      {
-        // If no visual parent exists, use the logical tree
+      { // If no visual parent exists, use the logical tree
         parentProperty = obj.LogicalParentProperty;
         AttachToSourcePathProperty(parentProperty);
       }
@@ -513,15 +534,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
-    /// Returns an <see cref="IDataDescriptor"/> for the binding in the nearest filled
+    /// Returns an <see cref="IDataDescriptor"/> for the binding in the nearest available
     /// data context of a parent element in the visual or logical tree.
     /// </summary>
     /// <param name="result">Returns the data descriptor for the data context, if it
-    /// could resolved.</param>
-    /// <returns><c>true</c>, if the data context could be resolved or no data context
-    /// is available, <c>false</c> if it could not be resolved (yet).
-    /// In case the return value is <c>true</c> and <c><paramref name="result"/> == null</c>,
-    /// no data context is available.</returns>
+    /// could be resolved.</param>
+    /// <returns><c>true</c>, if a data context could be found and the data context
+    /// could evaluate, <c>false</c> if it could not be resolved (yet).</returns>
     protected bool FindDataContext(out IDataDescriptor result)
     {
       result = null;
@@ -549,13 +568,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Does the lookup for our binding source data. This includes evaluation of our source
-    /// properties, the lookup for the data context and the search up the visual or logical tree.
+    /// properties and the lookup for the data context.
     /// </summary>
     /// <param name="result">Resulting source descriptor, if it could be resolved.</param>
     /// <returns></returns>
     protected bool GetSourceDataDescriptor(out IDataDescriptor result)
     {
-      ResetEventHandlerAttachments();
+      ResetChangeHandlerAttachments();
       result = null;
       try
       {
@@ -637,7 +656,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <summary>
     /// Will be called to evaluate our source value based on all available
     /// property and context states.
-    /// This method will also be called after any object involved in the
+    /// This method will also be automatically re-called when any object involved in the
     /// evaluation process of our source value was changed.
     /// </summary>
     /// <returns><c>true</c>, if the source value based on all input data
@@ -695,9 +714,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _isUpdatingBinding = true;
       try
       {
-        _bound = false;
-        if (UsedAsDataContext) // This is the case only for the DataContext property
-        { // We are a DataContext rather than a real binding
+        if (KeepBinding) // This is the case if our target descriptor has a binding type
+        { // This instance should be used rather than the evaluated source value
           _targetDataDescriptor.Value = this;
           _retryBinding = false;
           return true;
@@ -743,8 +761,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
             _negate);
         if (attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.LostFocus)
         {
-          //FIXME: attach to LostFocus event of the next visual in context stack, create
-          //change handler and call bd.UpdateSource() in the handler notification method
+          // FIXME: attach to LostFocus event of the next visual in the tree, create
+          // change handler and call bd.UpdateSource() in the handler notification method
           throw new NotImplementedException("UpdateSourceTrigger.LostFocus is not implemented");
         }
         _retryBinding = false;
@@ -753,7 +771,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
       finally
       {
         _isUpdatingBinding = false;
-        _bound = true;
       }
     }
 
@@ -773,6 +790,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override bool Bind()
     {
+      _active = true;
       return UpdateBinding();
     }
 

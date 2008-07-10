@@ -44,6 +44,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
     public SkewTransform()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -52,21 +53,34 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _centerXProperty = new Property(typeof(double), 0.0);
       _angleXProperty = new Property(typeof(double), 0.0);
       _angleYProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _centerYProperty.Attach(OnPropertyChanged);
       _centerXProperty.Attach(OnPropertyChanged);
       _angleXProperty.Attach(OnPropertyChanged);
       _angleYProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _centerYProperty.Detach(OnPropertyChanged);
+      _centerXProperty.Detach(OnPropertyChanged);
+      _angleXProperty.Detach(OnPropertyChanged);
+      _angleYProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       SkewTransform t = source as SkewTransform;
       CenterX = copyManager.GetCopy(t.CenterX);
       CenterY = copyManager.GetCopy(t.CenterY);
       AngleX = copyManager.GetCopy(t.AngleX);
       AngleY = copyManager.GetCopy(t.AngleY);
+      Attach();
     }
 
     #endregion

@@ -26,7 +26,6 @@ using System.Drawing;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -38,7 +37,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     private Property _contentProperty;
     private Property _contentTemplateProperty;
     private Property _contentTemplateSelectorProperty;
-    FrameworkElement _contentCache;
 
     #endregion
 
@@ -47,6 +45,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public ContentPresenter()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -54,28 +53,35 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _contentProperty = new Property(typeof(FrameworkElement), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
       _contentTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
+    }
 
+    void Attach()
+    {
       _contentProperty.Attach(OnContentChanged);
+    }
+
+    void Detach()
+    {
+      _contentProperty.Detach(OnContentChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ContentPresenter p = source as ContentPresenter;
       Content = copyManager.GetCopy(p.Content);
       ContentTemplateSelector = copyManager.GetCopy(p.ContentTemplateSelector);
-
-      // Don't take part in the outer copying process for the ContentTemplate property here -
-      // we need a finished copied template here. As the template has no references to its
-      // containing instance, it is safe to do a self-contained deep copy of it.
-      ContentTemplate = MpfCopyManager.DeepCopy(p.ContentTemplate);
+      ContentTemplate = copyManager.GetCopy(p.ContentTemplate);
+      Attach();
     }
 
     #endregion
 
     void OnContentChanged(Property property)
     {
-      _contentCache = _contentProperty.GetValue() as FrameworkElement;
+      if (Content == null)
+        return;
       Content.VisualParent = this;
       Content.SetWindow(Window);
     }
@@ -87,7 +93,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public FrameworkElement Content
     {
-      get { return _contentCache; }
+      get { return (FrameworkElement) _contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
     }
 

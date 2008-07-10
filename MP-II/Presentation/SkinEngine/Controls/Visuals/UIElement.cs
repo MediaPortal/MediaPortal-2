@@ -162,6 +162,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _opacityMaskProperty;
     Property _opacityProperty;
     Property _freezableProperty;
+    Property _isTemplateRootProperty;
     protected SizeF _desiredSize;
     protected SizeF _availableSize;
     protected RectangleF _finalRect;
@@ -174,8 +175,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     bool _triggersInitialized;
     bool _fireLoaded = true;
     bool _isVisible = true;
-    double _opacityCache = 1.0;
-    public bool TraceThis = false;
 
     #endregion
 
@@ -184,6 +183,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public UIElement()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -205,16 +205,28 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _opacityProperty = new Property(typeof(double), 1.0);
 
       _opacityMaskProperty = new Property(typeof(Brushes.Brush), null);
-      _isTemplateRoot = false;
+      _isTemplateRootProperty = new Property(typeof(bool), false);
+    }
 
+    void Attach()
+    {
       _marginProperty.Attach(OnPropertyChanged);
       _visibilityProperty.Attach(OnVisibilityPropertyChanged);
       _opacityProperty.Attach(OnOpacityPropertyChanged);
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
     }
 
+    void Detach()
+    {
+      _marginProperty.Detach(OnPropertyChanged);
+      _visibilityProperty.Detach(OnVisibilityPropertyChanged);
+      _opacityProperty.Detach(OnOpacityPropertyChanged);
+      _hasFocusProperty.Detach(OnFocusPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = source as UIElement;
       Name = copyManager.GetCopy(el.Name);
@@ -234,19 +246,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
-      _isTemplateRoot = copyManager.GetCopy(el._isTemplateRoot);
+      IsTemplateRoot = copyManager.GetCopy(el.IsTemplateRoot);
       // Simply reuse the Resources
       SetResources(el._resources);
 
       foreach (Trigger t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
+      Attach();
     }
 
     #endregion
 
     void OnOpacityPropertyChanged(Property property)
     {
-      _opacityCache = (double)_opacityProperty.GetValue();
       FireUIEvent(UIEvent.OpacityChange, this);
     }
 
@@ -318,15 +330,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public double Opacity
     {
-      get
-      {
-        return _opacityCache; // (double)_opacityProperty.GetValue();
-      }
-      set
-      {
-        _opacityCache = value;
-        _opacityProperty.SetValue(value);
-      }
+      get { return (double) _opacityProperty.GetValue(); }
+      set { _opacityProperty.SetValue(value); }
     }
 
     public Property FreezableProperty
@@ -521,10 +526,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _desiredSize; }
     }
 
+    public Property IsTemplateRootProperty
+    {
+      get { return _isTemplateRootProperty; }
+    }
+
     public bool IsTemplateRoot
     {
-      get { return _isTemplateRoot; }
-      set { _isTemplateRoot = value; }
+      get { return (bool) _isTemplateRootProperty.GetValue(); }
+      set { _isTemplateRootProperty.SetValue(value); }
     }
 
     #endregion

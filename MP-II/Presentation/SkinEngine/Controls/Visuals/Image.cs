@@ -75,6 +75,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public Image()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -84,18 +85,30 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _stretchDirectionProperty = new Property(typeof(StretchDirection), StretchDirection.Both);
       _thumbnailProperty = new Property(typeof(bool), false);
       _stretchProperty = new Property(typeof(Stretch), Stretch.None);
+    }
+
+    void Attach()
+    {
       _imageSourceProperty.Attach(OnImageChanged);
       _stretchDirectionProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _imageSourceProperty.Detach(OnImageChanged);
+      _stretchDirectionProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Image i = source as Image;
       Source = copyManager.GetCopy(i.Source);
       FallbackSource = copyManager.GetCopy(i.FallbackSource);
       StretchDirection = copyManager.GetCopy(i.StretchDirection);
       Thumbnail = copyManager.GetCopy(i.Thumbnail);
+      Attach();
     }
 
     #endregion

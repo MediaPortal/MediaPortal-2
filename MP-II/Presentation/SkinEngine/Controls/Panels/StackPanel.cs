@@ -52,20 +52,31 @@ namespace Presentation.SkinEngine.Controls.Panels
     public StackPanel()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _orientationProperty = new Property(typeof(Orientation), Orientation.Vertical);
+    }
 
+    void Attach()
+    {
       _orientationProperty.Attach(OnPropertyInvalidate);
+    }
+
+    void Detach()
+    {
+      _orientationProperty.Detach(OnPropertyInvalidate);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       StackPanel p = source as StackPanel;
       Orientation = copyManager.GetCopy(p.Orientation);
+      Attach();
     }
 
     #endregion
@@ -285,6 +296,7 @@ namespace Presentation.SkinEngine.Controls.Panels
           if (!element.IsVisible) continue;
           float posY = (float)(element.ActualPosition.Y - ActualPosition.Y);
 
+          // FIXME Albert78: What should this code do?
           if (_isScrolling)
           {
             // if (posY < _physicalScrollOffsetY) continue;

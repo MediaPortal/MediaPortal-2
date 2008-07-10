@@ -36,11 +36,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
   public class Ellipse : Shape
   {
     public Ellipse()
-    {
-      Init();
-    }
-
-    void Init()
     { }
 
     protected override void PerformLayout()

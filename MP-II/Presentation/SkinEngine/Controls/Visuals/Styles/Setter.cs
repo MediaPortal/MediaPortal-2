@@ -190,7 +190,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       // We have to copy the SetterValue because the Setter doesn't belong exclusively
       // to the UIElement. It may be part of a style for example, which is shared across
       // multiple controls.
-      dd.Value = MpfCopyManager.DeepCopy(SetterValue);
+      dd.Value = MpfCopyManager.DeepCopyFixedLP(SetterValue);
     }
   }
 }

@@ -45,6 +45,7 @@ namespace Presentation.SkinEngine.Controls.Transforms
     public ScaleTransform()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -53,21 +54,34 @@ namespace Presentation.SkinEngine.Controls.Transforms
       _centerXProperty = new Property(typeof(double), 0.0);
       _scaleXProperty = new Property(typeof(double), 0.0);
       _scaleYProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _centerYProperty.Attach(OnPropertyChanged);
       _centerXProperty.Attach(OnPropertyChanged);
       _scaleXProperty.Attach(OnPropertyChanged);
       _scaleYProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _centerYProperty.Detach(OnPropertyChanged);
+      _centerXProperty.Detach(OnPropertyChanged);
+      _scaleXProperty.Detach(OnPropertyChanged);
+      _scaleYProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ScaleTransform t = source as ScaleTransform;
       CenterX = copyManager.GetCopy(t.CenterX);
       CenterY = copyManager.GetCopy(t.CenterY);
       ScaleX = copyManager.GetCopy(t.ScaleX);
       ScaleY = copyManager.GetCopy(t.ScaleY);
+      Attach();
     }
 
     #endregion

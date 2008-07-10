@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MarkupExtensions;
+using Presentation.SkinEngine.Controls;
 
 namespace Presentation.SkinEngine.MpfElements
 {                            
@@ -35,17 +35,6 @@ namespace Presentation.SkinEngine.MpfElements
   /// </summary>
   public class MpfCopyManager: CopyManager
   {
-    /// <summary>
-    /// Performs the deep copy of the specified <paramref name="source"/>
-    /// object to the specified <paramref name="target"/> object and
-    /// copies all bindings defined on the source to the target.
-    /// </summary>
-    protected override void DoDeepCopy<T>(T source, T target)
-    {
-      base.DoDeepCopy(source, target);
-      BindingMarkupExtension.CopyBindings(source, target);
-    }
-
     /// <summary>
     /// Hooks into the copying process. This method will modify the copying
     /// behavior for special types of objects in the MPF.
@@ -100,7 +89,7 @@ namespace Presentation.SkinEngine.MpfElements
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
-    /// <see cref="MpfCopyManager.DeepCopyWithIdentities"/> with an identity map containing
+    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an identity map containing
     /// the specified <paramref name="fixedObject"/>.
     /// </remarks>
     /// <param name="o">Object to be copied. This object may implement the
@@ -120,7 +109,7 @@ namespace Presentation.SkinEngine.MpfElements
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
-    /// <see cref="MpfCopyManager.DeepCopyWithIdentities"/> with an empty identity map.
+    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an empty identity map.
     /// </remarks>
     /// <param name="o">Object to be copied. This object may implement the
     /// interface <see cref="IDeepCopyable"/>, or may not.</param>
@@ -128,6 +117,30 @@ namespace Presentation.SkinEngine.MpfElements
     public static new T DeepCopy<T>(T o)
     {
       IDictionary<object, object> identities = new Dictionary<object, object>();
+      return DeepCopyWithIdentities(o, identities);
+    }
+
+    /// <summary>
+    /// Creates a deep copy of object <paramref name="o"/> while maintaining the logical parent
+    /// of the object if it is a <see cref="DependencyObject"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method is a convenience method for calling
+    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an identity map only
+    /// containing the logical parent of <paramref name="o"/>, if it is a <see cref="DependencyObject"/>.
+    /// </remarks>
+    /// <param name="o">Object to be copied.</param>
+    /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
+    public static T DeepCopyFixedLP<T>(T o)
+    {
+      IDictionary<object, object> identities = new Dictionary<object, object>();
+      DependencyObject depObj = o as DependencyObject;
+      if (depObj != null)
+      {
+        DependencyObject lp = depObj.LogicalParent;
+        if (lp != null)
+          identities[lp] = lp;
+      }
       return DeepCopyWithIdentities(o, identities);
     }
   }

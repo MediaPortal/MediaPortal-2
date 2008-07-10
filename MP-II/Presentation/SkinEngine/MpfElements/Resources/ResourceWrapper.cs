@@ -34,6 +34,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     #region Protected fields
 
     protected object _resource = null;
+    protected bool _freezable = false;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
 
@@ -56,6 +57,12 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     {
       get { return _resource; }
       set { _resource = value; }
+    }
+
+    public bool Freezable
+    {
+      get { return _freezable; }
+      set { _freezable = value; }
     }
 
     #endregion

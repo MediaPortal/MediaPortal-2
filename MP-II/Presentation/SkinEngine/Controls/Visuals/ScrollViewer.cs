@@ -39,11 +39,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     #endregion
 
     public ScrollViewer()
-    {
-      Init();
-    }
-
-    void Init()
     { }
 
     public override void OnKeyPressed(ref Key key)

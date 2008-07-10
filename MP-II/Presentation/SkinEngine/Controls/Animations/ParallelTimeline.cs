@@ -22,7 +22,6 @@
 
 #endregion
 
-using Presentation.SkinEngine.MarkupExtensions;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {

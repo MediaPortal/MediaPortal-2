@@ -23,6 +23,7 @@
 #endregion
 
 using System.Reflection;
+using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls.Bindings;
 using Presentation.SkinEngine.XamlParser;
 
@@ -46,15 +47,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
       Mode = BindingMode.OneTime;
     }
 
-    public CommandMarkupExtension(CommandMarkupExtension other, object newTarget):
-        base(other, newTarget)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      _parameter = other._parameter;
-    }
-
-    public override BindingBase CloneAndRetarget(object newTarget)
-    {
-      return new CommandMarkupExtension(this, newTarget);
+      // We need to set our parameter first before BindingMarkupExtension binds
+      // in the base.DeepCopy call
+      CommandMarkupExtension cme = source as CommandMarkupExtension;
+      CommandParameter = copyManager.GetCopy(cme.CommandParameter);
+      base.DeepCopy(source, copyManager);
     }
 
     #region Public properties

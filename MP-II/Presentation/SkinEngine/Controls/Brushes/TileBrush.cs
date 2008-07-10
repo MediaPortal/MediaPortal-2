@@ -61,6 +61,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public TileBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -70,7 +71,10 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _stretchProperty = new Property(typeof(Stretch), Stretch.Fill);
       _tileModeProperty = new Property(typeof(TileMode), TileMode.None);
       _viewPortProperty = new Property(typeof(Vector4), new Vector4(0, 0, 1, 1));
+    }
 
+    void Attach()
+    {
       _alignmentXProperty.Attach(OnPropertyChanged);
       _alignmentYProperty.Attach(OnPropertyChanged);
       _stretchProperty.Attach(OnPropertyChanged);
@@ -78,8 +82,18 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _viewPortProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _alignmentXProperty.Detach(OnPropertyChanged);
+      _alignmentYProperty.Detach(OnPropertyChanged);
+      _stretchProperty.Detach(OnPropertyChanged);
+      _tileModeProperty.Detach(OnPropertyChanged);
+      _viewPortProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       TileBrush b = source as TileBrush;
       AlignmentX = copyManager.GetCopy(b.AlignmentX);
@@ -87,6 +101,7 @@ namespace Presentation.SkinEngine.Controls.Brushes
       Stretch = copyManager.GetCopy(b.Stretch);
       Tile = copyManager.GetCopy(b.Tile);
       ViewPort = copyManager.GetCopy(b.ViewPort);
+      Attach();
     }
 
     #endregion

@@ -77,7 +77,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       if (!TYPE_MAPPING.ContainsKey(_interfaceName))
         throw new XamlBindingException("ServiceScopeMarkupExtension: Type '{0}' is not known", _interfaceName);
       Type t = TYPE_MAPPING[_interfaceName];
-      Type scType = typeof (ServiceScope);
+      Type scType = typeof(ServiceScope);
       MethodInfo mi = scType.GetMethod("Get",
         BindingFlags.Public | BindingFlags.Static,
         null, new Type[] {}, null);

@@ -27,11 +27,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
   public class ItemsPanelTemplate : FrameworkTemplate
   {
     public ItemsPanelTemplate()
-    {
-      Init();
-    }
-
-    void Init()
     { }
   }
 }

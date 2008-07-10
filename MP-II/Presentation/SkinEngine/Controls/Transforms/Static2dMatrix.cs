@@ -38,11 +38,6 @@ namespace Presentation.SkinEngine.Controls.Transforms
     #region Ctor
 
     public Static2dMatrix()
-    {
-      Init();
-    }
-
-    void Init()
     { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

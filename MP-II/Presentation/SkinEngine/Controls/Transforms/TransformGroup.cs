@@ -42,22 +42,34 @@ namespace Presentation.SkinEngine.Controls.Transforms
     public TransformGroup()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _childrenProperty = new Property(typeof(TransformCollection), new TransformCollection());
+    }
 
+    void Attach()
+    {
       _childrenProperty.Attach(OnPropertyChanged);
       Children.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _childrenProperty.Detach(OnPropertyChanged);
+      Children.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       TransformGroup g = source as TransformGroup;
       foreach (Transform t in g.Children)
         Children.Add(copyManager.GetCopy(t));
+      Attach();
     }
 
     #endregion

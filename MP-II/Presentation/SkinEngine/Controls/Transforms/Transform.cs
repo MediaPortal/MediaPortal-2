@@ -24,9 +24,7 @@
 
 using Presentation.SkinEngine.SkinManagement;
 using SlimDX;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
 using Presentation.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -47,12 +45,17 @@ namespace Presentation.SkinEngine.Controls.Transforms
 
     public Transform(): base(null)
     {
-      Init();
+      Attach();
     }
 
-    void Init()
+    void Attach()
     {
       SkinContext.ZoomProperty.Attach(OnZoomChanged);
+    }
+
+    void Detach()
+    {
+      SkinContext.ZoomProperty.Detach(OnZoomChanged);
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

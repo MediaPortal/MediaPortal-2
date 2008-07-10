@@ -52,6 +52,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     public Line()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -60,20 +61,34 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _y1Property = new Property(typeof(double), 0.0);
       _x2Property = new Property(typeof(double), 0.0);
       _y2Property = new Property(typeof(double), 0.0);
-      _x1Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
-      _y1Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
-      _x2Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
-      _y2Property.Attach(new PropertyChangedHandler(OnCoordinateChanged));
+    }
+
+    void Attach()
+    {
+      _x1Property.Attach(OnCoordinateChanged);
+      _y1Property.Attach(OnCoordinateChanged);
+      _x2Property.Attach(OnCoordinateChanged);
+      _y2Property.Attach(OnCoordinateChanged);
+    }
+
+    void Detach()
+    {
+      _x1Property.Detach(OnCoordinateChanged);
+      _y1Property.Detach(OnCoordinateChanged);
+      _x2Property.Detach(OnCoordinateChanged);
+      _y2Property.Detach(OnCoordinateChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Line l = source as Line;
       X1 = copyManager.GetCopy(l.X1);
       Y1 = copyManager.GetCopy(l.Y1);
       X2 = copyManager.GetCopy(l.X2);
       Y2 = copyManager.GetCopy(l.Y2);
+      Attach();
     }
 
     #endregion

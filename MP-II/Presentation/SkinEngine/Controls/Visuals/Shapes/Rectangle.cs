@@ -50,23 +50,35 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     public Rectangle()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _radiusXProperty = new Property(typeof(double), 0.0);
       _radiusYProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _radiusXProperty.Attach(OnRadiusChanged);
       _radiusYProperty.Attach(OnRadiusChanged);
     }
 
+    void Detach()
+    {
+      _radiusXProperty.Detach(OnRadiusChanged);
+      _radiusYProperty.Detach(OnRadiusChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Rectangle r = source as Rectangle;
       RadiusX = copyManager.GetCopy(r.RadiusX);
       RadiusY = copyManager.GetCopy(r.RadiusY);
+      Attach();
     }
 
     #endregion

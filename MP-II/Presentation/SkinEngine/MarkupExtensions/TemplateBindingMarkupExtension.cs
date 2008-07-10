@@ -39,14 +39,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
       RelativeSource = RelativeSource.TemplatedParent;
     }
 
-    public TemplateBindingMarkupExtension(TemplateBindingMarkupExtension other, object newTarget):
-        base(other, newTarget) { }
-
-    public override BindingBase CloneAndRetarget(object newTarget)
-    {
-      return new TemplateBindingMarkupExtension(this, newTarget);
-    }
-
     #region Protected methods
 
     protected override string BindingTypeName

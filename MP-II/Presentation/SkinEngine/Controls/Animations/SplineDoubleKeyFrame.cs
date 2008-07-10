@@ -53,7 +53,12 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     void Attach()
     {
-      _keySplineProperty.Attach(new PropertyChangedHandler(OnSplineChanged));
+      _keySplineProperty.Attach(OnSplineChanged);
+    }
+
+    void Detach()
+    {
+      _keySplineProperty.Detach(OnSplineChanged);
     }
 
     void OnSplineChanged(Property prop)
@@ -64,9 +69,12 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       SplineDoubleKeyFrame kf = source as SplineDoubleKeyFrame;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
+      Attach();
+      OnSplineChanged(_keySplineProperty);
     }
 
     #endregion

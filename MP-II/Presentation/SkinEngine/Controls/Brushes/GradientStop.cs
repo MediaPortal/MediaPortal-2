@@ -42,28 +42,42 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public GradientStop(): base(null)
     {
       Init();
+      Attach();
     }
 
     public GradientStop(double offset, Color color): base(null)
     {
-      _colorProperty = new Property(typeof(Color), color);
-      _offsetProperty = new Property(typeof(double), offset);
+      Init();
+      Color = color;
+      Offset = offset;
+      Attach();
     }
 
     void Init()
     {
       _colorProperty = new Property(typeof(Color), Color.White);
       _offsetProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _colorProperty.Attach(OnPropertyChanged);
       _offsetProperty.Attach(OnPropertyChanged);
     }
 
+    void Detach()
+    {
+      _colorProperty.Detach(OnPropertyChanged);
+      _offsetProperty.Detach(OnPropertyChanged);
+    }
+
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       GradientStop s = source as GradientStop;
       Color = copyManager.GetCopy(s.Color);
       Offset = copyManager.GetCopy(s.Offset);
+      Attach();
     }
 
     #endregion

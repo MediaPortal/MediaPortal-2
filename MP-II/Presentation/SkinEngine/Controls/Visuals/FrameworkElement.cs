@@ -60,7 +60,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _widthProperty;
     Property _heightProperty;
 
-    Property _acutalWidthProperty;
+    Property _actualWidthProperty;
     Property _actualHeightProperty;
     Property _horizontalAlignmentProperty;
     Property _verticalAlignmentProperty;
@@ -68,10 +68,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     bool _updateOpacityMask;
     bool _mouseOver = false;
     bool _inRender = false;
-    VerticalAlignmentEnum _verticalAlignmentCache = VerticalAlignmentEnum.Center;
-    HorizontalAlignmentEnum _horizontalAlignmentCache = HorizontalAlignmentEnum.Center;
-    double _actualWidthCache;
-    double _actualHeightCache;
     VisualAssetContext _opacityMaskContext;
 
     #endregion
@@ -89,7 +85,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _widthProperty = new Property(typeof(double), 0.0);
       _heightProperty = new Property(typeof(double), 0.0);
 
-      _acutalWidthProperty = new Property(typeof(double), 0.0);
+      _actualWidthProperty = new Property(typeof(double), 0.0);
       _actualHeightProperty = new Property(typeof(double), 0.0);
       _styleProperty = new Property(typeof(Style), null);
       _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Center);
@@ -101,14 +97,22 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _widthProperty.Attach(OnPropertyChanged);
       _heightProperty.Attach(OnPropertyChanged);
       _actualHeightProperty.Attach(OnActualHeightChanged);
-      _acutalWidthProperty.Attach(OnActualWidthChanged);
+      _actualWidthProperty.Attach(OnActualWidthChanged);
       _styleProperty.Attach(OnStyleChanged);
-      _horizontalAlignmentProperty.Attach(OnHorizontalAlignmentChanged);
-      _verticalAlignmentProperty.Attach(OnVerticalAlignmentChanged);
+    }
+
+    void Detach()
+    {
+      _widthProperty.Detach(OnPropertyChanged);
+      _heightProperty.Detach(OnPropertyChanged);
+      _actualHeightProperty.Detach(OnActualHeightChanged);
+      _actualWidthProperty.Detach(OnActualWidthChanged);
+      _styleProperty.Detach(OnStyleChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       FrameworkElement fe = source as FrameworkElement;
       Width = copyManager.GetCopy(fe.Width);
@@ -118,19 +122,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       ActualHeight = copyManager.GetCopy(fe.ActualHeight);
       HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
       VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
+      Attach();
     }
 
     #endregion
-
-    protected void OnHorizontalAlignmentChanged(Property property)
-    {
-      _horizontalAlignmentCache = (HorizontalAlignmentEnum)_horizontalAlignmentProperty.GetValue();
-    }
-
-    protected void OnVerticalAlignmentChanged(Property property)
-    {
-      _verticalAlignmentCache = (VerticalAlignmentEnum)_verticalAlignmentProperty.GetValue();
-    }
 
     protected virtual void OnStyleChanged(Property property)
     {
@@ -141,13 +136,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnActualHeightChanged(Property property)
     {
-      _actualHeightCache = (double)_actualHeightProperty.GetValue();
       _updateOpacityMask = true;
     }
 
     void OnActualWidthChanged(Property property)
     {
-      _actualWidthCache = (double)_acutalWidthProperty.GetValue();
       _updateOpacityMask = true;
     }
 
@@ -188,13 +181,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public Property ActualWidthProperty
     {
-      get { return _acutalWidthProperty; }
+      get { return _actualWidthProperty; }
     }
 
     public double ActualWidth
     {
-      get { return _actualWidthCache; }
-      set { _acutalWidthProperty.SetValue(value); }
+      get { return (double) _actualWidthProperty.GetValue(); }
+      set { _actualWidthProperty.SetValue(value); }
     }
 
     public Property ActualHeightProperty
@@ -204,7 +197,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public double ActualHeight
     {
-      get { return _actualHeightCache; }
+      get { return (double)_actualHeightProperty.GetValue(); }
       set { _actualHeightProperty.SetValue(value); }
     }
 
@@ -215,12 +208,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum HorizontalAlignment
     {
-      get { return _horizontalAlignmentCache; }
-      set
-      {
-        _horizontalAlignmentCache = value;
-        _horizontalAlignmentProperty.SetValue(value);
-      }
+      get { return (HorizontalAlignmentEnum) _horizontalAlignmentProperty.GetValue(); }
+      set { _horizontalAlignmentProperty.SetValue(value); }
     }
 
     public Property VerticalAlignmentProperty
@@ -230,7 +219,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public VerticalAlignmentEnum VerticalAlignment
     {
-      get { return _verticalAlignmentCache; }
+      get { return (VerticalAlignmentEnum) _verticalAlignmentProperty.GetValue(); }
       set { _verticalAlignmentProperty.SetValue(value);  }
     }
 

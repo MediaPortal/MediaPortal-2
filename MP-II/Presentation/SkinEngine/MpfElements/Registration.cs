@@ -30,6 +30,7 @@ using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine.Controls.Panels;
 using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
@@ -330,6 +331,23 @@ namespace Presentation.SkinEngine.MpfElements
         result.W = vec.W;
         result.Z = vec.Z;
         target = result;
+        return true;
+      }
+      else if (source is Style)
+      {
+        // Style objects are unmodifyable
+        target = source;
+        return true;
+      }
+      else if (source is DataTemplate)
+      {
+        // DataTemplate objects are unmodifyable
+        target = source;
+        return true;
+      }
+      else if (source is ResourceWrapper && ((ResourceWrapper) source).Freezable)
+      {
+        target = source;
         return true;
       }
       return false;

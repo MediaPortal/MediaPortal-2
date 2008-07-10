@@ -49,12 +49,11 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void Init()
     {
       _isCheckedProperty = new Property(typeof(bool), false);
-
-      _isCheckedProperty.Attach(new PropertyChangedHandler(onPropChanged));
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      base.DeepCopy(source, copyManager);
       CheckBox cb = source as CheckBox;
       IsChecked = copyManager.GetCopy(cb.IsChecked);
       Checked = copyManager.GetCopy(cb.Checked);
@@ -62,9 +61,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    void onPropChanged(Property p)
-    { }
 
     public Property IsCheckedProperty
     {

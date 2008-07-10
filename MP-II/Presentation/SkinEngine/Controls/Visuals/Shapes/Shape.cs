@@ -89,6 +89,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     public Shape()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -97,21 +98,36 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _strokeProperty = new Property(typeof(Brush), null);
       _strokeThicknessProperty = new Property(typeof(double), 1.0);
       _stretchProperty = new Property(typeof(Stretch), Stretch.None);
+    }
 
+    void Attach()
+    {
       _fillProperty.Attach(OnFillBrushPropertyChanged);
       _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Attach(OnStrokeThicknessChanged);
+      // FIXME: ??
       // _strokeProperty.Attach(OnStrokeThicknessChanged);
+    }
+
+    void Detach()
+    {
+      _fillProperty.Detach(OnFillBrushPropertyChanged);
+      _strokeProperty.Detach(OnStrokeBrushPropertyChanged);
+      _strokeThicknessProperty.Detach(OnStrokeThicknessChanged);
+      // FIXME: ??
+      // _strokeProperty.Detach(OnStrokeThicknessChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Shape s = source as Shape;
       Fill = copyManager.GetCopy(s.Fill);
       Stroke = copyManager.GetCopy(s.Stroke);
       StrokeThickness = copyManager.GetCopy(s.StrokeThickness);
       Stretch = copyManager.GetCopy(s.Stretch);
+      Attach();
     }
 
     #endregion

@@ -46,22 +46,33 @@ namespace Presentation.SkinEngine.Controls.Brushes
     public ImageBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _imageSourceProperty = new Property(typeof(string), null);
       _downloadProgressProperty = new Property(typeof(double), 0.0);
+    }
 
+    void Attach()
+    {
       _imageSourceProperty.Attach(OnPropertyChanged);
+    }
+
+    void Detach()
+    {
+      _imageSourceProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ImageBrush b = source as ImageBrush;
       ImageSource = copyManager.GetCopy(b.ImageSource);
       DownloadProgress = copyManager.GetCopy(b.DownloadProgress);
+      Attach();
     }
 
     #endregion

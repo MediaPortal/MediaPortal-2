@@ -87,6 +87,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     public Panel()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -96,14 +97,24 @@ namespace Presentation.SkinEngine.Controls.Panels
       _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Top);
       _backgroundProperty = new Property(typeof(Brush), null);
       _isItemsHostProperty = new Property(typeof(bool), false);
+      _renderOrder = new List<UIElement>();
+    }
 
+    void Attach()
+    {
       _alignmentXProperty.Attach(OnPropertyInvalidate);
       _alignmentYProperty.Attach(OnPropertyInvalidate);
-      _renderOrder = new List<UIElement>();
+    }
+
+    void Detach()
+    {
+      _alignmentXProperty.Detach(OnPropertyInvalidate);
+      _alignmentYProperty.Detach(OnPropertyInvalidate);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Panel p = source as Panel;
       AlignmentX = copyManager.GetCopy(p.AlignmentX);
@@ -112,6 +123,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       IsItemsHost = copyManager.GetCopy(p.IsItemsHost);
       foreach (UIElement el in p.Children)
         Children.Add(copyManager.GetCopy(el));
+      Attach();
     }
 
     #endregion

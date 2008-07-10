@@ -46,20 +46,32 @@ namespace Presentation.SkinEngine.Controls.Panels
     public WrapPanel()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _orientationProperty = new Property(typeof(Orientation), Orientation.Horizontal);
-      _orientationProperty.Attach(new PropertyChangedHandler(OnPropertyInvalidate));
       _sizeCol = new List<float>();
+    }
+
+    void Attach()
+    {
+      _orientationProperty.Attach(OnPropertyInvalidate);
+    }
+
+    void Detach()
+    {
+      _orientationProperty.Detach(OnPropertyInvalidate);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       WrapPanel p = source as WrapPanel;
       Orientation = copyManager.GetCopy(p.Orientation);
+      Attach();
     }
 
     #endregion

@@ -27,11 +27,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
   public class TreeViewItem : HeaderedItemsControl
   {
     public TreeViewItem()
-    {
-      Init();
-    }
-
-    void Init()
     { }
 
     protected override bool Prepare()
