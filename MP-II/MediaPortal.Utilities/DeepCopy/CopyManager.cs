@@ -50,12 +50,11 @@ namespace MediaPortal.Utilities.DeepCopy
       {
         result = CreateCopyForInstance(source);
         // The copy process for the new instance will be completed later
-        _toBeCompleted.AddLast((IDeepCopyable)source);
+        _toBeCompleted.AddLast((IDeepCopyable) source);
       }
       else
-      { // No copying of instances which do not implement IDeepCopyable
+        // No copying of instances which do not implement IDeepCopyable
         result = source;
-      }
       AddIdentity(source, result);
       return result;
     }
@@ -125,7 +124,7 @@ namespace MediaPortal.Utilities.DeepCopy
       {
         IDeepCopyable source = _toBeCompleted.First.Value;
         _toBeCompleted.RemoveFirst();
-        IDeepCopyable target = (IDeepCopyable)_identities[source];
+        IDeepCopyable target = (IDeepCopyable) _identities[source];
         if (target != null)
           // If we wanted to avoid recursive calls for the same object, we would
           // have to mark the target object as to be currently processed. We would
