@@ -80,12 +80,12 @@
     </Canvas>
   </Canvas>
   <KeyBinding KeyPress="DvdMenu" Command="{Command Source={Service Players},Path=ShowDvdMenu}" />
-  <KeyBinding KeyPress="DvdUp" Command="{Command Source={Service Players},Path=DvdNavigate}" CommandParameter="Up"/>
-  <KeyBinding KeyPress="DvdDown" Command="{Command Source={Service Players},Path=DvdNavigate}" CommandParameter="Down"/>
-  <KeyBinding KeyPress="DvdLeft" Command="{Command Source={Service Players},Path=DvdNavigate}" CommandParameter="Left"/>
-  <KeyBinding KeyPress="DvdRight" Command="{Command Source={Service Players},Path=DvdNavigate}" CommandParameter="Right"/>
+  <KeyBinding KeyPress="DvdUp" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Up}"/>
+  <KeyBinding KeyPress="DvdDown" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Down}"/>
+  <KeyBinding KeyPress="DvdLeft" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Left}"/>
+  <KeyBinding KeyPress="DvdRight" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Right}"/>
   <KeyBinding KeyPress="DvdSelect" Command="{Command Source={Service Players},Path=DvdSelect}"/>
-  <KeyBinding KeyPress="ContextMenu" Command="{Command Source={Service WindowManager},Path=ShowDialog}" CommandParameter="dialogVideoContextMenu"/>
+  <KeyBinding KeyPress="ContextMenu" Command="{Command Source={Service WindowManager},Path=ShowDialog,Parameters=dialogVideoContextMenu}"/>
   <KeyBinding KeyPress="ZoomMode" Command="{Command Source={Service Players},Path=OSD.NextZoomMode}"/>
   <KeyBinding KeyPress="Left" Command="{Command Source={Service Players},Path=SeekBackward}"/>
   <KeyBinding KeyPress="Right" Command="{Command Source={Service Players},Path=SeekForward}"/>

@@ -33,7 +33,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _commandParameter;
     Property _keyProperty;
     IExecutableCommand _command;
 
@@ -48,7 +47,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _commandParameter = new Property(typeof(object), null);
       _command = null;
       _keyProperty = new Property(typeof(string), "");
       Focusable = false;
@@ -59,7 +57,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       KeyBinding b = source as KeyBinding;
       Command = copyManager.GetCopy(b.Command);
-      CommandParameter = copyManager.GetCopy(b.CommandParameter);
       KeyPress = copyManager.GetCopy(b.KeyPress);
     }
 
@@ -82,17 +79,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       get { return _command; }
       set { _command = value; }
-    }
-
-    public Property CommandParameterProperty
-    {
-      get { return _commandParameter; }
-    }
-
-    public object CommandParameter
-    {
-      get { return _commandParameter.GetValue(); }
-      set { _commandParameter.SetValue(value); }
     }
 
     #endregion
