@@ -22,7 +22,7 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command">
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
       <!-- TODO -->
     </ResourceWrapper>
 

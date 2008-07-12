@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+using Presentation.SkinEngine.General;
+
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
   /// Holds a context of the current parsing operation in the XAML parser.

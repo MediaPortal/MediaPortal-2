@@ -29,7 +29,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
 using MediaPortal.Utilities.Files;
-using Presentation.SkinEngine.MpfElements.Resources;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.XamlParser.XamlNamespace;
 
 namespace Presentation.SkinEngine.XamlParser
@@ -50,12 +52,12 @@ namespace Presentation.SkinEngine.XamlParser
   /// where you should provide it the necessary data and callback functions to work.
   /// Once created, the parser is already functional. But before starting the
   /// parsing operation, you will likely first assign a delegate for custom
-  /// type conversions, <see cref="Parser.ConvertCustomType"/>.
+  /// type conversions, <see cref="SetCustomTypeConverter"/>.
   /// </para>
   /// <para>
   /// <b>Parsing operation</b><br/>
   /// The parsing operation starts when the method <see cref="Parser.Parse()"/>
-  /// or <see cref="Parser.Parse(out ICollection{IBinding})"/>
+  /// or <see cref="Parser.Parse()"/>
   /// is called.
   /// The parser will first read the XAML file with an XML reader. This will
   /// result in checking the conformance of the file to the XML language specification.
@@ -285,20 +287,6 @@ namespace Presentation.SkinEngine.XamlParser
       }
       else
         throw new XamlParserException("XAML Parser for file '{0}': Parse() method was invoked multiple times", _xamlFile);
-    }
-
-        /// <summary>
-    /// Given a root element parsed from a XAML file, this method extracts the root
-    /// element, if the given <paramref name="rootElement"/> is an include.
-    /// </summary>
-    /// <param name="rootElement">Root element parsed from a XAML file.</param>
-    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
-    protected object UnwrapIncludes(object rootElement)
-    {
-      if (rootElement is Include)
-        return UnwrapIncludes(((Include) rootElement).Content);
-      else
-        return rootElement;
     }
 
     #endregion
@@ -615,6 +603,8 @@ namespace Presentation.SkinEngine.XamlParser
         throw new XamlParserException("Attribute '{0}' cannot be used here", memberDeclarationNode.Name);
     }
 
+    #region Helper methods
+
     /// <summary>
     /// Checks if the specified <paramref name="maybeCollectionTarget"/> parameter
     /// is an object which is not null and which supports any collection element adding
@@ -663,13 +653,13 @@ namespace Presentation.SkinEngine.XamlParser
       {
         method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] { entryType });
         // Have to cast to ICollection, because the type converter cannot cope with the situation corretcly if we cast to IEnumerable
-        ICollection col = (ICollection)Convert(value, typeof(ICollection));
+        ICollection col = (ICollection) Convert(value, typeof (ICollection));
         if (col == null)
           // The type converter converts null to null rather than to an empty collection, so we have to handle this case explicitly
           method.Invoke(maybeCollectionTarget, new object[] { null });
         else
           foreach (object child in col)
-            method.Invoke(maybeCollectionTarget, new object[] { child });
+            method.Invoke(maybeCollectionTarget, new object[] {child});
         return true;
       }
       // Check for Dictionary
@@ -689,7 +679,7 @@ namespace Presentation.SkinEngine.XamlParser
         return true;
       }
       // Check for IAddChild
-      if (ReflectionHelper.IsIAddChild(maybeCollectionTarget.GetType(), out method, out entryType))
+      if (IsIAddChild(maybeCollectionTarget.GetType(), out method, out entryType))
       {
         foreach (object child in (ICollection)Convert(value, typeof(ICollection)))
           method.Invoke(maybeCollectionTarget, new object[] {Convert(child, entryType)});
@@ -698,6 +688,74 @@ namespace Presentation.SkinEngine.XamlParser
       else
         return false;
     }
+
+    /// <summary>
+    /// Given a root element parsed from a XAML file, this method extracts the root
+    /// element, if the given <paramref name="rootElement"/> is an include.
+    /// </summary>
+    /// <param name="rootElement">Root element parsed from a XAML file.</param>
+    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
+    protected object UnwrapIncludes(object rootElement)
+    {
+      if (rootElement is IInclude)
+        return UnwrapIncludes(((IInclude) rootElement).Content);
+      else
+        return rootElement;
+    }
+
+    /// <summary>
+    /// Returns the implicit key for the specified object. The method will try to cast
+    /// <paramref name="o"/> to <see cref="IImplicitKey"/>. If the object doesn't implement
+    /// this interface, an exception will be raised.
+    /// </summary>
+    /// <param name="o">Object whose implicit key should be evaluated.</param>
+    /// <returns>Implicit key for <paramref name="o"/>.</returns>
+    /// <exception cref="XamlBindingException">If <paramref name="o"/> doesn't implement
+    /// <see cref="IImplicitKey"/>.</exception>
+    protected static object GetImplicitKey(object o)
+    {
+      if (o is IImplicitKey)
+        return ((IImplicitKey)o).GetImplicitKey();
+      else
+        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
+    }
+
+    /// <summary>
+    /// Finds the first implemented <see cref="IAddChild{T}"/> interface type of the specified
+    /// <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">Type to examine.</param>
+    /// <param name="method">If the specified <paramref name="type"/> implements the
+    /// <see cref="IAddChild{T}"/> interface, this parameter returns the
+    /// <see cref="IAddChild{T}.AddChild"/> method.</param>
+    /// <param name="entryType">If the specified <paramref name="type"/> implements the
+    /// <see cref="IAddChild{T}"/> interface, this parameter returns the entry type
+    /// (type parameter T) of the implemented <see cref="IAddChild{T}"/> interface type.
+    /// <returns><c>true</c>, if the specified type implements <see cref="IAddChild{T}"/>,
+    /// else <c>false</c>.</returns>
+    public static bool IsIAddChild(Type type, out MethodInfo method, out Type entryType)
+    {
+      method = null;
+      entryType = null;
+      foreach (Type interfaceType in type.GetInterfaces())
+      {
+        if (interfaceType.IsGenericType)
+        {
+          Type iact = typeof(IAddChild<>);
+          Type et = interfaceType.GetGenericArguments()[0];
+          iact = iact.MakeGenericType(et);
+          if (iact.IsAssignableFrom(type))
+          {
+            method = type.GetMethod("AddChild", new Type[] {et});
+            entryType = et;
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    #endregion
 
     /// <summary>
     /// Parses the contents of an <see cref="XmlNode"/> (not the node itself!).
@@ -769,7 +827,7 @@ namespace Presentation.SkinEngine.XamlParser
           {
             try
             {
-              resultDict.Add(ReflectionHelper.GetImplicitKey(o), o);
+              resultDict.Add(GetImplicitKey(o), o);
             }
             catch
             {
@@ -795,19 +853,20 @@ namespace Presentation.SkinEngine.XamlParser
       if (str.StartsWith("{}")) // {} = escape sequence
         return str.Substring(2);
       else if (str.StartsWith("{"))
-      { // Markup extension
+      { // Object instantiation in attribute value syntax
         if (!str.EndsWith("}"))
-          throw new XamlParserException("Markup extension expression '{0}' must be terminated by a '}' character", str);
+          throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}' character", str);
         string expr = str.Substring(1, str.Length-2).Trim(); // Extract the expression
         string extensionName;
         IList<KeyValuePair<string, string>> parameters;
         bool namedParams;
-        MarkupExtensionInvocationParser.ParseInvocation(expr, out extensionName, out parameters, out namedParams);
+        AttributeValueInstantiationParser.ParseInstantiationExpression(
+            expr, out extensionName, out parameters, out namedParams);
         string namespaceURI;
         LookupNamespace(extensionName, out extensionName, out namespaceURI);
         if (namedParams)
         { // Parameters given in a Name=Value syntax
-          object mei = GetNamespaceHandler(namespaceURI).
+          object avi = GetNamespaceHandler(namespaceURI).
                   InstantiateElement(this, extensionName, namespaceURI,
                       new List<object>()); // Invoke default constructor
           // We only process the given parameters and assign their values to the
@@ -818,20 +877,20 @@ namespace Presentation.SkinEngine.XamlParser
           {
             string propertyName = parameter.Key;
             IDataDescriptor dd;
-            if (ReflectionHelper.FindPropertyDescriptor(mei, propertyName, out dd))
+            if (ReflectionHelper.FindPropertyDescriptor(avi, propertyName, out dd))
             {
               object paramVal = ParseValue(parameter.Value);
               HandlePropertyAssignment(dd, paramVal);
             }
             else
-              throw new XamlBindingException("XAML parser: Property '{0}' was not found on markup extension type '{1}'", propertyName, mei.GetType().Name);
+              throw new XamlBindingException("XAML parser: Property '{0}' was not found on element type '{1}'", propertyName, avi.GetType().Name);
           }
-          return mei;
+          return avi;
         }
         else
         { // Parameters given as constructor parameters
           IList<object> flatParams = new List<object>();
-          foreach (string param in MarkupExtensionInvocationParser.ExtractParameterValues(parameters))
+          foreach (string param in AttributeValueInstantiationParser.ExtractParameterValues(parameters))
           {
             object value = ParseValue(param);
             if (value is IEvaluableMarkupExtension)

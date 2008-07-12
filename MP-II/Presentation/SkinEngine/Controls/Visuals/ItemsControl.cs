@@ -287,23 +287,23 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     protected ItemsPresenter FindItemsPresenter()
     {
-      return FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
+      return TemplateControl == null ? null : TemplateControl.FindElement(
+          new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
     protected virtual bool Prepare()
     {
       if (ItemsSource == null) return false;
       if (ItemsPanel == null) return false;
-      if (TemplateControl == null)
-      {
-        if (ItemContainerStyle == null) return false;
-        if (ItemTemplate == null) return false;
-      }
+      if (TemplateControl == null) return false;
+      if (ItemContainerStyle == null) return false;
+      if (ItemTemplate == null) return false;
       IEnumerator enumer = ItemsSource.GetEnumerator();
       if (enumer.MoveNext() == false) return true;
       enumer.Reset();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
+
       if (!_templateApplied)
       {
         presenter.ApplyTemplate(ItemsPanel);
@@ -312,19 +312,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
 
       if (_itemsHostPanel == null)
-      {
-        _itemsHostPanel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;
-      }
+        _itemsHostPanel = presenter.TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
       if (_itemsHostPanel == null) return false;
+
       _itemsHostPanel.Children.Clear();
-      int index = 0;
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
       {
         FrameworkElement container = PrepareItemContainer(enumer.Current);
         children.Add(container);
-        if (enumer.Current is ListItem)
-        container.Name = string.Format("{0}.{1}", Name, index++);
       }
       children.SetParent(_itemsHostPanel);
       _itemsHostPanel.SetChildren(children);
@@ -344,12 +340,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public bool DoUpdateItems()
     {
       if (_prepare)
-      {
         if (Prepare())
-        {
           _prepare = false;
-        }
-      }
       return false;
     }
 
@@ -359,7 +351,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DoRender();
     }
 
-    // FIXME Albert78: Remove this?
+    // FIXME Albert78: Remove this? Define the meaning of HasFocus property
     //public override bool HasFocus
     //{
     //  get
@@ -384,7 +376,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public void SetFocusOnFirstItem()
     {
-      ItemsPresenter presenter = FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
+      ItemsPresenter presenter = FindItemsPresenter();
       if (presenter != null)
       {
         Panel panel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;

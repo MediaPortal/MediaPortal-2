@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations

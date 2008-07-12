@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -34,8 +34,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
     #region Private fields
 
     Property _isCheckedProperty;
-    Command _checkedCommand;
-    Command _unCheckedCommand;
+    IExecutableCommand _checkedCommand;
+    IExecutableCommand _unCheckedCommand;
 
     #endregion
 
@@ -67,13 +67,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _isCheckedProperty; }
     }
 
-    public Command Checked
+    public IExecutableCommand Checked
     {
       get { return _checkedCommand; }
       set { _checkedCommand = value; }
     }
 
-    public Command Unchecked
+    public IExecutableCommand Unchecked
     {
       get { return _unCheckedCommand; }
       set { _unCheckedCommand = value; }

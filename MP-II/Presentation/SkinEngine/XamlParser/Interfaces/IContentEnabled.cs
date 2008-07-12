@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+using Presentation.SkinEngine.General;
+
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
   /// Marks a visual's element class to be content-enabled.
@@ -34,7 +36,7 @@ namespace Presentation.SkinEngine.XamlParser
     /// <summary>
     /// Tries to find the property which is the content property for this class.
     /// Normal content enabled classes will return their content property instance,
-    /// wrapped in a <see cref="DependencyPropertyDescriptor"/> in the
+    /// wrapped in a <see cref="DependencyPropertyDataDescriptor"/> in the
     /// <paramref name="dd"/> parameter, if they have a property instance, else they would
     /// return a <see cref="SimplePropertyDataDescriptor"/> in this parameter.
     /// Anyway, it is possible to return a property on a completely different instance,

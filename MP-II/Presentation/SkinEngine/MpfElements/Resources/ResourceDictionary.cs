@@ -27,8 +27,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.Genreal.Exceptions;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
@@ -37,11 +38,17 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
   public class ResourceDictionary: DependencyObject, IDictionary<string, object>, IInitializable, INameScope, IDeepCopyable
   {
+    #region Protected fields
+
     protected string _source = "";
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
     protected IDictionary<string, object> _resources = new Dictionary<string, object>();
+
+    #endregion
+
+    #region Ctor
 
     public ResourceDictionary() { }
 
@@ -56,6 +63,10 @@ namespace Presentation.SkinEngine.MpfElements.Resources
         _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
       _parent = copyManager.GetCopy(rd._parent);
     }
+
+    #endregion
+
+    #region Public properties & events
 
     public event ResourcesChangedHandler ResourcesChanged;
 
@@ -81,6 +92,10 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       set { _mergedDictionaries = value; }
     }
 
+    #endregion
+
+    #region Public methods
+
     public void Merge(ResourceDictionary dict)
     {
       IEnumerator<KeyValuePair<string, object>> enumer = ((IDictionary<string, object>) dict).GetEnumerator();
@@ -94,6 +109,8 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       if (ResourcesChanged != null)
         ResourcesChanged(this);
     }
+
+    #endregion
 
     #region IInitializable implementation
 

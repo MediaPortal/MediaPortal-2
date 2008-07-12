@@ -22,10 +22,10 @@
 
 #endregion
 
+using Presentation.SkinEngine.XamlParser.Interfaces;
+
 namespace Presentation.SkinEngine.XamlParser.XamlNamespace
 {
-  using Parsers;
-
   public class TypeMarkupExtension: IEvaluableMarkupExtension
   {
 

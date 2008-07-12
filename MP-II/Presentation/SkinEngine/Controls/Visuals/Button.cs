@@ -26,21 +26,18 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine;
-using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class Button : ContentControl
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _isPressedProperty;
+    protected Property _isPressedProperty;
 
-    Property _commandParameter;
-    Command _command;
-    Command _contextMenuCommand;
-    Property _contextMenuCommandParameterProperty;
+    protected Property _commandProperty;
 
     #endregion
 
@@ -54,10 +51,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void Init()
     {
       _isPressedProperty = new Property(typeof(bool), false);
-      _commandParameter = new Property(typeof(object), null);
-      _command = null;
-      _contextMenuCommandParameterProperty = new Property(typeof(object), null);
-      _contextMenuCommand = null;
+      _commandProperty = new Property(typeof(IExecutableCommand), null);
       Focusable = true;
     }
 
@@ -65,11 +59,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       Button b = source as Button;
-      IsPressed = copyManager.GetCopy(b.IsPressed);
       Command = copyManager.GetCopy(b.Command);
-      CommandParameter = copyManager.GetCopy(b.CommandParameter);
-      ContextMenuCommand = copyManager.GetCopy(b.ContextMenuCommand);
-      ContextMenuCommandParameter = copyManager.GetCopy(b.ContextMenuCommandParameter);
     }
 
     #endregion
@@ -101,39 +91,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region Command properties
 
-    public Command Command
+    public Property CommandProperty
     {
-      get { return _command; }
-      set { _command = value; }
+      get { return _commandProperty; }
+      set { _commandProperty = value; }
     }
 
-    public Property CommandParameterProperty
+    public IExecutableCommand Command
     {
-      get { return _commandParameter; }
-      set { _commandParameter = value; }
-    }
-
-    public object CommandParameter
-    {
-      get { return _commandParameter.GetValue(); }
-      set { _commandParameter.SetValue(value); }
-    }
-
-    public Command ContextMenuCommand
-    {
-      get { return _contextMenuCommand; }
-      set { _contextMenuCommand = value; }
-    }
-
-    public Property ContextMenuCommandParameterProperty
-    {
-      get { return _contextMenuCommandParameterProperty; }
-    }
-
-    public object ContextMenuCommandParameter
-    {
-      get { return _contextMenuCommandParameterProperty.GetValue(); }
-      set { _contextMenuCommandParameterProperty.SetValue(value); }
+      get { return (IExecutableCommand) _commandProperty.GetValue(); }
+      set { _commandProperty.SetValue(value); }
     }
 
     #endregion
@@ -147,35 +114,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (key == MediaPortal.Control.InputManager.Key.Enter)
       {
         IsPressed = true;
-      }
-      if (key == MediaPortal.Control.InputManager.Key.Enter)
-      {
         if (Command != null)
-        {
-          if (CommandParameter != null)
-            Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
-          else if (Command.Parameter != null)
-            Command.Method.Invoke(Command.Object, new object[] { Command.Parameter });
-          else
-            Command.Method.Invoke(Command.Object, null);
-        }
+          Command.Execute();
+
         // FIXME: Replace this with a TemplateBinding associating the Button's Command and parameter with the
         // ListItem's Command and parameter
         if (Context is ListItem)
         {
           ListItem listItem = Context as ListItem;
           if (listItem.Command != null)
-          {
             listItem.Command.Execute(listItem.CommandParameter);
-          }
-        }
-      }
-
-      if (key == MediaPortal.Control.InputManager.Key.ContextMenu)
-      {
-        if (ContextMenuCommand != null)
-        {
-          ContextMenuCommand.Method.Invoke(ContextMenuCommand.Object, new object[] { ContextMenuCommandParameter });
         }
       }
 

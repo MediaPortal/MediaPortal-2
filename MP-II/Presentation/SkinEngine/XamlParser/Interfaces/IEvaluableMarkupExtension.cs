@@ -22,18 +22,24 @@
 
 #endregion
 
-using System.Xml;
+using Presentation.SkinEngine.Genreal.Exceptions;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
-  /// Marks a visual's element class to be able to handle it's XAML XML child
-  /// elements itself. This is the case, for example, for the XAML directive element
-  /// <c>x:XData</c>, which will read its children into its own structure rather than
-  /// implementing it via the XAML parser.
+  /// Represents an instance of a markup extension which can be evaluated
+  /// early, i.e. during the parsing time. Implementing classes will
+  /// declare constructors and properties to configure this instance. The method
+  /// <see cref="IEvaluableMarkupExtension.Evaluate(IParserContext)"/>
+  /// will evaluate the value implied by this markup extension instance.
   /// </summary>
-  public interface INativeXamlObject
+  public interface IEvaluableMarkupExtension
   {
-    void HandleChildren(IParserContext context, XmlElement thisElement);
+    /// <summary>
+    /// Evaluates the value of this markup extension. Markup extensions, which cannot
+    /// evaluate, may throw a <see cref="XamlBindingException"/>.
+    /// </summary>
+    /// <param name="context">The context instance during the parsing process.</param>
+    object Evaluate(IParserContext context);
   }
 }

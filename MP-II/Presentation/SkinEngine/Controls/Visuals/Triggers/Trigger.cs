@@ -29,7 +29,7 @@ using System.Reflection;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers

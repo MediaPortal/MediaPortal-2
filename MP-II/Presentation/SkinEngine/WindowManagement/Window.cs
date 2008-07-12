@@ -363,7 +363,7 @@ namespace Presentation.SkinEngine
       lock (_invalidControls)
       {
         if (_invalidControls.Count == 0) return;
-         ctls = _invalidControls;
+          ctls = _invalidControls;
         _invalidControls = new List<IUpdateEventHandler>();
       }
       for (int i = 0; i < ctls.Count; ++i)

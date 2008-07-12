@@ -22,22 +22,10 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
-  /// <summary>
-  /// Represents an instance of a markup extension which can be evaluated
-  /// early, i.e. during the parsing time. Implementing classes will
-  /// declare constructors and properties to configure this instance. The method
-  /// <see cref="IEvaluableMarkupExtension.Evaluate(IParserContext)"/>
-  /// will evaluate the value implied by this markup extension instance.
-  /// </summary>
-  public interface IEvaluableMarkupExtension
+  public interface IInclude
   {
-    /// <summary>
-    /// Evaluates the value of this markup extension. Markup extensions, which cannot
-    /// evaluate, may throw a <see cref="XamlBindException"/>.
-    /// </summary>
-    /// <param name="context">The context instance during the parsing process.</param>
-    object Evaluate(IParserContext context);
+    object Content { get;}
   }
 }

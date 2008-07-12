@@ -25,8 +25,9 @@
 using System;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Genreal.Exceptions;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.General
 {
   using System.Collections;
 

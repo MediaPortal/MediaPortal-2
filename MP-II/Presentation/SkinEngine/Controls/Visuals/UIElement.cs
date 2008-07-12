@@ -25,15 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Presentation.SkinEngine.General;
 using SlimDX;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using Presentation.SkinEngine.Controls.Animations;
 using Presentation.SkinEngine.Controls.Transforms;
-using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Commands;
 using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
@@ -85,7 +86,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
   }
 
   /// <summary>
-  /// Finder implementation which looks for elements of a specified type.
+  /// Finder implementation which looks for elements of the specified type.
   /// </summary>
   public class TypeFinder : IFinder
   {
@@ -99,6 +100,25 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public bool Query(UIElement current)
     {
       return _type == current.GetType();
+    }
+  }
+
+  /// <summary>
+  /// Finder implementation which looks for elements of a the given type or
+  /// of a type derived from the given type.
+  /// </summary>
+  public class SubTypeFinder : IFinder
+  {
+    protected Type _type;
+
+    public SubTypeFinder(Type type)
+    {
+      _type = type;
+    }
+
+    public bool Query(UIElement current)
+    {
+      return _type.IsAssignableFrom(current.GetType());
     }
   }
 
@@ -171,7 +191,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     ResourceDictionary _resources;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
-    Command _loaded;
+    IExecutableCommand _loaded;
     bool _triggersInitialized;
     bool _fireLoaded = true;
     bool _isVisible = true;
@@ -307,7 +327,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public Command Loaded
+    public IExecutableCommand Loaded
     {
       get { return _loaded; }
       set { _loaded = value; }
@@ -760,16 +780,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public bool FindContentProperty(out IDataDescriptor dd)
     {
-      ContentPresenter contentPresenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-      if (contentPresenter != null)
-      {
-        return ReflectionHelper.FindPropertyDescriptor(contentPresenter, "Content", out dd);
-      }
-      else
-      {
-        dd = null;
-        return false;
-      }
+      return ReflectionHelper.FindPropertyDescriptor(this, "Content", out dd);
     }
 
     #endregion
@@ -783,6 +794,10 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Resets this object to a state like it were created. This will release all lazy initialized
+    /// values and force it to re-initialize. The LogicalTree will remain like it is.
+    /// </summary>
     public virtual void Reset()
     {
       _fireLoaded = true;

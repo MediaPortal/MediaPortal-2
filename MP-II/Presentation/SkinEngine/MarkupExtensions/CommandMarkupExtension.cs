@@ -22,10 +22,9 @@
 
 #endregion
 
-using System.Reflection;
+using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Controls.Bindings;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.Commands;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -33,64 +32,55 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// <summary>
   /// Implements the MPF Command markup extension.
   /// </summary>
-  public class CommandMarkupExtension: BindingMarkupExtension
+  public class CommandMarkupExtension : CommandBaseMarkupExtension, IExecutableCommand
   {
-    protected string _parameter = null;
+    #region Protected fields
 
-    public CommandMarkupExtension()
-    {
-      Mode = BindingMode.OneTime;
-    }
+    protected List<object> _parameters = new List<object>();
+
+    #endregion
+
+    #region Ctor
+
+    public CommandMarkupExtension(): base()
+    { }
 
     public CommandMarkupExtension(string path): base(path)
-    {
-      Mode = BindingMode.OneTime;
-    }
+    { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       CommandMarkupExtension cme = source as CommandMarkupExtension;
-      CommandParameter = copyManager.GetCopy(cme.CommandParameter);
-    }
-
-    #region Public properties
-
-    public string CommandParameter
-    {
-      get { return _parameter; }
-      set { _parameter = value; }
+      foreach (object o in cme._parameters)
+        _parameters.Add(copyManager.GetCopy(o));
     }
 
     #endregion
 
-    #region Protected methods
+    #region Public properties
 
-    protected override bool UpdateSourceValue()
+    public IList<object> Parameters
     {
-      IDataDescriptor evaluatedValue;
-      if (!GetSourceDataDescriptor(out evaluatedValue))
-        // Do nothing if not all necessary properties can be resolved at the current time
-        return false;
-      if (_compiledPath == null)
-        return false;
-        try
-        {
-          object obj;
-          MethodInfo mi;
-          if (!_compiledPath.GetMethod(evaluatedValue, out obj, out mi))
-            return false;
-          Command cmd = new Command();
-          cmd.Object = obj;
-          cmd.Method = mi;
-          cmd.Parameter = CommandParameter;
-          _evaluatedSourceValue.SourceValue = new ValueDataDescriptor(cmd);
-          return true;
-        }
-        catch (XamlBindingException)
-        {
-          return false;
-        }
+      get { return _parameters; }
+    }
+
+    #endregion
+
+    #region Protected properties and methods
+
+    protected override string CommandTypeName
+    {
+      get { return "Command"; }
+    }
+
+    #endregion
+
+    #region IExecutableCommand implementation
+
+    public void Execute()
+    {
+      Execute(_parameters);
     }
 
     #endregion

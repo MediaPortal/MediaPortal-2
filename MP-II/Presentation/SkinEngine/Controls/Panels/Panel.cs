@@ -32,7 +32,7 @@ using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
 
@@ -72,7 +72,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     protected Property _alignmentYProperty;
     protected Property _childrenProperty;
     protected Property _backgroundProperty;
-    protected Property _isItemsHostProperty;
+    protected bool _isItemsHost = false;
     protected bool _performLayout = true;
     protected List<UIElement> _renderOrder;
     bool _updateRenderOrder = true;
@@ -96,7 +96,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
       _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Top);
       _backgroundProperty = new Property(typeof(Brush), null);
-      _isItemsHostProperty = new Property(typeof(bool), false);
       _renderOrder = new List<UIElement>();
     }
 
@@ -210,7 +209,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       get
       {
         return _alignmentXProperty == null ? AlignmentX.Center :
-          (AlignmentX)_alignmentXProperty.GetValue();
+          (AlignmentX) _alignmentXProperty.GetValue();
       }
       set { _alignmentXProperty.SetValue(value); }
     }
@@ -225,20 +224,15 @@ namespace Presentation.SkinEngine.Controls.Panels
       get
       {
         return _alignmentYProperty == null ? AlignmentY.Top :
-          (AlignmentY)_alignmentYProperty.GetValue();
+          (AlignmentY) _alignmentYProperty.GetValue();
       }
       set { _alignmentYProperty.SetValue(value); }
     }
 
-    public Property IsItemsHostProperty
-    {
-      get { return _isItemsHostProperty; }
-    }
-
     public bool IsItemsHost
     {
-      get { return (bool)_isItemsHostProperty.GetValue(); }
-      set { _isItemsHostProperty.SetValue(value); }
+      get { return _isItemsHost; }
+      set { _isItemsHost = value; }
     }
 
     public override void Invalidate()

@@ -24,7 +24,8 @@
 
 using System.Collections.Generic;
 using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.SkinManagement;
 using System.IO;

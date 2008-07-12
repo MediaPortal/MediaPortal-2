@@ -22,6 +22,8 @@
 
 #endregion
 
+using Presentation.SkinEngine.XamlParser.Interfaces;
+
 namespace Presentation.SkinEngine.XamlParser.XamlNamespace
 {
   public class NullMarkupExtension: IEvaluableMarkupExtension

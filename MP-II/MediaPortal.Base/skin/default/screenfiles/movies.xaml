@@ -21,9 +21,8 @@
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
           x:Name="MovieList" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Movies}"
-          Command="{Command Path=Select}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"
-          ContextMenuCommand="{Command Source={Service WindowManager},Path=ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"
-          SelectionChanged="{Command Path=OnSelectionChange}">
+          Command="{Command Path=Select,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
+          SelectionChanged="{CommandStencil Path=OnSelectionChange}">
         <ListView.Resources>
           <Storyboard x:Key="focusOutStoryboard">
             <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="Opacity">

@@ -32,13 +32,14 @@
       <CheckBox x:Name="cropButton" Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
         <Label Font="font13" Text="[pictures.crop]"/>
       </CheckBox>
-      <CheckBox Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}"  Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
+      <CheckBox Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
         <Label Font="font13" Text="[pictures.redeye]"/>
       </CheckBox>
       <CheckBox Style="{StaticResource MpRadioButton}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
         <Label Font="font13" Text="[pictures.contrast]"/>
       </CheckBox>
       <Button Style="{StaticResource MpButton}" Height="32" >
+        <!-- TODO: Button.Command -->
         <Label Font="font13" Text="[pictures.print]"/>
       </Button>
     </StackPanel>

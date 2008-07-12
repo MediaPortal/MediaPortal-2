@@ -22,73 +22,57 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.Commands;
 
 namespace Presentation.SkinEngine.Controls.Bindings
 {
-  public class InvokeCommand : TriggerAction
+  /// <summary>
+  /// <see cref="TriggerAction"/> wrapper class for an <see cref="IExecutable"/> command.
+  /// </summary>
+  public class TriggerCommand : TriggerAction
   {
     #region Private fields
 
-    Property _commandParameter;
-    Command _command;
+    IExecutableCommand _command;
 
     #endregion
 
     #region Ctor
 
-    public InvokeCommand()
+    public TriggerCommand()
     {
       Init();
     }
 
     void Init()
     {
-      _commandParameter = new Property(typeof(object), null);
       _command = null;
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      InvokeCommand ic = source as InvokeCommand;
+      TriggerCommand ic = source as TriggerCommand;
       Command = copyManager.GetCopy(ic.Command);
-      CommandParameter = copyManager.GetCopy(ic.CommandParameter);
     }
 
     #endregion
 
     #region Public properties
 
-    public Command Command
+    public IExecutableCommand Command
     {
       get { return _command; }
       set { _command = value; }
     }
 
-    public Property CommandParameterProperty
-    {
-      get { return _commandParameter; }
-    }
-
-    public object CommandParameter
-    {
-      get { return _commandParameter.GetValue(); }
-      set { _commandParameter.SetValue(value); }
-    }
-
-    public void Execute(UIElement element)
-    {
-      if (Command != null)
-        Command.Execute(CommandParameter, false);
-    }
-
     public override void Execute(UIElement element, Trigger trigger)
     {
-      Execute(element);
+      if (Command != null)
+        Command.Execute();
     }
 
     #endregion

@@ -28,8 +28,10 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.General
 {
   /// <summary>
   /// Describes the signature a type converter has to provide.
@@ -99,7 +101,7 @@ namespace Presentation.SkinEngine.XamlParser
     {
       result = null;
       if (obj is IInclude)
-        obj = ((IInclude)obj).Content;
+        obj = ((IInclude) obj).Content;
       if (obj.GetType() != typeof(string)) // Don't treat strings as a collection of characters
       {
         if (obj is ICollection)

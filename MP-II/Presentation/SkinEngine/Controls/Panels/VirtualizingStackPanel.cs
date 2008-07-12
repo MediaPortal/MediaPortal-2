@@ -102,13 +102,13 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       //      Trace.WriteLine(String.Format("VirtualizingStackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
 
-      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        _desiredSize.Width = availableSize.Width - marginWidth;
       if (Height <= 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {

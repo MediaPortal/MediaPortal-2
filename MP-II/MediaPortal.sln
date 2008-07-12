@@ -2,10 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal", "MediaPortal\MediaPortal.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D} = {681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D}
 		{75305527-08FA-48B6-9781-6BD2F38ECD19} = {75305527-08FA-48B6-9781-6BD2F38ECD19}
@@ -22,14 +18,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal", "MediaPortal\
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3} = {6759DACE-15CD-4EB1-8337-8096F35EAEA3}
 		{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7} = {11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinEngine", "Presentation\Skinengine\SkinEngine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "Presentation\ThumbnailGenerator\ThumbnailGenerator.csproj", "{48D8E092-16AD-4022-B584-B19E75E4FD38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinEngine", "Presentation\Skinengine\SkinEngine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -90,10 +84,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaPortal.Base", "MediaPo
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language", "Language", "{7C41647C-2E5D-43AE-B07A-10691BC1297B}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		MediaPortal.Base\Language\strings_de.xml = MediaPortal.Base\Language\strings_de.xml
 		MediaPortal.Base\Language\strings_en.xml = MediaPortal.Base\Language\strings_en.xml
@@ -102,6 +92,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language", "Language", "{7C
 		MediaPortal.Base\Language\strings_nl.xml = MediaPortal.Base\Language\strings_nl.xml
 		MediaPortal.Base\Language\strings_no.xml = MediaPortal.Base\Language\strings_no.xml
 		MediaPortal.Base\Language\strings_sv.xml = MediaPortal.Base\Language\strings_sv.xml
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPServer", "Components\UPnPServer\UPnPServer.csproj", "{9EEC65CC-5E3F-49A4-9EA0-169C849BF39C}"
@@ -279,12 +273,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharesProvider", "Media.Pro
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Defaults", "Defaults", "{628CFE1B-607D-43A9-B4FF-62C100EE5AEA}"
+	ProjectSection(SolutionItems) = preProject
+		MediaPortal.Base\Defaults\Paths.xml = MediaPortal.Base\Defaults\Paths.xml
+	EndProjectSection
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-	ProjectSection(SolutionItems) = preProject
-		MediaPortal.Base\Defaults\Paths.xml = MediaPortal.Base\Defaults\Paths.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.AutoPlay", "Components\AutoPlay\Services.AutoPlay.csproj", "{4E73672B-B668-4153-A6F2-0F45B5C3724B}"
@@ -304,6 +298,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.MetaDataMapper", "
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{D13049C2-A104-4CD7-BC96-509CDED27AB8}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThumbnailGenerator", "Presentation\ThumbnailGenerator\ThumbnailGenerator.csproj", "{48D8E092-16AD-4022-B584-B19E75E4FD38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -342,18 +344,6 @@ Global
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x64.ActiveCfg = Release|x86
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x64.ActiveCfg = Debug|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.ActiveCfg = Debug|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.Build.0 = Debug|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x64.ActiveCfg = Release|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.ActiveCfg = Release|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.Build.0 = Release|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|Any CPU.ActiveCfg = Release|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x64.ActiveCfg = Release|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
-		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 		{EE12C52A-B610-4B8B-95CE-76AE73F8990E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE12C52A-B610-4B8B-95CE-76AE73F8990E}.Debug|x64.ActiveCfg = Debug|x86
 		{EE12C52A-B610-4B8B-95CE-76AE73F8990E}.Debug|x86.ActiveCfg = Debug|x86
@@ -795,13 +785,43 @@ Global
 		{7CAA5D46-B41E-4EBC-90CC-39D78E8368F6}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
 		{7CAA5D46-B41E-4EBC-90CC-39D78E8368F6}.Xml Documentation|x64.ActiveCfg = Release|Any CPU
 		{7CAA5D46-B41E-4EBC-90CC-39D78E8368F6}.Xml Documentation|x86.ActiveCfg = Release|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|x64.ActiveCfg = Debug|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|x86.ActiveCfg = Debug|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|x86.Build.0 = Debug|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|x64.ActiveCfg = Release|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|x86.ActiveCfg = Release|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|x86.Build.0 = Release|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x64.ActiveCfg = Debug|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.ActiveCfg = Debug|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Debug|x86.Build.0 = Debug|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x64.ActiveCfg = Release|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.ActiveCfg = Release|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Release|x86.Build.0 = Release|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
+		{48D8E092-16AD-4022-B584-B19E75E4FD38}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{48D8E092-16AD-4022-B584-B19E75E4FD38} = {C5E75BF4-6192-4FD2-B5FE-214F6BDF0F74}
 		{7E943389-3589-40C9-B481-2E223554CC49} = {C5E75BF4-6192-4FD2-B5FE-214F6BDF0F74}
+		{48D8E092-16AD-4022-B584-B19E75E4FD38} = {C5E75BF4-6192-4FD2-B5FE-214F6BDF0F74}
 		{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D} = {5EE37415-1227-4FF0-AEB1-0CEFAA69529A}
 		{9EEC65CC-5E3F-49A4-9EA0-169C849BF39C} = {5EE37415-1227-4FF0-AEB1-0CEFAA69529A}
 		{EE24ACB8-4306-41BB-B59A-F134FBC7A9A1} = {5EE37415-1227-4FF0-AEB1-0CEFAA69529A}

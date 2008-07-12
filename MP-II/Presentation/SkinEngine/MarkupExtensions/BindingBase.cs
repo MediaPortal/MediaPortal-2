@@ -24,8 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -99,8 +100,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected virtual void AttachToTargetObject(object obj)
     {
-      // We could check here if obj is a DependencyObject and throw an Exception.
-      // But by now, we will permit an arbitrary object.
+      // We could check here if obj is a DependencyObject and throw an Exception if not.
+      // But by now, we will permit objects of arbitrary types.
       _contextObject = obj;
       ICollection<BindingBase> bindingsOfObject;
       if (_objects2Bindings.ContainsKey(_contextObject))

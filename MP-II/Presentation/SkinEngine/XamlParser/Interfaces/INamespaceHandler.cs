@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.General;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
   /// Defines the callback interface the <see cref="XamlParser"/> uses to

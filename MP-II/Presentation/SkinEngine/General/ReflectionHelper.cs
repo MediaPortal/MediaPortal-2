@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Reflection;
-using System.Globalization;
-using System.IO;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Genreal.Exceptions;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.General
 {
   using System.Collections;
 
@@ -38,67 +36,6 @@ namespace Presentation.SkinEngine.XamlParser
   /// </summary>
   public class ReflectionHelper
   {
-    protected static IDictionary<string, Assembly> _loadedAssemblies =
-      new Dictionary<string, Assembly>();
-
-    /// <summary>
-    /// Returns the implicit key for the specified object. The method will try to cast
-    /// <paramref name="o"/> to <see cref="IImplicitKey"/>. If the object doesn't implement
-    /// this interface, an exception will be raised.
-    /// </summary>
-    /// <param name="o">Object whose implicit key should be evaluated.</param>
-    /// <returns>Implicit key for <paramref name="o"/>.</returns>
-    /// <exception cref="XamlBindingException">If <paramref name="o"/> doesn't implement
-    /// <see cref="IImplicitKey"/>.</exception>
-    public static object GetImplicitKey(object o)
-    {
-      if (o is IImplicitKey)
-        return ((IImplicitKey)o).GetImplicitKey();
-      else
-        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
-    }
-
-    /// <summary>
-    /// Finds the assembly with the specified <paramref name="name"/>. This method
-    /// searches all assemblies currently loaded in the current
-    /// <see cref="AppDomain.CurrentDomain">application domain</see>. If the specified
-    /// assembly was not loaded yet, this method tries to find the assembly dll in the
-    /// directory of the mscorlib assembly.
-    /// </summary>
-    /// <param name="name">Short name of the assembly to load.</param>
-    /// <returns>Assembly with the specified sohrt name.</returns>
-    /// <exception cref="XamlLoadException">If the assembly with the specified name
-    /// was not found.</exception>
-    public static Assembly LoadAssembly(string name)
-    {
-      AssemblyName assemblyName = new AssemblyName(name);
-      string assemblyShortName = assemblyName.Name;
-      assemblyShortName = assemblyShortName.ToUpper(CultureInfo.InvariantCulture);
-
-      if (_loadedAssemblies.ContainsKey(assemblyShortName))
-        return _loadedAssemblies[assemblyShortName];
-
-      Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-      foreach (Assembly ass in assemblies)
-      {
-        if (String.Compare(ass.GetName().Name, assemblyShortName, StringComparison.OrdinalIgnoreCase) == 0)
-        {
-          _loadedAssemblies[assemblyShortName] = ass;
-          return ass;
-        }
-      }
-
-      string fullpath = new FileInfo(typeof(string).Assembly.Location).DirectoryName + "\\" + name + ".dll";
-      if (File.Exists(fullpath))
-      {
-        Assembly ass = Assembly.LoadFile(fullpath);
-        _loadedAssemblies[assemblyShortName] = ass;
-        return ass;
-      }
-
-      throw new XamlLoadException("Assembly '{0}' not found", name);
-    }
-
     /// <summary>
     /// Given the instance <paramref name="obj"/> and the <paramref name="propertyName"/>,
     /// this method searches the best matching property on the instance. It first searches
@@ -155,6 +92,9 @@ namespace Presentation.SkinEngine.XamlParser
         out IDataDescriptor result)
     {
       object value = maybeCollection;
+// FIXME Albert78: The following out-commented code is absolutely wrong!?!?? It should be removed.
+//                 After this, remove unnecessary variable "value"
+/*
       if (!(value is IEnumerable))
       {
         // Value cannot be indexed, try to get content property
@@ -166,6 +106,7 @@ namespace Presentation.SkinEngine.XamlParser
           return true;
         }
       }
+*/
       if (value is IList)
       {
         result = new ListIndexerDataDescriptor((IList) value, index);
@@ -316,41 +257,6 @@ namespace Presentation.SkinEngine.XamlParser
         resultValueType = null;
         return;
       }
-    }
-
-    /// <summary>
-    /// Finds the first implemented <see cref="IAddChild{T}"/> interface type of the specified
-    /// <paramref name="type"/>.
-    /// </summary>
-    /// <param name="type">Type to examine.</param>
-    /// <param name="method">If the specified <paramref name="type"/> implements the
-    /// <see cref="IAddChild{T}"/> interface, this parameter returns the
-    /// <see cref="IAddChild{T}.AddChild"/> method.</param>
-    /// <param name="entryType">If the specified <paramref name="type"/> implements the
-    /// <see cref="IAddChild{T}"/> interface, this parameter returns the entry type
-    /// (type parameter T) of the implemented <see cref="IAddChild{T}"/> interface type.
-    /// <returns><c>true</c>, if the specified type implements <see cref="IAddChild{T}"/>,
-    /// else <c>false</c>.</returns>
-    public static bool IsIAddChild(Type type, out MethodInfo method, out Type entryType)
-    {
-      method = null;
-      entryType = null;
-      foreach (Type interfaceType in type.GetInterfaces())
-      {
-        if (interfaceType.IsGenericType)
-        {
-          Type iact = typeof(IAddChild<>);
-          Type et = interfaceType.GetGenericArguments()[0];
-          iact = iact.MakeGenericType(et);
-          if (iact.IsAssignableFrom(type))
-          {
-            method = type.GetMethod("AddChild", new Type[] {et});
-            entryType = et;
-            return true;
-          }
-        }
-      }
-      return false;
     }
   }
 }

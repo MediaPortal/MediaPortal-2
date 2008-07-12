@@ -240,8 +240,7 @@ namespace Presentation.SkinEngine
         if (_currentWindow == null)
           _currentWindow = GetWindow(_history.Peek());
         if (_currentWindow == null)
-        {
-          // The window is broken in the new skin
+        { // The window is broken in the new skin
           if (_skin == _skinManager.DefaultSkin)
               // We're already loading the default skin, it seems to be broken
             throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");

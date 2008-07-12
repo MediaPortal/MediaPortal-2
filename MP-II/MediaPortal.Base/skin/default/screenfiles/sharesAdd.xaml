@@ -22,7 +22,7 @@
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
           <Button Style="{StaticResource MpButton}" Margin="0,0,10,0" Width="160" Height="32"
-              Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="sharescancel">
+              Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=sharescancel}">
             <Label Font="font13" Text="[system.cancel]" Height="32" />
           </Button>
           <Button Style="{StaticResource MpButton}" Margin="10,0,10,10" Width="160" Height="32" Command="{Command Path=Save}" >
@@ -30,7 +30,7 @@
           </Button>
         </StackPanel>
         <TreeView x:Name="tree" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}"
-            Command="{Command GetSubItems}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"/>
+            Command="{Command Path=GetSubItems,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"/>
       </DockPanel>
     </ResourceWrapper>
 

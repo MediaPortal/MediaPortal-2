@@ -22,20 +22,13 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
-  /// Marks a visual's element class to have an implicit key. A resource
-  /// with an implicit key may not have an explicit <c>x:Key</c> attribute
-  /// when used in a
-  /// <see cref="Presentation.SkinEngine.Controls.Resources.ResourceDictionary"/>.
+  /// Marks a visual's element class to have the need to be initialized before it works.
   /// </summary>
-  public interface IImplicitKey
+  public interface IInitializable
   {
-    /// <summary>
-    /// Returns the implicit key for this element.
-    /// </summary>
-    /// <returns>Implicit key for this instance.</returns>
-    object GetImplicitKey();
+    void Initialize(IParserContext context);
   }
 }

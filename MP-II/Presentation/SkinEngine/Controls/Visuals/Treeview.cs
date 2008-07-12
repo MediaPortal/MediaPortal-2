@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Presentation.Collections;
 
@@ -34,12 +34,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _commandParameter;
-    Command _command;
-    Property _commands;
-    Command _contextMenuCommand;
-    Property _contextMenuCommandParameterProperty;
-    Command _selectionChanged;
+    Property _commandProperty;
+    Property _selectionChangedProperty;
 
     #endregion
 
@@ -52,89 +48,42 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _commandParameter = new Property(typeof(object), null);
-      _commands = new Property(typeof(CommandGroup), new CommandGroup(this));
-      _command = null;
-      _contextMenuCommandParameterProperty = new Property(typeof(object), null);
-      _contextMenuCommand = null;
-
+      _commandProperty = new Property(typeof(IExecutableCommand), null);
+      _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       TreeView tv = source as TreeView;
-      Command = copyManager.GetCopy(tv.Command);
-      CommandParameter = copyManager.GetCopy(tv._commandParameter);
       SelectionChanged = copyManager.GetCopy(tv.SelectionChanged);
-
-      ContextMenuCommand = copyManager.GetCopy(tv.ContextMenuCommand);
-      ContextMenuCommandParameter = copyManager.GetCopy(tv.ContextMenuCommandParameter);
-      foreach (InvokeCommand command in tv.Commands)
-        Commands.AddChild(copyManager.GetCopy(command));
+      Command = copyManager.GetCopy(tv.Command);
     }
 
     #endregion
 
     #region Events
 
-    public Command SelectionChanged
+    public Property SelectionChangedProperty
     {
-      get { return _selectionChanged; }
-      set { _selectionChanged = value; }
+      get { return _selectionChangedProperty; }
     }
 
-    #endregion
-
-    #region Public properties
-
-    public Property CommandsProperty
+    public ICommandStencil SelectionChanged
     {
-      get { return _commands; }
+      get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
+      set { _selectionChangedProperty.SetValue(value); }
     }
 
-    public CommandGroup Commands
+    public Property CommandProperty
     {
-      get { return _commands.GetValue() as CommandGroup; }
-      set
-      {
-        _commands.SetValue(value);
-        ((CommandGroup) _commands.GetValue()).Owner = this;
-      }
+      get { return _commandProperty; }
     }
 
-    public Command Command
+    public IExecutableCommand Command
     {
-      get { return _command; }
-      set { _command = value; }
-    }
-
-    public Property CommandParameterProperty
-    {
-      get { return _commandParameter; }
-    }
-
-    public object CommandParameter
-    {
-      get { return _commandParameter.GetValue(); }
-      set { _commandParameter.SetValue(value); }
-    }
-
-    public Command ContextMenuCommand
-    {
-      get { return _contextMenuCommand; }
-      set { _contextMenuCommand = value; }
-    }
-
-    public Property ContextMenuCommandParameterProperty
-    {
-      get { return _contextMenuCommandParameterProperty; }
-    }
-
-    public object ContextMenuCommandParameter
-    {
-      get { return _contextMenuCommandParameterProperty.GetValue(); }
-      set { _contextMenuCommandParameterProperty.SetValue(value); }
+      get { return (IExecutableCommand) _commandProperty.GetValue(); }
+      set { _commandProperty.SetValue(value); }
     }
 
     #endregion
@@ -151,45 +100,26 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       UpdateCurrentItem();
       bool executeCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.Enter);
-      bool executeContextCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.ContextMenu);
       base.OnKeyPressed(ref key);
 
-      if (executeCmd)
-      {
-        if (Command != null)
-        {
-          Command.Execute(CommandParameter, false);
-        }
-        Commands.Execute(this);
-      }
-      if (executeContextCmd)
-      {
-        if (ContextMenuCommand != null)
-        {
-          ContextMenuCommand.Execute(ContextMenuCommandParameter, false);
-
-        }
-      }
+      if (executeCmd && Command != null)
+        Command.Execute();
     }
 
     void UpdateCurrentItem()
     {
       UIElement element = FindElement(FocusFinder.Instance);
       if (element == null)
-      {
         CurrentItem = null;
-      }
       else
       {
+        // FIXME Albert78: This does not necessarily find the right TreeViewItem
         while (!(element is TreeViewItem) && element.VisualParent != null)
           element = element.VisualParent as UIElement;
         CurrentItem = element.Context;
       }
       if (SelectionChanged != null)
-      {
-        SelectionChanged.Execute(CurrentItem, true);
-      }
-
+        SelectionChanged.Execute(new object[] { CurrentItem });
     }
 
     #endregion

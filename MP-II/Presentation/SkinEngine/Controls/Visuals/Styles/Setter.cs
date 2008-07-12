@@ -24,7 +24,7 @@
 using System;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.General;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
 

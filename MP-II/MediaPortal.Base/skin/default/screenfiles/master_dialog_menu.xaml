@@ -24,7 +24,7 @@ Usage:
       <ResourceWrapper x:Key="Menu_Items">
         [Collection of ListItem instances]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Execute_Command">
+      <ResourceWrapper x:Key="Execute_Command_Stencil">
         [Command to be executed with the selected item as parameter]
       </ResourceWrapper>
     </Include.Resources>
@@ -34,8 +34,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Dialog_Header_Text1 (String): The text to be displayed as first header left
  - Dialog_Header_Text2 (String): The text to be displayed as second header right
  - Menu_Items (Collection of ListItem): Items to be displayed as menu items
- - Execute_Command (Command): Command which will be executed with the currently
-   selected ListItem
+ - Execute_Command_Stencil (ICommandStencil): Command stencil which will be executed with
+   the currently selected ListItem as single parameter
 -->
 
 <Include
@@ -50,14 +50,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView x:Name="MainMenu" Style="{DynamicResource ListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
-        <ListView.Commands>
-          <CommandGroup>
-            <InvokeCommand
-                Command="{DynamicResource Execute_Command}"
-                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
-            <InvokeCommand Command="{Command Source={Service WindowManager},Path=CloseDialog}"/>
-          </CommandGroup>
-        </ListView.Commands>
+        <ListView.Command>
+          <CommandList>
+            <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
+              <InvokeCommand.CommandParameters>
+                <LateBoundValue Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
+              </InvokeCommand.CommandParameters>
+            </InvokeCommand>
+            <Command Source="{Service WindowManager}" Path="CloseDialog"/>
+          </CommandList>
+        </ListView.Command>
       </ListView>
     </ResourceWrapper>
 

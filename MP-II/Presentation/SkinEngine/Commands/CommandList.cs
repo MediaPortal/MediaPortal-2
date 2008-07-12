@@ -22,82 +22,66 @@
 
 #endregion
 
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Bindings
+namespace Presentation.SkinEngine.Commands
 {
-  using System.Collections;
-
-  public class CommandGroup : DependencyObject, IAddChild<InvokeCommand>, IEnumerable<InvokeCommand>, IDeepCopyable
+  /// <summary>
+  /// Represents a list of <see cref="IExecutableCommand"/> instances to be executed together.
+  /// </summary>
+  public class CommandList : DependencyObject, IAddChild<IExecutableCommand>,
+      IEnumerable<IExecutableCommand>, IDeepCopyable, IExecutableCommand
   {
     #region Protected fields
 
-    protected IList<InvokeCommand> _elements;
+    protected IList<IExecutableCommand> _commands = new List<IExecutableCommand>();
 
     #endregion
 
     #region Ctor
 
-    public CommandGroup()
-    {
-      Init();
-    }
-
-    public CommandGroup(UIElement owner)
-    {
-      Owner = owner;
-      Init();
-    }
-
-    void Init()
-    {
-      _elements = new List<InvokeCommand>();
-    }
+    public CommandList()
+    { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      CommandGroup cg = source as CommandGroup;
-      foreach (InvokeCommand ic in cg._elements)
-        _elements.Add(copyManager.GetCopy(ic));
+      CommandList cl = source as CommandList;
+      foreach (IExecutableCommand cmd in cl._commands)
+        _commands.Add(copyManager.GetCopy(cmd));
     }
 
     #endregion
 
-    public UIElement Owner
+    #region IExecutableCommand implementation
+
+    public void Execute()
     {
-      get { return LogicalParent as UIElement; }
-      set { LogicalParent = value; }
+      foreach (IExecutableCommand cmd in _commands)
+        cmd.Execute();
     }
 
-    public void Execute(UIElement element)
-    {
-      foreach (InvokeCommand cmd in this)
-        cmd.Execute(element);
-    }
+    #endregion
 
     #region IAddChild Members
 
-    public void AddChild(InvokeCommand o)
+    public void AddChild(IExecutableCommand o)
     {
-      if (o == null)
-        throw new ArgumentException(string.Format("Can only add elements of type {0} to {1}",
-          typeof(InvokeCommand).Name, typeof(CommandGroup).Name));
-      o.Setup(Owner);
-      _elements.Add(o);
+      _commands.Add(o);
     }
 
     #endregion
 
-    #region IEnumerable<InvokeCommand> implementation
+    #region IEnumerable<IExecutableCommand> implementation
 
-    IEnumerator<InvokeCommand> IEnumerable<InvokeCommand>.GetEnumerator()
+    IEnumerator<IExecutableCommand> IEnumerable<IExecutableCommand>.GetEnumerator()
     {
-      return _elements.GetEnumerator();
+      return _commands.GetEnumerator();
     }
 
     #endregion
@@ -106,7 +90,7 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
     public IEnumerator GetEnumerator()
     {
-      return ((IEnumerable<InvokeCommand>) this).GetEnumerator();
+      return ((IEnumerable<IExecutableCommand>) this).GetEnumerator();
     }
 
     #endregion

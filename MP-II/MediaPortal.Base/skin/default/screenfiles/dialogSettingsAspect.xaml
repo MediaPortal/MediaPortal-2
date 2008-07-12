@@ -22,8 +22,8 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command">
-      <Command Source="{StaticResource DataContext}" Path="SetAspect"/>
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
+      <CommandStencil Source="{StaticResource DataContext}" Path="SetAspect"/>
     </ResourceWrapper>
 
   </Include.Resources>

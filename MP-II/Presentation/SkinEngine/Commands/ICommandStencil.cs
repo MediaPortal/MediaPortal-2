@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -22,10 +22,16 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+using System.Collections.Generic;
+
+namespace Presentation.SkinEngine.Commands
 {
-  public interface IInclude
+  /// <summary>
+  /// Describes a stencil for an item which can be executed to fulfill a special job.
+  /// The parameters to execute this command stencil will be filled in later.
+  /// </summary>
+  public interface ICommandStencil
   {
-    object Content { get;}
+    void Execute(IEnumerable<object> parameters);
   }
 }

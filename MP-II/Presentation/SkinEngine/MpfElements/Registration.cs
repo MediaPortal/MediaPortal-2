@@ -33,7 +33,7 @@ using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.MpfElements.Resources;
 using SlimDX;
-using TypeConverter = Presentation.SkinEngine.XamlParser.TypeConverter;
+using TypeConverter = Presentation.SkinEngine.General.TypeConverter;
 using Presentation.SkinEngine.Controls.Visuals.Shapes;
 
 namespace Presentation.SkinEngine.MpfElements
@@ -86,11 +86,6 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
 
-      // Resources
-      objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));
-      objectClassRegistrations.Add("Include", typeof(SkinEngine.MpfElements.Resources.Include));
-      objectClassRegistrations.Add("ResourceWrapper", typeof(SkinEngine.MpfElements.Resources.ResourceWrapper));
-      
       // Brushes
       objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));
       objectClassRegistrations.Add("LinearGradientBrush", typeof(SkinEngine.Controls.Brushes.LinearGradientBrush));
@@ -126,6 +121,7 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("Trigger", typeof(SkinEngine.Controls.Visuals.Triggers.Trigger));
       objectClassRegistrations.Add("BeginStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.BeginStoryboard));
       objectClassRegistrations.Add("StopStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.StopStoryboard));
+      objectClassRegistrations.Add("TriggerCommand", typeof(SkinEngine.Controls.Bindings.TriggerCommand));
 
       // Transforms
       objectClassRegistrations.Add("TransformGroup", typeof(SkinEngine.Controls.Transforms.TransformGroup));
@@ -140,9 +136,15 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Styles.ControlTemplate));
       objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
 
-      // Commands
-      objectClassRegistrations.Add("CommandGroup", typeof(SkinEngine.Controls.Bindings.CommandGroup));
-      objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Controls.Bindings.InvokeCommand));
+      // Resources
+      objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));
+      objectClassRegistrations.Add("Include", typeof(SkinEngine.MpfElements.Resources.Include));
+      objectClassRegistrations.Add("LateBoundValue", typeof(SkinEngine.MpfElements.Resources.LateBoundValue));
+      objectClassRegistrations.Add("ResourceWrapper", typeof(SkinEngine.MpfElements.Resources.ResourceWrapper));
+      
+      // Command
+      objectClassRegistrations.Add("CommandList", typeof(SkinEngine.Commands.CommandList));
+      objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
 
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));
@@ -150,8 +152,11 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("Binding", typeof(SkinEngine.MarkupExtensions.BindingMarkupExtension));
       objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingMarkupExtension));
       objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));
+      objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStencilMarkupExtension));
       objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.GetModelMarkupExtension));
       objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceScopeMarkupExtension));
+
+      // Others
       objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
     }
 
@@ -214,7 +219,7 @@ namespace Presentation.SkinEngine.MpfElements
       else if (targetType == typeof(Thickness))
       {
         Thickness t;
-        float[] numberList = parseNumberList(value.ToString());
+        float[] numberList = ParseFloatList(value.ToString());
 
         if (numberList.Length == 1)
         {
@@ -428,26 +433,6 @@ namespace Presentation.SkinEngine.MpfElements
 
 
     /// <summary>
-    /// Parses a comma separated list of numbers (floats)
-    /// </summary>
-    /// <param name="numbersString">The string representing the list of numbers</param>
-    /// <returns>An array of floats</returns>
-    /// 
-    protected static float[] parseNumberList(string numbersString)
-    {
-      string[] numbers = numbersString.Split(new char[] { ',' });
-      if (numbers.Length == 0)
-        throw new ArgumentException("Empty list");
-      float[] result = new float[numbers.Length];
-      for (int i = 0; i < numbers.Length; i++)
-      {
-        if (!float.TryParse(numbers[i], NumberStyles.Any, NUMBERFORMATINFO, out result[i]))
-          throw new ArgumentException("Not a number (float)");
-      }
-      return result;
-    }
-
-    /// <summary>
     /// Converts a string to a <see cref="Vector4"/>.
     /// </summary>
     /// <param name="coordsString">The coordinates in "0.2,0.4,0.1,0.6" format. This method
@@ -488,6 +473,24 @@ namespace Presentation.SkinEngine.MpfElements
         vec.Z = (float) obj;
       }
       return vec;
+    }
+
+    /// <summary>
+    /// Parses a comma separated list of floats.
+    /// </summary>
+    /// <param name="numbersString">The string representing the list of numbers.</param>
+    /// <returns>Array of floats.</returns>
+    /// <exception cref="ArgumentException">If the <paramref name="numbersString"/>
+    /// is empty or if </exception>
+    protected static float[] ParseFloatList(string numbersString)
+    {
+      string[] numbers = numbersString.Split(new char[] { ',' });
+      if (numbers.Length == 0)
+        throw new ArgumentException("Empty list");
+      float[] result = new float[numbers.Length];
+      for (int i = 0; i < numbers.Length; i++)
+        result[i] = (float) TypeConverter.Convert(numbers[i], typeof(float));
+      return result;
     }
 
     #endregion

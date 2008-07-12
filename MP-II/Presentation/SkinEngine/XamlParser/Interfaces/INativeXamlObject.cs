@@ -22,13 +22,18 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+using System.Xml;
+
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
-  /// Marks a visual's element class to have the need to be initialized before it works.
+  /// Marks a visual's element class to be able to handle it's XAML XML child
+  /// elements itself. This is the case, for example, for the XAML directive element
+  /// <c>x:XData</c>, which will read its children into its own structure rather than
+  /// implementing it via the XAML parser.
   /// </summary>
-  public interface IInitializable
+  public interface INativeXamlObject
   {
-    void Initialize(IParserContext context);
+    void HandleChildren(IParserContext context, XmlElement thisElement);
   }
 }

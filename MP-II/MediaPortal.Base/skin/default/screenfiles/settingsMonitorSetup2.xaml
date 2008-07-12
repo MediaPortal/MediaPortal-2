@@ -22,10 +22,10 @@
           </CheckBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsMonitorSetup">
+          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=settingsMonitorSetup}">
             <Label Font="font13" Text="[settings.back]" Height="32" />
           </Button>
-          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow}" CommandParameter="settingsSkin">
+          <Button Style="{StaticResource MpButton}" Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters="ettingsSkin}">
             <Label Font="font13" Text="[settings.finish]" Height="32" />
           </Button>
         </StackPanel>

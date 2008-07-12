@@ -23,6 +23,7 @@
 #endregion
 
 using System.Xml;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.XamlParser.XamlNamespace
 {

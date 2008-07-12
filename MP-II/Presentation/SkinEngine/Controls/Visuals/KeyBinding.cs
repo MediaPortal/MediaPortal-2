@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls.Bindings;
+using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -35,7 +35,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     Property _commandParameter;
     Property _keyProperty;
-    Command _command;
+    IExecutableCommand _command;
 
     #endregion
 
@@ -78,7 +78,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _keyProperty; }
     }
 
-    public Command Command
+    public IExecutableCommand Command
     {
       get { return _command; }
       set { _command = value; }
@@ -109,12 +109,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (key.ToString() == KeyPress)
       {
         if (Command != null)
-        {
-          if (CommandParameter != null)
-            Command.Method.Invoke(Command.Object, new object[] { CommandParameter });
-          else
-            Command.Method.Invoke(Command.Object, null);
-        }
+          Command.Execute();
       }
     }
   }

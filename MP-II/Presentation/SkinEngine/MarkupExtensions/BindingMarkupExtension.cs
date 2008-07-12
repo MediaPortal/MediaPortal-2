@@ -25,8 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Genreal.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls;
 
@@ -129,8 +132,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Creates a new <see cref="BindingMarkupExtension"/> for the use as
-    /// <i>Binding</i>. The new instance has to be configured before it can be
-    /// used as Binding.
+    /// <i>Binding</i>.
     /// </summary>
     public BindingMarkupExtension()
     {
@@ -139,8 +141,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Creates a new <see cref="BindingMarkupExtension"/> for the use as
-    /// <i>data context</i>. The new instance has to be configured before it
-    /// can be used as data context.
+    /// <i>data context</i>.
     /// </summary>
     public BindingMarkupExtension(DependencyObject contextObject):
         base(contextObject)
@@ -150,8 +151,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Creates a new <see cref="BindingMarkupExtension"/> for the use as
-    /// <i>Binding</i>. After calling this constructor, the new instance may be
-    /// further configured before used as Binding.
+    /// <i>Binding</i>. Works like <see cref="BindingMarkupExtension()"/> with additionally
+    /// setting the <see cref="Path"/> property.
     /// </summary>
     /// <param name="path">Path value for this Binding.</param>
     public BindingMarkupExtension(string path)
@@ -217,6 +218,28 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     #endregion
+
+    /// <summary>
+    /// Evaluates an <see cref="IDataDescriptor"/> instance which is our
+    /// evaluated source value (or value object). This data descriptor
+    /// will be the source endpoint for the binding operation, if any.
+    /// If this binding is used as a parent binding in a superior data context,
+    /// the returned data descriptor is the starting point for subordinated bindings.
+    /// If this binding is used to update a target property, the returned data descriptor
+    /// is used as value for the assignment to the target property.
+    /// </summary>
+    /// <param name="result">Returns the data descriptor for the binding's source value.
+    /// This value is only valid if this method returns <c>true</c>.</param>
+    /// <returns><c>true</c>, if the source value could be resolved,
+    /// <c>false</c> if it could not be resolved (yet).</returns>
+    public bool Evaluate(out IDataDescriptor result)
+    {
+      result = null;
+      if (!UpdateSourceValue())
+        return false;
+      result = _evaluatedSourceValue;
+      return true;
+    }
 
     #region Properties
 
@@ -682,28 +705,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
         }
       // If no path is specified, evaluatedValue will be the source value
       _evaluatedSourceValue.SourceValue = evaluatedValue;
-      return true;
-    }
-
-    /// <summary>
-    /// Evaluates an <see cref="IDataDescriptor"/> instance which is our
-    /// evaluated source value (or value object). This data descriptor
-    /// will be the source endpoint for the binding operation, if any.
-    /// If this binding is used as a parent binding in a superior data context,
-    /// the returned data descriptor is the starting point for subordinated bindings.
-    /// If this binding is used to update a target property, the returned data descriptor
-    /// is used as value for the assignment to the target property.
-    /// </summary>
-    /// <param name="result">Returns the data descriptor for the binding's source value.
-    /// This value is only valid if this method returns <c>true</c>.</param>
-    /// <returns><c>true</c>, if the source value could be resolved,
-    /// <c>false</c> if it could not be resolved (yet).</returns>
-    protected bool Evaluate(out IDataDescriptor result)
-    {
-      result = null;
-      if (!UpdateSourceValue())
-        return false;
-      result = _evaluatedSourceValue;
       return true;
     }
 

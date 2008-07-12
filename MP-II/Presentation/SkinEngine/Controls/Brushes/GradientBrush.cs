@@ -26,7 +26,7 @@ using MediaPortal.Presentation.Properties;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Brushes

@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -87,35 +87,23 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void OnContentChanged(Property property)
     {
-      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-      if (presenter == null)
-        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
+      ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
-      {
         presenter.Content = Content;
-      }
     }
 
     void OnContentTemplateChanged(Property property)
     {
-      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-      if (presenter == null)
-        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
+      ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
-      {
         presenter.ContentTemplate = ContentTemplate;
-      }
     }
 
     void OnContentTemplateSelectorChanged(Property property)
     {
-      ContentPresenter presenter = FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-      if (presenter == null)
-        presenter = FindElement(new TypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
+      ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
-      {
         presenter.ContentTemplateSelector = ContentTemplateSelector;
-      }
     }
 
     #endregion
@@ -166,16 +154,26 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
+    protected ContentPresenter FindContentPresenter()
+    {
+      return TemplateControl == null ? null : TemplateControl.FindElement(
+          new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
+    }
+
+    #region Base overrides
+
     public override UIElement FindElement(IFinder finder)
     {
       UIElement found = base.FindElement(finder);
       if (found != null) return found;
-      if (Content != null)
+      if (Content != null) // Hint: Content can be set in XAML, so it is a LogicalTree property
       {
         found = Content.FindElement(finder);
         return found;
       }
       return null;
     }
+
+    #endregion
   }
 }

@@ -77,11 +77,15 @@
     <Compile Include="Commands\CommandBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\Expression\EventClasses.cs" />
     <Compile Include="Commands\Expression\ExprEval.cs" />
     <Compile Include="Commands\Expression\FunctionEval.cs" />
     <Compile Include="Commands\Expression\IExpression.cs" />
     <Compile Include="Commands\Expression\RegexObjects.cs" />
+    <Compile Include="Commands\ICommandStencil.cs" />
+    <Compile Include="Commands\IExecutableCommand.cs" />
+    <Compile Include="Commands\InvokeCommand.cs" />
     <Compile Include="Commands\ObjectFactory.cs" />
     <Compile Include="Commands\ObjectParameter.cs" />
     <Compile Include="Commands\ReflectionCommand.cs">
@@ -114,9 +118,7 @@
     <Compile Include="Controls\Animations\StoryboardContext.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
-    <Compile Include="Controls\Bindings\Command.cs" />
-    <Compile Include="Controls\Bindings\CommandGroup.cs" />
-    <Compile Include="Controls\Bindings\InvokeCommand.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\BrushCache.cs" />
     <Compile Include="Controls\Brushes\BrushTexture.cs" />
@@ -130,6 +132,14 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
+    <Compile Include="General\DataDescriptors.cs" />
+    <Compile Include="General\Exceptions\Exceptions.cs" />
+    <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\CommandStencilMarkupExtension.cs" />
+    <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
+    <Compile Include="XamlParser\PathExpression.cs" />
+    <Compile Include="General\ReflectionHelper.cs" />
+    <Compile Include="General\TypeConverter.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\IScrollInfo.cs">
       <SubType>Code</SubType>
@@ -250,8 +260,19 @@
     <Compile Include="SkinManagement\Skin.cs" />
     <Compile Include="SkinManagement\SkinManager.cs" />
     <Compile Include="SkinManagement\XamlLoader.cs" />
+    <Compile Include="XamlParser\AssemblyHelper.cs" />
+    <Compile Include="XamlParser\AttributeValueInstantiationParser.cs" />
+    <Compile Include="XamlParser\Interfaces\IAddChild.cs" />
+    <Compile Include="XamlParser\Interfaces\IBinding.cs" />
+    <Compile Include="XamlParser\Interfaces\IContentEnabled.cs" />
+    <Compile Include="XamlParser\Interfaces\IEvaluableMarkupExtension.cs" />
+    <Compile Include="XamlParser\Interfaces\IImplicitKey.cs" />
+    <Compile Include="XamlParser\Interfaces\IInclude.cs" />
+    <Compile Include="XamlParser\Interfaces\INameScope.cs" />
+    <Compile Include="XamlParser\Interfaces\INamespaceHandler.cs" />
+    <Compile Include="XamlParser\Interfaces\INativeXamlObject.cs" />
+    <Compile Include="XamlParser\Interfaces\IParserContext.cs" />
     <Compile Include="XamlParser\NameScope.cs" />
-    <Compile Include="XamlParser\DataDescriptors.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
     <Compile Include="Players\CropSettings.cs" />
@@ -303,6 +324,7 @@
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Fullscreen.cs" />
+    <Compile Include="XamlParser\ParserHelper.cs" />
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
@@ -312,25 +334,9 @@
     <Compile Include="WindowManagement\Window.cs" />
     <Compile Include="WindowManagement\WindowManager.cs" />
     <Compile Include="WindowManagement\WindowSettings.cs" />
-    <Compile Include="XamlParser\IInitializable.cs" />
-    <Compile Include="XamlParser\INameScope.cs" />
-    <Compile Include="XamlParser\PathExpression.cs" />
-    <Compile Include="XamlParser\Parsers\ParserHelper.cs" />
-    <Compile Include="XamlParser\IBinding.cs" />
-    <Compile Include="XamlParser\IImplicitKey.cs" />
-    <Compile Include="XamlParser\IInclude.cs" />
-    <Compile Include="XamlParser\IAddChild.cs" />
-    <Compile Include="XamlParser\INativeXamlObject.cs" />
+    <Compile Include="XamlParser\Interfaces\IInitializable.cs" />
     <Compile Include="XamlParser\DefaultNamespaceHandler.cs" />
     <Compile Include="XamlParser\ElementContextStack.cs" />
-    <Compile Include="XamlParser\IContentEnabled.cs" />
-    <Compile Include="XamlParser\IEvaluableMarkupExtension.cs" />
-    <Compile Include="XamlParser\INamespaceHandler.cs" />
-    <Compile Include="XamlParser\IParserContext.cs" />
-    <Compile Include="XamlParser\Parsers\MarkupExtensionInvocationParser.cs" />
-    <Compile Include="XamlParser\ReflectionHelper.cs" />
-    <Compile Include="XamlParser\TypeConverter.cs" />
-    <Compile Include="XamlParser\Exceptions.cs" />
     <Compile Include="XamlParser\XamlNamespace\XamlNamespaceHandler.cs" />
     <Compile Include="XamlParser\XamlNamespace\ArrayMarkupExtension.cs" />
     <Compile Include="XamlParser\XamlNamespace\XDataDirective.cs" />

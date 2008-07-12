@@ -19,8 +19,8 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command">
-      <Command Source="{Model AssemblyName=mymovies,ClassName=Model}" Path="Players.SetAudioStream"/>
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
+      <CommandStencil Source="{Model AssemblyName=mymovies,ClassName=Model}" Path="Players.SetAudioStream"/>
     </ResourceWrapper>
 
   </Include.Resources>

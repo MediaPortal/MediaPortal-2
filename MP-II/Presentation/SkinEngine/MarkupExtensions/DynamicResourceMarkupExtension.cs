@@ -27,9 +27,11 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
+using Presentation.SkinEngine.Genreal.Exceptions;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -220,5 +222,13 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #endregion
 
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return "{DynamicResource " + ResourceKey + "}";
+    }
+
+    #endregion
   }
 }

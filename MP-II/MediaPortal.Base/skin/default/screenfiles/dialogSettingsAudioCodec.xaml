@@ -19,8 +19,8 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command">
-      <Command Source="{Model AssemblyName=settings,ClassName=VideoSettings}" Path="Players.Settings.SetAudioCodec"/>
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
+      <CommandStencil Source="{Model AssemblyName=settings,ClassName=VideoSettings}" Path="Players.Settings.SetAudioCodec"/>
     </ResourceWrapper>
 
   </Include.Resources>

@@ -22,8 +22,8 @@
 
 #endregion
 
-using Presentation.SkinEngine.XamlParser;
 using System;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
@@ -36,10 +36,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
   }
 
   /// <summary>
-  /// Implements the RelativeSource evaluable markup extension.
+  /// Implements the RelativeSource element.
   /// This class mainly acts as a data object.
   /// </summary>
-  public class RelativeSource : IEvaluableMarkupExtension
+  public class RelativeSource
   {
     //public static RelativeSource PreviousData = new RelativeSource(RelativeSourceMode.PreviousData);
     public static RelativeSource TemplatedParent = new RelativeSource(RelativeSourceMode.TemplatedParent);
@@ -97,18 +97,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override string ToString()
     {
-      return _mode.ToString();
+      return "RelativeSource: " + _mode.ToString();
     }
-
-    #region IEvaluableMarkupExtension implementation
-
-    public object Evaluate(IParserContext context)
-    {
-      // Evaluation of the desired relative source will be perforned in BindingMarkupExtension
-      // with use of this object
-      return this;
-    }
-
-    #endregion
   }
 }

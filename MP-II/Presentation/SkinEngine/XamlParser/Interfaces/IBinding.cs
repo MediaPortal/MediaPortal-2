@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+using Presentation.SkinEngine.General;
+
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
   /// This interfaces will be implemented by binding markup extensions.

@@ -690,13 +690,13 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
 
     public override void Measure(System.Drawing.SizeF availableSize)
     {
-      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
       if (Width <= 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
+        _desiredSize.Width = availableSize.Width - marginWidth;
       if (Height <= 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {

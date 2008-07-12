@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
 

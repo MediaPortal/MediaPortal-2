@@ -394,10 +394,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      FrameworkElement element;
       if (IsExpanded)
       {
-        element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+        FrameworkElement element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
       return (Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
@@ -405,10 +404,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      FrameworkElement element;
       if (IsExpanded)
       {
-        element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+        FrameworkElement element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
       return (Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
@@ -416,10 +414,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      FrameworkElement element;
       if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
       {
-        element = base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+        FrameworkElement element = base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
       return (Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
@@ -427,10 +424,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      FrameworkElement element;
       if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
       {
-        element = base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+        FrameworkElement element = base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
         if (element != null) return element;
       }
       return (Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);

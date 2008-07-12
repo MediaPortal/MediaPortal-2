@@ -22,31 +22,38 @@
 
 #endregion
 
-using System.Collections.Generic;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.XamlParser;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  public class ResourceWrapper : DependencyObject, INameScope, IContentEnabled, IDeepCopyable
+  /// <summary>
+  /// Class to wrap a value object which cannot directly be used. This may be the case if
+  /// the object is resolved by a markup extension, for example. In contrast to its superclass
+  /// <see cref="LateBoundValue"/>, instances of this class will be automatically converted
+  /// to the underlaying <see cref="Resource"/> object.
+  /// </summary>
+  public class ResourceWrapper : LateBoundValue
   {
     #region Protected fields
 
-    protected object _resource = null;
     protected bool _freezable = false;
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     #endregion
 
     #region Ctor
 
+    public ResourceWrapper()
+    { }
+
+    public ResourceWrapper(object resource)
+    {
+      Resource = resource;
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper)source;
-      Resource = copyManager.GetCopy(rw.Resource);
       Freezable = copyManager.GetCopy(rw.Freezable);
     }
 
@@ -56,53 +63,14 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     public object Resource
     {
-      get { return _resource; }
-      set { _resource = value; }
+      get { return Value; }
+      set { Value = value; }
     }
 
     public bool Freezable
     {
       get { return _freezable; }
       set { _freezable = value; }
-    }
-
-    #endregion
-
-    #region IContentEnabled implementation
-
-    public bool FindContentProperty(out IDataDescriptor dd)
-    {
-      dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Resource"));
-      return true;
-    }
-
-    #endregion
-
-    #region INameScope implementation
-
-    public object FindName(string name)
-    {
-      if (_names.ContainsKey(name))
-        return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
-    }
-
-    public void RegisterName(string name, object instance)
-    {
-      _names.Add(name, instance);
-    }
-
-    public void UnregisterName(string name)
-    {
-      _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

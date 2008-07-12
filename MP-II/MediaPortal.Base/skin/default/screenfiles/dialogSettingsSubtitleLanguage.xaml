@@ -19,8 +19,8 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command">
-      <Command Source="{Model AssemblyName=settings,ClassName=VideoSettings}" Path="Players.Settings.SetDefaultSubtitleLanguage"/>
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
+      <CommandStencil Source="{Model AssemblyName=settings,ClassName=VideoSettings}" Path="Players.Settings.SetDefaultSubtitleLanguage"/>
     </ResourceWrapper>
 
   </Include.Resources>

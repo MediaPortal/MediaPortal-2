@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
   /// Interface to mark controls to constitute an own nameing scope.

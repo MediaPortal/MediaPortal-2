@@ -320,13 +320,18 @@ namespace Presentation.SkinEngine.Controls.Panels
     }
     #endregion
 
+    protected FrameworkElement FindFocusedElement()
+    {
+      return (FrameworkElement) FindElement(FocusFinder.Instance);
+    }
+
     #region IScrollInfo Members
 
     public bool LineDown(PointF point)
     {
       if (this.Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+        FrameworkElement focusedElement = FindFocusedElement();
         if (focusedElement == null) return false;
         MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
         FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
@@ -345,7 +350,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       if (_physicalScrollOffsetY <= 0) return false;
       if (this.Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+        FrameworkElement focusedElement = FindFocusedElement();
         if (focusedElement == null) return false;
         MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
         FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
@@ -375,7 +380,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
-      FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+      FrameworkElement focusedElement = FindFocusedElement();
       if (focusedElement == null) return false;
       float offsetEnd = (float)(_physicalScrollOffsetY + ActualHeight);
       float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
@@ -386,7 +391,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
           if (this.Orientation == Orientation.Vertical)
           {
-            focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+            focusedElement = FindFocusedElement();
             if (focusedElement == null) return false;
             MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
             FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
@@ -423,7 +428,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
-      FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+      FrameworkElement focusedElement = FindFocusedElement();
       if (focusedElement == null) return false;
       float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
 
@@ -436,7 +441,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
           if (this.Orientation == Orientation.Vertical)
           {
-            focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+            focusedElement = FindFocusedElement();
             if (focusedElement == null) return false;
             MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
             FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
@@ -477,7 +482,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public void Home(PointF point)
     {
-      FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+      FrameworkElement focusedElement = FindFocusedElement();
       if (focusedElement == null) return;
       _physicalScrollOffsetY = 0;
       OnMouseMove((float)ActualPosition.X + 5, (float)(ActualPosition.Y + 5));
@@ -485,7 +490,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public void End(PointF point)
     {
-      FrameworkElement focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+      FrameworkElement focusedElement = FindFocusedElement();
       if (focusedElement == null) return;
       float offsetEnd = (float)(_totalHeight - ActualHeight);
       float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
@@ -496,7 +501,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
           if (this.Orientation == Orientation.Vertical)
           {
-            focusedElement = (FrameworkElement)FindElement(FocusFinder.Instance);
+            focusedElement = FindFocusedElement();
             if (focusedElement == null) return;
             MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
             FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);

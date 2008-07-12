@@ -27,6 +27,9 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.XamlParser
 {
@@ -80,7 +83,7 @@ namespace Presentation.SkinEngine.XamlParser
         return new DefaultNamespaceHandler(namespaceName);
       else
         return new DefaultNamespaceHandler(
-            ReflectionHelper.LoadAssembly(assemblyName), namespaceName);
+            AssemblyHelper.LoadAssembly(assemblyName), namespaceName);
     }
 
     #region INamespaceHandler implementation

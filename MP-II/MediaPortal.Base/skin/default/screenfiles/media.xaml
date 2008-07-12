@@ -21,8 +21,7 @@
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
           Style="{StaticResource MpListView}" ItemsSource="{Binding Items}"
-          Command="{Command Path=Select}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"
-          ContextMenuCommand="{Command Source={Service WindowManager},Path=ShowDialog}" ContextMenuCommandParameter="dialogMovieContextMenu"/>
+          Command="{Command Path=Select,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"/>
     </ResourceWrapper>
 
   </Include.Resources>

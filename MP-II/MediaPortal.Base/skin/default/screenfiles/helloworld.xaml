@@ -7,8 +7,11 @@
 
   <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
     <StackPanel>
-      <Button Margin="0,10,0,0" x:Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource MpButton}"
-          Command="{Command Path=ChangeHelloWorldString}">Click Me!</Button>
+      <Button Margin="0,10,0,0" x:Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource MpButton}" Content="Click Me!">
+        <Button.Command>
+          <Command Path="ChangeHelloWorldString"/>
+        </Button.Command>
+      </Button>
       <Label Margin="0,0,0,0" Font="font13" Text="{Binding Path=HelloString}" Width="500" Height="50"/>
     </StackPanel>
   </Canvas>

@@ -21,8 +21,8 @@
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
           Margin="10,0,10,0" Style="{StaticResource MpPlayListView}" ItemsSource="{Binding PlayListItems}"
-          Command="{Command Path=PlayItem}" CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}"
-          SelectionChanged="{Command Path=OnSelectionChange}"/>
+          Command="{Command Path=PlayItem,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
+          SelectionChanged="{CommandStencil Path=OnSelectionChange}"/>
     </ResourceWrapper>
 
   </Include.Resources>

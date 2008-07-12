@@ -25,8 +25,11 @@
 using System.Collections.Generic;
 using System;
 using System.Reflection;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
-namespace Presentation.SkinEngine.XamlParser.Parsers
+namespace Presentation.SkinEngine.XamlParser
 {
   public class ParserHelper
   {
@@ -78,14 +81,36 @@ namespace Presentation.SkinEngine.XamlParser.Parsers
       return result;
     }
 
-    public static bool ConsumeParameters(object[] indices,
+    /// <summary>
+    /// Tries to convert the specified <paramref name="parameters"/> objects to match the
+    /// specified <paramref name="parameterInfos"/> for a method call or property index expression.
+    /// the converted parameters will be returned in the parameter <paramref name="convertedParameters"/>.
+    /// </summary>
+    /// <param name="parameters">Input parameter objects to be converted.</param>
+    /// <param name="parameterInfos">Parameter specification to convert the <paramref name="parameters"/>
+    /// to.</param>
+    /// <param name="mustMatchSignature">If set to <c>true</c>, this method raises an exception if
+    /// the parameters do not match the specified signature or if they cannot be converted. If this
+    /// parameter is set to <c>false</c> and the parameters do not match the signature, this method
+    /// only returns a value of <c>false</c>. This parameter could also be named
+    /// "throwExceptionIfNotMatch".</param>
+    /// <param name="convertedParameters">Returns the converted parameters, if this method
+    /// returns a value of <c>true</c>.</param>
+    /// <returns><c>true</c>, if the parameter conversion could be done successfully, else
+    /// <c>false</c>.</returns>
+    public static bool ConsumeParameters(IEnumerable<object> parameters,
         ParameterInfo[] parameterInfos, bool mustMatchSignature,
-        out object[] convertedIndices)
+        out object[] convertedParameters)
     {
       if (parameterInfos.Length == 0)
       {
-        convertedIndices = null;
-        return false;
+        convertedParameters = null;
+        if (parameters == null || !parameters.GetEnumerator().MoveNext())
+          return true;
+        else if (mustMatchSignature)
+          throw new XamlBindingException("Wrong count of parameter for index (expected: 0, got some)");
+        else
+          return false;
       }
       Type[] indexTypes = new Type[parameterInfos.Length];
       int ti = 0;
@@ -96,12 +121,13 @@ namespace Presentation.SkinEngine.XamlParser.Parsers
         if (!parameter.IsOptional)
           numMandatory++;
       }
-      bool result = ConvertTypes(indices, indexTypes, out convertedIndices);
-      if (result && convertedIndices.Length <= indexTypes.Length &&
-          convertedIndices.Length >= numMandatory)
+      bool result = ConvertTypes(parameters, indexTypes, out convertedParameters);
+      if (result && convertedParameters.Length <= indexTypes.Length &&
+          convertedParameters.Length >= numMandatory)
         return true;
       else if (mustMatchSignature)
-        throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})", parameterInfos.Length, indices == null ? 0 : indices.Length);
+        throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
+            parameterInfos.Length, convertedParameters == null ? 0 : convertedParameters.Length);
       else
         return false;
     }
@@ -123,18 +149,19 @@ namespace Presentation.SkinEngine.XamlParser.Parsers
     /// in the input array, else <c>false</c>.</returns>
     /// <exception cref="XamlBindingException">If the number of objects given is greater than
     /// the number of types given.</exception>
-    public static bool ConvertTypes(object[] objects, Type[] types,
+    public static bool ConvertTypes(IEnumerable<object> objects, Type[] types,
         out object[] convertedIndices)
     {
       // Convert objects to index types
       convertedIndices = new object[types.Length];
       int current = 0;
-      foreach (object index in objects)
+      foreach (object obj in objects)
       {
         if (current >= types.Length)
-          throw new XamlBindingException("Cannot convert object array, there are more objects than expected. Expected: {0}, got: {1}",
-              types.Length, objects.Length);
-        if (!TypeConverter.Convert(index, types[current], out convertedIndices[current]))
+          throw new XamlBindingException(
+              "Cannot convert object array, there are more objects than expected (expected: {0})",
+              types.Length);
+        if (!TypeConverter.Convert(obj, types[current], out convertedIndices[current]))
           return false;
         current++;
       }

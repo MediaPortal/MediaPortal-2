@@ -28,7 +28,9 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.XamlParser.Parsers;
+using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.XamlParser
 {
@@ -253,7 +255,7 @@ namespace Presentation.SkinEngine.XamlParser
         // Check property indexer
         bool indicesOnProperty = _indices != null && _indices.Length > 0 &&
             ParserHelper.ConsumeParameters(_indices, pi.GetIndexParameters(),
-                true, out convertedIndices);
+                false, out convertedIndices);
         if (!indicesOnProperty)
           convertedIndices = null;
         if (pi.PropertyType == typeof(Property))
