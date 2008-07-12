@@ -661,9 +661,15 @@ namespace Presentation.SkinEngine.XamlParser
       ReflectionHelper.FindImplementedListType(targetType, out resultType, out entryType);
       if (resultType != null)
       {
-        method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] {entryType});
-        foreach (object child in (IList)Convert(value, typeof(IList)))
-          method.Invoke(maybeCollectionTarget, new object[] {child});
+        method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] { entryType });
+        // Have to cast to ICollection, because the type converter cannot cope with the situation corretcly if we cast to IEnumerable
+        ICollection col = (ICollection)Convert(value, typeof(ICollection));
+        if (col == null)
+          // The type converter converts null to null rather than to an empty collection, so we have to handle this case explicitly
+          method.Invoke(maybeCollectionTarget, new object[] { null });
+        else
+          foreach (object child in col)
+            method.Invoke(maybeCollectionTarget, new object[] { child });
         return true;
       }
       // Check for Dictionary
