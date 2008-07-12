@@ -129,11 +129,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       TreeViewItem container = new TreeViewItem();
       container.Style = ItemContainerStyle;
       container.ItemContainerStyle = ItemContainerStyle; // TreeItems also have to build containers...
+      container.ItemsPanel = ItemsPanel;
       container.Context = dataItem;
+      // FIXME: Are the next 3 lines debugging code?
       container.TemplateControl = new ItemsPresenter();
       container.TemplateControl.Margin = new Thickness(64, 0, 0, 0);
       container.TemplateControl.VisualParent = container;
-      container.ItemsPanel = ItemsPanel;
+      
       if (dataItem is ListItem)
       {
         ListItem listItem = (ListItem) dataItem;

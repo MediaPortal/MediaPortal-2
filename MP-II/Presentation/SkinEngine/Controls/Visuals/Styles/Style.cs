@@ -33,10 +33,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
   public class Style: NameScope, IAddChild<Setter>, IImplicitKey, IDeepCopyable
   {
-    #region Private fields
+    #region Protected fields
 
-    IList<Setter> _setters;
-    Property _targetTypeProperty;
+    protected Style _basedOn = null;
+    protected IList<Setter> _setters;
+    protected Property _targetTypeProperty;
 
     #endregion
 
@@ -59,23 +60,15 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       foreach (Setter se in s._setters)
         _setters.Add(copyManager.GetCopy(se));
       TargetType = copyManager.GetCopy(s.TargetType);
+      BasedOn = copyManager.GetCopy(s.BasedOn);
     }
 
     #endregion
 
-    /// <summary>
-    /// Gets or sets the based on property (we dont use it in our xaml engine, but real xaml requires it)
-    /// FIXME: New XAML engine will use it!
-    /// </summary>
     public Style BasedOn
     {
-      get
-      {
-        return null;
-      }
-      set
-      {
-      }
+      get { return _basedOn; }
+      set { _basedOn = value; }
     }
 
     public Property TargetTypeProperty
@@ -92,6 +85,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       set { _targetTypeProperty.SetValue(value); }
     }
 
+    // FIXME Albert78: Rework the TreeView and HeaderedItemsControl methods PrepareItemContainer,
+    // which are the only pieces of code using this method. Then remove this method.
     public FrameworkElement Get()
     {
       foreach (Setter setter in _setters)
@@ -103,8 +98,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
             element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
           else
             element = MpfCopyManager.DeepCopyFixedLP(setter.Value) as FrameworkElement;
-          // FIXME Albert78: Don't apply the other setters on the template, apply
-          // them on the target object
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")
@@ -122,11 +115,31 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The element to apply this <see cref="Style"/> to.</param>
     public void Set(UIElement element)
     {
+      // We should use a HashSet<string> instead of a list here, but HashSet<T> will
+      // be introduced in .net 3.5, and by now we want to be compatible with .net 2.0
+      Update(element, new List<string>());
+    }
+
+    /// <summary>
+    /// Worker method to apply all setters on the specified <paramref name="element"/> which
+    /// have not been set yet. The set of properties already assigned will be given in parameter
+    /// <paramref name="finishedProperties"/>; all properties whose names are stored in this
+    /// parameter will be skipped.
+    /// </summary>
+    /// <param name="element">The UI element this style will be applied on.</param>
+    /// <param name="finishedProperties">Set of property names which should be skipped.</param>
+    protected void Update(UIElement element, ICollection<string> finishedProperties)
+    {
       foreach (Setter setter in _setters)
       {
+        if (finishedProperties.Contains(setter.Property))
+          continue;
+        finishedProperties.Add(setter.Property);
         setter.Setup(element);
         setter.Execute(element, null);
       }
+      if (_basedOn != null)
+        _basedOn.Update(element, finishedProperties);
     }
 
     #region IAddChild implementation

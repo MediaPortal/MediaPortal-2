@@ -30,7 +30,6 @@ using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
 using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine.SkinManagement;
 
