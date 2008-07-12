@@ -86,8 +86,14 @@ namespace Presentation.SkinEngine.MarkupExtensions
         _targetDataDescriptor = bb._targetDataDescriptor.Retarget(newTarget);
       }
       AttachToTargetObject(copyManager.GetCopy(bb._contextObject));
-      // _active property should be initialized after the copying procedure has ended
-      // by calling Bind()
+
+      if (bb.Active)
+        copyManager.CopyCompleted += OnCompleteBinding;
+    }
+
+    void OnCompleteBinding(ICopyManager copyManager)
+    {
+      Activate();
     }
 
     #endregion
@@ -146,10 +152,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _targetDataDescriptor = dd;
     }
 
-    public virtual bool Bind()
+    public virtual void Activate()
     {
       _active = true;
-      return true;
     }
 
     #endregion

@@ -282,7 +282,7 @@ namespace Presentation.SkinEngine.XamlParser
         if (key != null)
           throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
         foreach (IBinding binding in _lateBindings)
-          binding.Bind();
+          binding.Activate();
         return _rootObject;
       }
       else
@@ -1020,7 +1020,7 @@ namespace Presentation.SkinEngine.XamlParser
       {
         IBinding binding = (IBinding) value;
         binding.Prepare(this, dd);
-        if (!binding.Bind())
+        if (!binding.Activate())
           AddLateBinding(binding);
         return;
       }

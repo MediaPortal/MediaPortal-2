@@ -212,12 +212,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region IBinding implementation/overrides
 
-    public override bool Bind()
+    public override void Activate()
     {
-      _active = true;
+      base.Activate();
       if (_resourceKey == null)
         throw new XamlBindingException("DynamicResource: property 'ResourceKey' must be given");
-      return UpdateTarget();
+      UpdateTarget();
     }
 
     #endregion

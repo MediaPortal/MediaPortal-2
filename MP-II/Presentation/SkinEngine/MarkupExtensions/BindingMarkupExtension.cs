@@ -207,14 +207,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _compiledPath = bme._compiledPath;
       _negate = bme._negate;
       Attach();
-
-      if (bme.Active)
-        copyManager.CopyCompleted += OnCompleteBinding;
-    }
-
-    void OnCompleteBinding(ICopyManager copyManager)
-    {
-      Bind();
     }
 
     #endregion
@@ -792,10 +784,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _compiledPath = string.IsNullOrEmpty(path) ? null : PathExpression.Compile(context, path);
     }
 
-    public override bool Bind()
+    public override void Activate()
     {
-      _active = true;
-      return UpdateBinding();
+      base.Activate();
+      UpdateBinding();
     }
 
     #endregion

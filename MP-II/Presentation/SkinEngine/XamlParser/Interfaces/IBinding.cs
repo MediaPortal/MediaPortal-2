@@ -27,30 +27,27 @@ using Presentation.SkinEngine.General;
 namespace Presentation.SkinEngine.XamlParser.Interfaces
 {
   /// <summary>
-  /// This interfaces will be implemented by binding markup extensions.
+  /// Interface for markup extensions, which are able to bind to a target property.
+  /// The markup extension will be able to evaluate a source value to be assigned to its
+  /// target property later.
   /// </summary>
   public interface IBinding
   {
     /// <summary>
     /// Prepares the binding. This is the last chance for the binding to have access
     /// to the parser context. Bindings will initialize their fields with all needed
-    /// context variables for the later call to their <see cref="Bind(IPropertyDescriptor)"/>
+    /// context variables for the later call to their <see cref="Activate"/>
     /// method.
     /// </summary>
     /// <param name="context">Current parser context.</param>
-    /// <param name="dd">Descriptor specifying the property this binding should bind to.</param>
+    /// <param name="dd">Descriptor specifying the target property for this binding.</param>
     void Prepare(IParserContext context, IDataDescriptor dd);
 
     /// <summary>
-    /// Binds this instance to the property specified in the
+    /// Activates the binding. This will make the binding listen to changes of its source
+    /// property values and maybe bind to its target property specified by the
     /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> method.
     /// </summary>
-    /// <returns>The return value will be <c>true</c>, if the binding could be
-    /// completed. In this case, there is no need to call this method again;
-    /// every change in all involved objects is tracked automatically by this class.
-    /// The return value will be <c>false</c>, if this binding could not bind yet, maybe
-    /// because some structures are not set up yet. In this case, this method
-    /// should be called again later, when all needed structures are set up.</returns>
-    bool Bind();
+    void Activate();
   }
 }
