@@ -81,15 +81,5 @@ namespace Presentation.SkinEngine.XamlParser.Interfaces
     /// <param name="value">Value to set the property to. The value type will
     /// be converted to the property's type, if necessary.</param>
     void HandlePropertyAssignment(IDataDescriptor dd, object value);
-
-    /// <summary>
-    /// Adds the specified <paramref name="binding"/> to the set of late bindings
-    /// of the current parsing context. Those bindings will be bound later, i.e.
-    /// at the end of the parsing operation.
-    /// </summary>
-    /// <param name="binding">Binding instance to be bound later. Typically,
-    /// a binding will be added to the late-binding-set if it could not bind
-    /// at the time it was created.</param>
-    void AddLateBinding(IBinding binding);
   }
 }

@@ -190,11 +190,6 @@ namespace Presentation.SkinEngine.XamlParser
     /// </summary>
     protected ElementContextStack _elementContextStack = new ElementContextStack();
 
-    /// <summary>
-    /// Holds a list of binding objects which were created during the parsing process.
-    /// </summary>
-    protected IList<IBinding> _lateBindings = new List<IBinding>();
-
     #endregion
 
     #region Constructor
@@ -281,8 +276,6 @@ namespace Presentation.SkinEngine.XamlParser
         _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
         if (key != null)
           throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
-        foreach (IBinding binding in _lateBindings)
-          binding.Activate();
         return _rootObject;
       }
       else
@@ -1020,8 +1013,7 @@ namespace Presentation.SkinEngine.XamlParser
       {
         IBinding binding = (IBinding) value;
         binding.Prepare(this, dd);
-        if (!binding.Activate())
-          AddLateBinding(binding);
+        binding.Activate();
         return;
       }
       else if (value is IEvaluableMarkupExtension)
@@ -1039,12 +1031,6 @@ namespace Presentation.SkinEngine.XamlParser
         dd.Value = Convert(value, dd.DataType);
     }
 
-    /// <see cref="IParserContext.AddLateBinding(IBinding)"/>
-    public void AddLateBinding(IBinding binding)
-    {
-      _lateBindings.Add(binding);
-    }
-
-    #endregion
+#endregion
   }
 }
