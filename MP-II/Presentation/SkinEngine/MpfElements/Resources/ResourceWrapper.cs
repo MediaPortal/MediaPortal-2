@@ -47,6 +47,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper)source;
       Resource = copyManager.GetCopy(rw.Resource);
+      Freezable = copyManager.GetCopy(rw.Freezable);
     }
 
     #endregion
