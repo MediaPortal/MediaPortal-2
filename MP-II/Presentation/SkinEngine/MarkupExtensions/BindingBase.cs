@@ -104,7 +104,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region Protected properties and methods
 
-    protected virtual void AttachToTargetObject(object obj)
+    protected void AttachToTargetObject(object obj)
     {
       // We could check here if obj is a DependencyObject and throw an Exception if not.
       // But by now, we will permit objects of arbitrary types.
