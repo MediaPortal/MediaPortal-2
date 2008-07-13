@@ -2061,7 +2061,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{StaticResource MpButton}" Command="{DynamicResource Menu_Command}">
+          <Button Style="{StaticResource MpButton}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True" />
@@ -2073,12 +2073,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="ContentsMenuItemContainerStyle" BasedOn="{StaticResource DefaultMenuItemContainerStyle}">
-    <Setter Property="Height">
-      <Setter.Value>46</Setter.Value>
-    </Setter>
-  </Style>
-
+  <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
   <Style x:Key="ItemPlayListContainerStyle">
     <Setter Property="Template">
       <Setter.Value>
@@ -2099,21 +2094,16 @@
     </Setter>
   </Style>
 
-   <!-- data template for a dialog menu item in list mode (each row has an image and a label)-->
-  <Style x:Key="ItemDialogImageContainerStyle" BasedOn="{StaticResource DefaultMenuItemContainerStyle}">
-    <Setter Property="Height">
-      <Setter.Value>100</Setter.Value>
-    </Setter>
-  </Style>
-
   <!-- ***************************** Item data templates ********************************* -->
 
+  <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
       <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
     </Grid>
   </DataTemplate>
 
+  <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
   <DataTemplate x:Key="ContentsMenuItemTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
@@ -2138,6 +2128,7 @@
     </Grid>
   </DataTemplate>
 
+  <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
   <DataTemplate x:Key="ItemPlayListTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
@@ -2161,11 +2152,12 @@
     </Grid>
   </DataTemplate>
 
+   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ItemDialogImageTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="Grd1">
+    <Grid x:Name="Grd1" Height="100">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="A1" />
-        <ColumnDefinition x:Name="A2" />
+        <ColumnDefinition/>
+        <ColumnDefinition/>
       </Grid.ColumnDefinitions>
       <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
@@ -2174,6 +2166,7 @@
 
   <!-- ***************************** ListView styles ********************************* -->
 
+  <!-- Standard ListView properties. Only the properties "ItemTemplate" and "ItemContainerStyle" have to be completed -->
   <Style x:Key="MpDefaultListView" TargetType="{x:Type ListView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
@@ -2195,35 +2188,39 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="MpContentsMenuListView" BasedOn="{StaticResource MpDefaultListView}">
     <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ContentsMenuItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
   <Style x:Key="MpMenuListView" BasedOn="{StaticResource MpDefaultListView}">
     <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
+  <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
   <Style x:Key="MpPlayListView" BasedOn="{StaticResource MpDefaultListView}">
     <Setter Property="ItemTemplate" Value="{StaticResource ItemPlayListTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
   </Style>
 
+  <!-- ListView style to be used for menus which display an image with a label -->
   <Style x:Key="MpDialogImage" BasedOn="{StaticResource MpDefaultListView}">
     <Setter Property="ItemTemplate" Value="{StaticResource ItemDialogImageTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemDialogImageContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
-  <!-- ****************************************************************************** -->
+  <!-- ****************************** TreeView styles ********************************** -->
 
-  <!-- data template for a dialog menu item in list mode-->
+  <!-- A data template for a dialog menu item in tree mode -->
   <DataTemplate x:Key="TreeItemTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
-      <Label x:Name="TreeItemLabel" Height="32" Text="{Binding [Name]}" Font="font13"/>
+      <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" Font="font13"/>
       <Grid.Triggers>
         <Trigger Property="HasFocus" Value="True">
-          <Setter TargetName="TreeItemLabel" Property="Scroll" Value="True" />
+          <Setter TargetName="ItemLabel" Property="Scroll" Value="True" />
         </Trigger>
       </Grid.Triggers>
     </Grid>
