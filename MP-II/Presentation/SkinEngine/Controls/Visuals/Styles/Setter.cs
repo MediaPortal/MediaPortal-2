@@ -32,14 +32,14 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
   public class Setter : TriggerAction
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _propertyProperty;
-    Property _valueProperty;
-    Property _targetNameProperty;
-    Object _originalValue = null;
-    bool _isSet = false;
-    object _value;
+    protected Property _propertyProperty;
+    protected Property _valueProperty;
+    protected Property _targetNameProperty;
+    protected Object _originalValue = null;
+    protected bool _isSet = false;
+    protected object _value;
 
     #endregion
 
@@ -117,10 +117,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     /// <summary>
     /// Gets or sets the information if this setter was already initialized, that
-    /// means its <see cref="SetterValue"/> and its <see cref="_originalValue"/>
-    /// have been set and the value has been applied to the setter target.
+    /// means value or binding instance has been applied to the setter target property.
     /// </summary>
-    public bool IsSet
+    public bool WasApplied
     {
       get { return _isSet; }
       set { _isSet = value; }
@@ -138,8 +137,13 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
-    public IDataDescriptor GetPropertyDescriptor(object element)
+    protected IDataDescriptor GetPropertyDescriptor(UIElement element)
     {
+      DependencyObject target = null;
+      if (!string.IsNullOrEmpty(TargetName))
+        target = VisualTreeHelper.FindElement(element, TargetName);
+      if (target == null)
+        target = element;
       // Handle [Property] as well as [ClassName].[Property]
       // We'll simply ignore the [ClassName] here
       string propertyName;
@@ -149,43 +153,37 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       else
         propertyName = Property;
       IDataDescriptor result;
-      if (ReflectionHelper.FindPropertyDescriptor(element, propertyName, out result))
+      if (ReflectionHelper.FindPropertyDescriptor(target, propertyName, out result))
         return result;
       else
         throw new ArgumentException(
-          string.Format("Property '{0}' cannot be set on element '{1}'", Property, element));
+          string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
     }
 
     public void Restore(UIElement element, Trigger trigger)
     {
-      DependencyObject target = null;
-      if (!string.IsNullOrEmpty(TargetName))
-        target = VisualTreeHelper.FindElement(element, TargetName);
-      if (target == null)
-        target = element;
-      IDataDescriptor dd = GetPropertyDescriptor(target);
-      if (dd != null && IsSet)
+      IDataDescriptor dd = GetPropertyDescriptor(element);
+      if (dd == null)
+        return;
+      if (WasApplied)
         dd.Value = _originalValue;
     }
 
     public override void Execute(UIElement element, Trigger trigger)
     {
-      DependencyObject target = null;
-      if (!string.IsNullOrEmpty(TargetName))
-        target = VisualTreeHelper.FindElement(element, TargetName);
-      if (target == null)
-        target = element;
-      IDataDescriptor dd = GetPropertyDescriptor(target);
+      IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)
         return;
-
-      if (!IsSet)
-      {
-        IsSet = true;
+      if (!WasApplied)
+      { // We have to prepare our internal data the first time
         _originalValue = dd.Value;
         object obj;
         if (TypeConverter.Convert(Value, dd.DataType, out obj))
           SetterValue = obj;
+        else
+          // We cannot execute
+          return;
+        WasApplied = true;
       }
       // We have to copy the SetterValue because the Setter doesn't belong exclusively
       // to the UIElement. It may be part of a style for example, which is shared across
