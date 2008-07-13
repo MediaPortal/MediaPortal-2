@@ -201,7 +201,6 @@
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
-
       </Setter.Value>
     </Setter>
   </Style>
@@ -2055,11 +2054,14 @@
     </Setter>
   </Style>
 
-  <Style x:Key="itemListContainerStyle">
+  <!-- ***************************** Item container styles ********************************* -->
+
+  <!-- An item list container represented by a standard "MpButton", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="DefaultMenuItemContainerStyle">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Button Height="46" Style="{StaticResource MpButton}">
+          <Button Style="{StaticResource MpButton}" Command="{DynamicResource Menu_Command}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True" />
@@ -2071,7 +2073,48 @@
     </Setter>
   </Style>
 
-  <DataTemplate x:Key="itemListTemplate" DataType="{x:Type collections:ListItem}">
+  <Style x:Key="ContentsMenuItemContainerStyle" BasedOn="{StaticResource DefaultMenuItemContainerStyle}">
+    <Setter Property="Height">
+      <Setter.Value>46</Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ItemPlayListContainerStyle">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource MpButton}" Height="46" Width="360">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True" />
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Style="{StaticResource MpArrowButtonDown}" Command="{Command PlayList:PlayList.MoveDown}"  Height="46" Width="46"  />
+            <Button Style="{StaticResource MpArrowButtonUp}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46"  />
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+   <!-- data template for a dialog menu item in list mode (each row has an image and a label)-->
+  <Style x:Key="ItemDialogImageContainerStyle" BasedOn="{StaticResource DefaultMenuItemContainerStyle}">
+    <Setter Property="Height">
+      <Setter.Value>100</Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Item data templates ********************************* -->
+
+  <DataTemplate x:Key="DefaultMenuItemTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid>
+      <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="ContentsMenuItemTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
@@ -2095,44 +2138,7 @@
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="MpListView" TargetType="{x:Type ListView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource itemListTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource itemListContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
-            <ItemsPresenter VerticalAlignment="Top"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="itemPlayListContainerStyle">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource MpButton}" Height="46" Width="360"/>
-            <Button Style="{StaticResource MpArrowButtonDown}" Command="{Command PlayList:PlayList.MoveDown}"  Height="46" Width="46"  />
-            <Button Style="{StaticResource MpArrowButtonUp}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46"  />
-          </StackPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <DataTemplate x:Key="itemPlayListTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="ItemPlayListTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
@@ -2151,59 +2157,26 @@
         <RowDefinition/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32"  FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}" />
-      <Label x:Name="PlayListItemLabel"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" Font="font13"/>
-      <Grid.Triggers>
-        <Trigger Property="HasFocus" Value="True">
-          <Setter TargetName="PlayListItemLabel" Property="Scroll" Value="True" />
-        </Trigger>
-      </Grid.Triggers>
+      <Label x:Name="ItemLabel"  Margin="10,0,0,0" Grid.Row="0"  Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" Font="font13"/>
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="MpPlayListView" TargetType="{x:Type ListView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource itemPlayListTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource itemPlayListContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
-            <ItemsPresenter VerticalAlignment="Top"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel  IsItemsHost="True" VerticalAlignment="Top"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="itemMenuContainerStyle">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Button Style="{StaticResource MpButton}"/>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <DataTemplate x:Key="itemMenuTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid>
-      <Label x:Name="MenuItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
+  <DataTemplate x:Key="ItemDialogImageTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="Grd1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="A1" />
+        <ColumnDefinition x:Name="A2" />
+      </Grid.ColumnDefinitions>
+      <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="MpListViewMenu" TargetType="{x:Type ListView}">
+  <!-- ***************************** ListView styles ********************************* -->
+
+  <Style x:Key="MpDefaultListView" TargetType="{x:Type ListView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource itemMenuTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource itemMenuContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -2221,6 +2194,28 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <Style x:Key="MpContentsMenuListView" BasedOn="{StaticResource MpDefaultListView}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ContentsMenuItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MpMenuListView" BasedOn="{StaticResource MpDefaultListView}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MpPlayListView" BasedOn="{StaticResource MpDefaultListView}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ItemPlayListTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MpDialogImage" BasedOn="{StaticResource MpDefaultListView}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ItemDialogImageTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemDialogImageContainerStyle}"/>
+  </Style>
+
+  <!-- ****************************************************************************** -->
 
   <!-- data template for a dialog menu item in list mode-->
   <DataTemplate x:Key="TreeItemTemplate" DataType="{x:Type collections:ListItem}">
@@ -2281,48 +2276,4 @@
     </Setter>
   </Style>
 
-   <!-- data template for a dialog menu item in list mode (each row has an image and a label)-->
-  <Style x:Key="itemDialogImageContainerStyle">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Button Height="100" Style="{StaticResource MpButton}"/>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <DataTemplate x:Key="itemDialogImageTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="Grd1">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="A1" />
-        <ColumnDefinition x:Name="A2" />
-      </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ImageLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
-    </Grid>
-  </DataTemplate>
-
-  <Style x:Key="MpDialogImage" TargetType="{x:Type ListView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource itemDialogImageTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource itemDialogImageContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
-            <ItemsPresenter VerticalAlignment="Top"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
 </ResourceDictionary>

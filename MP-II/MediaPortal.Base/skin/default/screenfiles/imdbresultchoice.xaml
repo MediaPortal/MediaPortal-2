@@ -22,7 +22,7 @@
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}"
           Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
         <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font13" Text="{Binding ImdbMovietile}" Height="50"/>
-        <ListView x:Name="MovieMenu" Height="300" Width="600" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding ImdbResultMovies}"/>
+        <ListView x:Name="MovieMenu" Height="300" Width="600" Style="{StaticResource MpMenuListView}" ItemsSource="{Binding ImdbResultMovies}"/>
         <!-- TODO: ListView.Command -->
       </DockPanel>
     </ResourceWrapper>

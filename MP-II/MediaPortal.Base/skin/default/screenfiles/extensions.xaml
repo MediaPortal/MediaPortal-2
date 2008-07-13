@@ -20,7 +20,7 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
-          Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Items}"
+          Margin="10,0,10,0" Style="{StaticResource MpContentsMenuListView}" ItemsSource="{Binding Items}"
           Command="{Command Path=Select,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
           SelectionChanged="{CommandStencil Path=OnSelectionChange}"/>
     </ResourceWrapper>

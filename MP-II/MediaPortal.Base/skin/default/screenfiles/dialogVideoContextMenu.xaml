@@ -14,7 +14,7 @@
     <Model x:Key="DataContext" AssemblyName="mymovies" ClassName="Model"/>
 
     <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MpListViewMenu}"/>
+    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MpMenuListView}"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

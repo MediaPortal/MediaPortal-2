@@ -31,7 +31,7 @@
             <Label Font="font13" Text="[system.done]" Height="32" />
           </Button>
         </StackPanel>
-        <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpListView}" ItemsSource="{Binding Shares}"
+        <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpContentsMenuListView}" ItemsSource="{Binding Shares}"
             Command="{Command Path=RemoveShare,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
             SelectionChanged="{CommandStencil Path=OnSelectionChange}"/>
       </DockPanel>

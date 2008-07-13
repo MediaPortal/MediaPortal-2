@@ -25,8 +25,8 @@
         <Label x:Name="headerReflection1"  Font="font13" Margin="130,140,0,0" Text="{Binding SelectedPackage.AuthorProperty}" Width="500" Height="32"/>
         <Label x:Name="headerReflection2"  Font="font13" Margin="130,175,0,0" Text="{Binding SelectedPackage.DescriptionProperty}" Width="500" Height="132"/>
         <Label x:Name="headerReflection3"  Font="font13" Margin="30,195,0,0" Text="[extensions.dependon]" Width="500" Height="132"/>
-        <ListView x:Name="list" Style="{StaticResource MpListViewMenu}" Margin="30,220,0,0" ItemsSource="{Binding SelectedPackage.DependOn}" />
-        <ListView x:Name="listver" Style="{StaticResource MpListViewMenu}" ItemsSource="{Binding SelectedPackage.Versions}" Margin="0,200,0,0" />
+        <ListView x:Name="list" Style="{StaticResource MpMenuListView}" Margin="30,220,0,0" ItemsSource="{Binding SelectedPackage.DependOn}" />
+        <ListView x:Name="listver" Style="{StaticResource MpMenuListView}" ItemsSource="{Binding SelectedPackage.Versions}" Margin="0,200,0,0" />
       </StackPanel>
     </ResourceWrapper>
 

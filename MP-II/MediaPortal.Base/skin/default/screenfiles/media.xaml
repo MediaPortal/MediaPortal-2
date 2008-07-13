@@ -20,7 +20,7 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
-          Style="{StaticResource MpListView}" ItemsSource="{Binding Items}"
+          Style="{StaticResource MpContentsMenuListView}" ItemsSource="{Binding Items}"
           Command="{Command Path=Select,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"/>
     </ResourceWrapper>
 
