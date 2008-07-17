@@ -37,6 +37,15 @@ namespace MediaPortal.Utilities.DeepCopy
     protected IDictionary<object, object> _identities = new Dictionary<object, object>();
     protected LinkedList<IDeepCopyable> _toBeCompleted = new LinkedList<IDeepCopyable>();
 
+    /// <summary>
+    /// Returns a map of already known source objects mapped to their copied
+    /// counterparts. This map will grow during the copying process.
+    /// </summary>
+    public IDictionary<object, object> Identities
+    {
+      get { return _identities; }
+    }
+
     protected void AddIdentity<T>(T source, T result)
     {
       _identities.Add(source, result);
@@ -142,11 +151,6 @@ namespace MediaPortal.Utilities.DeepCopy
         result = source;
       AddIdentity(source, result);
       return result;
-    }
-
-    public IDictionary<object, object> Identities
-    {
-      get { return _identities; }
     }
 
     public event CopyCompletedDlgt CopyCompleted;

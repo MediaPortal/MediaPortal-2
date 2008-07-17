@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -38,11 +38,6 @@ namespace MediaPortal.Utilities.DeepCopy
   /// </summary>
   public interface ICopyManager
   {
-    /// <summary>
-    /// Returns a map of to-be-copied objects mapped to their copied couterpart.
-    /// </summary>
-    IDictionary<object, object> Identities { get; }
-
     /// <summary>
     /// Event which whill be triggered after a copying process has finished for one object.
     /// The time this event will be called may be the next time the copy manager gets the control
