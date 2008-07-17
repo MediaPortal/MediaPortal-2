@@ -22,7 +22,7 @@
 
 #endregion
 
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions

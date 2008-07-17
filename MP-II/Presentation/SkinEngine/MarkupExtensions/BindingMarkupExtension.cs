@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.XamlParser.Interfaces;

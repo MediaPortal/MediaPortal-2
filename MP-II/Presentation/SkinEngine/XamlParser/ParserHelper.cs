@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.XamlParser

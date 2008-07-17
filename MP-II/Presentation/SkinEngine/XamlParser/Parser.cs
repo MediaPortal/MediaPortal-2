@@ -30,7 +30,7 @@ using System.Reflection;
 using System.Xml;
 using MediaPortal.Utilities.Files;
 using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.XamlParser.XamlNamespace;
 

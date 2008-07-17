@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Presentation.SkinEngine.Genreal.Exceptions
+namespace Presentation.SkinEngine.General.Exceptions
 {
   /// <summary>
   /// Base class for all exceptions during the XAML parsing process.

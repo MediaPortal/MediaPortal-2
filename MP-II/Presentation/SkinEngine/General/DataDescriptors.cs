@@ -25,7 +25,7 @@
 using System;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 
 namespace Presentation.SkinEngine.General
 {

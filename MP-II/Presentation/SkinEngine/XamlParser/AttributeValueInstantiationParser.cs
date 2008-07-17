@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 
 namespace Presentation.SkinEngine.XamlParser
 {

@@ -27,7 +27,7 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Genreal.Exceptions;
+using Presentation.SkinEngine.General.Exceptions;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.SkinManagement;
 using Presentation.SkinEngine.General;
