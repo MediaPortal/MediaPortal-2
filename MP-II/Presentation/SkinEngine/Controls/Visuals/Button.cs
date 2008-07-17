@@ -117,7 +117,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (Command != null)
           Command.Execute();
 
-        // FIXME: Replace this with a TemplateBinding associating the Button's Command with the
+        // FIXME: Replace this with a Binding associating the Button's Command with the
         // ListItem's Command
         if (Context is ListItem)
         {

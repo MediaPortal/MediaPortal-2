@@ -28,11 +28,10 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a value object which cannot directly be used. This may be the case if
-  /// the object is resolved by a markup extension, for example. In contrast to its superclass
-  /// <see cref="LateBoundValue"/>, instances of this class will be automatically converted
-  /// to the underlaying <see cref="Resource"/> object.
+  /// the object is resolved by a markup extension, for example. Instances of this class
+  /// will be automatically converted to the underlaying <see cref="Resource"/> object.
   /// </summary>
-  public class ResourceWrapper : LateBoundValue
+  public class ResourceWrapper : ValueWrapper
   {
     #region Protected fields
 
@@ -45,15 +44,13 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     public ResourceWrapper()
     { }
 
-    public ResourceWrapper(object resource)
-    {
-      Resource = resource;
-    }
+    public ResourceWrapper(object resource): base(resource)
+    { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ResourceWrapper rw = (ResourceWrapper)source;
+      ResourceWrapper rw = (ResourceWrapper) source;
       Freezable = copyManager.GetCopy(rw.Freezable);
     }
 

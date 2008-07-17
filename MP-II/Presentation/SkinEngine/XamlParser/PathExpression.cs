@@ -129,7 +129,7 @@ namespace Presentation.SkinEngine.XamlParser
   }
 
   /// <summary>
-  /// Path segment representing a call to an attached property.
+  /// Path segment representing an invocation of an attached property.
   /// </summary>
   public class AttachedPropertyPathSegment : IPathSegment
   {
@@ -184,7 +184,7 @@ namespace Presentation.SkinEngine.XamlParser
   }
 
   /// <summary>
-  /// Represents an attribute (field/property) or a method call.
+  /// Represents an attribute (field/property) invocation or a method call.
   /// </summary>
   public class MemberPathSegment : IPathSegment
   {
@@ -316,21 +316,27 @@ namespace Presentation.SkinEngine.XamlParser
   }
 
   /// <summary>
-  /// <para>
   /// Class for path expressions which are compiled in a parsing context.
-  /// </para>
   /// </summary>
   /// <remarks>
   /// <para>
   /// A path expression in this context is an iterated query of attributes,
   /// properties, attached properties or method calls
-  /// starting with a defined value. In contrast to a single-step resolvation of the
-  /// resulting value during the parsing operation of the path expression,
-  /// we do a "compilation" of the path expression, storing additional context
-  /// information for it, so we don't need the parser context at the future
-  /// time of evaluation.
+  /// starting with a predecessor value. In contrast to a single-step evaluation
+  /// of the resulting value during the parsing operation of the path expression,
+  /// we do a "compilation" of the path expression, storing the expression in an
+  /// internal format with additional context information for it
+  /// (for example references to <see cref="INamespace"/>s),
+  /// so we don't need the parser context at the future time of evaluation.
   /// This means once a path expression is compiled, it can be evaluated even after
-  /// the XAML parsing process has finished.
+  /// the XAML parsing process has finished and the parser context is disposed.
+  /// </para>
+  /// <para>
+  /// Path segments stored in this path segment enumeration don't have a relation
+  /// to each other at compile time. They are simply a list of evaluation executors
+  /// to be used in the later evaluation process. A path expression so can be
+  /// evaluated on any starting object which contains the structure queried
+  /// by this path expression.
   /// </para>
   /// <para>
   /// <example>
@@ -342,13 +348,23 @@ namespace Presentation.SkinEngine.XamlParser
   /// </remarks>
   public class PathExpression: IEnumerable<IPathSegment>
   {
+    #region Protected fields
+
     protected IList<IPathSegment> _pathSegments = new List<IPathSegment>();
 
+    #endregion
+
+    #region Ctor
+
     /// <summary>
-    /// PathExpression should only be instanciated by calling
+    /// PathExpression should only be instanciated by calling the factory method
     /// <see cref="PathExpression.Compile(IParserContext,string)"/>.
     /// </summary>
     protected PathExpression() { }
+
+    #endregion
+
+    #region Public methods
 
     /// <summary>
     /// Compiles a <see cref="string"/> to a <see cref="PathExpression"/>.
@@ -387,68 +403,12 @@ namespace Presentation.SkinEngine.XamlParser
       return result;
     }
 
+    /// <summary>
+    /// Adds a path segment to this path expression.
+    /// </summary>
     public void AddPathSegment(IPathSegment ps)
     {
       _pathSegments.Add(ps);
-    }
-
-    protected static int ParseIndices(IParserContext context, string path,
-        int pos, out object[] indices)
-    {
-      string indexExpression;
-      if (path[pos] != '[')
-      {
-        indices = null;
-        return pos;
-      }
-      int indexerEnd = path.IndexOf(']', pos);
-      if (indexerEnd < pos + 1)
-        throw new XamlParserException("Path '{0}': Error in indexer expression at position {1}", path, pos);
-      indexExpression = path.Substring(pos + 1, (indexerEnd - pos) - 1);
-      indices = ParserHelper.ParseIndexExpression(context, indexExpression);
-      return indexerEnd + 1;
-    }
-
-    protected static int ParsePathSegment(IParserContext context, string path, int pos, out IPathSegment result)
-    {
-      pos = ParserHelper.SkipSpaces(path, pos);
-      if (path[pos] == '[')
-      { // Indexer expression
-        object[] indices;
-        pos = ParseIndices(context, path, pos, out indices);
-        result = new IndexerPathSegment(indices);
-        return pos;
-      }
-      else if (path[pos] == '(')
-      { // Attached property
-        int bracket = path.IndexOf(")", pos);
-        if (bracket == -1)
-          throw new XamlParserException("Path '{0}': ')' expected", path);
-        int dot = path.IndexOf('.', pos);
-        if (dot == -1 || dot > bracket)
-          throw new XamlParserException("Path '{0}': Attached property expected", path);
-        string propertyProvider = path.Substring(pos + 1, dot - pos - 1);
-        string propertyName = path.Substring(dot + 1, bracket - dot - 1);
-        string namespaceURI;
-        context.LookupNamespace(propertyProvider, out propertyProvider, out namespaceURI);
-        result = new AttachedPropertyPathSegment(context, propertyProvider, propertyName, namespaceURI);
-        return bracket + 1;
-      }
-      else
-      { // Member
-        int end = path.IndexOfAny(new char[] { '.', '[' }, pos);
-        if (end == -1)
-          end = path.Length;
-        result = new MemberPathSegment(path.Substring(pos, end - pos));
-
-        if (path.IndexOf('[', pos) == end)
-        { // Index follows member name
-          object[] indices;
-          end = ParseIndices(context, path, end, out indices);
-          ((MemberPathSegment) result).SetIndices(indices);
-        }
-        return end;
-      }
     }
 
     /// <summary>
@@ -518,6 +478,71 @@ namespace Presentation.SkinEngine.XamlParser
       }
       return _pathSegments[_pathSegments.Count - 1].GetMethod(value, out obj, out mi);
     }
+
+    #endregion
+
+    #region Protected parsing methods
+
+    protected static int ParseIndices(IParserContext context, string path,
+        int pos, out object[] indices)
+    {
+      string indexExpression;
+      if (path[pos] != '[')
+      {
+        indices = null;
+        return pos;
+      }
+      int indexerEnd = path.IndexOf(']', pos);
+      if (indexerEnd < pos + 1)
+        throw new XamlParserException("Path '{0}': Error in indexer expression at position {1}", path, pos);
+      indexExpression = path.Substring(pos + 1, (indexerEnd - pos) - 1);
+      indices = ParserHelper.ParseIndexExpression(context, indexExpression);
+      return indexerEnd + 1;
+    }
+
+    protected static int ParsePathSegment(IParserContext context, string path, int pos, out IPathSegment result)
+    {
+      pos = ParserHelper.SkipSpaces(path, pos);
+      if (path[pos] == '[')
+      { // Indexer expression
+        object[] indices;
+        pos = ParseIndices(context, path, pos, out indices);
+        result = new IndexerPathSegment(indices);
+        return pos;
+      }
+      else if (path[pos] == '(')
+      { // Attached property
+        int bracket = path.IndexOf(")", pos);
+        if (bracket == -1)
+          throw new XamlParserException("Path '{0}': ')' expected", path);
+        int dot = path.IndexOf('.', pos);
+        if (dot == -1 || dot > bracket)
+          throw new XamlParserException("Path '{0}': Attached property expected", path);
+        string propertyProvider = path.Substring(pos + 1, dot - pos - 1);
+        string propertyName = path.Substring(dot + 1, bracket - dot - 1);
+        string namespaceURI;
+        context.LookupNamespace(propertyProvider, out propertyProvider, out namespaceURI);
+        result = new AttachedPropertyPathSegment(context, propertyProvider, propertyName, namespaceURI);
+        return bracket + 1;
+      }
+      else
+      { // Member
+        int end = path.IndexOfAny(new char[] { '.', '[' }, pos);
+        if (end == -1)
+          end = path.Length;
+        result = new MemberPathSegment(path.Substring(pos, end - pos));
+
+        if (path.IndexOf('[', pos) == end)
+        { // Index follows member name
+          object[] indices;
+          end = ParseIndices(context, path, end, out indices);
+          ((MemberPathSegment) result).SetIndices(indices);
+        }
+        return end;
+      }
+    }
+
+    #endregion
 
     #region IEnumerable<IPathSegment> implementation
 

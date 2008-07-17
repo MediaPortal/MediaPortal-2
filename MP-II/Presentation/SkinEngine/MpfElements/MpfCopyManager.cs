@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
@@ -122,17 +121,19 @@ namespace Presentation.SkinEngine.MpfElements
     }
 
     /// <summary>
-    /// Creates a deep copy of object <paramref name="o"/> while maintaining the logical parent
-    /// of the object if it is a <see cref="DependencyObject"/>.
+    /// Creates a deep copy of object <paramref name="o"/> while cutting the structure at
+    /// the logical parent of the object if it is a <see cref="DependencyObject"/>.
+    /// The logical parent will be <c>null</c> for the copied object.
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
     /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an identity map only
-    /// containing the logical parent of <paramref name="o"/>, if it is a <see cref="DependencyObject"/>.
+    /// containing the logical parent of <paramref name="o"/>, mapped to a <c>null</c> value,
+    ///  if it is a <see cref="DependencyObject"/>.
     /// </remarks>
     /// <param name="o">Object to be copied.</param>
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
-    public static T DeepCopyFixedLP<T>(T o)
+    public static T DeepCopyCutLP<T>(T o)
     {
       IDictionary<object, object> identities = new Dictionary<object, object>();
       DependencyObject depObj = o as DependencyObject;
@@ -140,7 +141,7 @@ namespace Presentation.SkinEngine.MpfElements
       {
         DependencyObject lp = depObj.LogicalParent;
         if (lp != null)
-          identities[lp] = lp;
+          identities[lp] = null;
       }
       return DeepCopyWithIdentities(o, identities);
     }

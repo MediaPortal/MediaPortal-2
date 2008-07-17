@@ -40,14 +40,24 @@ namespace Presentation.SkinEngine.XamlParser.Interfaces
     /// method.
     /// </summary>
     /// <param name="context">Current parser context.</param>
-    /// <param name="dd">Descriptor specifying the target property for this binding.</param>
+    /// <param name="dd">Descriptor specifying the target property for this binding.
+    /// This data descriptor will support target operations.</param>
     void Prepare(IParserContext context, IDataDescriptor dd);
 
     /// <summary>
     /// Activates the binding. This will make the binding listen to changes of its source
-    /// property values and maybe bind to its target property specified by the
-    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> method.
+    /// property values and bind to its target property specified by the
+    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> method as soon as possible.
     /// </summary>
     void Activate();
+
+    /// <summary>
+    /// Will copy this binding instance and set the target of the new binding instance
+    /// to the specified data descriptor.
+    /// </summary>
+    /// <param name="descriptor">Data descriptor to target the copied binding to.</param>
+    /// <returns>New binding instance which has the same function as this binding, but will
+    /// bind to the specified <paramref name="descriptor"/>.</returns>
+    IBinding CopyAndRetarget(IDataDescriptor descriptor);
   }
 }

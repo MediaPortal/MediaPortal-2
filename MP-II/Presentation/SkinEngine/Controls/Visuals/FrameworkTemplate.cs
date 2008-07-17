@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.XamlParser.Interfaces;
@@ -43,12 +44,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: NameScope, IAddChild<UIElement>, IDeepCopyable
+  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>, IDeepCopyable
   {
     #region Private fields
 
     ResourceDictionary _resourceDictionary;
     UIElement _templateElement;
+    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected INameScope _parent = null;
 
     #endregion
 
@@ -64,11 +67,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _resourceDictionary = new ResourceDictionary();
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      base.DeepCopy(source, copyManager);
       FrameworkTemplate ft = source as FrameworkTemplate;
       _templateElement = copyManager.GetCopy(ft._templateElement);
       _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
+      _parent = copyManager.GetCopy(ft._parent);
+      foreach (KeyValuePair<string, object> kvp in ft._names)
+        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion
@@ -86,19 +93,48 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public UIElement LoadContent()
     {
-      UIElement element = MpfCopyManager.DeepCopyFixedLP(_templateElement);
+      UIElement element = MpfCopyManager.DeepCopyCutLP(_templateElement);
       element.IsTemplateRoot = true;
       return element;
     }
 
     #endregion
-    
-    #region IAddChild Members
+
+    #region IAddChild implementation
 
     public void AddChild(UIElement o)
     {
       _templateElement = o;
       _templateElement.Resources.Merge(Resources);
+    }
+
+    #endregion
+
+    #region INamescope implementation
+
+    public object FindName(string name)
+    {
+      if (_names.ContainsKey(name))
+        return _names[name];
+      else if (_parent != null)
+        return _parent.FindName(name);
+      else
+        return null;
+    }
+
+    public void RegisterName(string name, object instance)
+    {
+      _names.Add(name, instance);
+    }
+
+    public void UnregisterName(string name)
+    {
+      _names.Remove(name);
+    }
+
+    public void RegisterParent(INameScope parent)
+    {
+      _parent = parent;
     }
 
     #endregion

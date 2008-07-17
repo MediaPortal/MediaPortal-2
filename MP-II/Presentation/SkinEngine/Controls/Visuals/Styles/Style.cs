@@ -54,7 +54,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       _targetTypeProperty = new Property(typeof(Type), null);
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Style s = source as Style;
       foreach (Setter se in s._setters)
@@ -97,7 +97,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           if (setter.Value is FrameworkTemplate)
             element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
           else
-            element = MpfCopyManager.DeepCopyFixedLP(setter.Value) as FrameworkElement;
+            element = MpfCopyManager.DeepCopyCutLP(setter.Value) as FrameworkElement;
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")

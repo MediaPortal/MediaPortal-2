@@ -25,6 +25,7 @@
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Animations;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
@@ -69,17 +70,14 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       set { _beginStoryBoardProperty.SetValue(value); }
     }
 
-    public override void Execute(UIElement element, Trigger trigger)
+    public override void Execute(UIElement element, TriggerBase trigger)
     {
-      foreach (TriggerAction action in trigger.EnterActions)
-      {
-        BeginStoryboard beginAction = action as BeginStoryboard;
-        if (beginAction != null && beginAction.Name == BeginStoryboardName)
-        {
-          //Trace.WriteLine(String.Format("StopStoryboard {0} {1}", ((UIElement)element).Name, beginAction.Storyboard.Key));
-          element.StopStoryboard(beginAction.Storyboard as Storyboard);
-        }
-      }
+      INameScope ns = FindNameScope();
+      BeginStoryboard beginAction = null;
+      if (ns != null)
+        beginAction = ns.FindName(BeginStoryboardName) as BeginStoryboard;
+      if (beginAction != null)
+        element.StopStoryboard(beginAction.Storyboard as Storyboard);
     }
   }
 }

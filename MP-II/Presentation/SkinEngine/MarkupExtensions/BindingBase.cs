@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.General;
@@ -31,11 +33,19 @@ using Presentation.SkinEngine.XamlParser.Interfaces;
 namespace Presentation.SkinEngine.MarkupExtensions
 {
   /// <summary>
-  /// Base class for all bindings. A binding in this context is a dependency
-  /// between two objects which is maintained automatically.
+  /// Base class for all bindings. A binding in this context is an object
+  /// describing a reference to a binding source object, which is evaluated
+  /// automatically.
+  /// </summary>
+  /// <remarks>
+  /// The binding is located in a binding context, which is
+  /// the starting point for the search of the binding source object.
+  /// There is also a target data descriptor which may reference a target
+  /// property to be updated automatically, but this feature doesn't need to
+  /// be used.
   /// There is a dictionary which stores all bindings which have been attached
   /// to target objects.
-  /// </summary>
+  /// </remarks>
   public abstract class BindingBase: IBinding, IDeepCopyable
   {
     #region Protected fields
@@ -56,6 +66,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region Ctor
 
+    /// <summary>
+    /// Creates a new, uninitialized <see cref="BindingBase"/> object.
+    /// The returned instance will have to be initialized either by a call to
+    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> or by a deep copying procedure
+    /// (call to <see cref="DeepCopy(IDeepCopyable,ICopyManager)"/>).
+    /// </summary>
     public BindingBase()
     { }
 
@@ -80,7 +96,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       BindingBase bb = source as BindingBase;
       if (bb._targetDataDescriptor != null)
       {
-        // Copy values initialized by the Prepare(IParserContext,IDataDescriptor) call,
+        // Copy values initialized by the Prepare(IDataDescriptor) call,
         // retargeted to the newTarget.
         object newTarget = copyManager.GetCopy(bb._targetDataDescriptor.TargetObject);
         _targetDataDescriptor = bb._targetDataDescriptor.Retarget(newTarget);
@@ -100,6 +116,15 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region Properties
 
+    /// <summary>
+    /// Returns the information if our data descriptor has a binding type, which means
+    /// this binding instance has to be assigned rather than its resolved value.
+    /// </summary>
+    protected bool KeepBinding
+    {
+      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
+    }
+
     #endregion
 
     #region Protected properties and methods
@@ -117,7 +142,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
       bindingsOfObject.Add(this);
     }
 
-    protected virtual void DetachFromTargetObject()
+    protected void DetachFromTargetObject()
     {
       if (_objects2Bindings.ContainsKey(_contextObject))
         _objects2Bindings[_contextObject].Remove(this);
@@ -148,8 +173,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public virtual void Prepare(IParserContext context, IDataDescriptor dd)
     {
-      AttachToTargetObject(context.ContextStack.CurrentElementContext.Instance);
       _targetDataDescriptor = dd;
+      AttachToTargetObject(dd.TargetObject);
     }
 
     public virtual void Activate()
@@ -157,6 +182,60 @@ namespace Presentation.SkinEngine.MarkupExtensions
       _active = true;
     }
 
+    public IBinding CopyAndRetarget(IDataDescriptor newDd)
+    {
+      // We'll simulate a DeepCopy here by
+      // 1) Creating a new Binding instance of our class via the default constructor
+      ConstructorInfo ci = GetType().GetConstructor(new Type[] {});
+      if (ci == null)
+        throw new ArgumentException(string.Format("Binding Type '{0}' doesn't implement a standard constructor", GetType().Name));
+      BindingBase result = (BindingBase) ci.Invoke(null);
+
+      // 2) Using an degenerated copy manager which will map every object to itself except
+      //    our context object, which will be mapped to the new target object
+      IDictionary<object, object> exceptionalIdentities = new Dictionary<object, object>();
+      exceptionalIdentities.Add(_contextObject, newDd.TargetObject);
+      // We will rely here on the fact that _targetDataDescriptor.TargetObject will
+      // never reference another object than _contextObject. Otherwise we would
+      // have to add the mapping (_targetDataDescriptor.TargetObject; newDd.TargetObject) too.
+      IdentityCopyManager copyManager = new IdentityCopyManager(exceptionalIdentities);
+      result.DeepCopy(this, copyManager);
+
+      // 3) Do the afterwork of the copying process
+      copyManager.CompleteCopying();
+
+      // 4) Exchange the target data descriptor by the new one
+      result._targetDataDescriptor = newDd;
+
+      return result;
+    }
+
     #endregion
+  }
+
+  internal class IdentityCopyManager: ICopyManager
+  {
+    protected IDictionary<object, object> _exceptionalIdentities = new Dictionary<object, object>();
+
+    public IdentityCopyManager(IDictionary<object, object> exceptionalIdentities)
+    {
+      _exceptionalIdentities = exceptionalIdentities;
+    }
+
+    public T GetCopy<T>(T source)
+    {
+      if (_exceptionalIdentities.ContainsKey(source))
+        return (T) _exceptionalIdentities[source];
+      else
+        return source;
+    }
+
+    public void CompleteCopying()
+    {
+      if (CopyCompleted != null)
+        CopyCompleted(this);
+    }
+
+    public event CopyCompletedDlgt CopyCompleted;
   }
 }

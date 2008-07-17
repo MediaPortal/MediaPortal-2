@@ -28,7 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class PointAnimation: Timeline
+  public class PointAnimation: PropertyAnimationTimeline
   {
     #region Private fields
 
@@ -103,9 +103,10 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation methods
 
-    protected override void AnimateProperty(AnimationContext context, uint timepassed)
+    protected override void AnimateProperty(TimelineContext context, uint timepassed)
     {
-      if (context.DataDescriptor == null) return;
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return;
       double distx = (To.X - From.X) / Duration.TotalMilliseconds;
       distx *= timepassed;
       distx += From.X;
@@ -117,39 +118,11 @@ namespace Presentation.SkinEngine.Controls.Animations
       SetValue(context,new Vector2((float)distx, (float)disty));
     }
 
-    public override void Ended(AnimationContext context)
+    Vector2 GetValue(TimelineContext context)
     {
-      if (IsStopped(context)) return;
-      if (context.DataDescriptor != null)
-        if (FillBehaviour != FillBehaviour.HoldEnd)
-          SetValue(context, (Vector2)OriginalValue);
-    }
-
-    public override void Start(AnimationContext context, uint timePassed)
-    {
-      if (!IsStopped(context))
-        Stop(context);
-
-      context.State = State.Starting;
-
-      context.TimeStarted = timePassed;
-      context.State = State.WaitBegin;
-    }
-
-    public override void Stop(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      context.State = State.Idle;
-      if (context.DataDescriptor != null)
-      {
-        SetValue(context, (Vector2)OriginalValue);
-      }
-    }
-
-    Vector2 GetValue(AnimationContext context)
-    {
-      if (context.DataDescriptor == null) return new Vector2(0, 0);
-      object o = context.DataDescriptor.Value;
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return new Vector2(0, 0);
+      object o = patc.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2)) return (Vector2)o;
       if (o.GetType() == typeof(Vector3))
       {
@@ -160,19 +133,20 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     }
 
-    void SetValue(AnimationContext context,Vector2 vector)
+    void SetValue(TimelineContext context,Vector2 vector)
     {
-      if (context.DataDescriptor == null) return;
-      object o = context.DataDescriptor.Value;
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return;
+      object o = patc.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2))
       {
-        context.DataDescriptor.Value = vector;
+        patc.DataDescriptor.Value = vector;
         return;
       }
       if (o.GetType() == typeof(Vector3))
       {
         Vector3 v = new Vector3(vector.X, vector.Y, ((Vector3)o).Z);
-        context.DataDescriptor.Value = v;
+        patc.DataDescriptor.Value = v;
         return;
       }
     }

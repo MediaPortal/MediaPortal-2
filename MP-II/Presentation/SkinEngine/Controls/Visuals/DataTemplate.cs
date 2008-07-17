@@ -49,7 +49,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
+      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _dataTypeProperty = new Property(typeof(Type), null);
     }
 
@@ -57,7 +57,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       DataTemplate dt = source as DataTemplate;
-      foreach (Trigger t in dt.Triggers)
+      foreach (TriggerBase t in dt.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
       DataType = copyManager.GetCopy(dt.DataType);
     }
@@ -77,9 +77,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _triggerProperty; }
     }
 
-    public IList<Trigger> Triggers
+    public IList<TriggerBase> Triggers
     {
-      get { return (IList<Trigger>)_triggerProperty.GetValue(); }
+      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
     }
 
     #endregion

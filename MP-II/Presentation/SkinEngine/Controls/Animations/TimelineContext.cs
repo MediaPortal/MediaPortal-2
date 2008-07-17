@@ -22,7 +22,6 @@
 #endregion
 
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.General;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -36,22 +35,15 @@ namespace Presentation.SkinEngine.Controls.Animations
     Ended
   };
 
-  public class AnimationContext
+  public class TimelineContext
   {
-    protected IDataDescriptor _dataDescriptor;
     protected UIElement _visualParent;
     protected uint _timeStarted;
     protected State _state = State.Idle;
 
-    public AnimationContext(UIElement visualParent)
+    public TimelineContext(UIElement visualParent)
     {
       VisualParent = visualParent;
-    }
-
-    public IDataDescriptor DataDescriptor
-    {
-      get { return _dataDescriptor; }
-      set { _dataDescriptor = value; }
     }
 
     public UIElement VisualParent

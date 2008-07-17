@@ -27,7 +27,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class DoubleAnimation : Timeline
+  public class DoubleAnimation : PropertyAnimationTimeline
   {
     #region Private fields
 
@@ -102,35 +102,15 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation properties
 
-    protected override void AnimateProperty(AnimationContext context, uint timepassed)
+    protected override void AnimateProperty(TimelineContext context, uint timepassed)
     {
-      if (context.DataDescriptor == null) return;
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return;
       double dist = (To - From) / Duration.TotalMilliseconds;
       dist *= timepassed;
       dist += From;
 
-      context.DataDescriptor.Value = dist;
-    }
-
-    public override void Stop(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      context.State = State.Idle;
-      if (context.DataDescriptor != null)
-      {
-        context.DataDescriptor.Value = OriginalValue;
-      }
-    }
-
-    public override void Start(AnimationContext context, uint timePassed)
-    {
-      if (!IsStopped(context))
-        Stop(context);
-
-      context.State = State.Starting;
-      //find property
-      context.TimeStarted = timePassed;
-      context.State = State.WaitBegin;
+      patc.DataDescriptor.Value = dist;
     }
 
     #endregion

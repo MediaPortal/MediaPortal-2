@@ -93,15 +93,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #region Protected methods & properties
 
-    /// <summary>
-    /// Returns the information if our data descriptor has a binding type, which means
-    /// this instance has to be assigned rather than its resolved resource.
-    /// </summary>
-    protected bool KeepBinding
-    {
-      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
-    }
-
     protected void OnResourcesChanged(ResourceDictionary changedResources)
     {
       UpdateTarget();

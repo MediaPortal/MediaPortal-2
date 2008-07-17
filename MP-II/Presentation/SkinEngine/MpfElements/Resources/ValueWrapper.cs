@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -23,25 +23,70 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.Controls;
+using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.XamlParser.Interfaces;
+using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.XamlParser
+namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  public class NameScope: INameScope, IDeepCopyable
+  /// <summary>
+  /// Class to wrap a value object which cannot directly be used. This may be the case if
+  /// the object is resolved by a markup extension, for example.
+  /// </summary>
+  public class ValueWrapper : DependencyObject, INameScope, IContentEnabled, IDeepCopyable
   {
+    #region Protected fields
+
+    protected object _value = null;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    #endregion
+
+    #region Ctor
+
+    public ValueWrapper()
+    { }
+
+    public ValueWrapper(object value)
     {
-      NameScope ns = source as NameScope;
-      _parent = copyManager.GetCopy(ns._parent);
-      foreach (KeyValuePair<string, object> kvp in ns._names)
+      _value = value;
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ValueWrapper vw = (ValueWrapper) source;
+      Value = copyManager.GetCopy(vw.Value);
+      _parent = copyManager.GetCopy(vw._parent);
+      foreach (KeyValuePair<string, object> kvp in vw._names)
         _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
-    #region INamescope implementation
+    #endregion
+
+    #region Public properties
+
+    public object Value
+    {
+      get { return _value; }
+      set { _value = value; }
+    }
+
+    #endregion
+
+    #region IContentEnabled implementation
+
+    public bool FindContentProperty(out IDataDescriptor dd)
+    {
+      dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Value"));
+      return true;
+    }
+
+    #endregion
+
+    #region INameScope implementation
 
     public object FindName(string name)
     {

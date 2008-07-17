@@ -97,7 +97,6 @@
     <Compile Include="ContentManagement\ITextureAsset.cs" />
     <Compile Include="ContentManagement\TextureRender.cs" />
     <Compile Include="ContentManagement\VertextBufferAsset.cs" />
-    <Compile Include="Controls\Animations\AnimationContext.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
@@ -105,6 +104,8 @@
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\IKeyFrame.cs" />
+    <Compile Include="Controls\Animations\PropertyAnimationTimeline.cs" />
+    <Compile Include="Controls\Animations\TimelineContext.cs" />
     <Compile Include="Controls\Animations\ValueKeyFrame.cs" />
     <Compile Include="Controls\Animations\KeySpline.cs" />
     <Compile Include="Controls\Animations\ParallelTimeline.cs" />
@@ -115,9 +116,9 @@
     <Compile Include="Controls\Animations\SplineDoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\SplinePointKeyFrame.cs" />
     <Compile Include="Controls\Animations\Storyboard.cs" />
-    <Compile Include="Controls\Animations\StoryboardContext.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\BrushCache.cs" />
@@ -136,7 +137,10 @@
     <Compile Include="General\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\CommandStencilMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\PickupBindingMarkupExtension.cs" />
+    <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
+    <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
     <Compile Include="XamlParser\PathExpression.cs" />
     <Compile Include="General\ReflectionHelper.cs" />
     <Compile Include="General\TypeConverter.cs" />

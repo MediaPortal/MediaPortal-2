@@ -23,102 +23,101 @@
 #endregion
 
 using System.Collections.Generic;
-using Presentation.SkinEngine;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Animations;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {
-  public class Animator
+  public class AnimationContext
   {
-    List<StoryboardContext> _runningAnimations;
+    protected Timeline _timeline;
+    protected TimelineContext _timelineContext;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Animator"/> class.
-    /// </summary>
-    public Animator()
+    public Timeline Timeline
     {
-      _runningAnimations = new List<StoryboardContext>();
+      get { return _timeline; }
+      set { _timeline = value; }
     }
 
-    /// <summary>
-    /// Gets the context.
-    /// </summary>
-    /// <param name="board">The board.</param>
-    /// <returns></returns>
-    StoryboardContext GetContext(Storyboard board, UIElement element)
+    public TimelineContext TimelineContext
     {
-      foreach (StoryboardContext context in _runningAnimations)
-      {
-        if (context.Storyboard == board && context.Element == element) return context;
-      }
+      get { return _timelineContext; }
+      set { _timelineContext = value; }
+    }
+  }
+
+  public class Animator
+  {
+    protected List<AnimationContext> _runningAnimations;
+
+    public Animator()
+    {
+      _runningAnimations = new List<AnimationContext>();
+    }
+
+    protected AnimationContext GetContext(Timeline line, UIElement element)
+    {
+      foreach (AnimationContext context in _runningAnimations)
+        if (context.Timeline == line && context.TimelineContext.VisualParent == element) return context;
       return null;
     }
 
-    /// <summary>
-    /// Starts the storyboard.
-    /// </summary>
-    /// <param name="board">The board.</param>
     public void StartStoryboard(Storyboard board, UIElement element)
     {
       lock (_runningAnimations)
       {
-
-        if (null == GetContext(board, element))
+        if (GetContext(board, element) == null)
         {
-          StoryboardContext context = new StoryboardContext(board, element);
+          AnimationContext context = new AnimationContext();
+          context.Timeline = board;
+          context.TimelineContext = board.CreateTimelineContext(element);
+          board.Setup(context.TimelineContext);
+
           _runningAnimations.Add(context);
-          context.Setup(element);
-          context.Start(SkinContext.TimePassed);
+          board.Start(context.TimelineContext, SkinContext.TimePassed);
         }
       }
     }
 
-    /// <summary>
-    /// Stops the storyboard.
-    /// </summary>
-    /// <param name="board">The board.</param>
     public void StopStoryboard(Storyboard board, UIElement element)
     {
       lock (_runningAnimations)
       {
-        StoryboardContext context = GetContext(board, element);
+        AnimationContext context = GetContext(board, element);
         if (context == null) return;
         _runningAnimations.Remove(context);
-        context.Stop();
+        context.Timeline.Stop(context.TimelineContext);
       }
     }
 
     /// <summary>
-    /// Animates any timelines 
+    /// Animates all timelines. This method will be called periodically to do all animation work.
     /// </summary>
-    public virtual void Animate()
+    public void Animate()
     {
       if (_runningAnimations.Count == 0) return;
-      List<StoryboardContext> stoppedAnimations = new List<StoryboardContext>();
+      List<AnimationContext> stoppedAnimations = new List<AnimationContext>();
       lock (_runningAnimations)
       {
-        foreach (StoryboardContext line in _runningAnimations)
+        foreach (AnimationContext ac in _runningAnimations)
         {
-          line.Animate(SkinContext.TimePassed);
-          if (line.IsStopped)
-            stoppedAnimations.Add(line);
+          ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
+          if (ac.Timeline.IsStopped(ac.TimelineContext))
+            stoppedAnimations.Add(ac);
         }
-        foreach (StoryboardContext line in stoppedAnimations)
+        foreach (AnimationContext ac in stoppedAnimations)
         {
-          line.Stop();
-          _runningAnimations.Remove(line);
+          ac.Timeline.Stop(ac.TimelineContext);
+          _runningAnimations.Remove(ac);
         }
       }
     }
 
     public void StopAll()
     {
-      foreach (StoryboardContext line in _runningAnimations)
-      {
-        line.Stop();
-      }
+      foreach (AnimationContext ac in _runningAnimations)
+        ac.Timeline.Stop(ac.TimelineContext);
       _runningAnimations.Clear();
     }
   }

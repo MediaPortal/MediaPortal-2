@@ -156,7 +156,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
           // - but the button OnKeyPressed handler still needs it. See Button.OnKeyPressed
           _templateControl.Context = Context;
           Resources.Merge(Template.Resources);
-          foreach (Trigger t in Template.Triggers)
+          foreach (TriggerBase t in Template.Triggers)
             Triggers.Add(t);
           _templateControl.SetWindow(Window);
         }

@@ -160,7 +160,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
     }
 
-    public void Restore(UIElement element, Trigger trigger)
+    public void Restore(UIElement element, TriggerBase trigger)
     {
       IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)
@@ -169,7 +169,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         dd.Value = _originalValue;
     }
 
-    public override void Execute(UIElement element, Trigger trigger)
+    public override void Execute(UIElement element, TriggerBase trigger)
     {
       IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)
@@ -188,7 +188,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       // We have to copy the SetterValue because the Setter doesn't belong exclusively
       // to the UIElement. It may be part of a style for example, which is shared across
       // multiple controls.
-      dd.Value = MpfCopyManager.DeepCopyFixedLP(SetterValue);
+      dd.Value = MpfCopyManager.DeepCopyCutLP(SetterValue);
     }
   }
 }

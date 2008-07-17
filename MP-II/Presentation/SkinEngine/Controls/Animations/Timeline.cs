@@ -25,17 +25,14 @@ using System;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
-  public enum FillBehaviour { HoldEnd, Stop };
+  public enum FillBehavior { HoldEnd, Stop };
 
-  public class Timeline: DependencyObject
+  public abstract class Timeline: DependencyObject
   {
     Property _beginTimeProperty;
     Property _accellerationProperty;
@@ -44,8 +41,6 @@ namespace Presentation.SkinEngine.Controls.Animations
     Property _durationProperty;
     Property _repeatBehaviourProperty;
     Property _fillBehaviourProperty;
-    protected PathExpression _propertyExpression = null;
-    protected object OriginalValue;
 
     #region Ctor
 
@@ -62,7 +57,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       _decelerationRatioProperty = new Property(typeof(double), 1.0);
       _durationProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 1));
       _repeatBehaviourProperty = new Property(typeof(RepeatBehavior), RepeatBehavior.None);
-      _fillBehaviourProperty = new Property(typeof(FillBehaviour), FillBehaviour.HoldEnd);
+      _fillBehaviourProperty = new Property(typeof(FillBehavior), FillBehavior.HoldEnd);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -74,9 +69,8 @@ namespace Presentation.SkinEngine.Controls.Animations
       AutoReverse = copyManager.GetCopy(t.AutoReverse);
       DecelerationRatio = copyManager.GetCopy(t.DecelerationRatio);
       Duration = copyManager.GetCopy(t.Duration);
-      FillBehaviour = copyManager.GetCopy(t.FillBehaviour);
+      FillBehavior = copyManager.GetCopy(t.FillBehavior);
       RepeatBehavior = copyManager.GetCopy(t.RepeatBehavior);
-      _propertyExpression = copyManager.GetCopy(t._propertyExpression);
     }
 
     #endregion
@@ -155,178 +149,109 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _fillBehaviourProperty; }
     }
 
-    public FillBehaviour FillBehaviour
+    public FillBehavior FillBehavior
     {
-      get { return (FillBehaviour)_fillBehaviourProperty.GetValue(); }
+      get { return (FillBehavior) _fillBehaviourProperty.GetValue(); }
       set { _fillBehaviourProperty.SetValue(value); }
     }
 
     #endregion
 
-    #region Animation methods
-    /// <summary>
-    /// Animates the property.
-    /// </summary>
-    /// <param name="timepassed">The timepassed.</param>
-    protected virtual void AnimateProperty(AnimationContext context, uint timepassed)
+    #region Animation control methods
+
+    public void Start(TimelineContext context, uint timePassed)
     {
+      Stop(context);
+      Started(context, timePassed);
     }
 
-    /// <summary>
-    /// Animate
-    /// </summary>
-    /// <param name="timePassed">The time passed.</param>
-    public virtual void Animate(AnimationContext context, uint timePassed)
-    {
-      if (context.State == State.Starting) return;
-      uint passed = (timePassed - context.TimeStarted);
-
-      switch (context.State)
-      {
-        case State.WaitBegin:
-          if (passed >= BeginTime.TotalMilliseconds)
-          {
-            passed = 0;
-            context.TimeStarted = timePassed;
-            context.State = State.Running;
-            goto case State.Running;
-          }
-          break;
-
-        case State.Running:
-          if (passed >= Duration.TotalMilliseconds)
-          {
-            if (AutoReverse)
-            {
-              context.State = State.Reverse;
-              context.TimeStarted = timePassed;
-              passed = 0;
-              goto case State.Reverse;
-            }
-            else if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.TimeStarted = timePassed;
-              AnimateProperty(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              AnimateProperty(context, (uint)Duration.TotalMilliseconds);
-              Ended(context);
-              context.State = State.Ended;
-            }
-          }
-          else
-          {
-            AnimateProperty(context, passed);
-          }
-          break;
-
-        case State.Reverse:
-
-          if (passed >= Duration.TotalMilliseconds)
-          {
-            if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.State = State.Running;
-              context.TimeStarted = timePassed;
-              AnimateProperty(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              AnimateProperty(context, (uint)Duration.TotalMilliseconds);
-              Ended(context);
-              context.State = State.Ended;
-            }
-          }
-          else
-          {
-            AnimateProperty(context, (uint)(Duration.TotalMilliseconds - (passed)));
-          }
-          break;
-      }
-    }
-
-    public virtual void Ended(AnimationContext context)
+    public void Stop(TimelineContext context)
     {
       if (IsStopped(context)) return;
-      if (context.DataDescriptor != null)
-        if (FillBehaviour != FillBehaviour.HoldEnd)
-          context.DataDescriptor.Value = OriginalValue;
+      if (FillBehavior == FillBehavior.Stop)
+        Reset(context);
+      context.State = State.Idle;
     }
 
+    #endregion
+
+    #region Animation state methods
+
     /// <summary>
-    /// Starts the animation
+    /// Creates a timeline context object needed for this class of timeline.
     /// </summary>
-    /// <param name="timePassed">The time passed.</param>
-    public virtual void Start(AnimationContext context, uint timePassed)
+    /// <returns>Instance of a subclass of <see cref="TimelineContext"/>, which will
+    /// fit the need of this class.</returns>
+    /// <remarks>
+    /// The needs of <see cref="Timeline"/> subclasses for a context object are different.
+    /// Timeline groups will, for example, employ a context class which can hold different
+    /// contexts for each child. Animations will need to put current values in their context.
+    /// So subclasses of <see cref="Timeline"/> will employ their own variation of a
+    /// <see cref="TimelineContext"/>.
+    /// The returned context object will be used throughout the animation for this
+    /// class in every call to any animation method.
+    /// </remarks>
+    public abstract TimelineContext CreateTimelineContext(UIElement element);
+
+    /// <summary>
+    /// Sets up the specified <paramref name="context"/> object with all necessary
+    /// values for this timeline.
+    /// </summary>
+    public abstract void Setup(TimelineContext context);
+
+    /// <summary>
+    /// Will restore the original values in all properties which have been animated
+    /// by this timeline.
+    /// </summary>
+    /// <param name="context">Current animation context.</param>
+    public virtual void Reset(TimelineContext context)
+    { }
+
+    /// <summary>
+    /// Will do the real work of animating the underlaying property.
+    /// </summary>
+    /// <remarks>
+    /// The animation progress should be calculated to the specified relative
+    /// time. It is not necessary to evaluate time overflows or to revert
+    /// the animation depending on properties; these calculations have been
+    /// done before this method will be called and will be reflected in the
+    /// <paramref name="reltime"/> parameter. 
+    /// </remarks>
+    /// <param name="reltime">This parameter holds the relative animation time in
+    /// milliseconds from the <see cref="BeginTime"/> on, up to a maximum value
+    /// of Duration.Milliseconds.</param>
+    public virtual void Animate(TimelineContext context, uint reltime)
+    { }
+
+    public virtual void Started(TimelineContext context, uint timePassed)
     {
-      if (!IsStopped(context))
-        Stop(context);
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
     }
 
     /// <summary>
-    /// Stops the animation.
+    /// Will be called if this timeline has ended.
     /// </summary>
-    public virtual void Stop(AnimationContext context)
+    /// <param name="context">Current animation context.</param>
+    public virtual void Ended(TimelineContext context)
     {
       if (IsStopped(context)) return;
-      if (FillBehaviour == FillBehaviour.Stop)
-      {
-        AnimateProperty(context, 0);
-      }
-      context.State = State.Idle;
+      if (FillBehavior == FillBehavior.Stop)
+        Reset(context);
     }
 
     /// <summary>
-    /// Gets a value indicating whether this timeline is stopped.
+    /// Gets a value indicating whether this timeline is stopped. This method
+    /// will be overridden by composed timelines which will depend on their
+    /// composition parts.
     /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
-    /// </value>
-    public virtual bool IsStopped(AnimationContext context)
+    /// <param name="context">Current animation context.</param>
+    /// <returns>
+    /// <c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
+    /// </returns>
+    public virtual bool IsStopped(TimelineContext context)
     {
       return (context.State == State.Idle);
-    }
-
-    protected IDataDescriptor GetDataDescriptor(UIElement element)
-    {
-      string targetName = Storyboard.GetTargetName(this);
-      object targetObject = VisualTreeHelper.FindElement(element, targetName);
-      if (targetObject == null)
-        return null;
-      IDataDescriptor result = new ValueDataDescriptor(targetObject);
-      if (_propertyExpression == null || !_propertyExpression.Evaluate(result, out result))
-        return null;
-      return result;
-    }
-
-    public virtual void Setup(AnimationContext context)
-    {
-      context.DataDescriptor = GetDataDescriptor(context.VisualParent);
-    }
-
-    public virtual void Initialize(UIElement element)
-    {
-      IDataDescriptor dd = GetDataDescriptor(element);
-      OriginalValue = dd == null ? null : dd.Value;
-    }
-
-    #endregion
-
-    #region IInitializable implementation
-
-    public override void Initialize(IParserContext context)
-    {
-      base.Initialize(context);
-      if (String.IsNullOrEmpty(Storyboard.GetTargetName(this)) || String.IsNullOrEmpty(Storyboard.GetTargetProperty(this)))
-      {
-        _propertyExpression = null;
-        return;
-      }
-      string targetProperty = Storyboard.GetTargetProperty(this);
-      _propertyExpression = PathExpression.Compile(context, targetProperty);
     }
 
     #endregion

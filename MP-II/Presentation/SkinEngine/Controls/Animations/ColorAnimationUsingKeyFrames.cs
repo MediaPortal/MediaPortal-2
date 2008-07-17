@@ -30,7 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class ColorAnimationUsingKeyFrames : Timeline, IAddChild<ColorKeyFrame>
+  public class ColorAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<ColorKeyFrame>
   {
     #region Private fields
 
@@ -77,9 +77,17 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation methods
 
-    protected override void AnimateProperty(AnimationContext context, uint timepassed)
+    public override void Setup(TimelineContext context)
     {
-      if (context.DataDescriptor == null) return;
+      base.Setup(context);
+      if (KeyFrames.Count > 0)
+        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
+    }
+
+    protected override void AnimateProperty(TimelineContext context, uint timepassed)
+    {
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return;
       double time = 0;
       Color start = Color.Black;
       for (int i = 0; i < KeyFrames.Count; ++i)
@@ -89,14 +97,12 @@ namespace Presentation.SkinEngine.Controls.Animations
         {
           double progress = (timepassed - time);
           if (progress == 0)
-          {
-            context.DataDescriptor.Value = key.Value;
-          }
+            patc.DataDescriptor.Value = key.Value;
           else
           {
             progress /= (key.KeyTime.TotalMilliseconds - time);
             Color result = key.Interpolate(start, progress);
-            context.DataDescriptor.Value = result;
+            patc.DataDescriptor.Value = result;
           }
           return;
         }
@@ -106,36 +112,6 @@ namespace Presentation.SkinEngine.Controls.Animations
           start = key.Value;
         }
       }
-    }
-
-    public override void Stop(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      context.State = State.Idle;
-      if (context.DataDescriptor != null)
-      {
-        context.DataDescriptor.Value = OriginalValue;
-
-      }
-    }
-
-    /// <summary>
-    /// Starts the animation
-    /// </summary>
-    /// <param name="timePassed">The time passed.</param>
-    public override void Start(AnimationContext context, uint timePassed)
-    {
-      if (!IsStopped(context))
-        Stop(context);
-
-      context.State = State.Starting;
-      if (KeyFrames.Count > 0)
-      {
-        Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
-      }
-
-      context.TimeStarted = timePassed;
-      context.State = State.WaitBegin;
     }
 
     #endregion

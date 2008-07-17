@@ -30,7 +30,7 @@ using Presentation.SkinEngine.Commands;
 namespace Presentation.SkinEngine.Controls.Bindings
 {
   /// <summary>
-  /// <see cref="TriggerAction"/> wrapper class for an <see cref="IExecutable"/> command.
+  /// <see cref="TriggerAction"/> wrapper class for an <see cref="IExecutableCommand"/>.
   /// </summary>
   public class TriggerCommand : TriggerAction
   {
@@ -69,7 +69,11 @@ namespace Presentation.SkinEngine.Controls.Bindings
       set { _command = value; }
     }
 
-    public override void Execute(UIElement element, Trigger trigger)
+    #endregion
+
+    #region Base overrides
+
+    public override void Execute(UIElement element, TriggerBase trigger)
     {
       if (Command != null)
         Command.Execute();

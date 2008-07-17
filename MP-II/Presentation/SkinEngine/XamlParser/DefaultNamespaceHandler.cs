@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using System.Xml;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.Genreal.Exceptions;
 using Presentation.SkinEngine.XamlParser.Interfaces;

@@ -27,14 +27,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger: DependencyObject, IAddChild<TriggerAction>
+  public class Trigger: TriggerBase, IAddChild<TriggerAction>
   {
     #region Private fields
 
@@ -44,7 +43,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     Property _exitActionsProperty;
     Property _property;
     PropertyChangedHandler _handler;
-    UIElement _element;
 
     #endregion
 
@@ -53,7 +51,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     public Trigger()
     {
       Init();
-      Attach();
     }
 
     void Init()
@@ -65,19 +62,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       _handler = OnPropertyChanged;
     }
 
-    void Attach()
-    {
-      _propertyProperty.Attach(OnPropChanged);
-    }
-
-    void Detach()
-    {
-      _propertyProperty.Attach(OnPropChanged);
-    }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Detach();
       base.DeepCopy(source, copyManager);
       Trigger t = source as Trigger;
       Property = copyManager.GetCopy(t.Property);
@@ -86,7 +72,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         EnterActions.Add(copyManager.GetCopy(ac));
       foreach (TriggerAction ac in t.ExitActions)
         ExitActions.Add(copyManager.GetCopy(ac));
-      Attach();
     }
 
     #endregion
@@ -137,10 +122,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public virtual void Setup(UIElement element)
+    public override void Setup(UIElement element)
     {
-      _element = element;
-      //Trace.WriteLine("Setup trigger for " + element.Name + " " + element.GetType().ToString() + " " + Property);
+      base.Setup(element);
       if (_property != null)
       {
         _property.Detach(_handler);
@@ -148,7 +132,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       }
       if (!String.IsNullOrEmpty(Property))
       {
-        _element = element;
+        // FIXME: Use ReflectionHelper here
         Type t = element.GetType();
         PropertyInfo pinfo = t.GetProperty(Property + "Property");
         if (pinfo == null)
@@ -161,43 +145,15 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         _property.Attach(_handler);
       }
       foreach (TriggerAction action in EnterActions)
-      {
         action.Setup(element);
-      }
       foreach (TriggerAction action in ExitActions)
-      {
         action.Setup(element);
-      }
       OnPropertyChanged(_property);
     }
 
-    void OnPropChanged(Property p)
-    {
-      if (_property != null) return;
-      if (_propertyProperty == null) return;
-      if (_propertyProperty.GetValue().GetType() != typeof(bool)) return;
-      if ((bool)_propertyProperty.GetValue() == Value)
-      {
-        //execute start actions
-        foreach (TriggerAction action in EnterActions)
-        {
-          action.Execute(_element, this);
-        }
-      }
-      else
-      {
-        //execute stop actions
-        foreach (TriggerAction action in ExitActions)
-          action.Execute(_element, this);
-        foreach (TriggerAction action in EnterActions)
-        {
-          Setter s = action as Setter;
-          if (s != null)
-            s.Restore(_element, this);
-        }
-      }
-    }
-    
+    /// <summary>
+    /// Listens for changes of our trigger property.
+    /// </summary>
     void OnPropertyChanged(Property p)
     {
       if (_property == null) return;

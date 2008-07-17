@@ -85,6 +85,7 @@ namespace Presentation.SkinEngine
     bool _setFocusedElement = false;
     Animator _animator;
     List<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
+
     #endregion
 
     /// <summary>

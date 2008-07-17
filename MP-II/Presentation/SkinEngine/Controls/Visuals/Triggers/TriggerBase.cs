@@ -22,36 +22,28 @@
 
 #endregion
 
-using System.Collections.Generic;
+using Presentation.SkinEngine.Controls;
 
-namespace Presentation.SkinEngine.MpfElements.Resources
+namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  /// <summary>
-  /// Class to wrap a value object which cannot directly be used. Objects of this class will NOT be
-  /// automatically converted to the underlaying <see cref="Value"/> object. That's why the code where
-  /// instances of this class are used must explicitly support <see cref="LateBoundValue"/>s.
-  /// </summary>
-  public class LateBoundValue : ValueWrapper
+  public class TriggerBase: DependencyObject
   {
+    #region Protected fields
+
+    protected UIElement _element;
+
+    #endregion
+
     #region Ctor
 
-    public LateBoundValue()
-    { }
-
-    public LateBoundValue(object value): base(value)
+    public TriggerBase()
     { }
 
     #endregion
 
-    public static IList<object> ConvertLateBoundValues(IEnumerable<object> parameters)
+    public virtual void Setup(UIElement element)
     {
-      IList<object> result = new List<object>();
-      foreach (object parameter in parameters)
-        if (parameter is LateBoundValue)
-          result.Add(((LateBoundValue) parameter).Value);
-        else
-          result.Add(parameter);
-      return result;
+      _element = element;
     }
   }
 }

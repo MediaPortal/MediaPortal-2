@@ -28,5 +28,21 @@ namespace Presentation.SkinEngine.Controls.Animations
   public class ParallelTimeline: TimelineGroup
   {
     public ParallelTimeline() { }
+
+    public override void Animate(TimelineContext context, uint reltime)
+    {
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Animate(tgc[i], reltime);
+    }
+
+    public override bool IsStopped(TimelineContext context)
+    {
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        if (!Children[i].IsStopped(tgc[i])) return false;
+      return true;
+    }
+
   }
 }

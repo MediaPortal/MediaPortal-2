@@ -87,22 +87,13 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public override void Execute(UIElement element, Trigger trigger)
+    public override void Execute(UIElement element, TriggerBase trigger)
     {
       if (Storyboard != null)
       {
-        //Trace.WriteLine(String.Format("StartStoryboard {0} {1}", ((UIElement)element).Name, this.Storyboard.Key));
         element.StartStoryboard(this.Storyboard as Storyboard);
         return;
 
-      }
-    }
-
-    public override void Setup(UIElement element)
-    {
-      if (Storyboard != null)
-      {
-        Storyboard.Initialize(element);
       }
     }
   }

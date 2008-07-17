@@ -31,8 +31,6 @@ using Presentation.SkinEngine.Genreal.Exceptions;
 
 namespace Presentation.SkinEngine.XamlParser
 {
-  using System.Collections;
-
   /// <summary>
   /// Helper class for assembly methods.
   /// </summary>

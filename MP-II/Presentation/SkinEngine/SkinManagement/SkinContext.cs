@@ -64,14 +64,15 @@ namespace Presentation.SkinEngine.SkinManagement
     private static Geometry _geometry = new Geometry();
     private static CropSettings _cropSettings = new CropSettings();
     public static DateTime _now;
-    public static bool HandlingInput;
     private static Property _mouseUsedProperty = new Property(typeof(bool), false);
     private static Property _timeProperty = new Property(typeof(DateTime), DateTime.Now);
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
-    public static uint TimePassed;
     private static Property _zoomProperty = new Property(typeof(System.Drawing.SizeF), new System.Drawing.SizeF(1, 1));
     public static float Z = 0.0f;
+
+    public static bool HandlingInput;
+    public static uint TimePassed;
 
     #endregion
 

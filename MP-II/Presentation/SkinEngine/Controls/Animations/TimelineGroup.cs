@@ -29,7 +29,106 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public class TimelineGroup : Timeline, IList<Timeline>
+  /// <summary>
+  /// Timeline context class for <see cref="TimelineGroup"/>s.
+  /// </summary>
+  class TimelineGroupContext: TimelineContext, IList<TimelineContext>
+  {
+    #region Protected properties
+
+    protected IList<TimelineContext> _children = new List<TimelineContext>();
+
+    public TimelineGroupContext(UIElement visualParent) : base(visualParent) { }
+
+    #endregion
+
+    #region IList<TimelineContext> Members
+
+    public int IndexOf(TimelineContext item)
+    {
+      return _children.IndexOf(item);
+    }
+
+    public void Insert(int index, TimelineContext item)
+    {
+      _children.Insert(index, item);
+    }
+
+    public void RemoveAt(int index)
+    {
+      _children.RemoveAt(index);
+    }
+
+    public TimelineContext this[int index]
+    {
+      get { return _children[index]; }
+      set { _children[index] = value; }
+    }
+
+    #endregion
+
+    #region ICollection<TimelineContext> Members
+
+    public void Add(TimelineContext item)
+    {
+      _children.Add(item);
+    }
+
+    public void Clear()
+    {
+      _children.Clear();
+    }
+
+    public bool Contains(TimelineContext item)
+    {
+      return _children.Contains(item);
+    }
+
+    public void CopyTo(TimelineContext[] array, int arrayIndex)
+    {
+      _children.CopyTo(array, arrayIndex);
+    }
+
+    public int Count
+    {
+      get { return _children.Count; }
+    }
+
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    public bool Remove(TimelineContext item)
+    {
+      return _children.Remove(item);
+    }
+
+    #endregion
+
+    #region IEnumerable<TimelineContext> Members
+
+    public IEnumerator<TimelineContext> GetEnumerator()
+    {
+      return _children.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return _children.GetEnumerator();
+    }
+
+    #endregion
+  }
+
+  /// <summary>
+  /// Represents a Timeline which consists of child timelines.
+  /// </summary>
+  public abstract class TimelineGroup : Timeline, IList<Timeline>
   {
     #region Private fields
 
@@ -73,12 +172,49 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
+    #region Animation state methods
 
-    public override void Initialize(UIElement element)
+    public override TimelineContext CreateTimelineContext(UIElement element)
     {
+      TimelineGroupContext result = new TimelineGroupContext(element);
       foreach (Timeline line in Children)
-        line.Initialize(element);
+      {
+        TimelineContext childContext = line.CreateTimelineContext(element);
+        result.Add(childContext);
+      }
+      return result;
     }
+
+    public override void Setup(TimelineContext context)
+    {
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Setup(tgc[i]);
+    }
+
+    public override void Reset(TimelineContext context)
+    {
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Reset(tgc[i]);
+    }
+
+    public override void Started(TimelineContext context, uint timePassed)
+    {
+      base.Started(context, timePassed);
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Started(tgc[i], timePassed);
+    }
+
+    public override void Ended(TimelineContext context)
+    {
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Ended(tgc[i]);
+    }
+
+    #endregion
 
     #region IList<Timeline> Members
 
@@ -157,6 +293,5 @@ namespace Presentation.SkinEngine.Controls.Animations
     }
 
     #endregion
-
   }
 }

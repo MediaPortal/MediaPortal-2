@@ -325,22 +325,22 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return ((FrameworkElement)Content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      return Content.PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return ((FrameworkElement)Content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      return Content.PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return ((FrameworkElement)Content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      return Content.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return ((FrameworkElement)Content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      return Content.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
 
     #endregion

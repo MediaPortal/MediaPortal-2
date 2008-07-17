@@ -28,7 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 namespace Presentation.SkinEngine.Controls.Animations
 {
 
-  public class ColorAnimation : Timeline
+  public class ColorAnimation : PropertyAnimationTimeline
   {
     #region Private fields
 
@@ -102,13 +102,10 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation methods
 
-    /// <summary>
-    /// Animates the property.
-    /// </summary>
-    /// <param name="timepassed">The timepassed.</param>
-    protected override void AnimateProperty(AnimationContext context, uint timepassed)
+    protected override void AnimateProperty(TimelineContext context, uint timepassed)
     {
-      if (context.DataDescriptor == null) return;
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null) return;
       Color c;
       double distA = ((double)(To.A - From.A)) / Duration.TotalMilliseconds;
       distA *= timepassed;
@@ -128,27 +125,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
       c = Color.FromArgb((int)distA, (int)distR, (int)distG, (int)distB);
 
-      context.DataDescriptor.Value = c;
-    }
-
-    public override void Stop(AnimationContext context)
-    {
-      if (IsStopped(context)) return;
-      context.State = State.Idle;
-      if (context.DataDescriptor != null)
-        context.DataDescriptor.Value = OriginalValue;
-    }
-
-    public override void Start(AnimationContext context, uint timePassed)
-    {
-      if (!IsStopped(context))
-        Stop(context);
-      //find context.Property...
-
-      context.State = State.Starting;
-
-      context.TimeStarted = timePassed;
-      context.State = State.WaitBegin;
+      patc.DataDescriptor.Value = c;
     }
 
     #endregion

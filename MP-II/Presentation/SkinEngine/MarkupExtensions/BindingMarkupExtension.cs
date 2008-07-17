@@ -410,15 +410,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
-    /// Returns the information if our data descriptor has a binding type, which means
-    /// this binding instance has to be assigned rather than its evaluated source value.
-    /// </summary>
-    protected bool KeepBinding
-    {
-      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
-    }
-
-    /// <summary>
     /// Will check if the property settings affecting the binding source
     /// aren't conflicting.
     /// </summary>
@@ -588,8 +579,14 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// Does the lookup for our binding source data. This includes evaluation of our source
     /// properties and the lookup for the data context.
     /// </summary>
+    /// <remarks>
+    /// During the lookup, change handlers will be attached to all relevant properties
+    /// on the search path to the binding source. If one of the properties changes,
+    /// this binding will re-evaluate.
+    /// </remarks>
     /// <param name="result">Resulting source descriptor, if it could be resolved.</param>
-    /// <returns></returns>
+    /// <returns><c>true</c>, if the binding source could be found and evaluated,
+    /// <c>false</c> if it could not be resolved (yet).</returns>
     protected bool GetSourceDataDescriptor(out IDataDescriptor result)
     {
       ResetChangeHandlerAttachments();
@@ -604,9 +601,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
             result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
             return true;
           case SourceType.RelativeSource:
-            if (!(_contextObject is DependencyObject))
+            DependencyObject current = _contextObject as DependencyObject;
+            if (current == null)
               return false;
-            DependencyObject current = (DependencyObject) _contextObject;
             switch (RelativeSource.Mode)
             {
               case RelativeSourceMode.Self:

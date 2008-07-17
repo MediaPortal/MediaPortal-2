@@ -22,71 +22,54 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.MarkupExtensions;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Triggers
+namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  public class EventTrigger : TriggerBase, IAddChild<TriggerAction>
+  /// <summary>
+  /// Class to wrap a Binding instance. This is useful if a binding should be
+  /// used as a template for a usage in another place. The binding can be accessed
+  /// and copied by using the <see cref="PickupBindingMarkupExtension"/>.
+  /// </summary>
+  public class BindingWrapper : ValueWrapper
   {
-    #region Private fields
+    #region Protected fields
 
-    protected Property _routedEventProperty;
-    protected IList<TriggerAction> _actions;
+    protected bool _freezable = false;
 
     #endregion
 
     #region Ctor
 
-    public EventTrigger()
-    {
-      Init();
-    }
+    public BindingWrapper()
+    { }
 
-    void Init()
-    {
-      _routedEventProperty = new Property(typeof(string), "");
-      _actions = new List<TriggerAction>();
-    }
+    public BindingWrapper(IBinding binding): base(binding)
+    { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      EventTrigger t = source as EventTrigger;
-      RoutedEvent = copyManager.GetCopy(t.RoutedEvent);
-      foreach (TriggerAction action in t._actions)
-        _actions.Add(copyManager.GetCopy(action));
+      BindingWrapper rw = (BindingWrapper) source;
+      Freezable = copyManager.GetCopy(rw.Freezable);
     }
 
     #endregion
 
     #region Public properties
 
-    public Property RoutedEventProperty
+    public IBinding Binding
     {
-      get { return _routedEventProperty; }
+      get { return (IBinding) Value; }
+      set { Value = value; }
     }
 
-    public string RoutedEvent
+    public bool Freezable
     {
-      get { return (string)_routedEventProperty.GetValue(); }
-      set { _routedEventProperty.SetValue(value); }
-    }
-
-    public IList<TriggerAction> Actions
-    {
-      get { return _actions; }
-    }
-
-    #endregion
-
-    #region IAddChild Members
-
-    public void AddChild(TriggerAction o)
-    {
-      Actions.Add(o);
+      get { return _freezable; }
+      set { _freezable = value; }
     }
 
     #endregion

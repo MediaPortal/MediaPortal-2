@@ -215,7 +215,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _acutalPositionProperty = new Property(typeof(Vector3), new Vector3(0, 0, 1));
       _marginProperty = new Property(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
-      _triggerProperty = new Property(typeof(IList<Trigger>), new List<Trigger>());
+      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _renderTransformProperty = new Property(typeof(Transform), null);
       _layoutTransformProperty = new Property(typeof(Transform), null);
       _renderTransformOriginProperty = new Property(typeof(Vector2), new Vector2(0, 0));
@@ -270,7 +270,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       // Simply reuse the Resources
       SetResources(el._resources);
 
-      foreach (Trigger t in el.Triggers)
+      foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
       Attach();
     }
@@ -407,9 +407,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       get { return _triggerProperty; }
     }
 
-    public IList<Trigger> Triggers
+    public IList<TriggerBase> Triggers
     {
-      get { return (IList<Trigger>)_triggerProperty.GetValue(); }
+      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
     }
 
     public Property ActualPositionProperty
@@ -438,7 +438,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
           ns.UnregisterName(Name);
         _nameProperty.SetValue(value);
         if (ns != null)
-          ns.RegisterName(Name, this);
+          try
+          {
+            if (ns.FindName(Name) == this)
+              return; // Avoid exception when registered multiple times
+            ns.RegisterName(Name, this);
+          }
+          catch
+          {
+            throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns.ToString()+"'");
+          }
       }
     }
 
@@ -689,10 +698,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (!_triggersInitialized)
       {
         _triggersInitialized = true;
-        foreach (Trigger trigger in Triggers)
-        {
+        foreach (TriggerBase trigger in Triggers)
           trigger.Setup(this);
-        }
       }
     }
 
@@ -702,27 +709,17 @@ namespace Presentation.SkinEngine.Controls.Visuals
     /// <param name="eventName">Name of the event.</param>
     public virtual void FireEvent(string eventName)
     {
-      foreach (Trigger trigger in Triggers)
+      foreach (TriggerBase trigger in Triggers)
       {
         EventTrigger eventTrig = trigger as EventTrigger;
         if (eventTrig != null)
-        {
           if (eventTrig.RoutedEvent == eventName)
-          {
-            if (eventTrig.Storyboard != null)
-            {
-              StartStoryboard(eventTrig.Storyboard as Storyboard);
-            }
-          }
-        }
+            foreach (TriggerAction ta in eventTrig.Actions)
+              ta.Execute(this, eventTrig);
       }
       if (eventName == "FrameworkElement.Loaded")
-      {
         if (Loaded != null)
-        {
           _loaded.Execute();
-        }
-      }
     }
 
     public void StartStoryboard(Storyboard board)
