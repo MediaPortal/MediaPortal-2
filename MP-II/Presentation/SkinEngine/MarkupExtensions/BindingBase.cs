@@ -46,7 +46,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// There is a dictionary which stores all bindings which have been attached
   /// to target objects.
   /// </remarks>
-  public abstract class BindingBase: IBinding, IDeepCopyable
+  public abstract class BindingBase: DependencyObject, IBinding
   {
     #region Protected fields
 
@@ -91,8 +91,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
       DetachFromTargetObject();
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      base.DeepCopy(source, copyManager);
       BindingBase bb = source as BindingBase;
       if (bb._targetDataDescriptor != null)
       {
@@ -199,13 +200,22 @@ namespace Presentation.SkinEngine.MarkupExtensions
       // never reference another object than _contextObject. Otherwise we would
       // have to add the mapping (_targetDataDescriptor.TargetObject; newDd.TargetObject) too.
       IdentityCopyManager copyManager = new IdentityCopyManager(exceptionalIdentities);
-      result.DeepCopy(this, copyManager);
+      IDataDescriptor targetSave = _targetDataDescriptor;
+      try
+      {
+        _targetDataDescriptor = null; // We have to detach temporarily, else the copy won't work
+        result.DeepCopy(this, copyManager);
+        // 3) Exchange the target data descriptor by the new one
+        result._targetDataDescriptor = newDd;
+      }
+      finally
+      {
+        // Restore this binding attachment
+        _targetDataDescriptor = targetSave;
+      }
 
-      // 3) Do the afterwork of the copying process
+      // 4) Do the afterwork of the copying process
       copyManager.CompleteCopying();
-
-      // 4) Exchange the target data descriptor by the new one
-      result._targetDataDescriptor = newDd;
 
       return result;
     }
@@ -224,6 +234,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public T GetCopy<T>(T source)
     {
+      if (source == null)
+        return default(T);
       if (_exceptionalIdentities.ContainsKey(source))
         return (T) _exceptionalIdentities[source];
       else
