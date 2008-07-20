@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.XamlParser;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.SkinManagement;
@@ -32,7 +33,7 @@ using System.IO;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {
-  public class Include : IInclude, IInitializable
+  public class Include : NameScope, IInclude, IInitializable
   {
     #region Private fields
 
@@ -95,9 +96,18 @@ namespace Presentation.SkinEngine.MpfElements.Resources
         throw new XamlLoadException("Could not open include file '{0}'", _includeName);
       _content = context.LoadXaml(includeFile.FullName);
       if (_content is UIElement)
-        MergeResourceDictionaries(Resources, ((UIElement) _content).Resources);
+      {
+        UIElement target = (UIElement) _content;
+        // Merge resources with those from the included content
+        MergeResourceDictionaries(Resources, target.Resources);
+        // Merge namescope into the included content
+        INameScope targetNs = target.FindNameScope();
+        if (targetNs != null)
+          foreach (KeyValuePair<string, object> kvp in _names)
+            targetNs.RegisterName(kvp.Key, kvp.Value);
+      }
       else if (_content is ResourceDictionary)
-        MergeResourceDictionaries(Resources, (ResourceDictionary) _content);
+        MergeResourceDictionaries(Resources, (ResourceDictionary)_content);
     }
 
     public void MergeResourceDictionaries(ResourceDictionary source, ResourceDictionary target)
