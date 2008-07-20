@@ -98,7 +98,7 @@ namespace Models.Extensions
 
       _settings = new ExtensionSettings();
 
-      ServiceScope.Get<IMessageBroker>().Get("extensionupdater").OnMessageReceive +=
+      ServiceScope.Get<IMessageBroker>().GetOrCreate("extensionupdater").OnMessageReceive +=
           new MessageReceivedHandler(OnMessageReceive);
 
       ServiceScope.Get<ISettingsManager>().Load(_settings);
@@ -739,9 +739,9 @@ namespace Models.Extensions
   
     }
 
-    void OnMessageReceive(MPMessage message)
+    void OnMessageReceive(QueueMessage message)
     {
-      string mes = message.MetaData["message"] as string;
+      string mes = message.MessageData["message"] as string;
       switch (mes)
       {
         case "listupdated":

@@ -46,7 +46,7 @@ namespace MediaPortal.Services.TaskScheduler
     /// <summary>
     /// The "taskscheduler" message queue.
     /// </summary>
-    private IQueue _queue;
+    private IMessageQueue _queue;
     /// <summary>
     /// The persistent settings used by the task scheduler
     /// </summary>
@@ -64,7 +64,7 @@ namespace MediaPortal.Services.TaskScheduler
     #region Constructor
     public TaskScheduler()
     {
-      _queue = ServiceScope.Get<IMessageBroker>().Get("taskscheduler");
+      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("taskscheduler");
       _settings = new TaskSchedulerSettings();
       ServiceScope.Get<ISettingsManager>().Load(_settings);
       SaveChanges(false);
@@ -208,8 +208,8 @@ namespace MediaPortal.Services.TaskScheduler
     private void SendMessage(TaskMessage message)
     {
       // create message
-      MPMessage msg = new MPMessage();
-      msg.MetaData["taskmessage"] = message;
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["taskmessage"] = message;
       // asynchronously send message through queue
       ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));
     }

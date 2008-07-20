@@ -22,33 +22,31 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Services.Messaging
 {
   public class MessageBroker : IMessageBroker
   {
-    Dictionary<string, IQueue> _queues;
+    #region Protected fields
+
+    protected IDictionary<string, IMessageQueue> _queues;
+
+    #endregion
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MessageBroker"/> class.
     /// </summary>
     public MessageBroker()
     {
-      _queues = new Dictionary<string, IQueue>();
+      _queues = new Dictionary<string, IMessageQueue>();
     }
-    #region IMessageBroker Members
+
+    #region IMessageBroker implementation
 
 
-    /// <summary>
-    /// Gets the specific message queue by name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns>queue</returns>
-    public IQueue Get(string queueName)
+    public IMessageQueue GetOrCreate(string queueName)
     {
       if (!_queues.ContainsKey(queueName))
       {
@@ -58,25 +56,14 @@ namespace MediaPortal.Services.Messaging
       return _queues[queueName];
     }
 
-    #endregion
-
-    #region IMessageBroker Members
-
-
-    /// <summary>
-    /// Gets the queue-names.
-    /// </summary>
-    /// <value>The queues.</value>
-    public List<string> Queues
+    public IList<string> Queues
     {
       get 
       {
         List<string> queueNames = new List<string>();
-        Dictionary<string, IQueue>.Enumerator enumer = _queues.GetEnumerator();
+        IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
         while (enumer.MoveNext())
-        {
           queueNames.Add(enumer.Current.Key);
-        }
         return queueNames;
       }
     }

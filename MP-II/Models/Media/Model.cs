@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Collections;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
@@ -79,11 +77,11 @@ namespace Models.Media
 
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("importers");
+      IMessageQueue queue = msgBroker.GetOrCreate("importers");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
     }
 
-    void OnImporterMessageReceived(MPMessage message)
+    void OnImporterMessageReceived(QueueMessage message)
     {
       Refresh();
       _items.FireChange();

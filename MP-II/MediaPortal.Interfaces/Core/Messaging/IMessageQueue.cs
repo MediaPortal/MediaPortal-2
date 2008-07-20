@@ -22,22 +22,21 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Core.Messaging
 {
-  public delegate void MessageReceivedHandler(MPMessage message);
+  public delegate void MessageReceivedHandler(QueueMessage message);
 
-  public interface IQueue
+  public interface IMessageQueue
   {
     event MessageReceivedHandler OnMessageReceive;
+
     /// <summary>
     /// Gets a value indicating whether this queue has subscribers.
     /// </summary>
     /// <value>
-    /// 	<c>true</c> if this queue has subscribers; otherwise, <c>false</c>.
+    /// <c>true</c> if this queue has subscribers; otherwise, <c>false</c>.
     /// </value>
     bool HasSubscribers { get;}
 
@@ -45,12 +44,12 @@ namespace MediaPortal.Core.Messaging
     /// Gets the message filters.
     /// </summary>
     /// <value>The message filters.</value>
-    List<IMessageFilter> Filters { get;}
+    IList<IMessageFilter> Filters { get;}
 
     /// <summary>
     /// Sends the specified message.
     /// </summary>
     /// <param name="message">The message.</param>
-    void Send(MPMessage message);
+    void Send(QueueMessage message);
   }
 }

@@ -66,7 +66,7 @@ namespace MediaPortal.Services.Localisation
         _strings = new LocalisationStrings("Language", settings.Culture);
       }
 
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get(PluginMessaging.Queue);
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginMessaging.Queue);
       queue.OnMessageReceive += new MessageReceivedHandler(OnPluginMessageReceive);
     }
 
@@ -144,15 +144,15 @@ namespace MediaPortal.Services.Localisation
     /// Adds Plugin language resource folders to the Directory list when plugins are enabled.
     /// </summary>
     /// <param name="message">The message.</param>
-    private void OnPluginMessageReceive(MPMessage message)
+    private void OnPluginMessageReceive(QueueMessage message)
     {
       try
       {
-        if (((PluginMessaging.NotificationType)message.MetaData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginEnable)
+        if (((PluginMessaging.NotificationType)message.MessageData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginEnable)
         {
-          if (message.MetaData.ContainsKey(PluginMessaging.Resources))
+          if (message.MessageData.ContainsKey(PluginMessaging.Resources))
           {
-            foreach (PluginResource resource in (List<PluginResource>)message.MetaData[PluginMessaging.Resources])
+            foreach (PluginResource resource in (List<PluginResource>)message.MessageData[PluginMessaging.Resources])
             {
               if (resource.Type == PluginResource.ResourceType.Language)
                 AddDirectory(resource.Location);

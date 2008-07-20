@@ -463,10 +463,10 @@ namespace Presentation.SkinEngine.Players
       ServiceScope.Get<PlayerCollection>().Paused = false;
       _initialized = true;
 
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
-      MPMessage msg = new MPMessage();
-      msg.MetaData["player"] = this;
-      msg.MetaData["action"] = "started";
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["player"] = this;
+      msg.MessageData["action"] = "started";
       queue.Send(msg);
     }
 
@@ -1173,10 +1173,10 @@ namespace Presentation.SkinEngine.Players
               _state = PlaybackState.Ended;
               ServiceScope.Get<ILogger>().Debug("VideoPlayer:Playback ended");
               RemoveResumeData();
-              IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
-              MPMessage msg = new MPMessage();
-              msg.MetaData["player"] = this;
-              msg.MetaData["action"] = "ended";
+              IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
+              QueueMessage msg = new QueueMessage();
+              msg.MessageData["player"] = this;
+              msg.MessageData["action"] = "ended";
               queue.Send(msg);
               return;
             }
@@ -1239,13 +1239,13 @@ namespace Presentation.SkinEngine.Players
         }
 
 
-        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["player"] = this;
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["player"] = this;
         if (_state == PlaybackState.Paused)
-          msg.MetaData["action"] = "paused";
+          msg.MessageData["action"] = "paused";
         else
-          msg.MetaData["action"] = "playing";
+          msg.MessageData["action"] = "playing";
         queue.Send(msg);
       }
     }

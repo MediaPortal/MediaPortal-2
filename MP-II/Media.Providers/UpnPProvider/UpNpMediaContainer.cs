@@ -224,11 +224,11 @@ namespace Media.Providers.UpNpProvider
       if (sender.MatchedContainers.Count != 0 || sender.MatchedItems.Count != 0)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        IQueue queue = broker.Get("mediamanager");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["action"] = "changed";
-        msg.MetaData["fullpath"] = FullPath;
-        msg.MetaData["container"] = this;
+        IMessageQueue queue = broker.GetOrCreate("mediamanager");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["action"] = "changed";
+        msg.MessageData["fullpath"] = FullPath;
+        msg.MessageData["container"] = this;
         queue.Send(msg);
       }
     }

@@ -273,13 +273,13 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
 
     private void SendMessage(PluginMessaging.NotificationType type)
     {
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get(PluginMessaging.Queue);
-      MPMessage msg = new MPMessage();
-      msg.MetaData[PluginMessaging.PluginName] = Name;
-      msg.MetaData[PluginMessaging.Notification] = type;
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginMessaging.Queue);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[PluginMessaging.PluginName] = Name;
+      msg.MessageData[PluginMessaging.Notification] = type;
 
       if (_resources.Count > 0)
-        msg.MetaData[PluginMessaging.Resources] = _resources;
+        msg.MessageData[PluginMessaging.Resources] = _resources;
 
       queue.Send(msg);
     }

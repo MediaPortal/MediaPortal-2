@@ -223,10 +223,10 @@ namespace Components.Services.Importers
       ServiceScope.Get<ISettingsManager>().Save(_settings);
 
       ForceImport(folder, false);
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("importers");
-      MPMessage msg = new MPMessage();
-      msg.MetaData["action"] = "shareadded";
-      msg.MetaData["folder"] = folder;
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("importers");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["action"] = "shareadded";
+      msg.MessageData["folder"] = folder;
       queue.Send(msg);
     }
 
@@ -258,10 +258,10 @@ namespace Components.Services.Importers
           _settings.Shares.RemoveAt(i);
 
           ServiceScope.Get<ISettingsManager>().Save(_settings);
-          IQueue queue = ServiceScope.Get<IMessageBroker>().Get("importers");
-          MPMessage msg = new MPMessage();
-          msg.MetaData["action"] = "shareremoved";
-          msg.MetaData["folder"] = folder;
+          IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("importers");
+          QueueMessage msg = new QueueMessage();
+          msg.MessageData["action"] = "shareremoved";
+          msg.MessageData["folder"] = folder;
           queue.Send(msg);
           break;
         }

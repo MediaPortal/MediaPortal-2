@@ -128,10 +128,10 @@ namespace Models.Music
       //register for messages from players and mediamanager
 
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = broker.Get("mediamanager");
+      IMessageQueue queue = broker.GetOrCreate("mediamanager");
       queue.OnMessageReceive += new MessageReceivedHandler(OnMediaManagerMessageReceived);
 
-      queue = broker.Get("importers");
+      queue = broker.GetOrCreate("importers");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
       //create our dynamic context menu items
@@ -149,7 +149,7 @@ namespace Models.Music
       _dynamicContextMenuItems.Add(menuItem);
     }
 
-    void OnImporterMessageReceived(MPMessage message)
+    void OnImporterMessageReceived(QueueMessage message)
     {
       Refresh();
       _songs.FireChange();
@@ -224,17 +224,17 @@ namespace Models.Music
     /// and ifso refresh the movies collection
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnMediaManagerMessageReceived(MPMessage message)
+    void OnMediaManagerMessageReceived(QueueMessage message)
     {
       if (_folder != null && _folder.MediaContainer != null)
       {
-        if (message.MetaData.ContainsKey("action"))
+        if (message.MessageData.ContainsKey("action"))
         {
-          if (message.MetaData["action"].ToString() == "changed")
+          if (message.MessageData["action"].ToString() == "changed")
           {
-            if (message.MetaData.ContainsKey("fullpath"))
+            if (message.MessageData.ContainsKey("fullpath"))
             {
-              if (message.MetaData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
+              if (message.MessageData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
               {
                 Refresh();
                 _songs.FireChange();

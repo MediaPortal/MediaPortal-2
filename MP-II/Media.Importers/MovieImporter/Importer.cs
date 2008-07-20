@@ -51,11 +51,11 @@ namespace Media.Importers.MovieImporter
     IDatabase _movieDatabase;
     DateTime _lastImport = DateTime.MinValue;
     Scraper scraper;
-    private IQueue _queue;
+    private IMessageQueue _queue;
 
     public Importer()
     {
-      _queue = ServiceScope.Get<IMessageBroker>().Get("imdbimporters");
+      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("imdbimporters");
       //_extensions = new List<string>();
       //_extensions.Add(".wmv");
       //_extensions.Add(".mpg");
@@ -198,10 +198,10 @@ namespace Media.Importers.MovieImporter
           if (scraper.SearchResults.Count > 0)
           {
 
-            MPMessage msgc = new MPMessage();
-            msgc.MetaData["action"] = "imdbchoiceneeded";
-            msgc.MetaData["file"] = file;
-            msgc.MetaData["title"] = (string)movie["title"];
+            QueueMessage msgc = new QueueMessage();
+            msgc.MessageData["action"] = "imdbchoiceneeded";
+            msgc.MessageData["file"] = file;
+            msgc.MessageData["title"] = (string)movie["title"];
             List<string> urlList = new List<string>();
             List<string> idList = new List<string>();
             List<string> titleList = new List<string>();
@@ -211,9 +211,9 @@ namespace Media.Importers.MovieImporter
               idList.Add(res.Id);
               titleList.Add(res.Title);
             }
-            msgc.MetaData["urls"] = urlList;
-            msgc.MetaData["ids"] = idList;
-            msgc.MetaData["titles"] = titleList;
+            msgc.MessageData["urls"] = urlList;
+            msgc.MessageData["ids"] = idList;
+            msgc.MessageData["titles"] = titleList;
             SendMessage(msgc);
 
             ServiceScope.Get<ILogger>().Info("movieimporter: getting online info for: {0} ", scraper.SearchResults[0].Title);
@@ -242,9 +242,9 @@ namespace Media.Importers.MovieImporter
         movie.Save();
         
         // create & send message
-        MPMessage msg = new MPMessage();
-        msg.MetaData["action"] = "fileinfoupdated";
-        msg.MetaData["file"] = file;
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["action"] = "fileinfoupdated";
+        msg.MessageData["file"] = file;
         SendMessage(msg);
 
         return true;
@@ -631,7 +631,7 @@ namespace Media.Importers.MovieImporter
 
     #region Messaging
 
-    private void SendMessage(MPMessage msg)
+    private void SendMessage(QueueMessage msg)
     {
        // asynchronously send message through queue
       ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));

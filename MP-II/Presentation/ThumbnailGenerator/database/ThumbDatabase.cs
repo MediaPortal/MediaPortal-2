@@ -44,18 +44,18 @@ namespace Presentation.ThumbnailGenerator.Database
       _thumbs = new List<Thumb>();
       _keepAliveTimer = DateTime.Now;
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("contentmanager");
+      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
     }
 
-    void queue_OnMessageReceive(MPMessage message)
+    void queue_OnMessageReceive(QueueMessage message)
     {
-      if (message.MetaData.ContainsKey("action") && message.MetaData.ContainsKey("fullpath"))
+      if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
       {
-        string action = (string)message.MetaData["action"];
+        string action = (string)message.MessageData["action"];
         if (action == "changed")
         {
-          string fileName = (string)message.MetaData["fullpath"];
+          string fileName = (string)message.MessageData["fullpath"];
 
           for (int i = 0; i < _thumbs.Count; ++i)
           {

@@ -183,10 +183,10 @@ namespace Components.Services.PlayerManager
 
     void SendQueueChangeMessage(bool refreshAll)
     {
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("playlist");
-      MPMessage message = new MPMessage();
-      message.MetaData["action"] = "changed";
-      message.MetaData["refreshAll"] = refreshAll;
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
+      QueueMessage message = new QueueMessage();
+      message.MessageData["action"] = "changed";
+      message.MessageData["refreshAll"] = refreshAll;
       queue.Send(message);
     }
 

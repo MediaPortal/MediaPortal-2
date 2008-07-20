@@ -50,18 +50,18 @@ namespace Presentation.SkinEngine
     static ContentManager()
     {
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("contentmanager");
+      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
     }
 
-    static void queue_OnMessageReceive(MPMessage message)
+    static void queue_OnMessageReceive(QueueMessage message)
     {
-      if (message.MetaData.ContainsKey("action") && message.MetaData.ContainsKey("fullpath"))
+      if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
       {
-        string action = (string)message.MetaData["action"];
+        string action = (string)message.MessageData["action"];
         if (action == "changed")
         {
-          string fileName = (string)message.MetaData["fullpath"];
+          string fileName = (string)message.MessageData["fullpath"];
           lock (_assetsNormal)
           {
             if (_assetsNormal.ContainsKey(fileName))

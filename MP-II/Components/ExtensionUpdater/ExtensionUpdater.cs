@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     string _tempfile;
     string _finalfile;
     string listFile;
-    private IQueue _queue;
+    private IMessageQueue _queue;
 
     #endregion
 
@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       installer = (ExtensionInstaller)ServiceScope.Get<IExtensionInstaller>();
       listFile = String.Format(@"{0}\Mpilist.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       _settings = new ExtensionUpdaterSettings();
-      _queue = ServiceScope.Get<IMessageBroker>().Get("extensionupdater");
+      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("extensionupdater");
       client = new WebClient();
       updaterClient = new WebClient();
       client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
@@ -105,7 +105,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
         ServiceScope.Get<ITaskScheduler>().AddTask(updatertask);
       }
 
-      ServiceScope.Get<IMessageBroker>().Get("taskscheduler").OnMessageReceive +=
+      ServiceScope.Get<IMessageBroker>().GetOrCreate("taskscheduler").OnMessageReceive +=
           new MessageReceivedHandler(OnMessageReceive);
       _settings.TaskId = task.ID;
       _settings.UpdaterTaskId = updatertask.ID;
@@ -121,9 +121,9 @@ namespace MediaPortal.Plugins.ExtensionUpdater
 
     #endregion
 
-    void OnMessageReceive(MPMessage message)
+    void OnMessageReceive(QueueMessage message)
     {
-      TaskMessage msg = message.MetaData["taskmessage"] as TaskMessage;
+      TaskMessage msg = message.MessageData["taskmessage"] as TaskMessage;
       if (msg.Task.Owner.Equals("ExtensionUpdater"))
       {
         switch (msg.Type)
@@ -256,8 +256,8 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     private void SendMessage(string action)
     {
       // create message
-      MPMessage msg = new MPMessage();
-      msg.MetaData["message"] = action;
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["message"] = action;
       // asynchronously send message through queue
       ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));
     }

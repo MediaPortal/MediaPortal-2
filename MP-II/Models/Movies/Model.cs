@@ -139,15 +139,15 @@ namespace Models.Movies
 
       //register for messages from players and mediamanager
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = broker.Get("players");
+      IMessageQueue queue = broker.GetOrCreate("players");
       queue.OnMessageReceive += new MessageReceivedHandler(OnPlayerMessageReceived);
-      queue = broker.Get("mediamanager");
+      queue = broker.GetOrCreate("mediamanager");
       queue.OnMessageReceive += new MessageReceivedHandler(OnMediaManagerMessageReceived);
 
-      queue = broker.Get("importers");
+      queue = broker.GetOrCreate("importers");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
-      queue = broker.Get("imdbimporters");
+      queue = broker.GetOrCreate("imdbimporters");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImdbImporterMessageReceived);
 
       //create our dynamic context menu items
@@ -159,13 +159,13 @@ namespace Models.Movies
     /// Called when [importer message received].
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnImporterMessageReceived(MPMessage message)
+    void OnImporterMessageReceived(QueueMessage message)
     {
-      string mes = message.MetaData["action"] as string;
+      string mes = message.MessageData["action"] as string;
       switch (mes)
       {
         case "fileinfoupdated":
-          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MetaData["file"] as string);
+          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MessageData["file"] as string);
           break;
         default:
           break;
@@ -292,17 +292,17 @@ namespace Models.Movies
     /// and ifso refresh the movies collection
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnMediaManagerMessageReceived(MPMessage message)
+    void OnMediaManagerMessageReceived(QueueMessage message)
     {
       if (_folder != null && _folder.MediaContainer != null)
       {
-        if (message.MetaData.ContainsKey("action"))
+        if (message.MessageData.ContainsKey("action"))
         {
-          if (message.MetaData["action"].ToString() == "changed")
+          if (message.MessageData["action"].ToString() == "changed")
           {
-            if (message.MetaData.ContainsKey("fullpath"))
+            if (message.MessageData.ContainsKey("fullpath"))
             {
-              if (message.MetaData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
+              if (message.MessageData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
               {
                 Refresh();
                 _movies.FireChange();
@@ -641,11 +641,11 @@ namespace Models.Movies
     /// Method which gets called when a new player related message has been received
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnPlayerMessageReceived(MPMessage message)
+    void OnPlayerMessageReceived(QueueMessage message)
     {
       PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
-      IPlayer player = message.MetaData["player"] as IPlayer;
-      string action = message.MetaData["action"] as string;
+      IPlayer player = message.MessageData["player"] as IPlayer;
+      string action = message.MessageData["action"] as string;
       if (player != null && player.IsVideo)
       {
         IMediaItem mediaItem = player.MediaItem;
@@ -656,12 +656,12 @@ namespace Models.Movies
             if (action == "stopped")
             {
               ServiceScope.Get<IWindowManager>().ShowWindow("movieStopped");
-              message.MetaData["handled"] = "true";
+              message.MessageData["handled"] = "true";
             }
             if (action == "ended")
             {
               ServiceScope.Get<IWindowManager>().ShowWindow("movieEnded");
-              message.MetaData["handled"] = "true";
+              message.MessageData["handled"] = "true";
             }
           }
 
@@ -697,7 +697,7 @@ namespace Models.Movies
     #region ImdbStuffs
 
     private ItemsCollection _imdbresultmovies = new ItemsCollection();
-    private Queue<MPMessage> _imdbmessages = new Queue<MPMessage>();
+    private Queue<QueueMessage> _imdbmessages = new Queue<QueueMessage>();
     private Property _imdbmovietile=new Property(typeof(string));
 
     /// <summary>
@@ -728,13 +728,13 @@ namespace Models.Movies
     /// Called when [imdb importer message received].
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnImdbImporterMessageReceived(MPMessage message)
+    void OnImdbImporterMessageReceived(QueueMessage message)
     {
-      string mes = message.MetaData["action"] as string;
+      string mes = message.MessageData["action"] as string;
       switch (mes)
       {
         case "fileinfoupdated":
-          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MetaData["file"] as string);
+          ServiceScope.Get<ILogger>().Debug("File info update message received: {0}", message.MessageData["file"] as string);
           break;
         case "imdbchoiceneeded":
           ShowImdbChoice(message);
@@ -746,17 +746,17 @@ namespace Models.Movies
       _movies.FireChange();
     }
 
-    void ShowImdbChoice(MPMessage msg)
+    void ShowImdbChoice(QueueMessage msg)
     {
       _imdbresultmovies.Clear();
-      foreach (string title in msg.MetaData["titles"] as List<string>)
+      foreach (string title in msg.MessageData["titles"] as List<string>)
       {
         ListItem item = new ListItem();
         item.Add("Name",title);
         _imdbresultmovies.Add(item);
       }
       _imdbresultmovies.FireChange();
-      _imdbmovietile.SetValue(msg.MetaData["title"] as string);
+      _imdbmovietile.SetValue(msg.MessageData["title"] as string);
       ServiceScope.Get<IWindowManager>().ShowWindow("imdbresultchoice");
     }
 

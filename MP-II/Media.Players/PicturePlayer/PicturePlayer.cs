@@ -58,10 +58,10 @@ namespace Media.Players.PicturePlayer
       _mediaItem = item;
       ServiceScope.Get<IWindowManager>().PrepareWindow("pictureviewer");
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("pictureviewer");
-      MPMessage msg = new MPMessage();
-      msg.MetaData["action"] = "show";
-      msg.MetaData["mediaitem"] = item;
+      IMessageQueue queue = msgBroker.GetOrCreate("pictureviewer");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["action"] = "show";
+      msg.MessageData["mediaitem"] = item;
       queue.Send(msg);
       ServiceScope.Get<IWindowManager>().ShowWindow("pictureviewer");
     }

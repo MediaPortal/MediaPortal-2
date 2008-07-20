@@ -246,10 +246,10 @@ namespace Models.Pictures
       }
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("contentmanager");
-      MPMessage msg = new MPMessage();
-      msg.MetaData["action"] = "changed";
-      msg.MetaData["fullpath"] = currentPicture.LocalPath;
+      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["action"] = "changed";
+      msg.MessageData["fullpath"] = currentPicture.LocalPath;
       queue.Send(msg);
       //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
       ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
@@ -301,10 +301,10 @@ namespace Models.Pictures
       ProcessImage(currentPicture.LocalPath, _pixelOp);
       CurrentPicture = System.IO.Path.GetFullPath("temp.jpg");
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("contentmanager");
-      MPMessage msg = new MPMessage();
-      msg.MetaData["action"] = "changed";
-      msg.MetaData["fullpath"] = CurrentPicture;
+      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["action"] = "changed";
+      msg.MessageData["fullpath"] = CurrentPicture;
       queue.Send(msg);
     }
 

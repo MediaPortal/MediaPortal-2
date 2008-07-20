@@ -66,9 +66,9 @@ namespace Models.Settings
     /// </summary>
     private void NotifySettingsChanged()
     {
-      MPMessage msg = new MPMessage();
-      msg.MetaData["action"] = "settingschanged";
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("bass");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["action"] = "settingschanged";
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
       queue.Send(msg);
     }
 

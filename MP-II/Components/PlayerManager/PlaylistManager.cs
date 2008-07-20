@@ -44,7 +44,7 @@ namespace Components.Services.PlayerManager
     /// </summary>
     public PlaylistManager()
     {
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
       PlayerCollection players = ServiceScope.Get<PlayerCollection>();
     }
@@ -211,10 +211,10 @@ namespace Components.Services.PlayerManager
     }
 
 
-    void queue_OnMessageReceive(MPMessage message)
+    void queue_OnMessageReceive(QueueMessage message)
     {
-      IPlayer player = message.MetaData["player"] as IPlayer;
-      string action = message.MetaData["action"] as string;
+      IPlayer player = message.MessageData["player"] as IPlayer;
+      string action = message.MessageData["action"] as string;
       if (action == "nextfile")
       {
         //...start next song of the playlist
@@ -243,10 +243,10 @@ namespace Components.Services.PlayerManager
 
     void SendMsgCurrentItemChanged(bool refreshAll)
     {
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("playlist");
-      MPMessage message = new MPMessage();
-      message.MetaData["action"] = "changed";
-      message.MetaData["refreshAll"] = refreshAll;
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
+      QueueMessage message = new QueueMessage();
+      message.MessageData["action"] = "changed";
+      message.MessageData["refreshAll"] = refreshAll;
       queue.Send(message);
     }
     #endregion

@@ -152,29 +152,29 @@ namespace Models.Pictures
 
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = msgBroker.Get("pictureviewer");
+      IMessageQueue queue = msgBroker.GetOrCreate("pictureviewer");
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
 
-      queue = msgBroker.Get("importers");
+      queue = msgBroker.GetOrCreate("importers");
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
     }
 
-    void OnImporterMessageReceived(MPMessage message)
+    void OnImporterMessageReceived(QueueMessage message)
     {
       Refresh();
       _pictures.FireChange();
     }
 
-    void queue_OnMessageReceive(MPMessage message)
+    void queue_OnMessageReceive(QueueMessage message)
     {
-      if (message.MetaData.ContainsKey("action"))
+      if (message.MessageData.ContainsKey("action"))
       {
-        if (message.MetaData["action"].ToString() == "show")
+        if (message.MessageData["action"].ToString() == "show")
         {
-          if (message.MetaData.ContainsKey("mediaitem"))
+          if (message.MessageData.ContainsKey("mediaitem"))
           {
-            IMediaItem mediaItem= message.MetaData["mediaitem"] as IMediaItem;
+            IMediaItem mediaItem= message.MessageData["mediaitem"] as IMediaItem;
             if (mediaItem != null)
             {
               _pictures.Clear();
@@ -252,17 +252,17 @@ namespace Models.Pictures
     /// and ifso refresh the movies collection
     /// </summary>
     /// <param name="message">The message.</param>
-    void OnMediaManagerMessageReceived(MPMessage message)
+    void OnMediaManagerMessageReceived(QueueMessage message)
     {
       if (_folder != null && _folder.MediaContainer != null)
       {
-        if (message.MetaData.ContainsKey("action"))
+        if (message.MessageData.ContainsKey("action"))
         {
-          if (message.MetaData["action"].ToString() == "changed")
+          if (message.MessageData["action"].ToString() == "changed")
           {
-            if (message.MetaData.ContainsKey("fullpath"))
+            if (message.MessageData.ContainsKey("fullpath"))
             {
-              if (message.MetaData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
+              if (message.MessageData["fullpath"].ToString() == _folder.MediaContainer.FullPath)
               {
                 Refresh();
                 _pictures.FireChange();

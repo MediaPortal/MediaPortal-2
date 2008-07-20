@@ -248,10 +248,10 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media inserted in drive {0}", driveLetter);
 
-      MPMessage msg = new MPMessage();
-      msg.MetaData["drive"] = driveLetter;
-      msg.MetaData["action"] = "Inserted";
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("autoplay");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["drive"] = driveLetter;
+      msg.MessageData["action"] = "Inserted";
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("autoplay");
       queue.Send(msg);
 
       ExamineVolume(driveLetter);
@@ -265,10 +265,10 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media removed from drive {0}", driveLetter);
 
-      MPMessage msg = new MPMessage();
-      msg.MetaData["drive"] = driveLetter;
-      msg.MetaData["action"] = "Removed";
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("autoplay");
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["drive"] = driveLetter;
+      msg.MessageData["action"] = "Removed";
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("autoplay");
       queue.Send(msg);
     }
     #endregion

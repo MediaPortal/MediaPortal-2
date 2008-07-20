@@ -22,25 +22,26 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Core.Messaging
 {
+  /// <summary>
+  /// Registration for all system message queues.
+  /// </summary>
   public interface IMessageBroker
   {
     /// <summary>
-    /// Gets the specific message queue by name
+    /// Get the message queue with the specified name.
     /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns>queue</returns>
-    IQueue Get(string queueName);
+    /// <param name="queueName">The name of the queue to return.</param>
+    /// <returns>The queue with the specified name.</returns>
+    IMessageQueue GetOrCreate(string queueName);
 
     /// <summary>
-    /// Gets the queue-names.
+    /// Gets the names of all queues registered in this message broker.
     /// </summary>
-    /// <value>The queues.</value>
-    List<string> Queues { get;}
+    /// <returns>List of queue names.</returns>
+    IList<string> Queues { get;}
   }
 }

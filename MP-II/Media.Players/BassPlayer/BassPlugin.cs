@@ -87,7 +87,7 @@ namespace Media.Players.BassPlayer
 
       _state = PlaybackState.Ended;
       // Setup internal message queue for receiving Messages from the various Streams
-      IQueue queueBass = ServiceScope.Get<IMessageBroker>().Get("bass");
+      IMessageQueue queueBass = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
       queueBass.OnMessageReceive += new MessageReceivedHandler(bass_OnMessageReceive);
     }
 
@@ -201,9 +201,9 @@ namespace Media.Players.BassPlayer
     /// </summary>
     /// <param name="message"></param>
 
-    private void bass_OnMessageReceive(MPMessage message)
+    private void bass_OnMessageReceive(QueueMessage message)
     {
-      string action = message.MetaData["action"] as string;
+      string action = message.MessageData["action"] as string;
 
       switch (action)
       {
@@ -302,9 +302,9 @@ namespace Media.Players.BassPlayer
 
     private void SendInternalMessage(string action)
     {
-      MPMessage msg = new MPMessage();
-      msg.MetaData["player"] = this;
-      msg.MetaData["action"] = action;
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData["player"] = this;
+      msg.MessageData["action"] = action;
 
       Thread asyncMsgThread = new Thread(new ParameterizedThreadStart(AsyncMessageSend));
       asyncMsgThread.Start(msg);
@@ -312,8 +312,8 @@ namespace Media.Players.BassPlayer
 
     private void AsyncMessageSend(object message)
     {
-      MPMessage msg = (MPMessage)message;
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
+      QueueMessage msg = (QueueMessage)message;
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
       queue.Send(msg);
     }
     #endregion

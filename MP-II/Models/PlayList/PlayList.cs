@@ -55,15 +55,15 @@ namespace Models.PlayList
     public PlayList()
     {
       _playList = new ItemsCollection();
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("playlist");
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
       queue.OnMessageReceive += new MessageReceivedHandler(onPlayListMessage);
     }
     #endregion
 
-    void onPlayListMessage(MPMessage message)
+    void onPlayListMessage(QueueMessage message)
     {
       bool refreshAll = false;
-      if (message.MetaData.ContainsKey("refreshAll") && (bool)message.MetaData["refreshAll"] == true)
+      if (message.MessageData.ContainsKey("refreshAll") && (bool)message.MessageData["refreshAll"] == true)
         refreshAll = true;
       Refresh();
       _playList.FireChange(refreshAll);

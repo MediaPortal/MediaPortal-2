@@ -66,7 +66,7 @@ namespace Presentation.SkinEngine.Players
     public MediaPlayers()
     {
 
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players-internal");
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
       queue.OnMessageReceive += OnInternalPlayerMessageReceived;
       _osdProperties = new OsdProperties(this);
       _videoPaused = new Property(typeof(bool), false);
@@ -684,13 +684,13 @@ namespace Presentation.SkinEngine.Players
       {
         this[0].Paused = !this[0].Paused;
 
-        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["player"] = this[0];
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["player"] = this[0];
         if (this[0].Paused)
-          msg.MetaData["action"] = "paused";
+          msg.MessageData["action"] = "paused";
         else
-          msg.MetaData["action"] = "continue";
+          msg.MessageData["action"] = "continue";
       }
     }
 
@@ -703,10 +703,10 @@ namespace Presentation.SkinEngine.Players
       {
         this[0].Paused = true;
 
-        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["player"] = this[0];
-        msg.MetaData["action"] = "paused";
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["player"] = this[0];
+        msg.MessageData["action"] = "paused";
       }
     }
 
@@ -718,10 +718,10 @@ namespace Presentation.SkinEngine.Players
       if (Count != 0)
       {
         this[0].Restart();
-        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["player"] = this[0];
-        msg.MetaData["action"] = "restart";
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["player"] = this[0];
+        msg.MessageData["action"] = "restart";
       }
     }
 
@@ -735,10 +735,10 @@ namespace Presentation.SkinEngine.Players
       {
         this[0].Paused = false;
 
-        IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
-        MPMessage msg = new MPMessage();
-        msg.MetaData["player"] = this[0];
-        msg.MetaData["action"] = "resume";
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
+        QueueMessage msg = new QueueMessage();
+        msg.MessageData["player"] = this[0];
+        msg.MessageData["action"] = "resume";
       }
     }
 
@@ -760,21 +760,21 @@ namespace Presentation.SkinEngine.Players
         this[0].Restart();
       }
     }
-    void OnInternalPlayerMessageReceived(MPMessage message)
+    void OnInternalPlayerMessageReceived(QueueMessage message)
     {
-      IQueue queue = ServiceScope.Get<IMessageBroker>().Get("players");
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
 
-      string action = message.MetaData["action"] as string;
-      IPlayer player = message.MetaData["player"] as IPlayer;
+      string action = message.MessageData["action"] as string;
+      IPlayer player = message.MessageData["player"] as IPlayer;
 
       if (action == "ended")
       {
         if (player == this[0])
         {
           queue.Send(message);
-          if (message.MetaData.ContainsKey("handled"))
+          if (message.MessageData.ContainsKey("handled"))
           {
-            if (message.MetaData["handled"].ToString() == "true") return;
+            if (message.MessageData["handled"].ToString() == "true") return;
           }
         }
         player.Stop();

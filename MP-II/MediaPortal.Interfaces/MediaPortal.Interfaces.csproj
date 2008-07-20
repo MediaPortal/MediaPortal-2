@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Messaging\IMessageQueue.cs" />
+    <Compile Include="Core\Messaging\QueueMessage.cs" />
     <Compile Include="Core\PluginManager\PluginMessaging.cs" />
     <Compile Include="Core\PluginManager\PluginResource.cs" />
     <Compile Include="Presentation\Collections\ItemsCollection.cs" />
@@ -131,9 +133,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Messaging\IMessageFilter.cs" />
-    <Compile Include="Core\Messaging\MPMessage.cs" />
     <Compile Include="Core\Messaging\IMessageBroker.cs" />
-    <Compile Include="Core\Messaging\IQueue.cs" />
     <Compile Include="Media\MetaData\IMetaDataFormatter.cs" />
     <Compile Include="Media\MetaData\IMetaDataFormatterCollection.cs" />
     <Compile Include="Media\MetaData\IMetaDataMapping.cs" />

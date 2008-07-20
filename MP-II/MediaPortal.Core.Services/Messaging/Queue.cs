@@ -22,43 +22,36 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Services.Messaging
 {
-  public class Queue : IQueue
+  public class Queue : IMessageQueue
   {
-    #region IQueue Members
-    public event MessageReceivedHandler OnMessageReceive;
-    List<IMessageFilter> _filters;
+    #region Protected fields
+
+    protected IList<IMessageFilter> _filters;
+
+    #endregion
+
     public Queue()
     {
       _filters = new List<IMessageFilter>();
     }
 
-    /// <summary>
-    /// Gets the message filters.
-    /// </summary>
-    /// <value>The message filters.</value>
-    public List<IMessageFilter> Filters
+    #region IMessageQueue implementation
+
+    public event MessageReceivedHandler OnMessageReceive;
+
+    public IList<IMessageFilter> Filters
     {
-      get
-      {
-        return _filters;
-      }
+      get { return _filters; }
     }
 
-    /// <summary>
-    /// Sends the specified message.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    public void Send(MPMessage message)
+    public void Send(QueueMessage message)
     {
-      message.Queue = this;
+      message.MessageQueue = this;
       foreach (IMessageFilter filter in _filters)
       {
         message = filter.Process(message);
@@ -70,19 +63,11 @@ namespace MediaPortal.Services.Messaging
       }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this queue has subscribers.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this queue has subscribers; otherwise, <c>false</c>.
-    /// </value>
     public bool HasSubscribers
     {
-      get
-      {
-        return (OnMessageReceive != null);
-      }
+      get { return (OnMessageReceive != null); }
     }
+
     #endregion
   }
 }

@@ -91,7 +91,7 @@ namespace Presentation.SkinEngine.Players
       SkinContext.Geometry.Select(settings.Geometry);
 
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      IQueue queue = broker.Get("players-internal");
+      IMessageQueue queue = broker.GetOrCreate("players-internal");
       queue.OnMessageReceive += new MessageReceivedHandler(OnPlayerMessageReceived);
     }
     #endregion
@@ -674,7 +674,7 @@ namespace Presentation.SkinEngine.Players
 
     #endregion
 
-    void OnPlayerMessageReceived(MPMessage message)
+    void OnPlayerMessageReceived(QueueMessage message)
     {
       _updateTimer = DateTime.MinValue;
       UpdateProperties();
