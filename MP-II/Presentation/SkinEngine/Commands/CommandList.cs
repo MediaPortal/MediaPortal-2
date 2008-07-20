@@ -25,7 +25,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -35,7 +34,7 @@ namespace Presentation.SkinEngine.Commands
   /// Represents a list of <see cref="IExecutableCommand"/> instances to be executed together.
   /// </summary>
   public class CommandList : DependencyObject, IAddChild<IExecutableCommand>,
-      IEnumerable<IExecutableCommand>, IDeepCopyable, IExecutableCommand
+      IEnumerable<IExecutableCommand>, IExecutableCommand
   {
     #region Protected fields
 
@@ -45,8 +44,7 @@ namespace Presentation.SkinEngine.Commands
 
     #region Ctor
 
-    public CommandList()
-    { }
+    public CommandList() { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
