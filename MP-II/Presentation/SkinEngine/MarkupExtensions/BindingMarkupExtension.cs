@@ -118,7 +118,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected bool _retryBinding = false; // UpdateBinding() has to be called again
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
-    protected IList<Property> _attachedProperties = new List<Property>(); // To which data contexts and other properties are we attached?
+    protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which data contexts and other properties are we attached?
 
     // Derived properties
     protected PathExpression _compiledPath = null;
@@ -163,26 +163,26 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void Attach()
     {
-      _sourceProperty.Attach(OnBindingPropertiesChange);
-      _elementNameProperty.Attach(OnBindingPropertiesChange);
-      _relativeSourceProperty.Attach(OnBindingPropertiesChange);
-      _pathProperty.Attach(OnBindingPropertiesChange);
-      _modeProperty.Attach(OnBindingPropertiesChange);
-      _updateSourceTriggerProperty.Attach(OnBindingPropertiesChange);
+      _sourceProperty.Attach(OnBindingPropertyChanged);
+      _elementNameProperty.Attach(OnBindingPropertyChanged);
+      _relativeSourceProperty.Attach(OnBindingPropertyChanged);
+      _pathProperty.Attach(OnBindingPropertyChanged);
+      _modeProperty.Attach(OnBindingPropertyChanged);
+      _updateSourceTriggerProperty.Attach(OnBindingPropertyChanged);
 
-      _evaluatedSourceValue.Attach(OnSourceValueChange);
+      _evaluatedSourceValue.Attach(OnSourceValueChanged);
     }
 
     protected void Detach()
     {
-      _sourceProperty.Detach(OnBindingPropertiesChange);
-      _elementNameProperty.Detach(OnBindingPropertiesChange);
-      _relativeSourceProperty.Detach(OnBindingPropertiesChange);
-      _pathProperty.Detach(OnBindingPropertiesChange);
-      _modeProperty.Detach(OnBindingPropertiesChange);
-      _updateSourceTriggerProperty.Detach(OnBindingPropertiesChange);
+      _sourceProperty.Detach(OnBindingPropertyChanged);
+      _elementNameProperty.Detach(OnBindingPropertyChanged);
+      _relativeSourceProperty.Detach(OnBindingPropertyChanged);
+      _pathProperty.Detach(OnBindingPropertyChanged);
+      _modeProperty.Detach(OnBindingPropertyChanged);
+      _updateSourceTriggerProperty.Detach(OnBindingPropertyChanged);
 
-      _evaluatedSourceValue.Detach(OnSourceValueChange);
+      _evaluatedSourceValue.Detach(OnSourceValueChanged);
     }
 
     public override void Dispose()
@@ -351,7 +351,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// Will trigger an update of our source value here.
     /// </summary>
     /// <param name="property">The binding property which changed.</param>
-    protected void OnBindingPropertiesChange(Property property)
+    protected void OnBindingPropertyChanged(Property property)
     {
       CheckTypeOfSource();
       if (_active)
@@ -374,7 +374,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// Will trigger an update of our source value here.
     /// </summary>
     /// <param name="property">The data context property which changed its value.</param>
-    protected void OnDataContextChange(Property property)
+    protected void OnDataContextChanged(Property property)
     {
       if (_active)
         UpdateSourceValue();
@@ -385,9 +385,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// We will update our binding here, if necessary.
     /// </summary>
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
-    protected void OnSourceValueChange(IDataDescriptor sourceValue)
+    protected void OnSourceValueChanged(IDataDescriptor sourceValue)
     {
-      if (_active && _retryBinding)
+      if (_active)
         UpdateBinding();
     }
 
@@ -462,8 +462,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        _attachedProperties.Add(sourcePathProperty);
-        sourcePathProperty.Attach(OnDataContextChange);
+        _attachedPropertiesList.Add(sourcePathProperty);
+        sourcePathProperty.Attach(OnDataContextChanged);
       }
     }
 
@@ -474,9 +474,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      foreach (Property property in _attachedProperties)
-        property.Detach(OnDataContextChange);
-      _attachedProperties.Clear();
+      foreach (Property property in _attachedPropertiesList)
+        property.Detach(OnDataContextChanged);
+      _attachedPropertiesList.Clear();
       if (_attachedSource != null)
       {
         _attachedSource.Detach(OnBindingSourceChange);

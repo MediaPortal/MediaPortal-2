@@ -30,7 +30,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
   /// <summary>
   /// Class to bind to a binding of another property rather than binding to a value.
-  /// This class can be used, if a binding bound to a referenced property should be copied and
+  /// This class can be used, if a binding should be copied and
   /// bound to a target property.
   /// </summary>
   /// <remarks>
