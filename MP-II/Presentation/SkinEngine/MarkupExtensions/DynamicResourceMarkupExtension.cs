@@ -28,6 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.MpfElements;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.SkinManagement;
 using Presentation.SkinEngine.General;
@@ -35,6 +36,30 @@ using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
+  /// <summary>
+  /// Controls the tree type to be used when searching a resource in the DynamicResource
+  /// markup extension.
+  /// <list type="table">
+  /// <listheader><term>Value</term><term>Description</term></listheader>
+  /// <item>
+  ///   <term><see cref="LogicalTree"/></term>
+  ///   <description>The resource will be searched by stepping-up the logical tree until the resource
+  ///   is found. This is the default setting, which is compliant to the WPF behavior of the
+  ///   DynamicResource markup extension.</description>
+  /// </item>
+  /// <item>
+  ///   <term><see cref="VisualTree"/></term>
+  ///   <description>The resource will be searched by stepping-up the visual tree until the resource
+  ///   is found.</description>
+  /// </item>
+  /// <item>
+  ///   <term><see cref="Hybrid"/></term>
+  ///   <description>The resource will be searched by first stepping-up the logical tree,
+  ///   and if no logical parent is available, stepping-up the visual tree. In every parent search
+  ///   the logical parent will be checked first.</description>
+  /// </item>
+  /// </list>
+  /// </summary>
   public enum TreeSearchMode
   {
     LogicalTree,
@@ -43,7 +68,40 @@ namespace Presentation.SkinEngine.MarkupExtensions
   }
 
   /// <summary>
-  /// Implements the MPF DynamicResource markup extension.
+  /// Controls how the DynamicResource markup extension will assign the specified resource to
+  /// its target property.
+  /// <list type="table">
+  /// <listheader><term>Value</term><term>Description</term></listheader>
+  /// <item>
+  ///   <term><see cref="Reference"/></term>
+  ///   <description>A reference to the specified resource will be copied to the target property.
+  ///   This is the default setting, which is compliant to the WPF behavior of the DynamicResource
+  ///   markup extension.</description>
+  /// </item>
+  /// <item>
+  ///   <term><see cref="Copy"/></term>
+  ///   <description>Will assign a copy of the resource to the target property. The logical parent
+  ///   of the resource will be modified to reference the target object.</description>
+  /// </item>
+  /// </list>
+  /// </summary>
+  public enum AssignmentMode
+  {
+    Reference,
+    Copy
+  }
+
+  /// <summary>
+  /// Implements the MPF DynamicResource markup extension, with extended functionality.
+  /// There are some more properties to finer control the behavior of this class.
+  /// <list type="table">
+  /// <listheader><term>Property</term><term>Description</term></listheader>
+  /// <item>
+  ///   <term><see cref="TreeSearchMode"/></term>
+  ///   <description>Controls, which tree will used for the step-up to the parent controls while
+  ///   searching the resource.</description>
+  /// </item>
+  /// </list>
   /// </summary>
   /// <remarks>
   /// This class is realized as a <see cref="IBinding">Binding</see>, because it
@@ -56,8 +114,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected IList<ResourceDictionary> _attachedResources = new List<ResourceDictionary>(); // To which resources are we attached?
     protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which properties are we attached?
     protected bool _attachedToSkinResources = false; // Are we attached to skin resources?
-    protected string _resourceKey = null; // Resource key to resolve
+    protected Property _resourceKeyProperty; // Resource key to resolve
     protected Property _treeSearchModeProperty;
+    protected Property _assignmentModeProperty;
 
     #endregion
 
@@ -80,42 +139,54 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="resourceKey">Key of the resource this instance should resolve.</param>
     public DynamicResourceMarkupExtension(string resourceKey): this()
     {
-      _resourceKey = resourceKey;
+      ResourceKey = resourceKey;
     }
 
     void Init()
     {
+      _resourceKeyProperty = new Property(typeof(string), null);
       _treeSearchModeProperty = new Property(typeof (TreeSearchMode), MarkupExtensions.TreeSearchMode.LogicalTree);
+      _assignmentModeProperty = new Property(typeof(AssignmentMode), AssignmentMode.Reference);
     }
 
     void Attach()
     {
+      _resourceKeyProperty.Attach(OnPropertyChanged);
       _treeSearchModeProperty.Attach(OnPropertyChanged);
+      _assignmentModeProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
     {
+      _resourceKeyProperty.Detach(OnPropertyChanged);
       _treeSearchModeProperty.Detach(OnPropertyChanged);
+      _assignmentModeProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Attach();
+      Detach();
       base.DeepCopy(source, copyManager);
       DynamicResourceMarkupExtension drme = source as DynamicResourceMarkupExtension;
       ResourceKey = copyManager.GetCopy(drme.ResourceKey);
       TreeSearchMode = copyManager.GetCopy(drme.TreeSearchMode);
-      Detach();
+      AssignmentMode = copyManager.GetCopy(drme.AssignmentMode);
+      Attach();
     }
 
     #endregion
 
     #region Public properties
 
+    public Property ResourceKeyProperty
+    {
+      get { return _resourceKeyProperty; }
+    }
+
     public string ResourceKey
     {
-      get { return _resourceKey; }
-      set { _resourceKey = value; }
+      get { return (string)_resourceKeyProperty.GetValue(); }
+      set { _resourceKeyProperty.SetValue(value); }
     }
 
     public Property TreeSearchModeProperty
@@ -123,10 +194,28 @@ namespace Presentation.SkinEngine.MarkupExtensions
       get { return _treeSearchModeProperty; }
     }
 
+    /// <summary>
+    /// Specifies, which tree should be used for the search of the referenced resource.
+    /// </summary>
     public TreeSearchMode TreeSearchMode
     {
       get { return (TreeSearchMode) _treeSearchModeProperty.GetValue(); }
       set { _treeSearchModeProperty.SetValue(value); }
+    }
+
+    public Property AssignmentModeProperty
+    {
+      get { return _assignmentModeProperty; }
+    }
+
+    /// <summary>
+    /// Specifies, if the original resource should be used or copied when assigning to
+    /// the target property.
+    /// </summary>
+    public AssignmentMode AssignmentMode
+    {
+      get { return (MarkupExtensions.AssignmentMode) _assignmentModeProperty.GetValue(); }
+      set { _assignmentModeProperty.SetValue(value); }
     }
 
     #endregion
@@ -195,7 +284,60 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void UpdateTarget(object value)
     {
-      _targetDataDescriptor.Value = TypeConverter.Convert(value, _targetDataDescriptor.DataType);
+      object assignValue;
+      if (AssignmentMode == MarkupExtensions.AssignmentMode.Reference)
+        assignValue = value;
+      else if (AssignmentMode == MarkupExtensions.AssignmentMode.Copy)
+      {
+        assignValue = MpfCopyManager.DeepCopyCutLP(value);
+        if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
+          ((DependencyObject) assignValue).LogicalParent =
+              (DependencyObject) _targetDataDescriptor.TargetObject;
+      }
+      else
+        throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);
+      _targetDataDescriptor.Value = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
+    }
+
+    /// <summary>
+    /// This method does the walk in the visual or logical tree, depending on the value
+    /// of the <see cref="TreeSearchMode"/> property.
+    /// </summary>
+    /// <remarks>
+    /// This method attaches change handlers to all relevant properties on the searched path.
+    /// </remarks>
+    /// <param name="obj">The object to get the parent of.</param>
+    /// <param name="parent">The parent which was found navigating the visual or
+    /// logical tree.</param>
+    /// <returns><c>true</c>, if a valid parent was found. In this case, the
+    /// <paramref name="parent"/> parameter references a not-<c>null</c> parent.
+    /// <c>false</c>, if no adequate parent was found.</returns>
+    protected bool FindParent(DependencyObject obj, out DependencyObject parent)
+    {
+      parent = null;
+      Property parentProperty;
+      if (TreeSearchMode == MarkupExtensions.TreeSearchMode.LogicalTree)
+        parentProperty = obj.LogicalParentProperty;
+      else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.VisualTree)
+      {
+        if (obj is Visual)
+          parentProperty = ((Visual) obj).VisualParentProperty;
+        else
+          return false;
+      }
+      else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.Hybrid)
+      {
+        parentProperty = obj.LogicalParentProperty;
+        if (parentProperty.GetValue() == null && obj is Visual)
+          parentProperty = ((Visual) obj).VisualParentProperty;
+      }
+      else
+        throw new XamlBindingException("TreeSearchMode value {0} is not implemented", TreeSearchMode);
+
+      // Attach change handler to LogicalParent property
+      AttachToSourcePathProperty(parentProperty);
+      parent = parentProperty.GetValue() as DependencyObject;
+      return parent != null;
     }
 
     /// <summary>
@@ -226,36 +368,18 @@ namespace Presentation.SkinEngine.MarkupExtensions
         {
           // Attach change handler to resource dictionary
           AttachToResources(resources);
-          if (resources.ContainsKey(_resourceKey))
+          if (resources.ContainsKey(ResourceKey))
           {
-            UpdateTarget(resources[_resourceKey]);
+            UpdateTarget(resources[ResourceKey]);
             return true;
           }
         }
-        Property parentProperty = null;
-        if (TreeSearchMode == MarkupExtensions.TreeSearchMode.LogicalTree)
-          parentProperty = current.LogicalParentProperty;
-        else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.VisualTree)
-        {
-          if (current is Visual)
-            parentProperty = ((Visual)current).VisualParentProperty;
-          else
-            break;
-        }
-        else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.Hybrid)
-        {
-          parentProperty = current.LogicalParentProperty;
-          if (parentProperty.GetValue() == null && current is Visual)
-            parentProperty = ((Visual) current).VisualParentProperty;
-        }
-
-        // Attach change handler to LogicalParent property
-        AttachToSourcePathProperty(parentProperty);
-        current = parentProperty.GetValue() as DependencyObject;
+        if (!FindParent(current, out current))
+          return false;
       }
       // Attach change handler to skin resources
       AttachToSkinResources();
-      object result = SkinContext.SkinResources.FindStyleResource(_resourceKey);
+      object result = SkinContext.SkinResources.FindStyleResource(ResourceKey);
       if (result != null)
       {
         UpdateTarget(result);
@@ -271,7 +395,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public override void Activate()
     {
       base.Activate();
-      if (_resourceKey == null)
+      if (ResourceKey == null)
         throw new XamlBindingException("DynamicResource: property 'ResourceKey' must be given");
       UpdateTarget();
     }
