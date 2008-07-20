@@ -32,10 +32,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class TreeView : ItemsControl
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _commandProperty;
-    Property _selectionChangedProperty;
+    protected Property _selectionChangedProperty;
 
     #endregion
 
@@ -48,7 +47,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _commandProperty = new Property(typeof(IExecutableCommand), null);
       _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
     }
 
@@ -57,7 +55,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       TreeView tv = source as TreeView;
       SelectionChanged = copyManager.GetCopy(tv.SelectionChanged);
-      Command = copyManager.GetCopy(tv.Command);
     }
 
     #endregion
@@ -75,17 +72,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _selectionChangedProperty.SetValue(value); }
     }
 
-    public Property CommandProperty
-    {
-      get { return _commandProperty; }
-    }
-
-    public IExecutableCommand Command
-    {
-      get { return (IExecutableCommand) _commandProperty.GetValue(); }
-      set { _commandProperty.SetValue(value); }
-    }
-
     #endregion
 
     #region Input handling
@@ -99,11 +85,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       UpdateCurrentItem();
-      bool executeCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.Enter);
       base.OnKeyPressed(ref key);
-
-      if (executeCmd && Command != null)
-        Command.Execute();
     }
 
     void UpdateCurrentItem()

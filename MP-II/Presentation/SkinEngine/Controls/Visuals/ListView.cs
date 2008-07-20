@@ -31,10 +31,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
 {
   public class ListView : ItemsControl
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _commandProperty;
-    Property _selectionChangedProperty;
+    protected Property _selectionChangedProperty;
 
     #endregion
 
@@ -47,7 +46,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _commandProperty = new Property(typeof(IExecutableCommand), null);
       _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
     }
 
@@ -56,7 +54,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ListView lv = source as ListView;
       SelectionChanged = copyManager.GetCopy(lv.SelectionChanged);
-      Command = copyManager.GetCopy(lv.Command);
     }
 
     #endregion
@@ -70,19 +67,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public ICommandStencil SelectionChanged
     {
-      get { return (ICommandStencil) _selectionChangedProperty.GetValue(); }
+      get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
       set { _selectionChangedProperty.SetValue(value); }
-    }
-
-    public Property CommandProperty
-    {
-      get { return _commandProperty; }
-    }
-
-    public IExecutableCommand Command
-    {
-      get { return (IExecutableCommand) _commandProperty.GetValue(); }
-      set { _commandProperty.SetValue(value); }
     }
 
     #endregion
@@ -98,11 +84,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       UpdateCurrentItem();
-      bool executeCmd = (CurrentItem != null && key == MediaPortal.Control.InputManager.Key.Enter);
       base.OnKeyPressed(ref key);
-
-      if (executeCmd && Command != null)
-        Command.Execute();
     }
 
     void UpdateCurrentItem()
@@ -118,7 +100,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         CurrentItem = element.Context;
       }
       if (SelectionChanged != null)
-        SelectionChanged.Execute(new object[] {CurrentItem});
+        SelectionChanged.Execute(new object[] { CurrentItem });
     }
 
     #endregion
@@ -130,7 +112,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       container.Context = dataItem;
       container.ContentTemplate = ItemTemplate;
       container.ContentTemplateSelector = ItemTemplateSelector;
-      container.Content = (FrameworkElement) ItemTemplate.LoadContent();
+      container.Content = (FrameworkElement)ItemTemplate.LoadContent();
       container.VisualParent = _itemsHostPanel;
       return container;
     }
