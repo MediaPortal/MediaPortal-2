@@ -35,6 +35,13 @@ using Presentation.SkinEngine.XamlParser.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
+  public enum TreeSearchMode
+  {
+    LogicalTree,
+    VisualTree,
+    Hybrid
+  }
+
   /// <summary>
   /// Implements the MPF DynamicResource markup extension.
   /// </summary>
@@ -47,9 +54,10 @@ namespace Presentation.SkinEngine.MarkupExtensions
     #region Protected fields
 
     protected IList<ResourceDictionary> _attachedResources = new List<ResourceDictionary>(); // To which resources are we attached?
-    protected IList<Property> _attachedProperties = new List<Property>(); // To which properties are we attached?
+    protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which properties are we attached?
     protected bool _attachedToSkinResources = false; // Are we attached to skin resources?
     protected string _resourceKey = null; // Resource key to resolve
+    protected Property _treeSearchModeProperty;
 
     #endregion
 
@@ -60,23 +68,44 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// specified before this binding is bound.
     /// </summary>
     public DynamicResourceMarkupExtension()
-    { }
+    {
+      Init();
+      Attach();
+    }
 
     /// <summary>
     /// Creates a new <see cref="DynamicResourceMarkupExtension"/> with the
     /// specified <paramref name="resourceKey"/>.
     /// </summary>
     /// <param name="resourceKey">Key of the resource this instance should resolve.</param>
-    public DynamicResourceMarkupExtension(string resourceKey)
+    public DynamicResourceMarkupExtension(string resourceKey): this()
     {
       _resourceKey = resourceKey;
     }
 
+    void Init()
+    {
+      _treeSearchModeProperty = new Property(typeof (TreeSearchMode), MarkupExtensions.TreeSearchMode.LogicalTree);
+    }
+
+    void Attach()
+    {
+      _treeSearchModeProperty.Attach(OnPropertyChanged);
+    }
+
+    void Detach()
+    {
+      _treeSearchModeProperty.Detach(OnPropertyChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Attach();
       base.DeepCopy(source, copyManager);
       DynamicResourceMarkupExtension drme = source as DynamicResourceMarkupExtension;
       ResourceKey = copyManager.GetCopy(drme.ResourceKey);
+      TreeSearchMode = copyManager.GetCopy(drme.TreeSearchMode);
+      Detach();
     }
 
     #endregion
@@ -89,23 +118,43 @@ namespace Presentation.SkinEngine.MarkupExtensions
       set { _resourceKey = value; }
     }
 
+    public Property TreeSearchModeProperty
+    {
+      get { return _treeSearchModeProperty; }
+    }
+
+    public TreeSearchMode TreeSearchMode
+    {
+      get { return (TreeSearchMode) _treeSearchModeProperty.GetValue(); }
+      set { _treeSearchModeProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Protected methods & properties
 
+    protected void OnPropertyChanged(Property property)
+    {
+      if (_active)
+        UpdateTarget();
+    }
+
     protected void OnResourcesChanged(ResourceDictionary changedResources)
     {
-      UpdateTarget();
+      if (_active)
+        UpdateTarget();
     }
 
     protected void OnSkinResourcesChanged(SkinResources newResources)
     {
-      UpdateTarget();
+      if (_active)
+        UpdateTarget();
     }
 
     protected void OnSourcePathChanged(Property property)
     {
-      UpdateTarget();
+      if (_active)
+        UpdateTarget();
     }
 
     protected void AttachToResources(ResourceDictionary rd)
@@ -124,7 +173,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        _attachedProperties.Add(sourcePathProperty);
+        _attachedPropertiesList.Add(sourcePathProperty);
         sourcePathProperty.Attach(OnSourcePathChanged);
       }
     }
@@ -139,9 +188,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
         SkinContext.SkinResourcesChanged -= OnSkinResourcesChanged;
         _attachedToSkinResources = false;
       }
-      foreach (Property property in _attachedProperties)
+      foreach (Property property in _attachedPropertiesList)
         property.Detach(OnSourcePathChanged);
-      _attachedProperties.Clear();
+      _attachedPropertiesList.Clear();
     }
 
     protected void UpdateTarget(object value)
@@ -183,10 +232,26 @@ namespace Presentation.SkinEngine.MarkupExtensions
             return true;
           }
         }
-        Property logicalParentProperty = current.LogicalParentProperty;
+        Property parentProperty = null;
+        if (TreeSearchMode == MarkupExtensions.TreeSearchMode.LogicalTree)
+          parentProperty = current.LogicalParentProperty;
+        else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.VisualTree)
+        {
+          if (current is Visual)
+            parentProperty = ((Visual)current).VisualParentProperty;
+          else
+            break;
+        }
+        else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.Hybrid)
+        {
+          parentProperty = current.LogicalParentProperty;
+          if (parentProperty.GetValue() == null && current is Visual)
+            parentProperty = ((Visual) current).VisualParentProperty;
+        }
+
         // Attach change handler to LogicalParent property
-        AttachToSourcePathProperty(logicalParentProperty);
-        current = logicalParentProperty.GetValue() as DependencyObject;
+        AttachToSourcePathProperty(parentProperty);
+        current = parentProperty.GetValue() as DependencyObject;
       }
       // Attach change handler to skin resources
       AttachToSkinResources();
