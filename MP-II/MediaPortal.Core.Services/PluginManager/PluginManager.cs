@@ -31,7 +31,6 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginDetails;
 using MediaPortal.Services.PluginManager.PluginSpace;
@@ -40,17 +39,20 @@ namespace MediaPortal.Services.PluginManager
 {
   /// <summary>
   /// A <see cref="IPluginManager"/> implementation that uses .plugin files to find
-  /// what plug-ins are available
+  /// what plug-ins are available.
   /// </summary>
   public class PluginManager: IPluginManager
   {
     #region Variables
+
     private List<string> _pluginFiles;
     private List<string> _disabledPlugins;
     private PluginTree _pluginTree;
+
     #endregion
 
     #region Constructors/Destructors
+
     public PluginManager()
     {
       AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
@@ -66,9 +68,11 @@ namespace MediaPortal.Services.PluginManager
 			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
       AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
     }
+
     #endregion
 
     #region Event handlers
+
     /// <summary>
     /// Method to hook in the resolving mechanism of the system to find plugin dll files
     /// in our plugins folder.
@@ -82,15 +86,14 @@ namespace MediaPortal.Services.PluginManager
       string dllName = ExtractDllNameFromAssemblyName(args.Name);
       if (dllName != null)
       {
-        string[] folders = System.IO.Directory.GetDirectories("plugins");
+        string appRoot = ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_ROOT>");
+        string[] folders = System.IO.Directory.GetDirectories(appRoot + @"\Plugins");
         for (int i = 0; i < folders.Length; ++i)
         {
           // Calculate the directory where the plugins are located.
-          string fname = String.Format(@"{0}\{1}\{2}.dll", System.IO.Directory.GetCurrentDirectory(), folders[i], dllName);
+          string fname = String.Format(@"{0}\{1}\{2}.dll", appRoot, folders[i], dllName);
           if (System.IO.File.Exists(fname))
-          {
             return Assembly.LoadFile(fname);
-          }
         }
       }
       return null;
@@ -114,9 +117,11 @@ namespace MediaPortal.Services.PluginManager
         }
       }
     }
+
     #endregion
 
-    #region Private
+    #region Protected methods
+
     /// <summary>
     /// Given an assembly name in the form "assembly-text-name, Version, Culture, PublicKeyToken",
     /// this method extracts the first part ("assembly-text-name" in this case).
@@ -125,7 +130,7 @@ namespace MediaPortal.Services.PluginManager
     /// "assembly-text-name, Version, Culture, PublicKeyToken".</param>
     /// <returns>Extracted first part in the <paramref name="assemblyName"/>
     /// parameter, which should be the name of the assembly dll file.</returns>
-    static string ExtractDllNameFromAssemblyName(string assemblyName)
+    protected static string ExtractDllNameFromAssemblyName(string assemblyName)
     {
       int pos = assemblyName.IndexOf(",");
       if (pos == -1)
@@ -145,12 +150,8 @@ namespace MediaPortal.Services.PluginManager
       //Test data -> get from config in future
       DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo(@"<APPLICATION_ROOT>\Plugins");
       foreach(DirectoryInfo pluginDirectory in plugins.GetDirectories())
-      {
         foreach(FileInfo pluginFile in pluginDirectory.GetFiles("*.plugin"))
-        {
           _pluginFiles.Add(pluginFile.FullName);
-        }
-      }
 
       _pluginTree.Load(_pluginFiles, _disabledPlugins);
 
@@ -161,6 +162,11 @@ namespace MediaPortal.Services.PluginManager
 
     #region IPluginManager Members
 
+    public IEnumerable<IPluginInfo> GetAvailablePlugins()
+    {
+      return _pluginTree.Plugins;
+    }
+
     public object GetPluginItem<T>(string location, string id)
     {
       return _pluginTree.BuildItem<T>(location, id, null, false);
@@ -169,16 +175,6 @@ namespace MediaPortal.Services.PluginManager
     public List<T> GetAllPluginItems<T>(string location)
     {
       return _pluginTree.BuildItems<T>(location, null, false);
-    }
-
-    /// <summary>
-    /// Gets an enumerable list of available plugins
-    /// </summary>
-    /// <returns>An <see cref="IEnumerable<IPlugin>"/> list.</returns>
-    /// <remarks>A configuration program can use this list to present the user a list of available plugins that he can (de)activate.</remarks>
-    public IEnumerable<IPluginInfo> GetAvailablePlugins()
-    {
-      return null; // pluginInfo.Values;
     }
 
     /// <summary>
@@ -260,6 +256,7 @@ namespace MediaPortal.Services.PluginManager
 		#endregion
 
 		#region IStatus Implementation
+
 		public List<string> GetStatus()
 		{
 			List<string> status = new List<string>();
@@ -273,6 +270,7 @@ namespace MediaPortal.Services.PluginManager
 			}
 			return status;
 		}
+
 		#endregion
 	}
 }

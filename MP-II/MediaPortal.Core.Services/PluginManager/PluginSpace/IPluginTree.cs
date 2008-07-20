@@ -25,27 +25,22 @@
 
 #endregion
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Resources;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.PluginManager.PluginDetails;
 
 namespace MediaPortal.Services.PluginManager.PluginSpace
 {
   /// <summary>
-  ///  interface for the PluginTree.
+  /// Interface for the PluginTree.
   /// </summary>
   internal interface IPluginTree
   {
-    IList<PluginInfo> Plugins
+    IList<IPluginInfo> Plugins
     {
       get;
     }
 
-    Dictionary<string, IPluginBuilder> Builders
+    IDictionary<string, IPluginBuilder> Builders
     {
       get;
     }

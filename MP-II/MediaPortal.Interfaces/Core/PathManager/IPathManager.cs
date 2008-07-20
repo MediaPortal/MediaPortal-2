@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace MediaPortal.Core.PathManager
 {
@@ -42,7 +40,7 @@ namespace MediaPortal.Core.PathManager
   /// by their corresponding registered path.
   /// Registered path patterns can also contain references to other path registrations.
   /// <example>A path pattern will look like this:
-  /// <c>&lt;LOG&gt;/MediaPortal.log</c>, where <c>&lt;LOG&gt;</c> is a reference to the path registered
+  /// <c>&lt;LOG&gt;\MediaPortal.log</c>, where <c>&lt;LOG&gt;</c> is a reference to the path registered
   /// for the label <i>LOG</i>. If the label <i>LOG</i> was registered with the path
   /// <i>C:\Temp</i> for example, the pattern would be resolved to <i>C:\Temp\MediaPortal.log</i>.</example>
   /// </remarks>

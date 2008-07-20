@@ -42,19 +42,22 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   internal class PluginTree : IPluginTree
   {
     #region Variables
-    List<PluginInfo> _plugins;
-    PluginTreeNode _rootNode;
-    Dictionary<string, IPluginBuilder> _builders;
+
+    protected IList<IPluginInfo> _plugins;
+    protected PluginTreeNode _rootNode;
+    protected IDictionary<string, IPluginBuilder> _builders;
 
     // do we require conditions?
     //Dictionary<string, IConditionEvaluator> conditionEvaluators = new Dictionary<string, IConditionEvaluator>();
+
     #endregion
 
     #region Constructors/Destructors
+
     public PluginTree()
     {
       // initialise variables
-      _plugins = new List<PluginInfo>();
+      _plugins = new List<IPluginInfo>();
       _rootNode = new PluginTreeNode();
 
       // add default builders
@@ -64,15 +67,17 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       //conditionEvaluators.Add("Compare", new CompareConditionEvaluator());
       //conditionEvaluators.Add("Ownerstate", new OwnerStateConditionEvaluator());
     }
+
     #endregion
 
-    #region Properties
-    public IList<PluginInfo> Plugins
+    #region Public properties
+
+    public IList<IPluginInfo> Plugins
     {
-      get { return _plugins.AsReadOnly(); }
+      get { return new List<IPluginInfo>(_plugins); }
     }
 
-    public Dictionary<string, IPluginBuilder> Builders
+    public IDictionary<string, IPluginBuilder> Builders
     {
       get { return _builders; }
     }
@@ -84,9 +89,11 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     //    return conditionEvaluators;
     //  }
     //}
+
     #endregion
 
     #region Public Methods
+
     public bool IsTreeNode(string path)
     {
       if (path == null || path.Length == 0)
@@ -391,6 +398,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   	#endregion
 
     #region Private Methods
+
     // used by Load(): disables a Plugin and removes it from the dictionaries.
     private void DisablePlugin(PluginInfo Plugin, Dictionary<string, Version> versionDict, Dictionary<string, PluginInfo> pluginInfoDict)
     {
@@ -436,6 +444,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         treePath.Items.Add(item);
       }
     }
+
     #endregion
   }
 }

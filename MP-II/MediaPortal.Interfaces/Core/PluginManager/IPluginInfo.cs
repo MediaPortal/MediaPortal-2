@@ -23,14 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.Core.PluginManager
 {
   public interface IPluginInfo
   {
     #region Properties
-    // Public Properties
+
     Version Version
     {
       get;
@@ -70,10 +69,13 @@ namespace MediaPortal.Core.PluginManager
     {
       get;
     }
+
     #endregion
 
     #region Public Methods
+    
     object CreateObject(string className);
+
     #endregion
   }
 }

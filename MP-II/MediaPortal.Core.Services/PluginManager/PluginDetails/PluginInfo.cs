@@ -211,6 +211,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     #endregion
 
     #region Public Methods
+
     public object CreateObject(string className)
     {
       if (!_instances.ContainsKey(_manifest.Identity))
@@ -249,6 +250,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     #endregion
 
     #region Private Methods
+
     private object CreateInstance(string className)
     {
       foreach (PluginRuntime runtime in _runtimes)
@@ -281,9 +283,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
 
       queue.Send(msg);
     }
+
     #endregion
 
     #region Public static Methods
+
     static void SetupPlugin(XmlReader reader, PluginInfo plugin, string hintPath)
     {
       while (reader.Read())
@@ -439,9 +443,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         throw new PluginLoadException("Can't load " + fileName, e);
       }
     }
+
     #endregion
 
-    #region <Base class> Overloads
+    #region Base Overrides
+
     public override string ToString()
     {
       if (!String.IsNullOrEmpty(Id))
@@ -449,6 +455,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       else
         return "[Plugin: " + Name + "]";
     }
+
     #endregion
   }
 }

@@ -22,18 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
-  /// Interface for plug-in managers
+  /// Interface for plug-in managers.
   /// </summary>
   /// <remarks>
-  /// A plug-in manager is responsible for enumerating, starting and stopping plugins</remarks>
+  /// A plug-in manager is responsible for enumerating, starting and stopping plugins.
+  /// </remarks>
 	public interface IPluginManager : IStatus
   {
     object GetPluginItem<T>(string location, string name);
@@ -41,14 +39,17 @@ namespace MediaPortal.Core.PluginManager
     List<T> GetAllPluginItems<T>(string location);
 
     /// <summary>
-    /// Gets an enumerable list of available plugins
+    /// Gets an enumeration of available plugins.
     /// </summary>
-    /// <returns>An <see cref="IEnumerable<IPlugin>"/> list.</returns>
-    /// <remarks>A configuration program can use this list to present the user a list of available plugins that he can (de)activate.</remarks>
+    /// <returns>An enumeration of pulgin descriptors.</returns>
+    /// <remarks>
+    /// A configuration program can use this list to present the user a list of available plugins
+    /// that he can (de)activated.
+    /// </remarks>
     IEnumerable<IPluginInfo> GetAvailablePlugins();
 
     /// <summary>
-    /// Stops all plug-ins
+    /// Stops all plug-ins.
     /// </summary>
     void StopAll();
 
@@ -58,18 +59,17 @@ namespace MediaPortal.Core.PluginManager
     void Startup();
 
 		/// <summary>
-		/// Starts a PlugIn by name
+		/// Starts a plugin by name.
 		/// </summary>
-		/// <param name="name">PlugIn Name</param>
-		/// <returns>true if PlugIn was started</returns>
+		/// <param name="name">Name of the plugin.</param>
+		/// <returns><c>true</c>, if the plugin could be started, else <c>false</c>.</returns>
 		bool StartPlugIn(string name);
 
 		/// <summary>
-		/// Stops PlugIn by name.
+		/// Stops a plugin by name.
 		/// </summary>
-		/// <param name="name">PlugIn Name</param>
-		/// <returns>true if PlugIn was stopped</returns>
-		bool StopPlugIn(string name);
-
+		/// <param name="name">Name of the plugin to stop.</param>
+    /// <returns><c>true</c>, if the plugin could be stopped, else <c>false</c>.</returns>
+    bool StopPlugIn(string name);
   }
 }
