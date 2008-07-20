@@ -36,7 +36,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// <summary>
   /// Description of PluginTreeNodeSort.
   /// </summary>
-  public class NodeItemSort
+  internal class NodeItemSort
   {
     List<NodeItem> _items;
     bool[] _visited;

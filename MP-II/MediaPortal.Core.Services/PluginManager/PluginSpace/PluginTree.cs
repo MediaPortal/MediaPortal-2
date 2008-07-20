@@ -39,7 +39,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// <summary>
   ///  class containing the PluginTree. Contains methods for accessing tree nodes and building items.
   /// </summary>
-  public class PluginTree : IPluginTree
+  internal class PluginTree : IPluginTree
   {
     #region Variables
     List<PluginInfo> _plugins;

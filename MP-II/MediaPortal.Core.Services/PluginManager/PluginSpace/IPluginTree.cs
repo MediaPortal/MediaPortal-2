@@ -38,7 +38,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// <summary>
   ///  interface for the PluginTree.
   /// </summary>
-  public interface IPluginTree
+  internal interface IPluginTree
   {
     IList<PluginInfo> Plugins
     {

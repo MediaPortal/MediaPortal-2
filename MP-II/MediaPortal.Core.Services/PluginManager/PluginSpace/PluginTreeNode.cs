@@ -34,7 +34,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// <summary>
   /// Description of PluginTreeNode.
   /// </summary>
-  public class PluginTreeNode
+  internal class PluginTreeNode
   {
     #region Variables
     Dictionary<string, PluginTreeNode> _childNodes;
