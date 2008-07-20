@@ -37,7 +37,7 @@ namespace Presentation.SkinEngine.XamlParser
   {
     #region Variables
 
-    protected XmlElement _element;
+    protected object _instanciationData;
     protected object _instance = null;
     protected int _namespaceCount = 0;
     protected IDictionary<object, object> _keyedElements =
@@ -49,7 +49,12 @@ namespace Presentation.SkinEngine.XamlParser
 
     internal ElementContextInfo(XmlElement element)
     {
-      _element = element;
+      _instanciationData = element;
+    }
+
+    internal ElementContextInfo(string instantiationExpression)
+    {
+      _instanciationData = instantiationExpression;
     }
 
     #endregion
@@ -67,11 +72,21 @@ namespace Presentation.SkinEngine.XamlParser
     }
 
     /// <summary>
-    /// The XML element corresponding to this element context information.
+    /// The XML element corresponding to this element context information. May be <c>null</c>
+    /// in case the current context was instanciated by an attribute value instantiation syntax.
     /// </summary>
     public XmlElement Element
     {
-      get { return _element; }
+      get { return _instanciationData as XmlElement; }
+    }
+
+    /// <summary>
+    /// The expression used to instantiate the current element context. May be <c>null</c>
+    /// in case the current context was instanciated by using an <see cref="XmlElement"/>.
+    /// </summary>
+    public string InstantiationExpression
+    {
+      get { return _instanciationData as string; }
     }
 
     /// <summary>
@@ -157,14 +172,32 @@ namespace Presentation.SkinEngine.XamlParser
     /// Creates a new <see cref="ElementContextInfo"/> structure for the specified
     /// XML element and pushes it on top of the stack of element context infos.
     /// </summary>
-    /// <param name="currentElement">The XML element to push.</param>
+    /// <param name="currentElement">The XML element specifying the new element to push.</param>
     /// <returns>The created element's context info instance.</returns>
     public ElementContextInfo PushElementContext(XmlElement currentElement)
-    {
+    { // This code is almost the same as PushElementContext(string)
       // Clear cache
       _currentNamespaceHandler = null;
       // Create new stack entry
       ElementContextInfo result = new ElementContextInfo(currentElement);
+      _contextStack.Push(result);
+      return result;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ElementContextInfo"/> structure for the specified
+    /// string in attribute value instantiation syntax and pushes it on top of the
+    /// stack of element context infos.
+    /// </summary>
+    /// <param name="currentInstantiationExpression">The instantiation expression for the
+    /// new element to push.</param>
+    /// <returns>The created element's context info instance.</returns>
+    public ElementContextInfo PushElementContext(string currentInstantiationExpression)
+    { // This code is almost the same as PushElementContext(XmlElement)
+      // Clear cache
+      _currentNamespaceHandler = null;
+      // Create new stack entry
+      ElementContextInfo result = new ElementContextInfo(currentInstantiationExpression);
       _contextStack.Push(result);
       return result;
     }
@@ -226,7 +259,15 @@ namespace Presentation.SkinEngine.XamlParser
 
     public string GetNamespaceOfPrefix(string prefix)
     {
-      string result = CurrentElementContext.Element.GetNamespaceOfPrefix(prefix);
+      XmlElement ele = null;
+      // Find next element which was instantiated by an XmlElement,
+      // skip elements instantiated using attribute value instantiation syntax
+      foreach (ElementContextInfo eci in this)
+        if ((ele = eci.Element) != null)
+          break;
+      if (ele == null)
+        return string.Empty;
+      string result = ele.GetNamespaceOfPrefix(prefix);
       if (string.IsNullOrEmpty(result))
         throw new XamlParserException("Namespace prefix '{0}' is not declared", prefix);
       return result;

@@ -353,10 +353,12 @@ namespace Presentation.SkinEngine.XamlParser
             GetNamespaceHandler(currentElement.NamespaceURI).
                 InstantiateElement(this, currentElement.LocalName,
                     currentElement.NamespaceURI, new List<object>());
+
+        // Step 3: Namescope registration
         if (elementContext.Instance is INameScope && oldNameScope != null)
           oldNameScope.RegisterParent(oldNameScope);
 
-        // Step 3: Name registration and check for x:Key (to be done before child objects are built)
+        // Step 4: Name registration and check for x:Key (to be done before child objects are built)
         foreach (XmlAttribute attr in remainingAttributes)
         {
           CheckNameOrKey(attr, ref name, ref key);
@@ -368,13 +370,13 @@ namespace Presentation.SkinEngine.XamlParser
         if (name != null)
           RegisterName(name, elementContext.Instance);
 
-        // Step 4: Properties and events in attribute syntax
+        // Step 5: Properties and events in attribute syntax
         foreach (XmlAttribute attr in remainingAttributes)
         {
           HandlePropertyOrEventAssignment(attr);
         }
 
-        // Step 5: Properties in property element syntax
+        // Step 6: Properties in property element syntax
         foreach (XmlNode node in currentElement.ChildNodes)
         {
           // Hint: We do not enforce, that object elements, which are used to fill the
@@ -392,7 +394,7 @@ namespace Presentation.SkinEngine.XamlParser
           }
         }
 
-        // Step 6: Handle child elements
+        // Step 7: Handle child elements
         if (elementContext.Instance is INativeXamlObject)
         { // Implementors of INativeXamlObject will handle their XAML child elements theirselves
           ((INativeXamlObject)elementContext.Instance).HandleChildren(this, currentElement);
@@ -416,7 +418,7 @@ namespace Presentation.SkinEngine.XamlParser
           }
         }
 
-        // Step 7: Initialize
+        // Step 8: Initialize
         if (elementContext.Instance is IInitializable)
           ((IInitializable) elementContext.Instance).Initialize(this);
 
@@ -849,49 +851,84 @@ namespace Presentation.SkinEngine.XamlParser
       { // Object instantiation in attribute value syntax
         if (!str.EndsWith("}"))
           throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}' character", str);
-        string expr = str.Substring(1, str.Length-2).Trim(); // Extract the expression
-        string extensionName;
-        IList<KeyValuePair<string, string>> parameters;
-        bool namedParams;
-        AttributeValueInstantiationParser.ParseInstantiationExpression(
-            expr, out extensionName, out parameters, out namedParams);
-        string namespaceURI;
-        LookupNamespace(extensionName, out extensionName, out namespaceURI);
-        if (namedParams)
-        { // Parameters given in a Name=Value syntax
-          object avi = GetNamespaceHandler(namespaceURI).
-                  InstantiateElement(this, extensionName, namespaceURI,
-                      new List<object>()); // Invoke default constructor
-          // We only process the given parameters and assign their values to the
-          // target properties. Property value inheritance, for example the
-          // inheritance of a "Context" property for bindings, has to be
-          // implemented on the visual's element class hierarchy.
-          foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified property
-          {
-            string propertyName = parameter.Key;
-            IDataDescriptor dd;
-            if (ReflectionHelper.FindPropertyDescriptor(avi, propertyName, out dd))
+        string expr = str.Substring(1, str.Length - 2).Trim(); // Extract the expression
+        ElementContextInfo elementContext = _elementContextStack.PushElementContext(expr);
+        try
+        {
+          // Step 1: Process namespace declarations (doesn't apply here)
+          INameScope oldNameScope = _elementContextStack.GetCurrentNameScope();
+          string extensionName;
+          IList<KeyValuePair<string, string>> parameters;
+          bool namedParams;
+          AttributeValueInstantiationParser.ParseInstantiationExpression(
+              expr, out extensionName, out parameters, out namedParams);
+          string namespaceURI;
+          LookupNamespace(extensionName, out extensionName, out namespaceURI);
+          if (namedParams)
+          { // Parameters given in a Name=Value syntax
+            // Step 2: Instantiate the element
+            elementContext.Instance = GetNamespaceHandler(namespaceURI).
+                InstantiateElement(this, extensionName, namespaceURI,
+                                   new List<object>()); // Invoke default constructor
+            // Step 3: Namescope registration
+            if (elementContext.Instance is INameScope && oldNameScope != null)
+              oldNameScope.RegisterParent(oldNameScope);
+
+            // Step 5: Properties and events in attribute syntax
+
+            // We only process the given parameters and assign their values to the
+            // target properties. Property value inheritance, for example the
+            // inheritance of a "Context" property for bindings, has to be
+            // implemented on the visual's element class hierarchy.
+            foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified property
             {
-              object paramVal = ParseValue(parameter.Value);
-              HandlePropertyAssignment(dd, paramVal);
+              string propertyName = parameter.Key;
+              IDataDescriptor dd;
+              if (ReflectionHelper.FindPropertyDescriptor(elementContext.Instance, propertyName, out dd))
+              {
+                object paramVal = ParseValue(parameter.Value);
+                HandlePropertyAssignment(dd, paramVal);
+                // Step 4: Name registration
+                if (propertyName == "Name")
+                {
+                  string value = Convert(paramVal, typeof(string)) as string;
+                  RegisterName(value, elementContext.Instance);
+                }
+              }
+              else
+                throw new XamlBindingException("XAML parser: Property '{0}' was not found on element type '{1}'",
+                                               propertyName, elementContext.Instance.GetType().Name);
             }
-            else
-              throw new XamlBindingException("XAML parser: Property '{0}' was not found on element type '{1}'", propertyName, avi.GetType().Name);
           }
-          return avi;
+          else
+          { // Parameters given as constructor parameters
+            // Step 2: Instantiate the element
+            IList<object> flatParams = new List<object>();
+            foreach (string param in AttributeValueInstantiationParser.ExtractParameterValues(parameters))
+            {
+              object value = ParseValue(param);
+              if (value is IEvaluableMarkupExtension)
+                value = ((IEvaluableMarkupExtension) value).Evaluate(this);
+              flatParams.Add(value);
+            }
+            elementContext.Instance = GetNamespaceHandler(namespaceURI).
+                InstantiateElement(this, extensionName, namespaceURI, flatParams);
+            // Step 3: Namescope registration
+            if (elementContext.Instance is INameScope && oldNameScope != null)
+              oldNameScope.RegisterParent(oldNameScope);
+
+            // Step 5: Properties and events in attribute syntax (doesn't apply here)
+          }
+          // Step 6: Properties in property element syntax (doesn't apply here)
+          // Step 7: Handle child elements (doesn't apply here)
+          // Step 8: Initialize
+          if (elementContext.Instance is IInitializable)
+            ((IInitializable)elementContext.Instance).Initialize(this);
+          return elementContext.Instance;
         }
-        else
-        { // Parameters given as constructor parameters
-          IList<object> flatParams = new List<object>();
-          foreach (string param in AttributeValueInstantiationParser.ExtractParameterValues(parameters))
-          {
-            object value = ParseValue(param);
-            if (value is IEvaluableMarkupExtension)
-              value = ((IEvaluableMarkupExtension) value).Evaluate(this);
-            flatParams.Add(value);
-          }
-          return GetNamespaceHandler(namespaceURI).
-                  InstantiateElement(this, extensionName, namespaceURI, flatParams);
+        finally
+        {
+          _elementContextStack.PopElementContext();
         }
       }
       else return str;
@@ -1031,6 +1068,6 @@ namespace Presentation.SkinEngine.XamlParser
         dd.Value = Convert(value, dd.DataType);
     }
 
-#endregion
+    #endregion
   }
 }
