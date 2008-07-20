@@ -32,7 +32,7 @@ using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Controls.Brushes;
 using Presentation.SkinEngine;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
 

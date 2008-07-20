@@ -33,7 +33,7 @@ using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
 using Presentation.SkinEngine.MpfElements.Resources;
 using SlimDX;
-using TypeConverter = Presentation.SkinEngine.General.TypeConverter;
+using TypeConverter = Presentation.SkinEngine.Xaml.TypeConverter;
 using Presentation.SkinEngine.Controls.Visuals.Shapes;
 
 namespace Presentation.SkinEngine.MpfElements
@@ -147,6 +147,7 @@ namespace Presentation.SkinEngine.MpfElements
       // Command
       objectClassRegistrations.Add("CommandList", typeof(SkinEngine.Commands.CommandList));
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
+      objectClassRegistrations.Add("CommandBridge", typeof(SkinEngine.Commands.CommandBridge));
 
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));

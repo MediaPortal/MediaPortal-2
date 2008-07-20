@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.Properties;
 using SlimDX;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Transforms

@@ -24,8 +24,8 @@
 
 using System;
 using System.Reflection;
-using Presentation.SkinEngine.General;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.MpfElements
 {

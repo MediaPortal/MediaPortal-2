@@ -17,6 +17,11 @@
       <Binding Source="{StaticResource DataContext}" Path="Plugins" Mode="OneTime"/>
     </ResourceWrapper>
 
+    <!-- Menu command -->
+    <CommandBridge x:Key="Menu_Command"
+        Command="{Binding Path=Command,Mode=OneTime}"
+        CommandParameter="{Binding Path=CommandParameter,Mode=OneTime}"/>
+
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element"/>
 

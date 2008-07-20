@@ -25,11 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls;
 
@@ -553,7 +552,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected bool FindDataContext(out IDataDescriptor result)
     {
       result = null;
-
       DependencyObject current = _contextObject as DependencyObject;
       if (current == null)
         return false;

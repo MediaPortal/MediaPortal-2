@@ -29,10 +29,10 @@ using System.Text.RegularExpressions;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
+using Presentation.SkinEngine.Xaml;
 using SlimDX.Direct3D9;
 using GeometryUtility;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Shapes

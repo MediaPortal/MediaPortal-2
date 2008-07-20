@@ -32,7 +32,7 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Presentation.WindowManager;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine

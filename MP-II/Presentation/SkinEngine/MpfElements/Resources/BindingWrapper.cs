@@ -23,9 +23,9 @@
 #endregion
 
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.MarkupExtensions;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MpfElements.Resources
 {

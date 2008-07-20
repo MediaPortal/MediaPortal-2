@@ -26,10 +26,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {

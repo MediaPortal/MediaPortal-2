@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.General.Exceptions;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Exceptions;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.MpfElements

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Presentation.SkinEngine.General;
+using Presentation.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
@@ -34,7 +34,7 @@ using Presentation.SkinEngine.Controls.Animations;
 using Presentation.SkinEngine.Controls.Transforms;
 using Presentation.SkinEngine.Commands;
 using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using Presentation.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;

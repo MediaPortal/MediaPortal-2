@@ -14,6 +14,13 @@
       <Binding Source="{Model AssemblyName=settings,ClassName=Language}" Path="MainMenu" Mode="OneTime"/>
     </ResourceWrapper>
 
+    <!-- Menu command -->
+    <!-- Access the (Core type) command from the current menu ListItem, which is
+         accessible via the data context -->
+    <CommandBridge x:Key="Menu_Command"
+        Command="{Binding Path=Command,Mode=OneTime}"
+        CommandParameter="{Binding Path=CommandParameter,Mode=OneTime}"/>
+
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element"/>
 

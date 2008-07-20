@@ -24,8 +24,8 @@
 
 using System.Collections.Generic;
 using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
 

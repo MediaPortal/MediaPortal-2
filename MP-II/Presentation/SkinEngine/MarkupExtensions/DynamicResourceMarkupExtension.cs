@@ -27,12 +27,12 @@ using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.MpfElements;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {

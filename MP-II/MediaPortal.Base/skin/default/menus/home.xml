@@ -21,7 +21,7 @@
     </item>
     <item text="[media.name]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="media"/>
     <item text="[pictures.3]" image="hover_my pictures.png" command="WindowManager.ShowWindow" parameter="Pictures"/>
-    <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsSkin"/>
+    <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsGeneral"/>
     <item text="[hello.menu]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="helloworld"/>
     <item text="[extensions.myextensions]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="extensions">
       <items>

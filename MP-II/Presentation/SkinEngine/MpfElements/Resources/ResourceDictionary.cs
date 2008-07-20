@@ -27,9 +27,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.MpfElements.Resources

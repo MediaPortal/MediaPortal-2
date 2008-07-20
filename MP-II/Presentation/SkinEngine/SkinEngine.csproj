@@ -78,6 +78,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Commands\CommandList.cs" />
+    <Compile Include="Commands\CommandBridge.cs" />
     <Compile Include="Commands\Expression\EventClasses.cs" />
     <Compile Include="Commands\Expression\ExprEval.cs" />
     <Compile Include="Commands\Expression\FunctionEval.cs" />
@@ -133,17 +134,17 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
-    <Compile Include="General\DataDescriptors.cs" />
-    <Compile Include="General\Exceptions\Exceptions.cs" />
+    <Compile Include="Xaml\DataDescriptors.cs" />
+    <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\CommandStencilMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\PickupBindingMarkupExtension.cs" />
     <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
     <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
-    <Compile Include="XamlParser\PathExpression.cs" />
-    <Compile Include="General\ReflectionHelper.cs" />
-    <Compile Include="General\TypeConverter.cs" />
+    <Compile Include="Xaml\PathExpression.cs" />
+    <Compile Include="Xaml\ReflectionHelper.cs" />
+    <Compile Include="Xaml\TypeConverter.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\IScrollInfo.cs">
       <SubType>Code</SubType>
@@ -264,19 +265,19 @@
     <Compile Include="SkinManagement\Skin.cs" />
     <Compile Include="SkinManagement\SkinManager.cs" />
     <Compile Include="SkinManagement\XamlLoader.cs" />
-    <Compile Include="XamlParser\AssemblyHelper.cs" />
-    <Compile Include="XamlParser\AttributeValueInstantiationParser.cs" />
-    <Compile Include="XamlParser\Interfaces\IAddChild.cs" />
-    <Compile Include="XamlParser\Interfaces\IBinding.cs" />
-    <Compile Include="XamlParser\Interfaces\IContentEnabled.cs" />
-    <Compile Include="XamlParser\Interfaces\IEvaluableMarkupExtension.cs" />
-    <Compile Include="XamlParser\Interfaces\IImplicitKey.cs" />
-    <Compile Include="XamlParser\Interfaces\IInclude.cs" />
-    <Compile Include="XamlParser\Interfaces\INameScope.cs" />
-    <Compile Include="XamlParser\Interfaces\INamespaceHandler.cs" />
-    <Compile Include="XamlParser\Interfaces\INativeXamlObject.cs" />
-    <Compile Include="XamlParser\Interfaces\IParserContext.cs" />
-    <Compile Include="XamlParser\NameScope.cs" />
+    <Compile Include="Xaml\AssemblyHelper.cs" />
+    <Compile Include="Xaml\AttributeValueInstantiationParser.cs" />
+    <Compile Include="Xaml\Interfaces\IAddChild.cs" />
+    <Compile Include="Xaml\Interfaces\IBinding.cs" />
+    <Compile Include="Xaml\Interfaces\IContentEnabled.cs" />
+    <Compile Include="Xaml\Interfaces\IEvaluableMarkupExtension.cs" />
+    <Compile Include="Xaml\Interfaces\IImplicitKey.cs" />
+    <Compile Include="Xaml\Interfaces\IInclude.cs" />
+    <Compile Include="Xaml\Interfaces\INameScope.cs" />
+    <Compile Include="Xaml\Interfaces\INamespaceHandler.cs" />
+    <Compile Include="Xaml\Interfaces\INativeXamlObject.cs" />
+    <Compile Include="Xaml\Interfaces\IParserContext.cs" />
+    <Compile Include="Xaml\NameScope.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
     <Compile Include="Players\CropSettings.cs" />
@@ -328,7 +329,7 @@
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Fullscreen.cs" />
-    <Compile Include="XamlParser\ParserHelper.cs" />
+    <Compile Include="Xaml\ParserHelper.cs" />
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
@@ -338,16 +339,16 @@
     <Compile Include="WindowManagement\Window.cs" />
     <Compile Include="WindowManagement\WindowManager.cs" />
     <Compile Include="WindowManagement\WindowSettings.cs" />
-    <Compile Include="XamlParser\Interfaces\IInitializable.cs" />
-    <Compile Include="XamlParser\DefaultNamespaceHandler.cs" />
-    <Compile Include="XamlParser\ElementContextStack.cs" />
-    <Compile Include="XamlParser\XamlNamespace\XamlNamespaceHandler.cs" />
-    <Compile Include="XamlParser\XamlNamespace\ArrayMarkupExtension.cs" />
-    <Compile Include="XamlParser\XamlNamespace\XDataDirective.cs" />
-    <Compile Include="XamlParser\XamlNamespace\TypeMarkupExtension.cs" />
-    <Compile Include="XamlParser\XamlNamespace\NullMarkupExtension.cs" />
-    <Compile Include="XamlParser\XamlNamespace\StaticMarkupExtension.cs" />
-    <Compile Include="XamlParser\Parser.cs" />
+    <Compile Include="Xaml\Interfaces\IInitializable.cs" />
+    <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
+    <Compile Include="Xaml\ElementContextStack.cs" />
+    <Compile Include="Xaml\XamlNamespace\XamlNamespaceHandler.cs" />
+    <Compile Include="Xaml\XamlNamespace\ArrayMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\XDataDirective.cs" />
+    <Compile Include="Xaml\XamlNamespace\TypeMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
+    <Compile Include="Xaml\Parser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MediaPortal.Core.Services\MediaPortal.Core.Services.csproj">

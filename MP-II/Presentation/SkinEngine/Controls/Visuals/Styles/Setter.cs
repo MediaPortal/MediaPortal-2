@@ -22,11 +22,11 @@
 #endregion
 
 using System;
-using MediaPortal.Presentation.Properties;
+using System.Collections.Generic;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using Presentation.SkinEngine.General;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
+using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
@@ -34,28 +34,18 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
   {
     #region Protected fields
 
-    protected Property _propertyProperty;
-    protected Property _valueProperty;
-    protected Property _targetNameProperty;
+    protected string _targetName;
+    protected string _propertyName;
+    protected object _value;
     protected Object _originalValue = null;
     protected bool _isSet = false;
-    protected object _value;
+    protected object _setterValue;
 
     #endregion
 
     #region Ctor
 
-    public Setter()
-    {
-      Init();
-    }
-
-    void Init()
-    {
-      _targetNameProperty = new Property(typeof(string), "");
-      _propertyProperty = new Property(typeof(string), "");
-      _valueProperty = new Property(typeof(object), null);
-    }
+    public Setter() { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -70,24 +60,13 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     #region Properties
 
-    public Property PropertyProperty
-    {
-      get { return _propertyProperty; }
-      set { _propertyProperty = value; }
-    }
-
     /// <summary>
     /// Gets or sets the name of the property to be set by this <see cref="Setter"/>.
     /// </summary>
     public string Property
     {
-      get { return (string)_propertyProperty.GetValue(); }
-      set { _propertyProperty.SetValue(value); }
-    }
-
-    public Property TargetNameProperty
-    {
-      get { return _targetNameProperty; }
+      get { return _propertyName; }
+      set { _propertyName = value; }
     }
 
     /// <summary>
@@ -96,13 +75,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     /// </summary>
     public string TargetName
     {
-      get { return (string)_targetNameProperty.GetValue(); }
-      set { _targetNameProperty.SetValue(value); }
-    }
-
-    public Property ValueProperty
-    {
-      get { return _valueProperty; }
+      get { return _targetName; }
+      set { _targetName = value; }
     }
 
     /// <summary>
@@ -111,8 +85,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     /// </summary>
     public object Value
     {
-      get { return _valueProperty.GetValue(); }
-      set { _valueProperty.SetValue(value); }
+      get { return _value; }
+      set { _value = value; }
     }
 
     /// <summary>
@@ -131,8 +105,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     /// </summary>
     public object SetterValue
     {
-      get { return _value; }
-      set { _value = value; }
+      get { return _setterValue; }
+      set { _setterValue = value; }
     }
 
     #endregion
@@ -144,12 +118,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         target = VisualTreeHelper.FindElement(element, TargetName);
       if (target == null)
         target = element;
-      // Handle [Property] as well as [ClassName].[Property]
-      // We'll simply ignore the [ClassName] here
+      // TODO: Also handle attached properties in the form [ClassName].[Property]
       string propertyName;
       int index = Property.IndexOf('.');
       if (index != -1)
-        propertyName = Property.Substring(index + 1);
+        throw new NotImplementedException("Setter cannot assign attached properties yet");
       else
         propertyName = Property;
       IDataDescriptor result;

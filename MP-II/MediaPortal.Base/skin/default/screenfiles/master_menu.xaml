@@ -22,6 +22,9 @@ Usage:
         [UI element to be displayed in the content area. This element will
          be placed into a ScrollViewer.]
       </ResourceWrapper>
+      <ResourceWrapper x:Key="Menu_Command">
+        [Command to be assigned to the menu button.]
+      </ResourceWrapper>
     </Include.Resources>
   </Include>
 
@@ -30,6 +33,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Menu_Items (Collection of ListItem): Items to be displayed as menu items
  - Contents_Element (Any UI element): Contents to be displayed in the content
    area at the right side
+ - Menu_Command (IExecutableCommand): Command to be assigned to the menu buttons.
+   The specified Command instance will be copied and integrated into the button's
+   visual tree, so the button's current menu item (one of the Menu_Items) will be
+   available as data context.
 -->
 
 <Include

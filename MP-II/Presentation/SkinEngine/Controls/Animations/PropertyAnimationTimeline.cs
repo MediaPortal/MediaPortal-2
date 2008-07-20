@@ -23,9 +23,8 @@
 
 using System;
 using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.General;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Animations

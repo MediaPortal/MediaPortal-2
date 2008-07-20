@@ -22,10 +22,10 @@
 
 #endregion
 
-using Presentation.SkinEngine.General.Exceptions;
+using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.XamlParser;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Interfaces;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements.Resources;
 

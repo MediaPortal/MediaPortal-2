@@ -118,7 +118,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard">
+            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -152,7 +152,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard">
+            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -221,7 +221,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="Timeline">
+            <Storyboard x:Key="Timeline" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF000000"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF045935"/>
@@ -270,7 +270,7 @@
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard">
+            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -308,7 +308,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard">
+            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -342,7 +342,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard">
+            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -406,7 +406,7 @@
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard">
+            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -444,7 +444,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard">
+            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -478,7 +478,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard">
+            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -545,7 +545,7 @@
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard">
+            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -583,7 +583,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard">
+            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -617,7 +617,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard">
+            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -687,7 +687,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard">
+            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
@@ -790,7 +790,7 @@
 
   <!-- **************************** Arrow buttons *************************************** -->
 
-  <Storyboard x:Key="FocusedArrowButtonStoryBoard">
+  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="Stop">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0B3A88"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
@@ -809,7 +809,7 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="PressedArrowButtonStoryBoard">
+  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="Stop">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
@@ -832,7 +832,7 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="DisabledArrowButtonStoryBoard">
+  <Storyboard x:Key="DisabledArrowButtonStoryBoard" FillBehavior="Stop">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F2A5EB4"/>
     </ColorAnimationUsingKeyFrames>
@@ -1164,7 +1164,7 @@
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard">
+            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
               <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -1202,7 +1202,7 @@
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard">
+            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
@@ -1236,7 +1236,7 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard">
+            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
@@ -1305,7 +1305,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="visibleStoryBoard">
+            <Storyboard x:Key="visibleStoryBoard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body8" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFD1D6E4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2336F32"/>
@@ -1780,7 +1780,7 @@
 
   <!-- ***************************** Zoom buttons ******************************** -->
 
-  <Storyboard x:Key="FocusedZoomButtonStoryBoard">
+  <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
     <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
     <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
   </Storyboard>
@@ -1833,7 +1833,7 @@
 
   <!-- ***************************** Rotate buttons ******************************** -->
 
-  <Storyboard x:Key="FocusedRotateButtonStoryBoard">
+  <Storyboard x:Key="FocusedRotateButtonStoryBoard" FillBehavior="Stop">
     <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
     <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
   </Storyboard>
@@ -1903,7 +1903,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource MpButton}">
+          <Button Style="{StaticResource MpButton}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>

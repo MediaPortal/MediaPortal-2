@@ -24,7 +24,6 @@
 
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
@@ -116,7 +115,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
         IsPressed = true;
         if (Command != null)
           Command.Execute();
-
+// Albert78: will be removed as soon as the skin is completely adapted to work without this hack
+/*
         // FIXME: Replace this with a Binding associating the Button's Command with the
         // ListItem's Command
         if (Context is ListItem)
@@ -125,6 +125,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
           if (listItem.Command != null)
             listItem.Command.Execute(listItem.CommandParameter);
         }
+*/
       }
 
       UIElement cntl = FocusManager.PredictFocus(this, ref key);

@@ -22,8 +22,8 @@
 
 #endregion
 
-using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.MpfElements.Resources;
+using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {

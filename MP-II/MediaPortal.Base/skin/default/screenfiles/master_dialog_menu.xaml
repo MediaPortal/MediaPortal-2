@@ -33,6 +33,8 @@ Usage:
 Parameters which have to be accessible by a DynamicResource lookup:
  - Dialog_Header_Text1 (String): The text to be displayed as first header left
  - Dialog_Header_Text2 (String): The text to be displayed as second header right
+ - ListViewStyle (Style): The style to be used for the menu list view. Supported
+   are only styles with an ItemContainerStyle of DefaultMenuItemContainerStyle.
  - Menu_Items (Collection of ListItem): Items to be displayed as menu items
  - Execute_Command_Stencil (ICommandStencil): Command stencil which will be executed with
    the currently selected ListItem as single parameter
@@ -50,8 +52,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView x:Name="MainMenu" Style="{DynamicResource ListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
-        <ListView.Command>
-          <CommandList>
+        <ListView.Resources>
+          <CommandList x:Key="Menu_Command">
             <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
               <InvokeCommand.CommandParameters>
                 <LateBoundValue Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
@@ -59,7 +61,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </InvokeCommand>
             <Command Source="{Service WindowManager}" Path="CloseDialog"/>
           </CommandList>
-        </ListView.Command>
+        </ListView.Resources>
       </ListView>
     </ResourceWrapper>
 

@@ -26,12 +26,12 @@ using System;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Presentation.SkinEngine.General.Exceptions;
-using Presentation.SkinEngine.XamlParser;
+using Presentation.SkinEngine.Xaml.Exceptions;
+using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.MpfElements;
 using System.IO;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.SkinManagement
 {

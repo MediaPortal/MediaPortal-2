@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {

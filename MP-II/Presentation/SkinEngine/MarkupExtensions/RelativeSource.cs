@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {

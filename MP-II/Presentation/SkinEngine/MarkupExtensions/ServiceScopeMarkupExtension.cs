@@ -22,8 +22,8 @@
 
 #endregion
 
-using Presentation.SkinEngine.General.Exceptions;
-using Presentation.SkinEngine.XamlParser.Interfaces;
+using Presentation.SkinEngine.Xaml.Exceptions;
+using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
 {
