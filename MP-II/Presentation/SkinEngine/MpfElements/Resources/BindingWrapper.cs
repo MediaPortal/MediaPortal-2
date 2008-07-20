@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.General;
 using Presentation.SkinEngine.MarkupExtensions;
 using Presentation.SkinEngine.XamlParser.Interfaces;
 
@@ -70,6 +71,16 @@ namespace Presentation.SkinEngine.MpfElements.Resources
     {
       get { return _freezable; }
       set { _freezable = value; }
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override bool FindContentProperty(out IDataDescriptor dd)
+    {
+      dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Binding"));
+      return true;
     }
 
     #endregion

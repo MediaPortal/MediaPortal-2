@@ -78,7 +78,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     #region IContentEnabled implementation
 
-    public bool FindContentProperty(out IDataDescriptor dd)
+    public virtual bool FindContentProperty(out IDataDescriptor dd)
     {
       dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Value"));
       return true;
