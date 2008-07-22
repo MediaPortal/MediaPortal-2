@@ -42,7 +42,7 @@ namespace Presentation.SkinEngine.Xaml
   /// <para>
   /// Each parser instance is associated with a XAML file to parse. This means,
   /// for each XAML file to parse you'll need a new instance of the
-  /// <see cref="XamlParser"/> class.
+  /// <see cref="Parser"/> class.
   /// </para>
   /// <para>
   /// <b>Preparation</b><br/>
@@ -706,7 +706,7 @@ namespace Presentation.SkinEngine.Xaml
             }
             catch
             {
-              throw new XamlBindingException("XamlParser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute", node.Name);
+              throw new XamlBindingException("Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute", node.Name);
             }
           }
           resultList.Clear();
@@ -730,7 +730,7 @@ namespace Presentation.SkinEngine.Xaml
       else if (str.StartsWith("{"))
       { // Object instantiation in attribute value syntax
         if (!str.EndsWith("}"))
-          throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}' character", str);
+          throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}}' character", str);
         string expr = str.Substring(1, str.Length - 2).Trim(); // Extract the expression
         ElementContextInfo elementContext = _elementContextStack.PushElementContext(expr);
         try
@@ -803,7 +803,7 @@ namespace Presentation.SkinEngine.Xaml
           // Step 7: Handle child elements (doesn't apply here)
           // Step 8: Initialize
           if (elementContext.Instance is IInitializable)
-            ((IInitializable)elementContext.Instance).Initialize(this);
+            ((IInitializable) elementContext.Instance).Initialize(this);
           return elementContext.Instance;
         }
         finally
