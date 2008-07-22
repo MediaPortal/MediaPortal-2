@@ -86,12 +86,12 @@ namespace MediaPortal.Services.PluginManager
       string dllName = ExtractDllNameFromAssemblyName(args.Name);
       if (dllName != null)
       {
-        string appRoot = ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_ROOT>");
-        string[] folders = System.IO.Directory.GetDirectories(appRoot + @"\Plugins");
-        for (int i = 0; i < folders.Length; ++i)
+        // Get the Plugins directory
+        DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo("<PLUGINS>");
+        foreach (DirectoryInfo pluginDirectory in plugins.GetDirectories())
         {
-          // Calculate the directory where the plugins are located.
-          string fname = String.Format(@"{0}\{1}\{2}.dll", appRoot, folders[i], dllName);
+          // Test a plugin directory to see if the assembly is located there
+          string fname = String.Format(@"{0}\{1}.dll", pluginDirectory.FullName, dllName);
           if (System.IO.File.Exists(fname))
             return Assembly.LoadFile(fname);
         }
