@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Text;
-
 namespace MediaPortal.Utilities.Win32
 {
   /// <summary>
