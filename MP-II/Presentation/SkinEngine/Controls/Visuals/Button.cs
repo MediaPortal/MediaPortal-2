@@ -115,17 +115,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         IsPressed = true;
         if (Command != null)
           Command.Execute();
-// Albert78: will be removed as soon as the skin is completely adapted to work without this hack
-/*
-        // FIXME: Replace this with a Binding associating the Button's Command with the
-        // ListItem's Command
-        if (Context is ListItem)
-        {
-          ListItem listItem = Context as ListItem;
-          if (listItem.Command != null)
-            listItem.Command.Execute(listItem.CommandParameter);
-        }
-*/
       }
 
       UIElement cntl = FocusManager.PredictFocus(this, ref key);
