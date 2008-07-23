@@ -61,8 +61,8 @@ namespace Presentation.SkinEngine.MpfElements
       if (!CreateAttachedPropertyDataDescriptor(_namespaceHandler, newTarget,
           _propertyProvider, _propertyName, out result))
         throw new InvalidOperationException(string.Format(
-                                              "Attached property '{0}.{1}' is not available on new target object '{2}'",
-                                              _propertyProvider, _propertyName, newTarget));
+            "Attached property '{0}.{1}' is not available on new target object '{2}'",
+            _propertyProvider, _propertyName, newTarget));
       return result;
     }
 
