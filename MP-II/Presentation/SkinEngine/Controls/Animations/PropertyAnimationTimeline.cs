@@ -95,6 +95,16 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
+    public override void Start(TimelineContext context, uint timePassed)
+    {
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null)
+        return;
+      else
+        patc.State = State.Ended;
+      base.Start(context, timePassed);
+    }
+
     #region Animation methods
 
     protected IDataDescriptor GetDataDescriptor(UIElement element)
@@ -120,6 +130,8 @@ namespace Presentation.SkinEngine.Controls.Animations
         IDictionary<IDataDescriptor, object> result)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null)
+        return;
       result.Add(patc.DataDescriptor, patc.OriginalValue);
     }
 
@@ -127,6 +139,8 @@ namespace Presentation.SkinEngine.Controls.Animations
         IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null)
+        return;
       if (propertyConfigurations.ContainsKey(patc.DataDescriptor))
         patc.OriginalValue = propertyConfigurations[patc.DataDescriptor];
       else
