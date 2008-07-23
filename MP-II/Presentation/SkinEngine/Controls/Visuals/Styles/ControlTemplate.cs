@@ -75,11 +75,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       get { return _targetTypeProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the type of the target (we dont use it in our xaml engine, but real xaml requires it)
-    /// FIXME: New XAML engine uses it!
-    /// </summary>
-    /// <value>The type of the target.</value>
     public Type TargetType
     {
       get { return _targetTypeProperty.GetValue() as Type; }

@@ -88,9 +88,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _borderThicknessProperty.Attach(OnPropertyChanged);
       _templateProperty.Attach(OnTemplateChanged);
       _cornerRadiusProperty.Attach(OnPropertyChanged);
-
-      // FIXME Albert78: Remove this
-      DataContextProperty.Attach(OnDataContextPropertyChanged);
     }
 
     void Detach()
@@ -100,9 +97,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _borderThicknessProperty.Detach(OnPropertyChanged);
       _templateProperty.Detach(OnTemplateChanged);
       _cornerRadiusProperty.Detach(OnPropertyChanged);
-
-      // FIXME Albert78: Remove this
-      DataContextProperty.Detach(OnDataContextPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -135,13 +129,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
-    // FIXME Albert78: Remove this (see comments in OnTemplateChanged and Button.OnKeyPressed)
-    void OnDataContextPropertyChanged(Property property)
-    {
-      if (_templateControl != null)
-        _templateControl.Context = Context;
-    }
-
     protected void OnTemplateChanged(Property property)
     {
       if (Template != null)
@@ -152,23 +139,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
         {
           element.VisualParent = this;
           _templateControl = element;
-          // FIXME Albert78: The next line should be removed - we do not need it any more
-          // - but the button OnKeyPressed handler still needs it. See Button.OnKeyPressed
-          _templateControl.Context = Context;
           Resources.Merge(Template.Resources);
           foreach (TriggerBase t in Template.Triggers)
             Triggers.Add(t);
           _templateControl.SetWindow(Window);
         }
         else
-        {
           _templateControl = null;
-        }
       }
       else
-      {
         _templateControl = null;
-      }
       Invalidate();
     }
 
