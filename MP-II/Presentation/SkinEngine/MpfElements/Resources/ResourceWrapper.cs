@@ -41,11 +41,9 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     #region Ctor
 
-    public ResourceWrapper()
-    { }
+    public ResourceWrapper() { }
 
-    public ResourceWrapper(object resource): base(resource)
-    { }
+    public ResourceWrapper(object resource): base(resource) { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {

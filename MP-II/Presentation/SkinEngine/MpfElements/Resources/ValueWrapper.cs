@@ -46,8 +46,7 @@ namespace Presentation.SkinEngine.MpfElements.Resources
 
     #region Ctor
 
-    public ValueWrapper()
-    { }
+    public ValueWrapper() { }
 
     public ValueWrapper(object value)
     {

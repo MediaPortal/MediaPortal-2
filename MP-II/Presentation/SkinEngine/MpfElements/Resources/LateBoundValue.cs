@@ -35,11 +35,11 @@ namespace Presentation.SkinEngine.MpfElements.Resources
   {
     #region Ctor
 
-    public LateBoundValue()
-    { }
+    public LateBoundValue() { }
 
-    public LateBoundValue(object value): base(value)
-    { }
+    // We don't expose the LateBoundValue(object value) constructor to avoid the misusage
+    // for {LateBoundValue {Binding ...}} (which cannot work, because the binding cannot bind
+    // when used as a constructor parameter)
 
     #endregion
 
