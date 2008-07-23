@@ -72,6 +72,9 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     #endregion
 
+    /// <summary>
+    /// Gets a value indicating whether length is in pixels.
+    /// </summary>
     public bool IsAbsolute
     {
       get { return _unitType == GridUnitType.Pixel; }
