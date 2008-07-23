@@ -299,7 +299,7 @@ namespace Presentation.SkinEngine.MpfElements
         Label resultLabel = new Label();
         resultLabel.Text = (string)value;
         // FIXME Albert78: Use default font (from FontManager?) rather than hard coded font
-        resultLabel.Font = "font12";
+        //resultLabel.Font = "font12";
         result = resultLabel;
         return true;
       }

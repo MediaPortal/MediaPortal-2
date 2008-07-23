@@ -18,15 +18,15 @@
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}">
-        <Label Margin="60,0,0,0" Font="font13" Text="[shares.selectsharestoadd]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <Label Margin="60,0,0,0" FontSize="30" Text="[shares.selectsharestoadd]" Width="660" Height="32" DockPanel.Dock="Top"/>
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
           <Button Style="{StaticResource ButtonStyle}" Margin="0,0,10,0" Width="160" Height="32"
               Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=sharescancel}">
-            <Label Font="font13" Text="[system.cancel]" Height="32" />
+            <Label FontSize="30" Text="[system.cancel]" Height="32" />
           </Button>
           <Button Style="{StaticResource ButtonStyle}" Margin="10,0,10,10" Width="160" Height="32" Command="{Command Path=Save}" >
-            <Label Font="font13" Text="[system.done]" Height="32" />
+            <Label FontSize="30" Text="[system.done]" Height="32" />
           </Button>
         </StackPanel>
         <TreeView x:Name="tree" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}"

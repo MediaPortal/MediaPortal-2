@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C# Express 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal", "MediaPortal\MediaPortal.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D} = {681D3B07-8C5B-4E8E-9D52-3D6B0B020B5D}
@@ -207,12 +207,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "Models\HelloW
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "Models\Login\Login.csproj", "{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Media", "Models\Media\Media.csproj", "{CD37E2FF-4CF7-4F96-8C73-C6764988D408}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -609,20 +603,6 @@ Global
 		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Xml Documentation|x64.ActiveCfg = Release|x86
 		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Debug|x64.ActiveCfg = Debug|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Debug|x86.ActiveCfg = Debug|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Debug|x86.Build.0 = Debug|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Release|x64.ActiveCfg = Release|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Release|x86.ActiveCfg = Release|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Release|x86.Build.0 = Release|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Xml Documentation|Any CPU.ActiveCfg = Release|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Xml Documentation|x64.ActiveCfg = Release|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
-		{CD37E2FF-4CF7-4F96-8C73-C6764988D408}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 		{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}.Debug|x64.ActiveCfg = Debug|x86

@@ -538,5 +538,10 @@ namespace Presentation.SkinEngine
     {
       get { return _setup.DesktopDisplayMode; }
     }
+
+    public static int DesktopHeight
+    {
+      get { return _setup.DesktopHeight; }
+    }
   }
 }

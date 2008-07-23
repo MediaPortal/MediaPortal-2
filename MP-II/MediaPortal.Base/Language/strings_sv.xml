@@ -117,7 +117,7 @@
 	<String name="settings" text="Inställningar"/>
     <String name="settingsgeneral" text="Generella"/>
     <String name="settingsfade" text="Tona bort vid Stopp"/>
-    <String name="settingsgapless" text="Uppspeling utan mellanrum"/>
+    <String name="settingsgapless" text="Uppspelning utan mellanrum"/>
   </Section>
   <Section name="media">
     <String name="name" text="Min Media"/>
@@ -298,7 +298,7 @@
 	<String name="updateall" text="Uppdatera alla"/>
 	<String name="settings" text="Inställningar"/>
     <String name="view" text="Vy"/>
-    <String name="sort" text="Sotera"/>
+    <String name="sort" text="Sortera"/>
     <String name="views" text="Bibliotek"/>
     <String name="install" text="Installera"/>
     <String name="uninstall" text="Avinstallera"/>
@@ -306,14 +306,14 @@
     <String name="downloadlist" text="Uppdatera lista"/>
     <String name="cancelinstall" text="Avbryt installationen"/>
     <String name="canceluninstall" text="Avbryt avinstallationen"/>
-    <String name="cancelreinstall" text="Avbryt ominsatllationen"/>
-    <String name="cancelupdate" text="Avbryt utdatering"/>
+    <String name="cancelreinstall" text="Avbryt ominstallationen"/>
+    <String name="cancelupdate" text="Avbryt uppdatering"/>
     <String name="name" text="Namn"/>
     <String name="downloads" text="Nerladdat"/>
 	<String name="size" text="Storlek"/>
 	<String name="date" text="Datum"/>
     <String name="reinstall" text="Ominstallation"/>
-    <String name="installinfo" text="Denna handlig kommer att bli utförd vid nästa omstart av MediaPortal"/>
+    <String name="installinfo" text="Denna handling kommer att bli utförd vid nästa omstart av MediaPortal"/>
     <String name="dependecyinfo" text="Detta tillägg förlitar sig på en eller flera tillägg, ävrn dessa kommer att installeras. Vill du fortsätta ?"/>
     <String name="notification" text="Meddelande"/>
     <String name="dependon" text="Förlitar sig på"/>

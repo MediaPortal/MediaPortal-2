@@ -100,6 +100,15 @@ namespace Presentation.SkinEngine.DirectX
       }
     }
 
+    public int DesktopHeight
+    {
+      get
+      {
+        DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[_graphicsSettings.DesktopDisplayMode];
+        return mode.Height;
+      }
+    }
+
     public PresentParameters PresentParameters
     {
       get { return _presentParams; }

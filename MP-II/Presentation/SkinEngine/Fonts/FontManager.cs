@@ -33,109 +33,196 @@ using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Fonts
 {
+
+
   public class FontManager
   {
-    private static Dictionary<string, Font> _fonts;
+    public const string FONT_META_FILE = "fonts.xml";
+    private static Dictionary<string, FontFamily> _families;
+    private static string _defaultFontFamily;
+    private static int _defaultFontSize;
 
-    private static void LoadFont(XmlNode node)
+    /// <summary>
+    /// Parses the default font family in the fonts.xml file
+    /// </summary>
+    private static string ParseDefualtFamily(XmlNode node)
     {
       try
       {
-        XmlNode nodeName = node.Attributes.GetNamedItem("name");
+        XmlNode nodeName = node.Attributes.GetNamedItem("defaultFamily");
         if (nodeName == null || nodeName.Value == null)
         {
-          return;
+          return String.Empty;
         }
-        string fontName = nodeName.Value;
-        if (fontName.Length == 0)
-        {
-          return;
-        }
-        ServiceScope.Get<ILogger>().Debug("FontManager: LoadFont: {0}", fontName);
-
-        XmlNode nodeFace = node.Attributes.GetNamedItem("face");
-        if (nodeFace == null || nodeFace.Value == null)
-        {
-          return;
-        }
-        string fontFace = nodeFace.Value;
-        if (fontFace.Length == 0)
-        {
-          return;
-        }
-
-        XmlNode nodeSize = node.Attributes.GetNamedItem("size");
-        if (nodeSize == null || nodeSize.Value == null)
-        {
-          return;
-        }
-        string fontSize = nodeSize.Value;
-        if (fontSize.Length == 0)
-        {
-          return;
-        }
-        int size;
-        Int32.TryParse(fontSize, out size);
-
-        Font font = new Font(fontFace + ".fnt", size);
-        font.OnCreateDevice(GraphicsDevice.Device);
-        font.OnResetDevice(GraphicsDevice.Device);
-        _fonts[fontName] = font;
+        return nodeName.Value;
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("FontManager failed to LoadFont");
+        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse default family name.");
         ServiceScope.Get<ILogger>().Error(ex);
+        return String.Empty;
       }
     }
-
-    public static bool Contains(string fontName)
+    /// <summary>
+    /// Parses the default font size in the fonts.xml file
+    /// </summary>
+    private static string ParseDefualtSize(XmlNode node)
     {
-      return _fonts.ContainsKey(fontName);
+      try
+      {
+        XmlNode nodeSize = node.Attributes.GetNamedItem("defaultSize");
+        if (nodeSize == null || nodeSize.Value == null)
+        {
+          return String.Empty;
+        }
+        return nodeSize.Value;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse default font size.");
+        ServiceScope.Get<ILogger>().Error(ex);
+        return String.Empty;
+      }
+    }
+    /// <summary>
+    /// Parses the font file name for a font family
+    /// </summary>
+    private static string ParseTtfFile(XmlNode node)
+    {
+      try
+      {
+        XmlNode nodeName = node.Attributes.GetNamedItem("ttf");
+        if (nodeName == null || nodeName.Value == null)
+        {
+          return String.Empty;
+        }
+        return nodeName.Value;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse ttf name.");
+        ServiceScope.Get<ILogger>().Error(ex);
+        return String.Empty;
+      }
+    }
+    /// <summary>
+    /// Parses a family name for a font family
+    /// </summary>
+    /// 
+    private static string ParseFamilyName(XmlNode node)
+    {
+      try
+      {
+        XmlNode nodeFamilyName = node.Attributes.GetNamedItem("name");
+        if (nodeFamilyName == null || nodeFamilyName.Value == null)
+        {
+          return String.Empty;
+        }
+        return nodeFamilyName.Value;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse family name.");
+        ServiceScope.Get<ILogger>().Error(ex);
+        return String.Empty;
+      }
+    }
+    /// <summary>
+    /// Returns the default font family
+    /// </summary>
+    public static string DefaultFontFamily
+    {
+      get { return _defaultFontFamily; }
     }
 
-    public static Font GetScript(string fontName)
+    /// <summary>
+    /// Returns the default font size
+    /// </summary>
+    public static int DefaultFontSize
     {
-      return _fonts[fontName];
+      get { return _defaultFontSize; }
+    }
+
+    /// <summary>
+    /// Returns the Font object
+    /// </summary>
+    /// 
+    public static Font GetScript(string fontFamily, int fontSize)
+    {
+
+      FontFamily family = _families[fontFamily];
+
+      if (family == null)
+        return null;
+
+      // Do we already have this font?
+      foreach (Font font in family.FontList)
+      {
+        if (font.Size == fontSize)
+        {
+          return font;
+        }
+      }
+      // No - create it.
+      return family.Addfont(fontSize, 96);
     }
 
     public static void Free()
     {
-      Dictionary<string, Font>.Enumerator enumer = _fonts.GetEnumerator();
+
+      Dictionary<string, FontFamily>.Enumerator enumer = _families.GetEnumerator();
       while (enumer.MoveNext())
       {
-        Font f = enumer.Current.Value;
-        Trace.WriteLine("dispose font" + enumer.Current.Key);
-        f.OnLostDevice();
-        f.OnDestroyDevice();
+        FontFamily family = enumer.Current.Value;
+        Trace.WriteLine("dispose fontfamily" + enumer.Current.Key);
+        foreach (Font font in family.FontList)
+        {
+          //font.OnLostDevice();
+          //font.OnDestroyDevice();
+        }
       }
     }
 
     public static void Alloc()
     {
-      Dictionary<string, Font>.Enumerator enumer = _fonts.GetEnumerator();
+      Dictionary<string, FontFamily>.Enumerator enumer = _families.GetEnumerator();
       while (enumer.MoveNext())
       {
-        Font f = enumer.Current.Value;
-        //f.Reload();
-        f.OnCreateDevice(GraphicsDevice.Device);
-        f.OnResetDevice(GraphicsDevice.Device);
-        Trace.WriteLine("alloc font:" + enumer.Current.Key);
+        FontFamily family = enumer.Current.Value;
+        foreach (Font font in family.FontList)
+        {
+          //font.OnCreateDevice(GraphicsDevice.Device);
+          //font.OnResetDevice(GraphicsDevice.Device);
+          Trace.WriteLine("alloc fontfamily:" + enumer.Current.Key);
+        }
       }
     }
-
-    public static void Reload()
+    /// <summary>
+    /// Parses the fonts.xml file and loads the font familys it contains.
+    /// </summary>
+    /// 
+    public static void Load(string skinpath)
     {
-      _fonts = new Dictionary<string, Font>();
-      IDictionary<string, FileInfo> fontResources =
-          SkinContext.SkinResources.GetResourceFiles(
-              SkinResources.FONTS_DIRECTORY + "\\" + Path.DirectorySeparatorChar + ".*\\.xml");
-      foreach (KeyValuePair<string, FileInfo> kvp in fontResources)
+      _families = new Dictionary<string, FontFamily>();
+
+      FileInfo descrFile = SkinContext.SkinResources.GetResourceFile(  
+      SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + FONT_META_FILE);
+
+      XmlDocument doc = new XmlDocument();
+      doc.Load(descrFile.FullName);
+
+      _defaultFontFamily = ParseDefualtFamily(doc.DocumentElement);
+      string defaultFontSize = ParseDefualtSize(doc.DocumentElement);
+      _defaultFontSize = int.Parse(defaultFontSize);
+
+      XmlNodeList nodesItems = doc.SelectNodes("/Skin/family");
+      foreach (XmlNode nodeItem in nodesItems)
       {
-        FileInfo fontFile = kvp.Value;
-        XmlDocument doc = new XmlDocument();
-        doc.Load(fontFile.FullName);
-        LoadFont(doc.DocumentElement);
+        string familyName = ParseFamilyName(nodeItem);
+        string ttfFile = ParseTtfFile(nodeItem);
+        FontFamily family = new FontFamily(familyName,
+          skinpath + Path.DirectorySeparatorChar+SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+        _families[familyName] = family;
       }
     }
   }

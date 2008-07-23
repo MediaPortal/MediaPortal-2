@@ -145,8 +145,6 @@ namespace Presentation.SkinEngine.GUI
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       _displaySetting = GraphicsDevice.DesktopDisplayMode;
-
-      FontManager.Reload();
     }
 
     private void MainForm_Load(object sender, EventArgs e)

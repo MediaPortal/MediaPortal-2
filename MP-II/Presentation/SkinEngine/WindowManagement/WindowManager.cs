@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.WindowManager;
@@ -80,6 +82,8 @@ namespace Presentation.SkinEngine
         windowSettings.Theme = _theme == null ? null : _theme.Name;
         ServiceScope.Get<ISettingsManager>().Save(windowSettings);
       }
+      string skinpath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>") + Path.DirectorySeparatorChar + skinName;
+      Fonts.FontManager.Load(skinpath);
     }
 
     /// <summary>
@@ -223,8 +227,8 @@ namespace Presentation.SkinEngine
           // Continue with old skin
           // TODO: Show error dialog
         }
-
-        Fonts.FontManager.Reload();
+        string skinpath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>") + Path.DirectorySeparatorChar + newSkinName;
+        Fonts.FontManager.Load(skinpath);
         Fonts.FontManager.Alloc();
 
         // We will clear the history because we cannot guarantee that the screens in the

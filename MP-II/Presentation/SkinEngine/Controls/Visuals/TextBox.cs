@@ -46,7 +46,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
     Property _textProperty;
     Property _textWrappingProperty;
     Property _colorProperty;
-    Property _fontProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
     bool _update = false;
@@ -69,7 +68,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _caretIndexProperty = new Property(typeof(int), 0);
       _textProperty = new Property(typeof(string), "");
       _colorProperty = new Property(typeof(Color), Color.Black);
-      _fontProperty = new Property(typeof(string), "font13");
+
       _textWrappingProperty = new Property(typeof(string), "");
 
       // Yes, we can have focus
@@ -90,14 +89,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _fontProperty.Attach(OnFontChanged);
       _textProperty.Attach(OnTextChanged);
       _colorProperty.Attach(OnColorChanged);
     }
 
     void Detach()
     {
-      _fontProperty.Detach(OnFontChanged);
       _textProperty.Detach(OnTextChanged);
       _colorProperty.Detach(OnColorChanged);
     }
@@ -109,7 +106,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       TextBox t = source as TextBox;
       Text = copyManager.GetCopy(t.Text);
       Color = copyManager.GetCopy(t.Color);
-      Font = copyManager.GetCopy(t.Font);
       TextWrapping = copyManager.GetCopy(t.TextWrapping);
       CaretIndex = copyManager.GetCopy(t.CaretIndex);
       Attach();
@@ -136,7 +132,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         Window.Invalidate(this);
     }
 
-    void OnFontChanged(Property prop)
+    protected override void OnFontChanged(Property prop)
     {
       if (_asset != null)
       {
@@ -181,17 +177,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       set { _caretIndexProperty.SetValue(value); }
     }
 
-    public Property FontProperty
-    {
-      get { return _fontProperty; }
-    }
-
-    public string Font
-    {
-      get { return _fontProperty.GetValue() as string; }
-      set { _fontProperty.SetValue(value); }
-    }
-
     public Property TextWrappingProperty
     {
       get { return _textWrappingProperty; }
@@ -229,7 +214,16 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
       {
-        Font font = FontManager.GetScript(Font);
+        // Get default values if not set
+        if (FontSize == 0)
+          FontSize = FontManager.DefaultFontSize;
+        if (FontFamily == string.Empty)
+          FontFamily = FontManager.DefaultFontFamily;
+
+        // We want to select the font based on the maximum zoom height (fullscreen)
+        // This means that the font will be scaled down in windowed mode, but look
+        // good in full screen. 
+        Font font = FontManager.GetScript(FontFamily, (int)(FontSize * SkinContext.MaxZoomHeight));
         if (font != null)
         {
           _asset = ContentManager.GetFont(font);
@@ -252,10 +246,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (_asset != null)
       {
 
-        float h = _asset.Font.LineHeight;
-        size = new SizeF((float)availableSize.Width, (float)(h));
+        size = new SizeF((float)availableSize.Width, _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
         if (availableSize.Width == 0)
-          size.Width = _asset.Font.Width(Text.ToString());
+          size.Width = _asset.Font.Width(Text.ToString(), FontSize) * SkinContext.Zoom.Width;
 
       }
       float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
@@ -346,13 +339,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
 
-      if (rect.Height < _asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height)
+      if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
       {
-        rect.Height = (int)(_asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height);
+        rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
       }
       if (VerticalAlignment == VerticalAlignmentEnum.Center)
       {
-        rect.Y = (int)(y + (h - _asset.Font.LineHeight * SkinContext.Zoom.Height) / 2.0);
+        rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
       }
 
       rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
@@ -387,7 +380,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
         base.DoRender();
         float totalWidth;
-        float size = _asset.Font.Size;
+
         float x = (float)ActualPosition.X;
         float y = (float)ActualPosition.Y;
         float w = (float)ActualWidth;
@@ -406,15 +399,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
         else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
           align = SkinEngine.Fonts.Font.Align.Center;
 
-        if (rect.Height < _asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height)
+        // Increase height so that the lower part of 'g' is displayed 
+        if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
         {
-          rect.Height = (int)(_asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height);
+          rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
         }
         if (VerticalAlignment == VerticalAlignmentEnum.Center)
         {
-          rect.Y = (int)(y + (h - _asset.Font.LineHeight * SkinContext.Zoom.Height) / 2.0);
+          rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
         }
-
         rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
         rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
         ExtendedMatrix m = new ExtendedMatrix();
@@ -424,7 +417,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         SkinContext.AddTransform(m);
         color.Alpha *= (float)SkinContext.Opacity;
         color.Alpha *= (float)this.Opacity;
-        _asset.Draw(Text, rect, align, size, color, false, out totalWidth);
+        _asset.Draw(Text, rect, align, FontSize, color, false, out totalWidth);
         SkinContext.RemoveTransform();
       }
       else
@@ -453,13 +446,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
         else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
           align = SkinEngine.Fonts.Font.Align.Center;
 
-        if (rect.Height < _asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height)
+        if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
         {
-          rect.Height = (int)(_asset.Font.LineHeight * 1.2f * SkinContext.Zoom.Height);
+          rect.Height = (int)(_asset.Font.LineHeight(FontSize)* 1.2f * SkinContext.Zoom.Height);
         }
         if (VerticalAlignment == VerticalAlignmentEnum.Center)
         {
-          rect.Y = (int)(y + (h - _asset.Font.LineHeight * SkinContext.Zoom.Height) / 2.0);
+          rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
         }
 
         rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);

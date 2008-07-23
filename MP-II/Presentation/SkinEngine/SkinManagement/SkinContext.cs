@@ -182,6 +182,12 @@ namespace Presentation.SkinEngine.SkinManagement
       set { _zoomProperty.SetValue(value); }
     }
 
+    public static float MaxZoomHeight
+    {
+      get { return (float)GraphicsDevice.DesktopHeight / (float)SkinHeight; }
+    }
+
+
     public static List<ExtendedMatrix> Transforms
     {
       get { return _groupTransforms; }

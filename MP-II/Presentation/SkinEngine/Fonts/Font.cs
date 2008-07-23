@@ -24,17 +24,88 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using SlimDX;
+using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.SkinManagement;
+using Tao.FreeType;
 
 namespace Presentation.SkinEngine.Fonts
 {
+  public class FontLibrary 
+  {
+    /// <summary>
+    /// Singleton instance variable.
+    /// </summary>
+    private static FontLibrary _instance;
+    private static IntPtr _library;
+
+    private FontLibrary() 
+    {
+      FT.FT_Init_FreeType(out _library);
+    }
+
+    /// <summary>
+    /// Returns the Singleton FontLibrary instance.
+    /// </summary>
+    /// <value>The Singleton FontLibrary instance.</value>
+    public static FontLibrary Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new FontLibrary();
+        return _instance;
+      }
+    }
+
+    public IntPtr Library
+    {
+      get { return _library; }
+    }
+
+  }
+  
+
+  /// <summary>Represents a font family.</summary>
+  public class FontFamily
+  {
+    string _name;
+    private IntPtr _library;
+    private IntPtr _face;
+
+    public List<Font> FontList = new List<Font>();
+
+    public FontFamily(string name, string filePathName)
+    {
+      _name = name;
+
+      _library = FontLibrary.Instance.Library;
+ 
+      // Load the requested font.
+      if (FT.FT_New_Face(_library, filePathName, 0, out _face) != 0)
+        throw new ArgumentException("Failed to load face.");
+    }
+
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    public Font Addfont(int size, uint resolution)
+    {
+      Font font = new Font(_library, _face, size, resolution);
+      FontList.Add(font);
+      return font;
+    }
+  } 
+
   public class Font : ITextureAsset
   {
     public enum Align
@@ -44,33 +115,217 @@ namespace Presentation.SkinEngine.Fonts
       Right
     } ;
 
+
+    private const int MAX_NUM_GLYPHS = 150;
+    private const int MAX_WIDTH = 1024;
+    private const int MAX_HEIGHT = 1024;
+    private const int PAD = 1;
+
+    private IntPtr _face;
+    private IntPtr _library;
+
     private BitmapCharacterSet _charSet;
     private List<FontQuad> _quads;
     private List<StringBlock> _strings;
-    private readonly string _fntFile;
-    private string _textureFile;
     private Texture _texture = null;
-    //private VertexBuffer _vb = null;
     public const int MaxVertices = 4096;
     private int _nextChar;
-    private readonly float _defaultSize = 20;
+
+    private uint _resolution;
+    private int _currentX = 0;
+    private int _rowHeight = 0;
+    private int _currentY = 0;
+
     private readonly Dictionary<int, string> _pages;
     private float _firstCharWidth = 0;
     EffectAsset _effect;
+    
+
     /// <summary>Creates a new bitmap font.</summary>
     /// <param name="fntFile">Font file name.</param>
-    /// <param name="size">Default font size. May be less that size in fnt file</param>
-    public Font(string fntFile, float size)
+    public Font(IntPtr library, IntPtr face, int size, uint resolution)
     {
       _pages = new Dictionary<int, string>();
       _quads = new List<FontQuad>();
       _strings = new List<StringBlock>();
-      _fntFile = fntFile;
+      _library = library;
+      _face = face;
+
+      _resolution = resolution;
+
       _charSet = new BitmapCharacterSet();
-      _defaultSize = size;
-      ParseFNTFile();
-      _effect = ContentManager.GetEffect("normal");
+      _charSet.RenderedSize = size;
+      _charSet.LineHeight = size;
+
+      _charSet.Width = MAX_WIDTH;
+      _charSet.Height = MAX_HEIGHT;
+
+      FT_FaceRec Face = (FT_FaceRec)Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
+
+      _charSet.Base = _charSet.RenderedSize * Face.ascender / Face.height;
+
+      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.None, Format.L8, Pool.Managed);
+
+      // Add 'not defined' glypth
+      AddGlypth(0);
+      _effect = ContentManager.GetEffect("font");
     }
+
+
+    private bool AddGlypth(uint charIndex)
+    {
+
+      // FreeType measures font size in terms Of 1/64ths of a point.
+      // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
+
+      float point_size = 64.0f*(float)_charSet.RenderedSize * 72.0f / (float)_resolution;
+
+      
+      FT.FT_Set_Char_Size(_face, (int)point_size, 0, _resolution, 0);
+
+      
+      uint glypthIndex = FT.FT_Get_Char_Index(_face, charIndex);
+      
+      // Font does not contain glypth
+      if (glypthIndex == 0 && charIndex != 0)
+      {
+        // Copy 'not defined' glypth
+        _charSet.Characters[charIndex] = new BitmapCharacter();
+        _charSet.Characters[charIndex].Width = _charSet.Characters[0].Width;
+        _charSet.Characters[charIndex].Height = _charSet.Characters[0].Height;
+
+        _charSet.Characters[charIndex].X = _charSet.Characters[0].X;
+        _charSet.Characters[charIndex].Y = _charSet.Characters[0].Y;
+        _charSet.Characters[charIndex].XOffset = _charSet.Characters[0].XOffset;
+        _charSet.Characters[charIndex].YOffset = _charSet.Characters[0].YOffset;
+        _charSet.Characters[charIndex].XAdvance = _charSet.Characters[0].XAdvance;
+        return true;
+      }
+
+      // Load the glyph for the current character.
+      if (FT.FT_Load_Glyph(_face,
+                           glypthIndex,
+                           FT.FT_LOAD_DEFAULT) != 0)
+      {
+        return false;
+      }
+        
+      FT_FaceRec face = (FT_FaceRec)Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
+
+      IntPtr glyph;
+      // Load the glyph data into our local array.
+      if (FT.FT_Get_Glyph(face.glyph, out glyph) != 0)
+      {
+        return false;
+      }
+
+      // Convert the glyph to bitmap form.
+      if (FT.FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, IntPtr.Zero, 1) != 0)
+      {
+        return false;
+      }
+
+      // get the structure fron the intPtr
+      FT_BitmapGlyph Glyph = (FT_BitmapGlyph)Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
+
+      int cwidth, cheight;
+      int pwidth, pheight;
+      
+      // Width/height of char
+      cwidth = Glyph.bitmap.width;
+      cheight = Glyph.bitmap.rows;
+
+      // Width/height of char including padding
+      pwidth = cwidth + 3 * PAD;
+      pheight = cheight + 3 * PAD;
+  
+      if (_currentX + pwidth > MAX_WIDTH)
+      {
+        _currentX = 0;
+        _currentY += _rowHeight;
+        _rowHeight = 0; 
+      }
+
+      if (_currentY  + pheight > MAX_HEIGHT)
+        return false;
+
+      _charSet.Characters[charIndex] = new BitmapCharacter();
+      _charSet.Characters[charIndex].Width = cwidth + PAD;
+      _charSet.Characters[charIndex].Height = cheight + PAD;
+
+      _charSet.Characters[charIndex].X = _currentX;
+      _charSet.Characters[charIndex].Y = _currentY;
+      _charSet.Characters[charIndex].XOffset = Glyph.left;
+      _charSet.Characters[charIndex].YOffset = _charSet.Base - Glyph.top;
+
+      // Convert fixed point 16.16 to float by divison with 2^16
+      _charSet.Characters[charIndex].XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
+      Trace.WriteLine("Glyph " + (char)charIndex + " - " + _charSet.Characters[charIndex].Height + " " + _charSet.RenderedSize); 
+      // Copy the glypth bitmap to our local array
+      Byte[] BitmapBuffer = new Byte[cwidth * cheight];
+
+      if (Glyph.bitmap.buffer != IntPtr.Zero)
+      {
+        Marshal.Copy(Glyph.bitmap.buffer, BitmapBuffer, 0, cwidth * cheight);
+      }
+
+      // Lock the the area we intend to update
+      Rectangle charArea = new Rectangle(_currentX,
+                                         _currentY,
+                                         pwidth,
+                                         pheight);
+
+      LockedRect rect = _texture.LockRectangle(0, charArea, LockFlags.None);
+
+      // Copy FreeType glyph bitmap into our font texture.
+      Byte[] FontPixels = new Byte[pwidth];
+      Byte[] PadPixels = new Byte[pwidth];
+
+      int Pitch = Math.Abs(Glyph.bitmap.pitch);
+
+      // Write the first padding row
+      rect.Data.Write(PadPixels, 0, pwidth);
+      rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+
+      // Write the glypth
+      for (int y = 0; y < Glyph.bitmap.rows; y++)
+      {
+        for (int x = 0; x < Glyph.bitmap.width; x++)
+        {
+          if (Glyph.bitmap.buffer == IntPtr.Zero || x >= Glyph.bitmap.width || y >= Glyph.bitmap.rows)
+          {
+            // If we're outside the bounds of the FreeType bitmap
+            // then fill with black.
+            FontPixels[x + PAD] = 0;
+          }
+          else
+          {
+            // Otherwise copy the FreeType bits.
+            FontPixels[x + PAD] = BitmapBuffer[y * Pitch + x]; 
+          }
+        }
+        rect.Data.Write(FontPixels, 0, pwidth);
+        rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+      }
+
+      // Write the last padding row
+      rect.Data.Write(PadPixels, 0, pwidth);
+      rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
+
+      _texture.UnlockRectangle(0);
+
+      rect.Data.Dispose();
+
+      _currentX += pwidth;
+      _rowHeight = Math.Max(_rowHeight, pheight);
+
+      // Free the glypth
+      FT.FT_Done_Glyph(glyph);
+      return true;
+
+    }
+
+
 
     public float FirstCharWidth
     {
@@ -79,7 +334,7 @@ namespace Presentation.SkinEngine.Fonts
 
     public float Size
     {
-      get { return _defaultSize; }
+      get { return _charSet.RenderedSize; }
     }
 
     public List<FontQuad> Quads
@@ -93,7 +348,6 @@ namespace Presentation.SkinEngine.Fonts
       _quads = new List<FontQuad>();
       _strings = new List<StringBlock>();
       _charSet = new BitmapCharacterSet();
-      ParseFNTFile();
     }
 
     public float Base
@@ -101,34 +355,34 @@ namespace Presentation.SkinEngine.Fonts
       get { return _charSet.Base; }
     }
 
-    public float LineHeight
+    public float LineHeight(float fontSize)
     {
-      get { return _defaultSize /_charSet.RenderedSize *_charSet.LineHeight; }
+      return fontSize /_charSet.RenderedSize *_charSet.LineHeight;
     }
 
 
-    public float Width(string text)
+    public float Width(string text, float fontSize)
     {
       float width = 0;
       
       for (int i = 0; i < text.Length; i++)
       {
         char chk = text[i];
-        if (chk >= _charSet.Characters.Length)
-          throw new ArgumentException("Width index out of range.");
 
-        width += _charSet.Characters[chk].XAdvance;
+        BitmapCharacter c = Character(chk);
+
+        width += c.XAdvance;
         if (i != text.Length - 1)
         {
           _nextChar = text[i+1];
-          Kerning kern = _charSet.Characters[chk].KerningList.Find(FindKerningNode);
+          Kerning kern = c.KerningList.Find(FindKerningNode);
           if (kern != null)
           {
             width += kern.Amount;
           }
         }
       }
-      return _defaultSize / _charSet.RenderedSize * width;
+      return fontSize / _charSet.RenderedSize * width;
     }
 
     public float Height
@@ -136,175 +390,89 @@ namespace Presentation.SkinEngine.Fonts
       get { return _charSet.Height; }
     }
 
-    /// <summary>Parses the FNT file.</summary>
-    private void ParseFNTFile()
+
+    FontQuad createQuad(BitmapCharacter c, ColorValue Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
     {
-      FileInfo fontFile = SkinContext.SkinResources.GetResourceFile(
-          Skin.FONTS_DIRECTORY + "\\" + _fntFile);
-
-      if (fontFile == null || !fontFile.Exists)
-        throw new Exception(string.Format("Font file '{0}' not found", fontFile.FullName));
       
-      using (StreamReader stream = new StreamReader(fontFile.FullName))
-      {
-        string line;
-        char[] separators = new char[] {' ', '='};
-        while ((line = stream.ReadLine()) != null)
-        {
-          string[] tokens = line.Split(separators);
-          if (tokens[0] == "info")
-          {
-            // Get rendered size
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "size")
-              {
-                _charSet.RenderedSize = int.Parse(tokens[i + 1]);
-              }
-            }
-          }
-          else if (tokens[0] == "common")
-          {
-            // Fill out BitmapCharacterSet fields
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "lineHeight")
-              {
-                _charSet.LineHeight = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "base")
-              {
-                _charSet.Base = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "scaleW")
-              {
-                _charSet.Width = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "scaleH")
-              {
-                _charSet.Height = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "pages")
-              {
-                //
-              }
-            }
-          }
-          else if (tokens[0] == "page")
-          {
-            int pageId = 0;
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "id")
-              {
-                pageId = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "file")
-              {
-                string name = tokens[i + 1];
-                name = name.Substring(1, name.Length - 2);
-                _pages[pageId] = name;
-                _textureFile = name;
-              }
-            }
-          }
-          else if (tokens[0] == "chars")
-          {
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "count")
-              {
-                int charCount = int.Parse(tokens[i + 1]);
-                _charSet.Allocate(charCount);
-              }
-            }
-          }
+        float u2, v2;
+        u2 = v2 = 1;
+        Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
+        Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
+        Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
 
-          else if (tokens[0] == "char")
-          {
-            // New BitmapCharacter
-            int index = 0;
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "id")
-              {
-                index = int.Parse(tokens[i + 1]);
-                ;
-                if (index > _charSet.MaxCharacters)
-                {
-                  break;
-                }
-              }
-              else if (tokens[i] == "x")
-              {
-                _charSet.Characters[index].X = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "y")
-              {
-                _charSet.Characters[index].Y = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "width")
-              {
-                _charSet.Characters[index].Width = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "height")
-              {
-                _charSet.Characters[index].Height = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "xoffset")
-              {
-                _charSet.Characters[index].XOffset = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "yoffset")
-              {
-                _charSet.Characters[index].YOffset = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "xadvance")
-              {
-                _charSet.Characters[index].XAdvance = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "page")
-              {
-                _charSet.Characters[index].Page = int.Parse(tokens[i + 1]);
-              }
-            }
-          }
-          else if (tokens[0] == "kernings")
-          {
-            //skip kernings count...
-          }
-          else if (tokens[0] == "kerning")
-          {
-            // Build kerning list
-            int index = 0;
-            Kerning k = new Kerning();
-            for (int i = 1; i < tokens.Length; i++)
-            {
-              if (tokens[i] == "first")
-              {
-                index = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "second")
-              {
-                k.Second = int.Parse(tokens[i + 1]);
-              }
-              else if (tokens[i] == "amount")
-              {
-                k.Amount = int.Parse(tokens[i + 1]);
-              }
-            }
-            if (index >= 0 && index < _charSet.MaxCharacters)
-            {
-              _charSet.Characters[index].KerningList.Add(k);
-            }
-          }
-        }
-      }
+        uvPos.X *= finalScale.X;
+        uvPos.Y *= finalScale.Y;
+        uvPos.Z *= finalScale.Z;
+        uvPos.X += finalTranslation.X;
+        uvPos.Y += finalTranslation.Y;
+        uvPos.Z += finalTranslation.Z;
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        // Create the vertices
+        PositionColored2Textured topLeft = new PositionColored2Textured(
+          x + xOffset, 
+          y + yOffset, 
+          z + SkinContext.Z,
+          c.X / (float)_charSet.Width,
+          c.Y / (float)_charSet.Height,
+          Color.ToArgb());
+
+        uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
+        uvPos.X *= finalScale.X;
+        uvPos.Y *= finalScale.Y;
+        uvPos.Z *= finalScale.Z;
+        uvPos.X += finalTranslation.X;
+        uvPos.Y += finalTranslation.Y;
+        uvPos.Z += finalTranslation.Z;
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+
+        PositionColored2Textured topRight = new PositionColored2Textured(
+          topLeft.X + width,
+          y + yOffset, 
+          z + SkinContext.Z,
+          (c.X + c.Width) / (float)_charSet.Width,
+          c.Y / (float)_charSet.Height,
+          Color.ToArgb());
+
+
+        uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
+        uvPos.X *= finalScale.X;
+        uvPos.Y *= finalScale.Y;
+        uvPos.Z *= finalScale.Z;
+        uvPos.X += finalTranslation.X;
+        uvPos.Y += finalTranslation.Y;
+        uvPos.Z += finalTranslation.Z;
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        PositionColored2Textured bottomRight = new PositionColored2Textured(
+          topLeft.X + width, 
+          topLeft.Y + height, 
+          z + SkinContext.Z,
+          (c.X + c.Width) / (float)_charSet.Width,
+          (c.Y + c.Height) / (float)_charSet.Height,
+          Color.ToArgb());
+
+
+        uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
+        uvPos.X *= finalScale.X;
+        uvPos.Y *= finalScale.Y;
+        uvPos.Z *= finalScale.Z;
+        uvPos.X += finalTranslation.X;
+        uvPos.Y += finalTranslation.Y;
+        uvPos.Z += finalTranslation.Z;
+        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+        PositionColored2Textured bottomLeft = new PositionColored2Textured(
+          x + xOffset, 
+          topLeft.Y + height, 
+          z + SkinContext.Z,
+          c.X / (float)_charSet.Width,
+          (c.Y + c.Height) / (float)_charSet.Height,
+          Color.ToArgb());
+
+        return new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
     }
 
     /// <summary>Call when the device is created.</summary>
     /// <param name="device">D3D GraphicsDevice.Device.</param>
-    public void OnCreateDevice(Device device)
+    /*public void OnCreateDevice(Device device)
     {
       if (device == null)
       {
@@ -336,26 +504,8 @@ namespace Presentation.SkinEngine.Fonts
         _texture = null;
         ContentManager.TextureReferences--;
       }
-    }
+    }*/
 
-    /// <summary>Call when the device is reset.</summary>
-    /// <param name="device">D3D GraphicsDevice.Device.</param>
-    public void OnResetDevice(Device device)
-    {
-      //_vb = new VertexBuffer(GraphicsDevice.Device, MaxVertices * SkinEngine.DirectX.PositionColored2Textured.StrideSize,
-      //    Usage.Dynamic | Usage.WriteOnly, SkinEngine.DirectX.PositionColored2Textured.Format,
-      //    Pool.Default);
-    }
-
-    /// <summary>Call when the device is lost.</summary>
-    public void OnLostDevice()
-    {
-      //if (_vb != null)
-      //{
-      //  _vb.Dispose();
-      //  _vb = null;
-      //}
-    }
 
     /// <summary>Adds a new string to the list to render.</summary>
     /// <param name="text">Text to render</param>
@@ -372,13 +522,12 @@ namespace Presentation.SkinEngine.Fonts
     {
       StringBlock b = new StringBlock(text, textBox, alignment, size, color, kerning);
       _strings.Add(b);
-      int index = _strings.Count - 1;
-      _quads.AddRange(GetProcessedQuads(index, scroll, out textFits));
+      _quads.AddRange(GetProcessedQuads(ref b, scroll, out textFits));
       if (_quads.Count > 0)
         totalWidth = _quads[_quads.Count - 1].TopRight.X - textBox.X;
       else
         totalWidth = 0;
-      return index;
+      return _strings.Count-1;
     }
 
     /// <summary>Removes a string from the list of strings.</summary>
@@ -443,7 +592,7 @@ namespace Presentation.SkinEngine.Fonts
       {
         return;
       }
-
+       
       // Add vertices to the buffer
       //GraphicsBuffer<SkinEngine.DirectX.PositionColored2Textured> gb =
       //GraphicsStream gb = buffer.Lock(0, 6 * count * PositionColored2Textured.StrideSize, LockFlags.Discard);
@@ -467,21 +616,70 @@ namespace Presentation.SkinEngine.Fonts
       _effect.EndRender();
     }
 
+    private void doFadeOut(ref List<FontQuad> quads, bool scroll, string text)
+    {
+        float alpha = 1.0f;
+        int startIndex = (int)(text.Length * 0.5f);
+        float step = 0.9f / ((float)text.Length - startIndex);
+        if (scroll)
+        {
+          step = 1.0f / ((float)text.Length - startIndex);
+        }
+        for (int i = 0; i < quads.Count; ++i)
+        {
+          if (quads[i].CharacterIndex < startIndex)
+          {
+            continue;
+          }
+          float charIndex = quads[i].CharacterIndex - startIndex;
+          float charAlphaStart = alpha - (step * charIndex);
+          float charAlphaEnd = alpha - (step * (1 + charIndex));
+          for (int v = 0; v < quads[i].Vertices.Length; v++)
+          {
+            float newAlpha = charAlphaStart;
+            if (v == 1 || v == 4 || v == 5)
+            {
+              newAlpha = charAlphaEnd;
+            }
+            uint color = (uint)quads[i].Vertices[v].Color;
+            float colorA = color >> 24;
+            colorA /= 255.0f;
+
+            colorA *= newAlpha;
+            uint alphaHex = (uint)((colorA * 255.0f));
+            unchecked
+            {
+              alphaHex <<= 24;
+              color = color & 0xffffff;
+              color |= alphaHex;
+            }
+
+            quads[i].Vertices[v].Color = (int)color;
+          }
+        }
+    }
+
+    private BitmapCharacter Character(char c)
+    {
+      if (c >= _charSet.Characters.Length)
+        throw new ArgumentException("Width index out of range.");
+
+      if (_charSet.Characters[c] == null)
+        AddGlypth(c);
+      return _charSet.Characters[c];
+    }
+
     /// <summary>Gets the list of Quads from a StringBlock all ready to render.</summary>
-    /// <param name="index">Index into StringBlock List</param>
-    /// <returns>List of Quads</returns>
-    /// <param name="scroll"></param>
+    /// <param name="b">The string block</param>
+    /// <param name="scroll">true if text should scroll</param>
     /// <param name="textFits"></param>
-    public List<FontQuad> GetProcessedQuads(int index, bool scroll, out bool textFits)
+    /// <returns>List of Quads</returns>
+    private List<FontQuad> GetProcessedQuads(ref StringBlock b, bool scroll, out bool textFits)
     {
       textFits = true;
-      if (index >= _strings.Count || index < 0)
-      {
-        throw new Exception("String block index out of range.");
-      }
 
       List<FontQuad> quads = new List<FontQuad>();
-      StringBlock b = _strings[index];
+
       string text = b.Text;
       float x = b.TextBox.X;
       float y = b.TextBox.Y;
@@ -505,7 +703,8 @@ namespace Presentation.SkinEngine.Fonts
         char chk = text[i];
         if (chk >= _charSet.Characters.Length)
           throw new ArgumentException("GetProcessedQuads index out of range.");
-        BitmapCharacter c = _charSet.Characters[text[i]];
+        BitmapCharacter c = Character(chk);
+
         float xOffset = c.XOffset * sizeScale;
         float yOffset = c.YOffset * sizeScale;
         float xAdvance = c.XAdvance * sizeScale;
@@ -745,74 +944,8 @@ namespace Presentation.SkinEngine.Fonts
         }
 
         firstCharOfLine = false;
-
-        float u2, v2;
-        u2 = v2 = 1;
-        Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-        Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
-        Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
-
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        // Create the vertices
-        PositionColored2Textured topLeft = new PositionColored2Textured(
-          x + xOffset, y + yOffset, z + SkinContext.Z,
-          c.X / (float)_charSet.Width,
-          c.Y / (float)_charSet.Height,
-           b.Color.ToArgb());
-
-
-        uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        PositionColored2Textured topRight = new PositionColored2Textured(
-          topLeft.X + width, y + yOffset, z + SkinContext.Z,
-          (c.X + c.Width) / (float)_charSet.Width,
-          c.Y / (float)_charSet.Height,
-           b.Color.ToArgb());
-
-
-        uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        PositionColored2Textured bottomRight = new PositionColored2Textured(
-          topLeft.X + width, topLeft.Y + height, z + SkinContext.Z,
-          (c.X + c.Width) / (float)_charSet.Width,
-          (c.Y + c.Height) / (float)_charSet.Height,
-           b.Color.ToArgb());
-
-
-        uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        PositionColored2Textured bottomLeft = new PositionColored2Textured(
-          x + xOffset, topLeft.Y + height, z + SkinContext.Z,
-          c.X / (float)_charSet.Width,
-          (c.Y + c.Height) / (float)_charSet.Height,
-           b.Color.ToArgb());
-
-        // Create the quad
-        FontQuad q = new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
+        FontQuad q = createQuad(c, b.Color, x, y, z, xOffset, yOffset, width, height);
+   
         q.LineNumber = lineNumber;
         if (text[i] == ' ' && alignment == Align.Right)
         {
@@ -884,45 +1017,7 @@ namespace Presentation.SkinEngine.Fonts
       }
       if (fadeOut)
       {
-        float alpha = 1.0f;
-        int startIndex = (int)(text.Length * 0.5f);
-        float step = 0.9f / ((float)text.Length - startIndex);
-        if (scroll)
-        {
-          step = 1.0f / ((float)text.Length - startIndex);
-        }
-        for (int i = 0; i < quads.Count; ++i)
-        {
-          if (quads[i].CharacterIndex < startIndex)
-          {
-            continue;
-          }
-          float charIndex = quads[i].CharacterIndex - startIndex;
-          float charAlphaStart = alpha - (step * charIndex);
-          float charAlphaEnd = alpha - (step * (1 + charIndex));
-          for (int v = 0; v < quads[i].Vertices.Length; v++)
-          {
-            float newAlpha = charAlphaStart;
-            if (v == 1 || v == 4 || v == 5)
-            {
-              newAlpha = charAlphaEnd;
-            }
-            uint color = (uint)quads[i].Vertices[v].Color;
-            float colorA = color >> 24;
-            colorA /= 255.0f;
-
-            colorA *= newAlpha;
-            uint alphaHex = (uint)((colorA * 255.0f));
-            unchecked
-            {
-              alphaHex <<= 24;
-              color = color & 0xffffff;
-              color |= alphaHex;
-            }
-
-            quads[i].Vertices[v].Color = (int)color;
-          }
-        }
+        doFadeOut(ref quads, scroll, text);
       }
       return quads;
     }
@@ -993,30 +1088,12 @@ namespace Presentation.SkinEngine.Fonts
     public int RenderedSize;
     public int Width;
     public int Height;
-    public float _averageWidth;
     public BitmapCharacter[] Characters;
 
     /// <summary>Creates a new BitmapCharacterSet</summary>
     public BitmapCharacterSet()
     {
       Characters = new BitmapCharacter[MaxCharacters];
-      for (int i = 0; i < MaxCharacters; i++)
-      {
-        Characters[i] = new BitmapCharacter();
-      }
-    }
-
-    public void Allocate(int charCount)
-    {
-      if (charCount > MaxCharacters)
-      {
-        MaxCharacters = charCount + 1;
-        Characters = new BitmapCharacter[MaxCharacters];
-        for (int i = 0; i < MaxCharacters; i++)
-        {
-          Characters[i] = new BitmapCharacter();
-        }
-      }
     }
   } ;
 
@@ -1058,6 +1135,18 @@ namespace Presentation.SkinEngine.Fonts
     public int Amount;
   } ;
 
+  internal class StringWord
+  {
+    string _text;
+    float _width;
+
+    public StringWord(string text, float width)
+    {
+      _text = text;
+      _width = width;
+    }
+  } 
+
   /// <summary>Individual string to load into vertex buffer.</summary>
   internal struct StringBlock
   {
@@ -1076,7 +1165,7 @@ namespace Presentation.SkinEngine.Fonts
     /// <param name="color">Color</param>
     /// <param name="kerning">true to use kerning, false otherwise.</param>
     public StringBlock(string text, RectangleF textBox, Font.Align alignment,
-                     float size, ColorValue color, bool kerning)
+                       float size, ColorValue color, bool kerning)
     {
       Text = text;
       TextBox = textBox;

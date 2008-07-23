@@ -147,6 +147,7 @@
     <Compile Include="Xaml\PathExpression.cs" />
     <Compile Include="Xaml\ReflectionHelper.cs" />
     <Compile Include="Xaml\TypeConverter.cs" />
+    <Compile Include="Fonts\FreeType.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\IScrollInfo.cs">
       <SubType>Code</SubType>

@@ -15,12 +15,12 @@
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
       <DockPanel>
-        <Label Margin="60,0,0,0" Font="font13" Text="[shares.refreshing]" Width="660" Height="32" DockPanel.Dock="Top"/>
-        <Label Margin="60,0,0,0" Font="font12" Text="[shares.pressfinish]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <Label Margin="60,0,0,0" FontSize="30" Text="[shares.refreshing]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <Label Margin="60,0,0,0" FontSize="30" Text="[shares.pressfinish]" Width="660" Height="32" DockPanel.Dock="Top"/>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" DockPanel.Dock="Bottom">
           <Button x:Name="btnFinish" Style="{StaticResource ButtonStyle}" Margin="0,348,10,0" Width="160" Height="32"
               Command="{Command Source={Service WindowManager},Path=ShowPreviousWindow}">
-            <Label Font="font13" Text="[system.done]" Height="32"/>
+            <Label FontSize="30" Text="[system.done]" Height="32"/>
           </Button>
         </StackPanel>
       </DockPanel>

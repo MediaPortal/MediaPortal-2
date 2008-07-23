@@ -215,9 +215,9 @@
               </Rectangle.Fill>
             </Rectangle>
             <Image Canvas.Left="48" Canvas.Top="20" Source="logo_pause.png" Width="64" Height="64" IsVisible="{Binding Paused}"/>
-            <Label Canvas.Left="170" Canvas.Top="10" x:Name="label1" Font="font13" Width="400" Height="32" Text="{Binding OSD.Title}" Color="White" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="42" x:Name="label2" Font="font12" Width="400" Height="32" Text="{Binding OSD.MediaItem[artist]}" Color="#A0FFFFFF" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="72" x:Name="label3" Font="font12" Width="104" Height="32" Text="{Binding OSD.CurrentTime}" Color="#A0FFFFFF" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="10" x:Name="label1" FontSize="28" Width="400" Height="32" Text="{Binding OSD.Title}" Color="White" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="42" x:Name="label2" FontSize="20" Width="400" Height="32" Text="{Binding OSD.MediaItem[artist]}" Color="#A0FFFFFF" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="72" x:Name="label3" FontSize="20" Width="104" Height="32" Text="{Binding OSD.CurrentTime}" Color="#A0FFFFFF" IsVisible="False"/>
           </Canvas>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1909,7 +1909,7 @@
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
-      <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
+      <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -1933,8 +1933,8 @@
         <RowDefinition/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" Font="font13"/>
-      <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" HorizontalAlignment="Right" Text="{Binding Size}" Font="font12"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" FontSize="28"/>
+      <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" HorizontalAlignment="Right" Text="{Binding Size}" FontSize="20"/>
     </Grid>
   </DataTemplate>
 
@@ -1958,7 +1958,7 @@
         <RowDefinition/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" Font="font13"/>
+      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -1970,7 +1970,7 @@
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>
       <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -2027,7 +2027,7 @@
   <!-- A data template for a dialog menu item in tree mode -->
   <DataTemplate x:Key="TreeItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
-      <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" Font="font13"/>
+      <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" FontSize="28"/>
       <Grid.Triggers>
         <Trigger Property="HasFocus" Value="True">
           <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
