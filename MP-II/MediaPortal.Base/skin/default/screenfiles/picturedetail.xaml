@@ -5,7 +5,7 @@
     DataContext="{Binding Source={Model AssemblyName=mypicture,ClassName=PictureModel}}"
     History="False">
 
-  <Canvas x:Name="tst" Loaded="{Command Path=SlideShow.UpdateCurrentPicture}" Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+  <Canvas x:Name="tst" Loaded="{Command Path=SlideShow.UpdateCurrentPicture}" Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
 
     <Image x:Name="picture" Stretch="UniformToFill"  Source="{Binding Path=SlideShow.CurrentPicture}" Canvas.Left="0" Canvas.Top="0" Width="720" Height="576" Thumbnail="False" IsEnabled="{Binding Path=SlideShow.CurrentPictureVisibile}">
       <Image.RenderTransform>

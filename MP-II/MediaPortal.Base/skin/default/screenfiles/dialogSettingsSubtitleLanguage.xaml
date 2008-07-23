@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[playback.3]"/>
 
     <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MpMenuListView}"/>
+    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

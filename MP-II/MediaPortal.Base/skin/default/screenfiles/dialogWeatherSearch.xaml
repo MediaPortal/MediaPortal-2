@@ -20,9 +20,9 @@
         <TextBox Margin="10,5,10,5" DockPanel.Dock="Top" HorizontalAlignment="Left" Font="font13" BorderThickness="3" Height="30" Width="250"
             Text="{Binding Path=SearchCity,Mode=OneWayToSource}"/>
     	  <StackPanel x:Name="StackPanel_Nisse" DockPanel.Dock="Top" HorizontalAlignment="Right" Orientation="Horizontal">
-      	  <Button Name="ButtonDone" Margin="5" Style="{StaticResource MpButton}" Content="[system.done]"
+      	  <Button Name="ButtonDone" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.done]"
       	      Command="{Command Path=SearchLocations,Parameters=Done}"/>
-    	    <Button Name="ButtonCancel" Margin="5" Style="{StaticResource MpButton}" Content="[system.cancel]"
+    	    <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"
               Command="{Command Path=SearchLocations,Parameters=Cancel}"/>
         </StackPanel>
       </StackPanel>

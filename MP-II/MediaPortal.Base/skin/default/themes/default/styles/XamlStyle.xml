@@ -8,7 +8,7 @@
   <!-- ***************************** Brushes ******************************** -->
 
   <!-- default brush used to paint the background of a page/window -->
-  <ResourceWrapper x:Key="backGroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
       <GradientStop Color="#FF5C9AE6" Offset="0"/>
       <GradientStop Color="#FF1253A3" Offset="1"/>
@@ -16,7 +16,7 @@
   </ResourceWrapper>
 
   <!-- default brush used to paint the background of a dialog -->
-  <ResourceWrapper x:Key="dialogBackGroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="DialogBackgroundBrush" Freezable="true">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
       <RadialGradientBrush.RelativeTransform>
         <TransformGroup>
@@ -31,34 +31,9 @@
     </RadialGradientBrush>
   </ResourceWrapper>
 
-  <!-- default brush for a submenu button -->
-  <ResourceWrapper x:Key="MpSubMenuButtonBrush" Freezable="true">
-    <RadialGradientBrush GradientOrigin="0.85,0.82">
-      <RadialGradientBrush.RelativeTransform>
-        <TransformGroup>
-          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-          <TranslateTransform X="0.027" Y="-0.006"/>
-        </TransformGroup>
-      </RadialGradientBrush.RelativeTransform>
-      <GradientStop Color="#702A5EB4" Offset="0"/>
-      <GradientStop Color="#702A5EB4" Offset="1"/>
-    </RadialGradientBrush>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="linearBrushRedGreenBlue" Freezable="true">
-    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0" Opacity="1.0">
-      <GradientStop Offset="0.0" Color="Red"/>
-      <GradientStop Offset="0.5" Color="Green"/>
-      <GradientStop Offset="1.0" Color="Blue"/>
-    </LinearGradientBrush>
-  </ResourceWrapper>
-
   <!-- ***************************** Progress bar ******************************** -->
 
-  <!-- template for a green progressbar -->
-  <Style x:Key="MpProgressBar" TargetType="{x:Type Button}">
+  <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
@@ -74,77 +49,77 @@
   <!-- ***************************** Standard button ******************************** -->
 
   <!-- style for a normal button -->
-  <Style x:Key="MpButton" TargetType="{x:Type Button}">
+  <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
-              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
+              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
                 <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
               </PointAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="PressedStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
               </DoubleAnimationUsingKeyFrames>
-              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
@@ -152,17 +127,17 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4" Margin="0,0,0,0" x:Name="shine">
+            <Rectangle Stroke="#FF2866BD" RadiusX="4" RadiusY="4" Margin="0,0,0,0" x:Name="Shine">
               <Rectangle.Fill>
                 <RadialGradientBrush GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -178,13 +153,13 @@
                 </RadialGradientBrush>
               </Rectangle.Fill>
             </Rectangle>
-            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="contentPresenter"/>
+            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="ContentPresenter"/>
           </Grid>
           <ControlTemplate.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -192,7 +167,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -200,7 +175,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource disableStoryBoard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -215,7 +190,7 @@
   <!-- ***************************** Video button ******************************** -->
 
   <!-- Style for a video button. Shows video when present, otherwise a black rectangle -->
-  <Style x:Key="buttonVideoWindow" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="VideoWindowButtonStyle" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Background" Value="Black"/>
     <Setter Property="Template">
       <Setter.Value>
@@ -264,77 +239,77 @@
 
   <!-- ***************************** Radio buttons ******************************** -->
 
-  <Style x:Key="MpRadioButton" TargetType="{x:Type Button}">
+  <Style x:Key="RadioButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
-              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
+              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
                 <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
               </PointAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="PressedStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
               </DoubleAnimationUsingKeyFrames>
-              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
@@ -342,17 +317,17 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4">
+            <Rectangle x:Name="Shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -371,13 +346,13 @@
             <Ellipse x:Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
             <Ellipse x:Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
 
-            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="contentPresenter"/>
+            <ContentPresenter Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="ContentPresenter"/>
           </Grid>
           <ControlTemplate.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -385,7 +360,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -400,77 +375,77 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpRadioButtonLeft" TargetType="{x:Type Button}">
+  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
-              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
+              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
                 <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
               </PointAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="PressedStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
               </DoubleAnimationUsingKeyFrames>
-              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
@@ -478,17 +453,17 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4">
+            <Rectangle x:Name="Shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -507,13 +482,13 @@
             <Ellipse x:Name="OuterCircle" Margin="10,0,0,0" HorizontalAlignment="Left" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
             <Ellipse x:Name="InnerCircle" Margin="11,0,0,0" HorizontalAlignment="Left" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
 
-            <ContentPresenter Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="contentPresenter"/>
+            <ContentPresenter Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="ContentPresenter"/>
           </Grid>
           <ControlTemplate.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -521,7 +496,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -538,78 +513,78 @@
 
   <!-- ******************************** Checkbox *********************************** -->
 
-  <Style x:Key="MpCheckBox" TargetType="{x:Type CheckBox}">
+  <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
 
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
-              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
+              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
                 <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
               </PointAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="PressedStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
               </DoubleAnimationUsingKeyFrames>
-              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
@@ -617,17 +592,17 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
+            <Rectangle x:Name="Shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -649,7 +624,7 @@
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -657,7 +632,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -682,12 +657,12 @@
   <!-- ***************************** Dialog close button ******************************** -->
 
   <!-- Style for a close button (used on dialog windows) -->
-  <Style x:Key="MpCloseButton" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="DialogCloseButtonStyle" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
@@ -776,7 +751,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -844,7 +819,7 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Style x:Key="MpArrowButtonLeft" TargetType="{x:Type Button}">
+  <Style x:Key="ArrowButtonLeftStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -894,18 +869,18 @@
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="focusedStoryBoard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="FocusedStoryboard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="focusedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="FocusedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="PressedStoryboard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="PressedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -922,7 +897,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpArrowButtonRight" TargetType="{x:Type Button}">
+  <Style x:Key="ArrowButtonRightStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -972,18 +947,18 @@
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="focusedStoryBoard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="FocusedStoryboard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="focusedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="FocusedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="PressedStoryboard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="PressedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -1000,7 +975,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpArrowButtonUp" TargetType="{x:Type Button}">
+  <Style x:Key="ArrowButtonUpStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1050,18 +1025,18 @@
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="focusedStoryBoard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="FocusedStoryboard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="focusedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="FocusedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="PressedStoryboard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="PressedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -1078,7 +1053,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpArrowButtonDown" TargetType="{x:Type Button}">
+  <Style x:Key="ArrowButtonDownStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1128,18 +1103,18 @@
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="focusedStoryBoard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="FocusedStoryboard_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="focusedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="FocusedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="pressedStoryBoard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="PressedStoryboard_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="pressedStoryBoard_BeginStoryboard"/>
+                <StopStoryboard BeginStoryboardName="PressedStoryboard_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -1158,77 +1133,77 @@
 
   <!-- ********************************* PlusMinus button ******************************** -->
 
-  <Style x:Key="MpPlusMinButton" TargetType="{x:Type CheckBox}">
+  <Style x:Key="PlusMinusButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type CheckBox}">
           <ControlTemplate.Resources>
             <!-- storyboard which shows the animation when a button has focus -->
-            <Storyboard x:Key="focusedStoryBoard" FillBehavior="Stop">
-              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
+              <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
                 <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
                 <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
               </PointAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF05814D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF05814D"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF52E5C2"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:02" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:04" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+              <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
 
             <!-- storyboard which shows the animation when pressing a button  -->
-            <Storyboard x:Key="pressedStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="PressedStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF045935"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF22B578"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF49D5B4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFCFCFC"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF49D5B4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Stroke.Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF19A05D"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.335"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.286"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.286"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleY">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.582"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1.526"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1.526"/>
               </DoubleAnimationUsingKeyFrames>
-              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientOrigin">
+              <PointAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
                 <SplinePointKeyFrame KeyTime="00:00:00" Value="0.502,1.027"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.2000000" Value="0.5,1.026"/>
                 <SplinePointKeyFrame KeyTime="00:00:00.4000000" Value="0.5,1.026"/>
@@ -1236,23 +1211,23 @@
             </Storyboard>
 
             <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="disableStoryBoard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+            <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#6F2A5EB4"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="pathHorz" Storyboard.TargetProperty="(UIElement.Opacity)">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="PathHorz" Storyboard.TargetProperty="(UIElement.Opacity)">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
               </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="pathVert" Storyboard.TargetProperty="(UIElement.Opacity)">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="PathVert" Storyboard.TargetProperty="(UIElement.Opacity)">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
+            <Rectangle x:Name="Shine" Stroke="#FF2866BD" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
               <Rectangle.Fill>
                 <RadialGradientBrush  GradientOrigin="0.85,0.82">
                   <RadialGradientBrush.RelativeTransform>
@@ -1268,14 +1243,14 @@
                 </RadialGradientBrush>
               </Rectangle.Fill>
             </Rectangle>
-            <Path Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="6.912,14.572,0,13.561" x:Name="pathHorz" VerticalAlignment="Stretch" Width="18" Data="M4.6666667,15 L26.666667,15" StrokeThickness="2"/>
-            <Path Visibility="Visible" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="15.912,7.005,0,0" x:Name="pathVert" Width="2" Data="M13.666667,5.6666667 L13.666667,25" VerticalAlignment="Top" Height="17.001" StrokeThickness="2"/>
+            <Path Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="6.912,14.572,0,13.561" x:Name="PathHorz" VerticalAlignment="Stretch" Width="18" Data="M4.6666667,15 L26.666667,15" StrokeThickness="2"/>
+            <Path Visibility="Visible" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="15.912,7.005,0,0" x:Name="PathVert" Width="2" Data="M13.666667,5.6666667 L13.666667,25" VerticalAlignment="Top" Height="17.001" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource focusedStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1283,14 +1258,14 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource pressedStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="pathVert" Property="Visibility" Value="Hidden"/>
+              <Setter TargetName="PathVert" Property="Visibility" Value="Hidden"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -1300,12 +1275,12 @@
 
   <!-- ***************************** Busy cursor ******************************** -->
 
-  <Style x:Key="MpCursorBusy" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="BusyCursorControlStyle" BasedOn="{x:Null}" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="visibleStoryBoard" FillBehavior="Stop">
+            <Storyboard x:Key="VisibleStoryboard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body8" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFD1D6E4"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2336F32"/>
@@ -1758,18 +1733,18 @@
           <ControlTemplate.Triggers>
             <Trigger Property="IsVisible" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="visibleStoryBoard_BeginStoryboard1" Storyboard="{StaticResource visibleStoryBoard}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboard1" Storyboard="{StaticResource VisibleStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="visibleStoryBoard_BeginStoryboard1"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboard1"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="visibleStoryBoard_BeginStoryboard2" Storyboard="{StaticResource visibleStoryBoard}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboard2" Storyboard="{StaticResource VisibleStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="visibleStoryBoard_BeginStoryboard2"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboard2"/>
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
@@ -1785,7 +1760,7 @@
     <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
   </Storyboard>
 
-  <Style x:Key="MpButtonZoomIn" TargetType="{x:Type Button}">
+  <Style x:Key="ZoomInButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  TargetType="{x:Type Button}">
@@ -1808,7 +1783,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpButtonZoomOut" TargetType="{x:Type Button}">
+  <Style x:Key="ZoomOutButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1838,7 +1813,7 @@
     <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
   </Storyboard>
 
-  <Style x:Key="MpButtonRotateLeft" TargetType="{x:Type Button}">
+  <Style x:Key="RotateLeftButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1861,7 +1836,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MpButtonRotateRight" TargetType="{x:Type Button}">
+  <Style x:Key="RotateRightButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -1898,12 +1873,12 @@
 
   <!-- ***************************** Item container styles ********************************* -->
 
-  <!-- An item list container represented by a standard "MpButton", scrolling its "ItemLabel" label when focused -->
+  <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource MpButton}"
+          <Button Style="{StaticResource ButtonStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -1922,15 +1897,15 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource MpButton}" Height="46" Width="360">
+            <Button Style="{StaticResource ButtonStyle}" Height="46" Width="360">
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Button Style="{StaticResource MpArrowButtonDown}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
-            <Button Style="{StaticResource MpArrowButtonUp}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
+            <Button Style="{StaticResource ArrowButtonDownStyle}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
+            <Button Style="{StaticResource ArrowButtonUpStyle}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
           </StackPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -1940,14 +1915,14 @@
   <!-- ***************************** Item data templates ********************************* -->
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
-  <DataTemplate x:Key="DefaultMenuItemTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
       <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" Font="font13"/>
     </Grid>
   </DataTemplate>
 
   <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
-  <DataTemplate x:Key="ContentsMenuItemTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
@@ -1972,7 +1947,7 @@
   </DataTemplate>
 
   <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
-  <DataTemplate x:Key="ItemPlayListTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
@@ -1996,7 +1971,7 @@
   </DataTemplate>
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
-  <DataTemplate x:Key="ItemDialogImageTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="Grd1" Height="100">
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
@@ -2010,7 +1985,7 @@
   <!-- ***************************** ListView styles ********************************* -->
 
   <!-- Standard ListView properties. Only the properties "ItemTemplate" and "ItemContainerStyle" have to be completed -->
-  <Style x:Key="MpDefaultListView" TargetType="{x:Type ListView}">
+  <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="Template">
@@ -2032,33 +2007,33 @@
   </Style>
 
   <!-- ListView style to be used in the content area of the screens -->
-  <Style x:Key="MpContentsMenuListView" BasedOn="{StaticResource MpDefaultListView}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemTemplate}"/>
+  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MpMenuListView" BasedOn="{StaticResource MpDefaultListView}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemTemplate}"/>
+  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
-  <Style x:Key="MpPlayListView" BasedOn="{StaticResource MpDefaultListView}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ItemPlayListTemplate}"/>
+  <Style x:Key="PlayListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource PlayListItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
-  <Style x:Key="MpDialogImage" BasedOn="{StaticResource MpDefaultListView}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ItemDialogImageTemplate}"/>
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ImageDialogItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- ****************************** TreeView styles ********************************** -->
 
   <!-- A data template for a dialog menu item in tree mode -->
-  <DataTemplate x:Key="TreeItemTemplate" DataType="{x:Type collections:ListItem}">
+  <DataTemplate x:Key="TreeItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid>
       <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" Font="font13"/>
       <Grid.Triggers>
@@ -2083,8 +2058,8 @@
               <RowDefinition Height="32"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource MpPlusMinButton}" VerticalAlignment="Top"/>
-            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource MpCheckBox}" VerticalAlignment="Top" IsChecked="{Binding Mode=TwoWay,Path=Selected}"/>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}" VerticalAlignment="Top"/>
+            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top" IsChecked="{Binding Mode=TwoWay,Path=Selected}"/>
             <ContentPresenter Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <ItemsPresenter x:Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </Grid>
@@ -2096,7 +2071,7 @@
   <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
     <Setter Property="HorizontalAlignment" Value="Left"/>
     <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource TreeItemTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{StaticResource TreeItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
@@ -2110,7 +2085,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="treeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <StackPanel x:Name="TreeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

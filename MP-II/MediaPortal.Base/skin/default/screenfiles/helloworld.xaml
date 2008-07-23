@@ -5,9 +5,9 @@
     DataContext="{Binding Source={Model AssemblyName=HelloWorld,ClassName=Model}}"
     FocusedElement="{Binding ElementName=BtnChangeText}">
 
-  <Canvas Background="{StaticResource backGroundBrush}" Width="720" Height="576">
+  <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
     <StackPanel>
-      <Button Margin="0,10,0,0" x:Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource MpButton}" Content="Click Me!">
+      <Button Margin="0,10,0,0" x:Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource ButtonStyle}" Content="Click Me!">
         <Button.Command>
           <Command Path="ChangeHelloWorldString"/>
         </Button.Command>

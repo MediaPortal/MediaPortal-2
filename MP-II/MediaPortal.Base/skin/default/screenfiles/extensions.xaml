@@ -27,9 +27,12 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
-          Margin="10,0,10,0" Style="{StaticResource MpContentsMenuListView}" ItemsSource="{Binding Items}"
-          Command="{Command Path=Select,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
-          SelectionChanged="{CommandStencil Path=OnSelectionChange}"/>
+          Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}"
+          SelectionChanged="{CommandStencil Path=OnSelectionChange}">
+        <ListView.Resources>
+          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="Select" Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}}"/>
+        </ListView.Resources>
+      </ListView>
     </ResourceWrapper>
 
   </Include.Resources>

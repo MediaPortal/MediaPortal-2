@@ -58,7 +58,7 @@
         </RadialGradientBrush>
       </Border.Background>
     </Border>
-    <ProgressBar x:Name="progressBar" Canvas.Left="227" Canvas.Top="438" Width="390" Height="10" Value="{Binding Source={Service Players},Path=OSD.PercentPlayed}" Style="{StaticResource MpProgressBar}"/>
+    <ProgressBar x:Name="progressBar" Canvas.Left="227" Canvas.Top="438" Width="390" Height="10" Value="{Binding Source={Service Players},Path=OSD.PercentPlayed}" Style="{StaticResource ProgressBarStyle}"/>
 
     <Label x:Name="startTime" Font="font12" VerticalAlignment="Top" HorizontalAlignment="Center" Canvas.Left="145" Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Source={Service Players},Path=OSD.CurrentTime}" />
     <Label x:Name="endTime" Font="font12" VerticalAlignment="Top" HorizontalAlignment="Center" Canvas.Left="609"  Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Source={Service Players},Path=OSD.RemainingTime}" />

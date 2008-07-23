@@ -22,18 +22,21 @@
         <Label Margin="60,0,0,0" Font="font12" Text="[shares.selectsharetoremove]" Width="660" Height="32" DockPanel.Dock="Top"/>
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
-          <Button Style="{StaticResource MpButton}" Margin="0,0,10,0"   Width="160" Height="32"
+          <Button Style="{StaticResource ButtonStyle}" Margin="0,0,10,0"   Width="160" Height="32"
               Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=sharescancel}">
             <Label Font="font13" Text="[system.cancel]" Height="32" />
           </Button>
-          <Button Style="{StaticResource MpButton}" Margin="10,0,10,10"  Width="160" Height="32"
+          <Button Style="{StaticResource ButtonStyle}" Margin="10,0,10,10"  Width="160" Height="32"
               Command="{Command Source={Service WindowManager},Path=ShowPreviousWindow}" >
             <Label Font="font13" Text="[system.done]" Height="32" />
           </Button>
         </StackPanel>
-        <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource MpContentsMenuListView}" ItemsSource="{Binding Shares}"
-            Command="{Command Path=RemoveShare,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"
-            SelectionChanged="{CommandStencil Path=OnSelectionChange}"/>
+        <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Shares}"
+            SelectionChanged="{CommandStencil Path=OnSelectionChange}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="RemoveShare" Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
+          </ListView.Resources>
+        </ListView>
       </DockPanel>
     </ResourceWrapper>
 
