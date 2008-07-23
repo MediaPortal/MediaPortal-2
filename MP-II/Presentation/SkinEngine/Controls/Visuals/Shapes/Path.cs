@@ -162,11 +162,6 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         {
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)(StrokeThickness)))
           {
-            PolygonDirection direction = PointsDirection(path);
-            WidthMode mode = WidthMode.RightHanded;
-            if (direction == PolygonDirection.Count_Clockwise)
-              mode = WidthMode.LeftHanded;
-
             if (SkinContext.UseBatching == false)
             {
               if (_borderAsset == null)
