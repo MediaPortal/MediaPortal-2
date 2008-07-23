@@ -877,7 +877,7 @@ namespace Presentation.SkinEngine.Xaml
           throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
 
       }
-      catch (ArgumentException e)
+      catch (ArgumentException)
       {
         throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
       }
