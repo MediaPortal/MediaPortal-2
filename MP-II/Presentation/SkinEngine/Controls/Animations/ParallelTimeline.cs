@@ -29,10 +29,19 @@ namespace Presentation.SkinEngine.Controls.Animations
   {
     public ParallelTimeline() { }
 
-    public override void Animate(TimelineContext context, uint reltime)
+    public override void Start(TimelineContext context, uint timePassed)
+    {
+      base.Start(context, timePassed);
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Start(tgc[i], timePassed);
+    }
+
+    protected override void DoAnimation(TimelineContext context, uint reltime)
     {
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
+        // Call Animate at the children, because the children have to do their own time management
         Children[i].Animate(tgc[i], reltime);
     }
 

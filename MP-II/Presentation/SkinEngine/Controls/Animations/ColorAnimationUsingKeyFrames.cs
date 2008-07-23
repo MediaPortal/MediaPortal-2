@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.Properties;
+using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -77,14 +78,15 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation methods
 
-    public override void Setup(TimelineContext context)
+    public override void Setup(TimelineContext context,
+        IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
-      base.Setup(context);
+      base.Setup(context, propertyConfigurations);
       if (KeyFrames.Count > 0)
         Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
     }
 
-    protected override void AnimateProperty(TimelineContext context, uint timepassed)
+    protected override void DoAnimation(TimelineContext context, uint timepassed)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;

@@ -22,25 +22,32 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
   public enum FillBehavior { HoldEnd, Stop };
+  public enum HandoffBehavior { Compose, SnapshotAndReplace };
 
   public abstract class Timeline: DependencyObject
   {
-    Property _beginTimeProperty;
-    Property _accellerationProperty;
-    Property _autoReverseProperty;
-    Property _decelerationRatioProperty;
-    Property _durationProperty;
-    Property _repeatBehaviourProperty;
-    Property _fillBehaviourProperty;
+    #region Protected fields
+
+    protected Property _beginTimeProperty;
+    protected Property _accellerationProperty;
+    protected Property _autoReverseProperty;
+    protected Property _decelerationRatioProperty;
+    protected Property _durationProperty;
+    protected Property _repeatBehaviourProperty;
+    protected Property _fillBehaviourProperty;
+
+    #endregion
 
     #region Ctor
 
@@ -55,7 +62,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       _accellerationProperty = new Property(typeof(double), 1.0);
       _autoReverseProperty = new Property(typeof(bool), false);
       _decelerationRatioProperty = new Property(typeof(double), 1.0);
-      _durationProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 1));
+      _durationProperty = new Property(typeof(TimeSpan?), null);
       _repeatBehaviourProperty = new Property(typeof(RepeatBehavior), RepeatBehavior.None);
       _fillBehaviourProperty = new Property(typeof(FillBehavior), FillBehavior.HoldEnd);
     }
@@ -68,7 +75,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       Accelleration = copyManager.GetCopy(t.Accelleration);
       AutoReverse = copyManager.GetCopy(t.AutoReverse);
       DecelerationRatio = copyManager.GetCopy(t.DecelerationRatio);
-      Duration = copyManager.GetCopy(t.Duration);
+      _durationProperty.SetValue(copyManager.GetCopy(t._durationProperty.GetValue())); // Copying of a Nullable<TimeSpan>
       FillBehavior = copyManager.GetCopy(t.FillBehavior);
       RepeatBehavior = copyManager.GetCopy(t.RepeatBehavior);
     }
@@ -84,7 +91,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public TimeSpan BeginTime
     {
-      get { return (TimeSpan)_beginTimeProperty.GetValue(); }
+      get { return (TimeSpan) _beginTimeProperty.GetValue(); }
       set { _beginTimeProperty.SetValue(value); }
     }
 
@@ -95,7 +102,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public double Accelleration
     {
-      get { return (double)_accellerationProperty.GetValue(); }
+      get { return (double) _accellerationProperty.GetValue(); }
       set { _accellerationProperty.SetValue(value); }
     }
 
@@ -106,7 +113,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public bool AutoReverse
     {
-      get { return (bool)_autoReverseProperty.GetValue(); }
+      get { return (bool) _autoReverseProperty.GetValue(); }
       set { _autoReverseProperty.SetValue(value); }
     }
 
@@ -118,7 +125,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public double DecelerationRatio
     {
-      get { return (double)_decelerationRatioProperty.GetValue(); }
+      get { return (double) _decelerationRatioProperty.GetValue(); }
       set { _decelerationRatioProperty.SetValue(value); }
     }
 
@@ -129,8 +136,13 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public TimeSpan Duration
     {
-      get { return (TimeSpan)_durationProperty.GetValue(); }
+      get { return ((TimeSpan?) _durationProperty.GetValue()).GetValueOrDefault(); }
       set { _durationProperty.SetValue(value); }
+    }
+
+    public bool DurationSet
+    {
+      get { return ((TimeSpan?) _durationProperty.GetValue()).HasValue; }
     }
 
     public Property RepeatBehaviorProperty
@@ -159,18 +171,84 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation control methods
 
-    public void Start(TimelineContext context, uint timePassed)
+    public virtual void Start(TimelineContext context, uint timePassed)
     {
       Stop(context);
       Started(context, timePassed);
     }
 
-    public void Stop(TimelineContext context)
+    public virtual void Stop(TimelineContext context)
     {
-      if (IsStopped(context)) return;
-      if (FillBehavior == FillBehavior.Stop)
-        Reset(context);
-      context.State = State.Idle;
+      Stopped(context, FillBehavior == Animations.FillBehavior.Stop);
+    }
+
+    /// <summary>
+    /// Entry method to execute the animation. This method will evaluate all
+    /// animation control properties defined in this class, calculate a value for the internal
+    /// time counter and delegate to method <see cref="DoAnimation(TimelineContext,uint)"/>.
+    /// </summary>
+    public void Animate(TimelineContext context, uint timePassed)
+    {
+      uint passed = (timePassed - context.TimeStarted);
+
+      switch (context.State)
+      {
+        case State.WaitBegin:
+          if (passed >= BeginTime.TotalMilliseconds)
+          {
+            passed = 0;
+            context.TimeStarted = timePassed;
+            context.State = State.Running;
+            goto case State.Running;
+          }
+          break;
+
+        case State.Running:
+          if (!DurationSet || passed < Duration.TotalMilliseconds)
+            DoAnimation(context, passed);
+          else
+          {
+            if (AutoReverse)
+            {
+              context.State = State.Reverse;
+              context.TimeStarted = timePassed;
+              passed = 0;
+              goto case State.Reverse;
+            }
+            else if (RepeatBehavior == RepeatBehavior.Forever)
+            {
+              context.TimeStarted = timePassed;
+              DoAnimation(context, timePassed - context.TimeStarted);
+            }
+            else
+            {
+              DoAnimation(context, (uint) Duration.TotalMilliseconds);
+              Stop(context);
+            }
+          }
+          break;
+
+        case State.Reverse:
+          if (!DurationSet)
+            return;
+          if (passed < Duration.TotalMilliseconds)
+            DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
+          else
+          {
+            if (RepeatBehavior == RepeatBehavior.Forever)
+            {
+              context.State = State.Running;
+              context.TimeStarted = timePassed;
+              DoAnimation(context, timePassed - context.TimeStarted);
+            }
+            else
+            {
+              DoAnimation(context, 0);
+              Stop(context);
+            }
+          }
+          break;
+      }
     }
 
     #endregion
@@ -194,10 +272,25 @@ namespace Presentation.SkinEngine.Controls.Animations
     public abstract TimelineContext CreateTimelineContext(UIElement element);
 
     /// <summary>
+    /// Adds the descriptors for all properties which are animated by this animation and
+    /// by sub animations to the specified <paramref name="result"/> parameter.
+    /// </summary>
+    /// <param name="context">The animation context.</param>
+    /// <param name="result">Dictionary to add all animated properties from this animation.</param>
+    public abstract void AddAllAnimatedProperties(TimelineContext context,
+        IDictionary<IDataDescriptor, object> result);
+
+    /// <summary>
     /// Sets up the specified <paramref name="context"/> object with all necessary
     /// values for this timeline.
     /// </summary>
-    public abstract void Setup(TimelineContext context);
+    /// <param name="context">The animation context.</param>
+    /// <param name="propertyConfigurations">Data descriptors which were animated by a
+    /// predecessor animation, mapped to their original values.
+    /// The original value for all data descriptors contained in this map should be
+    /// initialized with the mapped value instead of the current value.</param>
+    public abstract void Setup(TimelineContext context,
+        IDictionary<IDataDescriptor, object> propertyConfigurations);
 
     /// <summary>
     /// Will restore the original values in all properties which have been animated
@@ -220,24 +313,25 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// <param name="reltime">This parameter holds the relative animation time in
     /// milliseconds from the <see cref="BeginTime"/> on, up to a maximum value
     /// of Duration.Milliseconds.</param>
-    public virtual void Animate(TimelineContext context, uint reltime)
+    protected virtual void DoAnimation(TimelineContext context, uint reltime)
     { }
 
+    /// <summary>
+    /// Will be called if this timeline was started.
+    /// </summary>
+    /// <param name="context">Current animation context.</param>
     public virtual void Started(TimelineContext context, uint timePassed)
     {
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
     }
 
-    /// <summary>
-    /// Will be called if this timeline has ended.
-    /// </summary>
-    /// <param name="context">Current animation context.</param>
-    public virtual void Ended(TimelineContext context)
+    public virtual void Stopped(TimelineContext context, bool forceReset)
     {
       if (IsStopped(context)) return;
-      if (FillBehavior == FillBehavior.Stop)
+      if (forceReset)
         Reset(context);
+      context.State = State.Ended;
     }
 
     /// <summary>

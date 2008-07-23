@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
+using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
@@ -172,6 +173,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
+    // Method Start(TimelineContext) has to be overridden in subclasses, as we don't
+    // know here when to start the child timelines.
+
     #region Animation state methods
 
     public override TimelineContext CreateTimelineContext(UIElement element)
@@ -185,33 +189,28 @@ namespace Presentation.SkinEngine.Controls.Animations
       return result;
     }
 
-    public override void Setup(TimelineContext context)
+    public override void AddAllAnimatedProperties(TimelineContext context,
+        IDictionary<IDataDescriptor, object> result)
     {
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
-        Children[i].Setup(tgc[i]);
+        Children[i].AddAllAnimatedProperties(tgc[i], result);
     }
 
-    public override void Reset(TimelineContext context)
+    public override void Setup(TimelineContext context,
+        IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
-        Children[i].Reset(tgc[i]);
+        Children[i].Setup(tgc[i], propertyConfigurations);
     }
 
-    public override void Started(TimelineContext context, uint timePassed)
+    public override void Stopped(TimelineContext context, bool forceReset)
     {
-      base.Started(context, timePassed);
+      base.Stopped(context, forceReset);
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
-        Children[i].Started(tgc[i], timePassed);
-    }
-
-    public override void Ended(TimelineContext context)
-    {
-      TimelineGroupContext tgc = context as TimelineGroupContext;
-      for (int i = 0; i < Children.Count; i++)
-        Children[i].Ended(tgc[i]);
+        Children[i].Stopped(tgc[i], forceReset || FillBehavior == Animations.FillBehavior.Stop);
     }
 
     #endregion

@@ -722,9 +722,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
           _loaded.Execute();
     }
 
-    public void StartStoryboard(Storyboard board)
+    public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
-      Window.Animator.StartStoryboard(board, this);
+      Window.Animator.StartStoryboard(board, this, handoffBehavior);
     }
 
     public void StopStoryboard(Storyboard board)

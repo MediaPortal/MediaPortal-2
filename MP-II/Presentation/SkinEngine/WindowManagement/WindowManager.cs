@@ -32,7 +32,6 @@ using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.MpfElements.Resources;
 
 namespace Presentation.SkinEngine
 {

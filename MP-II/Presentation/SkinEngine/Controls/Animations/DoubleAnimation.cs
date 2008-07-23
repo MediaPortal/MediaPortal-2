@@ -102,7 +102,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation properties
 
-    protected override void AnimateProperty(TimelineContext context, uint timepassed)
+    protected override void DoAnimation(TimelineContext context, uint timepassed)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;

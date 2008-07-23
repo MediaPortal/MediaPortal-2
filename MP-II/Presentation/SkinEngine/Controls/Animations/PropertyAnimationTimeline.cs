@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.Xaml.Interfaces;
@@ -72,12 +73,15 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// Method <see cref="Initialize(IParserContext)"/> will have to be called to complete the
     /// initialization.
     /// </summary>
-    public PropertyAnimationTimeline() { }
+    public PropertyAnimationTimeline()
+    {
+      Duration = new TimeSpan(0, 0, 1);
+    }
 
     /// <summary>
     /// Creates a new <see cref="PropertyAnimationTimeline"/> for use in Code.
     /// </summary>
-    public PropertyAnimationTimeline(PathExpression animatePropertyExpression)
+    public PropertyAnimationTimeline(PathExpression animatePropertyExpression): this()
     {
       _propertyExpression = animatePropertyExpression;
     }
@@ -107,14 +111,26 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public override TimelineContext CreateTimelineContext(UIElement element)
     {
-      return new PropertyAnimationTimelineContext(element);
+      PropertyAnimationTimelineContext result = new PropertyAnimationTimelineContext(element);
+      result.DataDescriptor = GetDataDescriptor(element);
+      return result;
     }
 
-    public override void Setup(TimelineContext context)
+    public override void AddAllAnimatedProperties(TimelineContext context,
+        IDictionary<IDataDescriptor, object> result)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
-      patc.DataDescriptor = GetDataDescriptor(context.VisualParent);
-      patc.OriginalValue = patc.DataDescriptor.Value;
+      result.Add(patc.DataDescriptor, patc.OriginalValue);
+    }
+
+    public override void Setup(TimelineContext context,
+        IDictionary<IDataDescriptor, object> propertyConfigurations)
+    {
+      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (propertyConfigurations.ContainsKey(patc.DataDescriptor))
+        patc.OriginalValue = propertyConfigurations[patc.DataDescriptor];
+      else
+        patc.OriginalValue = patc.DataDescriptor.Value;
     }
 
     public override void Reset(TimelineContext context)
@@ -122,91 +138,6 @@ namespace Presentation.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       patc.DataDescriptor.Value = patc.OriginalValue;
     }
-
-    /// <summary>
-    /// Starting method to animate the underlaying property. This method will
-    /// calculate a value for the internal time counter and delegate to method
-    /// <see cref="AnimateProperty(TimelineContext,uint)"/>.
-    /// </summary>
-    public override void Animate(TimelineContext context, uint timePassed)
-    {
-      uint passed = (timePassed - context.TimeStarted);
-
-      switch (context.State)
-      {
-        case State.WaitBegin:
-          if (passed >= BeginTime.TotalMilliseconds)
-          {
-            passed = 0;
-            context.TimeStarted = timePassed;
-            context.State = State.Running;
-            goto case State.Running;
-          }
-          break;
-
-        case State.Running:
-          if (passed >= Duration.TotalMilliseconds)
-          {
-            if (AutoReverse)
-            {
-              context.State = State.Reverse;
-              context.TimeStarted = timePassed;
-              passed = 0;
-              goto case State.Reverse;
-            }
-            else if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.TimeStarted = timePassed;
-              AnimateProperty(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              AnimateProperty(context, (uint)Duration.TotalMilliseconds);
-              Ended(context);
-              context.State = State.Ended;
-            }
-          }
-          else
-            AnimateProperty(context, passed);
-          break;
-
-        case State.Reverse:
-          if (passed >= Duration.TotalMilliseconds)
-          {
-            if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.State = State.Running;
-              context.TimeStarted = timePassed;
-              AnimateProperty(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              AnimateProperty(context, 0);
-              Ended(context);
-              context.State = State.Ended;
-            }
-          }
-          else
-            AnimateProperty(context, (uint)(Duration.TotalMilliseconds - passed));
-          break;
-      }
-    }
-
-    /// <summary>
-    /// Will do the real work of animating the underlaying property.
-    /// </summary>
-    /// <remarks>
-    /// The animation progress should be calculated to the specified relative
-    /// time. It is not necessary to evaluate time overflows or to revert
-    /// the animation depending on properties; these calculations have been
-    /// done before this method will be called and will be reflected in the
-    /// <paramref name="reltime"/> parameter. 
-    /// </remarks>
-    /// <param name="reltime">This parameter holds the relative animation time in
-    /// milliseconds from the <see cref="BeginTime"/> on, up to a maximum value
-    /// of Duration.Milliseconds.</param>
-    protected virtual void AnimateProperty(TimelineContext context, uint reltime)
-    { }
 
     #endregion
 

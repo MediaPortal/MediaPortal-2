@@ -32,8 +32,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
   {
     #region Private fields
 
-    Property _storyBoardProperty;
-    Property _nameProperty;
+    protected Property _storyBoardProperty;
+    protected Property _nameProperty;
+    protected Property _handoffBehaviorProperty;
 
     #endregion
 
@@ -46,8 +47,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _storyBoardProperty = new Property(typeof(Timeline), null);
+      _storyBoardProperty = new Property(typeof(Storyboard), null);
       _nameProperty = new Property(typeof(string), "");
+      _handoffBehaviorProperty = new Property(typeof(HandoffBehavior), Animations.HandoffBehavior.SnapshotAndReplace);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -67,9 +69,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       get { return _storyBoardProperty; }
     }
 
-    public Timeline Storyboard
+    public Storyboard Storyboard
     {
-      get { return _storyBoardProperty.GetValue() as Timeline; }
+      get { return (Storyboard) _storyBoardProperty.GetValue(); }
       set { _storyBoardProperty.SetValue(value); }
     }
 
@@ -85,13 +87,24 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       set { _nameProperty.SetValue(value); }
     }
 
+    public Property HandoffBehaviorProperty
+    {
+      get { return _handoffBehaviorProperty; }
+    }
+
+    public HandoffBehavior HandoffBehavior
+    {
+      get { return (HandoffBehavior)_handoffBehaviorProperty.GetValue(); }
+      set { _handoffBehaviorProperty.SetValue(value); }
+    }
+
     #endregion
 
     public override void Execute(UIElement element, TriggerBase trigger)
     {
       if (Storyboard != null)
       {
-        element.StartStoryboard(this.Storyboard as Storyboard);
+        element.StartStoryboard(Storyboard as Storyboard, HandoffBehavior);
         return;
 
       }
