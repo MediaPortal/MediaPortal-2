@@ -148,7 +148,7 @@ namespace MediaPortal.Services.PluginManager
     private void LoadPlugins()
     {
       //Test data -> get from config in future
-      DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo(@"<APPLICATION_ROOT>\Plugins");
+      DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo("<PLUGINS>");
       foreach(DirectoryInfo pluginDirectory in plugins.GetDirectories())
         foreach(FileInfo pluginFile in pluginDirectory.GetFiles("*.plugin"))
           _pluginFiles.Add(pluginFile.FullName);
