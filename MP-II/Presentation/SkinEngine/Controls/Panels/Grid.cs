@@ -139,6 +139,8 @@ namespace Presentation.SkinEngine.Controls.Panels
 
         child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, GetColumnSpan(child)), RowDefinitions.GetHeight(row, GetRowSpan(child))));
 
+        // FIXME: If more than one child is located in the same col/row, the size will be
+        // taken from the last child. Instead, we should take the biggest child.
         ColumnDefinitions.SetWidth(col, GetColumnSpan(child), child.DesiredSize.Width);
         RowDefinitions.SetHeight(row, GetRowSpan(child), child.DesiredSize.Height);
       }
