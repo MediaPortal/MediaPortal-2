@@ -134,6 +134,8 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
+    <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
+    <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
