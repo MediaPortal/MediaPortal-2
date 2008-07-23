@@ -32,9 +32,12 @@ using Presentation.SkinEngine.MpfElements.Resources;
 namespace Presentation.SkinEngine.MarkupExtensions
 {
   /// <summary>
-  /// Implements the MPF StaticResource markup extension.
+  /// Implements the MPF ThemeResource markup extension. The ThemeResource markup extension works
+  /// similar as the StaticResource markup, only the search order for resources is modified:
+  /// The specified <see cref="ResourceKey"/> will be searched in the theme first,
+  /// then the search will continues in the current parser context.
   /// </summary>
-  public class StaticResourceMarkupExtension: StaticResourceBase, IEvaluableMarkupExtension
+  public class ThemeResourceMarkupExtension: StaticResourceBase, IEvaluableMarkupExtension
   {
     #region Protected fields
 
@@ -42,9 +45,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     #endregion
 
-    public StaticResourceMarkupExtension() { }
+    public ThemeResourceMarkupExtension() { }
 
-    public StaticResourceMarkupExtension(string resourceKey)
+    public ThemeResourceMarkupExtension(string resourceKey)
     {
       _resourceKey = resourceKey;
     }
@@ -63,12 +66,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
-      object result = FindResourceInParserContext(_resourceKey, context);
+      object result = FindResourceInTheme(_resourceKey);
       if (result == null)
-        result = FindResourceInTheme(_resourceKey);
+        result = FindResourceInParserContext(_resourceKey, context);
 
       if (result == null)
-        throw new XamlBindingException("StaticResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
+        throw new XamlBindingException("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
       return result;
     }
 
