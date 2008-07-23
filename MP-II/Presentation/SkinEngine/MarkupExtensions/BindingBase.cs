@@ -132,8 +132,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void AttachToTargetObject(object obj)
     {
-      // We could check here if obj is a DependencyObject and throw an Exception if not.
-      // But by now, we will permit objects of arbitrary types.
+      // obj may be of arbitrary type; The type isn't fixed to DependencyObject
       _contextObject = obj;
       ICollection<BindingBase> bindingsOfObject;
       if (_objects2Bindings.ContainsKey(_contextObject))

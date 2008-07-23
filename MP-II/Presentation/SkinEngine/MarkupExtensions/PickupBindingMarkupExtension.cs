@@ -34,11 +34,14 @@ namespace Presentation.SkinEngine.MarkupExtensions
   /// bound to a target property.
   /// </summary>
   /// <remarks>
-  /// The source value this instance will reference has to be of class
+  /// The source value, this instance will reference, has to be of class
   /// <see cref="BindingWrapper"/>, else this markup extension won't copy any
   /// binding.<br/>
   /// The referenced binding wrapper is used to store the "template" of a binding
   /// which will be assigned to our target data descriptor by this instance.
+  /// This binding will monitor the binding source value. As soon as we have a
+  /// <see cref="BindingWrapper"/> accessible, the binding of it will be copyied and
+  /// retargeted to our binding target, then this binding will be disposed.
   /// </remarks>
   public class PickupBindingMarkupExtension: BindingMarkupExtension
   {
@@ -61,6 +64,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected override bool UpdateBinding()
     {
+      _retryBinding = true;
       IDataDescriptor sourceDd;
       if (!Evaluate(out sourceDd))
         return false;
@@ -69,6 +73,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         return false;
       bindingWrapper.Binding.CopyAndRetarget(_targetDataDescriptor);
       // When the binding is copied, this instance is not needed any more
+      _retryBinding = false;
       Dispose();
       return true;
     }

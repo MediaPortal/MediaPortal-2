@@ -112,9 +112,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
         new Property(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
 
     // State variables
-    // FIXME Albert78: Replace _retryBinding with a variable _isUpToDate, which will
-    // also be used as a cache-valid-indicator for method UpdateSourceValue(bool forceUpdate)
-    protected bool _retryBinding = false; // UpdateBinding() has to be called again
+    protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
+    protected bool _sourceValueValid = false; // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
     protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which data contexts and other properties are we attached?
@@ -122,7 +121,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     // Derived properties
     protected PathExpression _compiledPath = null;
     protected bool _negate = false;
-    protected BindingDependency bindingDependency = null;
+    protected BindingDependency _bindingDependency = null;
     protected DataDescriptorRepeater _evaluatedSourceValue = new DataDescriptorRepeater();
 
     #endregion
@@ -226,7 +225,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public bool Evaluate(out IDataDescriptor result)
     {
       result = null;
-      if (!UpdateSourceValue())
+      if (!_sourceValueValid && !UpdateSourceValue())
         return false;
       result = _evaluatedSourceValue;
       return true;
@@ -386,7 +385,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
     protected void OnSourceValueChanged(IDataDescriptor sourceValue)
     {
-      if (_active)
+      if (_active && _retryBinding)
         UpdateBinding();
     }
 
@@ -405,6 +404,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected bool UsedAsDataContext
     {
+      // This code is redundant to BindingBase.KeepBinding. This is by design - the two functions are mapped
+      // coincidentally on the same expression.
       get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
     }
 
@@ -496,12 +497,12 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// </remarks>
     protected bool GetDataContext(object obj, out BindingMarkupExtension dataContext)
     {
-      if (!(obj is DependencyObject))
+      DependencyObject current = obj as DependencyObject;
+      if (obj == null)
       {
         dataContext = null;
         return false;
       }
-      DependencyObject current = (DependencyObject) obj;
       Property dataContextProperty = current.DataContextProperty;
       AttachToSourcePathProperty(dataContextProperty);
       dataContext = dataContextProperty.GetValue() as BindingMarkupExtension;
@@ -676,6 +677,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// could be evaluated, else <c>false</c>.</returns>
     protected virtual bool UpdateSourceValue()
     {
+      _sourceValueValid = false;
       IDataDescriptor evaluatedValue;
       if (!GetSourceDataDescriptor(out evaluatedValue))
         // Do nothing if not all necessary properties can be resolved at the current time
@@ -692,6 +694,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
         }
       // If no path is specified, evaluatedValue will be the source value
       _evaluatedSourceValue.SourceValue = evaluatedValue;
+      _sourceValueValid = true;
       return true;
     }
 
@@ -744,9 +747,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
           _retryBinding = false;
           return true; // In this case, we have finished with only assigning the value
         }
-        if (bindingDependency != null)
-          bindingDependency.Detach();
-        bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor,
+        if (_bindingDependency != null)
+          _bindingDependency.Detach();
+        _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor,
             attachToSource,
             attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.PropertyChanged,
             _negate);

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
@@ -36,8 +37,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
   }
 
   /// <summary>
-  /// Implements the RelativeSource element.
-  /// This class mainly acts as a data object.
+  /// Implements the MPF RelativeSource element.
+  /// This class acts as a data object. The search for the element referenced by this
+  /// instance will be done by class <see cref="BindingMarkupExtension"/>.
   /// </summary>
   public class RelativeSource
   {
@@ -97,7 +99,19 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public override string ToString()
     {
-      return "RelativeSource: " + _mode.ToString();
+      IList<string> l = new List<string>();
+      if (Mode == RelativeSourceMode.FindAncestor)
+      { // More information for the complex mode 'FindAncestor'
+        if (AncestorType != null)
+          l.Add("AncestorType=" + AncestorType.Name);
+        if (AncestorLevel != 1)
+          l.Add(String.Format("AncestorLevel={0}", AncestorLevel));
+        string[] sl = new string[l.Count];
+        l.CopyTo(sl, 0);
+        return "{RelativeSource " + string.Join(",", sl)+"}";
+      }
+      else
+        return "RelativeSource: " + _mode.ToString();
     }
   }
 }
