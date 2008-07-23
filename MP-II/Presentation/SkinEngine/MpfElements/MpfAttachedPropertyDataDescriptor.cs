@@ -78,5 +78,18 @@ namespace Presentation.SkinEngine.MpfElements
       result = new MpfAttachedPropertyDataDescriptor(parent, targetObj, propertyProvider, propertyName);
       return true;
     }
+
+    public override int GetHashCode()
+    {
+      return base.GetHashCode() + _propertyProvider.GetHashCode() + _namespaceHandler.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (!(other is MpfAttachedPropertyDataDescriptor))
+        return false;
+      MpfAttachedPropertyDataDescriptor mapdd = (MpfAttachedPropertyDataDescriptor) other;
+      return base.Equals(other) && _propertyProvider.Equals(mapdd._propertyProvider) && _namespaceHandler.Equals(mapdd._namespaceHandler);
+    }
   }
 }

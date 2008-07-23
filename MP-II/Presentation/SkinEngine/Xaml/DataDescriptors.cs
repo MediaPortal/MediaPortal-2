@@ -36,6 +36,13 @@ namespace Presentation.SkinEngine.Xaml
   /// <summary>
   /// Accessor interface for different kinds of property or data objects.
   /// </summary>
+  /// <remarks>
+  /// Implementing classes have to implement the <see cref="object.Equals(object)"/> method in that way,
+  /// that it returns <c>true</c> if and only if the same property is targeted.
+  /// For implementing classes with <c><see cref="SupportsTargetOperations"/>==false</c>,
+  /// the <see cref="object.Equals(object)"/> method should base its comparison on the equality of the
+  /// <see cref="Value"/> property.
+  /// </remarks>
   public interface IDataDescriptor
   {
     /// <summary>
@@ -197,6 +204,29 @@ namespace Presentation.SkinEngine.Xaml
     }
 
     #endregion
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// references the same <see cref="Value"/>.
+    /// </summary>
+    /// <param name="other">Other descriptor whose <see cref="Value"/> should be compared.</param>
+    public bool ValueEquals(ValueDataDescriptor other)
+    {
+      return _value == null ? (other == null) : _value.Equals(other._value);
+    }
+
+    public override int GetHashCode()
+    {
+      return _value == null ? 0 : _value.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is ValueDataDescriptor)
+        return ValueEquals((ValueDataDescriptor) other);
+      else
+        return false;
+    }
   }
 
   /// <summary>
@@ -283,6 +313,29 @@ namespace Presentation.SkinEngine.Xaml
     }
 
     #endregion
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// is targeted at the same list index on the same list.
+    /// </summary>
+    /// <param name="other">Other descriptor whose target object and property should be compared.</param>
+    public bool TargetEquals(ListIndexerDataDescriptor other)
+    {
+      return _list.Equals(other._list) && _index.Equals(other._index);
+    }
+
+    public override int GetHashCode()
+    {
+      return _list.GetHashCode()+_index.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is ListIndexerDataDescriptor)
+        return TargetEquals((ListIndexerDataDescriptor) other);
+      else
+        return false;
+    }
   }
 
   /// <summary>
@@ -397,6 +450,46 @@ namespace Presentation.SkinEngine.Xaml
     }
 
     #endregion
+
+    public bool IndicesEquals(object[] otherIndices)
+    {
+      if (_indices == null)
+        return otherIndices == null;
+      else if (otherIndices == null)
+        return false;
+      if (_indices.GetLength(0) != otherIndices.GetLength(0))
+        return false;
+      for (int i = 0; i < _indices.GetLength(0); i++)
+        if (!_indices[i].Equals(otherIndices[i]))
+          return false;
+      return true;
+    }
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// is targeted at the same property on the same object.
+    /// </summary>
+    /// <param name="other">Other descriptor whose target object and property should be compared.</param>
+    public bool TargetEquals(SimplePropertyDataDescriptor other)
+    {
+      return _obj.Equals(other._obj) && _prop.Equals(other._prop) && IndicesEquals(other._indices);
+    }
+
+    public override int GetHashCode()
+    {
+      int sum = 0;
+      foreach (object o in _indices)
+        sum += o.GetHashCode();
+      return _obj.GetHashCode() + _prop.GetHashCode() + sum;
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is SimplePropertyDataDescriptor)
+        return TargetEquals((SimplePropertyDataDescriptor) other);
+      else
+        return false;
+    }
   }
 
   /// <summary>
@@ -538,6 +631,30 @@ namespace Presentation.SkinEngine.Xaml
     }
 
     #endregion
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// is targeted at the same property on the same object.
+    /// </summary>
+    /// <param name="other">Other descriptor whose target object and property should be compared.</param>
+    public bool TargetEquals(DependencyPropertyDataDescriptor other)
+    {
+      return _obj.Equals(other._obj) && _propertyName.Equals(other._propertyName) && _prop.Equals(other._prop);
+    }
+
+    public override int GetHashCode()
+    {
+      return _obj.GetHashCode() + _propertyName.GetHashCode() + _prop.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is DependencyPropertyDataDescriptor)
+        return TargetEquals((DependencyPropertyDataDescriptor) other);
+      else
+        return false;
+    }
+
   }
 
   /// <summary>
@@ -646,5 +763,28 @@ namespace Presentation.SkinEngine.Xaml
     }
 
     #endregion
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// is based on the same underlaying target descriptor.
+    /// </summary>
+    /// <param name="other">Other descriptor whose target descriptor should be compared.</param>
+    public bool TargetEquals(DataDescriptorRepeater other)
+    {
+      return _value.Equals(other._value);
+    }
+
+    public override int GetHashCode()
+    {
+      return _value.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is DataDescriptorRepeater)
+        return TargetEquals((DataDescriptorRepeater) other);
+      else
+        return false;
+    }
   }
 }
