@@ -71,9 +71,10 @@ namespace Presentation.SkinEngine.Fonts
     }
 
   }
-  
 
-  /// <summary>Represents a font family.</summary>
+  /// <summary>
+  /// Represents a font family.
+  /// </summary>
   public class FontFamily
   {
     string _name;
@@ -93,19 +94,34 @@ namespace Presentation.SkinEngine.Fonts
         throw new ArgumentException("Failed to load face.");
     }
 
+    ~FontFamily()
+    {
+      if(FT.FT_Done_Face(_face) != 0)
+        throw new ArgumentException("Failed to unload face.");
+    }
+
+    /// <summary>
+    /// Name of font family.
+    /// </summary>
     public string Name
     {
       get { return _name; }
     }
 
+    /// <summary>
+    /// Adds a font set to the font family.
+    /// </summary>
     public Font Addfont(int size, uint resolution)
     {
       Font font = new Font(_library, _face, size, resolution);
       FontList.Add(font);
       return font;
     }
-  } 
+  }
 
+  /// <summary>
+  /// Represents a font set (of glypths).
+  /// </summary>
   public class Font : ITextureAsset
   {
     public enum Align
@@ -115,8 +131,6 @@ namespace Presentation.SkinEngine.Fonts
       Right
     } ;
 
-
-    private const int MAX_NUM_GLYPHS = 150;
     private const int MAX_WIDTH = 1024;
     private const int MAX_HEIGHT = 1024;
     private const int PAD = 1;
@@ -141,8 +155,11 @@ namespace Presentation.SkinEngine.Fonts
     EffectAsset _effect;
     
 
-    /// <summary>Creates a new bitmap font.</summary>
-    /// <param name="fntFile">Font file name.</param>
+    /// <summary>Creates a new font set.</summary>
+    /// <param name="library">The free type library ptr.</param>
+    /// <param name="face">The face ptr.</param>
+    /// <param name="size">Size in pixels.</param>
+    /// <param name="resolution">Resolution in dpi.</param>
     public Font(IntPtr library, IntPtr face, int size, uint resolution)
     {
       _pages = new Dictionary<int, string>();
@@ -171,7 +188,8 @@ namespace Presentation.SkinEngine.Fonts
       _effect = ContentManager.GetEffect("font");
     }
 
-
+    /// <summary>Adds a glypth to the font set.</summary>
+    /// <param name="charIndex">The char to add.</param>
     private bool AddGlypth(uint charIndex)
     {
 
@@ -325,8 +343,6 @@ namespace Presentation.SkinEngine.Fonts
 
     }
 
-
-
     public float FirstCharWidth
     {
       get { return _firstCharWidth; }
@@ -335,19 +351,6 @@ namespace Presentation.SkinEngine.Fonts
     public float Size
     {
       get { return _charSet.RenderedSize; }
-    }
-
-    public List<FontQuad> Quads
-    {
-      get { return _quads; }
-      set { _quads = value; }
-    }
-
-    public void Reload()
-    {
-      _quads = new List<FontQuad>();
-      _strings = new List<StringBlock>();
-      _charSet = new BitmapCharacterSet();
     }
 
     public float Base
@@ -359,7 +362,6 @@ namespace Presentation.SkinEngine.Fonts
     {
       return fontSize /_charSet.RenderedSize *_charSet.LineHeight;
     }
-
 
     public float Width(string text, float fontSize)
     {
@@ -390,12 +392,16 @@ namespace Presentation.SkinEngine.Fonts
       get { return _charSet.Height; }
     }
 
+    public List<FontQuad> Quads
+    {
+      get { return _quads; }
+      set { _quads = value; }
+    }
 
     FontQuad createQuad(BitmapCharacter c, ColorValue Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
     {
-      
-        float u2, v2;
-        u2 = v2 = 1;
+        //float u2, v2;
+        //u2 = v2 = 1;
         Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
         Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
         Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
@@ -470,43 +476,6 @@ namespace Presentation.SkinEngine.Fonts
         return new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
     }
 
-    /// <summary>Call when the device is created.</summary>
-    /// <param name="device">D3D GraphicsDevice.Device.</param>
-    /*public void OnCreateDevice(Device device)
-    {
-      if (device == null)
-      {
-        return;
-      }
-      FileInfo textureFile = SkinContext.SkinResources.GetResourceFile(
-          Skin.FONTS_DIRECTORY + "\\" + _textureFile);
-      if (textureFile != null && textureFile.Exists)
-      {
-        if (_texture != null)
-        {
-          _texture.Dispose();
-          ContentManager.TextureReferences--;
-        }
-
-        _texture = Texture.FromFile(device, textureFile.FullName,
-            _charSet.Width, _charSet.Height, 1, Usage.None, Format.Dxt3, Pool.Default,
-            Filter.Linear, Filter.Linear, 0);
-        ContentManager.TextureReferences++;
-      }
-    }
-
-    /// <summary>Call when the device is destroyed.</summary>
-    public void OnDestroyDevice()
-    {
-      if (_texture != null)
-      {
-        _texture.Dispose();
-        _texture = null;
-        ContentManager.TextureReferences--;
-      }
-    }*/
-
-
     /// <summary>Adds a new string to the list to render.</summary>
     /// <param name="text">Text to render</param>
     /// <param name="textBox">Rectangle to constrain text</param>
@@ -575,10 +544,7 @@ namespace Presentation.SkinEngine.Fonts
 
     public int PrimitiveCount
     {
-      get
-      {
-        return (_quads.Count * 2);
-      }
+      get {return (_quads.Count * 2);}
     }
 
     public void Render(Device device, VertexBuffer buffer, out int count)
