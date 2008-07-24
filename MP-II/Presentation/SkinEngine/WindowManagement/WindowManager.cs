@@ -82,8 +82,7 @@ namespace Presentation.SkinEngine
         windowSettings.Theme = _theme == null ? null : _theme.Name;
         ServiceScope.Get<ISettingsManager>().Save(windowSettings);
       }
-      string skinpath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>") + Path.DirectorySeparatorChar + skinName;
-      Fonts.FontManager.Load(skinpath);
+      Fonts.FontManager.Load();
     }
 
     /// <summary>
@@ -227,8 +226,7 @@ namespace Presentation.SkinEngine
           // Continue with old skin
           // TODO: Show error dialog
         }
-        string skinpath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>") + Path.DirectorySeparatorChar + newSkinName;
-        Fonts.FontManager.Load(skinpath);
+        Fonts.FontManager.Load();
         Fonts.FontManager.Alloc();
 
         // We will clear the history because we cannot guarantee that the screens in the

@@ -109,6 +109,15 @@ namespace Presentation.SkinEngine.DirectX
       }
     }
 
+    public int DesktopWidth
+    {
+      get
+      {
+        DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[_graphicsSettings.DesktopDisplayMode];
+        return mode.Width;
+      }
+    }
+
     public PresentParameters PresentParameters
     {
       get { return _presentParams; }

@@ -182,11 +182,32 @@ namespace Presentation.SkinEngine.SkinManagement
       set { _zoomProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Defines the maximum zoom in the Y direction. Setting a Y zoom of <see cref="MaxZoomHeight"/>
+    /// given the current active skin will fill the skin contents to the complete Y area.
+    /// </summary>
+    /// <remarks>
+    /// X and Y zoom settings are independent because of different aspect ratios.
+    /// Please also note that at a given time, screenfiles from multiple skins may be shown at the
+    /// screen (window plus dialog). Everytime it is possible that a skinfile from the default skin
+    /// is shown. The returned value by this property only takes respect of the current active skin.
+    /// </remarks>
     public static float MaxZoomHeight
     {
-      get { return (float)GraphicsDevice.DesktopHeight / (float)SkinHeight; }
+      get { return GraphicsDevice.DesktopHeight / (float) SkinHeight; }
     }
 
+    /// <summary>
+    /// Defines the maximum zoom in the X direction. Setting a X zoom of <see cref="MaxZoomWidth"/>
+    /// given the current active skin will fill the skin contents to the complete X area.
+    /// </summary>
+    /// <remarks>
+    /// See the comment in <see cref="MaxZoomHeight"/>.
+    /// </remarks>
+    public static float MaxZoomWidth
+    {
+      get { return GraphicsDevice.DesktopWidth / (float) SkinWidth; }
+    }
 
     public static List<ExtendedMatrix> Transforms
     {

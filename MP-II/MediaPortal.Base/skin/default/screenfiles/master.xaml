@@ -29,13 +29,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Client_Element (Any UI element): Element to be shown in the client area
 -->
 
-<Canvas
+<Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     FocusedElement="{DynamicResource Focused_Element}"
     Context="{DynamicResource DataContext}"
     >
-
   <DockPanel Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
     <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Text="{DynamicResource Header_Text}" />
     <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Text="{DynamicResource Header_Text}"
@@ -57,4 +56,4 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ContentPresenter Content="{DynamicResource Client_Element}"/>
     </StackPanel>
   </DockPanel>
-</Canvas>
+</Grid>

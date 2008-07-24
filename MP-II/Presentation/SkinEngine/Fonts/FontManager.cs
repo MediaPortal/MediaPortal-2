@@ -201,7 +201,7 @@ namespace Presentation.SkinEngine.Fonts
     /// Parses the fonts.xml file and loads the font familys it contains.
     /// </summary>
     /// 
-    public static void Load(string skinpath)
+    public static void Load()
     {
       _families = new Dictionary<string, FontFamily>();
 
@@ -220,8 +220,10 @@ namespace Presentation.SkinEngine.Fonts
       {
         string familyName = ParseFamilyName(nodeItem);
         string ttfFile = ParseTtfFile(nodeItem);
-        FontFamily family = new FontFamily(familyName,
-          skinpath + Path.DirectorySeparatorChar+SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+        FileInfo fontFile =
+          SkinContext.SkinResources.GetResourceFile(
+              SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+        FontFamily family = new FontFamily(familyName, fontFile.FullName);
         _families[familyName] = family;
       }
     }
