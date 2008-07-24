@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[media.name]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="mymedia" ClassName="Model"/>
+    <Model x:Key="DataContext" AssemblyName="MyMedia" ClassName="Model"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
