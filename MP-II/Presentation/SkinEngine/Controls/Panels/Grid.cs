@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -238,11 +240,8 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
     {
-      if (VisualParent == null) return;
-
       if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
       {
-
         p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
       }
       else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
