@@ -13,6 +13,6 @@
 
   <Register location = "/Models/Weather">
     <Class id = "WeatherModel" class = "Models.Weather.WeatherViewModel"/>
-	<Class id = "WeatherSetupModel" class = "Models.Weather.WeatherSetupViewModel"/>
+	  <Class id = "WeatherSetupModel" class = "Models.Weather.WeatherSetupViewModel"/>
   </Register>
 </Plugin>
