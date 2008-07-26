@@ -29,8 +29,12 @@
             <Label FontSize="30" Text="[system.done]" Height="32" />
           </Button>
         </StackPanel>
-        <TreeView x:Name="tree" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}"
-            Command="{Command Path=GetSubItems,Parameters={ResourceWrapper {Binding RelativeSource={x:Static RelativeSource.Self},Path=CurrentItem}}}"/>
+        <TreeView x:Name="tree" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}">
+          <TreeView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="GetSubItems"
+                Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}},Path=CurrentItem}}"/>
+          </TreeView.Resources>
+        </TreeView>
       </DockPanel>
     </ResourceWrapper>
 
