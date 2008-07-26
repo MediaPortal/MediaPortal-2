@@ -195,8 +195,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
  
       InitializeTriggers();
       AllocFont();
-      if (_label != null && _label.ToString() == "Click Me!")
-        Trace.WriteLine("null");
       if (_label != null && _asset != null)
       {
         size = new SizeF((float)availableSize.Width, _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
@@ -227,7 +225,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _desiredSize.Height += marginHeight;
 
       _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-      Trace.WriteLine(String.Format("label.measure :{0} {1}x{2} returns {3}x{4}", _label.ToString(), (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+      //Trace.WriteLine(String.Format("label.measure :{0} {1}x{2} returns {3}x{4}", _label.ToString(), (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
