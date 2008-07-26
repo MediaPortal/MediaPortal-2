@@ -39,6 +39,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     protected override void DoAnimation(TimelineContext context, uint reltime)
     {
+      base.DoAnimation(context, reltime);
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
         // Call Animate at the children, because the children have to do their own time management
@@ -47,11 +48,12 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public override bool IsStopped(TimelineContext context)
     {
+      if (base.IsStopped(context))
+        return true;
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
         if (!Children[i].IsStopped(tgc[i])) return false;
       return true;
     }
-
   }
 }

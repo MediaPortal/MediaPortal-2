@@ -27,12 +27,30 @@ namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum State
   {
+    /// <summary>
+    /// The animation didn't start yet, has already ended or was stopped.
+    /// </summary>
     Idle,
-    Starting,
+
+    /// <summary>
+    /// The animation was already set up and is ready to be started.
+    /// </summary>
+    Setup,
+
+    /// <summary>
+    /// The animation is waiting for its <see cref="Timeline.BeginTime"/> to arrive.
+    /// </summary>
     WaitBegin,
+
+    /// <summary>
+    /// The animation is running.
+    /// </summary>
     Running,
+
+    /// <summary>
+    /// The animation is in reverse mode.
+    /// </summary>
     Reverse,
-    Ended
   };
 
   public class TimelineContext

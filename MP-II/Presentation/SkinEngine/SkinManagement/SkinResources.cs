@@ -238,14 +238,19 @@ namespace Presentation.SkinEngine.SkinManagement
       if (_localStyleResources == null)
       {
         CheckResourcesInitialized();
-        // We need to avoid recursive calls here. We need to initialize _localStyleResources before
-        // loading the style resource files, which themselves will perhaps request styles.
+        // We need to avoid indirect recursive calls here. We need to initialize our _localStyleResources before
+        // loading the style resource files, because the elements in the resource files sometimes also access
+        // style resources from lower priority skin resource styles.
+        // Setting _localStyleResources to an empty ResourceDictionary here will avoid the repeated call of this method.
         _localStyleResources = new ResourceDictionary();
         foreach (KeyValuePair<string, FileInfo> resource in _localResourceFiles)
         {
           if (resource.Key.StartsWith(STYLES_DIRECTORY))
           {
             ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
+            if (rd == null)
+              throw new InvalidCastException("Style resource file '" + resource.Value.ToString() +
+                  "' doesn't contain a ResourceDictionary");
             _localStyleResources.Merge(rd);
           }
         }

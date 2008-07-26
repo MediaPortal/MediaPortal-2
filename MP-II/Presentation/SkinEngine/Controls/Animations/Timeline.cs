@@ -33,6 +33,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
   public enum FillBehavior { HoldEnd, Stop };
+  // TODO Albert78: new HandoffBehavior TemporaryReplace
   public enum HandoffBehavior { Compose, SnapshotAndReplace };
 
   public abstract class Timeline: DependencyObject
@@ -171,6 +172,16 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #region Animation control methods
 
+    /// <summary>
+    /// Starts this animation and initializes the time counter for this animation.
+    /// </summary>
+    /// <remarks>
+    /// For a normal operation, method <see cref="Animate(TimelineContext,uint)"/>
+    /// should be called frequently, until method <see cref="HasEnded(TimelineContext)"/>
+    /// returns true. After that, method <see cref="Stop(TimelineContext)"/> has
+    /// to be called to correctly restore animation property values and to set the
+    /// animation's final state.
+    /// </remarks>
     public virtual void Start(TimelineContext context, uint timePassed)
     {
       Stop(context);
@@ -289,8 +300,11 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// predecessor animation, mapped to their original values.
     /// The original value for all data descriptors contained in this map should be
     /// initialized with the mapped value instead of the current value.</param>
-    public abstract void Setup(TimelineContext context,
-        IDictionary<IDataDescriptor, object> propertyConfigurations);
+    public virtual void Setup(TimelineContext context,
+        IDictionary<IDataDescriptor, object> propertyConfigurations)
+    {
+      context.State = State.Setup;
+    }
 
     /// <summary>
     /// Will restore the original values in all properties which have been animated
@@ -320,32 +334,40 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// Will be called if this timeline was started.
     /// </summary>
     /// <param name="context">Current animation context.</param>
+    /// <param name="timePassed">The time counter for this animation. All further
+    /// time values will be relative to this specified time.</param>
     public virtual void Started(TimelineContext context, uint timePassed)
     {
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
     }
 
+    /// <summary>
+    /// Will be called if this timeline was stopped.
+    /// </summary>
+    /// <param name="context">Current animation context.</param>
+    /// <param name="forceReset">If this value is <c>true</c>, this animation will
+    /// reset the animation property to its original value.</param>
     public virtual void Stopped(TimelineContext context, bool forceReset)
     {
-      if (IsStopped(context)) return;
       if (forceReset)
         Reset(context);
-      context.State = State.Ended;
+      context.State = State.Idle;
     }
 
     /// <summary>
-    /// Gets a value indicating whether this timeline is stopped. This method
-    /// will be overridden by composed timelines which will depend on their
-    /// composition parts.
+    /// Gets a value indicating whether this timeline has finished its execution or
+    /// was stopped.
+    /// This method will will be overridden by composed timelines where the result
+    /// will depend on their composition parts.
     /// </summary>
     /// <param name="context">Current animation context.</param>
     /// <returns>
-    /// <c>true</c> if this timeline is stopped; otherwise, <c>false</c>.
+    /// <c>true</c> if this animation has ended or was stopped; otherwise, <c>false</c>.
     /// </returns>
     public virtual bool IsStopped(TimelineContext context)
     {
-      return (context.State == State.Idle);
+      return context.State == State.Idle;
     }
 
     #endregion

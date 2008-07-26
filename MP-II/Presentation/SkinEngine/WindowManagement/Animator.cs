@@ -186,9 +186,7 @@ namespace Presentation.SkinEngine
             ac.WaitingFor.Remove(removeAc);
           removingWaitForAnimations.Clear();
           if (ac.WaitingFor.Count > 0)
-          {
             continue;
-          }
           // Animate timeline
           ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
           if (ac.Timeline.IsStopped(ac.TimelineContext))

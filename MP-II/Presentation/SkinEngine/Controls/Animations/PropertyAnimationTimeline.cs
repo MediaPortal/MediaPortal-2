@@ -101,7 +101,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null)
         return;
       else
-        patc.State = State.Ended;
+        patc.State = State.Idle;
       base.Start(context, timePassed);
     }
 
@@ -138,6 +138,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     public override void Setup(TimelineContext context,
         IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
+      base.Setup(context, propertyConfigurations);
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null)
         return;

@@ -200,6 +200,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     public override void Setup(TimelineContext context,
         IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
+      base.Setup(context, propertyConfigurations);
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
         Children[i].Setup(tgc[i], propertyConfigurations);
