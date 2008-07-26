@@ -67,6 +67,7 @@ namespace Presentation.SkinEngine.MpfElements
       objectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
 
       // Visuals
+      objectClassRegistrations.Add("Control", typeof(SkinEngine.Controls.Visuals.Control));
       objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
       objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
       objectClassRegistrations.Add("Button", typeof(SkinEngine.Controls.Visuals.Button));

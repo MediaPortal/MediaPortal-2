@@ -170,6 +170,60 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="Stop">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0B3A88"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFE3E9F2"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFE3F2E9"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF113F88"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFCCCED1"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFCCD1CD"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="Stop">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+    </ColorAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].(GradientStop.Offset)">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="DisabledArrowButtonStoryBoard" FillBehavior="Stop">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F2A5EB4"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FE3E9F2"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="arrow" Storyboard.TargetProperty="Fill.Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F213F9E"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- ***************************** Progress bar ******************************** -->
 
   <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
@@ -185,34 +239,29 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Standard button ******************************** -->
+  <!-- ********************** Control style for all buttons ********************** -->
 
-  <!-- style for a normal button -->
-  <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4" Margin="0,0,0,0">
-              <Rectangle.Fill>
-                <RadialGradientBrush GradientOrigin="0.85,0.82">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.027" Y="-0.006"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-          </Grid>
+          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4" Margin="0,0,0,0">
+            <Rectangle.Fill>
+              <RadialGradientBrush GradientOrigin="0.85,0.82">
+                <RadialGradientBrush.RelativeTransform>
+                  <TransformGroup>
+                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                    <TranslateTransform X="0.027" Y="-0.006"/>
+                  </TransformGroup>
+                </RadialGradientBrush.RelativeTransform>
+                <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+              </RadialGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
           <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
@@ -235,6 +284,85 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Standard button ******************************** -->
+
+  <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="0,2,0,2">
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Radio buttons ******************************** -->
+
+  <Style x:Key="RadioButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="0,2,0,2">
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Ellipse x:Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
+            <Ellipse x:Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="0,2,0,2">
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Ellipse x:Name="OuterCircle" Margin="10,0,0,0" HorizontalAlignment="Left" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
+            <Ellipse x:Name="InnerCircle" Margin="11,0,0,0" HorizontalAlignment="Left" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
+            <ContentPresenter x:Name="ContentPresenter" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ******************************** Checkbox *********************************** -->
+
+  <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid Margin="0,2,0,2">
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Path x:Name="Check" Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Width="12.016" Data="M22.645977,12.578536L14.858618,23.864771L12.139105,20.117524"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Trigger.ExitActions>
+                <Setter Property="Visibility" TargetName="Check" Value="Visible"/>
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
@@ -285,173 +413,6 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Radio buttons ******************************** -->
-
-  <Style x:Key="RadioButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4">
-              <Rectangle.Fill>
-                <RadialGradientBrush GradientOrigin="0.85,0.82">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.027" Y="-0.006"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
-            <Ellipse x:Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
-            <Ellipse x:Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
-
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4">
-              <Rectangle.Fill>
-                <RadialGradientBrush GradientOrigin="0.85,0.82">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.027" Y="-0.006"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
-            <Ellipse x:Name="OuterCircle" Margin="10,0,0,0" HorizontalAlignment="Left" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
-            <Ellipse x:Name="InnerCircle" Margin="11,0,0,0" HorizontalAlignment="Left" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
-
-            <ContentPresenter x:Name="ContentPresenter" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ******************************** Checkbox *********************************** -->
-
-  <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
-              <Rectangle.Fill>
-                <RadialGradientBrush GradientOrigin="0.85,0.82">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.027" Y="-0.006"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
-            <Path x:Name="check" Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Width="12.016" Data="M22.645977,12.578536L14.858618,23.864771L12.139105,20.117524"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsChecked" Value="True">
-              <Trigger.ExitActions>
-                <Setter Property="Visibility" TargetName="check" Value="Visible"/>
-              </Trigger.ExitActions>
-            </Trigger>
-	          <Trigger Property="IsChecked" Value="False">
-              <Trigger.ExitActions>
-                <Setter Property="Visibility" TargetName="check" Value="Hidden"/>
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
@@ -571,95 +532,77 @@
 
   <!-- **************************** Arrow buttons *************************************** -->
 
-  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0B3A88"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFE3E9F2"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFE3F2E9"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF113F88"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFCCCED1"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFCCD1CD"/>
-    </ColorAnimationUsingKeyFrames>
-  </Storyboard>
-
-  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
-    </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].(GradientStop.Offset)">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1"/>
-    </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
-    </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
-    </DoubleAnimationUsingKeyFrames>
-  </Storyboard>
-
-  <Storyboard x:Key="DisabledArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F2A5EB4"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FE3E9F2"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="arrow" Storyboard.TargetProperty="Fill.Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F213F9E"/>
-    </ColorAnimationUsingKeyFrames>
-  </Storyboard>
+  <Style x:Key="ArrowButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Rectangle x:Name="Body">
+            <Rectangle.Fill>
+              <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
+                <RadialGradientBrush.RelativeTransform>
+                  <TransformGroup>
+                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
+                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                    <TranslateTransform X="0.036" Y="0.023"/>
+                  </TransformGroup>
+                </RadialGradientBrush.RelativeTransform>
+                <GradientStop Color="#FFE3E9F2" Offset="0"/>
+                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+              </RadialGradientBrush>
+            </Rectangle.Fill>
+            <Rectangle.Stroke>
+              <RadialGradientBrush>
+                <RadialGradientBrush.RelativeTransform>
+                  <TransformGroup>
+                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
+                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                    <TranslateTransform X="0.003" Y="0.002"/>
+                  </TransformGroup>
+                </RadialGradientBrush.RelativeTransform>
+                <GradientStop Color="#FFCCCED1" Offset="0"/>
+                <GradientStop Color="#FF113F88" Offset="1"/>
+              </RadialGradientBrush>
+            </Rectangle.Stroke>
+          </Rectangle>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <Style x:Key="ArrowButtonLeftStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
-            <Rectangle x:Name="Body">
-              <Rectangle.Fill>
-                <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.036" Y="0.023"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFE3E9F2" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-              <Rectangle.Stroke>
-                <RadialGradientBrush>
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.003" Y="0.002"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFCCCED1" Offset="0"/>
-                  <GradientStop Color="#FF113F88" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
+            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
             <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
@@ -671,33 +614,6 @@
               </Path.RenderTransform>
             </Path>
           </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -708,36 +624,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
-            <Rectangle x:Name="Body">
-              <Rectangle.Fill>
-                <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.036" Y="0.023"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFE3E9F2" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-              <Rectangle.Stroke>
-                <RadialGradientBrush>
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.003" Y="0.002"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFCCCED1" Offset="0"/>
-                  <GradientStop Color="#FF113F88" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
+            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
             <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
@@ -749,33 +636,6 @@
               </Path.RenderTransform>
             </Path>
           </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -786,36 +646,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
-            <Rectangle x:Name="Body">
-              <Rectangle.Fill>
-                <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.036" Y="0.023"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFE3E9F2" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-              <Rectangle.Stroke>
-                <RadialGradientBrush>
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.003" Y="0.002"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFCCCED1" Offset="0"/>
-                  <GradientStop Color="#FF113F88" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
+            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
             <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.529,7,9.331,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
@@ -827,33 +658,6 @@
               </Path.RenderTransform>
             </Path>
           </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -864,36 +668,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
-            <Rectangle x:Name="Body">
-              <Rectangle.Fill>
-                <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.036" Y="0.023"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFE3E9F2" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-              <Rectangle.Stroke>
-                <RadialGradientBrush>
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.003" Y="0.002"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFCCCED1" Offset="0"/>
-                  <GradientStop Color="#FF113F88" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
+            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
             <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.529,7.9,9.331,6.1" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
@@ -905,33 +680,6 @@
               </Path.RenderTransform>
             </Path>
           </Grid>
-          <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -961,51 +709,11 @@
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Margin="0,2,0,2">
-            <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4" HorizontalAlignment="Left" Width="32">
-              <Rectangle.Fill>
-                <RadialGradientBrush GradientOrigin="0.85,0.82">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.027" Y="-0.006"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
-                </RadialGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
             <Path x:Name="PathHorz" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="6.912,14.572,0,13.561" VerticalAlignment="Stretch" Width="18" Data="M4.6666667,15 L26.666667,15" StrokeThickness="2"/>
             <Path x:Name="PathVert" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="15.912,7.005,0,0" VerticalAlignment="Top" Width="2" Height="17.001" Data="M13.666667,5.6666667 L13.666667,25" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource PlusMinusButton_DisabledStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="PathVert" Property="Visibility" Value="Hidden"/>
             </Trigger>
@@ -1017,10 +725,10 @@
 
   <!-- ***************************** Busy cursor ******************************** -->
 
-  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Button}">
+  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
+        <ControlTemplate TargetType="{x:Type Control}">
           <ControlTemplate.Resources>
             <Storyboard x:Key="VisibleStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body1" Storyboard.TargetProperty="Stroke.Color">
