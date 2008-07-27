@@ -119,6 +119,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
@@ -220,7 +221,7 @@
     <Compile Include="Controls\Visuals\TreeViewItem.cs" />
     <Compile Include="Controls\Visuals\Triggers\BeginStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\EventTrigger.cs" />
-    <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
+    <Compile Include="Controls\Visuals\Triggers\StoryboardContinuationTrigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\Trigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerAction.cs" />
     <Compile Include="Controls\Visuals\UIElement.cs" />

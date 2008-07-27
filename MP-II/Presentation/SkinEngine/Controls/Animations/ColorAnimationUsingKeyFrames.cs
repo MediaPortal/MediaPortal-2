@@ -86,7 +86,7 @@ namespace Presentation.SkinEngine.Controls.Animations
         Duration = KeyFrames[KeyFrames.Count - 1].KeyTime;
     }
 
-    protected override void DoAnimation(TimelineContext context, uint timepassed)
+    internal override void DoAnimation(TimelineContext context, uint timepassed)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;

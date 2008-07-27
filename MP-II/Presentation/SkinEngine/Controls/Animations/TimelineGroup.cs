@@ -176,7 +176,15 @@ namespace Presentation.SkinEngine.Controls.Animations
     // Method Start(TimelineContext) has to be overridden in subclasses, as we don't
     // know here when to start the child timelines.
 
-    #region Animation state methods
+    #region Animation control methods
+
+    public override void Stop(TimelineContext context)
+    {
+      base.Stop(context);
+      TimelineGroupContext tgc = context as TimelineGroupContext;
+      for (int i = 0; i < Children.Count; i++)
+        Children[i].Stop(tgc[i]);
+    }
 
     public override TimelineContext CreateTimelineContext(UIElement element)
     {
@@ -206,12 +214,23 @@ namespace Presentation.SkinEngine.Controls.Animations
         Children[i].Setup(tgc[i], propertyConfigurations);
     }
 
-    public override void Stopped(TimelineContext context, bool forceReset)
+    #endregion
+
+    #region Animation state methods
+
+    internal override void Ended(TimelineContext context)
     {
-      base.Stopped(context, forceReset);
+      base.Ended(context);
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
-        Children[i].Stopped(tgc[i], forceReset || FillBehavior == Animations.FillBehavior.Stop);
+      {
+        Timeline child = Children[i];
+        TimelineContext childContext = tgc[i];
+        if (child.FillBehavior == Animations.FillBehavior.Stop)
+          child.Stop(childContext);
+        else
+          child.Ended(childContext);
+      }
     }
 
     #endregion

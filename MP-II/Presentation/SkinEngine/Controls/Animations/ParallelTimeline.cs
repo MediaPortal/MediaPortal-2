@@ -37,7 +37,7 @@ namespace Presentation.SkinEngine.Controls.Animations
         Children[i].Start(tgc[i], timePassed);
     }
 
-    protected override void DoAnimation(TimelineContext context, uint reltime)
+    internal override void DoAnimation(TimelineContext context, uint reltime)
     {
       base.DoAnimation(context, reltime);
       TimelineGroupContext tgc = context as TimelineGroupContext;

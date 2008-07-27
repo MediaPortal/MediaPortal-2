@@ -22,62 +22,22 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
-using Presentation.SkinEngine.Controls.Animations;
-using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class StopStoryboard : TriggerAction
+  public class StopStoryboard : StoryboardContinuationTrigger
   {
-    #region Private fields
-
-    Property _beginStoryBoardProperty;
-
-    #endregion
-
     #region Ctor
 
-    public StopStoryboard()
-    {
-      Init();
-    }
-
-    void Init()
-    {
-      _beginStoryBoardProperty = new Property(typeof(string), null);
-    }
-
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      base.DeepCopy(source, copyManager);
-      StopStoryboard s = source as StopStoryboard;
-      BeginStoryboardName = copyManager.GetCopy(s.BeginStoryboardName);
-    }
+    public StopStoryboard() { }
 
     #endregion
-
-    public Property BeginStoryboardNameProperty
-    {
-      get { return _beginStoryBoardProperty; }
-      set { _beginStoryBoardProperty = value; }
-    }
-
-    public string BeginStoryboardName
-    {
-      get { return _beginStoryBoardProperty.GetValue() as string; }
-      set { _beginStoryBoardProperty.SetValue(value); }
-    }
 
     public override void Execute(UIElement element, TriggerBase trigger)
     {
-      INameScope ns = FindNameScope();
-      BeginStoryboard beginAction = null;
-      if (ns != null)
-        beginAction = ns.FindName(BeginStoryboardName) as BeginStoryboard;
-      if (beginAction != null)
-        element.StopStoryboard(beginAction.Storyboard as Storyboard);
+      BeginStoryboard beginStoryboard = FindStoryboard(element);
+      if (beginStoryboard != null)
+        element.StopStoryboard(beginStoryboard.Storyboard);
     }
   }
 }

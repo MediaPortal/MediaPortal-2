@@ -176,7 +176,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// </summary>
     /// <remarks>
     /// For a normal operation, method <see cref="Animate(TimelineContext,uint)"/>
-    /// should be called frequently, until method <see cref="HasEnded(TimelineContext)"/>
+    /// should be called frequently, until method <see cref="IsStopped"/>
     /// returns true. After that, method <see cref="Stop(TimelineContext)"/> has
     /// to be called to correctly restore animation property values and to set the
     /// animation's final state.
@@ -189,81 +189,14 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     public virtual void Stop(TimelineContext context)
     {
-      Stopped(context, FillBehavior == Animations.FillBehavior.Stop);
+      Reset(context);
+      context.State = State.Idle;
     }
 
-    /// <summary>
-    /// Entry method to execute the animation. This method will evaluate all
-    /// animation control properties defined in this class, calculate a value for the internal
-    /// time counter and delegate to method <see cref="DoAnimation(TimelineContext,uint)"/>.
-    /// </summary>
-    public void Animate(TimelineContext context, uint timePassed)
+    public virtual void Finish(TimelineContext context)
     {
-      uint passed = (timePassed - context.TimeStarted);
-
-      switch (context.State)
-      {
-        case State.WaitBegin:
-          if (passed >= BeginTime.TotalMilliseconds)
-          {
-            passed = 0;
-            context.TimeStarted = timePassed;
-            context.State = State.Running;
-            goto case State.Running;
-          }
-          break;
-
-        case State.Running:
-          if (!DurationSet || passed < Duration.TotalMilliseconds)
-            DoAnimation(context, passed);
-          else
-          {
-            if (AutoReverse)
-            {
-              context.State = State.Reverse;
-              context.TimeStarted = timePassed;
-              passed = 0;
-              goto case State.Reverse;
-            }
-            else if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.TimeStarted = timePassed;
-              DoAnimation(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              DoAnimation(context, (uint) Duration.TotalMilliseconds);
-              Stop(context);
-            }
-          }
-          break;
-
-        case State.Reverse:
-          if (!DurationSet)
-            return;
-          if (passed < Duration.TotalMilliseconds)
-            DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
-          else
-          {
-            if (RepeatBehavior == RepeatBehavior.Forever)
-            {
-              context.State = State.Running;
-              context.TimeStarted = timePassed;
-              DoAnimation(context, timePassed - context.TimeStarted);
-            }
-            else
-            {
-              DoAnimation(context, 0);
-              Stop(context);
-            }
-          }
-          break;
-      }
+      Ended(context);
     }
-
-    #endregion
-
-    #region Animation state methods
 
     /// <summary>
     /// Creates a timeline context object needed for this class of timeline.
@@ -314,6 +247,85 @@ namespace Presentation.SkinEngine.Controls.Animations
     { }
 
     /// <summary>
+    /// Entry method to execute the animation. This method will evaluate all
+    /// animation control properties defined in this class, calculate a value for the internal
+    /// time counter and delegate to method <see cref="DoAnimation(TimelineContext,uint)"/>.
+    /// </summary>
+    public void Animate(TimelineContext context, uint timePassed)
+    {
+      uint passed = (timePassed - context.TimeStarted);
+
+      switch (context.State)
+      {
+        case State.WaitBegin:
+          if (passed >= BeginTime.TotalMilliseconds)
+          {
+            passed = 0;
+            context.TimeStarted = timePassed;
+            context.State = State.Running;
+            goto case State.Running;
+          }
+          break;
+
+        case State.Running:
+          if (!DurationSet || passed < Duration.TotalMilliseconds)
+            DoAnimation(context, passed);
+          else
+          {
+            if (AutoReverse)
+            {
+              context.State = State.Reverse;
+              context.TimeStarted = timePassed;
+              passed = 0;
+              goto case State.Reverse;
+            }
+            else if (RepeatBehavior == RepeatBehavior.Forever)
+            {
+              context.TimeStarted = timePassed;
+              DoAnimation(context, timePassed - context.TimeStarted);
+            }
+            else
+            {
+              DoAnimation(context, (uint) Duration.TotalMilliseconds);
+              if (FillBehavior == Animations.FillBehavior.Stop)
+                Stop(context);
+              else
+                Ended(context);
+            }
+          }
+          break;
+
+        case State.Reverse:
+          if (!DurationSet)
+            return;
+          if (passed < Duration.TotalMilliseconds)
+            DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
+          else
+          {
+            if (RepeatBehavior == RepeatBehavior.Forever)
+            {
+              context.State = State.Running;
+              context.TimeStarted = timePassed;
+              DoAnimation(context, timePassed - context.TimeStarted);
+            }
+            else
+            {
+              DoAnimation(context, 0);
+              if (FillBehavior == Animations.FillBehavior.Stop)
+                Stop(context);
+              else
+                Ended(context);
+            }
+          }
+          break;
+      }
+    }
+
+    #endregion
+
+    #region Animation state methods
+
+    /// <summary>
     /// Will do the real work of animating the underlaying property.
     /// </summary>
     /// <remarks>
@@ -326,7 +338,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// <param name="reltime">This parameter holds the relative animation time in
     /// milliseconds from the <see cref="BeginTime"/> on, up to a maximum value
     /// of Duration.Milliseconds.</param>
-    protected virtual void DoAnimation(TimelineContext context, uint reltime)
+    internal virtual void DoAnimation(TimelineContext context, uint reltime)
     { }
 
     /// <summary>
@@ -335,28 +347,23 @@ namespace Presentation.SkinEngine.Controls.Animations
     /// <param name="context">Current animation context.</param>
     /// <param name="timePassed">The time counter for this animation. All further
     /// time values will be relative to this specified time.</param>
-    public virtual void Started(TimelineContext context, uint timePassed)
+    internal virtual void Started(TimelineContext context, uint timePassed)
     {
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
     }
 
     /// <summary>
-    /// Will be called if this timeline was stopped.
+    /// Will be called if this timeline has finished or was stopped.
     /// </summary>
     /// <param name="context">Current animation context.</param>
-    /// <param name="forceReset">If this value is <c>true</c>, this animation will
-    /// reset the animation property to its original value.</param>
-    public virtual void Stopped(TimelineContext context, bool forceReset)
+    internal virtual void Ended(TimelineContext context)
     {
-      if (forceReset)
-        Reset(context);
-      context.State = State.Idle;
+      context.State = State.Ended;
     }
 
     /// <summary>
-    /// Gets a value indicating whether this timeline has finished its execution or
-    /// was stopped.
+    /// Gets a value indicating whether this timeline was stopped.
     /// This method will will be overridden by composed timelines where the result
     /// will depend on their composition parts.
     /// </summary>

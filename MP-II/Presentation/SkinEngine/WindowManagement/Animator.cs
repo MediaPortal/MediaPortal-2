@@ -116,24 +116,17 @@ namespace Presentation.SkinEngine
     {
       lock (_scheduledAnimations)
       {
-        if (GetContext(board, element) == null)
-        {
-          AnimationContext context = new AnimationContext();
-          context.Timeline = board;
-          context.TimelineContext = board.CreateTimelineContext(element);
+        AnimationContext context = new AnimationContext();
+        context.Timeline = board;
+        context.TimelineContext = board.CreateTimelineContext(element);
 
-          IDictionary<IDataDescriptor, object> conflictingProperties =
-              HandleConflicts(context, handoffBehavior);
+        IDictionary<IDataDescriptor, object> conflictingProperties =
+            HandleConflicts(context, handoffBehavior);
 
-          board.Setup(context.TimelineContext, conflictingProperties);
+        board.Setup(context.TimelineContext, conflictingProperties);
 
-          _scheduledAnimations.Add(context);
-          board.Start(context.TimelineContext, SkinContext.TimePassed);
-        }
-        else
-            // Albert78: Testing code. This should never occur. If so, the starting condition
-            // can be removed. FIXME: Remove this
-          throw new Exception("Should never occur");
+        _scheduledAnimations.Add(context);
+        board.Start(context.TimelineContext, SkinContext.TimePassed);
       }
     }
 
@@ -165,7 +158,7 @@ namespace Presentation.SkinEngine
     }
 
     // For performance reasons, store those local variables as fields
-    private readonly IList<AnimationContext> stoppedAnimations = new List<AnimationContext>();
+    private readonly IList<AnimationContext> finishedAnimations = new List<AnimationContext>();
     private readonly IList<AnimationContext> removingWaitForAnimations = new List<AnimationContext>();
 
     /// <summary>
@@ -190,15 +183,15 @@ namespace Presentation.SkinEngine
           // Animate timeline
           ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
           if (ac.Timeline.IsStopped(ac.TimelineContext))
-            stoppedAnimations.Add(ac);
+            finishedAnimations.Add(ac);
         }
-        foreach (AnimationContext ac in stoppedAnimations)
+        foreach (AnimationContext ac in finishedAnimations)
         {
-          ac.Timeline.Stop(ac.TimelineContext);
+          ac.Timeline.Finish(ac.TimelineContext);
           _scheduledAnimations.Remove(ac);
         }
       }
-      stoppedAnimations.Clear();
+      finishedAnimations.Clear();
     }
 
     /// <summary>
@@ -252,7 +245,7 @@ namespace Presentation.SkinEngine
           ac.WaitingFor.Add(animationContext);
       else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
         foreach (AnimationContext ac in conflictingAnimations)
-          ac.Timeline.Stop(ac.TimelineContext);
+          ac.Timeline.Finish(ac.TimelineContext);
       else
         throw new NotImplementedException("Animator.HandleConflicts: handoff behavior '" + handoffBehavior.ToString() +
                                           "' is not implemented");
