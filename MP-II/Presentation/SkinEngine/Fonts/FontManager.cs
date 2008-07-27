@@ -167,36 +167,6 @@ namespace Presentation.SkinEngine.Fonts
       return family.Addfont(fontSize, 96);
     }
 
-    public static void Free()
-    {
-
-      Dictionary<string, FontFamily>.Enumerator enumer = _families.GetEnumerator();
-      while (enumer.MoveNext())
-      {
-        FontFamily family = enumer.Current.Value;
-        Trace.WriteLine("dispose fontfamily" + enumer.Current.Key);
-        foreach (Font font in family.FontList)
-        {
-          //font.OnLostDevice();
-          //font.OnDestroyDevice();
-        }
-      }
-    }
-
-    public static void Alloc()
-    {
-      Dictionary<string, FontFamily>.Enumerator enumer = _families.GetEnumerator();
-      while (enumer.MoveNext())
-      {
-        FontFamily family = enumer.Current.Value;
-        foreach (Font font in family.FontList)
-        {
-          //font.OnCreateDevice(GraphicsDevice.Device);
-          //font.OnResetDevice(GraphicsDevice.Device);
-          Trace.WriteLine("alloc fontfamily:" + enumer.Current.Key);
-        }
-      }
-    }
     /// <summary>
     /// Parses the fonts.xml file and loads the font familys it contains.
     /// </summary>

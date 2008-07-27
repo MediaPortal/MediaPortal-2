@@ -213,7 +213,6 @@ namespace Presentation.SkinEngine
         // FIXME Albert78: Find a better way to make PlayerCollection observe the change of the
         // current skin, also InputManager, FontManager and ContentManager
         ServiceScope.Get<PlayerCollection>().Dispose();
-        Fonts.FontManager.Free();
         ContentManager.Clear();
 
         try
@@ -227,7 +226,6 @@ namespace Presentation.SkinEngine
           // TODO: Show error dialog
         }
         Fonts.FontManager.Load();
-        Fonts.FontManager.Alloc();
 
         // We will clear the history because we cannot guarantee that the screens in the
         // history will be compatible with the new skin.

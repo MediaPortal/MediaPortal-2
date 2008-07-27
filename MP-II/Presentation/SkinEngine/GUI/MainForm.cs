@@ -431,7 +431,6 @@ namespace Presentation.SkinEngine.GUI
 
         ServiceScope.Get<PlayerCollection>().ReleaseResources();
 
-        FontManager.Free();
         ContentManager.Free();
         //
         ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
@@ -440,7 +439,6 @@ namespace Presentation.SkinEngine.GUI
         {
           GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), _displaySetting);
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Allocate fonts");
-          FontManager.Alloc();
           ServiceScope.Get<IWindowManager>().Reset();
 
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
@@ -506,7 +504,6 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
       ServiceScope.Get<PlayerCollection>().ReleaseResources();
 
-      FontManager.Free();
       ContentManager.Free();
 
       // Must be done before reset. Otherwise we will lose the device after reset.
@@ -533,8 +530,6 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
       GraphicsDevice.Reset(this, mode == ScreenMode.ExclusiveMode, displaySetting);
-
-      FontManager.Alloc();
 
       ServiceScope.Get<PlayerCollection>().ReallocResources();
 
@@ -662,7 +657,6 @@ namespace Presentation.SkinEngine.GUI
             {
               if (GraphicsDevice.ReclaimDevice())
               {
-                FontManager.Alloc();
                 GraphicsDevice.DeviceLost = false;
                 StartRenderThread();
               }

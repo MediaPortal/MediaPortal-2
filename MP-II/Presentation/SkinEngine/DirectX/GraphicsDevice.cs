@@ -487,7 +487,6 @@ namespace Presentation.SkinEngine
 
         _backBuffer = null;
         ServiceScope.Get<PlayerCollection>().Dispose();
-        FontManager.Free();
         ContentManager.Free();
       }
       try
