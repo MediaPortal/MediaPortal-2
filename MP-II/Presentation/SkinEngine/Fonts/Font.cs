@@ -278,7 +278,7 @@ namespace Presentation.SkinEngine.Fonts
 
       // Convert fixed point 16.16 to float by divison with 2^16
       _charSet.Characters[charIndex].XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
-      Trace.WriteLine("Glyph " + (char)charIndex + " - " + _charSet.Characters[charIndex].Height + " " + _charSet.RenderedSize); 
+      //Trace.WriteLine("Glyph " + (char)charIndex + " - " + _charSet.Characters[charIndex].Height + " " + _charSet.RenderedSize); 
       // Copy the glypth bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
 

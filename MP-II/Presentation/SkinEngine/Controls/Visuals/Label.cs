@@ -256,7 +256,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       IsArrangeValid = true;
       _isLayoutInvalid = false;
       _update = true;
-      Trace.WriteLine(String.Format("Label.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Label.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
     
       if (Window != null) 
         Window.Invalidate(this);
