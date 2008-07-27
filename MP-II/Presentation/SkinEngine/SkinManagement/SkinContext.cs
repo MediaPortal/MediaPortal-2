@@ -51,6 +51,7 @@ namespace Presentation.SkinEngine.SkinManagement
     private static SkinResources _skinResources = new SkinResources("[not initialized]", null); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     private static int _skinWidth = 0;
     private static int _skinHeight = 0;
+    private static int _idleTime = 30;
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
     private static List<double> _opacity = new List<double>();
@@ -442,13 +443,25 @@ namespace Presentation.SkinEngine.SkinManagement
       set { _timeProperty = value; }
     }
 
+    /// <summary>
+    /// Gets or set the idle time when screen saver kicks in.
+    /// </summary>
+    /// <value>The idle time.</value>
+    public static int ScreenSaverIdleTime
+    {
+      get { return _idleTime; }
+      set { _idleTime = value; }
+    }
+
     public static bool ScreenSaverActive
     {
       get
       {
         TimeSpan ts = DateTime.Now - _lastAction;
-        if (ts.TotalSeconds < 30) return false;
-        if (!ServiceScope.Get<IApplication>().IsFullScreen) return false;
+        if (ts.TotalSeconds < _idleTime) 
+          return false;
+        if (!ServiceScope.Get<IApplication>().IsFullScreen) 
+          return false;
         PlayerCollection players = ServiceScope.Get<PlayerCollection>();
         if (players.Count > 0)
         {
