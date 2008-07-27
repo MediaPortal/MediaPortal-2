@@ -43,48 +43,6 @@ namespace Presentation.SkinEngine.Fonts
     private static int _defaultFontSize;
 
     /// <summary>
-    /// Parses the default font family in the fonts.xml file
-    /// </summary>
-    private static string ParseDefualtFamily(XmlNode node)
-    {
-      try
-      {
-        XmlNode nodeName = node.Attributes.GetNamedItem("defaultFamily");
-        if (nodeName == null || nodeName.Value == null)
-        {
-          return String.Empty;
-        }
-        return nodeName.Value;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse default family name.");
-        ServiceScope.Get<ILogger>().Error(ex);
-        return String.Empty;
-      }
-    }
-    /// <summary>
-    /// Parses the default font size in the fonts.xml file
-    /// </summary>
-    private static string ParseDefualtSize(XmlNode node)
-    {
-      try
-      {
-        XmlNode nodeSize = node.Attributes.GetNamedItem("defaultSize");
-        if (nodeSize == null || nodeSize.Value == null)
-        {
-          return String.Empty;
-        }
-        return nodeSize.Value;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse default font size.");
-        ServiceScope.Get<ILogger>().Error(ex);
-        return String.Empty;
-      }
-    }
-    /// <summary>
     /// Parses the font file name for a font family
     /// </summary>
     private static string ParseTtfFile(XmlNode node)
@@ -181,8 +139,8 @@ namespace Presentation.SkinEngine.Fonts
       XmlDocument doc = new XmlDocument();
       doc.Load(descrFile.FullName);
 
-      _defaultFontFamily = ParseDefualtFamily(doc.DocumentElement);
-      string defaultFontSize = ParseDefualtSize(doc.DocumentElement);
+      _defaultFontFamily = doc.DocumentElement.GetAttribute("defaultFamily");
+      string defaultFontSize = doc.DocumentElement.GetAttribute("defaultSize");
       _defaultFontSize = int.Parse(defaultFontSize);
 
       XmlNodeList nodesItems = doc.SelectNodes("/Skin/family");
