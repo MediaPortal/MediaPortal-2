@@ -58,6 +58,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       BeginStoryboard s = source as BeginStoryboard;
       Storyboard = copyManager.GetCopy(s.Storyboard);
       Name = copyManager.GetCopy(s.Name);
+      HandoffBehavior = copyManager.GetCopy(s.HandoffBehavior);
     }
 
     #endregion
@@ -94,7 +95,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     public HandoffBehavior HandoffBehavior
     {
-      get { return (HandoffBehavior)_handoffBehaviorProperty.GetValue(); }
+      get { return (HandoffBehavior) _handoffBehaviorProperty.GetValue(); }
       set { _handoffBehaviorProperty.SetValue(value); }
     }
 
@@ -103,11 +104,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     public override void Execute(UIElement element, TriggerBase trigger)
     {
       if (Storyboard != null)
-      {
         element.StartStoryboard(Storyboard as Storyboard, HandoffBehavior);
-        return;
-
-      }
     }
   }
 }

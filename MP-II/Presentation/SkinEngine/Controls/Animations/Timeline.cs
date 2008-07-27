@@ -33,8 +33,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 {
   public enum RepeatBehavior { None, Forever };
   public enum FillBehavior { HoldEnd, Stop };
-  // TODO Albert78: new HandoffBehavior TemporaryReplace
-  public enum HandoffBehavior { Compose, SnapshotAndReplace };
+  public enum HandoffBehavior { Compose, SnapshotAndReplace, TemporaryReplace };
 
   public abstract class Timeline: DependencyObject
   {

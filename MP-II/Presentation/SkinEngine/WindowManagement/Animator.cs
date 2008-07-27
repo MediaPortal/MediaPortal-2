@@ -207,6 +207,8 @@ namespace Presentation.SkinEngine
     /// (in case <c><paramref name="handoffBehavior"/>==<see cref="HandoffBehavior.SnapshotAndReplace"/></c>)
     /// or add them to the wait set for the given <paramref name="animationContext"/>
     /// (in case <c><paramref name="handoffBehavior"/>==<see cref="HandoffBehavior.Compose"/></c>).
+    /// The handoff behavior <see cref="HandoffBehavior.TemporaryReplace"/> will make the new
+    /// animation run, letting conflicting animations proceed when the new animation has finished.
     /// </summary>
     /// <param name="animationContext">The new animation context to check against the running
     /// animations.</param>
@@ -245,6 +247,9 @@ namespace Presentation.SkinEngine
       if (handoffBehavior == HandoffBehavior.Compose)
         foreach (AnimationContext ac in conflictingAnimations)
           animationContext.WaitingFor.Add(ac);
+      else if (handoffBehavior == HandoffBehavior.TemporaryReplace)
+        foreach (AnimationContext ac in conflictingAnimations)
+          ac.WaitingFor.Add(animationContext);
       else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
         foreach (AnimationContext ac in conflictingAnimations)
           ac.Timeline.Stop(ac.TimelineContext);
