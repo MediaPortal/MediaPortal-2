@@ -74,7 +74,7 @@ namespace Presentation.SkinEngine.Xaml.XamlNamespace
     {
       get
       {
-        return String.Format("{0}.{2}", _typeName, _staticMemberName);
+        return String.Format("{0}.{1}", _typeName, _staticMemberName);
       }
       set
       {

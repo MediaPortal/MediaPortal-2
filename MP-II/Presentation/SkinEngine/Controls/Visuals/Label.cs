@@ -130,8 +130,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Window != null) Window.Invalidate(this);
     }
 
-
-
     public Property TextProperty
     {
       get { return _textProperty; }
@@ -192,7 +190,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void Measure(System.Drawing.SizeF availableSize)
     {
       System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
- 
+
       InitializeTriggers();
       AllocFont();
       if (_label != null && _asset != null)

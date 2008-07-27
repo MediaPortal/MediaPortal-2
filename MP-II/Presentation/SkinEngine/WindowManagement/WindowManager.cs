@@ -49,7 +49,7 @@ namespace Presentation.SkinEngine
     private Window _currentDialog = null;
     private Skin _skin = null;
     private Theme _theme = null;
-    private static SkinManager _skinManager = new SkinManager();
+    private static SkinManager _skinManager;
     public TimeUtils _utils = new TimeUtils();
 
     private string _dialogTitle;
@@ -62,6 +62,7 @@ namespace Presentation.SkinEngine
     {
       WindowSettings windowSettings = new WindowSettings();
       ServiceScope.Get<ISettingsManager>().Load(windowSettings);
+      _skinManager = new SkinManager();
 
       string skinName = windowSettings.Skin;
       string themeName = windowSettings.Theme;
@@ -96,6 +97,10 @@ namespace Presentation.SkinEngine
     /// or <c>null</c> for the default theme of the skin.</param>
     protected void PrepareSkinAndTheme(string skinName, string themeName)
     {
+      // Release old resources
+      _skinManager.ReleaseSkinResources();
+
+      // Prepare new skin data
       Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
       if (skin == null)
         skin = _skinManager.DefaultSkin;
@@ -117,12 +122,6 @@ namespace Presentation.SkinEngine
       SkinContext.ThemeName = theme == null ? null : theme.Name;
       SkinContext.SkinHeight = skin.NativeHeight;
       SkinContext.SkinWidth = skin.NativeWidth;
-
-      // Release old resources
-      if (_skin != null && _skin != skin && _skin != _skinManager.DefaultSkin)
-        _skin.Release();
-      if (_theme != null && _theme != theme && _theme != _skinManager.DefaultSkin.DefaultTheme)
-        _theme.Release();
 
       _skin = skin;
       _theme = theme;
@@ -208,10 +207,9 @@ namespace Presentation.SkinEngine
 
         _windowCache.Clear();
 
-        IInputManager inputMgr = ServiceScope.Get<IInputManager>();
-        inputMgr.Reset();
-        // FIXME Albert78: Find a better way to make PlayerCollection observe the change of the
-        // current skin, also InputManager, FontManager and ContentManager
+        // FIXME Albert78: Find a better way to make the InputManager, PlayerCollection and
+        // ContentManager observe the current skin
+        ServiceScope.Get<IInputManager>().Reset();
         ServiceScope.Get<PlayerCollection>().Dispose();
         ContentManager.Clear();
 
@@ -234,12 +232,12 @@ namespace Presentation.SkinEngine
         if (currentScreenInHistory && _skin.GetSkinFile(currentScreenName) != null)
           _history.Push(currentScreenName);
 
-        if (_currentWindow == null && _skin.GetSkinFile(currentScreenName) != null)
+        if (_skin.GetSkinFile(currentScreenName) != null)
           _currentWindow = GetWindow(currentScreenName);
         if (_currentWindow == null)
           _currentWindow = GetWindow(_history.Peek());
         if (_currentWindow == null)
-        { // The window is broken in the new skin
+        { // The new skin is broken, so reset to default skin
           if (_skin == _skinManager.DefaultSkin)
               // We're already loading the default skin, it seems to be broken
             throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");

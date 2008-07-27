@@ -91,7 +91,7 @@ namespace Presentation.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Returns the widht, this skin was designed for. All sizes given in
+    /// Returns the width, this skin was designed for. All sizes given in
     /// the skinfiles and its theme are based on this skin width. This value
     /// will be needed to calculate the width scale factor to render the screens in
     /// the whole screen width.
@@ -154,15 +154,12 @@ namespace Presentation.SkinEngine.SkinManagement
       }
     }
 
-    /// <summary>
-    /// Releases all lazy initialized resources. This will reduce the memory consumption
-    /// of this instance.
-    /// When requested again, the skin resources will be loaded again automatically.
-    /// </summary>
     public override void Release()
     {
       base.Release();
-      _themes = null;
+      if (_themes != null)
+        foreach (Theme theme in _themes.Values)
+          theme.Release();
     }
 
     /// <summary>

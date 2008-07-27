@@ -225,10 +225,16 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public bool Evaluate(out IDataDescriptor result)
     {
       result = null;
-      if (!_sourceValueValid && !UpdateSourceValue())
+      try
+      {
+        if (!_sourceValueValid && !UpdateSourceValue())
+          return false;
+        result = _evaluatedSourceValue;
+        return true;
+      } catch
+      {
         return false;
-      result = _evaluatedSourceValue;
-      return true;
+      }
     }
 
     #region Properties
@@ -646,7 +652,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
                 throw new NotImplementedException(
                     string.Format("RelativeSourceMode '{0}' is not implemented", RelativeSource.Mode));
             }
-            break;
           case SourceType.ElementName:
             if (!(_contextObject is UIElement))
               return false;

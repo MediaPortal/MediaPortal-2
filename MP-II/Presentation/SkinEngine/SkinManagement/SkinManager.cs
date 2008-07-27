@@ -64,6 +64,12 @@ namespace Presentation.SkinEngine.SkinManagement
       get { return _skins.ContainsKey(DEFAULT_SKIN) ? _skins[DEFAULT_SKIN] : null; }
     }
 
+    public void ReleaseSkinResources()
+    {
+      foreach (Skin skin in _skins.Values)
+        skin.Release();
+    }
+
     /// <summary>
     /// Will reload all skin information from the file system.
     /// </summary>
