@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header_Text -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[shares.shares]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[settings.shares]"/>
 
     <!-- Focused_Element -->
     <ResourceWrapper x:Key="Focused_Element" Resource="{Binding ElementName=btnFinish}"/>
