@@ -51,7 +51,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <ListView x:Name="MainMenu" Style="{DynamicResource ListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
+      <ListView x:Name="MainMenu" Style="{DynamicResource ListViewStyle}" ItemsSource="{DynamicResource Menu_Items}"
+          HorizontalAlignment="Left" VerticalAlignment="Top">
         <ListView.Resources>
           <CommandList x:Key="Menu_Command">
             <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">

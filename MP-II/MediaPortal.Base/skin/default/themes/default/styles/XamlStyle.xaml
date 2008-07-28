@@ -490,7 +490,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="FocusedStoryboard" FillBehavior="StayActive">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="HoldEnd">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
@@ -1110,8 +1110,6 @@
 
   <!-- Standard ListView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
   <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
