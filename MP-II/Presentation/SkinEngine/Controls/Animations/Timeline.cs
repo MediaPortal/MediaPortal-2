@@ -31,9 +31,84 @@ using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Animations
 {
-  public enum RepeatBehavior { None, Forever };
-  public enum FillBehavior { HoldEnd, Stop };
-  public enum HandoffBehavior { Compose, SnapshotAndReplace, TemporaryReplace };
+  /// <summary>
+  /// Specifies, if a timeline will repeat its animation when it is finished.
+  /// </summary>
+  public enum RepeatBehavior
+  {
+    /// <summary>
+    /// The timeline won't repeat its animation.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// The timeline will repeat its animation.
+    /// </summary>
+    Forever
+  };
+
+  /// <summary>
+  /// Specifies, how a timeline will behave when its animation has finished.
+  /// </summary>
+  public enum FillBehavior
+  {
+    /// <summary>
+    /// The timeline will remain active and hold its last value.
+    /// </summary>
+    HoldEnd,
+
+    /// <summary>
+    /// The timeline will stop and restore original values to its animated properties.
+    /// </summary>
+    Stop
+  };
+
+  /// <summary>
+  /// Specifies the behavior of the handoff between animations, when a new animation
+  /// should be started and properties, which are already animated by another animation
+  /// should be animated by the new animation.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// During the handoff between conflicting animations, there might be always the
+  /// problem that only some of the properties of the already running, conflicting
+  /// animation will not be adopted by the new animation.
+  /// </para>
+  /// <para>
+  /// There are two possible treatments of this situation: We could let those
+  /// "orphaned" properties in the value they have after their former animation
+  /// or we could reset them to their original value, as they won't be animated
+  /// by the new animation.
+  /// It would also be a solution to provide a property on the timeline or
+  /// on the action triggering the handoff to control this behavior.
+  /// </para>
+  /// <para>
+  /// The current implementation will always do a stop of the former animation
+  /// at the adequate time, which means we will always reset those orphaned properties.
+  /// </para>
+  /// </remarks>
+  public enum HandoffBehavior
+  {
+    /// <summary>
+    /// The new timeline will wait until the conflicting timeline(s) are stopped
+    /// or have ended.
+    /// </summary>
+    Compose,
+
+    /// <summary>
+    /// The conflicting, already running timeline will be stopped immediately and
+    /// replaced by the new timeline.
+    /// </summary>
+    SnapshotAndReplace,
+
+    /// <summary>
+    /// The conflicting, already running timeline will be stopped immediately,
+    /// replaced by the new timeline and then enqueued to the new timeline with a
+    /// handoff behavior of <see cref="Compose"/> to be rerun when the new timeline
+    /// has finished again.
+    /// </summary>
+    TemporaryReplace
+  };
 
   public abstract class Timeline: DependencyObject
   {
@@ -268,8 +343,19 @@ namespace Presentation.SkinEngine.Controls.Animations
           break;
 
         case State.Running:
-          if (!DurationSet || passed < Duration.TotalMilliseconds)
+          if (!DurationSet)
+          {
             DoAnimation(context, passed);
+            if (HasEnded(context)) // Check the state of the children and propagate it to this timeline
+              if (FillBehavior == Animations.FillBehavior.Stop)
+                Stop(context);
+              else
+                Ended(context);
+          }
+          else if (passed < Duration.TotalMilliseconds)
+          {
+            DoAnimation(context, passed);
+          }
           else
           {
             if (AutoReverse)
@@ -286,7 +372,7 @@ namespace Presentation.SkinEngine.Controls.Animations
             }
             else
             {
-              DoAnimation(context, (uint) Duration.TotalMilliseconds);
+              DoAnimation(context, (uint)Duration.TotalMilliseconds);
               if (FillBehavior == Animations.FillBehavior.Stop)
                 Stop(context);
               else
@@ -297,7 +383,7 @@ namespace Presentation.SkinEngine.Controls.Animations
 
         case State.Reverse:
           if (!DurationSet)
-            return;
+            Ended(context); // This is an error case - we cannot reverse if we don't know at which point in time
           if (passed < Duration.TotalMilliseconds)
             DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
           else
@@ -364,16 +450,28 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     /// <summary>
     /// Gets a value indicating whether this timeline was stopped.
+    /// </summary>
+    /// <param name="context">Current animation context.</param>
+    /// <returns>
+    /// <c>true</c> if this animation was stopped; otherwise, <c>false</c>.
+    /// </returns>
+    public bool IsStopped(TimelineContext context)
+    {
+      return context.State == State.Idle;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this timeline has ended.
     /// This method will will be overridden by composed timelines where the result
     /// will depend on their composition parts.
     /// </summary>
     /// <param name="context">Current animation context.</param>
     /// <returns>
-    /// <c>true</c> if this animation has ended or was stopped; otherwise, <c>false</c>.
+    /// <c>true</c> if this animation has ended; otherwise, <c>false</c>.
     /// </returns>
-    public virtual bool IsStopped(TimelineContext context)
+    public virtual bool HasEnded(TimelineContext context)
     {
-      return context.State == State.Idle;
+      return context.State == State.Ended;
     }
 
     #endregion

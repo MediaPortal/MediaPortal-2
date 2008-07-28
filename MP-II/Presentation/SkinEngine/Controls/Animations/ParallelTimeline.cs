@@ -46,13 +46,13 @@ namespace Presentation.SkinEngine.Controls.Animations
         Children[i].Animate(tgc[i], reltime);
     }
 
-    public override bool IsStopped(TimelineContext context)
+    public override bool HasEnded(TimelineContext context)
     {
-      if (base.IsStopped(context))
+      if (base.HasEnded(context))
         return true;
       TimelineGroupContext tgc = context as TimelineGroupContext;
       for (int i = 0; i < Children.Count; i++)
-        if (!Children[i].IsStopped(tgc[i])) return false;
+        if (!Children[i].HasEnded(tgc[i])) return false;
       return true;
     }
   }

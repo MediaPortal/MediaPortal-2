@@ -75,8 +75,16 @@ namespace Presentation.SkinEngine
   }
 
   /// <summary>
-  /// Management class for a set of running animations.
+  /// Management class for a collection of active animations.
   /// </summary>
+  /// <remarks>
+  /// We will manage a collection of animations in different states. Stopped animations will be cleaned
+  /// up automatically.
+  /// Animations in state <see cref="State.Ended"/> will remain in the collection until new instructions
+  /// for the animation arrive. This makes every animation with <see cref="FillBehavior.HoldEnd"/> stay in
+  /// the collection of animations until either it is stopped explicitly or another conflicting animation
+  /// is started.
+  /// </remarks>
   public class Animator
   {
     protected List<AnimationContext> _scheduledAnimations;
@@ -120,13 +128,18 @@ namespace Presentation.SkinEngine
         context.Timeline = board;
         context.TimelineContext = board.CreateTimelineContext(element);
 
-        IDictionary<IDataDescriptor, object> conflictingProperties =
-            HandleConflicts(context, handoffBehavior);
+        IDictionary<IDataDescriptor, object> conflictingProperties;
+        ICollection<AnimationContext> conflictingAnimations;
+        FindConflicts(context, out conflictingAnimations, out conflictingProperties);
+        ExecuteHandoff(context, conflictingAnimations, handoffBehavior);
 
         board.Setup(context.TimelineContext, conflictingProperties);
 
         _scheduledAnimations.Add(context);
         board.Start(context.TimelineContext, SkinContext.TimePassed);
+
+        // Avoid flickering when conflicting properties are reset by their former animations
+        context.Timeline.Animate(context.TimelineContext, SkinContext.TimePassed);
       }
     }
 
@@ -158,11 +171,56 @@ namespace Presentation.SkinEngine
     }
 
     // For performance reasons, store those local variables as fields
-    private readonly IList<AnimationContext> finishedAnimations = new List<AnimationContext>();
-    private readonly IList<AnimationContext> removingWaitForAnimations = new List<AnimationContext>();
+    private readonly IList<AnimationContext> stoppedAnimations = new List<AnimationContext>();
+    private readonly IList<AnimationContext> endedWaitForAnimations = new List<AnimationContext>();
 
     /// <summary>
-    /// Animates all timelines. This method will be called periodically to do all animation work.
+    /// Checks the state of all wait dependencies for the specified animation
+    /// <paramref name="context"/> and tidies up the wait hierarchy, if appropriate.
+    /// </summary>
+    /// <returns><c>true</c>, if the specified animation is ready to be animated, else <c>false</c>.</returns>
+    protected bool CanRun(AnimationContext context)
+    {
+      // Tidy up wait dependencies
+      if (context.WaitingFor.Count == 0)
+        return true;
+
+      bool allEnded = true;
+      foreach (AnimationContext waitForAc in context.WaitingFor)
+      {
+        int index = _scheduledAnimations.IndexOf(waitForAc);
+        AnimationContext ac;
+        if (index == -1 || (ac = _scheduledAnimations[index]).Timeline.HasEnded(ac.TimelineContext))
+          endedWaitForAnimations.Add(waitForAc);
+        else
+        {
+          allEnded = false;
+          break;
+        }
+      }
+      try
+      {
+        if (allEnded)
+        {
+          // Stop all parent animations at once via the DoHandoff method, when the last
+          // one ended. This will preserve all animations with FillBehavior.HoldEnd until
+          // the new animation starts.
+          context.WaitingFor.Clear();
+          ExecuteHandoff(context, endedWaitForAnimations, HandoffBehavior.SnapshotAndReplace);
+          return true;
+        }
+        else
+          // Animation isn't ready yet.
+          return false;
+      }
+      finally
+      {
+        endedWaitForAnimations.Clear();
+      }
+    }
+
+    /// <summary>
+    /// Animates all timelines. This method has to be called periodically to do all animation work.
     /// </summary>
     public void Animate()
     {
@@ -171,53 +229,47 @@ namespace Presentation.SkinEngine
         if (_scheduledAnimations.Count == 0) return;
         foreach (AnimationContext ac in _scheduledAnimations)
         {
-          // Tidy up wait dependencies
-          foreach (AnimationContext waitForAc in ac.WaitingFor)
-            if (!_scheduledAnimations.Contains(waitForAc))
-              removingWaitForAnimations.Add(waitForAc);
-          foreach (AnimationContext removeAc in removingWaitForAnimations)
-            ac.WaitingFor.Remove(removeAc);
-          removingWaitForAnimations.Clear();
-          if (ac.WaitingFor.Count > 0)
+          if (!CanRun(ac))
             continue;
           // Animate timeline
           ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
           if (ac.Timeline.IsStopped(ac.TimelineContext))
-            finishedAnimations.Add(ac);
+            // Only remove stopped animations here, not ended animations. Ended animations
+            // will remain active.
+            stoppedAnimations.Add(ac);
         }
-        foreach (AnimationContext ac in finishedAnimations)
+        foreach (AnimationContext ac in stoppedAnimations)
         {
           ac.Timeline.Finish(ac.TimelineContext);
           _scheduledAnimations.Remove(ac);
         }
       }
-      finishedAnimations.Clear();
+      stoppedAnimations.Clear();
     }
 
     /// <summary>
     /// Will check the specified <paramref name="animationContext"/> for conflicts with already
-    /// scheduled animations. If there are conflicting animations, this method will stop them
-    /// (in case <c><paramref name="handoffBehavior"/>==<see cref="HandoffBehavior.SnapshotAndReplace"/></c>)
-    /// or add them to the wait set for the given <paramref name="animationContext"/>
-    /// (in case <c><paramref name="handoffBehavior"/>==<see cref="HandoffBehavior.Compose"/></c>).
-    /// The handoff behavior <see cref="HandoffBehavior.TemporaryReplace"/> will make the new
-    /// animation run, letting conflicting animations proceed when the new animation has finished.
+    /// scheduled animations and returns those conflicts.
     /// </summary>
     /// <param name="animationContext">The new animation context to check against the running
     /// animations.</param>
     /// <param name="handoffBehavior">The handoff behavior which defines what will be done
     /// with conflicting animations.</param>
-    /// <returns>Conflicting data descriptors mapped to their original value. This return value
-    /// can be used to initialize the original values of the new animation.</returns>
-    protected IDictionary<IDataDescriptor, object> HandleConflicts(
-        AnimationContext animationContext, HandoffBehavior handoffBehavior)
+    /// <param name="conflictingProperties">Conflicting data descriptors mapped to their original
+    /// values. This returned value can be used to initialize the original values of the new animation.</param>
+    /// <param name="conflictingAnimations">Returns all already running or sleeping animations with
+    /// conflicting properties.</param>
+    protected void FindConflicts(
+        AnimationContext animationContext,
+        out ICollection<AnimationContext> conflictingAnimations,
+        out IDictionary<IDataDescriptor, object> conflictingProperties)
     {
       Timeline line = animationContext.Timeline;
       TimelineContext context = animationContext.TimelineContext;
       IDictionary<IDataDescriptor, object> newProperties = new Dictionary<IDataDescriptor, object>();
       line.AddAllAnimatedProperties(context, newProperties);
-      ICollection<AnimationContext> conflictingAnimations = new List<AnimationContext>();
-      IDictionary<IDataDescriptor, object> conflictingProperties = new Dictionary<IDataDescriptor, object>();
+      conflictingAnimations = new List<AnimationContext>();
+      conflictingProperties = new Dictionary<IDataDescriptor, object>();
       lock (_scheduledAnimations)
       {
         // Find conflicting animations and conflicting animated properties
@@ -227,7 +279,6 @@ namespace Presentation.SkinEngine
           ac.Timeline.AddAllAnimatedProperties(ac.TimelineContext, animProperties);
           ICollection<IDataDescriptor> conflicts = Intersection(
               newProperties.Keys, animProperties.Keys);
-              // Intersection can be calculated with the Intersect extension method from the beginning of .net 3.5
           if (conflicts.Count > 0)
           {
             conflictingAnimations.Add(ac);
@@ -236,6 +287,21 @@ namespace Presentation.SkinEngine
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Handles the handoff between conflicting animations.
+    /// This method will, depending on the specified <paramref name="handoffBehavior"/>, stop conflicting
+    /// animations (in case see cref="HandoffBehavior.SnapshotAndReplace"/>)
+    /// or add them to the wait set for the given <paramref name="animationContext"/>
+    /// (in case <see cref="HandoffBehavior.Compose"/>).
+    /// The handoff behavior <see cref="HandoffBehavior.TemporaryReplace"/> will stop the conflicting
+    /// animations, let the new animation run, and re-schedule the conflicting animations after the new animation.
+    /// <summary>
+    protected void ExecuteHandoff(AnimationContext animationContext,
+        ICollection<AnimationContext> conflictingAnimations,
+        HandoffBehavior handoffBehavior)
+    {
       // Do the handoff depending on HandoffBehavior
       if (handoffBehavior == HandoffBehavior.Compose)
         foreach (AnimationContext ac in conflictingAnimations)
@@ -245,13 +311,13 @@ namespace Presentation.SkinEngine
           ac.WaitingFor.Add(animationContext);
       else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
         foreach (AnimationContext ac in conflictingAnimations)
-          ac.Timeline.Finish(ac.TimelineContext);
+          ac.Timeline.Stop(ac.TimelineContext);
       else
         throw new NotImplementedException("Animator.HandleConflicts: handoff behavior '" + handoffBehavior.ToString() +
                                           "' is not implemented");
-      return conflictingProperties;
     }
 
+    // Intersection can be replaced by the Intersect extension method from the beginning of .net 3.5
     protected static ICollection<T> Intersection<T>(ICollection<T> c1, ICollection<T> c2)
     {
       ICollection<T> result = new List<T>();

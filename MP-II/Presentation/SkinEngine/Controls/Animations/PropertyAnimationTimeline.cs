@@ -95,6 +95,8 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     #endregion
 
+    #region Animation methods
+
     public override void Start(TimelineContext context, uint timePassed)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
@@ -104,8 +106,6 @@ namespace Presentation.SkinEngine.Controls.Animations
         patc.State = State.Idle;
       base.Start(context, timePassed);
     }
-
-    #region Animation methods
 
     protected IDataDescriptor GetDataDescriptor(UIElement element)
     {

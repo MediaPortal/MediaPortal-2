@@ -127,7 +127,7 @@
   </Storyboard>
 
   <!-- Storyboard which shows the animation when a Button is pressed -->
-  <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradientDark2Color}"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradientDark1Color}"/>
@@ -161,7 +161,7 @@
   </Storyboard>
 
   <!-- Storyboard whichs turns the background to be transparent for disabled buttons -->
-  <Storyboard x:Key="DisabledStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="DisabledStoryboard" RepeatBehavior="Forever" Duration="00:00:01">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonColor}"/>
     </ColorAnimationUsingKeyFrames>
@@ -223,21 +223,6 @@
       <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F213F9E"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
-
-  <!-- ***************************** Progress bar ******************************** -->
-
-  <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid HorizontalAlignment="Stretch">
-            <Rectangle x:Name="PART_Track" Margin="2,0,2,0" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
-            <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
 
   <!-- ********************** Control style for all buttons ********************** -->
 
@@ -505,7 +490,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="FocusedStoryboard" FillBehavior="HoldEnd">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="StayActive">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
@@ -877,6 +862,359 @@
     </Setter>
   </Style>
 
+  <!-- ***************************** Zoom buttons ******************************** -->
+
+  <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
+    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+  </Storyboard>
+
+  <Style x:Key="ZoomInButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
+            <Image x:Name="Unfocused" Source="zoom_in_disabled.png" Width="32" Height="32"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ZoomOutButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
+            <Image x:Name="Unfocused" Source="zoom_out_disabled.png" Width="32" Height="32"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Rotate buttons ******************************** -->
+
+  <Storyboard x:Key="FocusedRotateButtonStoryBoard" FillBehavior="Stop">
+    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
+    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
+  </Storyboard>
+
+  <Style x:Key="RotateLeftButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="Focused" Source="rotate_left_enabled.png" Width="32" Height="32" Opacity="0"/>
+            <Image x:Name="Unfocused" Source="rotate_left_disabled.png" Width="32" Height="32"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="RotateRightButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="Focused" Source="rotate_right_enabled.png" Width="32" Height="32" Opacity="0"/>
+            <Image x:Name="Unfocused" Source="rotate_right_disabled.png" Width="32" Height="32"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Progress bar ******************************** -->
+
+  <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid HorizontalAlignment="Stretch">
+            <Rectangle x:Name="PART_Track" Margin="2,0,2,0" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
+            <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** ScrollViewer styles ********************************* -->
+
+  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <ScrollContentPresenter Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Item container styles ********************************* -->
+
+  <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{StaticResource ButtonStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
+  <Style x:Key="ItemPlayListContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource ButtonStyle}" Height="46" Width="360">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Style="{StaticResource ArrowButtonDownStyle}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
+            <Button Style="{StaticResource ArrowButtonUpStyle}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** Item data templates ********************************* -->
+
+  <!-- A simple data template to show the Name of the ListItem in a Label -->
+  <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid>
+      <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
+  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Height="46">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" FontSize="28"/>
+      <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" HorizontalAlignment="Right" Text="{Binding Size}" FontSize="20"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
+  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Height="46">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
+  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="Grd1" Height="100">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ***************************** ListView styles ********************************* -->
+
+  <!-- Standard ListView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
+  <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+            <ItemsPresenter VerticalAlignment="Top"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
+  <Style x:Key="PlayListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource PlayListItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for menus which display an image with a label -->
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ImageDialogItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ****************************** TreeView styles ********************************** -->
+
+  <!-- A data template for a ListItem in tree mode -->
+  <DataTemplate x:Key="TreeItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid>
+      <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" FontSize="28"/>
+      <Grid.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="TreeItemContainerStyle" TargetType="{x:Type TreeViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TreeViewItem}">
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="32"/>
+              <ColumnDefinition Width="32"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}" VerticalAlignment="Top"/>
+            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top" IsChecked="{Binding Mode=TwoWay,Path=Selected}"/>
+            <ContentPresenter Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <ItemsPresenter x:Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
+    <Setter Property="ItemTemplate" Value="{StaticResource TreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TreeView}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+            <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="TreeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ***************************** Busy cursor ******************************** -->
 
   <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
@@ -884,7 +1222,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Control}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="VisibleStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+            <Storyboard x:Key="VisibleStoryboard" FillBehavior="Stop" RepeatBehavior="Forever">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body1" Storyboard.TargetProperty="Stroke.Color">
                 <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F336F32"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7FD2D7E6"/>
@@ -1345,344 +1683,6 @@
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Zoom buttons ******************************** -->
-
-  <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
-    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
-    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
-  </Storyboard>
-
-  <Style x:Key="ZoomInButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="zoom_in_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="ZoomOutButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="zoom_out_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Rotate buttons ******************************** -->
-
-  <Storyboard x:Key="FocusedRotateButtonStoryBoard" FillBehavior="Stop">
-    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
-    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
-  </Storyboard>
-
-  <Style x:Key="RotateLeftButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="Focused" Source="rotate_left_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="rotate_left_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="RotateRightButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="Focused" Source="rotate_right_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="rotate_right_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** ScrollViewer styles ********************************* -->
-
-  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <ScrollContentPresenter Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Item container styles ********************************* -->
-
-  <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
-  <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource ButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
-              </Trigger>
-            </Button.Triggers>
-          </Button>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
-  <Style x:Key="ItemPlayListContainerStyle" TargetType="{x:Type ListViewItem}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource ButtonStyle}" Height="46" Width="360">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-            <Button Style="{StaticResource ArrowButtonDownStyle}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
-            <Button Style="{StaticResource ArrowButtonUpStyle}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
-          </StackPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Item data templates ********************************* -->
-
-  <!-- A simple data template to show the Name of the ListItem in a Label -->
-  <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid>
-      <Label x:Name="ItemLabel" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
-    </Grid>
-  </DataTemplate>
-
-  <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
-  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Height="46">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" FontSize="28"/>
-      <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" HorizontalAlignment="Right" Text="{Binding Size}" FontSize="20"/>
-    </Grid>
-  </DataTemplate>
-
-  <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
-  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Height="46">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Text="{Binding [Name]}" FontSize="28"/>
-    </Grid>
-  </DataTemplate>
-
-   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
-  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="Grd1" Height="100">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
-    </Grid>
-  </DataTemplate>
-
-  <!-- ***************************** ListView styles ********************************* -->
-
-  <!-- Standard ListView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
-  <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
-            <ItemsPresenter VerticalAlignment="Top"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ListView style to be used in the content area of the screens -->
-  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
-  </Style>
-
-  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
-  </Style>
-
-  <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
-  <Style x:Key="PlayListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource PlayListItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
-  </Style>
-
-  <!-- ListView style to be used for menus which display an image with a label -->
-  <Style x:Key="ImageDialogListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ImageDialogItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
-  </Style>
-
-  <!-- ****************************** TreeView styles ********************************** -->
-
-  <!-- A data template for a dialog menu item in tree mode -->
-  <DataTemplate x:Key="TreeItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid>
-      <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" FontSize="28"/>
-      <Grid.Triggers>
-        <Trigger Property="HasFocus" Value="True">
-          <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
-        </Trigger>
-      </Grid.Triggers>
-    </Grid>
-  </DataTemplate>
-
-  <Style x:Key="TreeItemContainerStyle" TargetType="{x:Type TreeViewItem}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type TreeViewItem}">
-          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="32"/>
-              <ColumnDefinition Width="32"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="32"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}" VerticalAlignment="Top"/>
-            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top" IsChecked="{Binding Mode=TwoWay,Path=Selected}"/>
-            <ContentPresenter Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <ItemsPresenter x:Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource TreeItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
-            <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <StackPanel x:Name="TreeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
   </Style>
