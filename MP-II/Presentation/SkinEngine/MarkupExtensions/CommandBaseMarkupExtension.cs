@@ -28,6 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.MpfElements.Resources;
 using Presentation.SkinEngine.Xaml;
+using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.Xaml.Interfaces;
 
 namespace Presentation.SkinEngine.MarkupExtensions
@@ -40,6 +41,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
+    protected BindingMarkupExtension _source;
     protected string _path = null;
 
     protected PathExpression _compiledPath = null;
@@ -50,12 +52,11 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public CommandBaseMarkupExtension()
     {
-      GetOrCreateDataContext();
+      _source = new BindingMarkupExtension(this);
     }
 
-    public CommandBaseMarkupExtension(string path)
+    public CommandBaseMarkupExtension(string path): this()
     {
-      GetOrCreateDataContext();
       _path = path;
     }
 
@@ -63,9 +64,9 @@ namespace Presentation.SkinEngine.MarkupExtensions
     {
       base.DeepCopy(source, copyManager);
       CommandBaseMarkupExtension cbme = source as CommandBaseMarkupExtension;
-      DataContext.Source = copyManager.GetCopy(cbme.DataContext.Source);
-      DataContext.ElementName = copyManager.GetCopy(cbme.DataContext.ElementName);
-      DataContext.RelativeSource = copyManager.GetCopy(cbme.DataContext.RelativeSource);
+      _source.Source = copyManager.GetCopy(cbme._source.Source);
+      _source.ElementName = copyManager.GetCopy(cbme._source.ElementName);
+      _source.RelativeSource = copyManager.GetCopy(cbme._source.RelativeSource);
       _path = copyManager.GetCopy(cbme._path);
       _compiledPath = copyManager.GetCopy(cbme._compiledPath);
     }
@@ -76,20 +77,20 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public object Source
     {
-      get { return DataContext.Source; }
-      set { DataContext.Source = value; }
+      get { return _source.Source; }
+      set { _source.Source = value; }
     }
 
     public string ElementName
     {
-      get { return DataContext.ElementName; }
-      set { DataContext.ElementName = value; }
+      get { return _source.ElementName; }
+      set { _source.ElementName = value; }
     }
 
     public RelativeSource RelativeSource
     {
-      get { return DataContext.RelativeSource; }
-      set { DataContext.RelativeSource = value; }
+      get { return _source.RelativeSource; }
+      set { _source.RelativeSource = value; }
     }
 
     public string Path
@@ -117,6 +118,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     public object Evaluate(IParserContext context)
     {
+      if (_path == null)
+        throw new XamlBindingException("CommandBaseMarkupExtension: Path mustn't be null");
       _compiledPath = PathExpression.Compile(context, _path);
       return this;
     }
@@ -132,7 +135,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     public void Execute(IEnumerable<object> parameters)
     {
       IDataDescriptor start;
-      if (!DataContext.Evaluate(out start))
+      if (!_source.Evaluate(out start))
         return;
       object obj;
       MethodInfo mi;
