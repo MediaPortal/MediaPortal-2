@@ -115,7 +115,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     {
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
-        target = VisualTreeHelper.FindElement(element, TargetName);
+        target = element.FindElement(new NameFinder(TargetName));
       if (target == null)
         target = element;
       // TODO: Also handle attached properties in the form [ClassName].[Property]

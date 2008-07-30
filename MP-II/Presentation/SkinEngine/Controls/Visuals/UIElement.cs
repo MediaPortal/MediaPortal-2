@@ -773,6 +773,15 @@ namespace Presentation.SkinEngine.Controls.Visuals
         return null;
     }
 
+    public UIElement FindElementInNamescope(string name)
+    {
+      INameScope nameScope = FindNameScope();
+      if (nameScope != null)
+        return nameScope.FindName(name) as UIElement;
+      else
+        return null;
+    }
+
     #region IContentEnabled members
 
     public bool FindContentProperty(out IDataDescriptor dd)

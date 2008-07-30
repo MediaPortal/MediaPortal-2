@@ -227,7 +227,6 @@
     <Compile Include="Controls\Visuals\UIElement.cs" />
     <Compile Include="Controls\Visuals\UIElementCollection.cs" />
     <Compile Include="Controls\Visuals\Visual.cs" />
-    <Compile Include="Controls\Visuals\VisualTreeHelper.cs" />
     <Compile Include="DirectxGui.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />
     <Compile Include="DirectX\D3DSettingsForm.cs" />

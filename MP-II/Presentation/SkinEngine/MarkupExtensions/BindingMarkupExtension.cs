@@ -655,7 +655,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
           case SourceType.ElementName:
             if (!(_contextObject is UIElement))
               return false;
-            object obj = VisualTreeHelper.FindElement((UIElement) _contextObject, ElementName);
+            object obj = ((UIElement) _contextObject).FindElementInNamescope(ElementName);
             if (obj == null)
               return false;
             result = new ValueDataDescriptor(obj);

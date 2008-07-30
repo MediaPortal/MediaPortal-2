@@ -97,7 +97,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       if (_partIndicator == null)
-        _partIndicator = VisualTreeHelper.FindElement(this, "PART_Indicator") as FrameworkElement;
+        _partIndicator = FindElement(new NameFinder("PART_Indicator")) as FrameworkElement;
       base.DoRender();
     }
   }

@@ -110,7 +110,7 @@ namespace Presentation.SkinEngine.Controls.Animations
     protected IDataDescriptor GetDataDescriptor(UIElement element)
     {
       string targetName = Storyboard.GetTargetName(this);
-      object targetObject = VisualTreeHelper.FindElement(element, targetName);
+      object targetObject = element.FindElement(new NameFinder(targetName));
       if (targetObject == null)
         return null;
       IDataDescriptor result = new ValueDataDescriptor(targetObject);

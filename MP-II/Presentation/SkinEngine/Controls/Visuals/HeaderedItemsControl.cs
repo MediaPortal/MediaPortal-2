@@ -140,7 +140,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
           _wasExpanded = false;
           return false;
         }
-        CheckBox expander = VisualTreeHelper.FindElement(Header, "Expander") as CheckBox;
+        CheckBox expander = Header.FindElement(new NameFinder("Expander")) as CheckBox;
         if (Header == null)
         {
           _wasExpanded = false;
