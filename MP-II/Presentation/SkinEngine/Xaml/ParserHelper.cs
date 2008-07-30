@@ -101,16 +101,6 @@ namespace Presentation.SkinEngine.Xaml
         ParameterInfo[] parameterInfos, bool mustMatchSignature,
         out object[] convertedParameters)
     {
-      if (parameterInfos.Length == 0)
-      {
-        convertedParameters = null;
-        if (parameters == null || !parameters.GetEnumerator().MoveNext())
-          return true;
-        else if (mustMatchSignature)
-          throw new XamlBindingException("Wrong count of parameter for index (expected: 0, got some)");
-        else
-          return false;
-      }
       Type[] indexTypes = new Type[parameterInfos.Length];
       int ti = 0;
       int numMandatory = 0;
@@ -125,8 +115,11 @@ namespace Presentation.SkinEngine.Xaml
           convertedParameters.Length >= numMandatory)
         return true;
       else if (mustMatchSignature)
-        throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
-            parameterInfos.Length, convertedParameters == null ? 0 : convertedParameters.Length);
+        if (result)
+          throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
+              parameterInfos.Length, convertedParameters.Length);
+        else
+          throw new XamlBindingException("Could not convert parameters");
       else
         return false;
     }
@@ -157,9 +150,7 @@ namespace Presentation.SkinEngine.Xaml
       foreach (object obj in objects)
       {
         if (current >= types.Length)
-          throw new XamlBindingException(
-              "Cannot convert object array, there are more objects than expected (expected: {0})",
-              types.Length);
+          return false;
         if (!TypeConverter.Convert(obj, types[current], out convertedIndices[current]))
           return false;
         current++;
