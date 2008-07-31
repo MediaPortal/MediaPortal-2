@@ -36,6 +36,7 @@ namespace Presentation.SkinEngine.Controls.Animations
   internal class PropertyAnimationTimelineContext : TimelineContext
   {
     protected IDataDescriptor _dataDescriptor;
+    protected object _startValue = null;
     protected object _originalValue = null;
 
     public PropertyAnimationTimelineContext(UIElement element)
@@ -46,6 +47,12 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       get { return _dataDescriptor; }
       set { _dataDescriptor = value; }
+    }
+
+    public object StartValue
+    {
+      get { return _startValue; }
+      set { _startValue = value; }
     }
 
     public object OriginalValue
@@ -146,6 +153,7 @@ namespace Presentation.SkinEngine.Controls.Animations
         patc.OriginalValue = propertyConfigurations[patc.DataDescriptor];
       else
         patc.OriginalValue = patc.DataDescriptor.Value;
+      patc.StartValue = patc.DataDescriptor.Value;
     }
 
     public override void Reset(TimelineContext context)

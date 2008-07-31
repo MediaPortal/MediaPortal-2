@@ -91,7 +91,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
       double time = 0;
-      Vector2 start = new Vector2();
+      Vector2 start = (Vector2) patc.StartValue;
       for (int i = 0; i < KeyFrames.Count; ++i)
       {
         PointKeyFrame key = KeyFrames[i];

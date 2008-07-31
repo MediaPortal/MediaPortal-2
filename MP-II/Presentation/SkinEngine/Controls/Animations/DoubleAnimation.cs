@@ -46,9 +46,9 @@ namespace Presentation.SkinEngine.Controls.Animations
     
     void Init()
     {
-      _fromProperty = new Property(typeof(double), 0.0);
-      _toProperty = new Property(typeof(double), 1.0);
-      _byProperty = new Property(typeof(double), 0.1);
+      _fromProperty = new Property(typeof(double?), null);
+      _toProperty = new Property(typeof(double?), null);
+      _byProperty = new Property(typeof(double?), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -69,9 +69,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _fromProperty; }
     }
 
-    public double From
+    public double? From
     {
-      get { return (double)_fromProperty.GetValue(); }
+      get { return (double?) _fromProperty.GetValue(); }
       set { _fromProperty.SetValue(value); }
     }
 
@@ -81,9 +81,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _toProperty; }
     }
 
-    public double To
+    public double? To
     {
-      get { return (double)_toProperty.GetValue(); }
+      get { return (double?) _toProperty.GetValue(); }
       set { _toProperty.SetValue(value); }
     }
 
@@ -92,9 +92,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _byProperty; }
     }
 
-    public double By
+    public double? By
     {
-      get { return (double)_byProperty.GetValue(); }
+      get { return (double?) _byProperty.GetValue(); }
       set { _byProperty.SetValue(value); }
     }
 
@@ -106,9 +106,13 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
-      double dist = (To - From) / Duration.TotalMilliseconds;
+
+      double from = From ?? (double)patc.StartValue;
+      double to = To ?? (By.HasValue ? from + By.Value : (double) patc.OriginalValue);
+
+      double dist = (to - from) / Duration.TotalMilliseconds;
       dist *= timepassed;
-      dist += From;
+      dist += from;
 
       patc.DataDescriptor.Value = dist;
     }

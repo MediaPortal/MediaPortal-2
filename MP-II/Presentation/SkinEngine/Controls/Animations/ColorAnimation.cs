@@ -47,9 +47,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _fromProperty = new Property(typeof(Color), Color.Black);
-      _toProperty = new Property(typeof(Color), Color.White);
-      _byProperty = new Property(typeof(Color), Color.Beige);
+      _fromProperty = new Property(typeof(Color?), null);
+      _toProperty = new Property(typeof(Color?), null);
+      _byProperty = new Property(typeof(Color?), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -70,9 +70,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _fromProperty; }
     }
 
-    public Color From
+    public Color? From
     {
-      get { return (Color) _fromProperty.GetValue(); }
+      get { return (Color?) _fromProperty.GetValue(); }
       set { _fromProperty.SetValue(value); }
     }
 
@@ -81,9 +81,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _toProperty; }
     }
 
-    public Color To
+    public Color? To
     {
-      get { return (Color)_toProperty.GetValue(); }
+      get { return (Color?) _toProperty.GetValue(); }
       set { _toProperty.SetValue(value); }
     }
 
@@ -92,9 +92,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _byProperty; }
     }
 
-    public Color By
+    public Color? By
     {
-      get { return (Color)_byProperty.GetValue(); }
+      get { return (Color?) _byProperty.GetValue(); }
       set { _byProperty.SetValue(value); }
     }
 
@@ -106,26 +106,31 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
-      Color c;
-      double distA = ((double)(To.A - From.A)) / Duration.TotalMilliseconds;
+
+      Color from = From ?? (Color) patc.StartValue;
+      Color to = To ?? (By.HasValue ? Color.FromArgb(
+          from.A + By.Value.A,
+          from.R + By.Value.R,
+          from.G + By.Value.G,
+          from.B + By.Value.B) : (Color) patc.OriginalValue);
+
+      double distA = (to.A - from.A) / Duration.TotalMilliseconds;
       distA *= timepassed;
-      distA += From.A;
+      distA += from.A;
 
-      double distR = ((double)(To.R - From.R)) / Duration.TotalMilliseconds;
+      double distR = (to.R - from.R) / Duration.TotalMilliseconds;
       distR *= timepassed;
-      distR += From.R;
+      distR += from.R;
 
-      double distG = ((double)(To.G - From.G)) / Duration.TotalMilliseconds;
+      double distG = (to.G - from.G) / Duration.TotalMilliseconds;
       distG *= timepassed;
-      distG += From.G;
+      distG += from.G;
 
-      double distB = ((double)(To.B - From.B)) / Duration.TotalMilliseconds;
+      double distB = (to.B - from.B) / Duration.TotalMilliseconds;
       distB *= timepassed;
-      distB += From.B;
+      distB += from.B;
 
-      c = Color.FromArgb((int)distA, (int)distR, (int)distG, (int)distB);
-
-      patc.DataDescriptor.Value = c;
+      patc.DataDescriptor.Value = Color.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);;
     }
 
     #endregion

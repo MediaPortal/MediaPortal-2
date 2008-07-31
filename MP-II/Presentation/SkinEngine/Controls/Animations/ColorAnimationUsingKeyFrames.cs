@@ -91,7 +91,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
       double time = 0;
-      Color start = Color.Black;
+      Color start = (Color) patc.StartValue;
       for (int i = 0; i < KeyFrames.Count; ++i)
       {
         ColorKeyFrame key = KeyFrames[i];

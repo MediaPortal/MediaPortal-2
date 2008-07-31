@@ -47,9 +47,9 @@ namespace Presentation.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _fromProperty = new Property(typeof(Vector2), new Vector2(0, 0));
-      _toProperty = new Property(typeof(Vector2), new Vector2(0, 0));
-      _byProperty = new Property(typeof(Vector2), new Vector2(0, 0));
+      _fromProperty = new Property(typeof(Vector2?), null);
+      _toProperty = new Property(typeof(Vector2?), null);
+      _byProperty = new Property(typeof(Vector2?), null);
 
     }
 
@@ -71,9 +71,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _fromProperty; }
     }
 
-    public Vector2 From
+    public Vector2? From
     {
-      get { return (Vector2)_fromProperty.GetValue(); }
+      get { return (Vector2?) _fromProperty.GetValue(); }
       set { _fromProperty.SetValue(value); }
     }
 
@@ -82,9 +82,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _toProperty; }
     }
 
-    public Vector2 To
+    public Vector2? To
     {
-      get { return (Vector2)_toProperty.GetValue(); }
+      get { return (Vector2?) _toProperty.GetValue(); }
       set { _toProperty.SetValue(value); }
     }
 
@@ -93,9 +93,9 @@ namespace Presentation.SkinEngine.Controls.Animations
       get { return _byProperty; }
     }
 
-    public Vector2 By
+    public Vector2? By
     {
-      get { return (Vector2)_byProperty.GetValue(); }
+      get { return (Vector2?) _byProperty.GetValue(); }
       set { _byProperty.SetValue(value); }
     }
 
@@ -107,15 +107,19 @@ namespace Presentation.SkinEngine.Controls.Animations
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
-      double distx = (To.X - From.X) / Duration.TotalMilliseconds;
+
+      Vector2 from = From ?? (Vector2) patc.StartValue;
+      Vector2 to = To ?? (By.HasValue ? new Vector2(from.X + By.Value.X, from.Y + By.Value.Y) : (Vector2) patc.OriginalValue);
+
+      double distx = (to.X - from.X) / Duration.TotalMilliseconds;
       distx *= timepassed;
-      distx += From.X;
+      distx += from.X;
 
-      double disty = (To.X - From.Y) / Duration.TotalMilliseconds;
+      double disty = (to.X - from.Y) / Duration.TotalMilliseconds;
       disty *= timepassed;
-      disty += From.Y;
+      disty += from.Y;
 
-      SetValue(context,new Vector2((float)distx, (float)disty));
+      SetValue(context, new Vector2((float) distx, (float) disty));
     }
 
     Vector2 GetValue(TimelineContext context)
@@ -123,10 +127,10 @@ namespace Presentation.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return new Vector2(0, 0);
       object o = patc.DataDescriptor.Value;
-      if (o.GetType() == typeof(Vector2)) return (Vector2)o;
+      if (o.GetType() == typeof(Vector2)) return (Vector2) o;
       if (o.GetType() == typeof(Vector3))
       {
-        Vector3 v = (Vector3)o;
+        Vector3 v = (Vector3) o;
         return new Vector2(v.X, v.Y);
       }
       return new Vector2(0, 0);

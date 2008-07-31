@@ -90,7 +90,7 @@ namespace Presentation.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
       if (patc.DataDescriptor == null) return;
       double time = 0;
-      double start = 0;
+      double start = (double) patc.StartValue;
       for (int i = 0; i < KeyFrames.Count; ++i)
       {
         DoubleKeyFrame key = KeyFrames[i];
