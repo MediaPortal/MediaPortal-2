@@ -30,7 +30,7 @@
           x:Name="MovieList" Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Movies}"
           SelectionChanged="{CommandStencil Path=OnSelectionChange}">
         <ListView.Resources>
-          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="Select" Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}}"/>
+          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="Select" Parameters="{LateBoundValue Value={Binding}}"/>
           <Storyboard x:Key="focusOutStoryboard">
             <DoubleAnimationUsingKeyFrames  BeginTime="00:00:00" Storyboard.TargetName="MovieList" Storyboard.TargetProperty="Opacity">
               <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>

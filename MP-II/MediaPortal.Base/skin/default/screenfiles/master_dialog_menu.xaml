@@ -57,7 +57,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <CommandList x:Key="Menu_Command">
             <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
               <InvokeCommand.CommandParameters>
-                <LateBoundValue Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}"/>
+                <LateBoundValue Value="{Binding}"/>
               </InvokeCommand.CommandParameters>
             </InvokeCommand>
             <Command Source="{Service WindowManager}" Path="CloseDialog"/>

@@ -34,7 +34,7 @@
         <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Shares}"
             SelectionChanged="{CommandStencil Path=OnSelectionChange}">
           <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="RemoveShare" Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}},Path=CurrentItem}}"/>
+            <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="RemoveShare" Parameters="{LateBoundValue Value={Binding}}"/>
           </ListView.Resources>
         </ListView>
       </DockPanel>

@@ -32,7 +32,7 @@
         <TreeView x:Name="tree" Width="480" Height="320" Margin="60,0,10,0" ItemsSource="{Binding Folders}" Style="{StaticResource MpTreeView}">
           <TreeView.Resources>
             <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="GetSubItems"
-                Parameters="{LateBoundValue Value={Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}},Path=CurrentItem}}"/>
+                Parameters="{LateBoundValue Value={Binding}}"/>
           </TreeView.Resources>
         </TreeView>
       </DockPanel>
