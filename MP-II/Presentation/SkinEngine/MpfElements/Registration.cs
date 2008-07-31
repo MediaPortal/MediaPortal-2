@@ -135,6 +135,7 @@ namespace Presentation.SkinEngine.MpfElements
       // Styles
       objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
       objectClassRegistrations.Add("Setter", typeof(SkinEngine.Controls.Visuals.Styles.Setter));
+      objectClassRegistrations.Add("BindingSetter", typeof(SkinEngine.Controls.Visuals.Styles.BindingSetter));
       objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Styles.ControlTemplate));
       objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
 

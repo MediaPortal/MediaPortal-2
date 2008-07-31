@@ -28,12 +28,10 @@ using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
-  public class Setter : DependencyObject
+  public class Setter : SetterBase
   {
     #region Protected fields
 
-    protected string _targetName;
-    protected string _propertyName;
     protected object _value;
     // FIXME Albert78: Move the original value out of the setter instance to a kind of context -
     // it doesn't belong to the setter, as it may be shared between different elements
@@ -51,33 +49,12 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     {
       base.DeepCopy(source, copyManager);
       Setter s = source as Setter;
-      TargetName = copyManager.GetCopy(s.TargetName);
-      Property = copyManager.GetCopy(s.Property);
       Value = copyManager.GetCopy(s.Value);
     }
 
     #endregion
 
     #region Properties
-
-    /// <summary>
-    /// Gets or sets the name of the property to be set by this <see cref="Setter"/>.
-    /// </summary>
-    public string Property
-    {
-      get { return _propertyName; }
-      set { _propertyName = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the name of the target element where this setter will search
-    /// the <see cref="Property"/> to be set.
-    /// </summary>
-    public string TargetName
-    {
-      get { return _targetName; }
-      set { _targetName = value; }
-    }
 
     /// <summary>
     /// Gets or sets the value to be set on our target. This value will be
@@ -111,6 +88,15 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
+    public void Restore(UIElement element)
+    {
+      IDataDescriptor dd = GetPropertyDescriptor(element);
+      if (dd == null)
+        return;
+      if (WasApplied)
+        dd.Value = _originalValue;
+    }
+
     protected IDataDescriptor GetPropertyDescriptor(UIElement element)
     {
       DependencyObject target = null;
@@ -143,16 +129,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       }
     }
 
-    public void Restore(UIElement element)
-    {
-      IDataDescriptor dd = GetPropertyDescriptor(element);
-      if (dd == null)
-        return;
-      if (WasApplied)
-        dd.Value = _originalValue;
-    }
-
-    public void Set(UIElement element)
+    public override void Set(UIElement element)
     {
       IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)
