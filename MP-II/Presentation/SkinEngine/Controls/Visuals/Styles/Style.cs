@@ -31,12 +31,12 @@ using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles      
 {
-  public class Style: NameScope, IAddChild<Setter>, IImplicitKey, IDeepCopyable
+  public class Style: NameScope, IAddChild<SetterBase>, IImplicitKey, IDeepCopyable
   {
     #region Protected fields
 
     protected Style _basedOn = null;
-    protected IList<Setter> _setters;
+    protected IList<SetterBase> _setters = new List<SetterBase>();
     protected Property _targetTypeProperty;
 
     #endregion
@@ -50,15 +50,14 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     void Init()
     {
-      _setters = new List<Setter>();
       _targetTypeProperty = new Property(typeof(Type), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Style s = source as Style;
-      foreach (Setter se in s._setters)
-        _setters.Add(copyManager.GetCopy(se));
+      foreach (SetterBase sb in s._setters)
+        _setters.Add(copyManager.GetCopy(sb));
       TargetType = copyManager.GetCopy(s.TargetType);
       BasedOn = copyManager.GetCopy(s.BasedOn);
     }
@@ -89,8 +88,12 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     // which are the only pieces of code using this method. Then remove this method.
     public FrameworkElement Get()
     {
-      foreach (Setter setter in _setters)
+      foreach (SetterBase sb in _setters)
       {
+        // The whole code here is hack
+        Setter setter = sb as Setter;
+        if (sb == null)
+          continue;
         if (setter.Property == "Template")
         {
           FrameworkElement element;
@@ -98,7 +101,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
             element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
           else
             element = MpfCopyManager.DeepCopyCutLP(setter.Value) as FrameworkElement;
-          foreach (Setter setter2 in _setters)
+          foreach (SetterBase setter2 in _setters)
           {
             if (setter2.Property != "Template")
               setter2.Set(element);
@@ -143,9 +146,9 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
 
     #region IAddChild implementation
 
-    public void AddChild(Setter o)
+    public void AddChild(SetterBase sb)
     {
-      _setters.Add(o);
+      _setters.Add(sb);
     }
 
     #endregion
