@@ -36,10 +36,10 @@ namespace Presentation.SkinEngine.MpfElements
   {
     #region Protected methods
 
-    internal IDataDescriptor GetAttachedProperty(string propertyProvider,
+    internal static IDataDescriptor GetAttachedProperty(string propertyProvider,
         string propertyName, object targetObject)
     {
-      return new MpfAttachedPropertyDataDescriptor(this, targetObject, propertyProvider, propertyName);
+      return new MpfAttachedPropertyDataDescriptor(targetObject, propertyProvider, propertyName);
     }
 
     internal static MethodInfo GetAttachedPropertyGetter(string propertyProvider,
@@ -108,7 +108,7 @@ namespace Presentation.SkinEngine.MpfElements
     {
       MpfAttachedPropertyDataDescriptor result;
       if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
-          this, targetObject, propertyProvider, propertyName, out result))
+          targetObject, propertyProvider, propertyName, out result))
         throw new InvalidOperationException(string.Format(
             "Attached property '{0}.{1}' is not available on target object '{2}'",
             propertyProvider, propertyName, targetObject));

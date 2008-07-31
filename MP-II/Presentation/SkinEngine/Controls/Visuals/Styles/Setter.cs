@@ -122,19 +122,25 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
       }
       if (target == null)
         target = element;
-      // TODO: Also handle attached properties in the form [ClassName].[Property]
-      string propertyName;
       int index = Property.IndexOf('.');
       if (index != -1)
-        throw new NotImplementedException("Setter cannot assign attached properties yet");
+      {
+        string propertyProvider = Property.Substring(0, index);
+        string propertyName = Property.Substring(index + 1);
+        MpfAttachedPropertyDataDescriptor result;
+        return MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
+            element, propertyProvider, propertyName, out result) ? result : null;
+      }
       else
-        propertyName = Property;
-      IDataDescriptor result;
-      if (ReflectionHelper.FindPropertyDescriptor(target, propertyName, out result))
-        return result;
-      else
-        throw new ArgumentException(
-          string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
+      {
+        string propertyName = Property;
+        IDataDescriptor result;
+        if (ReflectionHelper.FindPropertyDescriptor(target, propertyName, out result))
+          return result;
+        else
+          throw new ArgumentException(
+              string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
+      }
     }
 
     public void Restore(UIElement element)

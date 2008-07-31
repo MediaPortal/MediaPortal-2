@@ -31,15 +31,13 @@ namespace Presentation.SkinEngine.MpfElements
 {
   public class MpfAttachedPropertyDataDescriptor: DependencyPropertyDataDescriptor
   {
-    protected MpfNamespaceHandler _namespaceHandler;
     protected string _propertyProvider;
 
     public MpfAttachedPropertyDataDescriptor(
-        MpfNamespaceHandler parent, object targetObject,
+        object targetObject,
         string propertyProvider, string propertyName):
         base(targetObject, propertyName, GetAttachedProperty(propertyProvider, propertyName, targetObject))
     {
-      _namespaceHandler = parent;
       _propertyProvider = propertyProvider;
     }
 
@@ -58,7 +56,7 @@ namespace Presentation.SkinEngine.MpfElements
     public override IDataDescriptor Retarget(object newTarget)
     {
       MpfAttachedPropertyDataDescriptor result;
-      if (!CreateAttachedPropertyDataDescriptor(_namespaceHandler, newTarget,
+      if (!CreateAttachedPropertyDataDescriptor(newTarget,
           _propertyProvider, _propertyName, out result))
         throw new InvalidOperationException(string.Format(
             "Attached property '{0}.{1}' is not available on new target object '{2}'",
@@ -66,7 +64,7 @@ namespace Presentation.SkinEngine.MpfElements
       return result;
     }
 
-    public static bool CreateAttachedPropertyDataDescriptor(MpfNamespaceHandler parent,
+    public static bool CreateAttachedPropertyDataDescriptor(
         object targetObj, string propertyProvider, string propertyName,
         out MpfAttachedPropertyDataDescriptor result)
     {
@@ -75,13 +73,13 @@ namespace Presentation.SkinEngine.MpfElements
         throw new NullReferenceException("Target object 'null' is not supported");
       if (!MpfNamespaceHandler.HasAttachedProperty(propertyProvider, propertyName, targetObj))
         return false;
-      result = new MpfAttachedPropertyDataDescriptor(parent, targetObj, propertyProvider, propertyName);
+      result = new MpfAttachedPropertyDataDescriptor(targetObj, propertyProvider, propertyName);
       return true;
     }
 
     public override int GetHashCode()
     {
-      return base.GetHashCode() + _propertyProvider.GetHashCode() + _namespaceHandler.GetHashCode();
+      return base.GetHashCode() + _propertyProvider.GetHashCode();
     }
 
     public override bool Equals(object other)
@@ -89,7 +87,7 @@ namespace Presentation.SkinEngine.MpfElements
       if (!(other is MpfAttachedPropertyDataDescriptor))
         return false;
       MpfAttachedPropertyDataDescriptor mapdd = (MpfAttachedPropertyDataDescriptor) other;
-      return base.Equals(other) && _propertyProvider.Equals(mapdd._propertyProvider) && _namespaceHandler.Equals(mapdd._namespaceHandler);
+      return base.Equals(other) && _propertyProvider.Equals(mapdd._propertyProvider);
     }
   }
 }
