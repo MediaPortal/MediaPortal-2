@@ -59,7 +59,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     // State variables
     protected bool _active = false; // Should the binding react to changes of source properties?
-    protected object _contextObject = null; // Bound to which object?
+    protected object _contextObject = null; // Bound to which object? May be null.
     protected IDataDescriptor _targetDataDescriptor = null; // Bound to which target property?
 
     #endregion
@@ -132,6 +132,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void AttachToTargetObject(object obj)
     {
+      if (obj == null)
+        return;
       // obj may be of arbitrary type; The type isn't fixed to DependencyObject
       _contextObject = obj;
       ICollection<BindingBase> bindingsOfObject;
@@ -144,6 +146,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
 
     protected void DetachFromTargetObject()
     {
+      if (_contextObject == null)
+        return;
       if (_objects2Bindings.ContainsKey(_contextObject))
         _objects2Bindings[_contextObject].Remove(this);
     }
@@ -194,7 +198,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
       // 2) Using an degenerated copy manager which will map every object to itself except
       //    our context object, which will be mapped to the new target object
       IDictionary<object, object> exceptionalIdentities = new Dictionary<object, object>();
-      exceptionalIdentities.Add(_contextObject, newDd.TargetObject);
+      if (_contextObject != null)
+        exceptionalIdentities.Add(_contextObject, newDd.TargetObject);
       // We will rely here on the fact that _targetDataDescriptor.TargetObject will
       // never reference another object than _contextObject. Otherwise we would
       // have to add the mapping (_targetDataDescriptor.TargetObject; newDd.TargetObject) too.
