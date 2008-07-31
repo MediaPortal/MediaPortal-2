@@ -715,7 +715,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         if (eventTrig != null)
           if (eventTrig.RoutedEvent == eventName)
             foreach (TriggerAction ta in eventTrig.Actions)
-              ta.Execute(this, eventTrig);
+              ta.Execute(this);
       }
       if (eventName == "FrameworkElement.Loaded")
         if (Loaded != null)

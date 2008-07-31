@@ -33,16 +33,17 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger: TriggerBase, IAddChild<TriggerAction>
+  public class Trigger: TriggerBase, IAddChild<Setter>
   {
     #region Private fields
 
-    Property _propertyProperty;
-    Property _valueProperty;
-    Property _enterActionsProperty;
-    Property _exitActionsProperty;
-    Property _property;
-    PropertyChangedHandler _handler;
+    protected Property _propertyProperty;
+    protected Property _valueProperty;
+    protected Property _enterActionsProperty;
+    protected Property _exitActionsProperty;
+    protected Property _settersProperty;
+    protected Property _property;
+    protected PropertyChangedHandler _handler;
 
     #endregion
 
@@ -59,6 +60,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       _valueProperty = new Property(typeof(bool), false);
       _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _settersProperty = new Property(typeof(IList<Setter>), new List<Setter>());
       _handler = OnPropertyChanged;
     }
 
@@ -72,6 +74,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
         EnterActions.Add(copyManager.GetCopy(ac));
       foreach (TriggerAction ac in t.ExitActions)
         ExitActions.Add(copyManager.GetCopy(ac));
+      foreach (Setter s in t.Setters)
+        Setters.Add(copyManager.GetCopy(s));
     }
 
     #endregion
@@ -120,6 +124,16 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
       get { return (IList<TriggerAction>)_exitActionsProperty.GetValue(); }
     }
 
+    public Property SettersProperty
+    {
+      get { return _settersProperty; }
+    }
+
+    public IList<Setter> Setters
+    {
+      get { return (IList<Setter>) _settersProperty.GetValue(); }
+    }
+
     #endregion
 
     public override void Setup(UIElement element)
@@ -157,33 +171,29 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     void OnPropertyChanged(Property p)
     {
       if (_property == null) return;
-      if ((bool)_property.GetValue() == Value)
+      if ((bool) _property.GetValue() == Value)
       {
         //execute start actions
         foreach (TriggerAction action in EnterActions)
-          action.Execute(_element, this);
+          action.Execute(_element);
+        foreach (Setter s in Setters)
+          s.Set(_element);
       }
       else
       {
         //execute stop actions
         foreach (TriggerAction action in ExitActions)
-        {
-          action.Execute(_element, this);
-        }
-        foreach (TriggerAction action in EnterActions)
-        {
-          Setter s = action as Setter;
-          if (s != null)
-            s.Restore(_element, this);
-        }
+          action.Execute(_element);
+        foreach (Setter s in Setters)
+          s.Restore(_element);
       }
     }
 
     #region IAddChild Members
 
-    public void AddChild(TriggerAction o)
+    public void AddChild(Setter s)
     {
-      EnterActions.Add(o);
+      Setters.Add(s);
     }
 
     #endregion

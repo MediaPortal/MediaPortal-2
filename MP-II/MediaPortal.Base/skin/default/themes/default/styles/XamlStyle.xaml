@@ -397,9 +397,7 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
-              <Trigger.ExitActions>
-                <Setter Property="Visibility" TargetName="Check" Value="Visible"/>
-              </Trigger.ExitActions>
+              <Setter Property="Visibility" TargetName="Check" Value="Visible"/>
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
@@ -468,10 +466,12 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource Timeline}"/>
+              </Trigger.EnterActions>
+              <Trigger.Setters>
                 <Setter TargetName="label1" Property="Visibility" Value="Visible"/>
                 <Setter TargetName="label2" Property="Visibility" Value="Visible"/>
                 <Setter TargetName="label3" Property="Visibility" Value="Visible"/>
-              </Trigger.EnterActions>
+              </Trigger.Setters>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>

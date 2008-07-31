@@ -31,7 +31,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
     public TriggerAction()
     { }
 
-    public virtual void Execute(UIElement element, TriggerBase trigger)
+    public virtual void Execute(UIElement element)
     { }
 
     public virtual void Setup(UIElement element)

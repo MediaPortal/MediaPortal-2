@@ -22,21 +22,21 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.MpfElements;
 using Presentation.SkinEngine.Xaml;
 
 namespace Presentation.SkinEngine.Controls.Visuals.Styles
 {
-  public class Setter : TriggerAction
+  public class Setter : DependencyObject
   {
     #region Protected fields
 
     protected string _targetName;
     protected string _propertyName;
     protected object _value;
+    // FIXME Albert78: Move the original value out of the setter instance to a kind of context -
+    // it doesn't belong to the setter, as it may be shared between different elements
     protected Object _originalValue = null;
     protected bool _isSet = false;
     protected object _setterValue;
@@ -115,7 +115,11 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     {
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
+      {
         target = element.FindElement(new NameFinder(TargetName));
+        if (target == null)
+          return null;
+      }
       if (target == null)
         target = element;
       // TODO: Also handle attached properties in the form [ClassName].[Property]
@@ -133,7 +137,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
     }
 
-    public void Restore(UIElement element, TriggerBase trigger)
+    public void Restore(UIElement element)
     {
       IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)
@@ -142,7 +146,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         dd.Value = _originalValue;
     }
 
-    public override void Execute(UIElement element, TriggerBase trigger)
+    public void Set(UIElement element)
     {
       IDataDescriptor dd = GetPropertyDescriptor(element);
       if (dd == null)

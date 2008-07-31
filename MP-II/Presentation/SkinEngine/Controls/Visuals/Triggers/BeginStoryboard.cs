@@ -101,7 +101,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public override void Execute(UIElement element, TriggerBase trigger)
+    public override void Execute(UIElement element)
     {
       if (Storyboard != null)
         element.StartStoryboard(Storyboard as Storyboard, HandoffBehavior);

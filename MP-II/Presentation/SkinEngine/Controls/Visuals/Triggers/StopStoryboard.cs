@@ -33,7 +33,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public override void Execute(UIElement element, TriggerBase trigger)
+    public override void Execute(UIElement element)
     {
       BeginStoryboard beginStoryboard = FindStoryboard(element);
       if (beginStoryboard != null)

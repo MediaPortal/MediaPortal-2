@@ -73,7 +73,7 @@ namespace Presentation.SkinEngine.Controls.Bindings
 
     #region Base overrides
 
-    public override void Execute(UIElement element, TriggerBase trigger)
+    public override void Execute(UIElement element)
     {
       if (Command != null)
         Command.Execute();

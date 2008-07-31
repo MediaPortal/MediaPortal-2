@@ -101,7 +101,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
           foreach (Setter setter2 in _setters)
           {
             if (setter2.Property != "Template")
-              setter2.Execute(element, null);
+              setter2.Set(element);
           }
           return element;
         }
@@ -135,8 +135,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
         if (finishedProperties.Contains(setter.Property))
           continue;
         finishedProperties.Add(setter.Property);
-        setter.Setup(element);
-        setter.Execute(element, null);
+        setter.Set(element);
       }
       if (_basedOn != null)
         _basedOn.Update(element, finishedProperties);
