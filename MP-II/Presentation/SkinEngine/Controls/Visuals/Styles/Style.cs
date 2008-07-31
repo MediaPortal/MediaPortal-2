@@ -133,12 +133,12 @@ namespace Presentation.SkinEngine.Controls.Visuals.Styles
     /// <param name="finishedProperties">Set of property names which should be skipped.</param>
     protected void Update(UIElement element, ICollection<string> finishedProperties)
     {
-      foreach (Setter setter in _setters)
+      foreach (SetterBase sb in _setters)
       {
-        if (finishedProperties.Contains(setter.Property))
+        if (finishedProperties.Contains(sb.Property))
           continue;
-        finishedProperties.Add(setter.Property);
-        setter.Set(element);
+        finishedProperties.Add(sb.Property);
+        sb.Set(element);
       }
       if (_basedOn != null)
         _basedOn.Update(element, finishedProperties);
