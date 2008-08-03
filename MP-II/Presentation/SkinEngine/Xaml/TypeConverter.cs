@@ -152,6 +152,7 @@ namespace Presentation.SkinEngine.Xaml
           return true;
       }
 
+      // FIXME: typeof(Nullable<double>), typeof(Nullable<float>)
       if (targetType == typeof(double)) // == typeof(Double)
       {
         double resultDouble;
