@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Screen;
 
 namespace MediaPortal.Services.MenuManager
 {
@@ -49,7 +47,7 @@ namespace MediaPortal.Services.MenuManager
       //for now we simply load it from an .xml file since 
       //i dont know yet how the pluginmanager could do this.
 
-      string skinName = ServiceScope.Get<IWindowManager>().SkinName;
+      string skinName = ServiceScope.Get<IScreenManager>().SkinName;
       menuName = menuName.Replace("/", "_");
       string xmlName = String.Format(@"skin\{0}\menus\{1}.xml", skinName, menuName);
 

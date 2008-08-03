@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,13 +22,15 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.WindowManager
+namespace MediaPortal.Presentation.Screen
 {
   /// <summary>
-  /// Interface for a generic window manager. This interface is used by the MediaPortal
-  /// application to communicate with the window manager.
+  /// External interface for the screen manager. The screen manager is responsible
+  /// for managing (logical) screens in the current skin and theme.
+  /// This interface will be used by the MediaPortal application modules to communicate with
+  /// the screen manager.
   /// </summary>
-  public interface IWindowManager
+  public interface IScreenManager
   {
     /// <summary>
     /// Closes the current dialog.
@@ -36,45 +38,34 @@ namespace MediaPortal.Presentation.WindowManager
     void CloseDialog();
 
     /// <summary>
-    /// Shows the dialog.
+    /// Shows the dialog with the specified screen name.
     /// </summary>
-    /// <param name="window">dialog window name.</param>
-    void ShowDialog(string window);
+    /// <param name="screen">Dialog screen name.</param>
+    void ShowDialog(string screen);
 
     /// <summary>
-    /// Prepares the window by loading & initializing the window 
-    /// but doesn't show it (yet).
+    /// Prepares the specified screen by loading & initializing it.
+    /// The screen won't be shown (yet).
     /// </summary>
-    /// <param name="window">The window.</param>
-    void PrepareWindow(string window);
+    /// <param name="screen">The name of the screen to be prepared.</param>
+    /// <returns><c>true</c>, if the specified screen is available and could be loaded,
+    /// <c>false</c> if the screen isn't available or if there was a error while loading it.</returns>
+    bool PrepareScreen(string window);
 
     /// <summary>
-    /// Shows the window.
-    /// If window is not yet prepared, then this method will prepare the window and then show it.
+    /// Shows the specified screen.
+    /// If the screen was not prepared yet, this method will prepare the screen first before
+    /// showing it.
     /// </summary>
-    /// <param name="windowName">Name of the window.</param>
-    void ShowWindow(string windowName);
+    /// <param name="screenName">Name of the screen to be shown.</param>
+    bool ShowScreen(string windowName);
 
     /// <summary>
-    /// Shows the previous window.
+    /// Shows the previous screen from the screen history.
     /// </summary>
-    void ShowPreviousWindow();
+    void ShowPreviousScreen();
 
-    /// <summary>
-    /// Gets the current window.
-    /// </summary>
-    /// <value>The current window.</value>
-    IWindow CurrentWindow { get; }
-
-    /// <summary>
-    /// Resets the currently opened windows.
-    /// </summary>
     void Reset();
-
-    /// <summary>
-    /// Reloads the current window
-    /// </summary>
-    void Reload();
 
     /// <summary>
     /// Switches the GUI to the specified skin, using the default theme of the skin.
@@ -97,6 +88,13 @@ namespace MediaPortal.Presentation.WindowManager
     /// Gets the name of the current theme used.
     /// </summary>
     string ThemeName { get;}
+
+    /// <summary>
+    /// Gets the name of the currently shown screen (or dialog).
+    /// </summary>
+    string CurrentScreenName { get; }
+
+    #region To be removed
 
     /// <summary>
     /// Gets / Sets the Title of a Dialog
@@ -129,5 +127,7 @@ namespace MediaPortal.Presentation.WindowManager
     /// </summary>
     /// <param name="response"></param>
     void SetDialogResponse(string response);
+
+    #endregion
   }
 }

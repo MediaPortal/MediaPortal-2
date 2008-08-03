@@ -24,8 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 

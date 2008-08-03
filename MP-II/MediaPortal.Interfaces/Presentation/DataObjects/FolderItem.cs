@@ -22,28 +22,45 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core.Settings;
-namespace Presentation.SkinEngine
-{
-  public class WindowSettings
-  {
-    string _skin;
-    string _theme;
+using MediaPortal.Media.MediaManager;
 
-    [Setting(SettingScope.User, "default")]
-    public string Skin
+namespace MediaPortal.Presentation.DataObjects
+{
+  public class FolderItem : ListItem
+  {
+    private readonly IRootContainer _folder;
+    private readonly IMediaItem _mediaItem;
+
+    public FolderItem() {}
+
+    public FolderItem(IRootContainer folder)
     {
-      get { return _skin; }
-      set { _skin = value; }
+      _folder = folder;
     }
-    [Setting(SettingScope.User, "default")]
-    public string Theme
+
+    public FolderItem(IMediaItem mediaItem)
     {
-      get { return _theme; }
-      set { _theme = value; }
+      _mediaItem = mediaItem;
+    }
+
+    public IRootContainer MediaContainer
+    {
+      get { return _folder; }
+    }
+
+    public IRootContainer Root
+    {
+      get
+      {
+        if (_folder == null)
+          return null;
+        return _folder.Root;
+      }
+    }
+
+    public IMediaItem MediaItem
+    {
+      get { return _mediaItem; }
     }
   }
 }

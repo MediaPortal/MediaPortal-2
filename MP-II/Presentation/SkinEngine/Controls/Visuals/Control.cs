@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
@@ -128,13 +128,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnBorderBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnBackgroundBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     protected void OnTemplateChanged(Property property)
@@ -150,7 +150,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
           Resources.Merge(Template.Resources);
           foreach (TriggerBase t in Template.Triggers)
             Triggers.Add(t);
-          _templateControl.SetWindow(Window);
+          _templateControl.SetWindow(Screen);
         }
         else
           _templateControl = null;
@@ -163,7 +163,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performLayout = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     protected virtual void OnFontChanged(Property property)
@@ -492,7 +492,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        if (Window != null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
     }
@@ -542,7 +542,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (SkinContext.UseBatching)
       {
         _lastEvent |= eventType;
-        if (Window != null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
       }
     }
 
@@ -560,13 +560,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.OnKeyPressed(ref key);
       if (_templateControl != null)
         _templateControl.OnKeyPressed(ref key);
-    }
-
-    public override void Reset()
-    {
-      base.Reset();
-      if (_templateControl != null)
-        _templateControl.Reset();
     }
 
     public override void Deallocate()
@@ -935,12 +928,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       base.DestroyRenderTree();
     }
 
-    public override void SetWindow(Window window)
+    public override void SetWindow(Screen screen)
     {
-      base.SetWindow(window);
+      base.SetWindow(screen);
       if (_templateControl != null)
       {
-        _templateControl.SetWindow(window);
+        _templateControl.SetWindow(screen);
       }
     }
 

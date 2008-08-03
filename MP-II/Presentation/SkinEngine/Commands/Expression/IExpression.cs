@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 
 namespace Presentation.SkinEngine.Commands.Expression
 {

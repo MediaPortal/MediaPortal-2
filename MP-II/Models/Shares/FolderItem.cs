@@ -22,8 +22,7 @@
 
 #endregion
 
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Shares
 {

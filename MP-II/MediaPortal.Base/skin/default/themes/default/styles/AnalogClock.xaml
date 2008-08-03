@@ -103,14 +103,14 @@
 
               <Rectangle x:Name="HourHand" Canvas.Top="10.5" Canvas.Left="24" Fill="Black" Width="2" Height="15">
                 <Rectangle.RenderTransform>
-                  <RotateTransform x:Name="HourHand2" CenterX="1" CenterY="15" Angle="{Binding Source={Service WindowManager},Path=Utils.HourAngle}">
+                  <RotateTransform x:Name="HourHand2" CenterX="1" CenterY="15" Angle="{Binding Source={Service ScreenManager},Path=Utils.HourAngle}">
                   </RotateTransform>
                 </Rectangle.RenderTransform>
               </Rectangle>
 
               <Rectangle x:Name="MinuteHand" Canvas.Top="3" Canvas.Left="24.5" Fill="Black" Width="1" Height="22.5">
                 <Rectangle.RenderTransform>
-                  <RotateTransform CenterX="0.5" CenterY="22.5" Angle="{Binding Source={Service WindowManager},Path=Utils.MinuteAngle}">
+                  <RotateTransform CenterX="0.5" CenterY="22.5" Angle="{Binding Source={Service ScreenManager},Path=Utils.MinuteAngle}">
                   </RotateTransform>
                 </Rectangle.RenderTransform>
               </Rectangle>

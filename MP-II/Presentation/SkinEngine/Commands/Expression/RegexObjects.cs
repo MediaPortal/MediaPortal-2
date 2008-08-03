@@ -22,7 +22,7 @@
 
 #endregion
 
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Presentation.SkinEngine.Commands.Expression

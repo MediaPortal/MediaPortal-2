@@ -24,24 +24,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-
 using MediaPortal.Core;
 using MediaPortal.Presentation.AutoPlay;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
-
 using MediaPortal.Media.MediaManager;
-
+using MediaPortal.Presentation.Screen;
 using MediaPortal.Utilities.CD;
-using MediaPortal.Utilities.Screens;
 
 namespace Components.Services.AutoPlay
 {
@@ -133,7 +127,6 @@ namespace Components.Services.AutoPlay
           if (PlayDVD)
           {
             // Play DVD
-            IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
             try
             {
               //window.WaitCursorVisible = true;
@@ -151,7 +144,7 @@ namespace Components.Services.AutoPlay
               if (player.CanResumeSession(null))
               {
                 player.Paused = true;
-                ServiceScope.Get<IWindowManager>().ShowDialog("movieResume");
+                ServiceScope.Get<IScreenManager>().ShowDialog("movieResume");
               }
 
             }
@@ -159,10 +152,10 @@ namespace Components.Services.AutoPlay
             {
               //window.WaitCursorVisible = false;
             }
-            IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
+            IScreenManager manager = (IScreenManager)ServiceScope.Get<IScreenManager>();
             // We need to show the movies window first, otherwise we'll have problems returning back from full screen on stop.
-            manager.ShowWindow("movies");
-            manager.ShowWindow("fullscreenvideo");
+            manager.ShowScreen("movies");
+            manager.ShowScreen("fullscreenvideo");
           }
           break;
 
@@ -182,7 +175,6 @@ namespace Components.Services.AutoPlay
           if (PlayAudioCd)
           {
             // Play Audio CD
-            IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
             try
             {
               //window.WaitCursorVisible = true;
@@ -334,7 +326,7 @@ namespace Components.Services.AutoPlay
     {
       string line;
 
-      ServiceScope.Get<IWindowManager>().DialogTitle = ServiceScope.Get<ILocalisation>().ToString("autoplay", "autoplay");
+      ServiceScope.Get<IScreenManager>().DialogTitle = ServiceScope.Get<ILocalisation>().ToString("autoplay", "autoplay");
       
       switch (iMedia)
       {
@@ -359,9 +351,9 @@ namespace Components.Services.AutoPlay
           line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "disc");
           break;
       }
-      ServiceScope.Get<IWindowManager>().DialogLine1 = line;
-      ServiceScope.Get<IWindowManager>().ShowDialog("dialogYesNo");
-      return ServiceScope.Get<IWindowManager>().GetDialogResponse();
+      ServiceScope.Get<IScreenManager>().DialogLine1 = line;
+      ServiceScope.Get<IScreenManager>().ShowDialog("dialogYesNo");
+      return ServiceScope.Get<IScreenManager>().GetDialogResponse();
     }
 
 

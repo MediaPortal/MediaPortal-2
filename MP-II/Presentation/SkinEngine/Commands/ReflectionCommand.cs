@@ -27,9 +27,7 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
-//using Presentation.SkinEngine.Scripts;
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Commands.Expression;
 
 namespace Presentation.SkinEngine.Commands
@@ -39,27 +37,12 @@ namespace Presentation.SkinEngine.Commands
     #region variables
 
     private readonly string _command;
-    private readonly IWindow _window;
-    private readonly IControl _control;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ReflectionCommand"/> class.
-    /// </summary>
-    /// <param name="window">The window.</param>
-    /// <param name="command">The command.</param>
-    public ReflectionCommand(IWindow window, string command)
+    public ReflectionCommand(string command)
     {
-      _window = window;
       _command = command;
-    }
-
-    public ReflectionCommand(IControl control, IWindow window, string command)
-    {
-      _window = window;
-      _command = command;
-      _control = control;
     }
 
     #region ICommand Members
@@ -81,7 +64,7 @@ namespace Presentation.SkinEngine.Commands
         ServiceScope.Get<ILogger>().Error("invalid command parameter format for {0}", e.Name);
         return;
       }
-      object control = ObjectFactory.GetObject(_control, _window, parts[0]);
+      object control = ObjectFactory.GetObject(parts[0]);
       if (control == null)
       {
         ServiceScope.Get<ILogger>().Error("cannot get object for {0}", e.Name);
@@ -223,7 +206,7 @@ namespace Presentation.SkinEngine.Commands
       {
         return;
       }
-      object control = ObjectFactory.GetObject(_control, _window, parts[0]);
+      object control = ObjectFactory.GetObject(parts[0]);
       if (control == null)
       {
         return;
@@ -313,7 +296,7 @@ namespace Presentation.SkinEngine.Commands
         {
           return param;
         }
-        object obj = ObjectFactory.GetObject(_control, _window, parts[0]);
+        object obj = ObjectFactory.GetObject(parts[0]);
         if (obj == null)
         {
           return param;
@@ -330,9 +313,7 @@ namespace Presentation.SkinEngine.Commands
         }
         else*/
         {
-          IWindowManager manager = ServiceScope.Get<IWindowManager>();
-          IWindow window = manager.CurrentWindow;
-          object model = ObjectFactory.GetObject(_control, window, parts[0]);
+          object model = ObjectFactory.GetObject(parts[0]);
           if (model != null)
           {
             int partNr = 1;
@@ -383,7 +364,7 @@ namespace Presentation.SkinEngine.Commands
         {
           return param;
         }
-        object obj = ObjectFactory.GetObject(_control, _window, parts[0]);
+        object obj = ObjectFactory.GetObject(parts[0]);
         if (obj == null)
         {
           return param;
@@ -400,9 +381,7 @@ namespace Presentation.SkinEngine.Commands
         }
         else*/
         {
-          IWindowManager manager = ServiceScope.Get<IWindowManager>();
-          IWindow window = manager.CurrentWindow;
-          object model = ObjectFactory.GetObject(_control, window, parts[0]);
+          object model = ObjectFactory.GetObject(parts[0]);
           if (model != null)
           {
             int partNr = 1;

@@ -24,8 +24,8 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -139,19 +139,19 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnBackgroundBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnBorderBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnLayoutPropertyChanged(Property property)
     {
       _performLayout = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     #endregion
@@ -398,7 +398,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (SkinContext.UseBatching)
       {
         _lastEvent |= eventType;
-        if (Window!=null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
       }
     }
 
@@ -417,15 +417,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (_content != null)
       {
         _content.OnMouseMove(x, y);
-      }
-    }
-
-    public override void Reset()
-    {
-      base.Reset();
-      if (_content != null)
-      {
-        _content.Reset();
       }
     }
 
@@ -836,12 +827,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void SetWindow(Window window)
+    public override void SetWindow(Screen screen)
     {
-      base.SetWindow(window);
+      base.SetWindow(screen);
       if (_content != null)
       {
-        _content.SetWindow(window);
+        _content.SetWindow(screen);
       }
     }
   }

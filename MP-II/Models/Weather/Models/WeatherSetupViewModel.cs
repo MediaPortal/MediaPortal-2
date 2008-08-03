@@ -51,11 +51,8 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.PluginManager;
-
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Properties;
 
 using Models.Weather.Grabbers;
 
@@ -143,9 +140,9 @@ namespace Models.Weather
     public void SearchLocations(string name)
     {
       // get a grabber to search for citys
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
       LocationsSearch = ServiceScope.Get<IWeatherCatcher>().FindLocationsByName(name);
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -153,7 +150,7 @@ namespace Models.Weather
     /// </summary>
     public void SaveSettings()
     {
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
       WeatherSettings settings = new WeatherSettings();
       // Load Settings
       ServiceScope.Get<ISettingsManager>().Load(settings);
@@ -161,7 +158,7 @@ namespace Models.Weather
       settings.LocationsList = Locations;
       // save
       ServiceScope.Get<ISettingsManager>().Save(settings);
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -174,7 +171,7 @@ namespace Models.Weather
       // we don't add it if it's already in there
       foreach (ListItem i in _locationsExposed)
       {
-        if (i.Labels["Id"].Evaluate(null, null).Equals(item.Labels["Id"].Evaluate(null, null)))
+        if (i["Id"].Equals(item["Id"]))
         {
           return;
         }
@@ -182,7 +179,7 @@ namespace Models.Weather
       _locationsExposed.Add(item);
       // create a CitySetupObject and add it to the loctions list
       CitySetupInfo c =
-        new CitySetupInfo(item.Labels["Name"].Evaluate(null, null), item.Labels["Id"].Evaluate(null, null));
+        new CitySetupInfo(item["Name"], item["Id"]);
       _locations.Add(c);
       _locationsExposed.FireChange();
     }
@@ -197,7 +194,7 @@ namespace Models.Weather
       {
         _locationsExposed.Remove(item);
         _locationsExposed.FireChange();
-        string id = item.Labels["Id"].Evaluate(null, null);
+        string id = item["Id"];
         foreach (CitySetupInfo info in _locations)
         {
           if (info.Id == id)

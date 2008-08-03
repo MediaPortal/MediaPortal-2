@@ -27,24 +27,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Timers;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Database;
-using MediaPortal.Core.Logging;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
-
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Presentation.Screen;
 
 
 namespace Models.Pictures
@@ -232,7 +224,7 @@ namespace Models.Pictures
         //IImporterManager importer = ServiceScope.Get<IImporterManager>();
         //if (importer.Shares.Count == 0)
         //{
-        //  ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
+        //  ServiceScope.Get<IScreenManager>().ShowDialog("dialogNoSharesDefined");
         //  Refresh();
         //}
         return _pictures;
@@ -343,7 +335,6 @@ namespace Models.Pictures
         //if (uri.AbsoluteUri.IndexOf(".jpg") < 0 && uri.AbsoluteUri.IndexOf(".png") < 0)
         {
           //seems this is a picture, lets play it
-          IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
           try
           {
             //show waitcursor
@@ -352,7 +343,7 @@ namespace Models.Pictures
             //play it
             SlideShow.CurrentPictureUri = uri;
             SlideShow.CurrentPicture = uri.AbsoluteUri;
-            SlideShow.CurrentTitle = item.Labels["Name"].Evaluate(null, null);
+            SlideShow.CurrentTitle = item.Labels["Name"].Evaluate();
             //add it to the player collection
           }
           finally
@@ -362,8 +353,8 @@ namespace Models.Pictures
           }
 
           // show fullscreen video window
-          IWindowManager manager = ServiceScope.Get<IWindowManager>();
-          manager.ShowWindow("pictureviewer");
+          IScreenManager manager = ServiceScope.Get<IScreenManager>();
+          manager.ShowScreen("pictureviewer");
         }
       }
     }
@@ -488,7 +479,7 @@ namespace Models.Pictures
       if (selectedItem == null) return;
       foreach (IAbstractMediaItem item in _pictureViews)
       {
-        if (item.Title == selectedItem.Labels["Name"].Evaluate(null, null))
+        if (item.Title == selectedItem.Labels["Name"].Evaluate())
         {
           SetSelectedView();
           _settings.Folder = item.FullPath;

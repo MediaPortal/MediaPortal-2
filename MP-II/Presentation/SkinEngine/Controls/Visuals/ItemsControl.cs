@@ -24,12 +24,10 @@
 
 using System.Diagnostics;
 using System.Collections;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -125,13 +123,13 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
       _prepare = true;
       Invalidate();
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnCollectionChanged(bool refreshAll)
     {
       _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnHasFocusChanged(Property property)
@@ -143,14 +141,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnItemsSourcePropChanged(Property property)
     {
       _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
       Invalidate();
     }
 
     void OnItemTemplateChanged(Property property)
     {
       _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
       Invalidate();
     }
 
@@ -158,14 +156,14 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       _templateApplied = false;
       _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
       Invalidate();
     }
 
     void OnItemContainerStyleChanged(Property property)
     {
       _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
       Invalidate();
     }
 
@@ -270,19 +268,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void Reset()
-    {
-      Trace.WriteLine("Reset:" + Name);
-      base.Reset();
-      _prepare = true;
-      if (Window!=null) Window.Invalidate(this);
-      if (_itemsHostPanel != null)
-      {
-        _itemsHostPanel.Reset();
-        _itemsHostPanel.SetChildren(new UIElementCollection(_itemsHostPanel));
-      }
-    }
-
     #region Item generation
 
     protected ItemsPresenter FindItemsPresenter()
@@ -299,8 +284,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
       IEnumerator enumer = ItemsSource.GetEnumerator();
-      if (enumer.MoveNext() == false) return true;
-      enumer.Reset();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
 

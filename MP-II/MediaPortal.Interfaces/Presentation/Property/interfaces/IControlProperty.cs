@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,9 +28,6 @@ using System.Text;
 using MediaPortal.Core.Collections;
 namespace MediaPortal.Core.Properties
 {
-  /// <summary>
-  /// interface to a label property
-  /// </summary>
   public interface IControlProperty
   {
     IControl Evaluate(IControl control, IControl container);

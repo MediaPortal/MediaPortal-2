@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.Players.Geometry;
 using MediaPortal.Core;

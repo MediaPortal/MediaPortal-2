@@ -22,15 +22,9 @@
 
 #endregion
 
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.PluginManager;
 

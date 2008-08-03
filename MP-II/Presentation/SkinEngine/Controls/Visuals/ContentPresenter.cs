@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
@@ -83,7 +83,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (Content == null)
         return;
       Content.VisualParent = this;
-      Content.SetWindow(Window);
+      Content.SetWindow(Screen);
     }
 
     public Property ContentProperty
@@ -296,13 +296,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return null;
     }
 
-    public override void Reset()
-    {
-      base.Reset();
-      if (Content != null)
-        Content.Reset();
-    }
-
     public override void Deallocate()
     {
       base.Deallocate();
@@ -345,12 +338,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void SetWindow(Window window)
+    public override void SetWindow(Screen screen)
     {
-      base.SetWindow(window);
+      base.SetWindow(screen);
       if (Content != null)
       {
-        Content.SetWindow(window);
+        Content.SetWindow(screen);
       }
     }
   }

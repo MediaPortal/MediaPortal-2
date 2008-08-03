@@ -25,9 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MediaManager;
@@ -532,15 +531,13 @@ namespace Presentation.SkinEngine.Players
     /// <param name="item">The item.</param>
     public void SetZoomMode(ListItem item)
     {
-      string name = item.Label("Name").Evaluate(null, null);
+      string name = item.Label("Name", "").Evaluate();
       for (int i = 0; i < SkinContext.Geometry.Geometries.Count; ++i)
-      {
         if (SkinContext.Geometry.Geometries[i].Name == name)
         {
           SkinContext.Geometry.Index = i;
           break;
         }
-      }
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
       settings.Geometry = SkinContext.Geometry.Geometries[SkinContext.Geometry.Index].Name;

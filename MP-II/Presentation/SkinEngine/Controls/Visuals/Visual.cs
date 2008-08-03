@@ -21,7 +21,7 @@
 */
 #endregion
 
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls;
 using Presentation.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
@@ -43,7 +43,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public Window Window;
+    public Screen Screen;
 
     #region Ctor
 
@@ -65,7 +65,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       Visual v = source as Visual;
       History = copyManager.GetCopy(v.History);
       VisualParent = copyManager.GetCopy(v.VisualParent);
-      Window = copyManager.GetCopy(v.Window);
+      Screen = copyManager.GetCopy(v.Screen);
     }
 
     #endregion

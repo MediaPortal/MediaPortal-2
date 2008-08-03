@@ -29,8 +29,8 @@ using System.Threading;
 
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.SkinManagement;
@@ -38,9 +38,9 @@ using Presentation.SkinEngine.SkinManagement;
 namespace Presentation.SkinEngine
 {
   /// <summary>
-  /// Window class respresenting a logical screen represented by a particular skin.
+  /// screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
-  public class Window: NameScope, IWindow
+  public class Screen: NameScope
   {
     #region Enums
 
@@ -89,10 +89,10 @@ namespace Presentation.SkinEngine
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Window"/> class.
+    /// Initializes a new instance of the <see cref="Screen"/> class.
     /// </summary>
     /// <param name="name">The logical screen name.</param>
-    public Window(string name)
+    public Screen(string name)
     {
       if (name == null)
       {
@@ -158,11 +158,7 @@ namespace Presentation.SkinEngine
       set { _opened = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the state of the window.
-    /// </summary>
-    /// <value>The state of the window.</value>
-    public State WindowState
+    public State ScreenState
     {
       get { return _state; }
       set { _state = value; }
@@ -192,14 +188,6 @@ namespace Presentation.SkinEngine
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
       SkinContext.Z = 0;
-      if (!IsOpened && _thread == null && !IsAnimating)
-      {
-        //we cannot close the window from the render thread
-        //so start a new workerthread to close ourselves
-        _thread = new Thread(new ThreadStart(CloseThisWindow));
-        _thread.Name = "Window Close Thread";
-        _thread.Start();
-      }
 
       if (SkinContext.UseBatching)
       {
@@ -229,19 +217,6 @@ namespace Presentation.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Closes the this window.
-    /// </summary>
-    private void CloseThisWindow()
-    {
-      WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
-      if (manager.CurrentWindow == this)
-      {
-        manager.ShowPreviousWindow();
-      }
-      _thread = null;
-    }
-
     public void AttachInput()
     {
       if (!_attachedInput)
@@ -258,7 +233,7 @@ namespace Presentation.SkinEngine
     /// </summary>
     public void Show()
     {
-      Trace.WriteLine("Window Show: " + Name);
+      Trace.WriteLine("screen Show: " + Name);
       FocusManager.FocusedElement = null;
       SkinContext.IsValid = false;
       lock (_visual)
@@ -268,7 +243,6 @@ namespace Presentation.SkinEngine
           _visual.DestroyRenderTree();
         _visual.Deallocate();
         _visual.Allocate();
-        _visual.Reset();
         _visual.Invalidate();
         _visual.Initialize();
         if (SkinContext.UseBatching)
@@ -283,7 +257,7 @@ namespace Presentation.SkinEngine
     /// </summary>
     public void Hide()
     {
-      Trace.WriteLine("Window Hide: " + Name);
+      Trace.WriteLine("screen Hide: " + Name);
       lock (_visual)
       {
         Animator.StopAll();
@@ -385,11 +359,10 @@ namespace Presentation.SkinEngine
 
     public void Reset()
     {
-      Trace.WriteLine("Window Reset: " + Name);
+      Trace.WriteLine("screen Reset: " + Name);
       GraphicsDevice.InitializeZoom();
       _visual.Invalidate();
       _visual.Initialize();
-      _visual.Reset();
     }
     #endregion
   }

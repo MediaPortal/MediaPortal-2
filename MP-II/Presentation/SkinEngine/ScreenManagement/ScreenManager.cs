@@ -24,32 +24,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine
 {
-  public class WindowManager : IWindowManager
+  public class ScreenManager : IScreenManager
   {
     public const string STARTUP_SCREEN = "home";
 
     #region Variables
 
-    private readonly Dictionary<string, Window> _windowCache = new Dictionary<string, Window>();
+    private readonly Dictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
     private readonly Stack<string> _history = new Stack<string>();
-    private Window _currentWindow = null;
-    private Window _currentDialog = null;
+    private Screen _currentScreen = null;
+    private Screen _currentDialog = null;
     private Skin _skin = null;
     private Theme _theme = null;
-    private static SkinManager _skinManager;
+    private SkinManager _skinManager;
     public TimeUtils _utils = new TimeUtils();
 
     private string _dialogTitle;
@@ -58,14 +56,14 @@ namespace Presentation.SkinEngine
 
     #endregion
 
-    public WindowManager()
+    public ScreenManager()
     {
-      WindowSettings windowSettings = new WindowSettings();
-      ServiceScope.Get<ISettingsManager>().Load(windowSettings);
+      ScreenSettings screenSettings = new ScreenSettings();
+      ServiceScope.Get<ISettingsManager>().Load(screenSettings);
       _skinManager = new SkinManager();
 
-      string skinName = windowSettings.Skin;
-      string themeName = windowSettings.Theme;
+      string skinName = screenSettings.Skin;
+      string themeName = screenSettings.Theme;
       if (string.IsNullOrEmpty(skinName))
       {
         skinName = SkinManager.DEFAULT_SKIN;
@@ -73,15 +71,15 @@ namespace Presentation.SkinEngine
       }
 
       // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      ServiceScope.Get<ILogger>().Debug("WindowManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
       PrepareSkinAndTheme(skinName, themeName);
 
       // Update the settings with our current skin/theme values
-      if (windowSettings.Skin != SkinName || windowSettings.Theme != ThemeName)
+      if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
       {
-        windowSettings.Skin = _skin.Name;
-        windowSettings.Theme = _theme == null ? null : _theme.Name;
-        ServiceScope.Get<ISettingsManager>().Save(windowSettings);
+        screenSettings.Skin = _skin.Name;
+        screenSettings.Theme = _theme == null ? null : _theme.Name;
+        ServiceScope.Get<ISettingsManager>().Save(screenSettings);
       }
       Fonts.FontManager.Load();
     }
@@ -127,42 +125,43 @@ namespace Presentation.SkinEngine
       _theme = theme;
     }
 
-    protected void InternalCloseWindow()
+    protected void InternalCloseScreen()
     {
-      if (_currentWindow == null)
+      if (_currentScreen == null)
         return;
       lock (_history)
       {
-        _currentWindow.WindowState = Window.State.Closing;
-        _currentWindow.HasFocus = false;
-        _currentWindow.DetachInput();
-        _currentWindow.Hide();
-        _currentWindow = null;
+        _currentScreen.ScreenState = Screen.State.Closing;
+        _currentScreen.HasFocus = false;
+        _currentScreen.DetachInput();
+        _currentScreen.Hide();
+        _currentScreen = null;
       }
     }
 
-    protected void InternalCloseCurrentWindows()
+    protected void InternalCloseCurrentScreens()
     {
       CloseDialog();
-      InternalCloseWindow();
+      InternalCloseScreen();
     }
 
-    protected void InternalShowWindow(Window window)
+    protected bool InternalShowScreen(Screen screen)
     {
       CloseDialog();
       lock (_history)
       {
-        _currentWindow = window;
-        _currentWindow.HasFocus = true;
-        _currentWindow.WindowState = Window.State.Running;
-        _currentWindow.AttachInput();
-        _currentWindow.Show();
+        _currentScreen = screen;
+        _currentScreen.HasFocus = true;
+        _currentScreen.ScreenState = Screen.State.Running;
+        _currentScreen.AttachInput();
+        _currentScreen.Show();
       }
+      return true;
     }
 
     public void ShowStartupScreen()
     {
-      ShowWindow(STARTUP_SCREEN);
+      ShowScreen(STARTUP_SCREEN);
     }
 
     /// <summary>
@@ -176,8 +175,8 @@ namespace Presentation.SkinEngine
       {
         lock (_windowCache)
         {
-          if (_currentWindow != null)
-            _currentWindow.Render();
+          if (_currentScreen != null)
+            _currentScreen.Render();
           if (_currentDialog != null)
             _currentDialog.Render();
         }
@@ -197,13 +196,13 @@ namespace Presentation.SkinEngine
 
       lock (_history)
       {
-        ServiceScope.Get<ILogger>().Info("WindowManager: Switching to skin '{0}', theme '{1}'",
+        ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
-        string currentScreenName = _currentWindow == null ? null : _currentWindow.Name;
-        bool currentScreenInHistory = _currentWindow == null ? false : _currentWindow.History;
+        string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
+        bool currentScreenInHistory = _currentScreen == null ? false : _currentScreen.History;
 
-        InternalCloseCurrentWindows();
+        InternalCloseCurrentScreens();
 
         _windowCache.Clear();
 
@@ -219,7 +218,7 @@ namespace Presentation.SkinEngine
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin '{0}', theme '{1}'", ex, newSkinName, newThemeName);
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}'", ex, newSkinName, newThemeName);
           // Continue with old skin
           // TODO: Show error dialog
         }
@@ -233,10 +232,10 @@ namespace Presentation.SkinEngine
           _history.Push(currentScreenName);
 
         if (_skin.GetSkinFile(currentScreenName) != null)
-          _currentWindow = GetWindow(currentScreenName);
-        if (_currentWindow == null)
-          _currentWindow = GetWindow(_history.Peek());
-        if (_currentWindow == null)
+          _currentScreen = GetScreen(currentScreenName);
+        if (_currentScreen == null)
+          _currentScreen = GetScreen(_history.Peek());
+        if (_currentScreen == null)
         { // The new skin is broken, so reset to default skin
           if (_skin == _skinManager.DefaultSkin)
               // We're already loading the default skin, it seems to be broken
@@ -246,9 +245,9 @@ namespace Presentation.SkinEngine
           return;
         }
 
-        InternalShowWindow(_currentWindow);
+        InternalShowScreen(_currentScreen);
       }
-      WindowSettings settings = new WindowSettings();
+      ScreenSettings settings = new ScreenSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
@@ -271,22 +270,22 @@ namespace Presentation.SkinEngine
     /// a skin file. The window will not be shown yet.
     /// </summary>
     /// <param name="screenName">Name of the screen to return the window instance for.</param>
-    /// <returns>Window or <c>null</c>, if an error occured loading the window.</returns>
-    public Window GetWindow(string screenName)
+    /// <returns>screen or <c>null</c>, if an error occured loading the window.</returns>
+    public Screen GetScreen(string screenName)
     {
       try
       {
         // show waitcursor while loading a new window
-        if (_currentWindow != null)
+        if (_currentScreen != null)
         {
           // TODO: Wait cursor
-          //_currentWindow.WaitCursorVisible = true;
+          //_currentScreen.WaitCursorVisible = true;
         }
 
         if (_windowCache.ContainsKey(screenName))
           return _windowCache[screenName];
 
-        Window result = new Window(screenName);
+        Screen result = new Screen(screenName);
         try
         {
           UIElement root = LoadSkinFile(screenName);
@@ -296,7 +295,7 @@ namespace Presentation.SkinEngine
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("WindowManager: Error loading skin file for window '{0}'", ex, screenName);
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for window '{0}'", ex, screenName);
           // TODO Albert78: Show error dialog with skin loading message
           return null;
         }
@@ -305,10 +304,10 @@ namespace Presentation.SkinEngine
       finally
       {
         // hide the waitcursor again
-        if (_currentWindow != null)
+        if (_currentScreen != null)
         {
           // TODO: Wait cursor
-          //_currentWindow.WaitCursorVisible = false;
+          //_currentScreen.WaitCursorVisible = false;
         }
       }
     }
@@ -323,42 +322,27 @@ namespace Presentation.SkinEngine
       SwitchSkinAndTheme(newSkinName, null);
     }
 
-    /// <summary>
-    /// Gets the name of the currently active skin.
-    /// </summary>
     public string SkinName
     {
       get { return _skin.Name; }
     }
 
-    /// <summary>
-    /// Gets the name of the currently active theme.
-    /// </summary>
     public string ThemeName
     {
       get { return _theme == null ? null : _theme.Name; }
     }
 
-    /// <summary>
-    /// Gets the current window.
-    /// </summary>
-    /// <value>The current window.</value>
-    public IWindow CurrentWindow
+    public string CurrentScreenName
     {
-      get
-      {
-        if (_currentDialog != null)
-          return _currentDialog;
-        return _currentWindow;
-      }
+      get { return _currentScreen.Name; }
     }
 
     public void Reset()
     {
       if (_currentDialog != null)
         _currentDialog.Reset();
-      if (_currentWindow != null)
-      _currentWindow.Reset();
+      if (_currentScreen != null)
+      _currentScreen.Reset();
     }
 
     /// <summary>
@@ -370,15 +354,15 @@ namespace Presentation.SkinEngine
         return;
       lock (_history)
       {
-        _currentDialog.WindowState = Window.State.Closing;
+        _currentDialog.ScreenState = Screen.State.Closing;
         _currentDialog.DetachInput();
         _currentDialog.Hide();
         _currentDialog = null;
 
-        if (_currentWindow != null)
+        if (_currentScreen != null)
         {
-          _currentWindow.AttachInput();
-          _currentWindow.Show();
+          _currentScreen.AttachInput();
+          _currentScreen.Show();
         }
       }
     }
@@ -389,20 +373,20 @@ namespace Presentation.SkinEngine
     /// <param name="dialogName">The dialog name.</param>
     public void ShowDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("WindowManager: Show dialog: {0}", dialogName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog: {0}", dialogName);
       CloseDialog();
       lock (_history)
       {
-        _currentDialog = GetWindow(dialogName);
+        _currentDialog = GetScreen(dialogName);
         if (_currentDialog == null)
         {
           return;
         }
-        _currentWindow.DetachInput();
+        _currentScreen.DetachInput();
 
         _currentDialog.AttachInput();
         _currentDialog.Show();
-        _currentDialog.WindowState = Window.State.Running;
+        _currentDialog.ScreenState = Screen.State.Running;
       }
 
       while (_currentDialog != null)
@@ -418,56 +402,56 @@ namespace Presentation.SkinEngine
     public void Reload()
     {
       CloseDialog();
-      InternalCloseWindow();
+      InternalCloseScreen();
 
-      Window currentWindow;
+      Screen currentScreen;
       lock (_windowCache)
       {
-        string name = _currentWindow.Name;
+        string name = _currentScreen.Name;
         if (_windowCache.ContainsKey(name))
           _windowCache.Remove(name);
-        currentWindow = GetWindow(name);
+        currentScreen = GetScreen(name);
       }
-      if (currentWindow == null)
-        // Error message was shown in GetWindow()
+      if (currentScreen == null)
+        // Error message was shown in GetScreen()
         return;
-      InternalShowWindow(currentWindow);
+      InternalShowScreen(currentScreen);
     }
 
-    public void PrepareWindow(string windowName)
+    public bool PrepareScreen(string windowName)
     {
-      GetWindow(windowName);
+      return GetScreen(windowName) != null;
     }
 
     /// <summary>
     /// Shows the window with the specified name.
     /// </summary>
     /// <param name="windowName">Name of the window.</param>
-    public void ShowWindow(string windowName)
+    public bool ShowScreen(string windowName)
     {
-      ServiceScope.Get<ILogger>().Debug("WindowManager: Show window: {0}", windowName);
-      Window newWindow = GetWindow(windowName);
-      if (newWindow == null)
-        // Error message was shown in GetWindow()
-        return;
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show window: {0}", windowName);
+      Screen newScreen = GetScreen(windowName);
+      if (newScreen == null)
+        // Error message was shown in GetScreen()
+        return false;
 
       lock (_history)
       {
-        if (newWindow.History)
+        if (newScreen.History)
         {
-          _history.Push(newWindow.Name);
+          _history.Push(newScreen.Name);
         }
 
         CloseDialog();
-        InternalCloseWindow();
-        InternalShowWindow(newWindow);
+        InternalCloseScreen();
+        return InternalShowScreen(newScreen);
       }
     }
 
     /// <summary>
     /// Shows the previous window from the window history.
     /// </summary>
-    public void ShowPreviousWindow()
+    public void ShowPreviousScreen()
     {
       lock (_history)
       {
@@ -475,7 +459,7 @@ namespace Presentation.SkinEngine
         {
           return;
         }
-        ServiceScope.Get<ILogger>().Debug("WindowManager: Show previous window");
+        ServiceScope.Get<ILogger>().Debug("ScreenManager: Show previous window");
         if (_currentDialog != null)
         {
           CloseDialog();
@@ -487,15 +471,15 @@ namespace Presentation.SkinEngine
           return;
         }
 
-        if (_currentWindow.History)
+        if (_currentScreen.History)
           _history.Pop();
-        InternalCloseWindow();
+        InternalCloseScreen();
 
-        Window newWindow = GetWindow(_history.Peek());
-        if (newWindow == null)
-          // Error message was shown in GetWindow()
+        Screen newScreen = GetScreen(_history.Peek());
+        if (newScreen == null)
+          // Error message was shown in GetScreen()
           return;
-        InternalShowWindow(newWindow);
+        InternalShowScreen(newScreen);
       }
     }
 

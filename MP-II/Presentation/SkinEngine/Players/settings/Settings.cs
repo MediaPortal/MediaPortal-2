@@ -25,12 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Diagnostics; // for 'FileVersionInfo'
+using MediaPortal.Presentation.DataObjects;
 using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Properties;
 
 namespace Presentation.SkinEngine.Players
 {
@@ -147,7 +145,7 @@ namespace Presentation.SkinEngine.Players
         }
         foreach (ListItem item in _defaultAudioLanguages)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.AudioLanguage, true) == 0)
             item.Selected = true;
           else
@@ -160,7 +158,7 @@ namespace Presentation.SkinEngine.Players
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      string name = item.Label("Name").Evaluate(null, null);
+      string name = item.Label("Name", "").Evaluate();
       settings.AudioLanguage = name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
@@ -184,7 +182,7 @@ namespace Presentation.SkinEngine.Players
         }
         foreach (ListItem item in _defaultSubtitleLanguages)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.SubtitleLanguage, true) == 0)
             item.Selected = true;
           else
@@ -197,7 +195,7 @@ namespace Presentation.SkinEngine.Players
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      string name = item.Label("Name").Evaluate(null, null);
+      string name = item.Label("Name", "").Evaluate();
       settings.SubtitleLanguage = name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
@@ -212,7 +210,7 @@ namespace Presentation.SkinEngine.Players
         ServiceScope.Get<ISettingsManager>().Load(settings);
         foreach (ListItem item in _mpeg2Codecs)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.Mpeg2Codec, true) == 0)
             item.Selected = true;
           else
@@ -229,7 +227,7 @@ namespace Presentation.SkinEngine.Players
         ServiceScope.Get<ISettingsManager>().Load(settings);
         foreach (ListItem item in _h264Codecs)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.H264Codec, true) == 0)
             item.Selected = true;
           else
@@ -246,7 +244,7 @@ namespace Presentation.SkinEngine.Players
         ServiceScope.Get<ISettingsManager>().Load(settings);
         foreach (ListItem item in _divxCodecs)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.DivXCodec, true) == 0)
             item.Selected = true;
           else
@@ -263,7 +261,7 @@ namespace Presentation.SkinEngine.Players
         ServiceScope.Get<ISettingsManager>().Load(settings);
         foreach (ListItem item in _audioCodecs)
         {
-          string name = item.Label("Name").Evaluate(null, null);
+          string name = item.Label("Name", "").Evaluate();
           if (String.Compare(name, settings.AudioCodec, true) == 0)
             item.Selected = true;
           else
@@ -276,28 +274,28 @@ namespace Presentation.SkinEngine.Players
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.Mpeg2Codec = item.Label("Name").Evaluate(null, null);
+      settings.Mpeg2Codec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetH264Codec(ListItem item)
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.H264Codec = item.Label("Name").Evaluate(null, null);
+      settings.H264Codec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetDivXCodec(ListItem item)
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.DivXCodec = item.Label("Name").Evaluate(null, null);
+      settings.DivXCodec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetAudioCodec(ListItem item)
     {
       VideoSettings settings = new VideoSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      settings.AudioCodec = item.Label("Name").Evaluate(null, null);
+      settings.AudioCodec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 

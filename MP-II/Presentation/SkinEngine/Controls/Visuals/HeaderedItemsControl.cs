@@ -22,15 +22,13 @@
 
 #endregion
 
-using System;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.Presentation.Collections;
 using Presentation.SkinEngine.SkinManagement;
 
 namespace Presentation.SkinEngine.Controls.Visuals
@@ -91,7 +89,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnContentChanged(Property property)
     {
       Header.VisualParent = this;
-      Header.SetWindow(Window);
+      Header.SetWindow(Screen);
     }
 
     #endregion
@@ -168,7 +166,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void Measure(SizeF availableSize)
     {
-      MediaPortal.Presentation.Collections.ListItem listItem = (MediaPortal.Presentation.Collections.ListItem)Context;
+      ListItem listItem = (ListItem) Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
 
@@ -209,7 +207,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       ActualHeight = layoutRect.Height;
       PointF p = layoutRect.Location;
 
-      MediaPortal.Presentation.Collections.ListItem listItem = (MediaPortal.Presentation.Collections.ListItem)Context;
+      ListItem listItem = (ListItem) Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
@@ -364,13 +362,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       return null;
     }
 
-    public override void Reset()
-    {
-      if (Header != null)
-        Header.Reset();
-      base.Reset();
-    }
-
     public override void Deallocate()
     {
       base.Deallocate();
@@ -433,12 +424,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void SetWindow(Window window)
+    public override void SetWindow(Screen screen)
     {
-      base.SetWindow(window);
+      base.SetWindow(screen);
       if (Header != null)
       {
-        Header.SetWindow(window);
+        Header.SetWindow(screen);
       }
     }
 

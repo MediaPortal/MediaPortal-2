@@ -28,14 +28,13 @@ using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.Screen;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.SkinManagement;
 
@@ -443,7 +442,7 @@ namespace Presentation.SkinEngine
               RenderPipeline.Instance.Render();
             }
 
-            WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+            ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
             manager.Render();
           }
           //End the scene

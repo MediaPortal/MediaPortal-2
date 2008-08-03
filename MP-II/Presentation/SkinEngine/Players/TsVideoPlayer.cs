@@ -30,7 +30,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.WindowManager;
 using Presentation.SkinEngine.Players.Subtitles;
 
 [ComVisible(true), ComImport,
@@ -102,15 +101,14 @@ namespace Presentation.SkinEngine.Players
 
     public TsVideoPlayer()
     {
-      IWindowManager windowManager = ServiceScope.Get<IWindowManager>();
       MenuItem item;
       item = new MenuItem(_subtitleLanguage, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogSubtitles";
       _menuItems.Add(item);
 
       item = new MenuItem(_audioStreams, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogAudioStreams";
       _menuItems.Add(item);
     }

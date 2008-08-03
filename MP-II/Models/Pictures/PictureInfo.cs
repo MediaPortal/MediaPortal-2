@@ -22,19 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-//using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Localisation;
-using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Pictures
 {

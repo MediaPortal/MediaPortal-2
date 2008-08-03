@@ -22,7 +22,7 @@
 
 #endregion
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Security.Principal;

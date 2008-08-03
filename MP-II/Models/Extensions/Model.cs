@@ -25,25 +25,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Xml;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.ExtensionManager;
-
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 
 using Models.Extensions.Helper;
 
@@ -268,7 +262,7 @@ namespace Models.Extensions
 
     private void NotifyAction()
     {
-      ServiceScope.Get<IWindowManager>().ShowDialog("dialogExtensionInfo");
+      ServiceScope.Get<IScreenManager>().ShowDialog("dialogExtensionInfo");
       Refresh();
       _items.FireChange();
     }
@@ -301,7 +295,7 @@ namespace Models.Extensions
         ((ExtensionItem)item).Item = Installer.Enumerator.GetItem(((ExtensionItem)item).Item.PackageId);
 
         _selectedPackage.Set(((ExtensionItem)item).Item);
-        ServiceScope.Get<IWindowManager>().ShowWindow("extensionsInfo");
+        ServiceScope.Get<IScreenManager>().ShowScreen("extensionsInfo");
       }
     }
 
@@ -426,7 +420,7 @@ namespace Models.Extensions
       if (selectedItem == null) return;
       for (int i = 0; i < _viewsMenu.Count; i++)
       {
-        if (_viewsMenu[i].Labels["Name"].Evaluate(null, null) == selectedItem.Labels["Name"].Evaluate(null, null))
+        if (_viewsMenu[i].Labels["Name"].Evaluate() == selectedItem.Labels["Name"].Evaluate())
         {
           _factory._view = i;
           _settings.View = i;
@@ -444,14 +438,14 @@ namespace Models.Extensions
     
     public void SafeInstall(ListItem selectedItem)
     {
-      ServiceScope.Get<IWindowManager>().CloseDialog();
+      ServiceScope.Get<IScreenManager>().CloseDialog();
       ExtensionItem item = selectedItem as ExtensionItem;
       if (item.Item.Dependencies.Count == 0 && item.Item.Items.Count == 0)
         _factory.DownloadExtraInfo(item.Item);
       item.Item = Installer.Enumerator.GetItem(item.Item.PackageId);
       if (Installer.GetUnsolvedDependencies(item.Item).Count > 0)
       {
-        ServiceScope.Get<IWindowManager>().ShowDialog("dialogExtensionDependency");
+        ServiceScope.Get<IScreenManager>().ShowDialog("dialogExtensionDependency");
       }
       else
       {
@@ -461,7 +455,7 @@ namespace Models.Extensions
     
     public void SafeUpdate(ListItem selectedItem)
     {
-      ServiceScope.Get<IWindowManager>().CloseDialog();
+      ServiceScope.Get<IScreenManager>().CloseDialog();
       ExtensionItem item = selectedItem as ExtensionItem;
       item.Item = Installer.Enumerator.GetItem(item.Item.PackageId);
 
@@ -541,7 +535,7 @@ namespace Models.Extensions
     /// <param name="selectedItem">The selected item.</param>
     public void DownloadInstall(ListItem selectedItem)
     {
-      ServiceScope.Get<IWindowManager>().CloseDialog();
+      ServiceScope.Get<IScreenManager>().CloseDialog();
       ExtensionItem item = selectedItem as ExtensionItem;
       if (item != null)
       {
@@ -653,7 +647,6 @@ namespace Models.Extensions
     {
       string localdir = ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>");
       Directory.CreateDirectory(localdir);
-      IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       string url = Installer.Settings.UpdateUrl;
       string listFile = String.Format(@"{0}\Mpilist.xml", localdir);
       if (_factory.DownloadFile(url, listFile))

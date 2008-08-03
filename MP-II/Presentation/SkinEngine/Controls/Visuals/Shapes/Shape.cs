@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
@@ -135,19 +135,19 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     void OnStrokeThicknessChanged(Property property)
     {
       _performLayout = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnFillBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnStrokeBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property StretchProperty
@@ -355,7 +355,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
         }
         if (_hidden && eventType != UIEvent.Visible) return;
         _lastEvent |= eventType;
-        if (Window != null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
       }
     }
     /// <summary>
@@ -685,7 +685,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       base.Arrange(layoutRect);
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public override void Measure(System.Drawing.SizeF availableSize)

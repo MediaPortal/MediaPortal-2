@@ -25,44 +25,18 @@
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Models;
 
 namespace Presentation.SkinEngine.Commands
 {
   internal class ObjectFactory
   {
-    /// <summary>
-    /// returns an object for the specified window & name
-    /// </summary>
-    /// <param name="window">The window.</param>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public static object GetObject(IWindow window, string name)
+    public static object GetObject(string name)
     {
-      return GetObject(null, window, name);
-    }
-
-    public static object GetObject(IControl control, IWindow window, string name)
-    {
-      if (name == "this")
+      if (name == "ScreenManager")
       {
-        return control;
-      }
-
-      if (name == "container")
-      {
-        if (control == null)
-        {
-          return null;
-        }
-        return control.Container;
-      }
-
-      if (name == "WindowManager")
-      {
-        WindowManager manager = (WindowManager)ServiceScope.Get<IWindowManager>();
+        ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
         return manager;
       }
 
@@ -76,17 +50,7 @@ namespace Presentation.SkinEngine.Commands
       {
         return ServiceScope.Get<PlayerCollection>();
       }
-      /*object controlFound = ((Window)window).GetControlByName(name);
-      if (controlFound != null)
-      {
-        return controlFound;
-      }
 
-      Model model = ((Window)window).GetModelByName(name);
-      if (model != null)
-      {
-        return model.Instance;
-      }*/
       Model model = ModelManager.Instance.GetModelByInternalName(name);
       if (model != null)
       {

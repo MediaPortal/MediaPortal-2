@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Media
 {
@@ -59,8 +59,8 @@ namespace Models.Media
       if (item1 != null)
       {
         //both are folders
-        string label1 = item1.Label("Name").Evaluate(null, null);
-        string label2 = item2.Label("Name").Evaluate(null, null);
+        string label1 = item1.Label("Name", "").Evaluate();
+        string label2 = item2.Label("Name", "").Evaluate();
         if (label1 == label2)
         {
           return 0;
@@ -80,8 +80,8 @@ namespace Models.Media
       {
         case SortOption.Name:
           {
-            string label1 = x.Label("Name").Evaluate(null, null);
-            string label2 = y.Label("Name").Evaluate(null, null);
+            string label1 = x.Label("Name", "").Evaluate();
+            string label2 = y.Label("Name", "").Evaluate();
             return string.Compare(label1, label2);
           }
         case SortOption.Date:

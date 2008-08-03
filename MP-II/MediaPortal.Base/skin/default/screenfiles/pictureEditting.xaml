@@ -26,7 +26,7 @@
       <Button Style="{StaticResource ButtonStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
         <Label Font="font13" Text="[pictures.save]"/>
       </Button>
-      <Button Style="{StaticResource ButtonStyle}" Height="32" Command="{Command Source={Service WindowManager},Path=ShowPreviousWindow}">
+      <Button Style="{StaticResource ButtonStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousWindow}">
         <Label Font="font13" Text="[pictures.cancel]"/>
       </Button>
       <CheckBox x:Name="cropButton" Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">

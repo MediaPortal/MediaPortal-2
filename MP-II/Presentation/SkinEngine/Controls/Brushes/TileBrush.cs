@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;
 using SlimDX;

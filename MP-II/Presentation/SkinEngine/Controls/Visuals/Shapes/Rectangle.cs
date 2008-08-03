@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
@@ -86,7 +86,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     void OnRadiusChanged(Property property)
     {
       Invalidate();
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property RadiusXProperty
@@ -136,8 +136,8 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
 
-        if (Window != null)
-          Window.Invalidate(this);
+        if (Screen != null)
+          Screen.Invalidate(this);
       }
     }
     /*

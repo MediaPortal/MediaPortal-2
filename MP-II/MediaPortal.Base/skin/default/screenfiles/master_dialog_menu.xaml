@@ -60,7 +60,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <LateBoundValue Value="{Binding}"/>
               </InvokeCommand.CommandParameters>
             </InvokeCommand>
-            <Command Source="{Service WindowManager}" Path="CloseDialog"/>
+            <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
           </CommandList>
         </ListView.Resources>
       </ListView>

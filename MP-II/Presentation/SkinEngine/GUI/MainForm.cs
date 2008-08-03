@@ -32,21 +32,19 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.AutoPlay;
-
+using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
 
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.Commands;
-using Presentation.SkinEngine.Fonts;
 using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.SkinManagement;
 
@@ -70,7 +68,7 @@ namespace Presentation.SkinEngine.GUI
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
     private string _displaySetting;
-    private WindowManager _windowManager;
+    private ScreenManager _screenManager;
 
     public MainForm()
     {
@@ -97,9 +95,9 @@ namespace Presentation.SkinEngine.GUI
       MenuBuilder menuBuilder = new MenuBuilder();
       ServiceScope.Add<IMenuBuilder>(menuBuilder);
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IWindowManager service");
-      _windowManager = new WindowManager();
-      ServiceScope.Add<IWindowManager>(_windowManager);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IScreenManager service");
+      _screenManager = new ScreenManager();
+      ServiceScope.Add<IScreenManager>(_screenManager);
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerFactory service");
       PlayerFactory playerFactory = new PlayerFactory();
@@ -134,7 +132,7 @@ namespace Presentation.SkinEngine.GUI
       {
         Location = new Point(0, 0);
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
-        ClientSize = Screen.PrimaryScreen.Bounds.Size;
+        ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
         _mode = ScreenMode.ExclusiveMode;
       }
@@ -151,7 +149,7 @@ namespace Presentation.SkinEngine.GUI
     {
       CheckTopMost();
 
-      _windowManager.ShowStartupScreen();
+      _screenManager.ShowStartupScreen();
 
       StartRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
@@ -177,7 +175,7 @@ namespace Presentation.SkinEngine.GUI
       // The render loop is restarted after toggle windowed / fullscreen
       // Make sure we invalidate all windows so the layout is re-done 
       // Big window layout does not fitt small window ;-)
-      _windowManager.Reset();
+      _screenManager.Reset();
 
       _fpsTimer = DateTime.Now;
       _fpsCounter = 0;
@@ -396,7 +394,7 @@ namespace Presentation.SkinEngine.GUI
     protected override void OnSizeChanged(EventArgs e)
     {
       base.OnSizeChanged(e);
-      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), WindowState);
+      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), ScreenState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -414,7 +412,7 @@ namespace Presentation.SkinEngine.GUI
 
     protected override void OnResizeEnd(EventArgs e)
     {
-      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), WindowState);
+      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), ScreenState);
 
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
@@ -438,8 +436,7 @@ namespace Presentation.SkinEngine.GUI
         if (WindowState != FormWindowState.Minimized)
         {
           GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), _displaySetting);
-          ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Allocate fonts");
-          ServiceScope.Get<IWindowManager>().Reset();
+          ServiceScope.Get<IScreenManager>().Reset();
 
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
           StartRenderThread();
@@ -512,7 +509,7 @@ namespace Presentation.SkinEngine.GUI
         _previousPosition = Location;
         Location = new Point(0, 0);
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
-        ClientSize = Screen.PrimaryScreen.Bounds.Size;
+        ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
       }
       else

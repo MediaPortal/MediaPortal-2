@@ -22,9 +22,9 @@
 
 #endregion
 
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.SkinManagement;
 using SlimDX;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
 

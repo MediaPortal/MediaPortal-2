@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="ExtensionUpdate.cs" />
     <Compile Include="FileUtil.cs" />
-    <Compile Include="FolderItem.cs" />
     <Compile Include="Helper Classes\PackageProperty.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="ExtensionComparer.cs" />

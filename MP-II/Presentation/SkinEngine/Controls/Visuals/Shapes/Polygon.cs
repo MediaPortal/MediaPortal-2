@@ -24,7 +24,8 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Collections.Generic;using MediaPortal.Presentation.Properties;
+using System.Collections.Generic;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;

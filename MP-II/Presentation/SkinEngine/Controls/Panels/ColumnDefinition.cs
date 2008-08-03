@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Properties;
 #endregion
 

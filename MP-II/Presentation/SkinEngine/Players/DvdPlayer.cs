@@ -39,7 +39,6 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Presentation.Players;
 using SlimDX;
 using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
@@ -124,25 +123,24 @@ namespace Presentation.SkinEngine.Players
 
     public DvdPlayer()
     {
-      IWindowManager windowManager = ServiceScope.Get<IWindowManager>();
       MenuItem item;
       item = new MenuItem(_subtitleLanguage, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogSubtitles";
       _menuItems.Add(item);
 
       item = new MenuItem(_audioStreams, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogAudioStreams";
       _menuItems.Add(item);
 
       item = new MenuItem(_titles, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogDvdTitles";
       _menuItems.Add(item);
 
       item = new MenuItem(_chapters, "");
-      item.Command = "WindowManager.ShowDialog";
+      item.Command = "ScreenManager.ShowDialog";
       item.CommandParameter = "dialogDvdChapters";
       _menuItems.Add(item);
     }

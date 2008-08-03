@@ -24,18 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.ExtensionManager;
-
 using MediaPortal.Services.ExtensionManager;
-
-using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MediaManager;
 
 namespace Models.Extensions
@@ -70,7 +65,6 @@ namespace Models.Extensions
     public bool DownloadFile(string url, string file)
     {
       bool x_ret = true;
-      IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       using (WebClient client = new WebClient())
       {
         try
@@ -148,7 +142,7 @@ namespace Models.Extensions
     {
       Installer.Enumerator.Load();
       extensions.Clear();
-      if (item == null || item.Labels["Name"].Evaluate(null, null)=="..")
+      if (item == null || item.Labels["Name"].Evaluate()=="..")
       {
         if (_view != 2)
           LoadCategories(ref extensions, item);
@@ -168,7 +162,7 @@ namespace Models.Extensions
           parentItem.Add("CoverArt", "DefaultFolderBackBig.png");
           extensions.Add(parentItem);
         }
-        string cat = item.Labels["Name"].Evaluate(null, null);
+        string cat = item.Labels["Name"].Evaluate();
         if (_view == 2)
           cat = string.Empty;
         LoadItems(ref extensions, item, cat);

@@ -56,7 +56,7 @@
       <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Text="{Binding SlideShow.CurrentTitle}" Color="White"/>
     </Canvas>
     <KeyBinding KeyPress="ContextMenu"
-        Command="{Command Source={Service WindowManager},Path=ShowDialog,Parameters=dialogMyPictureContextMenu}"/>
+        Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogMyPictureContextMenu}"/>
     <KeyBinding KeyPress="Left" Command="{Command SlideShow.ShowPreviousPicture}"/>
     <KeyBinding KeyPress="Right" Command="{Command SlideShow.ShowNextPicture}"/>
     <KeyBinding KeyPress="Space" Command="{Command SlideShow.Pause}"/>

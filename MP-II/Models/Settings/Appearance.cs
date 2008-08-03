@@ -29,9 +29,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Screen;
 
 
 namespace Models.Settings
@@ -81,7 +81,7 @@ namespace Models.Settings
 
     void UpdateThemes()
     {
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
       string[] themes = Directory.GetDirectories(String.Format(@"{0}\{1}\themes", skinPath, mgr.SkinName));
       
@@ -102,10 +102,10 @@ namespace Models.Settings
     /// </summary>
     void SetSelectedSkin()
     {
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       foreach (ListItem item in _skins)
       {
-        item.Selected = (item.Label("Name").Evaluate(null, null) == mgr.SkinName);
+        item.Selected = (item.Label("Name", "").Evaluate() == mgr.SkinName);
       }
 
     }
@@ -129,9 +129,9 @@ namespace Models.Settings
     public void SetSkin(ListItem item)
     {
       if (item == null) return;
-      string skinChoosen = item.Label("Name").Evaluate(null, null);
+      string skinChoosen = item.Label("Name", "").Evaluate();
 
-      IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager windowMgr = ServiceScope.Get<IScreenManager>();
       windowMgr.SwitchSkin(skinChoosen);
       UpdateThemes();
     }
@@ -171,10 +171,10 @@ namespace Models.Settings
     /// </summarySetSelectedTheme
     void SetSelectedTheme()
     {
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       foreach (ListItem item in _themes)
       {
-        item.Selected = (item.Label("Name").Evaluate(null, null) == mgr.ThemeName);
+        item.Selected = (item.Label("Name", "").Evaluate() == mgr.ThemeName);
       }
 
     }
@@ -186,9 +186,9 @@ namespace Models.Settings
     public void SetTheme(ListItem item)
     {
       if (item == null) return;
-      string themeChoosen = item.Label("Name").Evaluate(null, null);
+      string themeChoosen = item.Label("Name", "").Evaluate();
 
-      IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager windowMgr = ServiceScope.Get<IScreenManager>();
       windowMgr.SwitchTheme(themeChoosen);
     }
   }

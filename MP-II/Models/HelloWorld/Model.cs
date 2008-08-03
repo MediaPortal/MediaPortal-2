@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.PluginManager;
 
 namespace Models.HelloWorld

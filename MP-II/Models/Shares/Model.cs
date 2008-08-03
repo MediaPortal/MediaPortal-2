@@ -23,18 +23,13 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
+using MediaPortal.Presentation.Screen;
 
 namespace Models.Shares
 {
@@ -71,7 +66,7 @@ namespace Models.Shares
     public void RemoveShare(ListItem item)
     {
       if (item == null) return;
-      string path = item.Labels["Path"].Evaluate(null, null);
+      string path = item.Labels["Path"].Evaluate();
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
       mgr.RemoveShare(path);
       RefreshShares();
@@ -171,7 +166,7 @@ namespace Models.Shares
     {
       if (item == null) return;
       bool enabled = false;
-      if (item.Labels["selected"].Evaluate(null, null) == "false")
+      if (item.Labels["selected"].Evaluate() == "false")
       {
         item.Add("selected", "true");
         enabled = true;
@@ -205,7 +200,7 @@ namespace Models.Shares
     {
       SaveItems(_folders);
       RefreshShares();
-      ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
+      ServiceScope.Get<IScreenManager>().ShowPreviousScreen();
     }
     void SaveItems(ItemsCollection items)
     {
@@ -239,7 +234,7 @@ namespace Models.Shares
     {
       if (folder != null)
       {
-        if (folder.Labels["selected"].Evaluate(null, null) == "true")
+        if (folder.Labels["selected"].Evaluate() == "true")
           return;
       }
       folders.Clear();

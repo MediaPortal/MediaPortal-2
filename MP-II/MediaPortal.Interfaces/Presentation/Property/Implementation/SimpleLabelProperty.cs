@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -29,6 +29,8 @@ namespace MediaPortal.Presentation.Properties
 {
   /// <summary>
   /// Class which implements an ILabelProperty for a (localized) string
+  /// FIXME: Remove localization function here - localized strings are handled by
+  /// class LocalizedLabelProperty
   /// </summary>
   public class SimpleLabelProperty : ILabelProperty
   {
@@ -39,10 +41,6 @@ namespace MediaPortal.Presentation.Properties
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SimpleLabelProperty"/> class.
-    /// </summary>
-    /// <param name="stringValue">The string value.</param>
     public SimpleLabelProperty(string stringValue)
     {
       _stringValue = stringValue;
@@ -55,29 +53,7 @@ namespace MediaPortal.Presentation.Properties
 
     #region ILabelProperty Members
 
-    /// <summary>
-    /// Evaluates the specified control.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    /// <param name="container">The container.</param>
-    /// <returns></returns>
-    public string Evaluate(IControl control, IControl container)
-    {
-      if (_localizedString != null)
-      {
-        return _localizedString.ToString();
-      }
-      return _stringValue;
-    }
-
-    /// <summary>
-    /// Evaluates the specified control.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    /// <param name="container">The container.</param>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public string Evaluate(IControl control, IControl container, string name)
+    public string Evaluate()
     {
       if (_localizedString != null)
       {

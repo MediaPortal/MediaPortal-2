@@ -25,8 +25,8 @@
 using System;
 using System.Drawing;
 using System.Diagnostics;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
 
@@ -313,7 +313,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-        if (Window!=null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
       }
       base.Arrange(layoutRect);
     }

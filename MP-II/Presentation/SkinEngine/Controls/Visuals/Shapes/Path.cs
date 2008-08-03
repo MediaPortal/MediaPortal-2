@@ -26,12 +26,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
 using Presentation.SkinEngine.Xaml;
 using SlimDX.Direct3D9;
-using GeometryUtility;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.SkinManagement;
 

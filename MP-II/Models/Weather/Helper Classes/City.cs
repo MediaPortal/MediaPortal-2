@@ -47,9 +47,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Weather
 {

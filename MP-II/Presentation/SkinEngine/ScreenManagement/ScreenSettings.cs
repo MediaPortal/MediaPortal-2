@@ -22,40 +22,25 @@
 
 #endregion
 
-#if DEBUG
-using System;
-using NMock2;
-using NUnit.Framework;
-using SkinEngine.Skin;
-
-namespace SkinEngine
+using MediaPortal.Core.Settings;
+namespace Presentation.SkinEngine
 {
-  public class TestWindowManager
+  public class ScreenSettings
   {
-    [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
-    public void TestNullCtor()
+    string _skin;
+    string _theme;
+
+    [Setting(SettingScope.User, "default")]
+    public string Skin
     {
-      WindowManager manager = new WindowManager(null);
+      get { return _skin; }
+      set { _skin = value; }
     }
-
-
-    [Test]
-    public void TestLoadSkin()
+    [Setting(SettingScope.User, "default")]
+    public string Theme
     {
-      using (Mockery mock = new Mockery())
-      {
-        ISkinLoader loader = mock.NewMock<ISkinLoader>();
-        Expect.Once.On(loader).Method("Load").WithAnyArguments();
-        WindowManager manager = new WindowManager(loader);
-        manager.LoadSkin();
-        Assert.IsNotNull(manager.CurrentWindow);
-
-
-        mock.VerifyAllExpectationsHaveBeenMet();
-      }
+      get { return _theme; }
+      set { _theme = value; }
     }
   }
 }
-
-#endif

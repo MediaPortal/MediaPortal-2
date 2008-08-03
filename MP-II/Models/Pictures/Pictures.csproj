@@ -65,7 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileUtil.cs" />
-    <Compile Include="FolderItem.cs" />
     <Compile Include="MyPicture.cs" />
     <Compile Include="PictureComparer.cs" />
     <Compile Include="PictureEditor.cs" />

@@ -1,6 +1,6 @@
 
 using System;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Presentation.SkinEngine
 {

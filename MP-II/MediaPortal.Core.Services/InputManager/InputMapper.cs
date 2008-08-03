@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.Screen;
 
 namespace MediaPortal.Services.InputManager
 {
@@ -34,7 +34,8 @@ namespace MediaPortal.Services.InputManager
   {
     public Key Map(Keys keycode, bool alt)
     {
-      IInputManager manager = ServiceScope.Get<IInputManager>();
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
       PlayerCollection players = ServiceScope.Get<PlayerCollection>();
       switch (keycode)
       {
@@ -44,42 +45,26 @@ namespace MediaPortal.Services.InputManager
 
         case Keys.Up:
           if (players.Count != 0)
-          {
             if (players[0].InDvdMenu && !players[0].Paused)
-            {
               return Key.DvdUp;
-            }
-          }
           return Key.Up;
 
         case Keys.Down:
           if (players.Count != 0)
-          {
             if (players[0].InDvdMenu && !players[0].Paused)
-            {
               return Key.DvdDown;
-            }
-          }
           return Key.Down;
 
         case Keys.Left:
           if (players.Count != 0)
-          {
             if (players[0].InDvdMenu && !players[0].Paused)
-            {
               return Key.DvdLeft;
-            }
-          }
           return Key.Left;
 
         case Keys.Right:
           if (players.Count != 0)
-          {
             if (players[0].InDvdMenu && !players[0].Paused)
-            {
               return Key.DvdRight;
-            }
-          }
           return Key.Right;
 
         case Keys.PageUp:
@@ -95,70 +80,42 @@ namespace MediaPortal.Services.InputManager
           return Key.End;
 
         case Keys.Enter:
-          if (manager.NeedRawKeyData)
-          {
+          if (inputManager.NeedRawKeyData)
             return Key.Enter;
-          }
           if (alt)
           {
             //switch to fullscreen
             IApplication app = ServiceScope.Get<IApplication>();
             bool windowed = !app.IsFullScreen;
-
-
-
             if (windowed)
-            {
               app.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
-            }
             else
-            {
               app.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
-            }
           }
           else
           {
             if (players.Count != 0)
-            {
               if (players[0].InDvdMenu && !players[0].Paused)
-              {
                 return Key.DvdSelect;
-              }
-            }
             return Key.Enter;
-          }
-          break;
-        case Keys.F1:
-          {
-            //reload current window
-            IWindowManager windowmanager = ServiceScope.Get<IWindowManager>();
-            windowmanager.Reload();
           }
           break;
         case Keys.Back:
           {
             //show previous window
-            if (manager.NeedRawKeyData)
-            {
+            if (inputManager.NeedRawKeyData)
               return Key.BackSpace;
-            }
-            IWindowManager windowmanager = ServiceScope.Get<IWindowManager>();
-            windowmanager.ShowPreviousWindow();
+            screenManager.ShowPreviousScreen();
           }
           break;
         case Keys.Escape:
-          {
-            //show previous window
-            IWindowManager windowmanager = ServiceScope.Get<IWindowManager>();
-            windowmanager.ShowPreviousWindow();
-          }
+          //show previous window
+          screenManager.ShowPreviousScreen();
           break;
         case Keys.Space:
           //pause/continue playback
-          if (manager.NeedRawKeyData)
-          {
+          if (inputManager.NeedRawKeyData)
             return Key.Space;
-          }
           if (players.Count != 0)
           {
             players[0].Paused = !players[0].Paused;
@@ -167,36 +124,24 @@ namespace MediaPortal.Services.InputManager
           return Key.Space;
         case Keys.M:
           //show dvd menu
-          if (manager.NeedRawKeyData)
-          {
+          if (inputManager.NeedRawKeyData)
             return Key.None;
-          }
           if (players.Count != 0)
-          {
             return Key.DvdMenu;
-          }
           break;
         case Keys.B:
-          if (manager.NeedRawKeyData)
-          {
+          if (inputManager.NeedRawKeyData)
             return Key.None;
-          }
           if (players.Count != 0)
-          {
             //stop playback
             players.Dispose();
-          }
           break;
         case Keys.S:
           //change zoom mode
-          if (manager.NeedRawKeyData)
-          {
+          if (inputManager.NeedRawKeyData)
             return Key.None;
-          }
           if (players.Count != 0)
-          {
             return Key.ZoomMode;
-          }
           break;
       }
       return Key.None;
@@ -205,9 +150,7 @@ namespace MediaPortal.Services.InputManager
     public Key Map(char keyChar)
     {
       if (keyChar >= (char)32)
-      {
         return new Key(keyChar);
-      }
       return Key.None;
     }
   }

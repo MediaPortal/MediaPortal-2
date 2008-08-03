@@ -22,29 +22,11 @@
 
 #endregion
 
-using MediaPortal.Presentation.WindowManager;
-
 namespace MediaPortal.Presentation.Commands
 {
-  /// <summary>
-  /// interface to a command builder
-  /// </summary>
   public interface ICommandBuilder
   {
-    /// <summary>
-    /// Creates a new command
-    /// </summary>
-    /// <param name="window">The window.</param>
-    /// <param name="command">The command string</param>
-    /// <returns>an new ICommand</returns>
-    ICommand BuildCommand(IWindow window, string command);
-
-    /// <summary>
-    /// Builds a new command parameter.
-    /// </summary>
-    /// <param name="command">The command.</param>
-    /// <param name="parameter">The parameter.</param>
-    /// <returns></returns>
-    ICommandParameter BuildParameter(ICommand command, string parameter);
+    ICommand BuildCommand(string command);
+    ICommandParameter BuildParameter(string parameter);
   }
 }

@@ -1,32 +1,32 @@
 <menu>
   <items>
-    <item text="[movies.3]" image="hover_my videos.png" command="WindowManager.PrepareWindow+mymovies:Model.SetView+WindowManager.ShowWindow" parameter="movies+Movies+movies">
+    <item text="[movies.3]" image="hover_my videos.png" command="ScreenManager.PrepareScreen+mymovies:Model.SetView+ScreenManager.ShowScreen" parameter="movies+Movies+movies">
       <items>
-        <item text="[movies.dvd]" image="defaultDVDRomBig.png" command="WindowManager.PrepareWindow+mymovies:Model.SetView+WindowManager.ShowWindow" parameter="movies+Dvds+movies"/>
+        <item text="[movies.dvd]" image="defaultDVDRomBig.png" command="ScreenManager.PrepareScreen+mymovies:Model.SetView+ScreenManager.ShowScreen" parameter="movies+Dvds+movies"/>
       </items>
       <items>
-        <item text="[weather.4]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsPlayback"/>
-      </items>
-    </item>
-    <item text="[weather.0]" image="hover_my weather.png" command="WindowManager.ShowWindow" parameter="weather">
-      <items>
-        <item text="[weather.4]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="weathersetup"/>
+        <item text="[weather.4]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsPlayback"/>
       </items>
     </item>
-    <item text="[music.3]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="music">
+    <item text="[weather.0]" image="hover_my weather.png" command="ScreenManager.ShowScreen" parameter="weather">
       <items>
-        <item text="[playlists.playlist]" image="hover_playlist.png" command="WindowManager.ShowWindow" parameter="playlist"/>
-        <item text="[music.settings]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsMusic"/>
+        <item text="[weather.4]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="weathersetup"/>
       </items>
     </item>
-    <item text="[media.name]" image="hover_my music.png" command="WindowManager.ShowWindow" parameter="media"/>
-    <item text="[pictures.3]" image="hover_my pictures.png" command="WindowManager.ShowWindow" parameter="Pictures"/>
-    <item text="[settings.0]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsGeneral"/>
-    <item text="[hello.menu]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="helloworld"/>
-    <item text="[extensions.myextensions]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="extensions">
+    <item text="[music.3]" image="hover_my music.png" command="ScreenManager.ShowScreen" parameter="music">
       <items>
-        <item text="[extensions.updateall]" image="hover_playlist.png" command="WindowManager.ShowWindow" parameter="playlist"/>
-        <item text="[extensions.settings]" image="hover_settings.png" command="WindowManager.ShowWindow" parameter="settingsMusic"/>
+        <item text="[playlists.playlist]" image="hover_playlist.png" command="ScreenManager.ShowScreen" parameter="playlist"/>
+        <item text="[music.settings]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsMusic"/>
+      </items>
+    </item>
+    <item text="[media.name]" image="hover_my music.png" command="ScreenManager.ShowScreen" parameter="media"/>
+    <item text="[pictures.3]" image="hover_my pictures.png" command="ScreenManager.ShowScreen" parameter="Pictures"/>
+    <item text="[settings.0]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsGeneral"/>
+    <item text="[hello.menu]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="helloworld"/>
+    <item text="[extensions.myextensions]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="extensions">
+      <items>
+        <item text="[extensions.updateall]" image="hover_playlist.png" command="ScreenManager.ShowScreen" parameter="playlist"/>
+        <item text="[extensions.settings]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsMusic"/>
       </items>
 	</item>
   </items>

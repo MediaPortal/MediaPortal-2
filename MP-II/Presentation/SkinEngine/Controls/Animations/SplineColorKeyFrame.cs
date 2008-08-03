@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 

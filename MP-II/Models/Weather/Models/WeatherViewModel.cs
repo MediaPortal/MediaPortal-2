@@ -28,10 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.PluginManager;
-
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 
 using Models.Weather.Grabbers;
@@ -133,7 +130,7 @@ namespace Models.Weather
         // no locations have been setup yet, guide to setup
         else
         {
-        //  ServiceScope.Get<IWindowManager>().ShowWindow("weathersetup");
+          //  ServiceScope.Get<IScreenManager>().ShowScreen("weathersetup");
         }
       }
       // we've added new citys, so update the locations collection
@@ -149,7 +146,7 @@ namespace Models.Weather
     /// <returns></returns>
     public void RefreshData(City loc)
     {
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
 
       if (ServiceScope.Get<IWeatherCatcher>().GetLocationData(loc))
       {
@@ -160,7 +157,7 @@ namespace Models.Weather
         ServiceScope.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
       }
 
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -181,7 +178,7 @@ namespace Models.Weather
       City found = null;
       // we need to find the correct city now... do this by searching for the id in the 
       // locations list
-      string strLoc = item.Label("Id").Evaluate(null, null);
+      string strLoc = item["Id"];
 
       foreach (City c in Locations)
       {

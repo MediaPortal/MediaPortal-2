@@ -22,30 +22,15 @@
 
 #endregion
 
+
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Timers;
-
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Database;
-using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Screen;
 using Timer = System.Timers.Timer;
-
-using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
-
-
 
 namespace Models.Pictures
 {
@@ -142,9 +127,8 @@ namespace Models.Pictures
 
     private void _slideShowTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      IWindowManager manager = ServiceScope.Get<IWindowManager>();
-      IWindow window = manager.CurrentWindow;
-      if (window.Name != "pictureviewer")
+      IScreenManager manager = ServiceScope.Get<IScreenManager>();
+      if (manager.CurrentScreenName != "pictureviewer")
       {
         PictureIndex = 0;
         _slideShowTimer.Enabled = false;
@@ -165,8 +149,8 @@ namespace Models.Pictures
         {
           _slideShowTimer.Enabled = false;
           PictureIndex = 0;
-          IWindowManager manager = ServiceScope.Get<IWindowManager>();
-          manager.ShowPreviousWindow();
+          IScreenManager manager = ServiceScope.Get<IScreenManager>();
+          manager.ShowPreviousScreen();
           return;
         }
         if ((_pictures[PictureIndex] as FolderItem) == null)

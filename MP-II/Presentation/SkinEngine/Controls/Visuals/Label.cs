@@ -22,10 +22,9 @@
 
 #endregion
 
-using System;
 using System.Diagnostics;
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.Localisation;
 using SlimDX;
 using Font = Presentation.SkinEngine.Fonts.Font;
@@ -100,21 +99,21 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnColorChanged(Property prop)
     {
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
       // Invalidate();
     }
 
     void OnScrollChanged(Property prop)
     {
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     protected override void OnFontChanged(Property prop)
@@ -127,7 +126,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       _asset = null;
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property TextProperty
@@ -255,9 +254,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _isLayoutInvalid = false;
       _update = true;
       //Trace.WriteLine(String.Format("Label.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-    
-      if (Window != null) 
-        Window.Invalidate(this);
+
+      if (Screen != null)
+        Screen.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()

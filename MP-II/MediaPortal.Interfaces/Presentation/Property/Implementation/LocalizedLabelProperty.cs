@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,46 +28,35 @@ using MediaPortal.Core.Localisation;
 namespace MediaPortal.Presentation.Properties
 {
   /// <summary>
-  /// Class which implements an ILabelProperty for a (localized) string
+  /// Wrapper class for a <see cref="StringId"/> instance, which implements
+  /// <see cref="ILabelProperty"/> for this (localized) string.
   /// </summary>
   public class LocalizedLabelProperty : ILabelProperty
   {
-    #region variables
+    #region Protected fields
 
-    private StringId _localizedString;
+    protected StringId _localizedString;
 
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SimpleLabelProperty"/> class.
+    /// Creates a new instance of <see cref="LocalizedLabelProperty"/>, which is based on
+    /// the specified <see cref="StringId"/> value.
     /// </summary>
-    /// <param name="stringValue">The string value.</param>
-    public LocalizedLabelProperty(StringId stringValue)
+    public LocalizedLabelProperty(StringId value)
     {
-      _localizedString = stringValue;
+      _localizedString = value;
+    }
+
+    public StringId LocalizedString
+    {
+      get { return _localizedString; }
+      set { _localizedString = value; }
     }
 
     #region ILabelProperty Members
 
-    /// <summary>
-    /// Evaluates the specified control.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    /// <param name="container">The container.</param>
-    /// <returns></returns>
-    public string Evaluate(IControl control, IControl container)
-    {
-      return _localizedString.ToString();
-    }
-
-    /// <summary>
-    /// Evaluates the specified control.
-    /// </summary>
-    /// <param name="control">The control.</param>
-    /// <param name="container">The container.</param>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public string Evaluate(IControl control, IControl container, string name)
+    public string Evaluate()
     {
       return _localizedString.ToString();
     }

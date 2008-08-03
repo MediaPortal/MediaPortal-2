@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.Screen;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
@@ -46,8 +46,8 @@ namespace Presentation.SkinEngine.Controls.Brushes
       _opacityBrush = opacityBrush;
       _stops = stops;
       Allocate();
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
-      _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.CurrentWindow.Name, name);
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
+      _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.CurrentScreenName, name);
       _assetId++;
       ContentManager.Add(this);
     }

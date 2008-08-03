@@ -24,12 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MetaData;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Movies
 {

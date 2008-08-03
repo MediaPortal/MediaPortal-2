@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;
@@ -96,7 +96,7 @@ namespace Presentation.SkinEngine.Controls.Visuals.Shapes
     void OnCoordinateChanged(Property property)
     {
       Invalidate();
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property X1Property

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -29,7 +29,9 @@ namespace MediaPortal.Core.Localisation
   public delegate void LanguageChangeHandler(object o);
 
   /// <summary>
-  /// Interface for providing localised strings.
+  /// Interface for accessing the localization module. The localization module is responsible
+  /// for managing culture data supported by the application, holding a current culture and
+  /// providing localised strings for that culture.
   /// </summary>
   /// <remarks>
   /// Localized strings are referenced from the application by instances of <see cref="StringId"/>.

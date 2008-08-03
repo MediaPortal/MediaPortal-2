@@ -62,8 +62,6 @@
     <Compile Include="Core\Messaging\QueueMessage.cs" />
     <Compile Include="Core\PluginManager\PluginMessaging.cs" />
     <Compile Include="Core\PluginManager\PluginResource.cs" />
-    <Compile Include="Presentation\Collections\ItemsCollection.cs" />
-    <Compile Include="Presentation\Collections\ListItem.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
@@ -97,6 +95,9 @@
     <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="Core\TaskScheduler\Task.cs" />
     <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
+    <Compile Include="Presentation\DataObjects\FolderItem.cs" />
+    <Compile Include="Presentation\DataObjects\ItemsCollection.cs" />
+    <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
     <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />
@@ -163,13 +164,9 @@
     <Compile Include="Core\PluginManager\IPluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Property\Implementation\LocalizedLabelProperty.cs" />
-    <Compile Include="Presentation\Property\Implementation\Property.cs" />
+    <Compile Include="Presentation\DataObjects\Property.cs" />
     <Compile Include="Presentation\Property\Implementation\SimpleLabelProperty.cs" />
-    <Compile Include="Presentation\Property\interfaces\IBooleanProperty.cs" />
-    <Compile Include="Presentation\Property\interfaces\IControl.cs" />
-    <Compile Include="Presentation\Property\interfaces\IFloatproperty.cs" />
     <Compile Include="Presentation\Property\interfaces\ILabelProperty.cs" />
-    <Compile Include="Presentation\Property\interfaces\IListItemProperty.cs" />
     <Compile Include="Core\ServiceCreatorCallback.cs" />
     <Compile Include="Core\ServiceNotFoundException.cs" />
     <Compile Include="Core\ServiceScope.cs" />
@@ -188,8 +185,7 @@
     <Compile Include="Core\UserManagement\IRole.cs" />
     <Compile Include="Core\UserManagement\IUser.cs" />
     <Compile Include="Core\UserManagement\IUserService.cs" />
-    <Compile Include="Presentation\WindowManager\IWindow.cs" />
-    <Compile Include="Presentation\WindowManager\IWindowManager.cs" />
+    <Compile Include="Presentation\Screen\IScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Media\MediaManager\MediaManager class diagram.cd" />

@@ -22,19 +22,17 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
+
 
 namespace Models.PlayList
 {
@@ -278,7 +276,7 @@ namespace Models.PlayList
     /// <param name="item">The item.</param>
     public void LoadPlayList(ListItem item)
     {
-      string fullpath = item.Label("FullPath").Evaluate(null, null);
+      string fullpath = item.Label("FullPath", "").Evaluate();
       IPlaylistManager playlistMgr = ServiceScope.Get<IPlaylistManager>();
       playlistMgr.Load(fullpath);
     }

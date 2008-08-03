@@ -24,8 +24,7 @@
 
 using System.Drawing;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
-
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine;

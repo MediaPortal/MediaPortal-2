@@ -21,14 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
 
+using System;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.WindowManager;
 
 namespace Presentation.SkinEngine
 {
@@ -129,8 +126,8 @@ namespace Presentation.SkinEngine
     /// <returns></returns>
     private static FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      Window window = (Window)ServiceScope.Get<IWindowManager>().CurrentWindow;
-      return window.RootElement.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      Screen screen = focusedFrameworkElement.Screen;
+      return screen.RootElement.PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     /// <summary>
@@ -141,8 +138,8 @@ namespace Presentation.SkinEngine
     /// <returns></returns>
     private static FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      Window window = (Window)ServiceScope.Get<IWindowManager>().CurrentWindow;
-      return window.RootElement.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      Screen screen = focusedFrameworkElement.Screen;
+      return screen.RootElement.PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
     /// <summary>
@@ -153,8 +150,8 @@ namespace Presentation.SkinEngine
     /// <returns></returns>
     private static FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      Window window = (Window)ServiceScope.Get<IWindowManager>().CurrentWindow;
-      return window.RootElement.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      Screen screen = focusedFrameworkElement.Screen;
+      return screen.RootElement.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
     /// <summary>
@@ -165,8 +162,8 @@ namespace Presentation.SkinEngine
     /// <returns></returns>
     private static FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      Window window = (Window)ServiceScope.Get<IWindowManager>().CurrentWindow;
-      return window.RootElement.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      Screen screen = focusedFrameworkElement.Screen;
+      return screen.RootElement.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
   }
 }

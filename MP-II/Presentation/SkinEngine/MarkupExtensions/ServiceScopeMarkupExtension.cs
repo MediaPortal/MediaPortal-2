@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.Xaml.Interfaces;
 
@@ -33,7 +34,6 @@ namespace Presentation.SkinEngine.MarkupExtensions
   using MediaPortal.Control.InputManager;
   using MediaPortal.Core;
   using MediaPortal.Presentation.Players;
-  using MediaPortal.Presentation.WindowManager;
 
   public class ServiceScopeMarkupExtension: IEvaluableMarkupExtension
   {
@@ -43,7 +43,7 @@ namespace Presentation.SkinEngine.MarkupExtensions
     protected static IDictionary<string, Type> TYPE_MAPPING = new Dictionary<string, Type>();
     static ServiceScopeMarkupExtension()
     {
-      TYPE_MAPPING.Add("WindowManager", typeof(IWindowManager));
+      TYPE_MAPPING.Add("ScreenManager", typeof(IScreenManager));
       TYPE_MAPPING.Add("InputManager", typeof(IInputManager));
       TYPE_MAPPING.Add("Players", typeof(PlayerCollection));
     }

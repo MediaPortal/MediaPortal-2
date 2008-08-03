@@ -24,12 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 
 namespace Models.Music
 {

@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
@@ -121,7 +121,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnPropertyChanged(Property property)
     {
       _performImageLayout = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         }
       }
       _performImageLayout = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property StretchProperty
@@ -236,7 +236,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       IsArrangeValid = true;
       _isLayoutInvalid = false;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public override void Measure(SizeF availableSize)

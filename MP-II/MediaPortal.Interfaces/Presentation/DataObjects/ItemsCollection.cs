@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,9 +26,8 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Commands;
-using MediaPortal.Presentation.WindowManager;
 
-namespace MediaPortal.Presentation.Collections
+namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
   /// interface to a collection of items
@@ -38,19 +37,19 @@ namespace MediaPortal.Presentation.Collections
     public ItemsCollection()
     {
     }
+
     public ItemsCollection(IMenu menu)
     {
       ICommandBuilder builder = ServiceScope.Get<ICommandBuilder>();
-      IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
       foreach (IMenuItem item in menu.Items)
       {
         ListItem listItem = new ListItem("Name", item.Text);
         listItem.Add("CoverArt", item.ImagePath);
         if (item.Command != "")
         {
-          listItem.Command = builder.BuildCommand(windowMgr.CurrentWindow, item.Command);
+          listItem.Command = builder.BuildCommand(item.Command);
           if (item.CommandParameter != "")
-            listItem.CommandParameter = builder.BuildParameter(listItem.Command, item.CommandParameter);
+            listItem.CommandParameter = builder.BuildParameter(item.CommandParameter);
         }
         listItem.SubItems.Add(listItem);
         if (item.Items != null)
@@ -61,9 +60,9 @@ namespace MediaPortal.Presentation.Collections
             sublistItem.Add("CoverArt", subitem.ImagePath);
             if (subitem.Command != "")
             {
-              sublistItem.Command = builder.BuildCommand(windowMgr.CurrentWindow, subitem.Command);
+              sublistItem.Command = builder.BuildCommand(subitem.Command);
               if (subitem.CommandParameter != "")
-                sublistItem.CommandParameter = builder.BuildParameter(sublistItem.Command, subitem.CommandParameter);
+                sublistItem.CommandParameter = builder.BuildParameter(subitem.CommandParameter);
             }
 
             listItem.SubItems.Add(sublistItem);
@@ -72,6 +71,7 @@ namespace MediaPortal.Presentation.Collections
         Add(listItem);
       }
     }
+
     public delegate void ItemsChangedHandler(bool refreshAll);
 
     /// <summary>
@@ -89,6 +89,7 @@ namespace MediaPortal.Presentation.Collections
         Changed(true);
       }
     }
+
     public void FireChange(bool refreshAll)
     {
       if (Changed != null)

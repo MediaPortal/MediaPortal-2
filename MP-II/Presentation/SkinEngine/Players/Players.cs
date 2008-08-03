@@ -25,17 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Diagnostics; // for 'FileVersionInfo'
-using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
-
+using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Commands;
 
 namespace Presentation.SkinEngine.Players
@@ -79,9 +75,9 @@ namespace Presentation.SkinEngine.Players
       Application.Idle += OnIdle;
       _seeking = new Seeking();
 
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       _pipMenu = new ListItem("Name", _pip.ToString());
-      _pipMenu.Command = new ReflectionCommand(mgr.CurrentWindow, "WindowManager.ShowDialog");
+      _pipMenu.Command = new ReflectionCommand("ScreenManager.ShowDialog");
       _pipMenu.CommandParameter = new StringParameter("dialogPictureInPicture");
     }
 
@@ -516,7 +512,7 @@ namespace Presentation.SkinEngine.Players
     {
       if (Count > 0)
       {
-        this[0].SetSubtitle(item.Label("Name").Evaluate(null, null));
+        this[0].SetSubtitle(item.Label("Name", "").Evaluate());
       }
     }
 
@@ -559,7 +555,7 @@ namespace Presentation.SkinEngine.Players
     {
       if (Count > 0)
       {
-        this[0].SetAudioStream(item.Label("Name").Evaluate(null, null));
+        this[0].SetAudioStream(item.Label("Name", "").Evaluate());
       }
     }
 
@@ -602,7 +598,7 @@ namespace Presentation.SkinEngine.Players
     {
       if (Count > 0)
       {
-        this[0].SetDvdTitle(item.Label("Name").Evaluate(null, null));
+        this[0].SetDvdTitle(item.Label("Name", "").Evaluate());
       }
     }
 
@@ -641,7 +637,7 @@ namespace Presentation.SkinEngine.Players
     {
       if (Count > 0)
       {
-        this[0].SetDvdChapter(item.Label("Name").Evaluate(null, null));
+        this[0].SetDvdChapter(item.Label("Name", "").Evaluate());
       }
     }
 

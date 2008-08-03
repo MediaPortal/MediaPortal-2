@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Presentation.Commands;
-using MediaPortal.Presentation.WindowManager;
 
 namespace Presentation.SkinEngine.Commands
 {
@@ -31,12 +30,12 @@ namespace Presentation.SkinEngine.Commands
   {
     #region ICommandBuilder Members
 
-    public ICommand BuildCommand(IWindow window, string command)
+    public ICommand BuildCommand(string command)
     {
-      return new ReflectionCommand(window, command);
+      return new ReflectionCommand(command);
     }
 
-    public ICommandParameter BuildParameter(ICommand command, string parameter)
+    public ICommandParameter BuildParameter(string parameter)
     {
       return new StringParameter(parameter);
     }

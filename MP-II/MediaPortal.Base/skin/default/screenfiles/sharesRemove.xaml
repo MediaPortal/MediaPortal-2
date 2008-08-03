@@ -23,11 +23,11 @@
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
           <Button Style="{StaticResource ButtonStyle}" Margin="0,0,10,0"   Width="160" Height="32"
-              Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=sharescancel}">
+              Command="{Command Source={Service ScreenManager},Path=ShowWindow,Parameters=sharescancel}">
             <Label FontSize="30" Text="[system.cancel]" Height="32" />
           </Button>
           <Button Style="{StaticResource ButtonStyle}" Margin="10,0,10,10"  Width="160" Height="32"
-              Command="{Command Source={Service WindowManager},Path=ShowPreviousWindow}" >
+              Command="{Command Source={Service ScreenManager},Path=ShowPreviousWindow}" >
             <Label FontSize="30" Text="[system.done]" Height="32" />
           </Button>
         </StackPanel>

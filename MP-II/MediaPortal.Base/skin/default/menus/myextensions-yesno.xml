@@ -1,6 +1,6 @@
 <menu>
   <items>
-    <item text="[system.yes]" image="" command="WindowManager.CloseDialog+MyExtensions:Model.Install" parameter="+MyExtensions:Model.SelectedItem"/>
-    <item text="[system.no]" image="" command="WindowManager.CloseDialog" parameter=""/>
+    <item text="[system.yes]" image="" command="ScreenManager.CloseDialog+MyExtensions:Model.Install" parameter="+MyExtensions:Model.SelectedItem"/>
+    <item text="[system.no]" image="" command="ScreenManager.CloseDialog" parameter=""/>
   </items>
 </menu>

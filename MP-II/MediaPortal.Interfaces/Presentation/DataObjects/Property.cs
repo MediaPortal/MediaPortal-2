@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Properties
+namespace MediaPortal.Presentation.DataObjects
 {
   public delegate void PropertyChangedHandler(Property property);
 

@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Xaml;
 using Presentation.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;

@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Xaml;
 using SlimDX;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
 using Presentation.SkinEngine.Controls.Animations;
@@ -724,12 +724,12 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
-      Window.Animator.StartStoryboard(board, this, handoffBehavior);
+      Screen.Animator.StartStoryboard(board, this, handoffBehavior);
     }
 
     public void StopStoryboard(Storyboard board)
     {
-      Window.Animator.StopStoryboard(board, this);
+      Screen.Animator.StopStoryboard(board, this);
     }
 
     /// <summary>
@@ -800,15 +800,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Resets this object to a state like it were created. This will release all lazy initialized
-    /// values and force it to re-initialize. The LogicalTree will remain like it is.
-    /// </summary>
-    public virtual void Reset()
-    {
-      _fireLoaded = true;
-    }
-
     public virtual void Allocate()
     {
     }
@@ -817,9 +808,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
     }
 
-    public virtual void SetWindow(Window window)
+    public virtual void SetWindow(Screen screen)
     {
-      Window = window;
+      Screen = screen;
     }
   }
 }

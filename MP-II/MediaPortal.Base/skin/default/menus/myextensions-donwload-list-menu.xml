@@ -1,6 +1,6 @@
 <menu>
   <items>
-    <item text="[playback.35]" image="" command="WindowManager.CloseDialog" parameter=""/>
-    <item text="[playback.36]" image="" command="WindowManager.CloseDialog+MyExtensions:Model.DownloadList" parameter=""/>
+    <item text="[playback.35]" image="" command="ScreenManager.CloseDialog" parameter=""/>
+    <item text="[playback.36]" image="" command="ScreenManager.CloseDialog+MyExtensions:Model.DownloadList" parameter=""/>
   </items>
 </menu>

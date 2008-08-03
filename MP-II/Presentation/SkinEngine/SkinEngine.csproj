@@ -339,11 +339,11 @@
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
-    <Compile Include="WindowManagement\Animator.cs" />
-    <Compile Include="WindowManagement\TimeUtils.cs" />
-    <Compile Include="WindowManagement\Window.cs" />
-    <Compile Include="WindowManagement\WindowManager.cs" />
-    <Compile Include="WindowManagement\WindowSettings.cs" />
+    <Compile Include="ScreenManagement\Animator.cs" />
+    <Compile Include="ScreenManagement\TimeUtils.cs" />
+    <Compile Include="ScreenManagement\Screen.cs" />
+    <Compile Include="ScreenManagement\ScreenManager.cs" />
+    <Compile Include="ScreenManagement\ScreenSettings.cs" />
     <Compile Include="Xaml\Interfaces\IInitializable.cs" />
     <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
     <Compile Include="Xaml\ElementContextStack.cs" />

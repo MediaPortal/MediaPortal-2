@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Controls.Brushes;
 using SlimDX;
@@ -116,7 +116,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     void OnColorChanged(Property prop)
     {
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnTextChanged(Property prop)
@@ -128,8 +128,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
       {
         CaretIndex = Text.Length;
       }
-      if (Window != null) 
-        Window.Invalidate(this);
+      if (Screen != null)
+        Screen.Invalidate(this);
     }
 
     protected override void OnFontChanged(Property prop)
@@ -142,7 +142,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
       _asset = null;
       _update = true;
-      if (Window != null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     // We need to override this one, so we can subscribe to raw data.
@@ -305,9 +305,9 @@ namespace Presentation.SkinEngine.Controls.Visuals
       _isLayoutInvalid = false;
       _update = true;
       //Trace.WriteLine(String.Format("TextBox.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-    
-      if (Window != null) 
-        Window.Invalidate(this);
+
+      if (Screen != null)
+        Screen.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()
@@ -497,11 +497,6 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _renderer.Alloc();
         DoBuildRenderTree();
       }
-    }
-    
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
-    {
-      base.FireUIEvent(eventType, source);
     }
     
     public override void Update()

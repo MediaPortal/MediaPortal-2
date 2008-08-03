@@ -59,7 +59,6 @@
   <ItemGroup>
     <Compile Include="DvdMediaItem.cs" />
     <Compile Include="FileUtil.cs" />
-    <Compile Include="FolderItem.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="MovieComparer.cs" />
     <Compile Include="MovieFactory.cs" />

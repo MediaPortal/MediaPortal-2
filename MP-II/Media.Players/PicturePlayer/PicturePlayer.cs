@@ -23,18 +23,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.Screen;
 
 namespace Media.Players.PicturePlayer
 {
@@ -56,14 +51,14 @@ namespace Media.Players.PicturePlayer
       //and tell it to show the image
       _state = PlaybackState.Playing;
       _mediaItem = item;
-      ServiceScope.Get<IWindowManager>().PrepareWindow("pictureviewer");
+      ServiceScope.Get<IScreenManager>().PrepareScreen("pictureviewer");
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate("pictureviewer");
       QueueMessage msg = new QueueMessage();
       msg.MessageData["action"] = "show";
       msg.MessageData["mediaitem"] = item;
       queue.Send(msg);
-      ServiceScope.Get<IWindowManager>().ShowWindow("pictureviewer");
+      ServiceScope.Get<IScreenManager>().ShowScreen("pictureviewer");
     }
 
     /// <summary>
@@ -74,7 +69,7 @@ namespace Media.Players.PicturePlayer
       //remove this player
       ServiceScope.Get<PlayerCollection>().Remove(this);
       //goto the previous window
-      ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
+      ServiceScope.Get<IScreenManager>().ShowPreviousScreen();
     }
     /// <summary>
     /// called when windows message is received
@@ -84,7 +79,7 @@ namespace Media.Players.PicturePlayer
     {
       if (_state == PlaybackState.Playing)
       {
-        if (ServiceScope.Get<IWindowManager>().CurrentWindow.Name != "pictureviewer")
+        if (ServiceScope.Get<IScreenManager>().CurrentScreenName != "pictureviewer")
         {
           _state = PlaybackState.Stopped;
           ServiceScope.Get<PlayerCollection>().Remove(this);

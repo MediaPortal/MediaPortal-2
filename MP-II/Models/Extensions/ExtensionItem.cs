@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Services.ExtensionManager;
 
 namespace Models.Extensions

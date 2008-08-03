@@ -17,7 +17,7 @@
   <Canvas.Triggers>
     <Trigger Property="{Binding Source={Service Players},Path=OSD.IsVideo}" Value="False">
       <Trigger.EnterActions>
-        <TriggerCommand Command="{Command Source={Service WindowManager},Path=ShowPreviousWindow}" />
+        <TriggerCommand Command="{Command Source={Service ScreenManager},Path=ShowPreviousWindow}" />
       </Trigger.EnterActions>
     </Trigger>
   </Canvas.Triggers>
@@ -64,7 +64,7 @@
     <Label x:Name="endTime" Font="font12" VerticalAlignment="Top" HorizontalAlignment="Center" Canvas.Left="609"  Canvas.Top="434" Color="Black" Width="100" Height="30" Text="{Binding Source={Service Players},Path=OSD.RemainingTime}" />
     <Label x:Name="osdname" Font="font12" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="510" Color="Black" Width="190" Height="30" Text="Video" />
 
-    <Label x:Name="time" Font="font13" Canvas.Left="610" Canvas.Top="513" Text="{Binding Source={Service WindowManager},Path=Utils.CurrentTime}" Width="120" Height="32" Color="Black" HorizontalAlignment="Left"/>
+    <Label x:Name="time" Font="font13" Canvas.Left="610" Canvas.Top="513" Text="{Binding Source={Service ScreenManager},Path=Utils.CurrentTime}" Width="120" Height="32" Color="Black" HorizontalAlignment="Left"/>
     <Label x:Name="osdTitle" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="466" Color="Black" Width="420" Height="30" Text="{Binding Source={Service Players},Path=OSD.Title}" />
     <Label x:Name="osdTime" Font="font13" HorizontalAlignment="Left" Canvas.Left="30" Canvas.Top="440" Color="Black" Width="190" Height="30" Text="{Binding Source={Service Players},Path=OSD.CurrentTime}" />
     <Label x:Name="osdDuration" Font="font13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="533" Color="Black" Width="190" Height="30" Text="{Binding Source={Service Players},Path=OSD.Duration}" />
@@ -85,7 +85,7 @@
   <KeyBinding KeyPress="DvdLeft" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Left}"/>
   <KeyBinding KeyPress="DvdRight" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Right}"/>
   <KeyBinding KeyPress="DvdSelect" Command="{Command Source={Service Players},Path=DvdSelect}"/>
-  <KeyBinding KeyPress="ContextMenu" Command="{Command Source={Service WindowManager},Path=ShowDialog,Parameters=dialogVideoContextMenu}"/>
+  <KeyBinding KeyPress="ContextMenu" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogVideoContextMenu}"/>
   <KeyBinding KeyPress="ZoomMode" Command="{Command Source={Service Players},Path=OSD.NextZoomMode}"/>
   <KeyBinding KeyPress="Left" Command="{Command Source={Service Players},Path=SeekBackward}"/>
   <KeyBinding KeyPress="Right" Command="{Command Source={Service Players},Path=SeekForward}"/>

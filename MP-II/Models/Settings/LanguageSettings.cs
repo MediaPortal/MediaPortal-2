@@ -22,16 +22,13 @@
 
 #endregion
 
-using System;
-using System.IO;
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.WindowManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation.Screen;
 
 
 namespace Models.Settings
@@ -85,7 +82,7 @@ namespace Models.Settings
     public void SetLanguage(ListItem item)
     {
       if (item == null) return;
-      string langChoosen = item.Label("Name").Evaluate(null, null);
+      string langChoosen = item.Label("Name", "").Evaluate();
       ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
       CultureInfo[] langs = localProvider.AvailableLanguages();
       for (int i = 0; i < langs.Length; ++i)
@@ -93,8 +90,8 @@ namespace Models.Settings
         if (langs[i].EnglishName == langChoosen)
         {
           localProvider.ChangeLanguage(langs[i].Name);
-          IWindowManager windowMgr = ServiceScope.Get<IWindowManager>();
-          windowMgr.CurrentWindow.Reset();
+          IScreenManager windowMgr = ServiceScope.Get<IScreenManager>();
+          windowMgr.Reset();
           return;
         }
       }
@@ -110,7 +107,7 @@ namespace Models.Settings
 
       foreach (ListItem item in _languages)
       {
-        item.Selected = (item.Label("Name").Evaluate(null, null) == localProvider.CurrentCulture.EnglishName);
+        item.Selected = (item.Label("Name", "").Evaluate() == localProvider.CurrentCulture.EnglishName);
       }
     }
 

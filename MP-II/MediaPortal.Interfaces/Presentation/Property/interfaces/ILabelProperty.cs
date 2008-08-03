@@ -29,7 +29,6 @@ namespace MediaPortal.Presentation.Properties
   /// </summary>
   public interface ILabelProperty
   {
-    string Evaluate(IControl control, IControl container);
-    string Evaluate(IControl control, IControl container, string name);
+    string Evaluate();
   }
 }

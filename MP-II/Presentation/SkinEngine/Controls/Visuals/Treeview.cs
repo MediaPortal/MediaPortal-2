@@ -22,11 +22,10 @@
 
 #endregion
 
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using Presentation.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.Presentation.Collections;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {

@@ -23,9 +23,9 @@
 #endregion
 
 using System;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Utilities.DeepCopy;
 using System.Collections.Generic;
 

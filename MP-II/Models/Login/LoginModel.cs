@@ -26,8 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.UserManagement;
@@ -122,7 +121,7 @@ namespace Models.Login
 
       foreach (IUser user in users)
       {
-        if (user.UserName == item.Labels["UserName"].Evaluate(null, null))
+        if (user.UserName == item.Labels["UserName"].Evaluate())
         {
           CurrentUser = user;
           return;

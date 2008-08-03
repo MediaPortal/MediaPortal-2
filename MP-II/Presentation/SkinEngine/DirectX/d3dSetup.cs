@@ -34,10 +34,7 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Collections;
-
-using SlimDX;
-using SlimDX.Direct3D;
+using MediaPortal.Presentation.DataObjects;
 using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.DirectX

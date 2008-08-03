@@ -24,7 +24,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Presentation.SkinEngine.Controls.Brushes
 {

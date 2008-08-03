@@ -1,8 +1,8 @@
 <menu>
   <items>
-    <item text="[playback.34]" image="" command="Players.Stop+WindowManager.ShowPreviousWindow" parameter=""/>
-    <item text="[playback.36]" image="" command="Players.Restart+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
-    <item text="[playback.37]" image="" command="mymovies:Model.StopAndDeleteMovie+WindowManager.ShowWindow" parameter="+fullscreenvideo"/>
+    <item text="[playback.34]" image="" command="Players.Stop+ScreenManager.ShowPreviousScreen" parameter=""/>
+    <item text="[playback.36]" image="" command="Players.Restart+ScreenManager.ShowScreen" parameter="+fullscreenvideo"/>
+    <item text="[playback.37]" image="" command="mymovies:Model.StopAndDeleteMovie+ScreenManager.ShowScreen" parameter="+fullscreenvideo"/>
   </items>
 
 </menu>

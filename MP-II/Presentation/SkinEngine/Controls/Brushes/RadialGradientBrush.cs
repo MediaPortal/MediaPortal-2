@@ -24,7 +24,7 @@
 
 using System;
 using System.Diagnostics;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Controls.Visuals;

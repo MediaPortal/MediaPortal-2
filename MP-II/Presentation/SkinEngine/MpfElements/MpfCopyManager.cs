@@ -48,7 +48,7 @@ namespace Presentation.SkinEngine.MpfElements
     protected override bool CopyHook<T>(T source, out T result)
     {
       result = default(T);
-      if (source is Window)
+      if (source is Screen)
       {
         result = source;
         return true;

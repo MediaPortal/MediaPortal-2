@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using RectangleF = System.Drawing.RectangleF;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;

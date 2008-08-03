@@ -27,7 +27,7 @@
             <Label Font="font13" Text="[settings.buildin]"  />
           </CheckBox>
         </StackPanel>
-        <Button Style="{StaticResource ButtonStyle}"  Width="160" Height="32" Command="{Command Source={Service WindowManager},Path=ShowWindow,Parameters=settingsAudioSetup2}">
+        <Button Style="{StaticResource ButtonStyle}"  Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowWindow,Parameters=settingsAudioSetup2}">
           <Label Font="font13" Text="[settings.next]" Height="32" />
         </Button>
       </DockPanel>

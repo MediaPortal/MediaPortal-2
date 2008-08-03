@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Media.MetaData;
 
 namespace Models.Pictures
@@ -68,8 +68,8 @@ namespace Models.Pictures
       if (item1 != null && item2 != null)
       {
         //both are folders
-        string label1 = item1.Label(_mapping.Items[1].SkinLabel).Evaluate(null, null);
-        string label2 = item2.Label(_mapping.Items[1].SkinLabel).Evaluate(null, null);
+        string label1 = item1.Label(_mapping.Items[1].SkinLabel, "").Evaluate();
+        string label2 = item2.Label(_mapping.Items[1].SkinLabel, "").Evaluate();
         if (label1 == label2)
         {
           return 0;

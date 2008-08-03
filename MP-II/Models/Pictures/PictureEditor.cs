@@ -24,16 +24,13 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.WindowManager;
-
+using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Screen;
 using Models.Pictures.Utilities;
 using Models.Pictures.PixelOperations;
 
@@ -210,7 +207,7 @@ namespace Models.Pictures
 
     public void SaveImage()
     {
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
       Uri currentPicture = _slideShow.CurrentPictureUri;
       if (currentPicture == null) return;
       if (currentPicture.IsFile == false) return;
@@ -251,8 +248,8 @@ namespace Models.Pictures
       msg.MessageData["action"] = "changed";
       msg.MessageData["fullpath"] = currentPicture.LocalPath;
       queue.Send(msg);
-      //ServiceScope.Get<IWindowManager>().CurrentWindow.WaitCursorVisible = false;
-      ServiceScope.Get<IWindowManager>().ShowPreviousWindow();
+      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
+      ServiceScope.Get<IScreenManager>().ShowPreviousScreen();
 
     }
     #endregion

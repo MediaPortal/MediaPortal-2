@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Media
 {

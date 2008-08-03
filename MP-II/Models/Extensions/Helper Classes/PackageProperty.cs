@@ -22,15 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Core.ExtensionManager;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Properties;
-using MediaPortal.Presentation.Collections;
 
 namespace Models.Extensions.Helper
 {

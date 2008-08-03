@@ -22,7 +22,7 @@
 
 #endregion
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -202,7 +202,7 @@ namespace Presentation.SkinEngine.Commands.Expression
     {
       get
       {
-        return (_error  );
+        return (_error);
       }
     }
 
@@ -449,7 +449,7 @@ namespace Presentation.SkinEngine.Commands.Expression
       if (mRet == null)
       {
         _failed = true;
-        _error ="Invalid expression construction: \"" + Expression + "\".";
+        _error = "Invalid expression construction: \"" + Expression + "\".";
         return -1;
       }
       if (mRet.Index != nIdx)

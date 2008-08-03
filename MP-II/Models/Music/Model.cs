@@ -26,20 +26,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-
-using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 
 namespace Models.Music
 {
@@ -140,12 +136,12 @@ namespace Models.Music
 
       StringId menuText = new StringId("playlists", "add");
       MenuItem menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "music:Model.AddToPlayList+WindowManager.CloseDialog";
+      menuItem.Command = "music:Model.AddToPlayList+ScreenManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
 
       menuText = new StringId("playlists", "addall");
       menuItem = new MenuItem(menuText, "");
-      menuItem.Command = "music:Model.AddAllToPlayList+WindowManager.CloseDialog";
+      menuItem.Command = "music:Model.AddAllToPlayList+ScreenManager.CloseDialog";
       _dynamicContextMenuItems.Add(menuItem);
     }
 
@@ -200,7 +196,7 @@ namespace Models.Music
         //IImporterManager importer = ServiceScope.Get<IImporterManager>();
         //if (importer.Shares.Count == 0)
         //{
-        //  ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
+        //  ServiceScope.Get<IScreenManager>().ShowDialog("dialogNoSharesDefined");
         //  Refresh();
         //}
         return _songs;
@@ -300,7 +296,6 @@ namespace Models.Music
         if (uri.AbsoluteUri.IndexOf(".jpg") < 0 && uri.AbsoluteUri.IndexOf(".png") < 0)
         {
           //seems this is a movie, lets play it
-          IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
           try
           {
             //show waitcursor
@@ -445,7 +440,7 @@ namespace Models.Music
       if (selectedItem == null) return;
       foreach (IAbstractMediaItem item in _musicViews)
       {
-        if (item.Title == selectedItem.Labels["Name"].Evaluate(null, null))
+        if (item.Title == selectedItem.Labels["Name"].Evaluate())
         {
           SetSelectedView();
           _settings.Folder = item.FullPath;

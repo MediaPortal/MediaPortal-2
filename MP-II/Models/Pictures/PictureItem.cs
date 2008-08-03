@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Media.MediaManager;
 
 namespace Models.Pictures

@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using RectangleF = System.Drawing.RectangleF;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -282,7 +282,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        if (Window != null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
       base.Arrange(layoutRect);
@@ -333,12 +333,6 @@ namespace Presentation.SkinEngine.Controls.Panels
 
         index++;
       }
-    }
-
-    public override void Reset()
-    {
-      _startIndex = 0;
-      base.Reset();
     }
 
     public bool LineDown(PointF point)

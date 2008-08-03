@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileUtil.cs" />
-    <Compile Include="FolderItem.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="MusicComparer.cs" />
     <Compile Include="MusicFactory.cs" />

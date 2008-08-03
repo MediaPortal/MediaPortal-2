@@ -24,15 +24,15 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.Screen;
 
 namespace Models.Media
 {
@@ -159,7 +159,6 @@ namespace Models.Media
 
     private static void ProcessItem(MediaItem item)
     {
-      IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       IPlayer player;
       try
       {
@@ -177,8 +176,8 @@ namespace Models.Media
           player.Play(item.Item);
           if (player.IsVideo)
           {
-            IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
-            manager.ShowWindow("fullscreenvideo");
+            IScreenManager manager = ServiceScope.Get<IScreenManager>();
+            manager.ShowScreen("fullscreenvideo");
           }
         }
       }

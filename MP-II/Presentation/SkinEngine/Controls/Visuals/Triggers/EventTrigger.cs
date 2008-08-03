@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 using Presentation.SkinEngine.Xaml.Interfaces;
 

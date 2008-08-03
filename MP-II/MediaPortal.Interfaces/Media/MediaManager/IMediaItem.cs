@@ -22,16 +22,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 namespace MediaPortal.Media.MediaManager
 {
-  /// <summary>
-  /// interface for a media item
-  /// </summary>
   public interface IMediaItem : IAbstractMediaItem
-  {
-
-  }
+  { }
 }

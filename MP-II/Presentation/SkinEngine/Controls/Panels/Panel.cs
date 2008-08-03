@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals;
 using MediaPortal.Presentation.Properties;
 using SlimDX.Direct3D9;
@@ -131,7 +132,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     void OnBrushPropertyChanged(Property property)
     {
       _lastEvent |= UIEvent.OpacityChange;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     /// <summary>
@@ -194,9 +195,9 @@ namespace Presentation.SkinEngine.Controls.Panels
     public void SetChildren(UIElementCollection children)
     {
       _childrenProperty.SetValue(children);
-      SetWindow(Window);
+      SetWindow(Screen);
       _updateRenderOrder = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property AlignmentXProperty
@@ -239,7 +240,7 @@ namespace Presentation.SkinEngine.Controls.Panels
     {
       base.Invalidate();
       _updateRenderOrder = true;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     void SetupBrush()
@@ -417,7 +418,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         element.FireUIEvent(eventType, source);
       }
       _lastEvent |= eventType;
-      if (Window!=null) Window.Invalidate(this);
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public override void OnKeyPressed(ref Key key)
@@ -438,7 +439,7 @@ namespace Presentation.SkinEngine.Controls.Panels
         {
           Children[i] = newElement;
           Children[i].VisualParent = this;
-          Children[i].SetWindow(Window);
+          Children[i].SetWindow(Screen);
           return true;
         }
       }
@@ -659,16 +660,6 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    public override void Reset()
-    {
-      base.Reset();
-
-      foreach (UIElement element in Children)
-      {
-        element.Reset();
-      }
-    }
-
     public override void Deallocate()
     {
       base.Deallocate();
@@ -745,12 +736,12 @@ namespace Presentation.SkinEngine.Controls.Panels
       }
     }
 
-    public override void SetWindow(Window window)
+    public override void SetWindow(Screen screen)
     {
-      base.SetWindow(window);
+      base.SetWindow(screen);
       foreach (UIElement child in Children)
       {
-        child.SetWindow(window);
+        child.SetWindow(screen);
       }
     }
 

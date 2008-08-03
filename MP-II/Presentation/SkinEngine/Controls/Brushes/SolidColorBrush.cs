@@ -23,8 +23,8 @@
 #endregion
 
 using System;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine;
-using MediaPortal.Presentation.Properties;
 using Presentation.SkinEngine.Controls.Visuals;
 using Presentation.SkinEngine.Effects;
 using Presentation.SkinEngine.DirectX;

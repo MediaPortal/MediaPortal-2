@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using System.Drawing;
-using System.Diagnostics;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
@@ -267,7 +265,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        if (Window!=null) Window.Invalidate(this);
+        if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
       base.Arrange(layoutRect);

@@ -24,10 +24,10 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Presentation.WindowManager;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine;
 using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.Presentation.Screen;
 
 namespace Presentation.SkinEngine.Controls.Visuals
 {
@@ -41,8 +41,8 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public VisualAssetContext(string name)
     {
-      IWindowManager mgr = ServiceScope.Get<IWindowManager>();
-      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.CurrentWindow.Name, name);
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
+      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.CurrentScreenName, name);
       _assetId++;
       LastTimeUsed = SkinContext.Now;
     }

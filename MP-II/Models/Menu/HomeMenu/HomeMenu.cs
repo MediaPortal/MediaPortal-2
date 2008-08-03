@@ -23,10 +23,8 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.Collections;
-using MediaPortal.Presentation.Commands;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.WindowManager;
 using MediaPortal.Core.PluginManager;
 
 namespace Models.HomeMenu

@@ -31,20 +31,15 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-
-using MediaPortal.Presentation.Collections;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.WindowManager;
-using MediaPortal.Presentation.Properties;
-
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Presentation.Screen;
 
 namespace Models.Movies
 {
@@ -324,7 +319,7 @@ namespace Models.Movies
         IImporterManager importer = ServiceScope.Get<IImporterManager>();
         if (importer.Shares.Count == 0)
         {
-          //ServiceScope.Get<IWindowManager>().ShowDialog("dialogNoSharesDefined");
+          //ServiceScope.Get<IScreenManager>().ShowDialog("dialogNoSharesDefined");
           Refresh();
         }
         return _movies;
@@ -377,7 +372,6 @@ namespace Models.Movies
     /// </summary>
     public void PlayDvd()
     {
-      IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
       try
       {
         //window.WaitCursorVisible = true;
@@ -393,7 +387,7 @@ namespace Models.Movies
         if (player.CanResumeSession(null))
         {
           player.Paused = true;
-          ServiceScope.Get<IWindowManager>().ShowDialog("movieResume");
+          ServiceScope.Get<IScreenManager>().ShowDialog("movieResume");
         }
 
       }
@@ -401,8 +395,8 @@ namespace Models.Movies
       {
         //window.WaitCursorVisible = false;
       }
-      IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
-      manager.ShowWindow("fullscreenvideo");
+      IScreenManager manager = (IScreenManager)ServiceScope.Get<IScreenManager>();
+      manager.ShowScreen("fullscreenvideo");
     }
 
     /// <summary>
@@ -452,7 +446,6 @@ namespace Models.Movies
           return; // no uri? then return
         }
         //seems this is a movie, lets play it
-        IWindow window = ServiceScope.Get<IWindowManager>().CurrentWindow;
         try
         {
           //show waitcursor
@@ -477,7 +470,7 @@ namespace Models.Movies
           if (player.CanResumeSession(uri))
           {
             player.Paused = true;
-            ServiceScope.Get<IWindowManager>().ShowDialog("movieResume");
+            ServiceScope.Get<IScreenManager>().ShowDialog("movieResume");
           }
 
         }
@@ -488,8 +481,8 @@ namespace Models.Movies
         }
 
         // show fullscreen video window
-        IWindowManager manager = (IWindowManager)ServiceScope.Get<IWindowManager>();
-        manager.ShowWindow("fullscreenvideo");
+        IScreenManager manager = (IScreenManager)ServiceScope.Get<IScreenManager>();
+        manager.ShowScreen("fullscreenvideo");
 
       }
     }
@@ -615,10 +608,9 @@ namespace Models.Movies
     public void SelectView(ListItem selectedItem)
     {
       if (selectedItem == null) return;
-      IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
       foreach (IAbstractMediaItem item in _movieViews)
       {
-        if (item.Title == selectedItem.Labels["Name"].Evaluate(null, null))
+        if (item.Title == selectedItem.Labels["Name"].Evaluate())
         {
           SetSelectedView();
           _settings.Folder = item.FullPath;
@@ -655,12 +647,12 @@ namespace Models.Movies
           {
             if (action == "stopped")
             {
-              ServiceScope.Get<IWindowManager>().ShowWindow("movieStopped");
+              ServiceScope.Get<IScreenManager>().ShowScreen("movieStopped");
               message.MessageData["handled"] = "true";
             }
             if (action == "ended")
             {
-              ServiceScope.Get<IWindowManager>().ShowWindow("movieEnded");
+              ServiceScope.Get<IScreenManager>().ShowScreen("movieEnded");
               message.MessageData["handled"] = "true";
             }
           }
@@ -757,7 +749,7 @@ namespace Models.Movies
       }
       _imdbresultmovies.FireChange();
       _imdbmovietile.SetValue(msg.MessageData["title"] as string);
-      ServiceScope.Get<IWindowManager>().ShowWindow("imdbresultchoice");
+      ServiceScope.Get<IScreenManager>().ShowScreen("imdbresultchoice");
     }
 
     #endregion
