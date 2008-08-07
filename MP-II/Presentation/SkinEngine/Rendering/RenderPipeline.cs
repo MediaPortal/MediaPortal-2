@@ -49,29 +49,18 @@ namespace Presentation.SkinEngine.Rendering
     bool _sort = false;
 
     /// <summary>
-    /// Gets the instance.
+    /// Gets the singleton instance.
     /// </summary>
-    /// <value>The instance.</value>
     public static RenderPipeline Instance
     {
-      get
-      {
-        return _instance;
-      }
+      get { return _instance; }
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RenderPipeline"/> class.
-    /// </summary>
     public RenderPipeline()
     {
       ContentManager.Add(this);
     }
 
-    /// <summary>
-    /// Adds the specified context.
-    /// </summary>
-    /// <param name="context">The context.</param>
     public void Add(PrimitiveContext context)
     {
       if (SkinContext.UseBatching == false) return;
@@ -87,11 +76,6 @@ namespace Presentation.SkinEngine.Rendering
       }
     }
 
-
-    /// <summary>
-    /// Removes the specified primitive.
-    /// </summary>
-    /// <param name="primitive">The primitive.</param>
     public void Remove(PrimitiveContext primitive)
     {
       if (SkinContext.UseBatching == false) return;
@@ -110,9 +94,6 @@ namespace Presentation.SkinEngine.Rendering
       }
     }
 
-    /// <summary>
-    /// Clears this instance.
-    /// </summary>
     public void Clear()
     {
       for (int i = 0; i < _renderList.Count; ++i)
@@ -122,9 +103,6 @@ namespace Presentation.SkinEngine.Rendering
       _renderList.Clear();
     }
 
-    /// <summary>
-    /// Creates the batches.
-    /// </summary>
     void CreateBatches()
     {
       _sort = false;
@@ -155,9 +133,6 @@ namespace Presentation.SkinEngine.Rendering
       }
     }
 
-    /// <summary>
-    /// Places the new primitives in batches.
-    /// </summary>
     void PlaceNewPrimitivesInBatches()
     {
       foreach (PrimitiveContext primitive in _newPrimitives)
@@ -189,9 +164,6 @@ namespace Presentation.SkinEngine.Rendering
       _newPrimitives.Clear();
     }
 
-    /// <summary>
-    /// Renders this instance.
-    /// </summary>
     public void Render()
     {
       lock (_primitives)
@@ -219,8 +191,6 @@ namespace Presentation.SkinEngine.Rendering
         }
       }
     }
-
-
 
     #region IAsset Members
 

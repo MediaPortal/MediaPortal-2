@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -27,67 +27,46 @@ using System;
 namespace Presentation.SkinEngine.Models
 {
   /// <summary>
-  /// Encapsulates a model instance for the SkinEngine. This is a data object which
-  /// only holds the model access values.
+  /// Encapsulates a model instance from the system to be used by skins. This is a data object which
+  /// stores model metadata together with a model instance.
   /// </summary>
   public class Model
   {
-    #region Private fields
+    #region Protected fields
 
-    private readonly string _assembly;
-    private readonly string _className;
-    private readonly Type _type;
-    private readonly object _instance;
+    protected readonly string _assembly;
+    protected readonly string _className;
+    protected readonly object _instance;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Model"/> class.
-    /// </summary>
-    /// <param name="assembly">The assembly.</param>
-    /// <param name="className">Name of the class.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="instance">The instance.</param>
-    public Model(string assembly, string className, Type type, object instance)
+    public Model(string assembly, string className, object instance)
     {
+      if (className == null)
+        throw new ArgumentException("The model classname mustn't be null");
+      if (instance == null)
+        throw new ArgumentException("The model instance mustn't be null");
       _assembly = assembly;
       _className = className;
-      _type = type;
       _instance = instance;
     }
 
 
-    /// <summary>
-    /// Gets the assembly.
-    /// </summary>
-    /// <value>The assembly.</value>
     public string Assembly
     {
       get { return _assembly; }
     }
 
-    /// <summary>
-    /// Gets the name of the class.
-    /// </summary>
-    /// <value>The name of the class.</value>
     public string ClassName
     {
       get { return _className; }
     }
 
-    /// <summary>
-    /// Gets the type.
-    /// </summary>
-    /// <value>The type.</value>
     public Type Type
     {
-      get { return _type; }
+      get { return _instance.GetType(); }
     }
 
-    /// <summary>
-    /// returns an instance of the model
-    /// </summary>
-    /// <value>The instance.</value>
     public object Instance
     {
       get { return _instance; }

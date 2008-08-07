@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -150,13 +150,7 @@ namespace Presentation.SkinEngine.Models
       {
         object model = ServiceScope.Get<IPluginManager>().GetPluginItem<object>("/Models/" + assemblyName, className);
         if (model != null)
-        {
-          Type exportedType = model.GetType();
-          if (exportedType.IsClass)
-          {
-            return new Model(assemblyName, className, exportedType, model);
-          }
-        }
+          return new Model(assemblyName, className, model);
       }
       catch (Exception ex)
       {
@@ -165,7 +159,7 @@ namespace Presentation.SkinEngine.Models
       return null;
     }
 
-    protected static string GetInternalModelName(string assemblyName, string className)
+    internal static string GetInternalModelName(string assemblyName, string className)
     {
       return assemblyName + ":" + className;
     }

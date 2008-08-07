@@ -78,7 +78,7 @@ namespace Presentation.SkinEngine
   /// Management class for a collection of active animations.
   /// </summary>
   /// <remarks>
-  /// We will manage a collection of animations in different states. Stopped animations will be cleaned
+  /// We manage a collection of animations in different states. Stopped animations will be cleaned
   /// up automatically.
   /// Animations in state <see cref="State.Ended"/> will remain in the collection until new instructions
   /// for the animation arrive. This makes every animation with <see cref="FillBehavior.HoldEnd"/> stay in
@@ -109,7 +109,7 @@ namespace Presentation.SkinEngine
     /// <paramref name="element"/>.
     /// </summary>
     /// <remarks>
-    /// Depending on the parameter handoffBehavior, the new storyboard will
+    /// Depending on the parameter <paramref name="handoffBehavior"/>, the new storyboard will
     /// be started when the last other storyboard, which occupies a conflicting property,
     /// has finished.
     /// </remarks>

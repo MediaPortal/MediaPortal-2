@@ -187,6 +187,7 @@ namespace Presentation.SkinEngine.Xaml
       // Enumerations
       if (val.GetType() == typeof(string) && targetType.IsEnum)
       { // string -> Enum
+        // FIXME: use Enum.Parse(targetType, val, true)
         FieldInfo fi = targetType.GetField(val.ToString(), BindingFlags.Public | BindingFlags.Static);
         if (fi == null)
           throw new XamlParserException("'{0}' isn't a valid value for enum {1}", val, targetType.FullName);
