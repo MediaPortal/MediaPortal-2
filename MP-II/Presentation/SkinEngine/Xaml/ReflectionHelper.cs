@@ -26,7 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.Presentation.Properties;
+using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Xaml.Exceptions;
 using Presentation.SkinEngine.Xaml.Interfaces;
 

@@ -23,8 +23,6 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Properties;
-using System.Xml.Serialization;
 namespace Presentation.SkinEngine.Players
 {
   public enum SpeakerConnectionType

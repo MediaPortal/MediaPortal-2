@@ -31,7 +31,7 @@ namespace MediaPortal.Core.Localisation
   /// <remarks>
   /// String descriptors of this class hold a section name and a name of the to-be-localized
   /// string. These values are used to lookup the localized string in the language resource.
-  /// <see cref="MediaPortal.Core.Localisation.ILocalization"/>
+  /// <see cref="MediaPortal.Core.Localisation.ILocalisation"/>
   /// </remarks>
   public class StringId
   {

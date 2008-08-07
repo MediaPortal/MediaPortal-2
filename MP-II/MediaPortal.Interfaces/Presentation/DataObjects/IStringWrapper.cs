@@ -22,13 +22,20 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Properties
+namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// interface to a label property
+  /// Classes implementing this interface are able to return a string localised to the user's
+  /// culture.
   /// </summary>
-  public interface ILabelProperty
+  /// FIXME: This interface as well as its implementors should be renamed to a more special name.
+  public interface IStringWrapper
   {
+    /// <summary>
+    /// Returns a string representing this instance, localised to the user's culture and regional
+    /// settings.
+    /// </summary>
+    /// <returns>Localised string.</returns>
     string Evaluate();
   }
 }

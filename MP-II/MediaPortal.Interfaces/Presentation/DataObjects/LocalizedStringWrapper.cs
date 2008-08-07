@@ -22,44 +22,42 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.Localisation;
 
-namespace MediaPortal.Presentation.Properties
+namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// Class which implements an ILabelProperty for a (localized) string
-  /// FIXME: Remove localization function here - localized strings are handled by
-  /// class LocalizedLabelProperty
+  /// Wrapper class for a <see cref="StringId"/> instance, which implements
+  /// <see cref="IStringWrapper"/> for this localized string.
   /// </summary>
-  public class SimpleLabelProperty : ILabelProperty
+  public class LocalizedStringWrapper : IStringWrapper
   {
-    #region variables
+    #region Protected fields
 
-    private StringId _localizedString;
-    private string _stringValue;
+    protected StringId _localizedString;
 
     #endregion
 
-    public SimpleLabelProperty(string stringValue)
+    /// <summary>
+    /// Creates a new instance of <see cref="LocalizedStringWrapper"/>, which is based on
+    /// the specified <see cref="StringId"/> value.
+    /// </summary>
+    public LocalizedStringWrapper(StringId value)
     {
-      _stringValue = stringValue;
-      if (StringId.IsResourceString(_stringValue))
-      {
-        _localizedString = new StringId(_stringValue);
-        _stringValue = null;
-      }
+      _localizedString = value;
     }
 
-    #region ILabelProperty Members
+    public StringId LocalizedString
+    {
+      get { return _localizedString; }
+      set { _localizedString = value; }
+    }
+
+    #region IStringWrapper Members
 
     public string Evaluate()
     {
-      if (_localizedString != null)
-      {
-        return _localizedString.ToString();
-      }
-      return _stringValue;
+      return _localizedString.ToString();
     }
 
     #endregion

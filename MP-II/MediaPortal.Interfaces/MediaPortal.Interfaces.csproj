@@ -163,10 +163,10 @@
     <Compile Include="Core\PluginManager\IPluginInfo.cs" />
     <Compile Include="Core\PluginManager\IPluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Presentation\Property\Implementation\LocalizedLabelProperty.cs" />
+    <Compile Include="Presentation\DataObjects\LocalizedStringWrapper.cs" />
     <Compile Include="Presentation\DataObjects\Property.cs" />
-    <Compile Include="Presentation\Property\Implementation\SimpleLabelProperty.cs" />
-    <Compile Include="Presentation\Property\interfaces\ILabelProperty.cs" />
+    <Compile Include="Presentation\DataObjects\StaticStringWrapper.cs" />
+    <Compile Include="Presentation\DataObjects\IStringWrapper.cs" />
     <Compile Include="Core\ServiceCreatorCallback.cs" />
     <Compile Include="Core\ServiceNotFoundException.cs" />
     <Compile Include="Core\ServiceScope.cs" />

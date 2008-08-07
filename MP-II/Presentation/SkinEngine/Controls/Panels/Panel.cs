@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.Controls.Visuals;
-using MediaPortal.Presentation.Properties;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.DirectX;
 using Presentation.SkinEngine.Rendering;

@@ -19,15 +19,11 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Properties;
+
 #endregion
 
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.Presentation.DataObjects;
 
 namespace Presentation.SkinEngine.Controls.Panels
 {

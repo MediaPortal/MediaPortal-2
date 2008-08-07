@@ -22,43 +22,31 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.Localisation;
-
-namespace MediaPortal.Presentation.Properties
+namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// Wrapper class for a <see cref="StringId"/> instance, which implements
-  /// <see cref="ILabelProperty"/> for this (localized) string.
+  /// Class which implements an <see cref="IStringWrapper"/> for a fixed string.
+  /// FIXME: Remove localization function here - localized strings are handled by
+  /// class LocalizedStringWrapper
   /// </summary>
-  public class LocalizedLabelProperty : ILabelProperty
+  public class StaticStringWrapper : IStringWrapper
   {
     #region Protected fields
 
-    protected StringId _localizedString;
+    protected string _stringValue;
 
     #endregion
 
-    /// <summary>
-    /// Creates a new instance of <see cref="LocalizedLabelProperty"/>, which is based on
-    /// the specified <see cref="StringId"/> value.
-    /// </summary>
-    public LocalizedLabelProperty(StringId value)
+    public StaticStringWrapper(string stringValue)
     {
-      _localizedString = value;
+      _stringValue = stringValue;
     }
 
-    public StringId LocalizedString
-    {
-      get { return _localizedString; }
-      set { _localizedString = value; }
-    }
-
-    #region ILabelProperty Members
+    #region IStringWrapper Members
 
     public string Evaluate()
     {
-      return _localizedString.ToString();
+      return _stringValue;
     }
 
     #endregion
