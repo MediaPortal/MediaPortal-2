@@ -55,7 +55,7 @@ namespace MediaPortal.Presentation.DataObjects
 
     protected Property _commandProperty = new Property(typeof(ICommand), null);
     protected Property _commandParameterProperty = new Property(typeof(ICommandParameter), null);
-    protected IDictionary<string, IStringWrapper> _labels = new Dictionary<string, IStringWrapper>();
+    protected IDictionary<string, IStringBuilder> _labels = new Dictionary<string, IStringBuilder>();
     protected ItemsCollection _subItems = new ItemsCollection();
     protected Property _selectedProperty = new Property(typeof(bool), false);
 
@@ -84,7 +84,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
     public ListItem(string name, StringId value)
     {
-      _labels[name] = new LocalizedStringWrapper(value);
+      _labels[name] = new LocalizedStringBuilder(value);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="defValue">Label string to be returned if the label with the specified name is not
     /// present in this item. If this value references a localized string, a localized label will be returned.</param>
     /// <returns>Label property instance with the specified name or a new label property with the default value.</returns>
-    public IStringWrapper Label(string name, string defValue)
+    public IStringBuilder Label(string name, string defValue)
     {
       if (_labels.ContainsKey(name))
         return _labels[name];
@@ -138,7 +138,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Gets or sets the dictionary of named labels for this item.
     /// </summary>
-    public IDictionary<string, IStringWrapper> Labels
+    public IDictionary<string, IStringBuilder> Labels
     {
       get { return _labels; }
       set { _labels = value; }
@@ -222,7 +222,7 @@ namespace MediaPortal.Presentation.DataObjects
     public override string ToString()
     {
       IList<string> l = new List<string>();
-      foreach (KeyValuePair<string, IStringWrapper> kvp in _labels)
+      foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
         l.Add(kvp.Key.ToString() + "=" + kvp.Value.ToString());
       if (_subItems.Count > 0)
         l.Add(_subItems.Count + " sub items");
@@ -232,18 +232,18 @@ namespace MediaPortal.Presentation.DataObjects
     }
 
     /// <summary>
-    /// Creates an instance implementing <see cref="IStringWrapper
+    /// Creates an instance implementing <see cref="IStringBuilder
     /// localized or unlocalized string. This method will check, if the specified string
     /// references a localized string resource. If so, the return value will be a localized
-    /// <see cref="IStringWrapper"/>, else it will not be localized.
+    /// <see cref="IStringBuilder"/>, else it will not be localized.
     /// </summary>
     // FIXME: This method should be moved to a factory class, as it is not bound to this class
-    protected static IStringWrapper CreateLabelProperty(string value)
+    protected static IStringBuilder CreateLabelProperty(string value)
     {
       if (StringId.IsResourceString(value))
-        return new LocalizedStringWrapper(new StringId(value));
+        return new LocalizedStringBuilder(new StringId(value));
       else
-        return new StaticStringWrapper(value);
+        return new StaticStringBuilder(value);
     }
   }
 }

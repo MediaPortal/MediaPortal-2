@@ -25,11 +25,9 @@
 namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// Class which implements an <see cref="IStringWrapper"/> for a fixed string.
-  /// FIXME: Remove localization function here - localized strings are handled by
-  /// class LocalizedStringWrapper
+  /// Class which implements an <see cref="IStringBuilder"/> for a fixed string.
   /// </summary>
-  public class StaticStringWrapper : IStringWrapper
+  public class StaticStringBuilder : IStringBuilder
   {
     #region Protected fields
 
@@ -37,12 +35,12 @@ namespace MediaPortal.Presentation.DataObjects
 
     #endregion
 
-    public StaticStringWrapper(string stringValue)
+    public StaticStringBuilder(string stringValue)
     {
       _stringValue = stringValue;
     }
 
-    #region IStringWrapper Members
+    #region IStringBuilder Members
 
     public string Evaluate()
     {

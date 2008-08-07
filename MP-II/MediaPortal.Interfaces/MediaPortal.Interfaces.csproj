@@ -163,10 +163,10 @@
     <Compile Include="Core\PluginManager\IPluginInfo.cs" />
     <Compile Include="Core\PluginManager\IPluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Presentation\DataObjects\LocalizedStringWrapper.cs" />
+    <Compile Include="Presentation\DataObjects\LocalizedStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\Property.cs" />
-    <Compile Include="Presentation\DataObjects\StaticStringWrapper.cs" />
-    <Compile Include="Presentation\DataObjects\IStringWrapper.cs" />
+    <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
+    <Compile Include="Presentation\DataObjects\IStringBuilder.cs" />
     <Compile Include="Core\ServiceCreatorCallback.cs" />
     <Compile Include="Core\ServiceNotFoundException.cs" />
     <Compile Include="Core\ServiceScope.cs" />

@@ -28,9 +28,9 @@ namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
   /// Wrapper class for a <see cref="StringId"/> instance, which implements
-  /// <see cref="IStringWrapper"/> for this localized string.
+  /// <see cref="IStringBuilder"/> for this localized string.
   /// </summary>
-  public class LocalizedStringWrapper : IStringWrapper
+  public class LocalizedStringBuilder : IStringBuilder
   {
     #region Protected fields
 
@@ -39,10 +39,10 @@ namespace MediaPortal.Presentation.DataObjects
     #endregion
 
     /// <summary>
-    /// Creates a new instance of <see cref="LocalizedStringWrapper"/>, which is based on
+    /// Creates a new instance of <see cref="LocalizedStringBuilder"/>, which is based on
     /// the specified <see cref="StringId"/> value.
     /// </summary>
-    public LocalizedStringWrapper(StringId value)
+    public LocalizedStringBuilder(StringId value)
     {
       _localizedString = value;
     }
@@ -53,7 +53,7 @@ namespace MediaPortal.Presentation.DataObjects
       set { _localizedString = value; }
     }
 
-    #region IStringWrapper Members
+    #region IStringBuilder Members
 
     public string Evaluate()
     {

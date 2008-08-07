@@ -29,7 +29,7 @@ namespace MediaPortal.Presentation.DataObjects
   /// culture.
   /// </summary>
   /// FIXME: This interface as well as its implementors should be renamed to a more special name.
-  public interface IStringWrapper
+  public interface IStringBuilder
   {
     /// <summary>
     /// Returns a string representing this instance, localised to the user's culture and regional
