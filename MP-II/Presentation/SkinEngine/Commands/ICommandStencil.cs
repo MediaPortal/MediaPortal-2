@@ -27,11 +27,22 @@ using System.Collections.Generic;
 namespace Presentation.SkinEngine.Commands
 {
   /// <summary>
-  /// Describes a stencil for an item which can be executed to fulfill a special job.
-  /// The parameters to execute this command stencil will be filled in later.
+  /// Describes a "stencil" for a command to be executed with actual parameters, to fulfill a
+  /// special short-time job.
+  /// The actual parameters to execute this command stencil have to be provided at the time this
+  /// command should be executed.
   /// </summary>
+  /// <remarks>
+  /// Like <see cref="IExecutableCommand"/>, this interface describes a very general, partial command,
+  /// which is not further specified here.
+  /// The concrete application, which uses this interface, may specify constraints to the implemented
+  /// class more in detail.
+  /// </remarks>
   public interface ICommandStencil
   {
+    /// <summary>
+    /// Executes this command with the specified <paramref name="parameters"/>.
+    /// </summary>
     void Execute(IEnumerable<object> parameters);
   }
 }

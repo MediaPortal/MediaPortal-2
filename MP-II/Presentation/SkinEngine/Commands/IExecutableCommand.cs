@@ -25,10 +25,23 @@
 namespace Presentation.SkinEngine.Commands
 {
   /// <summary>
-  /// Describes an item which can be executed to fulfill a special job.
+  /// Describes a single command which can be executed to fulfill a special short-time job.
+  /// Instances of this interface need to implement the <see cref="Execute()"/> method
+  /// to be able to run their command code.
   /// </summary>
+  /// <remarks>
+  /// This interface describes a very general command, which is not further specified here.
+  /// The concrete application, which uses this interface, may specify constraints
+  /// to the implemented class more in detail.
+  /// In contrast to <see cref="ICommandStencil"/>, instances of this interface have to
+  /// be self-contained. This means, the command described by this class should be able
+  /// to be called without setting any more parameters.
+  /// </remarks>
   public interface IExecutableCommand
   {
+    /// <summary>
+    /// Executes this command.
+    /// </summary>
     void Execute();
   }
 }

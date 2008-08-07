@@ -31,7 +31,9 @@ using MediaPortal.Utilities.DeepCopy;
 namespace Presentation.SkinEngine.Commands
 {
   /// <summary>
-  /// Represents a list of <see cref="IExecutableCommand"/> instances to be executed together.
+  /// Represents a list of <see cref="IExecutableCommand"/> instances to be executed in
+  /// order. This class itself implements the <see cref="IExecutableCommand"/> interface, hence it
+  /// can be executed as a whole.
   /// </summary>
   public class CommandList : DependencyObject, IAddChild<IExecutableCommand>,
       IEnumerable<IExecutableCommand>, IExecutableCommand

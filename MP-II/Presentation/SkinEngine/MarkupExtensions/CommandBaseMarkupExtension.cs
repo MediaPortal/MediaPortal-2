@@ -131,7 +131,8 @@ namespace Presentation.SkinEngine.MarkupExtensions
     /// enumeration will be automatically converted to the formal parameters of the target method.
     /// <see cref="LateBoundValue"/> instances will be also resolved when used as parameters.
     /// </summary>
-    /// <param name="parameters"></param>
+    /// <param name="parameters">Enumeration of actual parameters to be used for the command
+    /// execution.</param>
     public void Execute(IEnumerable<object> parameters)
     {
       IDataDescriptor start;
