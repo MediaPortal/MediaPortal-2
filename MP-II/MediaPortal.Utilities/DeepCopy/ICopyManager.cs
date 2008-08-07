@@ -34,7 +34,8 @@ namespace MediaPortal.Utilities.DeepCopy
 
   /// <summary>
   /// Interface for providing access to instances copied from a source instance
-  /// in a two-step deep copying process.
+  /// in a two-step deep copying process. The <see cref="ICopyManager"/> interface
+  /// is designed to work together with objects implementing <see cref="IDeepCopyable"/>.
   /// </summary>
   public interface ICopyManager
   {
