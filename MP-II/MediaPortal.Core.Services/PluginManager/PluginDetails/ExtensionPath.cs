@@ -40,7 +40,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     #region Variables
     string _name;
     PluginInfo _plugin;
-    List<NodeItem> _items = new List<NodeItem>();
+    List<PluginRegisteredItem> _items = new List<PluginRegisteredItem>();
     #endregion
 
     #region Constructors/Destructors
@@ -54,40 +54,28 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     #region Properties
     public PluginInfo Plugin
     {
-      get
-      {
-        return _plugin;
-      }
+      get { return _plugin; }
     }
 
     public string Name
     {
-      get
-      {
-        return _name;
-      }
+      get { return _name; }
     }
-    public List<NodeItem> Items
+
+    public List<PluginRegisteredItem> Items
     {
-      get
-      {
-        return _items;
-      }
+      get { return _items; }
     }
     #endregion
 
     #region Public static Methods
     public static void SetUp(ExtensionPath extensionPath, XmlReader reader, string endElement)
     {
-      //Stack<ICondition> conditionStack = new Stack<ICondition>();
       while (reader.Read())
       {
         switch (reader.NodeType)
         {
-          case XmlNodeType.EndElement:
-            //if (reader.LocalName == "Condition" || reader.LocalName == "ComplexCondition") {
-            //  conditionStack.Pop();
-            //} else 
+          case XmlNodeType.EndElement: 
             if (reader.LocalName == endElement)
             {
               return;
@@ -95,30 +83,14 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
             break;
           case XmlNodeType.Element:
             string elementName = reader.LocalName;
-            //if (elementName == "Condition")
-            //{
-            //  conditionStack.Push(Condition.Read(reader));
-            //}
-            //else if (elementName == "ComplexCondition")
-            //{
-            //  conditionStack.Push(Condition.ReadComplexCondition(reader));
-            //}
-            //else
-            //{
-            NodeItem newItem = new NodeItem(extensionPath.Plugin, elementName, PluginProperties.ReadFromAttributes(reader)); //, conditionStack.ToArray());
+
+            PluginRegisteredItem newItem = new PluginRegisteredItem(elementName, extensionPath.Plugin, PluginProperties.ReadFromAttributes(reader)); //, conditionStack.ToArray());
               extensionPath._items.Add(newItem);
               if (!reader.IsEmptyElement)
               {
                 ExtensionPath subPath = extensionPath.Plugin.GetExtensionPath(extensionPath.Name + "/" + newItem.Id);
-                //foreach (ICondition condition in extensionPath.conditionStack) {
-                //	subPath.conditionStack.Push(condition);
-                //}
                 SetUp(subPath, reader, elementName);
-                //foreach (ICondition condition in extensionPath.conditionStack) {
-                //	subPath.conditionStack.Pop();
-                //}
               }
-            //}
             break;
         }
       }

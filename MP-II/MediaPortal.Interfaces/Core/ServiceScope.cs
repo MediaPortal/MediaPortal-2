@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace MediaPortal.Core
 {

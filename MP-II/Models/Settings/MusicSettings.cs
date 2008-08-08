@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 using Media.Players.BassPlayer;
 
@@ -36,7 +36,7 @@ namespace Models.Settings
     BassPlayerSettings _settings;
     
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

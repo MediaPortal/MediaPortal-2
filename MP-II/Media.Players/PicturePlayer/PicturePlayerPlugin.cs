@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 
@@ -42,7 +42,7 @@ namespace Media.Players.PicturePlayer
     PicturePlayerSettings _settings;
     #region IPlugin Members
 
-    public void Initialize(string id)
+    public void Initialise()
     {
       _settings = new PicturePlayerSettings();
     }

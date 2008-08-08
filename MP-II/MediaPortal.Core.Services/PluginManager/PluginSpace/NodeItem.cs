@@ -29,7 +29,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginDetails;
 
 namespace MediaPortal.Services.PluginManager.PluginSpace
@@ -37,42 +37,25 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// <summary>
   /// Represents a node in the add in tree that can produce an item.
   /// </summary>
-  public class NodeItem : INodeItem
+  public class PluginRegisteredItem : IPluginRegisteredItem
   {
     #region Variables
     PluginInfo _plugin;
-    string _name;
+    string _builderName;
     PluginProperties _properties;
-    //ICondition[] conditions;
     #endregion
 
     #region Constructors/Destructors
-    public NodeItem(PluginInfo plugin, string name, PluginProperties properties) //, ICondition[] conditions)
+    internal PluginRegisteredItem(string builderName, PluginInfo plugin, PluginProperties properties)
     {
       this._plugin = plugin;
-      this._name = name;
+      this._builderName = builderName;
       this._properties = properties;
-      //this.conditions = conditions;
     }
     #endregion
 
     #region Properties
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    public IPluginInfo Plugin
-    {
-      get { return _plugin; }
-    }
-
-    public string Id
-    {
-      get { return _properties["id"]; }
-    }
-
-    public string InsertAfter
+    internal string InsertAfter
     {
       get
       {
@@ -88,7 +71,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       }
     }
 
-    public string InsertBefore
+    internal string InsertBefore
     {
       get
       {
@@ -104,21 +87,49 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       }
     }
 
+    internal PluginProperties Properties
+    {
+      get { return _properties; }
+    }
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Builds the item using the correct factory.
+    /// </summary>
+    /// <returns>an instance of the item</returns>
+    internal object BuildItem()
+    {
+      IPluginItemBuilder builder;
+      if (!ServiceScope.Get<IPluginTree>().Builders.TryGetValue(_builderName, out builder))
+        throw new PluginException("Builder " + _builderName + " not found!");
+
+      return builder.BuildItem((IPluginRegisteredItem)this);
+    }
+    #endregion
+
+    #region IPluginRegisteredItem Members
+    #region Properties
+    public string BuilderName
+    {
+      get { return _builderName; }
+    }
+
+    public IPluginInfo Plugin
+    {
+      get { return _plugin; }
+    }
+
+    public string Id
+    {
+      get { return _properties["id"]; }
+    }
+
     public string this[string key]
     {
       get { return _properties[key]; }
     }
-
-    public PluginProperties Properties
-    {
-      get { return _properties; }
-    }
-
-    //public ICondition[] Conditions {
-    //  get {
-    //    return conditions;
-    //  }
-    //}
     #endregion
 
     #region Public Methods
@@ -126,40 +137,13 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     {
       return _properties.Contains(key);
     }
-
-    //public ConditionFailedAction GetFailedAction(object caller)
-    //{
-    //  return Condition.GetFailedAction(conditions, caller);
-    //}
-
-    public object CreateObject(string className)
-    {
-      return _plugin.CreateObject(className);
-    }
-
-    public object BuildItem(object owner, ArrayList subItems)
-    {
-      IPluginBuilder builder;
-      if (!ServiceScope.Get<IPluginTree>().Builders.TryGetValue(_name, out builder))
-        throw new PluginException("Builder " + _name + " not found!");
-
-      //if (!doozer.HandleConditions && conditions.Length > 0) {
-      //  ConditionFailedAction action = GetFailedAction(owner);
-      //  if (action != ConditionFailedAction.Nothing) {
-      //    return null;
-      //  }
-      //}
-
-      return builder.BuildItem(owner, (INodeItem) this, subItems);
-    }
+    #endregion
     #endregion
 
     #region <Base class> Overloads
     public override string ToString()
     {
-      return String.Format("[NodeItem: name = {0}, addIn={1}]",
-                           _name,
-                           _plugin.FileName);
+      return String.Format("[PluginRegisteredItem: builderName = {0}]", _builderName);
     }
     #endregion
   }

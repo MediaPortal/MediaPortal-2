@@ -38,7 +38,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   {
     #region Variables
     Dictionary<string, PluginTreeNode> _childNodes;
-    List<NodeItem> _items;
+    List<PluginRegisteredItem> _items;
     bool _isSorted;
     #endregion
 
@@ -46,7 +46,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     public PluginTreeNode()
     {
       _childNodes = new Dictionary<string, PluginTreeNode>();
-      _items = new List<NodeItem>();
+      _items = new List<PluginRegisteredItem>();
       _isSorted = false;
     }
     #endregion
@@ -57,14 +57,14 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       get { return _childNodes; }
     }
 
-    public List<NodeItem> Items
+    public List<PluginRegisteredItem> Items
     {
       get { return _items; }
     }
     #endregion
 
     #region Public Methods
-    public List<T> BuildChildItems<T>(object caller)
+    public List<T> BuildChildItems<T>()
     {
       List<T> items = new List<T>(_items.Count);
       if (!_isSorted)
@@ -72,20 +72,16 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         _items = (new NodeItemSort(_items)).Execute();
         _isSorted = true;
       }
-      foreach (NodeItem item in _items)
+      foreach (PluginRegisteredItem item in _items)
       {
         ArrayList subItems = null;
         if (_childNodes.ContainsKey(item.Id))
         {
-          subItems = _childNodes[item.Id].BuildChildItems(caller);
+          subItems = _childNodes[item.Id].BuildChildItems();
         }
-        object result = item.BuildItem(caller, subItems);
+        object result = item.BuildItem();
         if (result == null)
           continue;
-        //IBuildItemsModifier mod = result as IBuildItemsModifier;
-        //if (mod != null) {
-        //  mod.Apply(items);
-        //} else 
  
         if(result is T)
         {
@@ -93,7 +89,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         }
         else
         {
-          throw new InvalidCastException("The PluginTreeNode <" + item.Name + " id='" + item.Id
+          throw new InvalidCastException("The PluginTreeNode <" + item.BuilderName + " id='" + item.Id
                                          + "' ... /> returned an instance of " + result.GetType().FullName
                                          + " but the type " + typeof(T).FullName + " is expected.");
         }
@@ -101,27 +97,23 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       return items;
     }
 
-    public object BuildChildItem<T>(string id, object caller)
+    public object BuildChildItem<T>(string id)
     {
-      foreach (NodeItem item in _items)
+      foreach (PluginRegisteredItem item in _items)
       {
         if (item.Id.ToLower() == id.ToLower())
         {
-          object result = item.BuildItem(caller, null);
+          object result = item.BuildItem();
           if (result == null)
             continue;
 
-          //IBuildItemsModifier mod = result as IBuildItemsModifier;
-          //if (mod != null) {
-          //  mod.Apply(items);
-          //} else 
           if (result is T)
           {
             return result;
           }
           else
           {
-            throw new InvalidCastException("The PluginTreeNode <" + item.Name + " id='" + item.Id
+            throw new InvalidCastException("The PluginTreeNode <" + item.BuilderName + " id='" + item.Id
                                            + "' returned an instance of " + result.GetType().FullName
                                            + " but the type " + typeof(T).FullName + " is expected.");
           }
@@ -130,13 +122,12 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       return null;
     }
 
-    // Workaround for Boo compiler (it cannot distinguish between the generic and non-generic method)
-    public ArrayList BuildChildItemsArrayList(object caller)
+    public ArrayList BuildChildItemsArrayList()
     {
-      return BuildChildItems(caller);
+      return BuildChildItems();
     }
 
-    public ArrayList BuildChildItems(object caller)
+    public ArrayList BuildChildItems()
     {
       ArrayList items = new ArrayList(_items.Count);
       if (!_isSorted)
@@ -144,33 +135,29 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         _items = (new NodeItemSort(_items)).Execute();
         _isSorted = true;
       }
-      foreach (NodeItem item in _items)
+      foreach (PluginRegisteredItem item in _items)
       {
         ArrayList subItems = null;
         if (_childNodes.ContainsKey(item.Id))
         {
-          subItems = _childNodes[item.Id].BuildChildItems(caller);
+          subItems = _childNodes[item.Id].BuildChildItems();
         }
-        object result = item.BuildItem(caller, subItems);
+        object result = item.BuildItem();
         if (result == null)
           continue;
-        //IBuildItemsModifier mod = result as IBuildItemsModifier;
-        //if (mod != null) {
-        //  mod.Apply(items);
-        //} else {
+
         items.Add(result);
-        //}
       }
       return items;
     }
 
-    public object BuildChildItem(string childItemID, object caller, ArrayList subItems)
+    public object BuildChildItem(string childItemID)
     {
-      foreach (NodeItem item in _items)
+      foreach (PluginRegisteredItem item in _items)
       {
         if (item.Id == childItemID)
         {
-          return item.BuildItem(caller, subItems);
+          return item.BuildItem();
         }
       }
       throw new TreePathNotFoundException(childItemID);

@@ -23,57 +23,61 @@
 #endregion
 
 using System;
+using System.IO;
+using System.Collections.Generic;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
+  /// <summary>
+  /// Descriptor interface for a plugin. Exposes the plugin's state and provides access to all
+  /// public plugin properties.
+  /// </summary>
   public interface IPluginInfo
   {
     #region Properties
 
-    Version Version
-    {
-      get;
-    }
-
-    string FileName
-    {
-      get;
-    }
-
-    string PluginPath
-    {
-      get;
-    }
-
+    /// <summary>
+    /// Returns the plugin's name.
+    /// </summary>
     string Name
     {
       get;
     }
 
-    string Id
+    /// <summary>
+    /// Returns the plugin's version.
+    /// </summary>
+    Version Version
     {
       get;
     }
 
-    bool Enabled
+    /// <summary>
+    /// Returns the plugin directory path in the file system.
+    /// </summary>
+    DirectoryInfo PluginPath
     {
       get;
     }
 
-  	bool Loaded
-  	{ 
-			get;
-  	}
-
-    bool Running
-    {
-      get;
+    /// <summary>
+    /// Returns the state of this plugin.
+    /// </summary>
+    /// <seealso cref="PluginState"/>
+    PluginState State
+    { 
+      get; 
     }
 
     #endregion
 
     #region Public Methods
-    
+
+    /// <summary>
+    /// Creates an instance of a plugin item
+    /// </summary>
+    /// <param name="className">The name of the class to be instanciated</param>
+    /// <returns>the instance as an object</returns>
     object CreateObject(string className);
 
     #endregion

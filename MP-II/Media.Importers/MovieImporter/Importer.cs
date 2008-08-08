@@ -33,7 +33,7 @@ using MediaPortal.Database;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Threading;
 
 using MediaPortal.Media.Importers;
@@ -65,7 +65,7 @@ namespace Media.Importers.MovieImporter
       //_extensions.Add(".ifo");
     }
 
-    public void Initialize(string id)
+    public void Initialise()
     {
       CreateMovieDatabase();
       scraper = new Scraper();

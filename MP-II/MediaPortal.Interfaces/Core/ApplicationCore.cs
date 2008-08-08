@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace MediaPortal.Core
 {

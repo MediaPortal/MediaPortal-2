@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,17 +23,56 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Interfaces.Core.PluginManager
 {
   /// <summary>
-  /// PluginResourceDesriptor provides the location of a plugin resource
+  /// Represents a registered item from a plugin.
   /// </summary>
-  public class PluginResourceDescriptor
+  public interface IPluginRegisteredItem
   {
-    public string PluginName;
-    public string Location;
+    #region Properties
+     ///<summary>
+     ///Returns the name of builder required to build this item
+     ///</summary>
+    string BuilderName
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Returns the IPluginInfo associated with this item
+    /// </summary>
+    IPluginInfo Plugin
+    {
+      get; 
+    }
+
+    /// <summary>
+    /// Returns the item's Id
+    /// </summary>
+    string Id
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Returns items attributes
+    /// </summary>
+    string this[string key]
+    {
+      get;
+    }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// Tests to see if an attrubute exists
+    /// </summary>
+    bool Contains(string key);
+
+    #endregion
   }
 }

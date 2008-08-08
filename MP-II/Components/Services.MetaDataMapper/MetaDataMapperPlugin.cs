@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace Components.Services.MetaDataMapper
 {
@@ -12,7 +12,7 @@ namespace Components.Services.MetaDataMapper
     /// <summary>
     /// Initializes this instance.
     /// </summary>
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

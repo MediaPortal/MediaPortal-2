@@ -34,7 +34,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Media.MediaManager;
@@ -166,7 +166,7 @@ namespace Models.Extensions
       _dynamicContextMenuItems.Add(menuItem);
     }
 
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

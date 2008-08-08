@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace Models.HomeMenu
 {
@@ -38,7 +38,7 @@ namespace Models.HomeMenu
     {
     }
 
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

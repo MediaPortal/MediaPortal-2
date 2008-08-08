@@ -26,7 +26,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace MediaPortal.Services.PluginManager.PluginSpace
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       get;
     }
 
-    IDictionary<string, IPluginBuilder> Builders
+    IDictionary<string, IPluginItemBuilder> Builders
     {
       get;
     }

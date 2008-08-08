@@ -50,7 +50,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 
@@ -72,7 +72,7 @@ namespace Models.Weather
     private Property _searchCity;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

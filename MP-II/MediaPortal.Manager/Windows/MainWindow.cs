@@ -33,7 +33,7 @@ using System.Windows.Forms;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Configuration;
 
 namespace MediaPortal.Manager

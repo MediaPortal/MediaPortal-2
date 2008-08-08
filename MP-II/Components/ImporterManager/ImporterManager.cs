@@ -29,7 +29,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
@@ -89,7 +89,7 @@ namespace Components.Services.Importers
     }
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
       // Get all Importer plugins
       _importers = ServiceScope.Get<IPluginManager>().GetAllPluginItems<ImporterBuilder>("/Media/Importers");

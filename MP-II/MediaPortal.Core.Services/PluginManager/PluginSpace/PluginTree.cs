@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Services.PluginManager.Builders;
 using MediaPortal.Services.PluginManager.PluginDetails;
 
@@ -45,10 +45,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
 
     protected IList<IPluginInfo> _plugins;
     protected PluginTreeNode _rootNode;
-    protected IDictionary<string, IPluginBuilder> _builders;
-
-    // do we require conditions?
-    //Dictionary<string, IConditionEvaluator> conditionEvaluators = new Dictionary<string, IConditionEvaluator>();
+    protected IDictionary<string, IPluginItemBuilder> _builders;
 
     #endregion
 
@@ -61,11 +58,9 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       _rootNode = new PluginTreeNode();
 
       // add default builders
-      _builders = new Dictionary<string, IPluginBuilder>();
+      _builders = new Dictionary<string, IPluginItemBuilder>();
       _builders.Add("Class", new ClassBuilder());
-
-      //conditionEvaluators.Add("Compare", new CompareConditionEvaluator());
-      //conditionEvaluators.Add("Ownerstate", new OwnerStateConditionEvaluator());
+      _builders.Add("Resource", new ResourceBuilder());
     }
 
     #endregion
@@ -77,18 +72,10 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       get { return new List<IPluginInfo>(_plugins); }
     }
 
-    public IDictionary<string, IPluginBuilder> Builders
+    public IDictionary<string, IPluginItemBuilder> Builders
     {
       get { return _builders; }
     }
-
-    //public Dictionary<string, IConditionEvaluator> ConditionEvaluators
-    //{
-    //  get
-    //  {
-    //    return conditionEvaluators;
-    //  }
-    //}
 
     #endregion
 
@@ -135,7 +122,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       int i = 0;
       while (i < splitPath.Length)
       {
-        if (splitPath[i] != string.Empty)
+        if (!String.IsNullOrEmpty(splitPath[i]))
         {
           if (!curPath.ChildNodes.ContainsKey(splitPath[i]))
           {
@@ -160,7 +147,8 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       string parent = path.Substring(0, pos);
       string child = path.Substring(pos + 1);
       PluginTreeNode node = GetTreeNode(parent);
-      return node.BuildChildItem(child, caller, BuildItems(path, caller, false));
+      BuildItems(path, false); // is this required?
+      return node.BuildChildItem(child);
     }
 
     /// <summary>
@@ -171,13 +159,13 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     /// <param name="throwOnNotFound">If true, throws an TreePathNotFoundException
     /// if the path is not found. If false, an empty ArrayList is returned when the
     /// path is not found.</param>
-    public ArrayList BuildItems(string path, object caller, bool throwOnNotFound)
+    public ArrayList BuildItems(string path, bool throwOnNotFound)
     {
       PluginTreeNode node = GetTreeNode(path, throwOnNotFound);
       if (node == null)
         return new ArrayList();
       else
-        return node.BuildChildItems(caller);
+        return node.BuildChildItems();
     }
 
     /// <summary>
@@ -186,9 +174,9 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     /// </summary>
     /// <param name="path">A path in the Plugin tree.</param>
     /// <param name="caller">The owner used to create the objects.</param>
-    public List<T> BuildItems<T>(string path, object caller)
+    public List<T> BuildItems<T>(string path)
     {
-      return BuildItems<T>(path, caller, true);
+      return BuildItems<T>(path, true);
     }
 
     /// <summary>
@@ -199,13 +187,13 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     /// <param name="throwOnNotFound">If true, throws an TreePathNotFoundException
     /// if the path is not found. If false, an empty ArrayList is returned when the
     /// path is not found.</param>
-    public List<T> BuildItems<T>(string path, object caller, bool throwOnNotFound)
+    public List<T> BuildItems<T>(string path, bool throwOnNotFound)
     {
       PluginTreeNode node = GetTreeNode(path, throwOnNotFound);
       if (node == null)
         return new List<T>();
       else
-        return node.BuildChildItems<T>(caller);
+        return node.BuildChildItems<T>();
     }
 
     /// <summary>
@@ -216,18 +204,18 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     /// <param name="throwOnNotFound">If true, throws an TreePathNotFoundException
     /// if the path is not found. If false, an empty ArrayList is returned when the
     /// path is not found.</param>
-    public object BuildItem<T>(string path, string id, object caller, bool throwOnNotFound)
+    public object BuildItem<T>(string path, string id, bool throwOnNotFound)
     {
       PluginTreeNode node = GetTreeNode(path, throwOnNotFound);
       if (node == null)
         return null;
       else
-        return node.BuildChildItem<T>(id, caller);
+        return node.BuildChildItem<T>(id);
     }
 
     public void InsertPlugin(PluginInfo Plugin)
     {
-      if (Plugin.Enabled)
+      if (Plugin.State == PluginState.Enabled)
       {
         foreach (ExtensionPath path in Plugin.ExtensionPaths.Values)
         {
@@ -238,46 +226,23 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
         {
           if (runtime.IsActive)
           {
-            foreach (LoadBuilder builder in runtime.DefinedBuilders)
+            foreach (PluginDefinedBuilder builder in runtime.PluginDefinedBuilders)
             {
-              if (_builders.ContainsKey(builder.Name))
+              if (_builders.ContainsKey(builder.BuilderName))
               {
-                throw new PluginLoadException("Duplicate builder: " + builder.Name);
+                throw new PluginLoadException("Duplicate builder: " + builder.BuilderName);
               }
-              _builders.Add(builder.Name, builder);
+              _builders.Add(builder.BuilderName, builder);
             }
-            //foreach (LazyConditionEvaluator condition in runtime.DefinedConditionEvaluators)
-            //{
-            //  if (PluginTree.ConditionEvaluators.ContainsKey(condition.Name))
-            //  {
-            //    throw new PluginLoadException("Duplicate condition evaluator: " + condition.Name);
-            //  }
-            //  PluginTree.ConditionEvaluators.Add(condition.Name, condition);
-            //}
           }
         }
-
-        //string PluginRoot = Path.GetDirectoryName(Plugin.FileName);
-        //foreach(string bitmapResource in Plugin.BitmapResources)
-        //{
-        //  string path = Path.Combine(PluginRoot, bitmapResource);
-        //  ResourceManager resourceManager = ResourceManager.CreateFileBasedResourceManager(Path.GetFileNameWithoutExtension(path), Path.GetDirectoryName(path), null);
-        //  ResourceService.RegisterNeutralImages(resourceManager);
-        //}
-
-        //foreach(string stringResource in Plugin.StringResources)
-        //{
-        //  string path = Path.Combine(PluginRoot, stringResource);
-        //  ResourceManager resourceManager = ResourceManager.CreateFileBasedResourceManager(Path.GetFileNameWithoutExtension(path), Path.GetDirectoryName(path), null);
-        //  ResourceService.RegisterNeutralStrings(resourceManager);
-        //}
       }
       _plugins.Add(Plugin);
     }
 
     public void RemovePlugin(PluginInfo Plugin)
     {
-      if (Plugin.Enabled)
+      if (Plugin.State == PluginState.Enabled)
       {
         throw new ArgumentException("Cannot remove enabled Plugins at runtime.");
       }
@@ -311,33 +276,28 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
             ServiceScope.Get<ILogger>().Error("Error loading Plugin " + fileName + ":\n" + ex.Message);
           }
           plugin = new PluginInfo();
-          //Plugin.CustomErrorMessage = ex.Message;
         }
-        //if (Plugin.Action == PluginAction.CustomError)
-        //{
-        //  list.Add(Plugin);
-        //  continue;
-        //}
-        plugin.Enabled = true;
+
+        plugin.State = PluginState.Enabled;
         if (disabledPlugins != null && disabledPlugins.Count > 0)
         {
           foreach (string name in plugin.Manifest.Identities.Keys)
           {
             if (disabledPlugins.Contains(name))
             {
-              plugin.Enabled = false;
+              plugin.State = PluginState.Disabled;
               break;
             }
           }
         }
-        if (plugin.Enabled)
+        if (plugin.State == PluginState.Enabled)
         {
           foreach (KeyValuePair<string, Version> pair in plugin.Manifest.Identities)
           {
             if (versionDict.ContainsKey(pair.Key))
             {
               //MessageService.ShowError("Name '" + pair.Key + "' is used by " + "'" + PluginDict[pair.Key].FileName + "' and '" + fileName + "'");
-              plugin.Enabled = false;
+              plugin.State = PluginState.Disabled;
               //Plugin.Action = PluginAction.InstalledTwice;
               break;
             }
@@ -363,7 +323,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   		for (int i = 0; i < list.Count; i++)
   		{
   			PluginInfo plugin = list[i];
-  			if (!plugin.Enabled) continue;
+  			if (plugin.State == PluginState.Disabled) continue;
 
   			Version versionFound;
 
@@ -402,7 +362,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     // used by Load(): disables a Plugin and removes it from the dictionaries.
     private void DisablePlugin(PluginInfo Plugin, Dictionary<string, Version> versionDict, Dictionary<string, PluginInfo> pluginInfoDict)
     {
-      Plugin.Enabled = false;
+      Plugin.State = PluginState.Disabled;
       //Plugin.Action = PluginAction.DependencyError;
       foreach (string name in Plugin.Manifest.Identities.Keys)
       {
@@ -439,7 +399,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
     private void AddExtensionPath(ExtensionPath path)
     {
       PluginTreeNode treePath = CreatePath(_rootNode, path.Name);
-      foreach (NodeItem item in path.Items)
+      foreach (PluginRegisteredItem item in path.Items)
       {
         treePath.Items.Add(item);
       }

@@ -26,10 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
   /// <summary>
   /// PluginMessaging class provides an interface for the messages used by to Plugin Manager.
+  /// OnPluginStartupFinished is send by the PluginManager when once all plugins have been loaded.
+  /// OnPluginInitialised is send for each plugin after the IPlugin Initialise method has been run.
   /// </summary>
   public class PluginMessaging
   {
@@ -39,12 +41,11 @@ namespace MediaPortal.Core.PluginManager
     // Metadata
     public const string PluginName = "Name"; // PluginName stored as string
     public const string Notification = "Notification"; // Notification stored as NotificationType
-    public const string Resources = "Resources"; // List of plugin resources store as List<PluginResource>
 
     public enum NotificationType
     {
-      OnPluginEnable,
-      OnPluginStart
+      OnPluginStartupFinished,
+      OnPluginInitialise
     }
   }
 }

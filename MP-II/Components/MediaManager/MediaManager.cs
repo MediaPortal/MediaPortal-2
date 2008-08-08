@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
@@ -58,7 +58,7 @@ namespace Components.Services.MediaManager
     /// <summary>
     /// Initializes this instance.
     /// </summary>
-    public void Initialize(string id)
+    public void Initialise()
     {
       ViewLoader loader = new ViewLoader();
       string[] files = System.IO.Directory.GetFiles("Views");

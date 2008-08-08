@@ -29,23 +29,23 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 
 namespace Components.Services.Importers
 {
-  class ImporterBuilder : IPluginBuilder
+  class ImporterBuilder : IPluginItemBuilder
   {
     #region variables
     string _type;
     string _extensions;
-    INodeItem _item;
+    IPluginRegisteredItem _item;
     IImporter _importerInstance;
     #endregion
 
     #region IPluginBuilder methods
-    public object BuildItem(object caller, INodeItem item, ArrayList subItems)
+    public object BuildItem(IPluginRegisteredItem item)
     {
       ImporterBuilder builder = new ImporterBuilder();
       builder._item = item;
@@ -198,7 +198,7 @@ namespace Components.Services.Importers
       {
         try
         {
-          _importerInstance = (IImporter)_item.CreateObject(_item["class"]);
+          _importerInstance = (IImporter)_item.Plugin.CreateObject(_item["class"]);
         }
         catch (Exception e)
         {

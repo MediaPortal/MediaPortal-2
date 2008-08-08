@@ -32,12 +32,13 @@ using System.Reflection;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Services.PluginManager.Builders;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
 namespace MediaPortal.Services.PluginManager.PluginDetails
 {
-  public class PluginRuntime
+  internal class PluginRuntime
   {
     #region Variables
     string _hintPath;
@@ -45,10 +46,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     Assembly _loadedAssembly;
     bool _isActive;
     bool _isAssemblyLoaded;
-    IList<LoadBuilder> _definedBuilders;
-
-    //IList<LazyConditionEvaluator> definedConditionEvaluators = new List<LazyConditionEvaluator>();
-    //ICondition[] conditions;
+    IList<PluginDefinedBuilder> _pluginDefinedBuilders;
     #endregion
 
     #region Constructors/Destructors
@@ -57,7 +55,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       this._assembly = assembly;
       this._hintPath = hintPath;
       _loadedAssembly = null;
-      _definedBuilders = new List<LoadBuilder>();
+      _pluginDefinedBuilders = new List<PluginDefinedBuilder>();
       _isActive = true;
       _isAssemblyLoaded = false;
     }
@@ -68,10 +66,6 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     {
       get
       {
-        //if (conditions != null) {
-        //  isActive = Condition.GetFailedAction(conditions, this) == ConditionFailedAction.Nothing;
-        //  conditions = null;
-        //}
         return _isActive;
       }
     }
@@ -93,16 +87,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       }
     }
 
-    public IList<LoadBuilder> DefinedBuilders
+    public IList<PluginDefinedBuilder> PluginDefinedBuilders
     {
-      get { return _definedBuilders; }
+      get { return _pluginDefinedBuilders; }
     }
 
-    //public IList<LazyConditionEvaluator> DefinedConditionEvaluators {
-    //  get {
-    //    return definedConditionEvaluators;
-    //  }
-    //}
     #endregion
 
     #region Public Methods
@@ -197,7 +186,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
                   {
                     throw new PluginLoadException("Builder nodes must be empty!");
                   }
-                  runtime._definedBuilders.Add(new LoadBuilder(plugin, properties));
+                  runtime._pluginDefinedBuilders.Add(new PluginDefinedBuilder(plugin, properties));
                   break;
                 //case "ConditionEvaluator":
                 //  if (!reader.IsEmptyElement) {
@@ -241,7 +230,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
             string referencedPlugin = _assembly.Substring(1, pos - 1);
             foreach (PluginInfo plugin in ServiceScope.Get<IPluginTree>().Plugins)
             {
-              if (plugin.Enabled && plugin.Manifest.Identities.ContainsKey(referencedPlugin))
+              if (plugin.State==PluginState.Enabled && plugin.Manifest.Identities.ContainsKey(referencedPlugin))
               {
                 string assemblyFile = Path.Combine(Path.GetDirectoryName(plugin.FileName),
                                                    _assembly.Substring(pos + 1));

@@ -35,7 +35,7 @@ using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Threading;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 

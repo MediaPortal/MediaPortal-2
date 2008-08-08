@@ -40,7 +40,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
   /// <summary>
   /// Description of PropertyGroup.
   /// </summary>
-  public class PluginProperties
+  internal class PluginProperties
   {
     #region Variables
     Dictionary<string, object> _properties = new Dictionary<string, object>();

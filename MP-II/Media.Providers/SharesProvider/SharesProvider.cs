@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.Importers;
@@ -34,7 +34,7 @@ namespace Media.Providers.SharesProvider
 {
   public class SharesProvider : IPlugin, IProvider
   {
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

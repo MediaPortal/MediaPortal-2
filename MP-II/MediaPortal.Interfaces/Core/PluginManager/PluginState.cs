@@ -29,11 +29,17 @@ using System.Text;
 namespace MediaPortal.Interfaces.Core.PluginManager
 {
   /// <summary>
-  /// PluginResourceDesriptor provides the location of a plugin resource
+  /// Reflects the state of a plugin during its lifetime.
+  /// If the user doesn't manually disable a plugin, and if the plugin manager decides that there 
+  /// are no conflicts to other plugins, the state of the plugin will be <see cref="Enabled"/>.
+  /// Resources of this plugin may only be accessed if this plugin is <see cref="Enabled"/>.
+  /// If any registered part of the plugin is instantiated, the <see cref="IPlugin"/> Initialise() mehtod will
+  /// be run and the will be changed to <see cref="Initialised"/>
   /// </summary>
-  public class PluginResourceDescriptor
+  public enum PluginState
   {
-    public string PluginName;
-    public string Location;
+    Disabled,
+    Enabled,
+    Initialised
   }
 }

@@ -23,21 +23,33 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Collections;
+using MediaPortal.Interfaces.Core.PluginManager;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Services.PluginManager.Builders
 {
-	/// <summary>
-	/// Interface for classes that can build objects out of NodeItems.
-	/// </summary>
-	public interface IPluginBuilder
-	{
-    ///// <summary>
-    ///// Gets if the doozer handles codon conditions on its own.
-    ///// If this property return false, the item is excluded when the condition is not met.
-    ///// </summary>
-    //bool HandleConditions { get; }
-		
-		object BuildItem(object caller, INodeItem item, ArrayList subItems);
-	}
+  /// <summary>
+  /// Builds a resource item
+  /// </summary>
+  public class ResourceBuilder : IPluginItemBuilder
+  {
+    #region IPluginItemBuilder Members
+    public object BuildItem(IPluginRegisteredItem item)
+    {
+      PluginResourceDescriptor resource = new PluginResourceDescriptor();
+
+      resource.PluginName = item.Plugin.Name;
+      resource.Location = Path.Combine(item.Plugin.PluginPath.FullName, item["location"]);
+
+      // test to see if it is a relative path
+      if (!Directory.Exists(resource.Location))
+      {
+        // Location string returned as is
+        resource.Location = item["location"];
+      }
+      return resource;
+    }
+    #endregion
+  }
 }

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Localisation;
 
 namespace Components.Configuration
@@ -40,7 +40,7 @@ namespace Components.Configuration
     }
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

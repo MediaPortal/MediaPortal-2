@@ -31,7 +31,6 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManager;

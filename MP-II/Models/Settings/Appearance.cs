@@ -27,7 +27,7 @@ using System.IO;
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
@@ -45,7 +45,7 @@ namespace Models.Settings
     ItemsCollection _themes;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

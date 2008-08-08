@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
@@ -48,7 +48,7 @@ namespace Components.UPnPServer
     private MediaServerCore2 _mediaServerCore;
     private UPnPMediaServer2 _mediaServer;
 
-    public void Initialize(string id)
+    public void Initialise()
     {
       //   Start();
     }

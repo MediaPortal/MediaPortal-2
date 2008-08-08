@@ -38,16 +38,16 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
   /// </summary>
   internal class NodeItemSort
   {
-    List<NodeItem> _items;
+    List<PluginRegisteredItem> _items;
     bool[] _visited;
-    List<NodeItem> _sortedItems;
+    List<PluginRegisteredItem> _sortedItems;
     Dictionary<string, int> _indexOfName;
 
-    public NodeItemSort(List<NodeItem> items)
+    public NodeItemSort(List<PluginRegisteredItem> items)
     {
       this._items = items;
       _visited = new bool[items.Count];
-      _sortedItems = new List<NodeItem>(items.Count);
+      _sortedItems = new List<PluginRegisteredItem>(items.Count);
       _indexOfName = new Dictionary<string, int>(items.Count);
       // initialize visited to false and fill the indexOfName dictionary
       for (int i = 0; i < items.Count; ++i)
@@ -85,7 +85,7 @@ namespace MediaPortal.Services.PluginManager.PluginSpace
       }
     }
 
-    public List<NodeItem> Execute()
+    public List<PluginRegisteredItem> Execute()
     {
       InsertEdges();
 

@@ -62,6 +62,7 @@
     <Compile Include="Core\Messaging\QueueMessage.cs" />
     <Compile Include="Core\PluginManager\PluginMessaging.cs" />
     <Compile Include="Core\PluginManager\PluginResource.cs" />
+    <Compile Include="Core\PluginManager\PluginState.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
@@ -157,8 +158,8 @@
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
     <Compile Include="Core\PluginManager\IAutoStart.cs" />
-    <Compile Include="Core\PluginManager\IPluginBuilder.cs" />
-    <Compile Include="Core\PluginManager\INodeItem.cs" />
+    <Compile Include="Core\PluginManager\IPluginItemBuilder.cs" />
+    <Compile Include="Core\PluginManager\IPluginRegisteredItem.cs" />
     <Compile Include="Core\PluginManager\IPlugin.cs" />
     <Compile Include="Core\PluginManager\IPluginInfo.cs" />
     <Compile Include="Core\PluginManager\IPluginManager.cs" />

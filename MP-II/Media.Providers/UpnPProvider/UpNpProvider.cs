@@ -31,7 +31,7 @@ using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.CdsMetadata;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
@@ -65,7 +65,7 @@ namespace Media.Providers.UpNpProvider
     }
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
     #endregion

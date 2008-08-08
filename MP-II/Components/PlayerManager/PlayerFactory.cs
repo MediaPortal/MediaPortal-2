@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
@@ -44,7 +44,7 @@ namespace Components.Services.PlayerManager
     }
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

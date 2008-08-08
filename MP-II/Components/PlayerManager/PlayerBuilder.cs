@@ -28,19 +28,19 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Presentation.Players;
 
 using MediaPortal.Media.MediaManager;
 
 namespace Components.Services.PlayerManager
 {
-  class PlayerBuilder : IPluginBuilder, IPlayerBuilder
+  class PlayerBuilder : IPluginItemBuilder, IPlayerBuilder
   {
     #region variables
     string _type;
     string _extensions;
-    INodeItem _item;
+    IPluginRegisteredItem _item;
     IPlayerBuilder _playerInstance; // should this be IPlayer?
     #endregion
 
@@ -58,8 +58,7 @@ namespace Components.Services.PlayerManager
       {
         try
         {
-          // _playerInstance = (IPlayer)_item.CreateObject(_item["class"]);
-          _playerInstance = (IPlayerBuilder)_item.CreateObject(_item["class"]);
+          _playerInstance = (IPlayerBuilder)_item.Plugin.CreateObject(_item["class"]);
         }
         catch (Exception e)
         {
@@ -100,7 +99,7 @@ namespace Components.Services.PlayerManager
     #endregion
 
     #region IPluginBuilder methods
-    public object BuildItem(object caller, INodeItem item, ArrayList subItems)
+    public object BuildItem(IPluginRegisteredItem item)
     {
       PlayerBuilder builder = new PlayerBuilder();
       builder._item = item;

@@ -24,52 +24,72 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.PluginManager
+using MediaPortal.Core;
+
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
   /// <summary>
-  /// Interface for plug-in managers.
+  /// Interface to access the MediaPortal plugin manager. It exposes the globally available methods
+  /// to be called from throughout the application.
   /// </summary>
   /// <remarks>
-  /// A plug-in manager is responsible for enumerating, starting and stopping plugins.
+  /// The plugin manager is responsible for managing all installed plugins. It resolves plugin conflicts,
+  /// defines the load order and manages the lifecycle of the plugins.
   /// </remarks>
 	public interface IPluginManager : IStatus
   {
+    /// <summary>
+    /// Gets a single Plugin Item registered at the given location and name
+    /// </summary>
+    /// <returns>The Plugin Item instance.</returns>
+    /// <remarks>
+    /// If no instance of the plugin item exists it will be instantiated.
+    /// </remarks>
     object GetPluginItem<T>(string location, string name);
 
+    /// <summary>
+    /// Gets a List of Plugin Items registered at the given location
+    /// </summary>
+    /// <returns>A List of Plugin Items.</returns>
+    /// <remarks>
+    /// If no instance of the plugin items exists they will be instantiated.
+    /// </remarks>
     List<T> GetAllPluginItems<T>(string location);
 
     /// <summary>
-    /// Gets an enumeration of available plugins.
-    /// </summary>
-    /// <returns>An enumeration of pulgin descriptors.</returns>
-    /// <remarks>
-    /// A configuration program can use this list to present the user a list of available plugins
-    /// that he can (de)activated.
-    /// </remarks>
-    IEnumerable<IPluginInfo> GetAvailablePlugins();
-
-    /// <summary>
-    /// Stops all plug-ins.
-    /// </summary>
-    void StopAll();
-
-    /// <summary>
-    /// Starts all plug-ins that are in the /AutoStart path.
+    /// Starts the plugin manager. This will initialize internal structures, load the list
+    /// of available plugins, initializes the plugins and handles the plugin's autostart.
     /// </summary>
     void Startup();
 
-		/// <summary>
-		/// Starts a plugin by name.
-		/// </summary>
-		/// <param name="name">Name of the plugin.</param>
-		/// <returns><c>true</c>, if the plugin could be started, else <c>false</c>.</returns>
-		bool StartPlugIn(string name);
+    ///// <summary>
+    ///// Gets an enumeration of available/installed plugins. Note that not all available plugins
+    ///// are enabled!
+    ///// </summary>
+    ///// <returns>A map of plugin names to plugin descriptors.</returns>
+    ///// <remarks>
+    ///// A configuration program can use this list to present the user a list of available plugins
+    ///// that he can enabled/disabled.
+    ///// </remarks>
+    //IDictionary<string, IPluginInfo> GetAvailablePlugins();
 
-		/// <summary>
-		/// Stops a plugin by name.
-		/// </summary>
-		/// <param name="name">Name of the plugin to stop.</param>
-    /// <returns><c>true</c>, if the plugin could be stopped, else <c>false</c>.</returns>
-    bool StopPlugIn(string name);
+    ///// <summary>
+    ///// Stops all plug-ins.
+    ///// </summary>
+    //void StopAll();
+
+    ///// <summary>
+    ///// Starts a plugin by name.
+    ///// </summary>
+    ///// <param name="name">Name of the plugin.</param>
+    ///// <returns><c>true</c>, if the plugin could be started, else <c>false</c>.</returns>
+    //bool StartPlugin(string name);
+
+    ///// <summary>
+    ///// Stops a plugin by name.
+    ///// </summary>
+    ///// <param name="name">Name of the plugin to stop.</param>
+    ///// <returns><c>true</c>, if the plugin could be stopped, else <c>false</c>.</returns>
+    //bool StopPlugin(string name);
   }
 }

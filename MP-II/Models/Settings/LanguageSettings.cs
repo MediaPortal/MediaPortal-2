@@ -25,7 +25,7 @@
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Localisation;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;
@@ -39,7 +39,7 @@ namespace Models.Settings
     ItemsCollection _languages;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

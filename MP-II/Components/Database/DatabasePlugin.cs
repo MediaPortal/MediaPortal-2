@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Database;
 
 using Components.Database.Notifies;
@@ -32,7 +32,7 @@ namespace Components.Database
 {
   public class DatabasePlugin : IPlugin, IAutoStart
   {
-    public void Initialize(string id)
+    public void Initialise()
     {
       ServiceScope.Add<IDatabaseNotifier>(new DatabaseNotifier());
       ServiceScope.Add<IDatabaseBuilderFactory>(new DatabaseBuilderFactory());

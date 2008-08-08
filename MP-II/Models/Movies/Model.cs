@@ -32,7 +32,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
@@ -82,7 +82,7 @@ namespace Models.Movies
     #endregion
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

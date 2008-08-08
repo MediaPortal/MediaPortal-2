@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
 using MediaPortal.Core;
@@ -30,7 +31,7 @@ using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace MediaPortal.Services.Localisation
 {
@@ -148,21 +149,22 @@ namespace MediaPortal.Services.Localisation
     {
       try
       {
-        if (((PluginMessaging.NotificationType)message.MessageData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginEnable)
+        if (((PluginMessaging.NotificationType)message.MessageData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginStartupFinished)
         {
-          if (message.MessageData.ContainsKey(PluginMessaging.Resources))
+          List<PluginResourceDescriptor> languageResources = ServiceScope.Get<IPluginManager>().GetAllPluginItems<PluginResourceDescriptor>("/Resources/Language");
+
+          foreach (PluginResourceDescriptor resource in languageResources)
           {
-            foreach (PluginResource resource in (List<PluginResource>)message.MessageData[PluginMessaging.Resources])
-            {
-              if (resource.Type == PluginResource.ResourceType.Language)
-                AddDirectory(resource.Location);
-            }
+            if (Directory.Exists(resource.Location))
+              AddDirectory(resource.Location);
+            else
+              ServiceScope.Get<ILogger>().Error("StringManager: Plugin [{0}] language directory doesn't exist: {1}", resource.PluginName, resource.Location);
           }
         }
       }
       catch (Exception)
       {
-        ServiceScope.Get<ILogger>().Error("StringsManager: Error in Plugin Message");
+        ServiceScope.Get<ILogger>().Error("StringManager: Error in Plugin Message");
       }
     }
     #endregion

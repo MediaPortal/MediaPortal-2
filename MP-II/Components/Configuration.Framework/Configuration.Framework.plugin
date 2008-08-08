@@ -1,5 +1,5 @@
 <Plugin name        = "Configuration"
-        author      = "James"
+        author      = "Team MediaPortal"
         copyright   = "GPL"
         description = "Configuration">
 
@@ -13,7 +13,9 @@
     </Import>
   </Runtime>
 
-  <Resource type = "Language" />
+  <Register localtion = "/Resources/Language">
+    <Resource id = "Configuration" localtion = "Language"/>
+  </Register>
 
   <Register location = "/Configuration/Settings">
     <Setting id = "general"

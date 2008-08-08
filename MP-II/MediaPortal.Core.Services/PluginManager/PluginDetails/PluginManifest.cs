@@ -33,9 +33,9 @@ using MediaPortal.Services.PluginManager.PluginSpace;
 namespace MediaPortal.Services.PluginManager.PluginDetails
 {
   /// <summary>
-  /// Stores information about the manifest of an AddIn.
+  /// Stores information about the manifest of a plugin.
   /// </summary>
-  public class PluginManifest
+  internal class PluginManifest
   {
     #region Variables
     List<PluginReference> _dependencies = new List<PluginReference>();

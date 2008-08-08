@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MediaManager;
 
 namespace Presentation.SkinEngine.Players

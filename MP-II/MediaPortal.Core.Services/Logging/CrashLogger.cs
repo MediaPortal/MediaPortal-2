@@ -32,7 +32,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Management;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
 using Microsoft.Win32;
 
 namespace MediaPortal.Services.Logging

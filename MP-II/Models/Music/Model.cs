@@ -33,7 +33,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 
@@ -67,7 +67,7 @@ namespace Models.Music
     #endregion
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

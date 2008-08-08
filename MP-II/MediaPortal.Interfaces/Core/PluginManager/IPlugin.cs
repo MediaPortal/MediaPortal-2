@@ -24,10 +24,16 @@
 
 using System;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
+  /// <summary>
+  /// The main plugin class must implement this interface
+  /// </remarks>
   public interface IPlugin : IDisposable
   {
-    void Initialize(string id);
+    /// <summary>
+    /// This method is called once before the first item registered by the plugin is instantiated.
+    /// </remarks>
+    void Initialise();
   }
 }

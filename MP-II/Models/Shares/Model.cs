@@ -26,8 +26,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
-
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Media.Importers;
 using MediaPortal.Presentation.Screen;
 
@@ -40,7 +39,7 @@ namespace Models.Shares
     ListItem _selectedItem;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

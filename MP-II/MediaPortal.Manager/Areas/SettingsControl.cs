@@ -35,9 +35,8 @@ using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localisation;
-
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
 

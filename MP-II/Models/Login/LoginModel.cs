@@ -28,7 +28,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Services.UserManagement;
 
 namespace Models.Login
@@ -42,7 +42,7 @@ namespace Models.Login
     private Property _currentUser;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

@@ -24,10 +24,19 @@
 
 using System;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
+  /// <summary>
+  /// Interface to be implemented by every class provided by a plugin, which was registered
+  /// in the "/Autostart" plugin tree path.
+  /// The class marked with <see cref="IAutoStart"/> needs not necessarily to be the plugin main class,
+  /// it can be any arbitrary class registered in the plugin descriptor.
+  /// </summary>
   public interface IAutoStart
   {
+    /// <summary>
+    /// Will be called during the autostart process for this class.
+    /// </summary>
     void Startup();
   }
 }

@@ -49,35 +49,18 @@
 
 using System;
 using System.Collections;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace MediaPortal.Services.PluginManager.Builders
 {
   /// <summary>
-  /// Creates menu items from a location in the addin tree.
+  /// Builds a registered plugin item of type Class.
   /// </summary>
-  /// <attribute name="class" use="optional">
-  /// Command class that is run when item is clicked.
-  /// </attribute>
-  /// <attribute name="shortcut" use="optional">
-  /// Shortcut that activates the command (e.g. "Control|S").
-  /// </attribute>
-  /// <conditions>Conditions are handled by the item, "Exclude" maps to "Visible = false", "Disable" to "Enabled = false"</conditions>
-  public class ClassBuilder : IPluginBuilder
+  public class ClassBuilder : IPluginItemBuilder
   {
-    ///// <summary>
-    ///// Gets if the doozer handles codon conditions on its own.
-    ///// If this property return false, the item is excluded when the condition is not met.
-    ///// </summary>
-    //public bool HandleConditions {
-    //  get {
-    //    return true;
-    //  }
-    //}
-
-    public object BuildItem(object caller, INodeItem item, ArrayList subItems)
+    public object BuildItem(IPluginRegisteredItem item)
     {
-      return item.CreateObject(item["class"]);
+      return item.Plugin.CreateObject(item["class"]);
     }
   }
 }

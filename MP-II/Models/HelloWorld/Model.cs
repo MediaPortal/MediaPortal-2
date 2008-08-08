@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace Models.HelloWorld
 {
@@ -52,7 +52,7 @@ namespace Models.HelloWorld
       _helloStringProperty = new Property(typeof(string), "Hello World!");
     }
 
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

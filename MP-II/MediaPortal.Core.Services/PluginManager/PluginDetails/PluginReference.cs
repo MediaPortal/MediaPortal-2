@@ -36,7 +36,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
   /// <summary>
   /// Represents a versioned reference to an Plugin. Used by <see cref="PluginManifest"/>.
   /// </summary>
-  public class PluginReference : ICloneable
+  internal class PluginReference : ICloneable
   {
     #region Variables
     string name;

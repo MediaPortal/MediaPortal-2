@@ -34,7 +34,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Settings;
 
 using IrssComms;
@@ -51,7 +51,7 @@ namespace Components.Control.IrInput
 
     #region IPlugin Members
 
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

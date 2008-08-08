@@ -29,7 +29,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 
@@ -42,7 +42,7 @@ namespace Models.PlayList
     ListItem _selectedItem;
 
     #region IPlugin Members
-    public void Initialize(string id)
+    public void Initialise()
     {
     }
 

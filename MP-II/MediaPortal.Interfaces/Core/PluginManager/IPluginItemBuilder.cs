@@ -24,51 +24,27 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Interfaces.Core.PluginManager
 {
   /// <summary>
-  /// Represents a node in the add in tree that can produce an item.
+  /// Interface for plugin item factory classes. A plugin factory a concept to allow a plugin to
+  /// bring in almost all kinds of functionality to the system.
   /// </summary>
-  public interface INodeItem
+  /// <remarks>
+  /// Plugin item factory classes are used to instantiate plugin items out of a sort of "parameter set"
+  /// from the plugin descriptor file. Every plugin file can add as many "items" to the system as
+  /// needed. Every item needs to be explicitly named in the plugin file, and every item needs a
+  /// builder class which is able to load the item provided the item parameters from the plugin
+  /// descriptor file.
+  /// </remarks>
+  public interface IPluginItemBuilder
   {
-    #region Properties
-    string Name
-    {
-      get;
-    }
+    /// <summary>
+    /// Will build an item from the specified item parameter set.
+    /// </summary>
+    // object BuildItem(string name, IDictionary<string, string> parameters);
 
-    IPluginInfo Plugin
-    {
-      get; 
-    }
-
-    string Id
-    {
-      get;
-    }
-
-    string InsertAfter
-    {
-      get;
-    }
-
-    string InsertBefore
-    {
-      get;
-    }
-
-    string this[string key]
-    {
-      get;
-    }
-    #endregion
-
-    #region Public Methods
-    bool Contains(string key);
-    object CreateObject(string className);
-    object BuildItem(object owner, ArrayList subItems);
-    #endregion
-  }
+    object BuildItem(IPluginRegisteredItem item);
+	}
 }

@@ -30,24 +30,24 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Core.Localisation;
 
 using MediaPortal.Configuration;
 
 namespace Components.Configuration.Builders
 {
-  public class SettingBuilder : IPluginBuilder
+  public class SettingBuilder : IPluginItemBuilder
   {
     #region IPluginBuilder methods
-    public object BuildItem(object caller, INodeItem item, ArrayList subItems)
+    public object BuildItem(IPluginRegisteredItem item)
     {
       SettingBase setting;
 
       try
       {
         if (item.Contains("class"))
-          setting = (SettingBase)item.CreateObject(item["class"]);
+          setting = (SettingBase)item.Plugin.CreateObject(item["class"]);
         else
           setting = new SettingBase();
       }
@@ -70,10 +70,10 @@ namespace Components.Configuration.Builders
         setting.Help = new StringId();
 
       if (item.Contains("iconsmall"))
-        setting.IconSmall = Path.Combine(item.Plugin.PluginPath, item["iconsmall"]).ToString();
+        setting.IconSmall = Path.Combine(item.Plugin.PluginPath.FullName, item["iconsmall"]).ToString();
 
       if (item.Contains("iconlarge"))
-        setting.IconLarge = Path.Combine(item.Plugin.PluginPath, item["iconlarge"]).ToString();
+        setting.IconLarge = Path.Combine(item.Plugin.PluginPath.FullName, item["iconlarge"]).ToString();
 
       if (item.Contains("type"))
       {

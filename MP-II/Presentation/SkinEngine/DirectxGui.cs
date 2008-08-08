@@ -24,13 +24,13 @@
 
 using System.Windows.Forms;
 using Presentation.SkinEngine.GUI;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 
 namespace Presentation.SkinEngine
 {
   public class DirectxGui: IPlugin, IAutoStart
   {
-    public void Initialize(string id) {}
+    public void Initialise() {}
 
     public void Startup()
     {

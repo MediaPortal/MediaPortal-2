@@ -29,7 +29,7 @@ using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Database;
 
 using MediaPortal.Media.Importers;
@@ -53,7 +53,7 @@ namespace Media.Importers.PictureImporter
       _extensions.Add(".tga");
     }
 
-    public void Initialize(string id)
+    public void Initialise()
     {
       CreatePictureDatabase();
     }

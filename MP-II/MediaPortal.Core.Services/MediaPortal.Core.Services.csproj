@@ -104,14 +104,16 @@
     <Compile Include="PathManager\PathDefinition.cs" />
     <Compile Include="PathManager\PathListFile.cs" />
     <Compile Include="PathManager\PathManager.cs" />
+    <Compile Include="PluginManager\Builders\ResourceBuilder.cs" />
     <Compile Include="PluginManager\PluginException.cs" />
     <Compile Include="PluginManager\PluginManager.cs" />
     <Compile Include="PluginManager\Builders\ClassBuilder.cs" />
-    <Compile Include="PluginManager\Builders\LoadBuilder.cs" />
+    <Compile Include="PluginManager\Builders\PluginDefinedBuilder.cs" />
     <Compile Include="PluginManager\PluginDetails\ExtensionPath.cs" />
     <Compile Include="PluginManager\PluginSpace\IPluginTree.cs" />
     <Compile Include="PluginManager\PluginSpace\NodeItem.cs" />
     <Compile Include="PluginManager\PluginSpace\NodeItemSort.cs" />
+    <Compile Include="PluginManager\PluginSpace\PluginItemSortPreference.cs" />
     <Compile Include="PluginManager\PluginSpace\PluginLoadException.cs" />
     <Compile Include="PluginManager\PluginSpace\PluginTree.cs" />
     <Compile Include="PluginManager\PluginSpace\PluginTreeNode.cs" />

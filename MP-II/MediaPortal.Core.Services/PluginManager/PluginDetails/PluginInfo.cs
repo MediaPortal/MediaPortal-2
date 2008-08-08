@@ -31,8 +31,8 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
 namespace MediaPortal.Services.PluginManager.PluginDetails
@@ -49,16 +49,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
     PluginManifest _manifest;
     Dictionary<string, ExtensionPath> _extensionPaths;
     Dictionary<string, object> _instances;
-    List<PluginResource> _resources;
-    bool _enabled;
-    bool _loaded;
-    bool _running;
-
-    //AddInAction _action = AddInAction.Disable;
-    //List<string> bitmapResources = new List<string>();
-    //List<string> stringResources = new List<string>();
-    //string customErrorMessage;
-    //static bool hasShownErrorMessage = false;
+    PluginState _state;
     #endregion
 
     #region Constructors/Destructors
@@ -70,176 +61,40 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       _manifest = new PluginManifest();
       _extensionPaths = new Dictionary<string, ExtensionPath>();
       _instances = new Dictionary<string, object>();
-      _resources = new List<PluginResource>();
-      _loaded = false;
-      _running = false;
+      _state = PluginState.Disabled;
     }
     #endregion
 
-    ///// <summary>
-    ///// Gets the message of a custom load error. Used only when AddInAction is set to CustomError.
-    ///// Settings this property to a non-null value causes Enabled to be set to false and
-    ///// Action to be set to AddInAction.CustomError.
-    ///// </summary>
-    //public string CustomErrorMessage {
-    //  get {
-    //    return customErrorMessage;
-    //  }
-    //  internal set {
-    //    if (value != null) {
-    //      Enabled = false;
-    //      //Action = AddInAction.CustomError;
-    //    }
-    //    customErrorMessage = value;
-    //  }
-    //}
-
-    ///// <summary>
-    ///// Action to execute when the application is restarted.
-    ///// </summary>
-    //public AddInAction Action {
-    //  get {
-    //    return action;
-    //  }
-    //  set {
-    //    action = value;
-    //  }
-    //}
-
     #region Properties
     // Public Properties
-    public List<PluginRuntime> Runtimes
+    internal List<PluginRuntime> Runtimes
     {
       get { return _runtimes; }
     }
 
-    public Version Version
-    {
-      get { return _manifest.Version; }
-    }
-
-    public string FileName
+    internal string FileName
     {
       get { return _fileName; }
     }
 
-    public string PluginPath
-    {
-      get { return Path.GetDirectoryName(_fileName); }
-    }
-
-    public string Name
-    {
-      get { return _properties["name"]; }
-    }
-
-    public string Id
-    {
-      get { return _properties["id"]; }
-    }
-
-    public PluginManifest Manifest
+    internal PluginManifest Manifest
     {
       get { return _manifest; }
     }
 
-    public Dictionary<string, ExtensionPath> ExtensionPaths
+    internal Dictionary<string, ExtensionPath> ExtensionPaths
     {
       get { return _extensionPaths; }
     }
 
-    public PluginProperties Properties
+    internal PluginProperties Properties
     {
       get { return _properties; }
     }
-
-    public List<PluginResource> Resources
-    {
-      get { return _resources; }
-    }
-
-    //public List<string> BitmapResources {
-    //  get {
-    //    return bitmapResources;
-    //  }
-    //  set {
-    //    bitmapResources = value;
-    //  }
-    //}
-
-    //public List<string> StringResources {
-    //  get {
-    //    return stringResources;
-    //  }
-    //  set {
-    //    stringResources = value;
-    //  }
-    //}
-
-    public bool Enabled
-    {
-      get
-      {
-        return _enabled;
-      }
-      internal set
-      {
-        _enabled = value;
-      }
-    }
-
-    public bool Loaded
-    {
-      get
-      {
-        return _loaded;
-      }
-      internal set
-      {
-        _loaded = value;
-      }
-    }
-
-    public bool Running
-    {
-      get
-      {
-        return _running;
-      }
-    }
-
     #endregion
 
     #region Public Methods
-
-    public object CreateObject(string className)
-    {
-      if (!_instances.ContainsKey(_manifest.Identity))
-      {
-        ServiceScope.Get<ILogger>().Debug("Creating plugin instance: " + _manifest.Identity);
-        IPlugin pluginInstance = CreateInstance(_manifest.Identity) as IPlugin;
-        if (pluginInstance != null)
-        {
-          _instances.Add(_manifest.Identity, (object)pluginInstance);
-          ServiceScope.Get<ILogger>().Info("Initialising plugin: {0}", _properties["name"]);
-          pluginInstance.Initialize(_properties["name"]);
-          _running = true;
-          SendMessage(PluginMessaging.NotificationType.OnPluginStart);
-        }
-      }
-
-      if (!_instances.ContainsKey(className))
-      {
-        ServiceScope.Get<ILogger>().Debug("Creating plugin class instance: " + className);
-        object instance = CreateInstance(className);
-        if (instance != null)
-          _instances.Add(className, instance);
-      }
-
-      return _instances[className];
-    }
-
-    public ExtensionPath GetExtensionPath(string pathName)
+    internal ExtensionPath GetExtensionPath(string pathName)
     {
       if (!_extensionPaths.ContainsKey(pathName))
       {
@@ -262,12 +117,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         }
       }
       ServiceScope.Get<ILogger>().Error("Cannot create object: " + className);
-      //if (hasShownErrorMessage) {
-      //  ServiceScope.Get<ILogger>().Error("Cannot create object: " + className);
-      //} else {
-      //  hasShownErrorMessage = true;
-      //  //MessageService.ShowError("Cannot create object: " + className + "\nFuture missing objects will not cause an error message.");
-      //}
+
       return null;
     }
 
@@ -278,12 +128,76 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
       msg.MessageData[PluginMessaging.PluginName] = Name;
       msg.MessageData[PluginMessaging.Notification] = type;
 
-      if (_resources.Count > 0)
-        msg.MessageData[PluginMessaging.Resources] = _resources;
-
       queue.Send(msg);
     }
 
+    #endregion
+
+    #region IPluginInfo Members
+    #region Properties
+    public string Name
+    {
+      get { return _properties["name"]; }
+    }
+
+    public Version Version
+    {
+      get { return _manifest.Version; }
+    }
+
+    public DirectoryInfo PluginPath
+    {
+      get { return new DirectoryInfo(Path.GetDirectoryName(_fileName)); }
+    }
+
+    public PluginState State
+    {
+      get { return _state; }
+      internal set { _state = value; }
+    }
+
+    #endregion
+
+    #region Public Methods
+
+
+    /// <remarks>
+    /// All instances are only created once and stored in a cache (_instances dictionary).
+    /// </remarks>
+    public object CreateObject(string className)
+    {
+
+      // Check to see if the IPlugin class has been instanciated.
+      // If not an instance of the IPlugin class is created and added to the instance cache.
+      // The initialise method of the IPlugin class is executed and plugin state is set to Initialised
+      if (!_instances.ContainsKey(_manifest.Identity))
+      {
+        ServiceScope.Get<ILogger>().Debug("Creating plugin instance: " + _manifest.Identity);
+        IPlugin pluginInstance = CreateInstance(_manifest.Identity) as IPlugin;
+        if (pluginInstance != null)
+        {
+          _instances.Add(_manifest.Identity, (object)pluginInstance);
+          ServiceScope.Get<ILogger>().Info("Initialising plugin: {0}", _properties["name"]);
+          pluginInstance.Initialise();
+          _state = PluginState.Initialised;
+          SendMessage(PluginMessaging.NotificationType.OnPluginInitialise);
+        }
+      }
+
+      // Check to see if this item has already been instanciated
+      // if not an instance of the item is created and added to the instance cache
+      if (!_instances.ContainsKey(className))
+      {
+        ServiceScope.Get<ILogger>().Debug("Creating plugin item instance: " + className);
+        object instance = CreateInstance(className);
+        if (instance != null)
+          _instances.Add(className, instance);
+      }
+
+      // Retrun the item instance from the instance cache
+      return _instances[className];
+    }
+    #endregion
     #endregion
 
     #region Public static Methods
@@ -296,24 +210,6 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
         {
           switch (reader.LocalName)
           {
-            //case "StringResources":
-            //case "BitmapResources":
-            //  if (reader.AttributeCount != 1)
-            //  {
-            //    throw new PluginLoadException("BitmapResources requires ONE attribute.");
-            //  }
-
-            //  string filename = reader.GetAttribute("file"); // StringParser.Parse(reader.GetAttribute("file"));
-
-            //  //if(reader.LocalName == "BitmapResources")
-            //  //{
-            //  //  addIn.BitmapResources.Add(filename);
-            //  //}
-            //  //else
-            //  //{
-            //  //  addIn.StringResources.Add(filename);
-            //  //}
-            //  break;
             case "Runtime":
               if (!reader.IsEmptyElement)
               {
@@ -356,46 +252,11 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
             case "Manifest":
               plugin.Manifest.ReadManifestSection(reader, hintPath);
               break;
-            case "Resource":
-              if (reader.AttributeCount == 0)
-              {
-                throw new PluginLoadException("Resource node requires at least ONE attribute.");
-              }
-              PluginResource newResource = new PluginResource();
-              string type = reader.GetAttribute(0);
-              try
-              {
-                newResource.Type = (PluginResource.ResourceType)Enum.Parse(typeof(PluginResource.ResourceType), type);
-              }
-              catch (Exception)
-              {
-                throw new PluginLoadException("Resource Unknown Type: " + type);
-              }
-
-              if (reader.AttributeCount == 2)
-              {
-                string resourceLocation = reader.GetAttribute(1);
-                if (Directory.Exists(Path.Combine(hintPath, resourceLocation)))
-                {
-                  newResource.Location = Path.Combine(hintPath, resourceLocation);
-                }
-                else
-                {
-                  throw new PluginLoadException("Resource unable to locate: " + resourceLocation);
-                }
-              }
-              else
-              {
-                newResource.Location = Path.Combine(hintPath, (string)type);
-              }
-              plugin._resources.Add(newResource);
-              break;
             default:
               throw new PluginLoadException("Unknown root path node:" + reader.LocalName);
           }
         }
       }
-      plugin.SendMessage(PluginMessaging.NotificationType.OnPluginEnable);
     }
 
     public static PluginInfo Load(TextReader textReader)
@@ -450,10 +311,7 @@ namespace MediaPortal.Services.PluginManager.PluginDetails
 
     public override string ToString()
     {
-      if (!String.IsNullOrEmpty(Id))
-        return "[Plugin: " + Name + "." + Id + "]";
-      else
-        return "[Plugin: " + Name + "]";
+      return "[Plugin: " + Name + "]";
     }
 
     #endregion
