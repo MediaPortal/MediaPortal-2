@@ -64,9 +64,9 @@ namespace MediaPortal.Services.PluginManager
       _disabledPlugins = new List<string>();
     }
 
-		~PluginManager()
-		{
-			AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+    ~PluginManager()
+    {
+      AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
       AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad;
     }
 
@@ -150,8 +150,8 @@ namespace MediaPortal.Services.PluginManager
     {
       //Test data -> get from config in future
       DirectoryInfo plugins = ServiceScope.Get<IPathManager>().GetDirectoryInfo("<PLUGINS>");
-      foreach(DirectoryInfo pluginDirectory in plugins.GetDirectories())
-        foreach(FileInfo pluginFile in pluginDirectory.GetFiles("*.plugin"))
+      foreach (DirectoryInfo pluginDirectory in plugins.GetDirectories())
+        foreach (FileInfo pluginFile in pluginDirectory.GetFiles("*.plugin"))
           _pluginFiles.Add(pluginFile.FullName);
 
       _pluginTree.Load(_pluginFiles, _disabledPlugins);
@@ -193,91 +193,24 @@ namespace MediaPortal.Services.PluginManager
       msg.MessageData[PluginMessaging.Notification] = PluginMessaging.NotificationType.OnPluginStartupFinished;
       queue.Send(msg);
     }
+    #endregion
 
-    ///// <summary>
-    ///// Stops all plug-ins
-    ///// </summary>
-    //public void StopAll()
-    //{
-    //  // Is this method required?
-    //  // old code needs to re-written
-    //  //foreach (IPlugin plugin in runningPlugins.Values)
-    //  //{
-    //  //  plugin.Dispose();
-    //  //}
-    //  //runningPlugins.Clear();
-    //}
+    #region IStatus Implementation
 
-    ///// <summary>
-    ///// Starts a PlugIn by name
-    ///// </summary>
-    ///// <param name="name">PlugIn Name</param>
-    ///// <returns>true if PlugIn was started</returns>
-    //public bool StartPlugIn(string name)
-    //{
-    //  ServiceScope.Get<ILogger>().Debug("Plugin Manager: StartPlugIn({0})", name);
-    //  // let us check if plugin is already existing and loaded
-    //  if (_pluginTree != null)
-    //  {
-    //    foreach (PluginInfo info in _pluginTree.Plugins)
-    //    {
-    //      if (info.Name == name)
-    //      {
-    //        if (info.Enabled) return true;     // nothing to do for us 
-    //        else
-    //        {
-    //          // to be started
-    //          info.Enabled = true;
-    //          return true;
-    //        }
-    //      }
-    //    }
-    //    // plugin not loaded up to now => what to do?
-    //  }
-			
-    //  return false;
-    //}
+    public List<string> GetStatus()
+    {
+      List<string> status = new List<string>();
+      status.Add("=== PlugInManager");
+      if (_pluginTree != null)
+      {
+        foreach (PluginInfo info in _pluginTree.Plugins)
+        {
+          status.Add(String.Format("     {0}", info.ToString()));
+        }
+      }
+      return status;
+    }
 
-    ///// <summary>
-    ///// Stops PlugIn by name.
-    ///// </summary>
-    ///// <param name="name">PlugIn Name</param>
-    ///// <returns>true if PlugIn was stopped</returns>
-    //public bool StopPlugIn(string name)
-    //{
-    //  ServiceScope.Get<ILogger>().Debug("Plugin Manager: StopPlugIn({0})", name);
-    //  if (_pluginTree != null)
-    //  {
-    //    foreach (PluginInfo info in _pluginTree.Plugins)
-    //    {
-    //      if (info.Name == name)
-    //      {
-    //        info.Enabled = false;
-    //        _pluginTree.RemovePlugin(info);
-    //        return true;
-    //      }
-    //    }
-    //  }
-    //  return false;
-    //}
-		#endregion
-
-		#region IStatus Implementation
-
-		public List<string> GetStatus()
-		{
-			List<string> status = new List<string>();
-			status.Add("=== PlugInManager");
-			if (_pluginTree != null)
-			{
-				foreach (PluginInfo info in _pluginTree.Plugins)
-				{
-					status.Add(String.Format("     {0}", info.ToString()));
-				}
-			}
-			return status;
-		}
-
-		#endregion
-	}
+    #endregion
+  }
 }

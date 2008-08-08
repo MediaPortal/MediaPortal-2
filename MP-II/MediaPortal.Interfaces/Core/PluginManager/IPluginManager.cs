@@ -61,35 +61,5 @@ namespace MediaPortal.Interfaces.Core.PluginManager
     /// of available plugins, initializes the plugins and handles the plugin's autostart.
     /// </summary>
     void Startup();
-
-    ///// <summary>
-    ///// Gets an enumeration of available/installed plugins. Note that not all available plugins
-    ///// are enabled!
-    ///// </summary>
-    ///// <returns>A map of plugin names to plugin descriptors.</returns>
-    ///// <remarks>
-    ///// A configuration program can use this list to present the user a list of available plugins
-    ///// that he can enabled/disabled.
-    ///// </remarks>
-    //IDictionary<string, IPluginInfo> GetAvailablePlugins();
-
-    ///// <summary>
-    ///// Stops all plug-ins.
-    ///// </summary>
-    //void StopAll();
-
-    ///// <summary>
-    ///// Starts a plugin by name.
-    ///// </summary>
-    ///// <param name="name">Name of the plugin.</param>
-    ///// <returns><c>true</c>, if the plugin could be started, else <c>false</c>.</returns>
-    //bool StartPlugin(string name);
-
-    ///// <summary>
-    ///// Stops a plugin by name.
-    ///// </summary>
-    ///// <param name="name">Name of the plugin to stop.</param>
-    ///// <returns><c>true</c>, if the plugin could be stopped, else <c>false</c>.</returns>
-    //bool StopPlugin(string name);
   }
 }
