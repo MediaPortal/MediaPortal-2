@@ -35,9 +35,13 @@ namespace MediaPortal.Core.Localisation
   /// </remarks>
   public class StringId
   {
-    private string _section;
-    private string _name;
-    private string _localised;
+    #region Protected fields
+
+    protected readonly string _section;
+    protected readonly string _name;
+    protected string _localised;
+
+    #endregion
 
     /// <summary>
     /// Creates a new invalid string descriptor.
@@ -49,17 +53,17 @@ namespace MediaPortal.Core.Localisation
     }
 
     /// <summary>
-    /// Creates a new string descriptor with the specified data.
+    /// Creates a new string descriptor for the specified section and name.
     /// </summary>
     /// <param name="section">The section in the language resource
     /// where the localized string will be searched.</param>
-    /// <param name="name">The name of the string in the language resource.</param>
+    /// <param name="name">The name of the string in the specified section.</param>
     public StringId(string section, string name)
     {
       _section = section;
       _name = name;
 
-      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
+      ServiceScope.Get<ILocalisation>().LanguageChange += OnLangageChange;
     }
 
     /// <summary>
@@ -70,19 +74,14 @@ namespace MediaPortal.Core.Localisation
     /// form <c>[section.name]</c>.</param>
     public StringId(string label)
     {
-      // Parse string example [section.name]
       if (IsResourceString(label))
-      {
-        int pos = label.IndexOf('.');
-        _section = label.Substring(1, pos - 1).ToLower();
-        _name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
-
-        ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
+      { // Parse string if it has the form [section.name]
+        ParseResourceString(label, out _section, out _name);
+        ServiceScope.Get<ILocalisation>().LanguageChange += OnLangageChange;
       }
       else
-      {
-        // Should we raise an exception here?
-        _section = "system";
+      { // No resource string - use plain string
+        _section = "plain"; // Dummy section & name
         _name = label;
         _localised = label;
       }
@@ -90,7 +89,7 @@ namespace MediaPortal.Core.Localisation
 
     public void Dispose()
     {
-      ServiceScope.Get<ILocalisation>().LanguageChange -= LangageChange;
+      ServiceScope.Get<ILocalisation>().LanguageChange -= OnLangageChange;
     }
 
     /// <summary>
@@ -114,7 +113,7 @@ namespace MediaPortal.Core.Localisation
       get { return "[" + _section + "." + _name + "]"; }
     }
 
-    private void LangageChange(object o)
+    private void OnLangageChange(object o)
     {
       _localised = null;
     }
@@ -128,6 +127,20 @@ namespace MediaPortal.Core.Localisation
         return Label;
       else
         return _localised;
+    }
+
+    /// <summary>
+    /// Parses the section and the name part of a given <see cref="StringId"/> label.
+    /// </summary>
+    /// <param name="label">Label to be parsed. The label has to be in the form
+    /// <code>[section.name]</code>.</param>
+    /// <param name="section">Parsed section.</param>
+    /// <param name="name">Parsed name.</param>
+    protected static void ParseResourceString(string label, out string section, out string name)
+    {
+      int pos = label.IndexOf('.');
+      section = label.Substring(1, pos - 1).ToLower();
+      name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
     }
 
     /// <summary>
