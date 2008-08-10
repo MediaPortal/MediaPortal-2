@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Localisation;
 
 namespace Components.Configuration

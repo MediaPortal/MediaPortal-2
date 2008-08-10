@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;

@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;

@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.Builders;
 using MediaPortal.Services.PluginManager.PluginDetails;
 

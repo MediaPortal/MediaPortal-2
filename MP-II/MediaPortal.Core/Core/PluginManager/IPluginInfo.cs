@@ -24,9 +24,8 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Descriptor interface for a plugin. Exposes the plugin's state and provides access to all

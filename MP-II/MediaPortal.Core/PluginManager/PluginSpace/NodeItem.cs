@@ -29,7 +29,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginDetails;
 
 namespace MediaPortal.Services.PluginManager.PluginSpace

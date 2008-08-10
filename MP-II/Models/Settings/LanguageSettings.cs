@@ -25,7 +25,7 @@
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;

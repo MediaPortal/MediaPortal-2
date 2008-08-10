@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Database;
 
 using Components.Database.Notifies;

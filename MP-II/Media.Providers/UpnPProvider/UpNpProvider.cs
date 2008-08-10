@@ -31,7 +31,7 @@ using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.CdsMetadata;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;

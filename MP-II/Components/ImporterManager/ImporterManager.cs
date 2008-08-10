@@ -29,7 +29,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;

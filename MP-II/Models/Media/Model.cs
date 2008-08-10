@@ -24,13 +24,12 @@
 
 using System;
 using MediaPortal.Core;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Interfaces.Core.PluginManager;
-
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Presentation.Screen;
 

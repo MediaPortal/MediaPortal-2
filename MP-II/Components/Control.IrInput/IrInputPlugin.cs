@@ -34,7 +34,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 
 using IrssComms;

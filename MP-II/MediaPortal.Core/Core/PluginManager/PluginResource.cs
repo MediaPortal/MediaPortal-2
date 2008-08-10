@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// PluginResourceDesriptor provides the location of a plugin resource

@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 
 namespace Models.HelloWorld
 {

@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Represents a registered item from a plugin.

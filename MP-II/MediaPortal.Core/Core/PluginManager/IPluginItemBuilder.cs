@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
-using System.Collections;
 
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Interface for plugin item factory classes. A plugin factory a concept to allow a plugin to

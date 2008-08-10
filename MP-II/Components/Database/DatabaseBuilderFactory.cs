@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Database.Provider;
 

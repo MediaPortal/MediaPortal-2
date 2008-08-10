@@ -32,7 +32,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;

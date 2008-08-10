@@ -28,7 +28,7 @@
 using System;
 using System.Collections;
 using MediaPortal.Core;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginSpace;
 using MediaPortal.Services.PluginManager.PluginDetails;
 

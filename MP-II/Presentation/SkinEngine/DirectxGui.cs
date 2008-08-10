@@ -24,7 +24,7 @@
 
 using System.Windows.Forms;
 using Presentation.SkinEngine.GUI;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 
 namespace Presentation.SkinEngine
 {

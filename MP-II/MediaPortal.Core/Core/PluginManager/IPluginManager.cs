@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 using MediaPortal.Core;
 
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Interface to access the MediaPortal plugin manager. It exposes the globally available methods

@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
-
-namespace MediaPortal.Interfaces.Core.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Interface to be implemented by every class provided by a plugin, which was registered

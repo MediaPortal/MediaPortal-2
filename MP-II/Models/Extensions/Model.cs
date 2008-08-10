@@ -34,7 +34,7 @@ using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Media.MediaManager;

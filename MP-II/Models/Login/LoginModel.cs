@@ -28,7 +28,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.UserManagement;
 
 namespace Models.Login

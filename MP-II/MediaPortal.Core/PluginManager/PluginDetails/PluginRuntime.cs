@@ -32,7 +32,7 @@ using System.Reflection;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Interfaces.Core.PluginManager;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.Builders;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
