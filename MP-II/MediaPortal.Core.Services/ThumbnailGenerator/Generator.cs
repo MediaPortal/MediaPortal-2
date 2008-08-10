@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-using Presentation.ThumbnailGenerator.Database;
+using MediaPortal.Services.ThumbnailGenerator.Database;
 
-namespace Presentation.ThumbnailGenerator
+namespace MediaPortal.Services.ThumbnailGenerator
 {
   public class Generator
   {

@@ -59,12 +59,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\MediaPortal.References\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Burning\Burner.cs" />
@@ -109,6 +111,13 @@
     <Compile Include="Threading\ThreadPool.cs" />
     <Compile Include="Threading\ThreadPoolStartInfo.cs" />
     <Compile Include="Threading\WorkQueue.cs" />
+    <Compile Include="ThumbnailGenerator\Database\Thumb.cs" />
+    <Compile Include="ThumbnailGenerator\Database\ThumbDatabase.cs" />
+    <Compile Include="ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
+    <Compile Include="ThumbnailGenerator\Generator.cs" />
+    <Compile Include="ThumbnailGenerator\ThumbnailBuilder.cs" />
+    <Compile Include="ThumbnailGenerator\ThumbnailCreator.cs" />
+    <Compile Include="ThumbnailGenerator\WorkItem.cs" />
     <Compile Include="UserManagement\Permission.cs" />
     <Compile Include="UserManagement\Role.cs" />
     <Compile Include="UserManagement\User.cs" />

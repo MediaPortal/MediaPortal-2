@@ -30,9 +30,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-using Presentation.ThumbnailGenerator.Database;
+using MediaPortal.Services.ThumbnailGenerator.Database;
 
-namespace Presentation.ThumbnailGenerator
+namespace MediaPortal.Services.ThumbnailGenerator
 {
   public class ThumbnailBuilder
   {

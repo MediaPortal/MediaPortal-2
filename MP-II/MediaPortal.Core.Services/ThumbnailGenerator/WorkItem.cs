@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace Presentation.ThumbnailGenerator
+namespace MediaPortal.Services.ThumbnailGenerator
 {
   public class WorkItem
   {

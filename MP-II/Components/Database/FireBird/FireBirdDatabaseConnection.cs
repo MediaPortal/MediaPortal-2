@@ -25,7 +25,6 @@
 using System;
 using System.IO;
 using FirebirdSql.Data.FirebirdClient;
-using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 
 namespace Components.Database.FireBird

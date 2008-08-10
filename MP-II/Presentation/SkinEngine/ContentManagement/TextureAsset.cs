@@ -32,7 +32,7 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Presentation.ThumbnailGenerator;
+using MediaPortal.Services.ThumbnailGenerator;
 using SlimDX.Direct3D9;
 using Presentation.SkinEngine.SkinManagement;
 

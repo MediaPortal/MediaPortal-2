@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Timers;
 
-namespace Presentation.ThumbnailGenerator.Database
+namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabaseCache
   {

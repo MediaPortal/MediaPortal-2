@@ -24,7 +24,7 @@
 
 using System.IO;
 
-namespace Presentation.ThumbnailGenerator.Database
+namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class Thumb
   {

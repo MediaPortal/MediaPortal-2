@@ -29,7 +29,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace Presentation.ThumbnailGenerator.Database
+namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabase
   {

@@ -61,14 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="database\ThumbDatabase.cs" />
-    <Compile Include="database\ThumbDatabaseCache.cs" />
-    <Compile Include="database\Thumb.cs" />
-    <Compile Include="Generator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThumbnailBuilder.cs" />
-    <Compile Include="ThumbnailCreator.cs" />
-    <Compile Include="WorkItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
@@ -79,6 +72,9 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="database\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -25,10 +25,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using MediaPortal.Core;
-using MediaPortal.Database;
 using MediaPortal.Media.MediaManager.Views;
 
 namespace Components.Services.MediaManager.Views
