@@ -27,14 +27,14 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.Xaml;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Shapes
+namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 {
 
   public class Path : Shape

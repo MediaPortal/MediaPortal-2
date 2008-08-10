@@ -29,9 +29,9 @@ using System.Text.RegularExpressions;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Files;
-using Presentation.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.MpfElements.Resources;
 
-namespace Presentation.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Encapsulates a collection of resources from a set of root directories.

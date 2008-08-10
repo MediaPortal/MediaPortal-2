@@ -24,14 +24,14 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Effects;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Effects;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class VisualBrush : TileBrush
   {

@@ -29,7 +29,7 @@ using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Represents a skin - which is a logical construct consisting of a logical name

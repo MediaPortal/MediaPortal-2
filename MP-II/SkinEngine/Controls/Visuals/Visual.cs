@@ -22,11 +22,11 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };

@@ -23,10 +23,10 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Animations;
+using MediaPortal.SkinEngine.Controls.Animations;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {
   public class BeginStoryboard : TriggerAction
   {

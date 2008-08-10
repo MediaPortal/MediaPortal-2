@@ -25,18 +25,18 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
-using Presentation.SkinEngine.Controls.Brushes;
-using Presentation.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// Finder implementation which looks for a panel which has its

@@ -30,10 +30,10 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MediaManager;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class OsdProperties
   {

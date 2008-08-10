@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Marks a visual element to be able to have children and to not expose

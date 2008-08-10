@@ -3,7 +3,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.DirectX
+namespace MediaPortal.SkinEngine.DirectX
 {
   /// <summary>Vertex with Position and two sets of texture coordinates</summary>
   [StructLayout(LayoutKind.Sequential)]

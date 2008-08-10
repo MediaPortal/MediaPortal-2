@@ -26,20 +26,20 @@ using System;
 using System.Drawing.Drawing2D;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.Rendering;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Visuals.Shapes;
-using Presentation.SkinEngine.DirectX;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
+using MediaPortal.SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
 // changes possible:
 // - opacity
@@ -48,7 +48,7 @@ using Presentation.SkinEngine.SkinManagement;
 // - rendertransform
 // - visibility
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
 
   public class Border : Shape, IAddChild<FrameworkElement>, IUpdateEventHandler

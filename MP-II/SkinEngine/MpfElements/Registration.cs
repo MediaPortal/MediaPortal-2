@@ -26,17 +26,17 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using Presentation.SkinEngine.Controls.Brushes;
-using Presentation.SkinEngine.Controls.Panels;
-using Presentation.SkinEngine.Controls.Transforms;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
-using Presentation.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Transforms;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.MpfElements.Resources;
 using SlimDX;
-using TypeConverter = Presentation.SkinEngine.Xaml.TypeConverter;
-using Presentation.SkinEngine.Controls.Visuals.Shapes;
+using TypeConverter = MediaPortal.SkinEngine.Xaml.TypeConverter;
+using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
 
-namespace Presentation.SkinEngine.MpfElements
+namespace MediaPortal.SkinEngine.MpfElements
 {                            
   /// <summary>
   /// This class holds a registration for all elements which can be instanciated

@@ -25,7 +25,7 @@
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Transforms
+namespace MediaPortal.SkinEngine.Controls.Transforms
 {
   public class Static2dMatrix: Transform
   {

@@ -26,7 +26,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Presentation.SkinEngine.Players.Teletext
+namespace MediaPortal.SkinEngine.Players.Teletext
 {
 
   enum TeletextEvent

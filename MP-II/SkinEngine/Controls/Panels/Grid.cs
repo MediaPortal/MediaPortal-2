@@ -24,11 +24,11 @@
 
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class Grid : Panel
   {

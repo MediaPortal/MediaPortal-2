@@ -23,11 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild<ColumnDefinition>, IDeepCopyable
   {

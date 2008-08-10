@@ -23,7 +23,7 @@
 #endregion
 
 
-namespace Presentation.SkinEngine.Commands.Expression
+namespace MediaPortal.SkinEngine.Commands.Expression
 {
   /// <summary>
   /// This interface is the base for all of the expression evaluation objects.

@@ -27,19 +27,19 @@ using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
-using Presentation.SkinEngine.Controls.Visuals.Shapes;
-using Presentation.SkinEngine.Controls.Brushes;
-using Presentation.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
+using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class Control : FrameworkElement, IUpdateEventHandler
   {

@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   public interface IKeyFrame
   {

@@ -30,7 +30,7 @@ using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class Settings
   {

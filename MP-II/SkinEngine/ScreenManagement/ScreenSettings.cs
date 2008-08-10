@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class ScreenSettings
   {

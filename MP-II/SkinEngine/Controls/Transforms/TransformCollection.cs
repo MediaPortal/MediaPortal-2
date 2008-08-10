@@ -26,7 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 
-namespace Presentation.SkinEngine.Controls.Transforms
+namespace MediaPortal.SkinEngine.Controls.Transforms
 {
   public class TransformCollection : Property, IEnumerable<Transform>
   {

@@ -29,9 +29,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Effects
+namespace MediaPortal.SkinEngine.Effects
 {
   public class EffectAsset : IAsset
   {

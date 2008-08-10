@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class Thickness : IDeepCopyable
   {

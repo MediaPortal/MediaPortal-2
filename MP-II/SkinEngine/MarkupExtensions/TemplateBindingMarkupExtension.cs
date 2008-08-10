@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Implements the MPF TemplateBinding markup extension.

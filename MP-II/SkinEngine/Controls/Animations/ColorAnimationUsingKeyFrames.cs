@@ -25,11 +25,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   public class ColorAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<ColorKeyFrame>
   {

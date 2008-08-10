@@ -30,7 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.MenuManager;
-using Presentation.SkinEngine.Players.Subtitles;
+using MediaPortal.SkinEngine.Players.Subtitles;
 
 [ComVisible(true), ComImport,
 Guid("324FAA1F-4DA6-47B8-832B-3993D8FF4151"),
@@ -41,7 +41,7 @@ public interface ITSReaderCallback
   int OnMediaTypeChanged();
 };
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class TsVideoPlayer : VideoPlayer, ITSReaderCallback
   {

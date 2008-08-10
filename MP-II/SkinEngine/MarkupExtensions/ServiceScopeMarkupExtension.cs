@@ -23,10 +23,10 @@
 #endregion
 
 using MediaPortal.Presentation.Screen;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   using System;
   using System.Collections.Generic;

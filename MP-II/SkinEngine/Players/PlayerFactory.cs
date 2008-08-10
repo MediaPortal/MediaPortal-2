@@ -29,7 +29,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class PlayerFactory : IPlayerBuilder
   {

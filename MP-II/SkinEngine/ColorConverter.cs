@@ -25,7 +25,7 @@
 using SlimDX;
 using System.Drawing;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class ColorConverter
   {

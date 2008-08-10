@@ -23,12 +23,12 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Timeline context class for <see cref="PropertyAnimationTimeline"/>s.

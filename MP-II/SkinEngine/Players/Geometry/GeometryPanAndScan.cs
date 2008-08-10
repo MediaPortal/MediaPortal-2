@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.Geometry;
 
-namespace Presentation.SkinEngine.Players.Geometry
+namespace MediaPortal.SkinEngine.Players.Geometry
 {
   public class GeometryPanAndScan : IGeometry
   {

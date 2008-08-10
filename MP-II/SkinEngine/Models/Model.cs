@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Presentation.SkinEngine.Models
+namespace MediaPortal.SkinEngine.Models
 {
   /// <summary>
   /// Encapsulates a model instance from the system to be used by skins. This is a data object which

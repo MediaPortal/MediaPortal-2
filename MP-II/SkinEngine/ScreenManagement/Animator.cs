@@ -24,12 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Animations;
-using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Animations;
+using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   /// <summary>
   /// Context for a single animation. This data class holds

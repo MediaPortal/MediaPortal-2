@@ -22,9 +22,9 @@
 
 #endregion
 
-using Presentation.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Controls;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerBase: DependencyObject
   {

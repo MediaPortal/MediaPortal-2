@@ -7,8 +7,8 @@
     <ProjectGuid>{7E943389-3589-40C9-B481-2E223554CC49}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SkinEngine</RootNamespace>
-    <AssemblyName>SkinEngine</AssemblyName>
+    <RootNamespace>MediaPortal.SkinEngine</RootNamespace>
+    <AssemblyName>MediaPortal.SkinEngine</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,7 +54,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\SkinEngine.xml</DocumentationFile>
+    <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
@@ -374,7 +374,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SkinEngine.plugin" />
+    <None Include="MediaPortal.SkinEngine.plugin" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\MainForm.resx">
@@ -395,7 +395,6 @@
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimDx.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)Microsoft.DirectX.DirectDraw.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(ProjectDir)References\d3dx9_36.dll" "$(SolutionDir)$(SolutionName)\$(OutDir)"
 </PostBuildEvent>
     <PreBuildEvent>

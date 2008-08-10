@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Interface for markup extensions, which are able to bind to a target property.

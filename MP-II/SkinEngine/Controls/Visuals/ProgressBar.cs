@@ -25,7 +25,7 @@
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ProgressBar : Control
   {

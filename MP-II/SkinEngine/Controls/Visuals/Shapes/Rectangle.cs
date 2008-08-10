@@ -25,16 +25,16 @@
 using System;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Shapes
+namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 {
   public class Rectangle : Shape
   {

@@ -26,20 +26,20 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls.Visuals.Triggers;
-using Presentation.SkinEngine.Controls.Animations;
-using Presentation.SkinEngine.Controls.Transforms;
-using Presentation.SkinEngine.Commands;
-using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.Xaml.Interfaces;
-using Presentation.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.SkinEngine.Controls.Animations;
+using MediaPortal.SkinEngine.Controls.Transforms;
+using MediaPortal.SkinEngine.Commands;
+using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
 
   public enum VisibilityEnum

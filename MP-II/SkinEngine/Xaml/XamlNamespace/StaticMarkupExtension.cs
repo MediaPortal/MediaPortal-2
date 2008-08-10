@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Xaml.XamlNamespace
+namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
 {
   public class StaticMarkupExtension: IEvaluableMarkupExtension
   {

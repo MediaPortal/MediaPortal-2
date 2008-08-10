@@ -23,13 +23,13 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
 
   public enum TileMode

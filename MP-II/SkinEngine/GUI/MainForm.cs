@@ -43,15 +43,15 @@ using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.UserManagement;
 
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.Commands;
-using Presentation.SkinEngine.Players;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.Commands;
+using MediaPortal.SkinEngine.Players;
+using MediaPortal.SkinEngine.SkinManagement;
 
-using Presentation.SkinEngine.Settings;
+using MediaPortal.SkinEngine.Settings;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.GUI
+namespace MediaPortal.SkinEngine.GUI
 {
   // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IApplication

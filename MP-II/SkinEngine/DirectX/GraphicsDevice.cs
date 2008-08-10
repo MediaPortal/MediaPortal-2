@@ -34,11 +34,11 @@ using MediaPortal.Presentation.Screen;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class GraphicsDevice : IDisposable
   {

@@ -26,14 +26,14 @@ using System;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MpfElements;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.MpfElements;
 using System.IO;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
   /// This is the loader class for XAML files. It uses a XAML parser to read the

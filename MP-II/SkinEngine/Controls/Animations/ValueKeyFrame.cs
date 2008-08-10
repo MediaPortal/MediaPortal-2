@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   public abstract class ValueKeyFrame<T>: DependencyObject, IKeyFrame
   {

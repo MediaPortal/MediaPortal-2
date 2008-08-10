@@ -22,9 +22,9 @@
 
 #endregion
 
-using Presentation.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Used within the template of an item control to specify the place in the control’s visual tree 

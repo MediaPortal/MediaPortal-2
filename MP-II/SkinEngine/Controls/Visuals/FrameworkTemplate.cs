@@ -23,13 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
-using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
+using MediaPortal.SkinEngine.MpfElements;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Defines a container for UI elements which are used as template controls

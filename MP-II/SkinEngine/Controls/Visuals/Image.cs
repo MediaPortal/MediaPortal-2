@@ -24,12 +24,12 @@
 
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine;
+using MediaPortal.SkinEngine;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public enum StretchDirection { UpOnly, DownOnly, Both };
 

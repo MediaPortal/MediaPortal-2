@@ -4,7 +4,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.Players.Subtitles
+namespace MediaPortal.SkinEngine.Players.Subtitles
 {
   class TextConversion
   {

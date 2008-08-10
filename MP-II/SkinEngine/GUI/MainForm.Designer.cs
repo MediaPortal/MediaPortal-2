@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.GUI
+namespace MediaPortal.SkinEngine.GUI
 {
   partial class MainForm
   {

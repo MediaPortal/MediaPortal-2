@@ -4,7 +4,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.Players.Teletext
+namespace MediaPortal.SkinEngine.Players.Teletext
 {
   delegate void PESCallback(int streamid, byte[] header, int headerlen,
                                      byte[] data, int datalen, bool isStart, UInt64 presentTime);

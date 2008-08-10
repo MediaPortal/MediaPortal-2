@@ -24,7 +24,7 @@
 
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.MpfElements.Resources
+namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a value object which cannot directly be used. This may be the case if

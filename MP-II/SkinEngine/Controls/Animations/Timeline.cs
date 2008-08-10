@@ -24,12 +24,12 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Specifies, if a timeline will repeat its animation when it is finished.

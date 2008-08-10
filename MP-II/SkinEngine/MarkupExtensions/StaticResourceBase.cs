@@ -22,14 +22,14 @@
 
 #endregion
 
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.MpfElements.Resources;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Base class for MPF static resource lookup markup extensions

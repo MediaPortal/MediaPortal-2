@@ -24,10 +24,10 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Controls;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Commands
+namespace MediaPortal.SkinEngine.Commands
 {
   /// <summary>
   /// <see cref="IExecutableCommand"/> implementation to execute an

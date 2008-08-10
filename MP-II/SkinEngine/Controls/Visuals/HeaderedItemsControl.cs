@@ -24,14 +24,14 @@
 
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine;
+using MediaPortal.SkinEngine;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class HeaderedItemsControl : ItemsControl
   {

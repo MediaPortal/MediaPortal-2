@@ -32,9 +32,9 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.Screen;
-using Presentation.SkinEngine.Commands;
+using MediaPortal.SkinEngine.Commands;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class MediaPlayers : PlayerCollection
   {

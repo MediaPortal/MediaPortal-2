@@ -24,12 +24,12 @@
 
 using System;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using System.Collections.Generic;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Styles
+namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 {
   /// <summary>
   /// Specifies the visual structure and behavioral aspects of a Control that

@@ -27,10 +27,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Xaml
+namespace MediaPortal.SkinEngine.Xaml
 {
   /// <summary>
   /// Helper class for reflecting values.

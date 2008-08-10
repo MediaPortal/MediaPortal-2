@@ -31,12 +31,12 @@ using System.IO;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.SkinManagement;
 using Tao.FreeType;
 
-namespace Presentation.SkinEngine.Fonts
+namespace MediaPortal.SkinEngine.Fonts
 {
   public class FontLibrary 
   {

@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   public enum RelativeSourceMode
   {

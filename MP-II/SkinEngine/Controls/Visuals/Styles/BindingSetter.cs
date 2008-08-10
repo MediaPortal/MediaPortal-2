@@ -23,12 +23,12 @@
 
 using System;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MarkupExtensions;
-using Presentation.SkinEngine.MpfElements;
-using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.MarkupExtensions;
+using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Styles
+namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 {
   public class BindingSetter : SetterBase
   {

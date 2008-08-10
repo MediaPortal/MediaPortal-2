@@ -25,17 +25,17 @@
 using System;
 using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine;
+using MediaPortal.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class RadialGradientBrush : GradientBrush, IAsset
   {

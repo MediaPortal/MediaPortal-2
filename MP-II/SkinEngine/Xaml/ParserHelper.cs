@@ -25,10 +25,10 @@
 using System.Collections.Generic;
 using System;
 using System.Reflection;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Xaml
+namespace MediaPortal.SkinEngine.Xaml
 {
   public class ParserHelper
   {

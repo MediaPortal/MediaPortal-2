@@ -26,9 +26,9 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
-using Presentation.SkinEngine.Models;
+using MediaPortal.SkinEngine.Models;
 
-namespace Presentation.SkinEngine.Commands
+namespace MediaPortal.SkinEngine.Commands
 {
   internal class ObjectFactory
   {

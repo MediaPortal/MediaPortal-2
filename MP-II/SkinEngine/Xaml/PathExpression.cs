@@ -28,10 +28,10 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Xaml
+namespace MediaPortal.SkinEngine.Xaml
 {
   /// <summary>
   /// Path segment in a <see cref="PathExpression"/>. A path segment
@@ -340,7 +340,7 @@ namespace Presentation.SkinEngine.Xaml
   /// <para>
   /// <example>
   /// A path expression, which can be evaluated on a
-  /// <see cref="Presentation.SkinEngine.Controls.Visuals.Shapes.Rectangle"/>, is for example:<br/>
+  /// <see cref="MediaPortal.SkinEngine.Controls.Visuals.Shapes.Rectangle"/>, is for example:<br/>
   /// <code>Fill.RelativeTransform.Children[0].ScaleY</code>
   /// </example>
   /// </para>

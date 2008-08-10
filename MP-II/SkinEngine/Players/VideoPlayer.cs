@@ -38,12 +38,12 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MediaManager;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.Players.Vmr9;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.Players.Vmr9;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class VideoPlayer : IPlayer
   {

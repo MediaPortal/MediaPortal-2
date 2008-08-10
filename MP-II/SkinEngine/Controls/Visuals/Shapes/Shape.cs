@@ -25,20 +25,20 @@
 using System;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using Matrix = SlimDX.Matrix;
-using Brush = Presentation.SkinEngine.Controls.Brushes.Brush;
+using Brush = MediaPortal.SkinEngine.Controls.Brushes.Brush;
 using SlimDX;
 using SlimDX.Direct3D9;
 using GeometryUtility;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Shapes
+namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 {
   /// <summary>
   /// Describes to a LineStrip how it should place the line's width relative to its points

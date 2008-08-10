@@ -26,7 +26,7 @@ using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class GradientStop : Property, IDeepCopyable
   {

@@ -30,7 +30,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.DirectX
+namespace MediaPortal.SkinEngine.DirectX
 {
   /// <summary>
   /// Enumeration of all possible D3D vertex processing types

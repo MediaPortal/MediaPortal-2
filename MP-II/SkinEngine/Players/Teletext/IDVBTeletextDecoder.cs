@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Presentation.SkinEngine.Players.Teletext
+namespace MediaPortal.SkinEngine.Players.Teletext
 {
   public interface IDVBTeletextDecoder
   {

@@ -27,11 +27,11 @@ using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class StackPanel : Panel, IScrollInfo
   {

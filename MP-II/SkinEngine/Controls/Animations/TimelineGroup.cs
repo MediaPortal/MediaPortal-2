@@ -24,11 +24,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Timeline context class for <see cref="TimelineGroup"/>s.

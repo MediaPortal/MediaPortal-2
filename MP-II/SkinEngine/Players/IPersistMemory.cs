@@ -26,7 +26,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   [ComVisible(true), ComImport,
    Guid("BD1AE5E0-A6AE-11CE-BD37-504200C10000"),

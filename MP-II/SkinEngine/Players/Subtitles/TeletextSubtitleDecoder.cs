@@ -24,11 +24,11 @@
 
 
 using System;
-using Presentation.SkinEngine.Players.Teletext;
+using MediaPortal.SkinEngine.Players.Teletext;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.Players.Subtitles
+namespace MediaPortal.SkinEngine.Players.Subtitles
 {
   class TeletextSubtitleDecoder : IDVBTeletextDecoder
   {

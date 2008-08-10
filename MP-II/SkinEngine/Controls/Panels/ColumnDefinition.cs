@@ -25,7 +25,7 @@
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Presentation.DataObjects;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class ColumnDefinition : DefinitionBase
   {

@@ -24,19 +24,19 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.MarkupExtensions;
+using MediaPortal.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Controls
+namespace MediaPortal.SkinEngine.Controls
 {
 
   /// <summary>
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
   /// needed for
-  /// <see cref="Presentation.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
+  /// <see cref="MediaPortal.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// TODO: Documentation of logical tree
   /// </summary>
   public class DependencyObject: IDeepCopyable, IInitializable

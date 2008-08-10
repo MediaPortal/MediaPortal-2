@@ -25,9 +25,9 @@
 using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Transforms
+namespace MediaPortal.SkinEngine.Controls.Transforms
 {
   public class ScaleTransform : Transform
   {

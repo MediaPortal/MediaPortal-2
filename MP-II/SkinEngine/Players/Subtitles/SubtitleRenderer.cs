@@ -33,11 +33,11 @@ using System.Drawing.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Logging;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Players.Subtitles
+namespace MediaPortal.SkinEngine.Players.Subtitles
 {
   /// <summary>
   /// Structure used in communication with subtitle filter

@@ -31,11 +31,11 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screen;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   /// <summary>
   /// screen class respresenting a logical screen represented by a particular skin.

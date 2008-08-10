@@ -23,11 +23,11 @@
 #endregion
 
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MarkupExtensions;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.MarkupExtensions;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.MpfElements.Resources
+namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a Binding instance. This is useful if a binding should be

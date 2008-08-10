@@ -23,10 +23,10 @@
 
 using System;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Styles
+namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 {
   public class Setter : SetterBase
   {

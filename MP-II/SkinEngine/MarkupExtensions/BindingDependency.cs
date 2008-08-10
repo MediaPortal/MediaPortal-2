@@ -22,9 +22,9 @@
 
 #endregion
 
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Handles the dependency between two data endpoints.

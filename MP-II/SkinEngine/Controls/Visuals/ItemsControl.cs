@@ -25,11 +25,11 @@
 using System.Diagnostics;
 using System.Collections;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
-using Presentation.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Represents a control that can be used to present a collection of items.

@@ -22,11 +22,11 @@
 
 #endregion
 
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
-using Presentation.SkinEngine.Models;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Models;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   public class GetModelMarkupExtension: IEvaluableMarkupExtension
   {

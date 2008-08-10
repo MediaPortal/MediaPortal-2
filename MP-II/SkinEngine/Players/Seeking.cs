@@ -30,9 +30,9 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Players
+namespace MediaPortal.SkinEngine.Players
 {
   public class Seeking
   {

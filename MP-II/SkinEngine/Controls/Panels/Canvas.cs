@@ -25,10 +25,10 @@
 using System;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Panels
+namespace MediaPortal.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// Defines an area within which you can explicitly position child elements by using

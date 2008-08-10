@@ -23,11 +23,11 @@
 #endregion
 
 using System;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class FocusManager
   {

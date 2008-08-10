@@ -24,9 +24,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Panels;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class UIElementCollection : IEnumerable<UIElement>
   {

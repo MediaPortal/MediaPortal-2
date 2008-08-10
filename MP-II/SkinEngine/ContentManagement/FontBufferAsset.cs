@@ -26,10 +26,10 @@ using System;
 using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Fonts
+namespace MediaPortal.SkinEngine.Fonts
 {
   public class FontBufferAsset : IAsset
   {

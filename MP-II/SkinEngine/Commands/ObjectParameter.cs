@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.Commands;
 
-namespace Presentation.SkinEngine.Commands
+namespace MediaPortal.SkinEngine.Commands
 {
   public class ObjectParameter : ICommandParameter
   {

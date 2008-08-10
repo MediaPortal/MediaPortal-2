@@ -29,13 +29,13 @@ using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public enum VerticalAlignmentEnum
   {

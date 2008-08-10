@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Controls;
 
-namespace Presentation.SkinEngine.MpfElements
+namespace MediaPortal.SkinEngine.MpfElements
 {                            
   /// <summary>
   /// CopyManager class for MPF elements. This copy manager provides the

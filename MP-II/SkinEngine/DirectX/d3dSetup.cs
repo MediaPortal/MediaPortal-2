@@ -37,7 +37,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.DirectX
+namespace MediaPortal.SkinEngine.DirectX
 {
   internal class d3dSetup
   {
@@ -53,7 +53,7 @@ namespace Presentation.SkinEngine.DirectX
 
     //private bool _windowed = true;
 
-    private Control _ourRenderTarget; // The window we will render too
+    private System.Windows.Forms.Control _ourRenderTarget; // The window we will render too
 
     protected D3DEnumeration _enumerationSettings = new D3DEnumeration();
     // We need to keep track of our enumeration settings
@@ -65,7 +65,7 @@ namespace Presentation.SkinEngine.DirectX
     private CancelEventHandler _cancelEventHandler;
     bool _usingPerfHud = false;
 
-    protected Control RenderTarget
+    protected System.Windows.Forms.Control RenderTarget
     {
       get { return _ourRenderTarget; }
       set { _ourRenderTarget = value; }

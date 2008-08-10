@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Presentation.SkinEngine.Players.Teletext
+namespace MediaPortal.SkinEngine.Players.Teletext
 {
   class TSHeader
   {

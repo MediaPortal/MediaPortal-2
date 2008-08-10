@@ -25,7 +25,7 @@
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.Effects
+namespace MediaPortal.SkinEngine.Effects
 {
   public class EffectHandleAsset
   {

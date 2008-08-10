@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Configuration.Settings;
 
-namespace Presentation.SkinEngine.Settings
+namespace MediaPortal.SkinEngine.Settings
 {
   public class Fullscreen : YesNo
   {

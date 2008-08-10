@@ -26,7 +26,7 @@ using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   public class PointAnimation: PropertyAnimationTimeline
   {

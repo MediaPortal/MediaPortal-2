@@ -25,13 +25,13 @@
 using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.MpfElements.Resources;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
 
   /// <summary>

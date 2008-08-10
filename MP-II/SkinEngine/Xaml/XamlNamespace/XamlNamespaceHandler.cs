@@ -24,11 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.Xaml.Interfaces;
-using Presentation.SkinEngine.Xaml.XamlNamespace;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.XamlNamespace;
 
-namespace Presentation.SkinEngine.Xaml.XamlNamespace
+namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
 {
   /// <summary>
   /// Defines the handler for the standard XAML namespace.

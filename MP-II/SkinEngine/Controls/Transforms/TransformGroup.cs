@@ -24,10 +24,10 @@
 
 using MediaPortal.Presentation.DataObjects;
 using SlimDX;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Transforms
+namespace MediaPortal.SkinEngine.Controls.Transforms
 {
   public class TransformGroup : Transform, IAddChild<Transform>
   {

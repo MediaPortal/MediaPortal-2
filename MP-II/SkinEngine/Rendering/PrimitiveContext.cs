@@ -24,10 +24,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Controls.Brushes;
-namespace Presentation.SkinEngine.Rendering
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Controls.Brushes;
+namespace MediaPortal.SkinEngine.Rendering
 {
   public class PrimitiveContext
   {

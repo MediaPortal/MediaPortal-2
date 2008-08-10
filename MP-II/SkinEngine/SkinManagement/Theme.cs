@@ -28,7 +28,7 @@ using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Holds resource files for a theme. Typically, a theme consists of

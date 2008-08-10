@@ -2,7 +2,7 @@
 using System;
 using MediaPortal.Presentation.DataObjects;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class TimeUtils
   {

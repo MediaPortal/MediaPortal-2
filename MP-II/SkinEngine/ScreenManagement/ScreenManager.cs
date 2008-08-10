@@ -25,15 +25,15 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Screen;
-using Presentation.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class ScreenManager : IScreenManager
   {

@@ -24,7 +24,7 @@
 
 using SlimDX;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   /// <summary>
   /// Matrix class with extended functionality (transformations, inverting, ...).

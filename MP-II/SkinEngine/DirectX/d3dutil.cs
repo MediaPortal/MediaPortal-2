@@ -26,7 +26,7 @@ using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
-namespace Presentation.SkinEngine.DirectX
+namespace MediaPortal.SkinEngine.DirectX
 {
   /// <summary>
   /// Various helper functions for graphics samples

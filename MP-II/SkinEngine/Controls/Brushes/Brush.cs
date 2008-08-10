@@ -23,17 +23,17 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Transforms;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.DirectX;
-using Presentation.SkinEngine.Rendering;
+using MediaPortal.SkinEngine.Controls.Transforms;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   /// <summary>
   /// todo:

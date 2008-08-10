@@ -27,16 +27,16 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
-using Font = Presentation.SkinEngine.Fonts.Font;
-using FontRender = Presentation.SkinEngine.Fonts.FontRender;
-using FontBufferAsset = Presentation.SkinEngine.Fonts.FontBufferAsset;
-using FontManager = Presentation.SkinEngine.Fonts.FontManager;
+using Font = MediaPortal.SkinEngine.Fonts.Font;
+using FontRender = MediaPortal.SkinEngine.Fonts.FontRender;
+using FontBufferAsset = MediaPortal.SkinEngine.Fonts.FontBufferAsset;
+using FontManager = MediaPortal.SkinEngine.Fonts.FontManager;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class TextBox : Control
   {

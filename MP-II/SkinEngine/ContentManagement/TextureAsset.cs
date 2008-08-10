@@ -34,9 +34,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Services.ThumbnailGenerator;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class TextureAsset : ITextureAsset
   {

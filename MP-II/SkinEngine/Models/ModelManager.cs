@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
-namespace Presentation.SkinEngine.Models
+namespace MediaPortal.SkinEngine.Models
 {
   /// <summary>
   /// Singleton class to manage loading and caching model instances.

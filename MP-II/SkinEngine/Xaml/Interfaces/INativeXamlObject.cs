@@ -24,7 +24,7 @@
 
 using System.Xml;
 
-namespace Presentation.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Marks a visual's element class to be able to handle it's XAML XML child

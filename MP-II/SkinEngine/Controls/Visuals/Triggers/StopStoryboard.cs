@@ -23,7 +23,7 @@
 #endregion
 
 
-namespace Presentation.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {
   public class StopStoryboard : StoryboardContinuationTrigger
   {

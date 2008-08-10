@@ -52,7 +52,7 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Geometry;
 
-namespace Presentation.SkinEngine.Players.Geometry
+namespace MediaPortal.SkinEngine.Players.Geometry
 {
   /// <summary>
   /// Class which can do transformations for video windows

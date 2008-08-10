@@ -26,13 +26,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.Xaml.Exceptions;
-using Presentation.SkinEngine.SkinManagement;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.MpfElements.Resources
+namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 

@@ -24,11 +24,11 @@
 
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.Commands;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class Button : ContentControl
   {

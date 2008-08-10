@@ -24,12 +24,12 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
   public class PointAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<PointKeyFrame>
   {

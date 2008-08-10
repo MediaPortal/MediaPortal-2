@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Effects;
-using Presentation.SkinEngine.Fonts;
+using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.Fonts;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine
+namespace MediaPortal.SkinEngine
 {
   public class ContentManager
   {

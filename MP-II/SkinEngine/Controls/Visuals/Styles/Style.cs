@@ -24,12 +24,12 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.MpfElements;
+using MediaPortal.SkinEngine.MpfElements;
 
-namespace Presentation.SkinEngine.Controls.Visuals.Styles      
+namespace MediaPortal.SkinEngine.Controls.Visuals.Styles      
 {
   public class Style: NameScope, IAddChild<SetterBase>, IImplicitKey, IDeepCopyable
   {

@@ -24,11 +24,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Commands
+namespace MediaPortal.SkinEngine.Commands
 {
   /// <summary>
   /// Represents a list of <see cref="IExecutableCommand"/> instances to be executed in

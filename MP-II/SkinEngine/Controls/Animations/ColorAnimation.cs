@@ -25,7 +25,7 @@ using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Animations
+namespace MediaPortal.SkinEngine.Controls.Animations
 {
 
   public class ColorAnimation : PropertyAnimationTimeline

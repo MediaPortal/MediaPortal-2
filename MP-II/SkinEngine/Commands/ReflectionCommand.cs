@@ -27,9 +27,9 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Core.Logging;
-using Presentation.SkinEngine.Commands.Expression;
+using MediaPortal.SkinEngine.Commands.Expression;
 
-namespace Presentation.SkinEngine.Commands
+namespace MediaPortal.SkinEngine.Commands
 {
   public class ReflectionCommand : ICommand
   {

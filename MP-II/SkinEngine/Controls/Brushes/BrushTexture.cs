@@ -28,9 +28,9 @@ using MediaPortal.Presentation.Screen;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class BrushTexture : ITextureAsset
   {

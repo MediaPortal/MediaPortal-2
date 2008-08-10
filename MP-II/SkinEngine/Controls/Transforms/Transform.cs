@@ -23,12 +23,12 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 using SlimDX;
-using Presentation.SkinEngine;
+using MediaPortal.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Transforms
+namespace MediaPortal.SkinEngine.Controls.Transforms
 {
   public class Transform : Property, IDeepCopyable
   {

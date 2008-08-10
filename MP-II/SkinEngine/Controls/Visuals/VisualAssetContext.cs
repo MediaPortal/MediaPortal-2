@@ -25,11 +25,11 @@
 using System;
 using MediaPortal.Core;
 using SlimDX.Direct3D9;
-using Presentation.SkinEngine;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.Presentation.Screen;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class VisualAssetContext : IAsset
   {

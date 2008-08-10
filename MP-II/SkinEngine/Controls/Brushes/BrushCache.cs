@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class BrushCache
   {

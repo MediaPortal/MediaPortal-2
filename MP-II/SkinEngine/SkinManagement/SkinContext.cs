@@ -26,13 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Players;
-using Presentation.SkinEngine.Players.Geometry;
+using MediaPortal.SkinEngine.Players;
+using MediaPortal.SkinEngine.Players.Geometry;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
 
-namespace Presentation.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.SkinManagement
 {                         
   public delegate void SkinResourcesChangedHandler(SkinResources newResources);
 

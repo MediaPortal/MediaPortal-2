@@ -26,11 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Controls;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Base class for all bindings. A binding in this context is an object

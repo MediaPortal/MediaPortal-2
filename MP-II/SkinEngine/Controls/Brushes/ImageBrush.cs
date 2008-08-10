@@ -23,13 +23,13 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace Presentation.SkinEngine.Controls.Brushes
+namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class ImageBrush : TileBrush
   {

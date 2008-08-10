@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Presentation.SkinEngine.Xaml.Exceptions
+namespace MediaPortal.SkinEngine.Xaml.Exceptions
 {
   /// <summary>
   /// Base class for all exceptions during the XAML parsing process.

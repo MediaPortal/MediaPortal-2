@@ -25,14 +25,14 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using Presentation.SkinEngine.Xaml.Exceptions;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.Xaml;
-using Presentation.SkinEngine.Xaml.Interfaces;
-using Presentation.SkinEngine.Controls.Visuals;
-using Presentation.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.Controls;
 
-namespace Presentation.SkinEngine.MarkupExtensions
+namespace MediaPortal.SkinEngine.MarkupExtensions
 {
 
   public enum BindingMode

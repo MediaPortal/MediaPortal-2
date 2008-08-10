@@ -26,9 +26,9 @@ using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Utilities.DeepCopy;
-using Presentation.SkinEngine.SkinManagement;
+using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Presentation.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ContentPresenter : FrameworkElement
   {

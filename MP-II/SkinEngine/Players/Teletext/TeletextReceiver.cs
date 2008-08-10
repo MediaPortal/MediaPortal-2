@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Presentation.SkinEngine.Players.Subtitles;
+using MediaPortal.SkinEngine.Players.Subtitles;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Presentation.SkinEngine.Players.Teletext
+namespace MediaPortal.SkinEngine.Players.Teletext
 {
   class TeletextReceiver
   {

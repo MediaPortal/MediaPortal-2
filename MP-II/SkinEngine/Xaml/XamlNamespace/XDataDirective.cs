@@ -23,9 +23,9 @@
 #endregion
 
 using System.Xml;
-using Presentation.SkinEngine.Xaml.Interfaces;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace Presentation.SkinEngine.Xaml.XamlNamespace
+namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
 {
   /// <summary>
   /// Implements the x:XData directive element of the XAML namespace.

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Presentation.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Holds a context of the current parsing operation in the XAML parser.
