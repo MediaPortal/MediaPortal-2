@@ -49,6 +49,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
     <OutputPath>bin\x86\Xml Documentation\</OutputPath>
     <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.Interfaces.XML</DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -58,22 +59,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Messaging\IMessageQueue.cs" />
-    <Compile Include="Core\Messaging\QueueMessage.cs" />
-    <Compile Include="Core\PluginManager\PluginMessaging.cs" />
-    <Compile Include="Core\PluginManager\PluginResource.cs" />
-    <Compile Include="Core\PluginManager\PluginState.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
     <Compile Include="Presentation\Commands\ICommandResult.cs" />
-    <Compile Include="Core\ApplicationCore.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Configuration\Settings\YesNo.cs" />
     <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
     <Compile Include="Configuration\SettingBase.cs" />
     <Compile Include="Configuration\SettingType.cs" />
-    <Compile Include="Core\IStatus.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseConnection.cs" />
@@ -93,16 +87,12 @@
     <Compile Include="DeviceManager\IOpticalDrive.cs" />
     <Compile Include="DeviceManager\MediaType.cs" />
     <Compile Include="DeviceManager\ProjectType.cs" />
-    <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
-    <Compile Include="Core\TaskScheduler\Task.cs" />
-    <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
     <Compile Include="Presentation\DataObjects\FolderItem.cs" />
     <Compile Include="Presentation\DataObjects\ItemsCollection.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
     <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />
-    <Compile Include="Core\IApplication.cs" />
     <Compile Include="Media\Importers\IImporter.cs" />
     <Compile Include="Media\Importers\IImporterManager.cs" />
     <Compile Include="Control\InputManager\IInputManager.cs" />
@@ -112,9 +102,6 @@
     <Compile Include="Presentation\Localisation\NoLocalisation.cs" />
     <Compile Include="Presentation\Localisation\RegionSettings.cs" />
     <Compile Include="Presentation\Localisation\StringId.cs" />
-    <Compile Include="Core\Logging\ILogger.cs" />
-    <Compile Include="Core\Logging\LogLevel.cs" />
-    <Compile Include="Core\Logging\NoLogger.cs" />
     <Compile Include="Media\MediaManager\IAbstractMediaItem.cs" />
     <Compile Include="Media\MediaManager\IMediaContainer.cs" />
     <Compile Include="Media\MediaManager\IMediaItem.cs" />
@@ -134,8 +121,6 @@
     <Compile Include="Presentation\MenuManager\MenuItem.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\Messaging\IMessageFilter.cs" />
-    <Compile Include="Core\Messaging\IMessageBroker.cs" />
     <Compile Include="Media\MetaData\IMetaDataFormatter.cs" />
     <Compile Include="Media\MetaData\IMetaDataFormatterCollection.cs" />
     <Compile Include="Media\MetaData\IMetaDataMapping.cs" />
@@ -148,7 +133,6 @@
     <Compile Include="ExtensionManager\IExtensionPackage.cs" />
     <Compile Include="ExtensionManager\IExtensionQueue.cs" />
     <Compile Include="ExtensionManager\IExtensionQueueObject.cs" />
-    <Compile Include="Core\PathManager\IPathManager.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
     <Compile Include="Presentation\Players\IPlayerCollection.cs" />
@@ -157,39 +141,21 @@
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
-    <Compile Include="Core\PluginManager\IAutoStart.cs" />
-    <Compile Include="Core\PluginManager\IPluginItemBuilder.cs" />
-    <Compile Include="Core\PluginManager\IPluginRegisteredItem.cs" />
-    <Compile Include="Core\PluginManager\IPlugin.cs" />
-    <Compile Include="Core\PluginManager\IPluginInfo.cs" />
-    <Compile Include="Core\PluginManager\IPluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\DataObjects\LocalizedStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\Property.cs" />
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IStringBuilder.cs" />
-    <Compile Include="Core\ServiceCreatorCallback.cs" />
-    <Compile Include="Core\ServiceNotFoundException.cs" />
-    <Compile Include="Core\ServiceScope.cs" />
-    <Compile Include="Core\Settings\INamedSettings.cs" />
-    <Compile Include="Core\Settings\ISettingsManager.cs" />
-    <Compile Include="Core\Settings\NoSettingsManager.cs" />
-    <Compile Include="Core\Settings\SettingAttribute.cs" />
-    <Compile Include="Core\Threading\IntervalWork.cs" />
-    <Compile Include="Core\Threading\IThreadPool.cs" />
-    <Compile Include="Core\Threading\IWork.cs" />
-    <Compile Include="Core\Threading\IWorkInterval.cs" />
-    <Compile Include="Core\Threading\Work.cs" />
-    <Compile Include="Core\Threading\WorkEventArgs.cs" />
-    <Compile Include="Core\UserManagement\IPermission.cs" />
-    <Compile Include="Core\UserManagement\IPermissionObject.cs" />
-    <Compile Include="Core\UserManagement\IRole.cs" />
-    <Compile Include="Core\UserManagement\IUser.cs" />
-    <Compile Include="Core\UserManagement\IUserService.cs" />
     <Compile Include="Presentation\Screen\IScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Media\MediaManager\MediaManager class diagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

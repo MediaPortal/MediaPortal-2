@@ -82,8 +82,6 @@
     <Compile Include="MenuManager\Menu.cs" />
     <Compile Include="MenuManager\MenuBuilder.cs" />
     <Compile Include="MenuManager\MenuCollection.cs" />
-    <Compile Include="Messaging\MessageBroker.cs" />
-    <Compile Include="Messaging\Queue.cs" />
     <Compile Include="ExtensionManager\Actions\CopyExecuteFile.cs" />
     <Compile Include="ExtensionManager\Actions\CopyFile.cs" />
     <Compile Include="ExtensionManager\Actions\CopyMenu.cs" />
@@ -100,28 +98,6 @@
     <Compile Include="ExtensionManager\ExtensionPackageState.cs" />
     <Compile Include="ExtensionManager\ExtensionQueue.cs" />
     <Compile Include="ExtensionManager\ExtensionQueueObject.cs" />
-    <Compile Include="PathManager\nUnit\TestPathManager.cs" />
-    <Compile Include="PathManager\PathDefinition.cs" />
-    <Compile Include="PathManager\PathListFile.cs" />
-    <Compile Include="PathManager\PathManager.cs" />
-    <Compile Include="PluginManager\Builders\ResourceBuilder.cs" />
-    <Compile Include="PluginManager\PluginException.cs" />
-    <Compile Include="PluginManager\PluginManager.cs" />
-    <Compile Include="PluginManager\Builders\ClassBuilder.cs" />
-    <Compile Include="PluginManager\Builders\PluginDefinedBuilder.cs" />
-    <Compile Include="PluginManager\PluginDetails\ExtensionPath.cs" />
-    <Compile Include="PluginManager\PluginSpace\IPluginTree.cs" />
-    <Compile Include="PluginManager\PluginSpace\NodeItem.cs" />
-    <Compile Include="PluginManager\PluginSpace\NodeItemSort.cs" />
-    <Compile Include="PluginManager\PluginSpace\PluginLoadException.cs" />
-    <Compile Include="PluginManager\PluginSpace\PluginTree.cs" />
-    <Compile Include="PluginManager\PluginSpace\PluginTreeNode.cs" />
-    <Compile Include="PluginManager\PluginSpace\TreePathNotFoundException.cs" />
-    <Compile Include="PluginManager\PluginDetails\PluginInfo.cs" />
-    <Compile Include="PluginManager\PluginDetails\PluginManifest.cs" />
-    <Compile Include="PluginManager\PluginDetails\PluginReference.cs" />
-    <Compile Include="PluginManager\PluginDetails\PluginRuntime.cs" />
-    <Compile Include="PluginManager\PluginDetails\PluginProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\ObjectParser.cs" />
     <Compile Include="Settings\SettingsManager.cs" />
@@ -139,6 +115,10 @@
     <Compile Include="UserManagement\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>

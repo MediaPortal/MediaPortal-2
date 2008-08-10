@@ -49,7 +49,9 @@ namespace Models.Settings
     public RefreshrateSettings()
     {
       IApplication app = ServiceScope.Get<IApplication>();
-      _refreshrates = app.DisplayModes;
+      _refreshrates = new ItemsCollection();
+      foreach (string mode in app.DisplayModes)
+        _refreshrates.Add(new ListItem("Name", mode));
 
       _refreshRateControl = new ItemsCollection();
       _refreshRateControl.Add(new ListItem("Name", new StringId("system", "yes")));
@@ -118,7 +120,7 @@ namespace Models.Settings
       IApplication app = ServiceScope.Get<IApplication>();
       foreach (ListItem item in _refreshrates)
       {
-        item.Selected = (item.Label("Name", "").Evaluate() == app.getDisplayMode(FPS.FPS_24));
+        item.Selected = (item.Label("Name", "").Evaluate() == app.GetDisplayMode(FPS.FPS_24));
       }
     }
 
@@ -126,7 +128,7 @@ namespace Models.Settings
     {
       IApplication app = ServiceScope.Get<IApplication>();
       string refreshrateChosen = item.Label("Name", "").Evaluate();
-      app.setDisplayMode(FPS.FPS_24, refreshrateChosen);
+      app.SetDisplayMode(FPS.FPS_24, refreshrateChosen);
     }
 
     public ItemsCollection RefreshRate25
@@ -143,7 +145,7 @@ namespace Models.Settings
       IApplication app = ServiceScope.Get<IApplication>();
       foreach (ListItem item in _refreshrates)
       {
-        item.Selected = (item.Label("Name", "").Evaluate() == app.getDisplayMode(FPS.FPS_25));
+        item.Selected = (item.Label("Name", "").Evaluate() == app.GetDisplayMode(FPS.FPS_25));
       }
     }
 
@@ -151,7 +153,7 @@ namespace Models.Settings
     {
       IApplication app = ServiceScope.Get<IApplication>();
       string refreshrateChosen = item.Label("Name", "").Evaluate();
-      app.setDisplayMode(FPS.FPS_25, refreshrateChosen);
+      app.SetDisplayMode(FPS.FPS_25, refreshrateChosen);
     }
 
     public ItemsCollection RefreshRate30
@@ -168,7 +170,7 @@ namespace Models.Settings
       IApplication app = ServiceScope.Get<IApplication>();
       foreach (ListItem item in _refreshrates)
       {
-        item.Selected = (item.Label("Name", "").Evaluate() == app.getDisplayMode(FPS.FPS_30));
+        item.Selected = (item.Label("Name", "").Evaluate() == app.GetDisplayMode(FPS.FPS_30));
       }
     }
 
@@ -176,7 +178,7 @@ namespace Models.Settings
     {
       IApplication app = ServiceScope.Get<IApplication>();
       string refreshrateChosen = item.Label("Name", "").Evaluate();
-      app.setDisplayMode(FPS.FPS_30, refreshrateChosen);
+      app.SetDisplayMode(FPS.FPS_30, refreshrateChosen);
     }
 
     public ItemsCollection RefreshRateDefault
@@ -193,7 +195,7 @@ namespace Models.Settings
       IApplication app = ServiceScope.Get<IApplication>();
       foreach (ListItem item in _refreshrates)
       {
-        item.Selected = (item.Label("Name", "").Evaluate() == app.getDisplayMode(FPS.Default));
+        item.Selected = (item.Label("Name", "").Evaluate() == app.GetDisplayMode(FPS.Default));
       }
     }
 
@@ -201,7 +203,7 @@ namespace Models.Settings
     {
       IApplication app = ServiceScope.Get<IApplication>();
       string refreshrateChosen = item.Label("Name", "").Evaluate();
-      app.setDisplayMode(FPS.Default, refreshrateChosen);
+      app.SetDisplayMode(FPS.Default, refreshrateChosen);
     }
   }
 }

@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -32,7 +33,6 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
@@ -49,6 +49,7 @@ using Presentation.SkinEngine.Players;
 using Presentation.SkinEngine.SkinManagement;
 
 using Presentation.SkinEngine.Settings;
+using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.GUI
 {
@@ -435,7 +436,7 @@ namespace Presentation.SkinEngine.GUI
 
         if (WindowState != FormWindowState.Minimized)
         {
-          GraphicsDevice.Reset(this, (_mode == ScreenMode.ExclusiveMode), _displaySetting);
+          GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), ToDisplayMode(_displaySetting));
           ServiceScope.Get<IScreenManager>().Reset();
 
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
@@ -526,7 +527,7 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}, displaySetting = {2}", newFullscreen, mode, displaySetting);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
-      GraphicsDevice.Reset(this, mode == ScreenMode.ExclusiveMode, displaySetting);
+      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, ToDisplayMode(displaySetting));
 
       ServiceScope.Get<PlayerCollection>().ReallocResources();
 
@@ -556,12 +557,34 @@ namespace Presentation.SkinEngine.GUI
       }
     }
 
-    public ItemsCollection DisplayModes
+    public IList<string> DisplayModes
     {
-      get { return GraphicsDevice.DisplayModes; }
+      get
+      {
+        IList<string> result = new List<string>();
+        foreach (DisplayMode mode in GraphicsDevice.GetDisplayModes())
+          result.Add(ToString(mode));
+        return result;
+      }
     }
 
-    public void setDisplayMode(FPS fps, string displaymode)
+    protected static string ToString(DisplayMode mode)
+    {
+      return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
+    }
+
+    protected static DisplayMode ToDisplayMode(string mode)
+    {
+      char[] delimiterChars = { 'x', '@' };
+      string[] words = mode.Split(delimiterChars);
+      DisplayMode result = new DisplayMode();
+      result.Width = Int32.Parse(words[0]);
+      result.Height = Int32.Parse(words[1]);
+      result.RefreshRate = Int32.Parse(words[2]);
+      return result;
+    }
+
+    public void SetDisplayMode(FPS fps, string displaymode)
     {
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);
@@ -584,7 +607,7 @@ namespace Presentation.SkinEngine.GUI
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
-    public string getDisplayMode(FPS fps)
+    public string GetDisplayMode(FPS fps)
     {
       AppSettings settings = new AppSettings();
       ServiceScope.Get<ISettingsManager>().Load(settings);

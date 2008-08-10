@@ -27,7 +27,6 @@ using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Screen;
 using Presentation.SkinEngine.Commands.Expression;
 
 namespace Presentation.SkinEngine.Commands

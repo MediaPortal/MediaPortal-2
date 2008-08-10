@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;

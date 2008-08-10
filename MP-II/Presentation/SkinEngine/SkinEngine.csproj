@@ -356,9 +356,13 @@
     <Compile Include="Xaml\Parser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal.Core.Services\MediaPortal.Core.Services.csproj">
+    <ProjectReference Include="..\..\MediaPortal.Core.Services\MediaPortal.Services.csproj">
       <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
-      <Name>MediaPortal.Core.Services</Name>
+      <Name>MediaPortal.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>

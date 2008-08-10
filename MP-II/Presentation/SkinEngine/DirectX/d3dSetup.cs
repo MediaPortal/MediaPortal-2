@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -34,7 +35,6 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
 using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.DirectX
@@ -71,21 +71,16 @@ namespace Presentation.SkinEngine.DirectX
       set { _ourRenderTarget = value; }
     }
 
-    public ItemsCollection DisplayModes
+    public IList<DisplayMode> GetDisplayModes()
     {
-      get
+      IList<DisplayMode> result = new List<DisplayMode>();
+      foreach (DisplayMode mode in _graphicsSettings.FullscreenDisplayModes)
       {
-        ItemsCollection displaymodes = new ItemsCollection();
-
-        for (int i = 0; i < _graphicsSettings.FullscreenDisplayModes.Length; i++)
-        {
-          DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[i];
-          if ((mode.Width == 0) && (mode.Height == 0) && (mode.RefreshRate == 0))
-            break;
-          displaymodes.Add(new ListItem("Name", string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate)));
-        }
-        return displaymodes;
+        if ((mode.Width == 0) && (mode.Height == 0) && (mode.RefreshRate == 0))
+          continue;
+        result.Add(mode);
       }
+      return result;
     }
 
     public string DesktopDisplayMode
@@ -1314,25 +1309,18 @@ namespace Presentation.SkinEngine.DirectX
       ;
     }
 
-    public void SwitchExlusiveOrWindowed(bool exclusiveMode, string displaySetting)
+    public void SwitchExlusiveOrWindowed(bool exclusiveMode, DisplayMode mode)
     {
       _graphicsSettings.IsWindowed = !exclusiveMode;
       if (exclusiveMode)
       {
-        char[] delimiterChars = { 'x', '@' };
-        string[] words = displaySetting.Split(delimiterChars);
-        int width, height, refreshRate;
-
-        width = Int32.Parse(words[0]);
-        height = Int32.Parse(words[1]);
-        refreshRate = Int32.Parse(words[2]);
-
-        ServiceScope.Get<ILogger>().Debug("SwitchExlusiveOrWindowed  {0} {1} {2}", width, height, refreshRate);
+        ServiceScope.Get<ILogger>().Debug("SwitchExlusiveOrWindowed  {0} {1} {2}", mode.Width, mode.Height, mode.RefreshRate);
 
         for (int i = 0; i < _graphicsSettings.FullscreenDisplayModes.Length; i++)
         {
-          DisplayMode mode = _graphicsSettings.FullscreenDisplayModes[i];
-          if ((mode.Width == width) && (mode.Height == height) && (mode.RefreshRate == refreshRate))
+          DisplayMode compareMode = _graphicsSettings.FullscreenDisplayModes[i];
+          if ((compareMode.Width == mode.Width) && (compareMode.Height == mode.Height) &&
+              (compareMode.RefreshRate == mode.RefreshRate))
           {
             _graphicsSettings.CurrentFullscreenDisplayMode = i;
             break;

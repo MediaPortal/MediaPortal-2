@@ -1,0 +1,145 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ECF060E7-CAA1-4466-851F-F80B857641EA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.Core</RootNamespace>
+    <AssemblyName>MediaPortal.Core</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Xml Documentation\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <DocumentationFile>bin\Xml Documentation\MediaPortal.Core.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Xml Documentation\</OutputPath>
+    <DocumentationFile>bin\Xml Documentation\MediaPortal.Core.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\ApplicationCore.cs" />
+    <Compile Include="Core\IApplication.cs" />
+    <Compile Include="Core\IStatus.cs" />
+    <Compile Include="Core\Logging\ILogger.cs" />
+    <Compile Include="Core\Logging\LogLevel.cs" />
+    <Compile Include="Core\Logging\NoLogger.cs" />
+    <Compile Include="Core\Messaging\IMessageBroker.cs" />
+    <Compile Include="Core\Messaging\IMessageFilter.cs" />
+    <Compile Include="Core\Messaging\IMessageQueue.cs" />
+    <Compile Include="Core\Messaging\QueueMessage.cs" />
+    <Compile Include="Core\PathManager\IPathManager.cs" />
+    <Compile Include="Core\PluginManager\IAutoStart.cs" />
+    <Compile Include="Core\PluginManager\IPlugin.cs" />
+    <Compile Include="Core\PluginManager\IPluginInfo.cs" />
+    <Compile Include="Core\PluginManager\IPluginItemBuilder.cs" />
+    <Compile Include="Core\PluginManager\IPluginManager.cs" />
+    <Compile Include="Core\PluginManager\IPluginRegisteredItem.cs" />
+    <Compile Include="Core\PluginManager\PluginMessaging.cs" />
+    <Compile Include="Core\PluginManager\PluginResource.cs" />
+    <Compile Include="Core\PluginManager\PluginState.cs" />
+    <Compile Include="Core\ServiceCreatorCallback.cs" />
+    <Compile Include="Core\ServiceNotFoundException.cs" />
+    <Compile Include="Core\ServiceScope.cs" />
+    <Compile Include="Core\Settings\INamedSettings.cs" />
+    <Compile Include="Core\Settings\ISettingsManager.cs" />
+    <Compile Include="Core\Settings\NoSettingsManager.cs" />
+    <Compile Include="Core\Settings\SettingAttribute.cs" />
+    <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
+    <Compile Include="Core\TaskScheduler\Task.cs" />
+    <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
+    <Compile Include="Core\Threading\IntervalWork.cs" />
+    <Compile Include="Core\Threading\IThreadPool.cs" />
+    <Compile Include="Core\Threading\IWork.cs" />
+    <Compile Include="Core\Threading\IWorkInterval.cs" />
+    <Compile Include="Core\Threading\Work.cs" />
+    <Compile Include="Core\Threading\WorkEventArgs.cs" />
+    <Compile Include="Core\UserManagement\IPermission.cs" />
+    <Compile Include="Core\UserManagement\IPermissionObject.cs" />
+    <Compile Include="Core\UserManagement\IRole.cs" />
+    <Compile Include="Core\UserManagement\IUser.cs" />
+    <Compile Include="Core\UserManagement\IUserService.cs" />
+    <Compile Include="Messaging\MessageBroker.cs" />
+    <Compile Include="Messaging\Queue.cs" />
+    <Compile Include="PathManager\PathDefinition.cs" />
+    <Compile Include="PathManager\PathListFile.cs" />
+    <Compile Include="PathManager\PathManager.cs" />
+    <Compile Include="PluginManager\Builders\ClassBuilder.cs" />
+    <Compile Include="PluginManager\Builders\PluginDefinedBuilder.cs" />
+    <Compile Include="PluginManager\Builders\ResourceBuilder.cs" />
+    <Compile Include="PluginManager\PluginDetails\ExtensionPath.cs" />
+    <Compile Include="PluginManager\PluginDetails\PluginInfo.cs" />
+    <Compile Include="PluginManager\PluginDetails\PluginManifest.cs" />
+    <Compile Include="PluginManager\PluginDetails\PluginProperties.cs" />
+    <Compile Include="PluginManager\PluginDetails\PluginReference.cs" />
+    <Compile Include="PluginManager\PluginDetails\PluginRuntime.cs" />
+    <Compile Include="PluginManager\PluginException.cs" />
+    <Compile Include="PluginManager\PluginManager.cs" />
+    <Compile Include="PluginManager\PluginSpace\IPluginTree.cs" />
+    <Compile Include="PluginManager\PluginSpace\NodeItem.cs" />
+    <Compile Include="PluginManager\PluginSpace\NodeItemSort.cs" />
+    <Compile Include="PluginManager\PluginSpace\PluginLoadException.cs" />
+    <Compile Include="PluginManager\PluginSpace\PluginTree.cs" />
+    <Compile Include="PluginManager\PluginSpace\PluginTreeNode.cs" />
+    <Compile Include="PluginManager\PluginSpace\TreePathNotFoundException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

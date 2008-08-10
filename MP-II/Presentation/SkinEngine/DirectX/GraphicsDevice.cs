@@ -23,12 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
 using SlimDX;
@@ -154,12 +154,12 @@ namespace Presentation.SkinEngine
 
 
     /// <summary>
-    /// Resets the directx device
+    /// Resets the DirectX device.
     /// </summary>
-    /// <param name="window">The window.</param>
-    /// <param name="exclusiveMode">if set to <c>true</c> then use DirectX exclusive mode
+    /// <param name="exclusiveMode">If set to <c>true</c> then use DirectX exclusive mode
     /// else DirectX windowed mode.</param>
-    public static bool Reset(Form window, bool exclusiveMode, string displaySetting)
+    /// <param name="mode">Mode to set on the DirectX device.</param>
+    public static bool Reset(bool exclusiveMode, DisplayMode mode)
     {
       try
       {
@@ -171,7 +171,7 @@ namespace Presentation.SkinEngine
             _backBuffer.Dispose();
           }
           _backBuffer = null;
-          _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
+          _setup.SwitchExlusiveOrWindowed(exclusiveMode, mode);
           int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
           AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
@@ -526,10 +526,9 @@ namespace Presentation.SkinEngine
     /// <summary>
     /// Returns available display modes for the display device
     /// </summary>
-
-    public static ItemsCollection DisplayModes
+    public static IList<DisplayMode> GetDisplayModes()
     {
-      get { return _setup.DisplayModes; }
+      return _setup.GetDisplayModes();
     }
 
     public static string DesktopDisplayMode

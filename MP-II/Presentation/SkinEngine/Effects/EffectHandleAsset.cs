@@ -22,15 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Security;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace Presentation.SkinEngine.Effects

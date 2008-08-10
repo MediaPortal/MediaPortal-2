@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Presentation.DataObjects;
+using System.Collections.Generic;
 
 namespace MediaPortal.Core
 {
@@ -72,19 +72,19 @@ namespace MediaPortal.Core
     /// <summary>
     /// Returns available display modes
     /// </summary>
-    ItemsCollection DisplayModes{ get; }
+    IList<string> DisplayModes{ get; }
 
     /// <summary>
     /// Sets the display mode for a give frame rate
     /// </summary>
     /// <param name="fps">The frame rate to set</param>
     /// <param name="displaymode">The display mode for the frame rate</param>
-    void setDisplayMode(FPS fps, string displaymode);
+    void SetDisplayMode(FPS fps, string displaymode);
 
     /// <summary>
     /// Get the display mode for a give frame rate
     /// </summary>
     /// <param name="fps">The frame rate</param>
-    string getDisplayMode(FPS fps);
+    string GetDisplayMode(FPS fps);
   }
 }

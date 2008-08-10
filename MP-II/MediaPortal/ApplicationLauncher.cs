@@ -23,15 +23,10 @@
 #endregion
 
 using System;
-using System.Reflection;
 using System.Windows.Forms;
-
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Utilities.Screens;
-
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Threading;
 using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
@@ -40,9 +35,6 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.ExtensionManager;
-
-using MediaPortal.Media.MetaData;
-
 using MediaPortal.Services.PathManager;
 using MediaPortal.Services.Threading;
 using MediaPortal.Services.TaskScheduler;
