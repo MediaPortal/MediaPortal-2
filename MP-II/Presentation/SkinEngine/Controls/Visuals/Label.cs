@@ -422,7 +422,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void Deallocate()
     {
-      Trace.WriteLine("lbl Deallocate:" + Text);
+      //Trace.WriteLine("lbl Deallocate:" + Text);
       base.Deallocate();
       if (_asset != null)
       {
@@ -444,7 +444,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
 
     public override void BecomesVisible()
     {
-      Trace.WriteLine("lbl BecomesVisible:" + Text);
+      //Trace.WriteLine("lbl BecomesVisible:" + Text);
       if (_renderer != null)
       {
         _renderer.Alloc();

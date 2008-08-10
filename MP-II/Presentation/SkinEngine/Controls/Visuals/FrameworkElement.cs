@@ -586,7 +586,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
       if (OpacityMask == null) return;
       if (_opacityMaskContext == null)
       {
-        Trace.WriteLine("FrameworkElement:allocate _opacityMaskContext");
+        //Trace.WriteLine("FrameworkElement: Allocate _opacityMaskContext");
         _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + this.Name);
         ContentManager.Add(_opacityMaskContext);
       }
@@ -597,7 +597,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
         _opacityMaskContext.VertexBuffer = PositionColored2Textured.Create(6);
       }
       if (!_updateOpacityMask) return;
-      Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
+      //Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
       _opacityMaskContext.LastTimeUsed = SkinContext.Now;
       if (_opacityMaskContext.Texture != null)
       {
@@ -687,7 +687,7 @@ namespace Presentation.SkinEngine.Controls.Visuals
     {
       if (_opacityMaskContext != null)
       {
-        Trace.WriteLine("FrameworkElement:deallocate _opacityMaskContext");
+        //Trace.WriteLine("FrameworkElement: Deallocate _opacityMaskContext");
         _opacityMaskContext.Free(true);
         ContentManager.Remove(_opacityMaskContext);
         _opacityMaskContext = null;

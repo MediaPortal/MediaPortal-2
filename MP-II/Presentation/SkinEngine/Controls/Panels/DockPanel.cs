@@ -171,7 +171,7 @@ namespace Presentation.SkinEngine.Controls.Panels
 
     public override void Arrange(RectangleF finalRect)
     {
-      Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
       layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
@@ -197,7 +197,7 @@ namespace Presentation.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in Children)
       {
         count++;
-        Trace.WriteLine(String.Format("DockPanel:arrange {0} {1}", count, child.Name));
+        //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1}", count, child.Name));
 
         if (!child.IsVisible)
           continue;
