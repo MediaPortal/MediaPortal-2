@@ -105,12 +105,6 @@
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Settings\xml\XmlNoNamespaceWriter.cs" />
     <Compile Include="Settings\xml\XmlFileHandler.cs" />
-    <Compile Include="TaskScheduler\TaskCollection.cs" />
-    <Compile Include="TaskScheduler\TaskScheduler.cs" />
-    <Compile Include="TaskScheduler\TaskSchedulerSettings.cs" />
-    <Compile Include="Threading\ThreadPool.cs" />
-    <Compile Include="Threading\ThreadPoolStartInfo.cs" />
-    <Compile Include="Threading\WorkQueue.cs" />
     <Compile Include="ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
@@ -118,10 +112,6 @@
     <Compile Include="ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="ThumbnailGenerator\ThumbnailCreator.cs" />
     <Compile Include="ThumbnailGenerator\WorkItem.cs" />
-    <Compile Include="UserManagement\Permission.cs" />
-    <Compile Include="UserManagement\Role.cs" />
-    <Compile Include="UserManagement\User.cs" />
-    <Compile Include="UserManagement\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

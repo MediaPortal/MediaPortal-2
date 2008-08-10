@@ -133,6 +133,16 @@
     <Compile Include="PluginManager\PluginSpace\PluginTreeNode.cs" />
     <Compile Include="PluginManager\PluginSpace\TreePathNotFoundException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskScheduler\TaskCollection.cs" />
+    <Compile Include="TaskScheduler\TaskScheduler.cs" />
+    <Compile Include="TaskScheduler\TaskSchedulerSettings.cs" />
+    <Compile Include="Threading\ThreadPool.cs" />
+    <Compile Include="Threading\ThreadPoolStartInfo.cs" />
+    <Compile Include="Threading\WorkQueue.cs" />
+    <Compile Include="UserManagement\Permission.cs" />
+    <Compile Include="UserManagement\Role.cs" />
+    <Compile Include="UserManagement\User.cs" />
+    <Compile Include="UserManagement\UserService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
