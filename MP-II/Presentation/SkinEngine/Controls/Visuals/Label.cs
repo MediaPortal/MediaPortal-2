@@ -25,7 +25,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using SlimDX;
 using Font = Presentation.SkinEngine.Fonts.Font;
 using FontRender = Presentation.SkinEngine.Fonts.FontRender;

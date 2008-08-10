@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.MenuManager;
 using Presentation.SkinEngine.Players.Subtitles;
 

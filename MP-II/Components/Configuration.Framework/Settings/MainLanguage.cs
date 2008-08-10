@@ -29,7 +29,7 @@ using System.Text;
 using System.Globalization;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
 

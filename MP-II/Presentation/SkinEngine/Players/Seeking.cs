@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.DataObjects;
 using Presentation.SkinEngine.SkinManagement;

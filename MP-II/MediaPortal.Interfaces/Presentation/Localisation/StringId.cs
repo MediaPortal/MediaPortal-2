@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace MediaPortal.Core.Localisation
+using MediaPortal.Core;
+
+namespace MediaPortal.Presentation.Localisation
 {
   /// <summary>
   /// String descriptor for text strings to be displayed in the GUI. Strings referenced
@@ -31,7 +33,7 @@ namespace MediaPortal.Core.Localisation
   /// <remarks>
   /// String descriptors of this class hold a section name and a name of the to-be-localized
   /// string. These values are used to lookup the localized string in the language resource.
-  /// <see cref="MediaPortal.Core.Localisation.ILocalisation"/>
+  /// <see cref="ILocalisation"/>
   /// </remarks>
   public class StringId
   {

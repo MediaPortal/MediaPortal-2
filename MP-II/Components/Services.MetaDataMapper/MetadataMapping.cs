@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 
 namespace Components.Services.MetaDataMapper
 {

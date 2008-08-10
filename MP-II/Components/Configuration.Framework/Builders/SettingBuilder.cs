@@ -31,7 +31,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Interfaces.Core.PluginManager;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 
 using MediaPortal.Configuration;
 

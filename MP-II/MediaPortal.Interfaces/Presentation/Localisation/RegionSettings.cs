@@ -25,7 +25,7 @@
 using System.Globalization;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Core.Localisation
+namespace MediaPortal.Presentation.Localisation
 {
   public class RegionSettings
   {

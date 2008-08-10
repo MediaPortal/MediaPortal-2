@@ -26,7 +26,7 @@ using System;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.Screen;
 
 namespace MediaPortal.Services.MenuManager

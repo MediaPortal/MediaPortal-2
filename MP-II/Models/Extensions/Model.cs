@@ -30,7 +30,7 @@ using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;

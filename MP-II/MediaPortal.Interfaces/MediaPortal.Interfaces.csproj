@@ -108,10 +108,10 @@
     <Compile Include="Control\InputManager\IInputManager.cs" />
     <Compile Include="Control\InputManager\Key.cs" />
     <Compile Include="Control\InputManager\IInputMapper.cs" />
-    <Compile Include="Core\Localisation\ILocalisaton.cs" />
-    <Compile Include="Core\Localisation\NoLocalisation.cs" />
-    <Compile Include="Core\Localisation\RegionSettings.cs" />
-    <Compile Include="Core\Localisation\StringId.cs" />
+    <Compile Include="Presentation\Localisation\ILocalisaton.cs" />
+    <Compile Include="Presentation\Localisation\NoLocalisation.cs" />
+    <Compile Include="Presentation\Localisation\RegionSettings.cs" />
+    <Compile Include="Presentation\Localisation\StringId.cs" />
     <Compile Include="Core\Logging\ILogger.cs" />
     <Compile Include="Core\Logging\LogLevel.cs" />
     <Compile Include="Core\Logging\NoLogger.cs" />

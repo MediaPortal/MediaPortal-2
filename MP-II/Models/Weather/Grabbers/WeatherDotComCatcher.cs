@@ -55,7 +55,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using MediaPortal.Core;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 

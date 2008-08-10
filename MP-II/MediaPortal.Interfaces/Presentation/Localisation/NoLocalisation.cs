@@ -24,7 +24,7 @@
 
 using System.Globalization;
 
-namespace MediaPortal.Core.Localisation
+namespace MediaPortal.Presentation.Localisation
 {
   /// <summary>
   /// Dummy class which implements the <see cref="ILocalisation"/> interface, but

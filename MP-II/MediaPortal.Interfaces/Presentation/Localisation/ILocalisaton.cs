@@ -24,7 +24,7 @@
 
 using System.Globalization;
 
-namespace MediaPortal.Core.Localisation
+namespace MediaPortal.Presentation.Localisation
 {
   public delegate void LanguageChangeHandler(object o);
 

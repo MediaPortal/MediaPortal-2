@@ -32,7 +32,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Localisation;
+using MediaPortal.Presentation.Localisation;
 using MediaPortal.Interfaces.Core.PluginManager;
 using MediaPortal.Configuration;
 
