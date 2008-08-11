@@ -92,7 +92,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public Orientation Orientation
     {
-      get { return (Orientation)_orientationProperty.GetValue(); }
+      get { return (Orientation) _orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
     }
 
@@ -171,7 +171,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
       if (Width > 0) totalWidth = (float)Width * SkinContext.Zoom.Width;
       if (Height > 0) totalHeight = (float)Height * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)totalWidth, (float)totalHeight);
+      _desiredSize = new SizeF(totalWidth, totalHeight);
 
       if (LayoutTransform != null)
       {
@@ -189,10 +189,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       //      Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
+      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
+      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
+      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
       ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
@@ -319,6 +319,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       UpdateRenderOrder(); 
       int index = 0;
+      // FIXME: lock _renderOrder and use lock in all accesses to _renderOrder
       foreach (UIElement element in _renderOrder)
       {
         if (!element.IsVisible) continue;
@@ -337,7 +338,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineDown(PointF point)
     {
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
         if (_startIndex + _controlCount < Children.Count)
         {
@@ -356,7 +357,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineUp(PointF point)
     {
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
         if (_startIndex > 0)
         {
@@ -381,7 +382,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         FrameworkElement element = null;
         for (int i = 0; i < Children.Count; ++i)
         {
-          element = (FrameworkElement)Children[i];
+          element = (FrameworkElement) Children[i];
           if (element.Context != null)
           {
             if (element.Context.ToString().ToLower().StartsWith(text))
@@ -408,14 +409,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         Invalidate();
         UpdateLayout();
-        OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
+        OnMouseMove(element.ActualPosition.X, element.ActualPosition.Y);
       }
       return true;
     }
 
     public bool LineLeft(PointF point)
     {
-      if (this.Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Horizontal)
       {
         if (_startIndex > 0)
         {
@@ -434,7 +435,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineRight(PointF point)
     {
-      if (this.Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Horizontal)
       {
         if (_startIndex + _controlCount < Children.Count)
         {
@@ -458,7 +459,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
         if (_startIndex + 2 * _controlCount < Children.Count)
         {
@@ -498,7 +499,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
         if (_startIndex > _controlCount)
         {
@@ -543,7 +544,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _startIndex = 0;
         Invalidate();
         UpdateLayout();
-        OnMouseMove((float)(Children[0].ActualPosition.X), (float)(Children[0].ActualPosition.Y));
+        OnMouseMove(Children[0].ActualPosition.X, Children[0].ActualPosition.Y);
       }
     }
 
@@ -555,7 +556,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         Invalidate();
         UpdateLayout();
         FrameworkElement child = (FrameworkElement)Children[Children.Count - 1];
-        OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
+        OnMouseMove(child.ActualPosition.X, child.ActualPosition.Y);
       }
     }
 
