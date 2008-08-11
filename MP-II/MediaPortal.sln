@@ -28,12 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Interfaces", "M
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Core.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Components\Database\Database.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -284,6 +278,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "MediaPo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.SkinEngine", "SkinEngine\MediaPortal.SkinEngine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -323,19 +319,6 @@ Global
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x64.ActiveCfg = Debug|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x86.ActiveCfg = Debug|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x86.Build.0 = Debug|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x64.ActiveCfg = Release|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x86.ActiveCfg = Release|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x86.Build.0 = Release|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
-		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x64.ActiveCfg = Debug|x86
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x86.ActiveCfg = Debug|x86
@@ -785,6 +768,21 @@ Global
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{7E943389-3589-40C9-B481-2E223554CC49}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x64.ActiveCfg = Debug|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x86.ActiveCfg = Debug|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Debug|x86.Build.0 = Debug|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x64.ActiveCfg = Release|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x86.ActiveCfg = Release|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Release|x86.Build.0 = Release|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
+		{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
