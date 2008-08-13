@@ -47,7 +47,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Private/protected fields
 
     Property _templateProperty;
-    FrameworkElement _templateControl;
+    Property _templateControlProperty;
     Property _backgroundProperty;
     Property _borderProperty;
     Property _borderThicknessProperty;
@@ -77,7 +77,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Init()
     {
       _templateProperty = new Property(typeof(ControlTemplate), null);
-
+      _templateControlProperty = new Property(typeof(FrameworkElement), null);
       _borderProperty = new Property(typeof(Brush), null);
       _backgroundProperty = new Property(typeof(Brush), null);
       _borderThicknessProperty = new Property(typeof(double), 1.0);
@@ -92,6 +92,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _backgroundProperty.Attach(OnPropertyChanged);
       _borderThicknessProperty.Attach(OnPropertyChanged);
       _templateProperty.Attach(OnTemplateChanged);
+      _templateControlProperty.Attach(OnTemplateControlChanged);
       _cornerRadiusProperty.Attach(OnPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);
@@ -103,6 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _backgroundProperty.Detach(OnPropertyChanged);
       _borderThicknessProperty.Detach(OnPropertyChanged);
       _templateProperty.Detach(OnTemplateChanged);
+      _templateControlProperty.Detach(OnTemplateControlChanged);
       _cornerRadiusProperty.Detach(OnPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
@@ -141,23 +143,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected void OnTemplateChanged(Property property)
     {
       if (Template != null)
-      {
         ///@optimize: 
-        FrameworkElement element = Template.LoadContent() as FrameworkElement;
-        if (element != null)
-        {
-          element.VisualParent = this;
-          _templateControl = element;
-          Resources.Merge(Template.Resources);
-          foreach (TriggerBase t in Template.Triggers)
-            Triggers.Add(t);
-          _templateControl.SetWindow(Screen);
-        }
-        else
-          _templateControl = null;
-      }
+        TemplateControl = Template.LoadContent() as FrameworkElement;
       else
-        _templateControl = null;
+        TemplateControl = null;
+    }
+
+    protected void OnTemplateControlChanged(Property property)
+    {
+      FrameworkElement element = TemplateControl;
+      if (element != null)
+      {
+        element.VisualParent = this;
+        Resources.Merge(Template.Resources);
+        foreach (TriggerBase t in Template.Triggers)
+          Triggers.Add(t);
+        element.SetWindow(Screen);
+      }
       Invalidate();
     }
 
@@ -175,10 +177,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Public properties
 
+    public Property TemplateControlProperty
+    {
+      get { return _templateControlProperty; }
+    }
+
     public FrameworkElement TemplateControl
     {
-      get { return _templateControl; }
-      set { _templateControl = value; }
+      get { return (FrameworkElement)_templateControlProperty.GetValue(); }
+      set { _templateControlProperty.SetValue(value); }
     }
 
     public Property BackgroundProperty
@@ -378,10 +385,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       RenderBorder();
-      if (_templateControl != null)
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
       {
         SkinContext.AddOpacity(this.Opacity);
-        _templateControl.Render();
+        templateControl.Render();
         SkinContext.RemoveOpacity();
       }
     }
@@ -392,15 +400,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
+      FrameworkElement templateControl = TemplateControl;
       SizeF childSize = new SizeF(0, 0);
 
-      if (!IsVisible || _templateControl == null)
+      if (!IsVisible || templateControl == null)
       {
         _desiredSize = new SizeF(0, 0);
         return;
       }
       
-      _templateControl.Measure(ref childSize);
+      templateControl.Measure(ref childSize);
 
       if (LayoutTransform != null)
       {
@@ -430,6 +439,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Arrange(RectangleF finalRect)
     {
+      FrameworkElement templateControl = TemplateControl;
       //Trace.WriteLine(String.Format("Control.arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
@@ -444,12 +454,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      if (_templateControl != null)
+      if (templateControl != null)
       {
-        _templateControl.Arrange(layoutRect);
-        ActualPosition = _templateControl.ActualPosition;
-        ActualWidth = _templateControl.ActualWidth;
-        ActualHeight = _templateControl.ActualHeight;
+        templateControl.Arrange(layoutRect);
+        ActualPosition = templateControl.ActualPosition;
+        ActualWidth = templateControl.ActualWidth;
+        ActualHeight = templateControl.ActualHeight;
       }
 
       if (LayoutTransform != null)
@@ -474,9 +484,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void FireEvent(string eventName)
     {
-      if (_templateControl != null)
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
       {
-        _templateControl.FireEvent(eventName);
+        templateControl.FireEvent(eventName);
       }
       base.FireEvent(eventName);
     }
@@ -487,9 +498,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       UIElement found = base.FindElement(finder);
       if (found != null) return found;
-      if (_templateControl != null)
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
       {
-        found = _templateControl.FindElement(finder);
+        found = templateControl.FindElement(finder);
         return found;
       }
       return null;
@@ -509,8 +521,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         _lastEvent = UIEvent.None;
       }
-      if (_templateControl != null)
-        _templateControl.FireUIEvent(eventType, source);
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.FireUIEvent(eventType, source);
 
       if (SkinContext.UseBatching)
       {
@@ -521,18 +534,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnMouseMove(float x, float y)
     {
-      if (_templateControl != null)
-      {
-        _templateControl.OnMouseMove(x, y);
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.OnMouseMove(x, y);
       base.OnMouseMove(x, y);
     }
 
     public override void OnKeyPressed(ref Key key)
     {
+      FrameworkElement templateControl = TemplateControl;
       base.OnKeyPressed(ref key);
-      if (_templateControl != null)
-        _templateControl.OnKeyPressed(ref key);
+      if (templateControl != null)
+        templateControl.OnKeyPressed(ref key);
     }
 
     public override void Deallocate()
@@ -542,10 +555,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         this.BorderBrush.Deallocate();
       if (Background != null)
         this.Background.Deallocate();
-      if (_templateControl != null)
-      {
-        _templateControl.Deallocate();
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.Deallocate();
       if (_borderAsset != null)
       {
         _borderAsset.Free(true);
@@ -578,10 +590,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         this.BorderBrush.Allocate();
       if (Background != null)
         this.Background.Allocate();
-      if (_templateControl != null)
-      {
-        _templateControl.Allocate();
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.Allocate();
     }
 
     #endregion
@@ -590,32 +601,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      if (_templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement)_templateControl).PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl == null) return null;
+      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusUp(focusedFrameworkElement, ref key, strict);
       if (element != null) return element;
       return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      if (_templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement)_templateControl).PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl == null) return null;
+      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusDown(focusedFrameworkElement, ref key, strict);
       if (element != null) return element;
       return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      if (_templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement)_templateControl).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl == null) return null;
+      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
       if (element != null) return element;
       return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      if (_templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement)_templateControl).PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl == null) return null;
+      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusRight(focusedFrameworkElement, ref key, strict);
       if (element != null) return element;
       return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
@@ -886,28 +901,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _performLayout = false;
         _lastEvent = UIEvent.None;
       }
-      if (_templateControl != null)
-      {
-        _templateControl.BuildRenderTree();
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.BuildRenderTree();
     }
 
     public override void DestroyRenderTree()
     {
-      if (_templateControl != null)
-      {
-        _templateControl.DestroyRenderTree();
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.DestroyRenderTree();
       base.DestroyRenderTree();
     }
 
     public override void SetWindow(Screen screen)
     {
       base.SetWindow(screen);
-      if (_templateControl != null)
-      {
-        _templateControl.SetWindow(screen);
-      }
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl != null)
+        templateControl.SetWindow(screen);
     }
 
     public virtual void BecomesVisible()
