@@ -6,13 +6,12 @@
     FocusedElement="{Binding ElementName=BtnChangeText}">
 
   <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
-    <StackPanel>
-      <Button Margin="0,10,0,0" x:Name="BtnChangeText" Width="100" Height="40" Style="{StaticResource ButtonStyle}" Content="Click Me!">
-        <Button.Command>
-          <Command Path="ChangeHelloWorldString"/>
-        </Button.Command>
-      </Button>
-      <Label Margin="0,0,0,0" FontSize="30" Text="{Binding Path=HelloString}" Width="700" Height="50"/>
-    </StackPanel>
+    <Label Canvas.Left="0" Canvas.Top="0" Width="600" Text="{Binding Path=HelloString}" />
+	<Button Canvas.Left="60" Canvas.Top="60" x:Name="BtnChangeText" Style="{StaticResource ButtonStyle}" Content="Click Me!">
+    <Button.Command>
+      <Command Path="ChangeHelloWorldString"/>
+    </Button.Command>
+    </Button>
+
   </Canvas>
 </Canvas>
