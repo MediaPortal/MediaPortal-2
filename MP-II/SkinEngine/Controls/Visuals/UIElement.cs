@@ -395,11 +395,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public VisibilityEnum Visibility
     {
       get { return (VisibilityEnum)_visibilityProperty.GetValue(); }
-      set
-      {
-        //Trace.WriteLine(String.Format("set {0} :{1}", this.Name, value));
-        _visibilityProperty.SetValue(value);
-      }
+      set { _visibilityProperty.SetValue(value); }
     }
 
     public Property TriggersProperty
@@ -458,7 +454,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public virtual bool HasFocus
     {
-      get { return (bool)_hasFocusProperty.GetValue(); }
+      get { return (bool) _hasFocusProperty.GetValue(); }
       set { _hasFocusProperty.SetValue(value); }
     }
 

@@ -627,7 +627,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                 }
                 return false;
               case RelativeSourceMode.FindAncestor:
-                if (current == null || !FindParent(current, out current)) // Start from the first ancestor
+                if (!FindParent(current, out current)) // Start from the first ancestor
                   return false;
                 int ct = RelativeSource.AncestorLevel;
                 while (current != null)

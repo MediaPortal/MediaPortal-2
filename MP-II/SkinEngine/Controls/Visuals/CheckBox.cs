@@ -67,6 +67,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get { return _isCheckedProperty; }
     }
 
+    public bool IsChecked
+    {
+      get { return (bool) _isCheckedProperty.GetValue(); }
+      set { _isCheckedProperty.SetValue(value); }
+    }
+
     public IExecutableCommand Checked
     {
       get { return _checkedCommand; }
@@ -77,12 +83,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return _unCheckedCommand; }
       set { _unCheckedCommand = value; }
-    }
-
-    public bool IsChecked
-    {
-      get { return (bool)_isCheckedProperty.GetValue(); }
-      set { _isCheckedProperty.SetValue(value); }
     }
 
     public override void OnKeyPressed(ref Key key)
@@ -97,18 +97,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (IsChecked)
         {
           if (Checked != null)
-          {
             Checked.Execute();
-          }
         }
         else
         {
           if (Unchecked != null)
-          {
             Unchecked.Execute();
-          }
         }
-        return;
       }
     }
   }
