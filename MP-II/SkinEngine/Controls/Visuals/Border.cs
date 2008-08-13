@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
@@ -211,20 +212,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
+      ComputeInnerRectangle(ref finalRect);
 
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
 
       if (!finalRect.IsEmpty)
       {
@@ -266,16 +267,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      base.Measure(availableSize);
+      SizeF childSize = new SizeF(0, 0);
       if (_content != null)
       {
-        float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-        float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-        SizeF size = new SizeF(_desiredSize.Width - marginWidth, _desiredSize.Height - marginHeight);
-        _content.Measure(size);
+        _content.Measure(ref childSize);
       }
+
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = childSize.Width;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = childSize.Height;
+
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("border.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+
     }
 
     #endregion

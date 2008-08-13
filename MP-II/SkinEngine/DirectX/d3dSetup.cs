@@ -1309,11 +1309,12 @@ namespace MediaPortal.SkinEngine.DirectX
       ;
     }
 
-    public void SwitchExlusiveOrWindowed(bool exclusiveMode, DisplayMode mode)
+    public void SwitchExlusiveOrWindowed(bool exclusiveMode, string displaySetting)
     {
       _graphicsSettings.IsWindowed = !exclusiveMode;
       if (exclusiveMode)
       {
+        DisplayMode mode = ToDisplayMode(displaySetting);
         ServiceScope.Get<ILogger>().Debug("SwitchExlusiveOrWindowed  {0} {1} {2}", mode.Width, mode.Height, mode.RefreshRate);
 
         for (int i = 0; i < _graphicsSettings.FullscreenDisplayModes.Length; i++)
@@ -1360,6 +1361,17 @@ namespace MediaPortal.SkinEngine.DirectX
       {
         //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
       }
+    }
+
+    protected static DisplayMode ToDisplayMode(string mode)
+    {
+      char[] delimiterChars = { 'x', '@' };
+      string[] words = mode.Split(delimiterChars);
+      DisplayMode result = new DisplayMode();
+      result.Width = Int32.Parse(words[0]);
+      result.Height = Int32.Parse(words[1]);
+      result.RefreshRate = Int32.Parse(words[2]);
+      return result;
     }
 
     #endregion

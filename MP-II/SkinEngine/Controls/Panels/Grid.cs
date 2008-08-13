@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -99,15 +101,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
+      SizeF childSize = new SizeF();
 
       if (LayoutTransform != null)
       {
@@ -115,15 +111,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      double w = _desiredSize.Width;
-      double h = _desiredSize.Height;
-
+      
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
       if (RowDefinitions.Count == 0)
         RowDefinitions.Add(new RowDefinition());
-      ColumnDefinitions.SetAvailableSize(w);
-      RowDefinitions.SetAvailableSize(h);
+
+      // Reset values before we start measure the children.
+      ColumnDefinitions.ResetWidth();
+      RowDefinitions.ResetHeight();
 
       // Set the Width/Hight of the Columns/Rows according to the sizes of the children.
       foreach (FrameworkElement child in Children)
@@ -137,18 +133,54 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
-        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, GetColumnSpan(child)), RowDefinitions.GetHeight(row, GetRowSpan(child))));
+        child.Measure(ref childSize);
 
-        // FIXME: If more than one child is located in the same col/row, the size will be
-        // taken from the last child. Instead, we should take the biggest child.
-        ColumnDefinitions.SetWidth(col, GetColumnSpan(child), child.DesiredSize.Width);
-        RowDefinitions.SetHeight(row, GetRowSpan(child), child.DesiredSize.Height);
+        ColumnDefinitions.SetWidth(col, GetColumnSpan(child), childSize.Width);
+        RowDefinitions.SetHeight(row, GetRowSpan(child), childSize.Height);
       }
 
-      // Now measure again with the correct values (so the children get updated)
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = (float)ColumnDefinitions.TotalWidth;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = (float)RowDefinitions.TotalHeight;
+      
+
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("Grid.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+    }
+
+    public override void Arrange(RectangleF finalRect)
+    {
+      //Trace.WriteLine(String.Format("Grid.arrange :{0} X {1}, Y {2} W{3}x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      ComputeInnerRectangle(ref finalRect);
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+
+      ColumnDefinitions.SetAvailableSize(ActualWidth);
+      RowDefinitions.SetAvailableSize(ActualHeight);
+
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible)
+        if (!child.IsVisible) 
           continue;
         int col = GetColumn(child);
         int row = GetRow(child);
@@ -157,68 +189,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
-        child.Measure(new SizeF(ColumnDefinitions.GetWidth(col, GetColumnSpan(child)), RowDefinitions.GetHeight(row, GetRowSpan(child))));
-      }
+        PointF position = new PointF((float)ColumnDefinitions.GetOffset(col) + finalRect.Location.X, 
+                              (float)RowDefinitions.GetOffset(row) + finalRect.Location.Y);
 
-      _desiredSize.Width = (float)ColumnDefinitions.TotalWidth;
-      _desiredSize.Height = (float)RowDefinitions.TotalHeight;
+        SizeF availableSize = new SizeF((float)ColumnDefinitions.GetWidth(col, GetColumnSpan(child)),
+                                        (float)RowDefinitions.GetHeight(row, GetRowSpan(child)));
 
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+        ArrangeChild(child, ref position, ref availableSize);
 
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-
-      base.Measure(availableSize);
-      //Trace.WriteLine(String.Format("Grid.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
-    }
-
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(RectangleF finalRect)
-    {
-      //Trace.WriteLine(String.Format("Grid.arrange :{0} X {1}, Y {2} W{3}x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      if (ColumnDefinitions.Count == 0)
-        ColumnDefinitions.Add(new ColumnDefinition());
-      if (RowDefinitions.Count == 0)
-        RowDefinitions.Add(new RowDefinition());
-
-      foreach (FrameworkElement child in Children)
-      {
-        if (!child.IsVisible) continue;
-        int col = GetColumn(child);
-        int row = GetRow(child);
-        if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
-        if (col < 0) col = 0;
-        if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
-        if (row < 0) row = 0;
-
-        PointF p = new PointF((float)(this.ActualPosition.X + ColumnDefinitions.GetOffset(col)), (float)(this.ActualPosition.Y + RowDefinitions.GetOffset(row)));
-        float w = ColumnDefinitions.GetWidth(col, GetColumnSpan(child));
-        float h = RowDefinitions.GetHeight(row, GetRowSpan(child));
-        ArrangeChild(child, ref p, w, h);
-
-        child.Arrange(new RectangleF(p, child.DesiredSize));
+        child.Arrange(new RectangleF(position, availableSize));
       }
       if (LayoutTransform != null)
       {
@@ -233,28 +212,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
     }
 
-    protected void ArrangeChild(FrameworkElement child, ref System.Drawing.PointF p, double widthPerCell, double heightPerCell)
-    {
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        p.X += (float)(widthPerCell - child.DesiredSize.Width);
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
-      }
-    }
     #endregion
 
     #region Attached properties

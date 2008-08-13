@@ -47,7 +47,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     protected void Init()
     {
-      _lastChildFillProperty = new Property(typeof(bool), false);
+      _lastChildFillProperty = new Property(typeof(bool), true);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -74,15 +74,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width == 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height == 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
+      SizeF childSize = new SizeF(0, 0);
+      SizeF size = new SizeF(0, 0);
+      SizeF sizeTop = new SizeF(0, 0);
+      SizeF sizeLeft = new SizeF(0, 0);
+      SizeF sizeCenter = new SizeF(0, 0);
 
       if (LayoutTransform != null)
       {
@@ -90,97 +88,78 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      SizeF size = new SizeF(_desiredSize.Width, _desiredSize.Height);
-      SizeF sizeTop = new SizeF();
-      SizeF sizeLeft = new SizeF();
-      SizeF sizeCenter = new SizeF();
+
       int count = 0;
       foreach (UIElement child in Children)
       {
         count++;
         if (!child.IsVisible)
           continue;
-        if (size.Width < 0)
-          size.Width = 0;
-        if (size.Height < 0)
-          size.Height = 0;
         
         if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
         {
-          if (count == Children.Count && LastChildFill)
-            child.Measure(size);
-          else
-            child.Measure(new SizeF(size.Width, 0));
+          child.Measure(ref childSize);
 
-          size.Height -= child.DesiredSize.Height;
-          sizeTop.Height += child.DesiredSize.Height;
-          if (child.DesiredSize.Width > sizeTop.Width)
-            sizeTop.Width = child.DesiredSize.Width;
+          size.Height += childSize.Height;
+          sizeTop.Height += childSize.Height;
+          if (childSize.Width > sizeTop.Width)
+            sizeTop.Width = childSize.Width;
         }
         else if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
         {
-          if (count == Children.Count && LastChildFill)
-            child.Measure(size);
-          else
-            child.Measure(new SizeF(0, size.Height));
+          child.Measure(ref childSize);
 
-          size.Width -= child.DesiredSize.Width;
-          sizeLeft.Width += child.DesiredSize.Width;
-          if (child.DesiredSize.Height > sizeLeft.Height)
-            sizeLeft.Height = child.DesiredSize.Height;
+          size.Width += childSize.Width;
+          sizeLeft.Width += childSize.Width;
+          if (childSize.Height > sizeLeft.Height)
+            sizeLeft.Height = childSize.Height;
         }
         else if (GetDock(child) == Dock.Center)
         {
-          child.Measure(size);
+          child.Measure(ref childSize);
 
-          size.Width -= child.DesiredSize.Width;
-          size.Height -= child.DesiredSize.Height;
-          
-          if (child.DesiredSize.Width > sizeCenter.Width)
-            sizeCenter.Width = child.DesiredSize.Width;
-          if (child.DesiredSize.Height > sizeCenter.Height)
-            sizeCenter.Height = child.DesiredSize.Height;
+          size.Width += childSize.Width;
+          size.Height += childSize.Height;
+
+          if (childSize.Width > sizeCenter.Width)
+            sizeCenter.Width = childSize.Width;
+          if (childSize.Height > sizeCenter.Height)
+            sizeCenter.Height = childSize.Height;
         }
       }
 
-      if (availableSize.Width == 0)
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
       {
-        _desiredSize.Width = sizeLeft.Width;
-        float w = Math.Max(sizeTop.Width, sizeCenter.Width);
-        if (w > sizeLeft.Width)
-          _desiredSize.Width = w;
+        _desiredSize.Width = sizeLeft.Width + Math.Max(sizeTop.Width, sizeCenter.Width);
       }
-      if (availableSize.Height == 0)
+
+      if (Double.IsNaN(Height))
       {
         _desiredSize.Height = sizeTop.Height + Math.Max(sizeLeft.Height, sizeCenter.Height);
       }
 
-      if (Width > 0) _desiredSize.Width = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) _desiredSize.Height = (float)Height * SkinContext.Zoom.Height;
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-
-      base.Measure(availableSize);
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+      //Trace.WriteLine(String.Format("DockPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ComputeInnerRectangle(ref finalRect);
+
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       if (LayoutTransform != null)
       {
@@ -192,8 +171,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
+      SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
+
       int count = 0;
+      SizeF childSize = new SizeF(0, 0);
       foreach (FrameworkElement child in Children)
       {
         count++;
@@ -201,6 +182,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         if (!child.IsVisible)
           continue;
+
+        child.TotalDesiredSize(ref childSize);
+
         if (GetDock(child) == Dock.Top)
         {
 
@@ -209,32 +193,37 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          PointF childOffset = ArrangeChild(child, size);
-          location.X += childOffset.X;
-          if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(child.DesiredSize.Width, size.Height)));
-          else
-            child.Arrange(new RectangleF(location, child.DesiredSize));
+          ArrangeChildHorizontal(child, ref location, ref availableSize);
 
-          offsetTop += child.DesiredSize.Height;
-          size.Height -= child.DesiredSize.Height;
+          if (count == Children.Count && LastChildFill)
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+          else
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
+
+          offsetTop += childSize.Height;
+          availableSize.Height -= childSize.Height;
         }
         else if (GetDock(child) == Dock.Bottom)
         {
-          PointF location = new PointF(offsetLeft, layoutRect.Height - (offsetBottom + child.DesiredSize.Height));
+          PointF location;
+          if (count == Children.Count && LastChildFill)
+            location = new PointF(offsetLeft, finalRect.Height - (offsetBottom + availableSize.Height));
+          else
+            location = new PointF(offsetLeft, finalRect.Height - (offsetBottom + childSize.Height));
+
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          PointF childOffset = ArrangeChild(child, size);
-          location.X += childOffset.X;
-          if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(child.DesiredSize.Width, size.Height)));
-          else
-            child.Arrange(new RectangleF(location, child.DesiredSize));
+          ArrangeChildHorizontal(child, ref location, ref availableSize);
 
-          offsetBottom += child.DesiredSize.Height;
-          size.Height -= child.DesiredSize.Height;
+          if (count == Children.Count && LastChildFill)
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+          else
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
+
+          offsetBottom += childSize.Height;
+          availableSize.Height -= childSize.Height;
         }
         else if (GetDock(child) == Dock.Left)
         {
@@ -243,50 +232,52 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          PointF childOffset = ArrangeChild(child, size);
-          location.Y += childOffset.Y;
-          if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(size.Width, child.DesiredSize.Height)));
-          else
-            child.Arrange(new RectangleF(location, child.DesiredSize));
+          ArrangeChildVertical(child, ref location, ref availableSize);
 
-          offsetLeft += child.DesiredSize.Width;
-          size.Width -= child.DesiredSize.Width;
+          if (count == Children.Count && LastChildFill)
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+          else
+            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
+
+          offsetLeft += childSize.Width;
+          availableSize.Width -= childSize.Width;
         }
         else if (GetDock(child) == Dock.Right)
         {
-          PointF location = new PointF(layoutRect.Width - (offsetRight + child.DesiredSize.Width), offsetTop);
+          PointF location;
+          if (count == Children.Count && LastChildFill)
+            location = new PointF(finalRect.Width - (offsetRight + availableSize.Width), offsetTop);
+          else
+            location = new PointF(finalRect.Width - (offsetRight + childSize.Width), offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          PointF childOffset = ArrangeChild(child, size);
-          location.Y += childOffset.Y;
+          ArrangeChildVertical(child, ref location, ref availableSize);
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(size.Width, child.DesiredSize.Height)));
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
-            child.Arrange(new RectangleF(location, child.DesiredSize));
+            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
 
-          offsetRight += child.DesiredSize.Width;
-          size.Width -= child.DesiredSize.Width;
+          offsetRight += childSize.Width;
+          availableSize.Width -= childSize.Width;
         }
-        else
+        else // Center - How should this work.
         {
           PointF location = new PointF(offsetLeft, offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
-          PointF childOffset = ArrangeChild(child, size);
-          location.X += childOffset.X;
-          location.Y += childOffset.Y;
-          child.Arrange(new RectangleF(location, child.DesiredSize));
+          ArrangeChild(child, ref location, ref availableSize);
+
+          child.Arrange(new RectangleF(location, childSize));
 
           // Do not remove child size from a border offset or from size - the child will
           // stay in the "empty space" without taking place from the border layouting variables
         }
       }
-
-      foreach (FrameworkElement child in Children)
+      // FIXME
+      /*foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) continue;
         if (GetDock(child) == Dock.Center)
@@ -297,11 +288,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
-          //ArrangeChild(child, ref location);
-          child.Arrange(new RectangleF(location, child.DesiredSize));
-          offsetLeft += child.DesiredSize.Width;
+          ArrangeChild(child, ref location);
+          child.Arrange(new RectangleF(location, childSize));
+          offsetLeft += childSize.Width;
         }
-      }
+      }*/
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
@@ -315,36 +306,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(layoutRect);
-    }
-
-    protected virtual PointF ArrangeChild(FrameworkElement child, SizeF s)
-    {
-      PointF result = new PointF(0, 0);
-      if (VisualParent == null)
-        return result;
-
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-        if (s.Width > 0)
-          result.X += (s.Width - child.DesiredSize.Width) / 2;
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        if (s.Width > 0)
-          result.X += s.Width - child.DesiredSize.Width;
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        if (s.Height > 0)
-          result.Y += (s.Height - child.DesiredSize.Height) / 2;
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        if (s.Height > 0)
-          result.Y += s.Height - child.DesiredSize.Height;
-      }
-      return result;
+      base.Arrange(finalRect);
     }
 
     #region Attached properties

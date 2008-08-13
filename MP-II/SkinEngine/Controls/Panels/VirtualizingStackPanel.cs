@@ -22,9 +22,11 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
+using SlimDX;
 using MediaPortal.Presentation.DataObjects;
-using RectangleF = System.Drawing.RectangleF;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -92,23 +94,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public Orientation Orientation
     {
-      get { return (Orientation) _orientationProperty.GetValue(); }
+      get { return (Orientation)_orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
     }
 
     #endregion
 
-    public override void Measure(System.Drawing.SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {
@@ -119,12 +112,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
-      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      SizeF childSize = new SizeF(0, 0);
       int index = 0;
-      _controlCount = 0;
       foreach (UIElement child in Children)
       {
-        if (!child.IsVisible) continue;
+        if (!child.IsVisible) 
+          continue;
         if (index < _startIndex)
         {
           index++;
@@ -132,33 +125,160 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         }
         if (Orientation == Orientation.Vertical)
         {
-          if (childSize.Width < 0) childSize.Width = 0;
-          if (childSize.Height < 0) childSize.Height = 0;
-          child.Measure(new SizeF(childSize.Width, 0));
-          childSize.Height -= child.DesiredSize.Height;
-          if (availableSize.Height > 0 && totalHeight + child.DesiredSize.Height > 5 + availableSize.Height)
-            break;
-          totalHeight += child.DesiredSize.Height;
-          child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
-          if (child.DesiredSize.Width > totalWidth)
-            totalWidth = child.DesiredSize.Width;
+          child.Measure(ref childSize);
+          totalHeight += childSize.Height;
+
+          if (childSize.Width > totalWidth)
+            totalWidth = childSize.Width;
         }
         else
         {
-          child.Measure(new SizeF(0, childSize.Height));
-          childSize.Width -= child.DesiredSize.Width;
-          if (availableSize.Width > 0 & totalWidth + child.DesiredSize.Width > 5 + availableSize.Width)
-            break;
-          totalWidth += child.DesiredSize.Width;
+          child.Measure(ref childSize);
+          totalWidth += childSize.Width;
 
-          child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
-          if (child.DesiredSize.Height > totalHeight)
-            totalHeight = child.DesiredSize.Height;
+          if (childSize.Height > totalHeight)
+            totalHeight = childSize.Height;
         }
         index++;
         _controlCount++;
       }
+
+
+      _desiredSize = new SizeF((float)totalWidth, (float)totalHeight);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = totalWidth;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = totalHeight;
+
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("VirtualizingStackPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+    }
+
+    public override void Arrange(RectangleF finalRect)
+    {
+      //Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+
+      float totalWidth = 0;
+      float totalHeight = 0;
+      SizeF ChildSize = new SizeF(0, 0);
+
+      _controlCount = 0;
+      int index = 0;
+      switch (Orientation)
+      {
+        case Orientation.Vertical:
+          {
+            foreach (FrameworkElement child in Children)
+            {
+              if (!child.IsVisible) 
+                continue;
+
+              if (index < _startIndex)
+              {
+                index++;
+                continue;
+              }
+              PointF location = new PointF((float)(this.ActualPosition.X), (float)(this.ActualPosition.Y + totalHeight));
+              child.TotalDesiredSize(ref ChildSize);
+   
+              // Default behavior is to fill the content if the child has no size
+              if (Double.IsNaN(child.Width))
+              {
+                ChildSize.Width = (float)ActualWidth;
+              }
+
+              // See if this should be included
+              if (totalHeight + ChildSize.Height > Math.Ceiling(ActualHeight))
+                break;
+
+              //align horizontally 
+              if (AlignmentX == AlignmentX.Center)
+              {
+                location.X += (float)((ActualWidth - ChildSize.Width) / 2);
+              }
+              else if (AlignmentX == AlignmentX.Right)
+              {
+                location.X = (float)(ActualWidth - ChildSize.Width);
+              }
+
+              ChildSize.Width = (float)ActualWidth;
+              child.Arrange(new RectangleF(location, ChildSize));
+              totalHeight += ChildSize.Height;
+              index++;
+              _controlCount++;
+            }
+          }
+          break;
+
+        case Orientation.Horizontal:
+          {
+            foreach (FrameworkElement child in Children)
+            {
+              if (!child.IsVisible) 
+                continue;
+              if (index < _startIndex)
+              {
+                index++;
+                continue;
+              }
+              PointF location = new PointF((float)(this.ActualPosition.X + totalWidth), (float)(this.ActualPosition.Y));
+              child.TotalDesiredSize(ref ChildSize);
+
+              // Default behavior is to fill the content if the child has no size
+              if (Double.IsNaN(child.Height))
+              {
+                ChildSize.Height = (float)ActualHeight;
+              }
+
+              // See if this should be included
+              if (totalWidth + ChildSize.Width > Math.Ceiling(ActualWidth))
+                break;
+
+              //align vertically 
+              if (AlignmentY == AlignmentY.Center)
+              {
+                location.Y += (float)((ActualHeight - ChildSize.Height) / 2);
+              }
+              else if (AlignmentY == AlignmentY.Bottom)
+              {
+                location.Y += (float)(ActualHeight - ChildSize.Height);
+              }
+
+              child.Arrange(new RectangleF(location, ChildSize));
+              totalWidth += ChildSize.Width;
+              index++;
+              _controlCount++;
+            }
+          }
+          break;
+      }
       _endIndex = index;
+      // Calculate hight per line / row
       if (_controlCount > 0)
       {
         _lineHeight = totalHeight / ((double)_controlCount);
@@ -169,109 +289,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _lineHeight = totalHeight;
         _lineWidth = totalWidth;
       }
-      if (Width > 0) totalWidth = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) totalHeight = (float)Height * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF(totalWidth, totalHeight);
 
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-
-      base.Measure(availableSize);
-      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
-    }
-
-    public override void Arrange(RectangleF finalRect)
-    {
-      //      Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      int index = 0;
-      switch (Orientation)
-      {
-        case Orientation.Vertical:
-          {
-            float totalHeight = 0;
-            foreach (FrameworkElement child in Children)
-            {
-              if (!child.IsVisible) continue;
-
-              if (index < _startIndex)
-              {
-                index++;
-                continue;
-              }
-              PointF location = new PointF((float)(this.ActualPosition.X), (float)(this.ActualPosition.Y + totalHeight));
-              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
-
-              //align horizontally 
-              if (AlignmentX == AlignmentX.Center)
-              {
-                location.X += (float)((layoutRect.Width - child.DesiredSize.Width) / 2);
-              }
-              else if (AlignmentX == AlignmentX.Right)
-              {
-                location.X = layoutRect.Right - child.DesiredSize.Width;
-              }
-
-              child.Arrange(new RectangleF(location, size));
-              totalHeight += child.DesiredSize.Height;
-              index++;
-              if (index == _endIndex) break;
-            }
-          }
-          break;
-
-        case Orientation.Horizontal:
-          {
-            float totalWidth = 0;
-            foreach (FrameworkElement child in Children)
-            {
-              if (!child.IsVisible) continue;
-              if (index < _startIndex)
-              {
-                index++;
-                continue;
-              }
-              PointF location = new PointF((float)(this.ActualPosition.X + totalWidth), (float)(this.ActualPosition.Y));
-              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
-
-              //align vertically 
-              if (AlignmentY == AlignmentY.Center)
-              {
-                location.Y += (float)((layoutRect.Height - child.DesiredSize.Height) / 2);
-              }
-              else if (AlignmentY == AlignmentY.Bottom)
-              {
-                location.Y += (float)(layoutRect.Height - child.DesiredSize.Height);
-              }
-
-              //ArrangeChild(child, ref location);
-              child.Arrange(new RectangleF(location, size));
-              totalWidth += child.DesiredSize.Width;
-              index++;
-              if (index == _endIndex) break;
-            }
-          }
-          break;
-      }
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
@@ -285,7 +303,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
       FreeUnused();
     }
 
@@ -319,7 +337,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       UpdateRenderOrder(); 
       int index = 0;
-      // FIXME: lock _renderOrder and use lock in all accesses to _renderOrder
       foreach (UIElement element in _renderOrder)
       {
         if (!element.IsVisible) continue;
@@ -338,7 +355,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineDown(PointF point)
     {
-      if (Orientation == Orientation.Vertical)
+      if (this.Orientation == Orientation.Vertical)
       {
         if (_startIndex + _controlCount < Children.Count)
         {
@@ -357,7 +374,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineUp(PointF point)
     {
-      if (Orientation == Orientation.Vertical)
+      if (this.Orientation == Orientation.Vertical)
       {
         if (_startIndex > 0)
         {
@@ -382,7 +399,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         FrameworkElement element = null;
         for (int i = 0; i < Children.Count; ++i)
         {
-          element = (FrameworkElement) Children[i];
+          element = (FrameworkElement)Children[i];
           if (element.Context != null)
           {
             if (element.Context.ToString().ToLower().StartsWith(text))
@@ -409,14 +426,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         Invalidate();
         UpdateLayout();
-        OnMouseMove(element.ActualPosition.X, element.ActualPosition.Y);
+        OnMouseMove((float)element.ActualPosition.X, (float)element.ActualPosition.Y);
       }
       return true;
     }
 
     public bool LineLeft(PointF point)
     {
-      if (Orientation == Orientation.Horizontal)
+      if (this.Orientation == Orientation.Horizontal)
       {
         if (_startIndex > 0)
         {
@@ -435,7 +452,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool LineRight(PointF point)
     {
-      if (Orientation == Orientation.Horizontal)
+      if (this.Orientation == Orientation.Horizontal)
       {
         if (_startIndex + _controlCount < Children.Count)
         {
@@ -459,7 +476,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
-      if (Orientation == Orientation.Vertical)
+      if (this.Orientation == Orientation.Vertical)
       {
         if (_startIndex + 2 * _controlCount < Children.Count)
         {
@@ -499,7 +516,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
-      if (Orientation == Orientation.Vertical)
+      if (this.Orientation == Orientation.Vertical)
       {
         if (_startIndex > _controlCount)
         {
@@ -544,7 +561,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _startIndex = 0;
         Invalidate();
         UpdateLayout();
-        OnMouseMove(Children[0].ActualPosition.X, Children[0].ActualPosition.Y);
+        OnMouseMove((float)(Children[0].ActualPosition.X), (float)(Children[0].ActualPosition.Y));
       }
     }
 
@@ -556,7 +573,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         Invalidate();
         UpdateLayout();
         FrameworkElement child = (FrameworkElement)Children[Children.Count - 1];
-        OnMouseMove(child.ActualPosition.X, child.ActualPosition.Y);
+        OnMouseMove((float)(child.ActualPosition.X), (float)(child.ActualPosition.Y));
       }
     }
 

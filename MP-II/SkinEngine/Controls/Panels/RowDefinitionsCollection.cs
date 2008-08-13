@@ -59,6 +59,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       return height;
     }
 
+    public void ResetHeight()
+    {
+      foreach (RowDefinition rowDef in this)
+      {
+        rowDef.Height.Length = 0.0;
+      }
+    }
+
     public double TotalHeight
     {
       get

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Diagnostics;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
@@ -82,11 +83,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _widthProperty = new Property(typeof(double), 0.0);
-      _heightProperty = new Property(typeof(double), 0.0);
+      _widthProperty = new Property(typeof(double), Double.NaN);
+      _heightProperty = new Property(typeof(double), Double.NaN);
 
-      _actualWidthProperty = new Property(typeof(double), 0.0);
-      _actualHeightProperty = new Property(typeof(double), 0.0);
+      _actualWidthProperty = new Property(typeof(double), Double.NaN);
+      _actualHeightProperty = new Property(typeof(double), Double.NaN);
       _styleProperty = new Property(typeof(Style), null);
       _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Center);
       _verticalAlignmentProperty = new Property(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Center);
@@ -239,6 +240,130 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    /// <summary>
+    /// Adds the element's margin to totalSize.
+    /// </summary>
+    public void AddMargin(ref SizeF totalSize)
+    {
+      if(!Double.IsNaN(totalSize.Width))
+        totalSize.Width += (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      if (!Double.IsNaN(totalSize.Height))
+        totalSize.Height += (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Computes the inner rectangle from the outer rectangle. i.e. the rectangle 
+    /// without the margins.
+    /// </summary>
+    public void ComputeInnerRectangle(ref RectangleF outerRect)
+    {
+      outerRect.X += Margin.Left * SkinContext.Zoom.Width;
+      outerRect.Y += Margin.Top * SkinContext.Zoom.Height;
+
+      outerRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      outerRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Computes the total desired width.
+    /// </summary>
+    public void TotalDesiredSize(ref SizeF totalSize)
+    {
+      totalSize.Width = _desiredSize.Width + (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      totalSize.Height = _desiredSize.Height + (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Arranges the child horizontal and vertical.
+    /// </summary>
+    public void ArrangeChild(FrameworkElement child, ref PointF p, ref SizeF availableSize)
+    {
+      SizeF childSize = new SizeF();
+      child.TotalDesiredSize(ref childSize);
+
+      if (Double.IsNaN(childSize.Width))
+        return;
+      if (Double.IsNaN(childSize.Height))
+        return;
+
+      if (child.GetType() == typeof(MediaPortal.SkinEngine.Controls.Panels.DockPanel))
+        return;
+
+      if(childSize.Width < availableSize.Width)
+      {
+        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        {
+          p.X += (float)((availableSize.Width - childSize.Width) / 2);
+        }
+        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        {
+          p.X += (float)(availableSize.Width - childSize.Width);
+        }
+        availableSize.Width = childSize.Width;
+      }
+
+      if (childSize.Height < availableSize.Height)
+      {
+        if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+        {
+          p.Y += (float)((availableSize.Height - childSize.Height) / 2);
+        }
+        else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+        {
+          p.Y += (float)(availableSize.Height - childSize.Height);
+        }
+        availableSize.Height = childSize.Height;
+      }
+      
+    }
+
+    /// <summary>
+    /// Arranges the child horizontal.
+    /// </summary>
+    public void ArrangeChildHorizontal(FrameworkElement child, ref PointF p, ref SizeF availableSize)
+    {
+      SizeF childSize = new SizeF();
+
+      child.TotalDesiredSize(ref childSize);
+
+      if (!Double.IsNaN(child.Width) && childSize.Width < availableSize.Width)
+      {
+
+        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        {
+          p.X += (float)((availableSize.Width - childSize.Width) / 2);
+        }
+        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        {
+          p.X += (float)(availableSize.Width - childSize.Width);
+        }
+        availableSize.Width = childSize.Width;
+      }
+    }
+
+    /// <summary>
+    /// Arranges the child vertical.
+    /// </summary>
+    public void ArrangeChildVertical(FrameworkElement child, ref PointF p, ref SizeF availableSize)
+    {
+      SizeF childSize = new SizeF();
+
+      child.TotalDesiredSize(ref childSize);
+
+      if (!Double.IsNaN(child.Width) && childSize.Height < availableSize.Height)
+      {
+        if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+        {
+          p.Y += (float)((availableSize.Height - childSize.Height) / 2);
+        }
+        else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+        {
+          p.Y += (float)(availableSize.Height - childSize.Height);
+        }
+        availableSize.Height = childSize.Height;
+      }
+    }
 
     public override void OnMouseMove(float x, float y)
     {

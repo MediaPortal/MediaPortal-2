@@ -22,11 +22,12 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using SlimDX.Direct3D9;
-using RectangleF = System.Drawing.RectangleF;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -100,17 +101,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
     /// </summary>
     /// <param name="availableSize">The available size that this element can give to child elements.</param>
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      //Trace.WriteLine(String.Format("StackPanel.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {
@@ -121,37 +113,32 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       _totalHeight = 0.0f;
       _totalWidth = 0.0f;
-      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      SizeF childSize = new SizeF(0, 0);
       foreach (UIElement child in Children)
       {
-        if (!child.IsVisible) continue;
+        if (!child.IsVisible) 
+          continue;
         if (Orientation == Orientation.Vertical)
         {
-          if (childSize.Width < 0) childSize.Width = 0;
-          if (childSize.Height < 0) childSize.Height = 0;
-          child.Measure(new SizeF(childSize.Width, 0));
-          childSize.Height -= child.DesiredSize.Height;
-          _totalHeight += child.DesiredSize.Height;
-          child.Measure(new SizeF(childSize.Width, child.DesiredSize.Height));
-          if (child.DesiredSize.Width > _totalWidth)
-            _totalWidth = child.DesiredSize.Width;
+          child.Measure(ref childSize);
+          _totalHeight += childSize.Height;
+          if (childSize.Width > _totalWidth)
+            _totalWidth = childSize.Width;
         }
         else
         {
-          child.Measure(new SizeF(0, childSize.Height));
-          childSize.Width -= child.DesiredSize.Width;
-          _totalWidth += child.DesiredSize.Width;
-
-          child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
-          if (child.DesiredSize.Height > _totalHeight)
-            _totalHeight = child.DesiredSize.Height;
+          child.Measure(ref childSize);
+          _totalWidth += childSize.Width;
+          if (childSize.Height > _totalHeight)
+            _totalHeight = childSize.Height;
         }
       }
+      // FIXME MrHipp. What is this?
       float totalHeight = _totalHeight;
       float totalWidth = _totalWidth;
       if (IsItemsHost)
       {
-        if (totalHeight > availableSize.Height && availableSize.Height > 0)
+        /*if (totalHeight > availableSize.Height && availableSize.Height > 0)
         {
           totalHeight = availableSize.Height;
           _isScrolling = true;
@@ -160,22 +147,27 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           _isScrolling = false;
           _physicalScrollOffsetY = 0;
-        }
+        }*/
       }
-      if (Width > 0) totalWidth = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) totalHeight = (float)Height * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF(totalWidth, totalHeight);
+
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = _totalWidth;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = _totalHeight;
 
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
 
-      base.Measure(availableSize);
-      //Trace.WriteLine(String.Format("StackPanel.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("StackPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     /// <summary>
@@ -186,14 +178,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("StackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ComputeInnerRectangle(ref finalRect);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       if (LayoutTransform != null)
       {
@@ -206,25 +195,34 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         case Orientation.Vertical:
           {
             float totalHeight = 0;
+            SizeF Size = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
-              if (!child.IsVisible) continue;
+              if (!child.IsVisible) 
+                continue;
 
               PointF location = new PointF(ActualPosition.X, ActualPosition.Y + totalHeight);
-              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
+              
+              child.TotalDesiredSize(ref Size);
+
+              // Default behavior is to fill the content if the child has no size
+              if (Double.IsNaN(child.Width))
+              {
+                Size.Width = (float)ActualWidth;
+              }
 
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += (layoutRect.Width - child.DesiredSize.Width) / 2;
+                location.X += ((float)ActualWidth - Size.Width) / 2;
               }
               else if (AlignmentX == AlignmentX.Right)
               {
-                location.X = layoutRect.Right - child.DesiredSize.Width;
+                location.X = ((float)ActualWidth - Size.Width);
               }
-
-              child.Arrange(new RectangleF(location, size));
-              totalHeight += child.DesiredSize.Height;
+              
+              child.Arrange(new RectangleF(location, Size));
+              totalHeight += Size.Height;
             }
           }
           break;
@@ -232,25 +230,32 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         case Orientation.Horizontal:
           {
             float totalWidth = 0;
+            SizeF Size = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
-              if (!child.IsVisible) continue;
+              if (!child.IsVisible) 
+                continue;
               PointF location = new PointF(ActualPosition.X + totalWidth, ActualPosition.Y);
-              SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
+              child.TotalDesiredSize(ref Size);
+              
+              // Default behavior is to fill the content if the child has no size
+              if (Double.IsNaN(child.Height))
+              {
+                Size.Height = (float)ActualHeight;
+              }
 
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (layoutRect.Height - child.DesiredSize.Height) / 2;
+                location.Y += ((float)ActualHeight - Size.Height) / 2;
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += layoutRect.Height - child.DesiredSize.Height;
+                location.Y += ((float)ActualHeight - Size.Height);
               }
 
-              //ArrangeChild(child, ref location);
-              child.Arrange(new RectangleF(location, size));
-              totalWidth += child.DesiredSize.Width;
+              child.Arrange(new RectangleF(location, Size));
+              totalWidth += Size.Width;
             }
           }
           break;
@@ -268,7 +273,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
     }
     #endregion
 
@@ -288,7 +293,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         }
         foreach (FrameworkElement element in _renderOrder)
         {
-          if (!element.IsVisible) continue;
+          if (!element.IsVisible) 
+            continue;
           float posY = (float)(element.ActualPosition.Y - ActualPosition.Y);
 
           // FIXME Albert78: What should this code do?

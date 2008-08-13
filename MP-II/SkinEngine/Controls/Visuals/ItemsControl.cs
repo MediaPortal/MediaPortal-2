@@ -24,6 +24,7 @@
 
 using System.Diagnostics;
 using System.Collections;
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;

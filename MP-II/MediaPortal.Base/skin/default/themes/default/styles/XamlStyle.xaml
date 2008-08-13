@@ -1101,7 +1101,7 @@
         <ColumnDefinition/>
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Image x:Name="Image" Width="100" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>

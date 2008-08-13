@@ -366,6 +366,7 @@ namespace MediaPortal.SkinEngine.Fonts
     public float Width(string text, float fontSize)
     {
       float width = 0;
+      float sizeScale = fontSize / _charSet.RenderedSize;
       
       for (int i = 0; i < text.Length; i++)
       {
@@ -373,18 +374,18 @@ namespace MediaPortal.SkinEngine.Fonts
 
         BitmapCharacter c = Character(chk);
 
-        width += c.XAdvance;
+        width += c.XAdvance * sizeScale;
         if (i != text.Length - 1)
         {
           _nextChar = text[i+1];
           Kerning kern = c.KerningList.Find(FindKerningNode);
           if (kern != null)
           {
-            width += kern.Amount;
+            width += kern.Amount*sizeScale;
           }
         }
       }
-      return fontSize / _charSet.RenderedSize * width;
+      return width;
     }
 
     public float Height
@@ -647,16 +648,17 @@ namespace MediaPortal.SkinEngine.Fonts
       List<FontQuad> quads = new List<FontQuad>();
 
       string text = b.Text;
-      float x = b.TextBox.X;
-      float y = b.TextBox.Y;
-      float maxWidth = b.TextBox.Width;
+      double x = b.TextBox.X;
+      double y = b.TextBox.Y;
+      float maxWidth = b.TextBox.Width / SkinContext.Zoom.Width;
+      float maxHeight = b.TextBox.Bottom / SkinContext.Zoom.Height;
       Align alignment = b.Alignment;
-      float lineWidth = 0f;
+      double lineWidth = 0f;
       float sizeScale = b.Size / _charSet.RenderedSize;
       char lastChar = new char();
       int lineNumber = 1;
       int wordNumber = 1;
-      float wordWidth = 0f;
+      double wordWidth = 0.0;
       bool firstCharOfLine = true;
       float z = 0f;
       bool fadeOut = false;
@@ -664,6 +666,7 @@ namespace MediaPortal.SkinEngine.Fonts
       {
         return quads;
       }
+
       for (int i = 0; i < text.Length; i++)
       {
         char chk = text[i];
@@ -671,23 +674,23 @@ namespace MediaPortal.SkinEngine.Fonts
           throw new ArgumentException("GetProcessedQuads index out of range.");
         BitmapCharacter c = Character(chk);
 
-        float xOffset = c.XOffset * sizeScale;
-        float yOffset = c.YOffset * sizeScale;
-        float xAdvance = c.XAdvance * sizeScale;
-        float width = c.Width * sizeScale;
-        float height = c.Height * sizeScale;
+        double xOffset = c.XOffset * sizeScale;
+        double yOffset = c.YOffset * sizeScale;
+        double xAdvance = c.XAdvance * sizeScale;
+        double width = c.Width * sizeScale;
+        double height = c.Height * sizeScale;
 
         // Check vertical bounds
         if (y + yOffset + height > b.TextBox.Bottom)
-        {
+        { 
           break;
         }
 
         // Newline
-        if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance > maxWidth))
+        if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance  > Math.Ceiling(maxWidth)))
         {
           //Trace.WriteLine("lineWidth xAdvance maxWidth " + lineWidth + " " + xAdvance + " " + maxWidth);
-          if (y + yOffset + height + _charSet.LineHeight * sizeScale > b.TextBox.Bottom)
+          if (y + yOffset + height + _charSet.LineHeight * sizeScale > Math.Ceiling(maxHeight))
           {
             textFits = false;
             fadeOut = true;
@@ -761,8 +764,8 @@ namespace MediaPortal.SkinEngine.Fonts
                 {
                   quads[j].LineNumber++;
                   quads[j].WordNumber = 1;
-                  quads[j].X = x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = y + (quads[j].BitmapCharacter.YOffset * sizeScale);
+                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
+                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
                   x += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   if (b.Kerning)
@@ -785,8 +788,8 @@ namespace MediaPortal.SkinEngine.Fonts
                   // First move word down to next line
                   quads[j].LineNumber++;
                   quads[j].WordNumber = 1;
-                  quads[j].X = x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = y + (quads[j].BitmapCharacter.YOffset * sizeScale);
+                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
+                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
                   x += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   offset += quads[j].BitmapCharacter.XAdvance * sizeScale / 2f;
@@ -812,8 +815,8 @@ namespace MediaPortal.SkinEngine.Fonts
                   // Move character down to next line
                   quads[j].LineNumber++;
                   quads[j].WordNumber = 1;
-                  quads[j].X = x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = y + (quads[j].BitmapCharacter.YOffset * sizeScale);
+                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
+                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
                   lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   x += quads[j].BitmapCharacter.XAdvance * sizeScale;
                   offset += quads[j].BitmapCharacter.XAdvance * sizeScale;
@@ -910,7 +913,7 @@ namespace MediaPortal.SkinEngine.Fonts
         }
 
         firstCharOfLine = false;
-        FontQuad q = createQuad(c, b.Color, x, y, z, xOffset, yOffset, width, height);
+        FontQuad q = createQuad(c, b.Color, (float)x, (float)y, (float)z, (float)xOffset, (float)yOffset, (float)width, (float)height);
    
         q.LineNumber = lineNumber;
         if (text[i] == ' ' && alignment == Align.Right)
@@ -920,12 +923,12 @@ namespace MediaPortal.SkinEngine.Fonts
         }
         q.WordNumber = wordNumber;
         wordWidth += xAdvance;
-        q.WordWidth = wordWidth;
+        q.WordWidth = (float)wordWidth;
         q.BitmapCharacter = c;
         q.SizeScale = sizeScale;
         q.Character = text[i];
         q.CharacterIndex = i;
-        q.XAdvance = xAdvance;
+        q.XAdvance = (float)xAdvance;
         quads.Add(q);
 
         if (text[i] == ' ' && alignment == Align.Left)
@@ -940,14 +943,14 @@ namespace MediaPortal.SkinEngine.Fonts
 
         if (quads.Count == 1)
         {
-          _firstCharWidth = lineWidth;
+          _firstCharWidth = (float)lineWidth;
         }
         // Rejustify text
         if (alignment == Align.Center)
         {
           // We have to recenter all Quads since we addded a 
           // new character
-          float offset = xAdvance / 2f;
+          float offset = (float)xAdvance / 2f;
           if (b.Kerning)
           {
             offset += kernAmount / 2f;
@@ -974,8 +977,8 @@ namespace MediaPortal.SkinEngine.Fonts
           {
             if (quads[j].LineNumber == lineNumber)
             {
-              offset = xAdvance;
-              quads[j].X -= xAdvance;
+              offset = (float)xAdvance;
+              quads[j].X -= (float)xAdvance;
             }
           }
           x -= offset;

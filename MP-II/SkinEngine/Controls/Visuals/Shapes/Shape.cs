@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
@@ -648,9 +650,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         primitive = PrimitiveType.TriangleList;
         return ConvertPathToTriangleFan(path, cx, cy, out verts);
       }
-      if (Name == "path134")
-      {
-      }
+
       primitive = PrimitiveType.TriangleList;
       CPolygonShape cutPolygon = new CPolygonShape(path, isClosed);
       cutPolygon.CutEar();
@@ -669,34 +669,29 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       return vertexBuffer;
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("shape.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public override void Measure(System.Drawing.SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+      SizeF childSize = new SizeF(0, 0);
+
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
 
       if (LayoutTransform != null)
       {
@@ -710,11 +705,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       {
         SkinContext.RemoveLayoutTransform();
       }
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-      base.Measure(availableSize);
-      //Trace.WriteLine(String.Format("shape.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+      //Trace.WriteLine(String.Format("shape.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     static protected void ZCross(ref PointF left, ref PointF right, out double result)

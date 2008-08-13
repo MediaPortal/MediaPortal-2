@@ -22,7 +22,10 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
+using SlimDX;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Utilities.DeepCopy;
@@ -119,17 +122,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _contentTemplateSelectorProperty.SetValue(value); }
     }
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      
-      // Width / Height is not set.
-      if (Width == 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height == 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
+      SizeF childSize = new SizeF(0, 0);
 
       if (LayoutTransform != null)
       {
@@ -138,27 +133,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.AddLayoutTransform(m);
       }
 
-      // Calculate how much is available for the child
-      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
-
-      // It can not be less than zero in any dimension
-      if (childSize.Width < 0) 
-        childSize.Width = 0;
-      if (childSize.Height < 0) 
-        childSize.Height = 0;
-
       // Do we have a child
       if (Content != null)
       {
         // Measure the child
-        Content.Measure(childSize);
-
-        // Next lines added by Albert78, 20.5.08
-        if (Width == 0)
-          _desiredSize.Width = Content.DesiredSize.Width;
-        if (Height == 0)
-          _desiredSize.Height = Content.DesiredSize.Height;
+        Content.Measure(ref childSize);
       }
+
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = childSize.Width;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = childSize.Height;
 
       if (LayoutTransform != null)
       {
@@ -166,23 +154,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
 
-      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+      //Trace.WriteLine(String.Format("ContentPresenter.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
+      ComputeInnerRectangle(ref finalRect);
+
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
       if (LayoutTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
@@ -192,10 +179,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (Content != null)
       {
-        PointF location = new PointF(layoutRect.X, layoutRect.Y);
-        SizeF size = new SizeF(Content.DesiredSize.Width, Content.DesiredSize.Height);
-        ArrangeChild(Content, ref location, layoutRect.Width, layoutRect.Height);
-        Content.Arrange(new RectangleF(location, size));
+        PointF position = new PointF(finalRect.X, finalRect.Y);
+        SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
+        ArrangeChild(Content, ref position, ref availableSize);
+        Content.Arrange(finalRect);
       }
 
       if (LayoutTransform != null)
@@ -207,7 +194,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
     }
 
     protected void ArrangeChild(FrameworkElement child, ref PointF p, double widthPerCell, double heightPerCell)

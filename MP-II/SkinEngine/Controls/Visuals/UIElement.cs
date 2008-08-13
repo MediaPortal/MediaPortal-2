@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
@@ -186,8 +187,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected SizeF _desiredSize;
     protected SizeF _availableSize;
     protected RectangleF _finalRect;
-    bool _isArrangeValid;
-    bool _isTemplateRoot;
+    bool _isArrangeValid = false;
     ResourceDictionary _resources;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
@@ -545,9 +545,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get {
         // FIXME Albert78: This variable avoids the Invalidate call to set the _isLayoutInvalid variable
         // What is the meaning of this property??? If it is not necessary, remove it
-        return true;// _isArrangeValid;
+        return _isArrangeValid;// _isArrangeValid;
       }
       set { _isArrangeValid = value; }
+    }
+
+    public bool IsInvalidLayout
+    {
+      get { return _isLayoutInvalid; }
+      set { _isLayoutInvalid = value;}
     }
 
     public SizeF DesiredSize
@@ -575,13 +581,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Will measure this element according to the <paramref name="availableSize"/>
-    /// given. This method will fill the <see cref="DesiredSize"/> property.
+    /// Will measure this elements size and fill the <see cref="DesiredSize"/> property.
     /// </summary>
-    /// <param name="availableSize">Maximum size which is available for this element.</param>
-    public virtual void Measure(SizeF availableSize)
+    /// <param name="totalSizeSize">Total Size of the element including Margins</param>
+    public virtual void Measure(ref SizeF totalSize)
     {
-      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
     }
 
     /// <summary>
@@ -593,7 +597,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
     }
 
     /// <summary>
@@ -603,10 +607,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void Invalidate()
     {
-      if (!IsArrangeValid) return; // FIXME Albert78: Why this line??????
-      _isLayoutInvalid = true;
-      if (VisualParent == null)
-        _availableSize = new SizeF(0, 0);
+      if (!IsArrangeValid) 
+        return; // FIXME Albert78: Why this line??????
+      IsInvalidLayout = true;
     }
 
     /// <summary>
@@ -614,9 +617,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void UpdateLayout()
     {
-      if (false == _isLayoutInvalid) return;
+      if (IsInvalidLayout == false) 
+        return;
+      SizeF childSize = new SizeF(0, 0);
+    
       //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
       ExtendedMatrix m = _finalLayoutTransform;
       if (_availableSize.Width > 0 && _availableSize.Height > 0)
       {
@@ -624,7 +630,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SizeF availsizeOld = new SizeF(_availableSize.Width, _availableSize.Height);
         if (m != null)
           SkinContext.AddLayoutTransform(m);
-        Measure(_availableSize);
+        Measure(ref childSize);
         if (m != null)
           SkinContext.RemoveLayoutTransform();
         _availableSize = availsizeOld;
@@ -649,18 +655,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (element == null)
         {
           SizeF size = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
-          Measure(size);
+          Measure(ref childSize);
           Arrange(new RectangleF(0, 0, size.Width, size.Height));
         }
         else
         {
           float w = (float)element.Width * SkinContext.Zoom.Width;
           float h = (float)element.Height * SkinContext.Zoom.Height;
-          if (w == 0) w = SkinContext.SkinWidth * SkinContext.Zoom.Width;
-          if (h == 0) h = SkinContext.SkinHeight * SkinContext.Zoom.Height;
+          
+          if (Double.IsNaN(w)) 
+            w = SkinContext.SkinWidth * SkinContext.Zoom.Width;
+          if (Double.IsNaN(h)) 
+            h = SkinContext.SkinHeight * SkinContext.Zoom.Height;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Measure(new SizeF(w, h));
+          Measure(ref childSize);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
 

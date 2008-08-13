@@ -436,7 +436,7 @@ namespace MediaPortal.SkinEngine.GUI
 
         if (WindowState != FormWindowState.Minimized)
         {
-          GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), ToDisplayMode(_displaySetting));
+          GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), _displaySetting);
           ServiceScope.Get<IScreenManager>().Reset();
 
           ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
@@ -527,7 +527,7 @@ namespace MediaPortal.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}, displaySetting = {2}", newFullscreen, mode, displaySetting);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
-      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, ToDisplayMode(displaySetting));
+      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
 
       ServiceScope.Get<PlayerCollection>().ReallocResources();
 
@@ -573,16 +573,6 @@ namespace MediaPortal.SkinEngine.GUI
       return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
     }
 
-    protected static DisplayMode ToDisplayMode(string mode)
-    {
-      char[] delimiterChars = { 'x', '@' };
-      string[] words = mode.Split(delimiterChars);
-      DisplayMode result = new DisplayMode();
-      result.Width = Int32.Parse(words[0]);
-      result.Height = Int32.Parse(words[1]);
-      result.RefreshRate = Int32.Parse(words[2]);
-      return result;
-    }
 
     public void SetDisplayMode(FPS fps, string displaymode)
     {

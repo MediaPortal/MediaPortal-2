@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using SlimDX;
 
 namespace MediaPortal.SkinEngine
@@ -79,6 +80,8 @@ namespace MediaPortal.SkinEngine
 
     public void TransformSize(ref System.Drawing.SizeF size)
     {
+      if (Double.IsNaN(size.Width) || Double.IsNaN(size.Height))
+        return;
       float w = size.Width;
       float h = size.Height;
       float w1 = w * Matrix.M11 + h * Matrix.M21;
@@ -86,32 +89,7 @@ namespace MediaPortal.SkinEngine
       size.Width = (float)w1;
       size.Height = (float)h1;
     }
-    public void TransformSize(ref System.Drawing.Size size)
-    {
-      float w = size.Width;
-      float h = size.Height;
-      float w1 = w * Matrix.M11 + h * Matrix.M21;
-      float h1 = w * Matrix.M12 + h * Matrix.M22;
-      size.Width = (int)w1;
-      size.Height = (int)h1;
-    }
 
-    public void TransformRect(ref System.Drawing.Rectangle rect)
-    {
-      float w = rect.Width;
-      float h = rect.Height;
-      float w1 = w * Matrix.M11 + h * Matrix.M21;
-      float h1 = w * Matrix.M12 + h * Matrix.M22;
-      rect.Width = (int)w1;
-      rect.Height = (int)h1;
-
-      w = rect.X;
-      h = rect.Y;
-      w1 = w * Matrix.M11 + h * Matrix.M21;
-      h1 = w * Matrix.M12 + h * Matrix.M22;
-      rect.X = (int)w1;
-      rect.Y = (int)h1;
-    }
     public void TransformRect(ref System.Drawing.RectangleF rect)
     {
       float w = rect.Width;

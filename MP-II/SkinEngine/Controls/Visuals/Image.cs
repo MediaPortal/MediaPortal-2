@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using SlimDX;
@@ -206,14 +208,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Arrange(RectangleF finalRect)
     {
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left;
-      layoutRect.Y += Margin.Top;
-      layoutRect.Width -= Margin.Left + Margin.Right;
-      layoutRect.Height -= Margin.Top + Margin.Bottom;
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       if (LayoutTransform != null)
       {
@@ -233,37 +234,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _performImageLayout = true;
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
-
+      //Trace.WriteLine(String.Format("Image.arrange :{0} X {1}, Y {2} W{3} x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       IsArrangeValid = true;
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-
-      //Trace.WriteLine(String.Format("Image.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-
       InitializeTriggers();
 
       float w = (float) Width * SkinContext.Zoom.Width;
       float h = (float) Height * SkinContext.Zoom.Height;
-      if (w <= 0 && availableSize.Width > 0)
-        w = (availableSize.Width) - marginWidth;
-      if (h <= 0 && availableSize.Width > 0)
-        h = (availableSize.Height) - marginHeight;
 
       if (_image != null)
       {
-        if (w <= 0) w = _image.Texture.Width;
-        if (h <= 0) h = _image.Texture.Height;
+        if (Double.IsNaN(w))
+          w = _image.Texture.Width;
+        if (Double.IsNaN(h)) 
+          h = _image.Texture.Height;
       }
       else if (_fallbackImage != null)
       {
-        if (w <= 0) w = _fallbackImage.Texture.Width;
-        if (h <= 0) h = _fallbackImage.Texture.Height;
+        if (Double.IsNaN(w)) 
+          w = _fallbackImage.Texture.Width;
+        if (Double.IsNaN(h)) 
+          h = _fallbackImage.Texture.Height;
       }
 
       _desiredSize = new SizeF(w, h);
@@ -280,10 +276,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         SkinContext.RemoveLayoutTransform();
       }
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
 
-      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      Trace.WriteLine(String.Format("Image.Measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void DoBuildRenderTree()

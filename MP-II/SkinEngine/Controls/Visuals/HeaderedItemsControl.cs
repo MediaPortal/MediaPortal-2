@@ -22,6 +22,9 @@
 
 #endregion
 
+using System;
+using System.Drawing;
+using SlimDX;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
@@ -164,32 +167,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Measure&arrange
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      ListItem listItem = (ListItem) Context;
+      SizeF headerSize = new SizeF();
+      SizeF baseSize = new SizeF();
+      ListItem listItem = (ListItem)Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' {1}x{2} expanded:{3}", name, availableSize.Width, availableSize.Height, IsExpanded));
 
-      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       if (Header != null)
       {
-        Header.Measure(new SizeF(availableSize.Width, 0));
+        Header.Measure(ref headerSize);
         if (!_wasExpanded)
         {
-          _desiredSize = Header.DesiredSize;
+          _desiredSize = headerSize;
 
           //          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
           //              name, Header.DesiredSize.Width, Header.DesiredSize.Height));
           return;
         }
       }
-      base.Measure(new SizeF(availableSize.Width, 0));
+      base.Measure(ref baseSize);
       _baseDesiredSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
       if (Header != null)
       {
         _desiredSize.Height += Header.DesiredSize.Height;
       }
-      _availableSize = new System.Drawing.SizeF(availableSize.Width, availableSize.Height);
       //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
       //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
       //        _baseDesiredSize.Width, _baseDesiredSize.Height));
@@ -197,24 +200,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Height);
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-      PointF p = layoutRect.Location;
 
-      ListItem listItem = (ListItem) Context;
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
+      PointF p = finalRect.Location;
+
+      ListItem listItem = (ListItem)Context;
       //      string name = listItem.Label("Name").Evaluate(null, null);
       //      Trace.WriteLine(String.Format("TreeView Item:Arrange {0} ({1},{2}) {2}x{3}", name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
 
       if (Header != null)
       {
-        //ArrangeChild(Header, ref p, layoutRect.Width, layoutRect.Height);
+        ArrangeChild(Header, ref p, finalRect.Width, finalRect.Height);
         Header.Arrange(new RectangleF(p, Header.DesiredSize));
         if (!_wasExpanded)
         {
@@ -223,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           IsArrangeValid = true;
           Initialize();
           InitializeTriggers();
-          _isLayoutInvalid = false;
+          IsInvalidLayout = false;
           if (!finalRect.IsEmpty)
           {
             if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)

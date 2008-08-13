@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
@@ -244,23 +245,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     }
     */
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
       using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
       {
         RectangleF bounds = p.GetBounds();
-        if (Width > 0) bounds.Width = (float)Width;
-        if (Height > 0) bounds.Height = (float)Height;
-        bounds.Width *= SkinContext.Zoom.Width;
-        bounds.Height *= SkinContext.Zoom.Height;
 
-        float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-        float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-        _desiredSize = new System.Drawing.SizeF((float)bounds.Width, (float)bounds.Height);
-        if (availableSize.Width > 0 && Width <= 0)
-          _desiredSize.Width = (float)(availableSize.Width - marginWidth);
-        if (availableSize.Width > 0 && Height <= 0)
-          _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+        _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+        if (Double.IsNaN(Width))
+          _desiredSize.Width = bounds.Width * SkinContext.Zoom.Width;
+
+        if (Double.IsNaN(Height))
+          _desiredSize.Height = bounds.Height * SkinContext.Zoom.Height;
+
 
         if (LayoutTransform != null)
         {
@@ -274,11 +272,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         {
           SkinContext.RemoveLayoutTransform();
         }
-        _desiredSize.Width += marginWidth;
-        _desiredSize.Height += marginHeight;
 
-        _availableSize = new SizeF(availableSize.Width, availableSize.Height);
-        //Trace.WriteLine(String.Format("line.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
+        totalSize = _desiredSize;
+        AddMargin(ref totalSize);
+
+        //Trace.WriteLine(String.Format("line.measure :{0} returns {1}x{2}", this.Name, (int)_desiredSize.Width, (int)_desiredSize.Height));
       }
     }
 

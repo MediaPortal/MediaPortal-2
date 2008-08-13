@@ -24,6 +24,7 @@
 
 using System;
 using System.Drawing;
+using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
@@ -234,30 +235,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _renderer = new FontRender(_asset.Font);
     }
 
-    public override void Measure(System.Drawing.SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      System.Drawing.SizeF size = new System.Drawing.SizeF(32, 32);
-
-      //Trace.WriteLine(String.Format("TextBox.Measure :{0} {1}x{2}", this.Name, (int)availableSize.Width, (int)availableSize.Height));
-      
+      SizeF childSize = new SizeF();
+     
       InitializeTriggers();
       AllocFont();
 
       if (_asset != null)
       {
-
-        size = new SizeF((float)availableSize.Width, _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
-        if (availableSize.Width == 0)
-          size.Width = _asset.Font.Width(Text.ToString(), FontSize) * SkinContext.Zoom.Width;
+        childSize = new SizeF(_asset.Font.Width(Text.ToString(), FontSize) * SkinContext.Zoom.Width,
+                 _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
 
       }
-      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = (float)(size.Width - marginWidth);
-      if (Height <= 0)
-        _desiredSize.Height = (float)(size.Height - marginHeight);
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = childSize.Width;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = childSize.Height;
 
       if (LayoutTransform != null)
       {
@@ -271,25 +268,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         SkinContext.RemoveLayoutTransform();
       }
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
 
-      _availableSize = new SizeF(availableSize.Width, availableSize.Height);
+      //Trace.WriteLine(String.Format("textbox.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      AllocFont();
-      _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      //Trace.WriteLine(String.Format("textbox.arrange :{0} X {1}, Y {2} W{3} x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
       if (LayoutTransform != null)
       {
         ExtendedMatrix m = new ExtendedMatrix();
@@ -302,10 +298,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsArrangeValid = true;
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
       _update = true;
-      //Trace.WriteLine(String.Format("TextBox.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-
+    
       if (Screen != null)
         Screen.Invalidate(this);
     }
@@ -399,17 +394,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
           align = SkinEngine.Fonts.Font.Align.Center;
 
-        // Increase height so that the lower part of 'g' is displayed 
-        if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
-        {
-          rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
-        }
-        if (VerticalAlignment == VerticalAlignmentEnum.Center)
-        {
-          rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
-        }
-        rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
-        rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
         m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);

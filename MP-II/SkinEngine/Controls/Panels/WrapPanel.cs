@@ -22,16 +22,24 @@
 
 #endregion
 
+using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
+using SlimDX;
 using MediaPortal.Presentation.DataObjects;
-using RectangleF = System.Drawing.RectangleF;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
+  /// <summary>
+  /// Positions child elements in sequential position from left to right, 
+  /// breaking content to the next line at the edge of the containing box. 
+  /// Subsequent ordering happens sequentially from top to bottom or from right to left, 
+  /// depending on the value of the Orientation property.
+  /// </summary>
   public class WrapPanel : Panel
   {
     #region Private fields
@@ -87,25 +95,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       set { _orientationProperty.SetValue(value); }
     }
 
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      float marginHeight = (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      _desiredSize = new System.Drawing.SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = (float)(availableSize.Width - marginWidth);
-      if (Height <= 0)
-        _desiredSize.Height = (float)(availableSize.Height - marginHeight);
+      SizeF availableSize = new SizeF((float)Width * SkinContext.Zoom.Width, 
+                                (float)Height * SkinContext.Zoom.Height);
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
       float totalHeight = 0.0f;
       float totalWidth = 0.0f;
-      SizeF childSize = new SizeF(_desiredSize.Width, _desiredSize.Height);
+      float initialHeight = availableSize.Height;
+      float initialWidth = availableSize.Width;
+
+      SizeF childSize = new SizeF();
       
       _sizeCol.Clear();
       float w = 0.0f;
@@ -117,20 +117,21 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             w = childSize.Width;
             foreach (FrameworkElement child in Children)
             {
-              child.Measure(new SizeF(0, childSize.Height));
-              if (child.DesiredSize.Width > childSize.Width)
+              child.Measure(ref childSize);
+              // If width is not set, then just go on
+              if (!double.IsNaN(availableSize.Width) && childSize.Width > availableSize.Width)
               {
                 _sizeCol.Add(totalHeight);
                 h += totalHeight;
-                childSize.Height -= totalHeight;
-                childSize.Width = _desiredSize.Width;
+                availableSize.Height -= totalHeight;
+                availableSize.Width = initialWidth;
                 totalHeight = 0.0f;
               }
-              childSize.Width -= child.DesiredSize.Width;
-              totalWidth += child.DesiredSize.Width;
-              child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
-              if (child.DesiredSize.Height > totalHeight)
-                totalHeight = child.DesiredSize.Height;
+              availableSize.Width -= childSize.Width;
+              totalWidth += childSize.Width;
+
+              if (childSize.Height > totalHeight)
+                totalHeight = childSize.Height;
 
             }
             _sizeCol.Add(totalHeight);
@@ -143,19 +144,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             h = childSize.Height;
             foreach (FrameworkElement child in Children)
             {
-              child.Measure(new SizeF(childSize.Width, 0));
-              if (child.DesiredSize.Height > childSize.Height)
+              child.Measure(ref childSize);
+              if (!double.IsNaN(availableSize.Height) && childSize.Height > availableSize.Height)
               {
                 _sizeCol.Add(totalWidth);
                 w += totalWidth;
                 childSize.Width -= totalWidth;
-                childSize.Height = _desiredSize.Height;
+                childSize.Height = initialHeight;
                 totalWidth = 0.0f;
               }
-              childSize.Height -= child.DesiredSize.Height;
-              totalHeight += child.DesiredSize.Height;
-              child.Measure(new SizeF(child.DesiredSize.Width, childSize.Height));
-              if (child.DesiredSize.Width > totalWidth)
+              childSize.Height -= childSize.Height;
+              totalHeight += childSize.Height;
+              if (childSize.Width > totalWidth)
                 totalWidth = child.DesiredSize.Width;
 
             }
@@ -164,32 +164,47 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           }
           break;
       }
-      if (Width > 0) w = (float)Width * SkinContext.Zoom.Width;
-      if (Height > 0) h = (float)Height * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)w, (float)h);
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
+      if (Double.IsNaN(Width))
+        _desiredSize.Width = w;
+
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = h;
+      
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
 
-      base.Measure(availableSize);
+
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("WrapPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += (float)(Margin.Left);
-      layoutRect.Y += (float)(Margin.Top);
-      layoutRect.Width -= (float)(Margin.Left + Margin.Right);
-      layoutRect.Height -= (float)(Margin.Top + Margin.Bottom);
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      //Trace.WriteLine(String.Format("WrapPanel.arrange :{0} X {1}, Y {2} W{3} x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+
+      ComputeInnerRectangle(ref finalRect);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       if (LayoutTransform != null)
       {
@@ -287,7 +302,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
     }
   }
 }

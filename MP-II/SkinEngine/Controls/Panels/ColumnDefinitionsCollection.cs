@@ -67,6 +67,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       return width;
     }
 
+    public void ResetWidth()
+    {
+      foreach (ColumnDefinition colDef in this)
+      {
+        colDef.Width.Length = 0.0;
+      }
+    }
+
     public double TotalWidth
     {
       get

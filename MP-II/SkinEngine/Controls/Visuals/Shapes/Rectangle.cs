@@ -128,7 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
-      _isLayoutInvalid = false;
+      IsInvalidLayout = false;
 
       if (!finalRect.IsEmpty)
       {

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -48,15 +49,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// the <see cref="UIElement.DesiredSize"/>.
     /// </summary>
     /// <param name="availableSize">The maximum available size that is available.</param>
-    public override void Measure(SizeF availableSize)
+    public override void Measure(ref SizeF totalSize)
     {
-      float marginWidth = (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      float marginHeight = (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-      if (Width <= 0)
-        _desiredSize.Width = availableSize.Width - marginWidth;
-      if (Height <= 0)
-        _desiredSize.Height = availableSize.Height - marginHeight;
+      SizeF childSize = new SizeF(0,0);
 
       if (LayoutTransform != null)
       {
@@ -67,25 +62,30 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
-        if (!child.IsVisible) continue;
-        child.Measure(new Size(0, 0));
-        rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(child.DesiredSize.Width, child.DesiredSize.Height)));
+        if (!child.IsVisible) 
+          continue;
+        child.Measure(ref childSize);
+        rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(childSize.Width, childSize.Height)));
       }
-      if (Width <= 0)
-        _desiredSize.Width = Math.Max(_desiredSize.Width, rect.Right);
-      if (Height <= 0)
-        _desiredSize.Height = Math.Max(_desiredSize.Height, rect.Bottom);
+
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (Double.IsNaN(Width))
+        _desiredSize.Width =  rect.Right;
+      if (Double.IsNaN(Height))
+        _desiredSize.Height = rect.Bottom;
+
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      _desiredSize.Width += marginWidth;
-      _desiredSize.Height += marginHeight;
-      //Trace.WriteLine(String.Format("canvas.measure :{0} {1}x{2} returns {3}x{4}", this.Name, (int)availableSize.Width, (int)availableSize.Height, (int)_desiredSize.Width, (int)_desiredSize.Height));
 
-      base.Measure(availableSize);
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("canvas.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     /// <summary>
@@ -97,16 +97,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       //Trace.WriteLine(String.Format("canvas.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-      layoutRect.X += Margin.Left * SkinContext.Zoom.Width;
-      layoutRect.Y += Margin.Top * SkinContext.Zoom.Height;
-      layoutRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      layoutRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-      //SkinContext.FinalLayoutTransform.TransformRect(ref layoutRect);
+      ComputeInnerRectangle(ref finalRect);
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
 
       if (LayoutTransform != null)
       {
@@ -114,6 +110,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
+      float x = finalRect.Location.X + Margin.Left * SkinContext.Zoom.Width;
+      float y = finalRect.Location.Y + Margin.Top * SkinContext.Zoom.Height;
 
       foreach (FrameworkElement child in Children)
       {
@@ -121,8 +119,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         PointF p = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
           ((float) GetTop(child) * SkinContext.Zoom.Height));
         SkinContext.FinalLayoutTransform.TransformPoint(ref p);
-        p.X += ActualPosition.X;
-        p.Y += ActualPosition.Y;
+        p.X += x;
+        p.Y += y;
 
         SizeF s = child.DesiredSize;
 
@@ -141,7 +139,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(layoutRect);
+      base.Arrange(finalRect);
     }
 
     #region Attached properties
