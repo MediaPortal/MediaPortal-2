@@ -110,21 +110,27 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      float x = finalRect.Location.X + Margin.Left * SkinContext.Zoom.Width;
-      float y = finalRect.Location.Y + Margin.Top * SkinContext.Zoom.Height;
+      float x = finalRect.Location.X;
+      float y = finalRect.Location.Y;
 
+      SizeF childSize = new SizeF();
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible) continue;
-        PointF p = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
-          ((float) GetTop(child) * SkinContext.Zoom.Height));
-        SkinContext.FinalLayoutTransform.TransformPoint(ref p);
-        p.X += x;
-        p.Y += y;
+        if (!child.IsVisible) 
+          continue;
+        // Get the coordinates relative to the canvas area.
+        PointF point = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
+                                  ((float) GetTop(child) * SkinContext.Zoom.Height));
 
-        SizeF s = child.DesiredSize;
+        SkinContext.FinalLayoutTransform.TransformPoint(ref point);
+        point.X += x;
+        point.Y += y;
 
-        child.Arrange(new RectangleF(p, s));
+        // Get the child size
+        child.TotalDesiredSize(ref childSize);
+
+        // Arrange the child
+        child.Arrange(new RectangleF(point, childSize));
       }
       if (LayoutTransform != null)
       {
