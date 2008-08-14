@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,16 +25,18 @@
 namespace MediaPortal.Services.UserManagement
 {
   /// <summary>
-  /// interface for the Permisson object
+  /// Interface for a permisson object.
   /// </summary>
   public interface IPermissionObject
   {
     /// <summary>
-    /// checks if the obj given is equal to this object
-    /// after various critera (f.e. a name of a share)
+    /// Checks if this permission includes the permission on the specified object, which
+    /// will be checked for various critera (f.e. checks if the path name of a share is contained in the
+    /// folder represented by this permission object).
     /// </summary>
-    /// <param name="obj">obj to compare with</param>
-    /// <returns>true if object is the same, false otherwise</returns>
-    bool IsSameAs(IPermissionObject obj);
+    /// <param name="obj">Permission object to check.</param>
+    /// <returns><c>true</c>, if the permission on the given object is included by this permission object,
+    /// else <c>false</c>.</returns>
+    bool IncludesObject(IPermissionObject obj);
   }
 }

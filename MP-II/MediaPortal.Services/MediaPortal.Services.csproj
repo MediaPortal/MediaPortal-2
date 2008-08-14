@@ -112,6 +112,10 @@
     <Compile Include="ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="ThumbnailGenerator\ThumbnailCreator.cs" />
     <Compile Include="ThumbnailGenerator\WorkItem.cs" />
+    <Compile Include="UserManagement\Permission.cs" />
+    <Compile Include="UserManagement\Role.cs" />
+    <Compile Include="UserManagement\User.cs" />
+    <Compile Include="UserManagement\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

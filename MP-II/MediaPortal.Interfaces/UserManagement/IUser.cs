@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,58 +28,61 @@ using MediaPortal.Services.UserManagement;
 
 namespace MediaPortal.Core.UserManagement
 {
+  /// <summary>
+  /// Interface that provides access to the public data for a registered user object.
+  /// </summary>
   public interface IUser
   {
     /// <summary>
-    /// gets or sets the name for this user
+    /// Gets or sets the name for this user.
     /// </summary>
     string UserName { get; set; }
 
     /// <summary>
-    /// gets or sets the path to the userimage
-    /// </summary>
-    string UserImage { get; set; }
-
-    /// <summary>
-    /// gets or sets the path to the userimage
+    /// Gets or sets the user's password.
     /// </summary>
     string Password { get; set; }
 
     /// <summary>
-    /// returns true if a password is needed to login, false otherwise
+    /// Gets or sets the path or name of the userimage.
+    /// </summary>
+    string UserImage { get; set; }
+
+    /// <summary>
+    /// Returns the information if a password is needed to login for this user.
     /// </summary>
     bool NeedsPassword { get; set; }
 
     /// <summary>
-    /// gets or sets the last time of login
+    /// Gets or sets the last time of login.
     /// </summary>
     DateTime LastLogin { get; set; }
 
     /// <summary>
-    /// adds a role to this user
+    /// Adds a role to this user.
     /// </summary>
-    /// <param name="role">the role to add</param>
-    /// <returns>true if added, false otherwise</returns>
+    /// <param name="role">The role to be added.</param>
+    /// <returns><c>true</c>, if the role could successfully be added, else <c>false</c>.</returns>
     bool AddRole(IRole role);
 
     /// <summary>
-    /// removes a role from this user
+    /// Removes a role from this user.
     /// </summary>
-    /// <param name="role">the role to remove</param>
-    /// <returns>true if removed, false otherwise</returns>
+    /// <param name="role">The role to be removed.</param>
+    /// <returns><c>true</c>, if the role could successfully be removed, else <c>false</c>.</returns>
     bool RemoveRole(IRole role);
 
     /// <summary>
-    /// gets the roles assigned to this user
+    /// Gets the roles assigned to this user.
     /// </summary>
-    /// <returns>list of roles for this user</returns>
-    List<IRole> GetRoles();
+    /// <returns>List of roles for this user.</returns>
+    IList<IRole> GetRoles();
 
     /// <summary>
-    /// checks if this user has permission on a IPermissionObject
+    /// Checks if this user has permission on an <see cref="IPermissionObject"/>.
     /// </summary>
-    /// <param name="obj">the oject to check permission for</param>
-    /// <returns>true if the user has permission to access the object, false otherwise</returns>
+    /// <param name="obj">The oject to check permission for.</param>
+    /// <returns><c>true</c>, if the user has permission to access the object, else <c>false</c>.</returns>
     bool HasPermissionOn(IPermissionObject obj);
   }
 }

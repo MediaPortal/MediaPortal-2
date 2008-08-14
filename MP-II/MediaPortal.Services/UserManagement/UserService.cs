@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -30,55 +30,41 @@ using MediaPortal.Core.UserManagement;
 namespace MediaPortal.Services.UserManagement
 {
   /// <summary>
-  /// Service that provides Usermanagement
+  /// Service that provides user management.
   /// </summary>
   public class UserService : IUserService
   {
-    protected List<IUser> _users;
+    protected IUser _currentUser = null;
+    protected IList<IUser> _users;
 
-    /// <summary>
-    /// constructor
-    /// </summary>
     public UserService()
     {
       _users = new List<IUser>();
     }
 
-    /// <summary>
-    /// Adds a new User to the Service
-    /// </summary>
-    /// <param name="user">the user to add</param>
-    /// <returns>true if user has been added successfully, false otherwise</returns>
+    public IUser CurrentUser
+    {
+      get { return _currentUser; }
+      set { _currentUser = value; }
+
     public bool AddUser(IUser user)
     {
-      foreach (IUser listuser in _users)
+      if (_users.Contains(user))
       {
-        if (user.UserName.Equals(listuser.UserName))
-        {
-          ServiceScope.Get<ILogger>().Warn(
-            "UserService: Attempted to add a user with a name that is already in the list. Adding failed");
-          return false;
-        }
+        ServiceScope.Get<ILogger>().Warn(
+          "UserService: Attempted to add a user with a name that is already in the list. Adding failed.");
+        return false;
       }
       _users.Add(user);
       return true;
     }
 
-    /// <summary>
-    /// Removes a User from the service
-    /// </summary>
-    /// <param name="user">the user to remove</param>
-    /// <returns>true if the user has been removed successfully, false otherwise</returns>
     public bool RemoveUser(IUser user)
     {
       return _users.Remove(user);
     }
 
-    /// <summary>
-    /// retrieves a list of all registered Users
-    /// </summary>
-    /// <returns>List of IUser</returns>
-    public List<IUser> GetUsers()
+    public IList<IUser> GetUsers()
     {
       return _users;
     }

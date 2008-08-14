@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,58 +28,54 @@ using MediaPortal.Core.UserManagement;
 namespace MediaPortal.Services.UserManagement
 {
   /// <summary>
-  /// implements a role
+  /// Implements a role.
   /// </summary>
-  public class Role : IRole
+  public class Role : Permission, IRole
   {
-    private List<IPermission> _permissions;
-    private string _name;
+    protected IList<IPermission> _permissions;
 
-    /// <summary>
-    /// ctor
-    /// </summary>
-    public Role()
+    public Role(string name): base(name)
     {
       _permissions = new List<IPermission>();
     }
 
-    /// <summary>
-    /// gets or sets the name of this role
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-      set { _name = value; }
-    }
-
-    /// <summary>
-    /// Adds a permission to this role
-    /// </summary>
-    /// <param name="permission">the permission to add</param>
-    /// <returns>true if the permission has been added, false otherwise</returns>
     public bool AddPermission(IPermission permission)
     {
       _permissions.Add(permission);
       return true;
     }
 
-    /// <summary>
-    /// Removes a permission from this role
-    /// </summary>
-    /// <param name="permission">the permission to remove</param>
-    /// <returns>true if the permission has been removed, false otherwise</returns>
     public bool RemovePermission(IPermission permission)
     {
       return _permissions.Remove(permission);
     }
 
-    /// <summary>
-    /// Gets the list of Permissions assigned to this role
-    /// </summary>
-    /// <returns>list of permissions for this role</returns>
-    public List<IPermission> GetPermissions()
+    public IList<IPermission> GetPermissions()
     {
       return _permissions;
     }
+
+    #region Base overrides
+
+    public IList<IPermissionObject> GetPermissionObjects()
+    {
+      List<IPermissionObject> result = new List<IPermissionObject>(base.GetPermissionObjects());
+      foreach (IPermission permission in _permissions)
+        foreach (IPermissionObject obj in permission.GetPermissionObjects())
+          result.Add(obj);
+      return result;
+    }
+
+    public override bool IncludesPermissionOn(IPermissionObject item)
+    {
+      if (base.HasPermissionOn(item))
+        return true;
+      foreach (IPermission permission in _permissions)
+        if (permission.IncludesPermissionOn(item))
+          return true;
+      return false;
+    }
+
+    #endregion
   }
 }

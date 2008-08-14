@@ -104,11 +104,6 @@
     <Compile Include="Core\Threading\IWorkInterval.cs" />
     <Compile Include="Core\Threading\Work.cs" />
     <Compile Include="Core\Threading\WorkEventArgs.cs" />
-    <Compile Include="Core\UserManagement\IPermission.cs" />
-    <Compile Include="Core\UserManagement\IPermissionObject.cs" />
-    <Compile Include="Core\UserManagement\IRole.cs" />
-    <Compile Include="Core\UserManagement\IUser.cs" />
-    <Compile Include="Core\UserManagement\IUserService.cs" />
     <Compile Include="Messaging\MessageBroker.cs" />
     <Compile Include="Messaging\Queue.cs" />
     <Compile Include="PathManager\PathDefinition.cs" />
@@ -139,10 +134,6 @@
     <Compile Include="Threading\ThreadPool.cs" />
     <Compile Include="Threading\ThreadPoolStartInfo.cs" />
     <Compile Include="Threading\WorkQueue.cs" />
-    <Compile Include="UserManagement\Permission.cs" />
-    <Compile Include="UserManagement\Role.cs" />
-    <Compile Include="UserManagement\User.cs" />
-    <Compile Include="UserManagement\UserService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

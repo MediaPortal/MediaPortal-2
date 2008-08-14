@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -27,33 +27,31 @@ using System.Collections.Generic;
 namespace MediaPortal.Core.UserManagement
 {
   /// <summary>
-  /// Interface that defines a role
+  /// Interface that defines a role. A role itself provides all methods to check
+  /// permissions on items (inherited from <see cref="IPermission"/>, and adds the
+  /// functionality to contain a set of child permissions (or roles), which will be
+  /// granted as a whole if the role is assigned to a user.
   /// </summary>
-  public interface IRole
+  public interface IRole: IPermission
   {
     /// <summary>
-    /// gets or sets the name of this role
+    /// Adds a permission to this role.
     /// </summary>
-    string Name { get; set; }
-
-    /// <summary>
-    /// Adds a permission to this role
-    /// </summary>
-    /// <param name="permission">the permission to add</param>
-    /// <returns>true if the permission has been added, false otherwise</returns>
+    /// <param name="permission">The permission to add.</param>
+    /// <returns><c>true</c>, if the permission could be added, <c>false</c> otherwise.</returns>
     bool AddPermission(IPermission permission);
 
     /// <summary>
-    /// Removes a permission from this role
+    /// Removes a permission from this role.
     /// </summary>
-    /// <param name="permission">the permission to remove</param>
-    /// <returns>true if the permission has been removed, false otherwise</returns>
+    /// <param name="permission">The permission to remove.</param>
+    /// <returns><c>true</c>, if the permission could be removed, <c>false</c> otherwise.</returns>
     bool RemovePermission(IPermission permission);
 
     /// <summary>
-    /// Gets the list of Permissions assigned to this role
+    /// Gets the list of Permissions contained in this role.
     /// </summary>
-    /// <returns>list of permissions for this role</returns>
-    List<IPermission> GetPermissions();
+    /// <returns>List of permissions in this role.</returns>
+    IList<IPermission> GetPermissions();
   }
 }

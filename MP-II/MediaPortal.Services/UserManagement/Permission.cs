@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,65 +28,60 @@ using MediaPortal.Core.UserManagement;
 namespace MediaPortal.Services.UserManagement
 {
   /// <summary>
-  /// implements a permission
+  /// Implements a permission.
   /// </summary>
   public class Permission : IPermission
   {
-    protected List<IPermissionObject> _objects;
+    protected string _name;
+    protected IList<IPermissionObject> _objects;
 
-    /// <summary>
-    /// ctor
-    /// </summary>
-    public Permission()
+    public Permission(string name)
     {
+      _name = name;
       _objects = new List<IPermissionObject>();
     }
 
-    /// <summary>
-    /// adds a permisson object to this permission (f.e. a MediaItem)
-    /// </summary>
-    /// <param name="item">the item to add</param>
-    /// <returns>true if added, false otherwise</returns>
+    public string Name
+    {
+      get { return _name; }
+      set { _name = value; }
+    }
+
     public bool AddPermissionObject(IPermissionObject item)
     {
       _objects.Add(item);
       return true;
     }
 
-    /// <summary>
-    /// removes a permisson object from this permission
-    /// </summary>
-    /// <param name="item">the item to remove</param>
-    /// <returns>true if removed, false otherwise</returns>
     public bool RemovePermissionObject(IPermissionObject item)
     {
       return _objects.Remove(item);
     }
 
-    /// <summary>
-    /// gets all permission objects that exist on this permission
-    /// </summary>
-    /// <returns></returns>
-    public List<IPermissionObject> GetPermissionObjects()
+    public IList<IPermissionObject> GetPermissionObjects()
     {
       return _objects;
     }
 
-    /// <summary>
-    /// checks if there is permission for this item
-    /// </summary>
-    /// <param name="item">the item to check permission for</param>
-    /// <returns>true if permission exists, false otherwise</returns>
-    public bool HasPermissionOn(IPermissionObject item)
+    public virtual bool IncludesPermissionOn(IPermissionObject item)
     {
       foreach (IPermissionObject obj in _objects)
-      {
-        if (obj.IsSameAs(item))
-        {
+        if (obj.IncludesObject(item))
           return true;
-        }
-      }
       return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return _name == null ? 0 : _name.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is Permission)
+        return string.Compare(_name, ((Permission) other)._name, false);
+      else
+        return false;
     }
   }
 }

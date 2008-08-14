@@ -147,6 +147,11 @@
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IStringBuilder.cs" />
     <Compile Include="Presentation\Screen\IScreenManager.cs" />
+    <Compile Include="UserManagement\IPermission.cs" />
+    <Compile Include="UserManagement\IPermissionObject.cs" />
+    <Compile Include="UserManagement\IRole.cs" />
+    <Compile Include="UserManagement\IUser.cs" />
+    <Compile Include="UserManagement\IUserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Media\MediaManager\MediaManager class diagram.cd" />

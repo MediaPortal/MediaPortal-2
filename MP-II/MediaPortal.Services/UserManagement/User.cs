@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -29,7 +29,7 @@ using MediaPortal.Core.UserManagement;
 namespace MediaPortal.Services.UserManagement
 {
   /// <summary>
-  /// User Class
+  /// Class which stores user data.
   /// </summary>
   public class User : IUser
   {
@@ -40,9 +40,6 @@ namespace MediaPortal.Services.UserManagement
     protected DateTime _lastLogin;
     protected List<IRole> _roles;
 
-    /// <summary>
-    /// constructor
-    /// </summary>
     public User(string name, bool needsPassword, DateTime lastLogin, string image)
     {
       UserName = name;
@@ -52,99 +49,72 @@ namespace MediaPortal.Services.UserManagement
       _roles = new List<IRole>();
     }
 
-    /// <summary>
-    /// gets or sets the username
-    /// </summary>
     public string UserName
     {
       get { return _userName; }
       set { _userName = value; }
     }
 
-    /// <summary>
-    /// gets or sets the password
-    /// </summary>
     public string Password
     {
       get { return _password; }
       set { _password = value; }
     }
 
-    /// <summary>
-    /// returns true if a password is needed to login, false otherwise
-    /// </summary>
     public bool NeedsPassword
     {
       get { return _needsPassword; }
       set { _needsPassword = value; }
     }
 
-    /// <summary>
-    /// gets or sets the last date and time of login
-    /// </summary>
     public DateTime LastLogin
     {
       get { return _lastLogin; }
       set { _lastLogin = value; }
     }
 
-    /// <summary>
-    /// gets or sets the path to the user image
-    /// </summary>
     public string UserImage
     {
       get { return _image; }
       set { _image = @"media\users\" + value; }
     }
 
-    /// <summary>
-    /// adds a role to this user
-    /// </summary>
-    /// <param name="role">the role to add</param>
-    /// <returns>true if added, false otherwise</returns>
     public bool AddRole(IRole role)
     {
       _roles.Add(role);
       return true;
     }
 
-    /// <summary>
-    /// removes a role from this user
-    /// </summary>
-    /// <param name="role">the role to remove</param>
-    /// <returns>true if removed, false otherwise</returns>
     public bool RemoveRole(IRole role)
     {
       return _roles.Remove(role);
     }
 
-    /// <summary>
-    /// gets the roles assigned to this user
-    /// </summary>
-    /// <returns>list of roles for this user</returns>
-    public List<IRole> GetRoles()
+    public IList<IRole> GetRoles()
     {
       return _roles;
     }
 
-    /// <summary>
-    /// checks if this user has permission on a IPermissionObject
-    /// </summary>
-    /// <param name="obj">the oject to check permission for</param>
-    /// <returns>true if the user has permission to access the object, false otherwise</returns>
     public bool HasPermissionOn(IPermissionObject obj)
     {
       foreach (IRole role in GetRoles())
-      {
         foreach (IPermission permission in role.GetPermissions())
-        {
           if (permission.HasPermissionOn(obj))
-          {
             return true;
-          }
-        }
-      }
       return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return _userName == null ? 0 : _userName.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is User)
+        return string.Compare(_userName, ((User) other)._userName, false);
+      else
+        return false;
     }
   }
 }
