@@ -22,17 +22,12 @@
 
 #endregion
 
-#region usings
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
 using System.Xml.Serialization;
-#endregion
 
 namespace MediaPortal.Core.TaskScheduler
 {
-  #region enums
   /// <summary>
   /// Specifies the ocurrence of a scheduled <see cref="Task"/>.
   /// </summary>
@@ -43,6 +38,7 @@ namespace MediaPortal.Core.TaskScheduler
     EveryStartUp,
     EveryWakeUp
   }
+
   /// <summary>
   /// Specifies the type of schedule for a scheduled <see cref="Task"/>.
   /// </summary>
@@ -51,9 +47,7 @@ namespace MediaPortal.Core.TaskScheduler
     TimeBased,
     IntervalBased
   }
-  #endregion
-
-  #region structs
+  
   /// <summary>
   /// The Schedule struct represents the schedule from a particular Task. Schedule's are either time-based or
   /// interval-based, depending on the setting of the variable Type which is a value from enum ScheduleType. Depending on this
@@ -84,6 +78,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.TimeBased;
       }
     }
+
     public int Hour
     {
       get { return _hour; }
@@ -95,6 +90,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.TimeBased;
       }
     }
+    
     public int Day
     {
       get { return _day; }
@@ -106,6 +102,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.TimeBased;
       }
     }
+    
     [XmlIgnore]
     public TimeSpan Interval
     {
@@ -116,6 +113,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.IntervalBased;
       }
     }
+    
     [XmlElement("Interval", DataType = "duration")]
     public string TimeSpanInterval
     {
@@ -132,6 +130,7 @@ namespace MediaPortal.Core.TaskScheduler
         }
       }
     }
+    
     public ScheduleType Type
     {
       get { return _type; }
@@ -151,13 +150,12 @@ namespace MediaPortal.Core.TaskScheduler
       }
     }
   }
-  #endregion
 
   [Serializable]
   public class Task : ICloneable
   {
+    #region Private fields
 
-    #region variables
     private int _taskID = 0;
     private Occurrence _occurrence = Occurrence.Once;
     private Schedule _schedule = new Schedule();
@@ -168,6 +166,7 @@ namespace MediaPortal.Core.TaskScheduler
     private bool _forceRun = false;
     private bool _needUpdate = true;
     private string _owner = String.Empty;
+    
     #endregion
 
     #region Ctor
@@ -177,6 +176,7 @@ namespace MediaPortal.Core.TaskScheduler
     public Task()
     {
     }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// This schedule will occur every every minute, every hour, every day.
@@ -184,6 +184,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     public Task(string owner, Occurrence occurrence)
       : this(owner, -1, occurrence) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -191,6 +192,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     public Task(string owner, int minute)
       : this(owner, minute, Occurrence.Once) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -199,6 +201,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     public Task(string owner, int minute, Occurrence occurrence)
       : this(owner, minute, -1, occurrence) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -207,6 +210,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     public Task(string owner, int minute, int hour)
       : this(owner, minute, hour, Occurrence.Once) { }
+
     /// <summary>
     /// Creates a new task for the task scheduler with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -216,6 +220,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     public Task(string owner, int minute, int hour, Occurrence occurrence)
       : this(owner, minute, hour, -1, occurrence) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -225,6 +230,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
     public Task(string owner, int minute, int hour, int day)
       : this(owner, minute, hour, day, Occurrence.Once) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -235,6 +241,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrance">specifies when the task's schedule should occur</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence)
       : this(owner, minute, hour, day, occurrence, DateTime.MaxValue) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -246,6 +253,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="expires">specifies when the task's schedule should expire</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires)
       : this(owner, minute, hour, day, occurrence, expires, true) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -258,6 +266,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun)
       : this(owner, minute, hour, day, occurrence, expires, forceRun, false) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
@@ -283,6 +292,7 @@ namespace MediaPortal.Core.TaskScheduler
         throw new ArgumentException("wakeup setting cannot be used together with Occurrence " + _occurrence);
       _wakeup = wakeup;
     }
+    
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
@@ -290,6 +300,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="interval">specifies the interval of this task's schedule</param>
     public Task(string owner, TimeSpan interval)
       : this(owner, interval, DateTime.MaxValue) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
@@ -298,6 +309,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="expires">specifies when the task's schedule should expire</param>
     public Task(string owner, TimeSpan interval, DateTime expires)
       : this(owner, interval, expires, true) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
@@ -307,6 +319,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
     public Task(string owner, TimeSpan interval, DateTime expires, bool forceRun)
       : this(owner, interval, expires, forceRun, false) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
@@ -325,6 +338,7 @@ namespace MediaPortal.Core.TaskScheduler
       _forceRun = forceRun;
       _wakeup = wakeup;
     }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
@@ -333,6 +347,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies the occurrence of this task</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence)
       : this(owner, schedule, occurrence, DateTime.MaxValue) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
@@ -342,6 +357,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="expires">specifies when the task's schedule should expire</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires)
       : this(owner, schedule, occurrence, expires, true) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
@@ -352,6 +368,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires, bool forceRun)
       : this(owner, schedule, occurrence, expires, forceRun, false) { }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
@@ -370,6 +387,7 @@ namespace MediaPortal.Core.TaskScheduler
       _forceRun = forceRun;
       _wakeup = wakeup;
     }
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> based on the given task.
     /// Used for the <see cref="ICloneable"/> implementation.
@@ -388,9 +406,11 @@ namespace MediaPortal.Core.TaskScheduler
       _forceRun = task.ForceRun;
       _wakeup = task.WakeupSystem;
     }
+
     #endregion
 
     #region Public methods
+
     /// <summary>
     /// Indicates whether or not a schedule is expired.
     /// </summary>
@@ -419,9 +439,11 @@ namespace MediaPortal.Core.TaskScheduler
       }
       return false;
     }
+
     #endregion
 
     #region Private methods
+
     /// <summary>
     /// Resets the state (LastRun) of this task. Also sets an internal flag that the "NextRun" flag needs updating.
     /// </summary>
@@ -430,6 +452,7 @@ namespace MediaPortal.Core.TaskScheduler
       _lastRun = DateTime.MinValue;
       _needUpdate = true;
     }
+
     /// <summary>
     /// Retrieves the next schedule DateTime based on the internal structure of the Task (i.e., Occurrence type,
     /// ScheduleType and configured interval or minutes/hours/days). Used internally to update the NextRun property.
@@ -471,6 +494,7 @@ namespace MediaPortal.Core.TaskScheduler
           return DateTime.MaxValue;
       }
     }
+
     /// <summary>
     /// Calculates the NextRun property for time-based task schedules. Used internally by the method
     /// GetNextScheduleDateTime().
@@ -762,9 +786,11 @@ namespace MediaPortal.Core.TaskScheduler
         }
       }
     }
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Provides access to the internal Schedule object which holds the schedule of this task. You can easily change 
     /// the schedule rom a task through this property.
@@ -774,6 +800,7 @@ namespace MediaPortal.Core.TaskScheduler
       get { return _schedule; }
       set { _schedule = value; }
     }
+
     /// <summary>
     /// Indicates whether or not a scheduled task should be fired when a schedule is already (way) past its due time.
     /// Setting this to true makes sure a schedule is always run (for example when the program was restarted)
@@ -783,6 +810,7 @@ namespace MediaPortal.Core.TaskScheduler
       get { return _forceRun; }
       set { _forceRun = value; }
     }
+
     /// <summary>
     /// Indicates whether or not the system should be woken up from standby to perform this task.
     /// Throws an ArgumentException when trying to set this on tasks which are scheduled to run during Startup/Wakeup.
@@ -798,6 +826,7 @@ namespace MediaPortal.Core.TaskScheduler
         _wakeup = value;
       }
     }
+
     /// <summary>
     /// Indicates when the schedule was due last time. This property should be set only by the task scheduler itself,
     /// not by a schedule owner / source.
@@ -811,6 +840,7 @@ namespace MediaPortal.Core.TaskScheduler
         _needUpdate = true;
       }
     }
+
     /// <summary>
     /// Indicates when the schedule is due next time.
     /// </summary>
@@ -830,6 +860,7 @@ namespace MediaPortal.Core.TaskScheduler
         _nextRun = value;
       }
     }
+
     /// <summary>
     /// Indicates when this Task will expire. DateTime.MaxValue means it will never expire. 
     /// Throws ArgumentOutOfRangeException when the value is set lower or equal to the current time.
@@ -842,6 +873,7 @@ namespace MediaPortal.Core.TaskScheduler
         _expires = value;
       }
     }
+
     /// <summary>
     /// Unique task identifier. This property should be set only by the task scheduler itself. A value of 0 indicates
     /// that the Task is not yet submitted to the task scheduler.
@@ -851,6 +883,7 @@ namespace MediaPortal.Core.TaskScheduler
       get { return _taskID; }
       set { _taskID = value; }
     }
+
     /// <summary>
     /// Provides the owner o this task.
     /// </summary>
@@ -859,6 +892,7 @@ namespace MediaPortal.Core.TaskScheduler
       get { return _owner; }
       set { _owner = value; }
     }
+
     /// <summary>
     /// Specifies the occurrence type for this task. Either one of the following:
     /// Occurrence.Once         : Only run this task once
@@ -871,16 +905,20 @@ namespace MediaPortal.Core.TaskScheduler
       get { return _occurrence; }
       set { _occurrence = value; }
     }
+
     #endregion
 
     #region ICloneable implementation
+
     public virtual object Clone()
     {
       return new Task(this);
     }
+
     #endregion
 
-    #region object overrides
+    #region Base overrides
+
     public override string ToString()
     {
       if (_schedule.Type == ScheduleType.IntervalBased)
@@ -890,7 +928,7 @@ namespace MediaPortal.Core.TaskScheduler
         return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: time-based: D:{3}-H:{4}-M:{5}, LastRun: {6}, NextRun: {7}, Expires: {8}, Wakeup: {9}, Force: {10}",
           _taskID, _owner, _occurrence, _schedule.Day, _schedule.Hour, _schedule.Minute, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
     }
-    #endregion
 
+    #endregion
   }
 }

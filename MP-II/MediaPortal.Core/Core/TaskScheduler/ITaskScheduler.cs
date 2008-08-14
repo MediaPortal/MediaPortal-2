@@ -71,6 +71,6 @@ namespace MediaPortal.Core.TaskScheduler
     /// </summary>
     /// <param name="ownerId">owner ID to get a task list for</param>
     /// <returns>list of tasks for given owner</returns>
-    List<Task> GetTasks(string ownerId);
+    IList<Task> GetTasks(string ownerId);
   }
 }

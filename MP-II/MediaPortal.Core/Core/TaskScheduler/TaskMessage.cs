@@ -22,15 +22,8 @@
 
 #endregion
 
-#region usings
-using System;
-using System.Collections.Generic;
-using System.Text;
-#endregion
-
 namespace MediaPortal.Core.TaskScheduler
 {
-  #region enums
   /// <summary>
   /// Specifies the type of <see cref="TaskMessage"/>
   /// </summary>
@@ -41,29 +34,33 @@ namespace MediaPortal.Core.TaskScheduler
     DELETED,
     EXPIRED
   }
-  #endregion
 
   /// <summary>
   /// Messages to be sent by the <see cref="TaskScheduler"/>.
   /// </summary>
   public class TaskMessage
   {
-    #region variables
+    #region Private fields
+
     private Task _task;
     private TaskMessageType _type;
+
     #endregion
 
     #region Ctor
+
     public TaskMessage(Task task, TaskMessageType type)
     {
       _task = task;
       _type = type;
     }
+
     #endregion
 
     #region Properties
+
     /// <summary>
-    /// The <see cref="Task"/> which triggered this message
+    /// The <see cref="Task"/> which triggered this message.
     /// </summary>
     public Task Task
     {
@@ -72,13 +69,14 @@ namespace MediaPortal.Core.TaskScheduler
     }
 
     /// <summary>
-    /// Type of message
+    /// Type of message.
     /// </summary>
     public TaskMessageType Type
     {
       get { return _type; }
       set { _type = value; }
     }
+
     #endregion
   }
 }

@@ -22,18 +22,14 @@
 
 #endregion
 
-#region usings
 using System;
 using System.Collections.Generic;
-using System.Text;
-
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Threading;
 using MediaPortal.Core.TaskScheduler;
-#endregion
 
 namespace MediaPortal.Services.TaskScheduler
 {
@@ -42,26 +38,32 @@ namespace MediaPortal.Services.TaskScheduler
   /// </summary>
   public class TaskScheduler : ITaskScheduler
   {
-    #region variables
+    #region Private fields
+
     /// <summary>
     /// The "taskscheduler" message queue.
     /// </summary>
     private IMessageQueue _queue;
+    
     /// <summary>
     /// The persistent settings used by the task scheduler
     /// </summary>
     private TaskSchedulerSettings _settings;
+    
     /// <summary>
     /// interval-based work object to periodically check for due tasks.
     /// </summary>
     private IntervalWork _work;
+    
     /// <summary>
     /// mutex object to serialize access to the registered tasks and next TaskID
     /// </summary>
     private object _taskMutex = new object();
+
     #endregion
 
-    #region Constructor
+    #region Ctor
+
     public TaskScheduler()
     {
       _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("taskscheduler");
@@ -73,9 +75,11 @@ namespace MediaPortal.Services.TaskScheduler
       _work = new IntervalWork(new DoWorkHandler(this.DoWork), new TimeSpan(0, 0, 20));
       ServiceScope.Get<IThreadPool>().AddIntervalWork(_work, false);
     }
+
     #endregion
 
     #region Public methods
+
     public void Stop()
     {
       _work.Cancel();
@@ -83,9 +87,11 @@ namespace MediaPortal.Services.TaskScheduler
       ServiceScope.Remove<ITaskScheduler>();
       ServiceScope.Get<ISettingsManager>().Save(_settings);
     }
+
     #endregion
 
     #region Private methods
+
     /// <summary>
     /// Triggers the registered tasks which are registered to fire at startup.
     /// Called from the Constructor.
@@ -224,9 +230,11 @@ namespace MediaPortal.Services.TaskScheduler
         _settings.TaskCollection.Sort();
       ServiceScope.Get<ISettingsManager>().Save(_settings);
     }
+
     #endregion
 
     #region ITaskScheduler implementation
+
     public int AddTask(Task newTask)
     {
       lock (_taskMutex)
@@ -248,6 +256,7 @@ namespace MediaPortal.Services.TaskScheduler
         SendMessage(new TaskMessage(updatedTask, TaskMessageType.CHANGED));
       }
     }
+
     public void RemoveTask(int taskId)
     {
       lock (_taskMutex)
@@ -268,6 +277,7 @@ namespace MediaPortal.Services.TaskScheduler
         }
       }
     }
+
     public Task GetTask(int taskId)
     {
       List<Task> allTasks;
@@ -284,7 +294,8 @@ namespace MediaPortal.Services.TaskScheduler
       }
       return null;
     }
-    public List<Task> GetTasks(string ownerId)
+
+    public IList<Task> GetTasks(string ownerId)
     {
       List<Task> allTasks;
       List<Task> tasks = new List<Task>();
@@ -301,6 +312,7 @@ namespace MediaPortal.Services.TaskScheduler
       }
       return tasks;
     }
+
     #endregion
   }
 }
