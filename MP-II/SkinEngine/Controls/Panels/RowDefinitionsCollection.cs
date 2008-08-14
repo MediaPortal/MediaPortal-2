@@ -113,32 +113,37 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       double totalStar = 0;
       foreach (RowDefinition row in this)
       {
-        if (row.Height.IsAbsolute)
+        if (row.Height.IsAbsolute)  // Fixed size controls get size from Height property
         {
           row.Height.Length = (row.Height.Value * SkinContext.Zoom.Height);
+          fixedHeight += row.Height.Length;
+        }
+        else if (row.Height.IsAuto) // Auto sized control should follow the child
+        {
           fixedHeight += row.Height.Length;
         }
         else
         {
           row.Height.Length = 0;
-          if (row.Height.IsAuto)
-            totalStar += 1.0;
-          else
-            totalStar += row.Height.Value;
+          totalStar += row.Height.Value;
           relativeCount++;
         }
+
+        // Too much allocated
+        if (fixedHeight > height)
+        {
+          row.Height.Length -= fixedHeight - height;
+          fixedHeight = height;
+        }
       }
-      if (height == 0.0) return;
+      if (height == 0.0) 
+        return;
       height -= fixedHeight;
       foreach (RowDefinition row in this)
       {
         if (row.Height.IsStar)
         {
           row.Height.Length = height * (row.Height.Value / totalStar);
-        }
-        else if (row.Height.IsAuto)
-        {
-          row.Height.Length = height * (1.0 / totalStar);
         }
       }
     }

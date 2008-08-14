@@ -31,14 +31,14 @@
         <Grid x:Name="Grid1" HorizontalAlignment="Left">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <StackPanel x:Name="S1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <StackPanel x:Name="S1" Margin="0,0,10,0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIcon}"/>
             <Label x:Name="LocName" FontSize="20"  Text="{Binding Path=CurrentLocation.Name}"/>
           </StackPanel>
-          <StackPanel x:Name="S2" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <StackPanel x:Name="S2" Margin="0,0,30,0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label x:Name="Txt1" FontSize="20" Text="[weather.6]" />
             <Label x:Name="Txt2" FontSize="20" Text="[weather.7]" />
             <Label x:Name="Txt3" FontSize="20" Text="[weather.8]" />
@@ -48,7 +48,7 @@
             <Label x:Name="Txt7" FontSize="20" Text="[weather.12]" />
             <Label x:Name="Txt8" FontSize="20" Text="[weather.13]" />
           </StackPanel>
-          <StackPanel x:Name="S3" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <StackPanel x:Name="S3" Margin="0,0,10,0" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" Text="{Binding CurrentLocation.Condition.Temperature}"/>
             <Label FontSize="20" Text="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
             <Label FontSize="20" Text="{Binding CurrentLocation.Condition.UVIndex}"/>

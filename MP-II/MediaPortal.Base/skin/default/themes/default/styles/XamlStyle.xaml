@@ -258,6 +258,9 @@
       <Setter.Value>
         <ControlTemplate>
           <Grid Margin="0,2,0,2">
+		    <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <Control Style="{ThemeResource ButtonControlStyle}"/>
             <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
@@ -1096,12 +1099,12 @@
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="Grd1" Height="100">
+    <Grid x:Name="Grd1" >
       <Grid.ColumnDefinitions>
         <ColumnDefinition/>
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Width="100" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
