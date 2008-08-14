@@ -99,7 +99,7 @@ namespace MediaPortal.Services.UserManagement
     {
       foreach (IRole role in GetRoles())
         foreach (IPermission permission in role.GetPermissions())
-          if (permission.HasPermissionOn(obj))
+          if (permission.IncludesPermissionOn(obj))
             return true;
       return false;
     }
@@ -112,7 +112,7 @@ namespace MediaPortal.Services.UserManagement
     public override bool Equals(object other)
     {
       if (other is User)
-        return string.Compare(_userName, ((User) other)._userName, false);
+        return string.Compare(_userName, ((User) other)._userName, false) == 0;
       else
         return false;
     }

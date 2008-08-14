@@ -68,7 +68,7 @@ namespace MediaPortal.Services.UserManagement
 
     public override bool IncludesPermissionOn(IPermissionObject item)
     {
-      if (base.HasPermissionOn(item))
+      if (base.IncludesPermissionOn(item))
         return true;
       foreach (IPermission permission in _permissions)
         if (permission.IncludesPermissionOn(item))

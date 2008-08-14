@@ -82,7 +82,7 @@ namespace Models.Login
     /// </summary>
     private void RefreshUserList()
     {
-      List<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
+      IList<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
       // clear the exposed users list
       Users.Clear();
       // add users to expose them
@@ -117,7 +117,7 @@ namespace Models.Login
     /// <param name="item"></param>
     public void SelectUser(ListItem item)
     {
-      List<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
+      IList<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
 
       foreach (IUser user in users)
       {

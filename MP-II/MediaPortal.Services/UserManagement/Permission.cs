@@ -79,7 +79,7 @@ namespace MediaPortal.Services.UserManagement
     public override bool Equals(object other)
     {
       if (other is Permission)
-        return string.Compare(_name, ((Permission) other)._name, false);
+        return string.Compare(_name, ((Permission) other)._name, false) == 0;
       else
         return false;
     }

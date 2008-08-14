@@ -46,6 +46,7 @@ namespace MediaPortal.Services.UserManagement
     {
       get { return _currentUser; }
       set { _currentUser = value; }
+    }
 
     public bool AddUser(IUser user)
     {
