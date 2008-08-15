@@ -164,15 +164,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("VirtualizingStackPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("VirtualizingStackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("VirtualizingStackPanel.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
       
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder); 
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -185,7 +185,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       float totalWidth = 0;
       float totalHeight = 0;
-      SizeF ChildSize = new SizeF(0, 0);
+      SizeF ChildSize = new SizeF();
 
       _controlCount = 0;
       int index = 0;
@@ -227,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
 
               ChildSize.Width = (float)ActualWidth;
-              child.Arrange(new RectangleF(location, ChildSize));
+              child.Arrange(new RectangleF(location, ChildSize), zOrder + Z_ORDER_DELTA);
               totalHeight += ChildSize.Height;
               index++;
               _controlCount++;
@@ -269,7 +269,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 location.Y += (float)(ActualHeight - ChildSize.Height);
               }
 
-              child.Arrange(new RectangleF(location, ChildSize));
+              child.Arrange(new RectangleF(location, ChildSize), zOrder + Z_ORDER_DELTA);
               totalWidth += ChildSize.Width;
               index++;
               _controlCount++;
@@ -303,7 +303,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(finalRect);
+      base.Arrange(finalRect, 0.0f);
       FreeUnused();
     }
 

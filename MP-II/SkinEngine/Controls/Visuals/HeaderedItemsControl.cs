@@ -198,14 +198,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //        _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(System.Drawing.RectangleF finalRect, float zOrder)
     {
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -219,7 +219,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Header != null)
       {
         ArrangeChild(Header, ref p, finalRect.Width, finalRect.Height);
-        Header.Arrange(new RectangleF(p, Header.DesiredSize));
+        Header.Arrange(new RectangleF(p, Header.DesiredSize), zOrder + Z_ORDER_DELTA);
         if (!_wasExpanded)
         {
 
@@ -232,7 +232,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           {
             if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
               _performLayout = true;
-            _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+            _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
           }
           return;
         }
@@ -242,7 +242,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_wasExpanded)
       {
         //        Trace.WriteLine(String.Format("TreeView Item:Arrange {0} childs at({1},{2})", name, (int)p.X, (int)p.Y));
-        base.Arrange(new RectangleF(p, _baseDesiredSize));
+        base.Arrange(new RectangleF(p, _baseDesiredSize), 0.0f);
       }
     }
 

@@ -194,15 +194,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("WrapPanel.arrange :{0} X {1}, Y {2} W{3} x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("WrapPanel.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -245,7 +245,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
 
 
-              child.Arrange(new RectangleF(location, size));
+              child.Arrange(new RectangleF(location, size), zOrder + Z_ORDER_DELTA);
               offsetX += child.DesiredSize.Width;
               if (child.DesiredSize.Height > totalHeight)
                 totalHeight = child.DesiredSize.Height;
@@ -281,7 +281,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               {
                 location.X += (float)(_sizeCol[offset] - child.Width);
               }
-              child.Arrange(new RectangleF(location, size));
+              child.Arrange(new RectangleF(location, size), zOrder + Z_ORDER_DELTA);
               offsetY += child.DesiredSize.Height;
               if (child.DesiredSize.Width > totalWidth)
                 totalWidth = child.DesiredSize.Width;
@@ -302,7 +302,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           _performLayout = true;
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(finalRect);
+      base.Arrange(finalRect, 0.0f);
     }
   }
 }

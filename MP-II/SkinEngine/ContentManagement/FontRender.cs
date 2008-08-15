@@ -68,7 +68,7 @@ namespace MediaPortal.SkinEngine.Fonts
       _previousColor = new ColorValue();
       _previousGradientUsed = false;
       _context = new PrimitiveContext();
-      _context.Effect = ContentManager.GetEffect("normal");
+      _context.Effect = ContentManager.GetEffect("font");
       _context.Parameters = new EffectParameters();
       _context.Texture = _font;
     }
@@ -133,10 +133,10 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="text">The text.</param>
     /// <param name="textBox">The text box.</param>
     /// <param name="alignment">The alignment.</param>
-    /// <param name="size">The size.</param>
+    /// <param name="fontSize">The size.</param>
     /// <param name="color">The color.</param>
     /// <param name="scroll">if set to <c>true</c> then scrolling is allowed.</param>
-    public void Draw(string text, RectangleF textBox, Font.Align alignment, float size, ColorValue color, bool scroll, out float totalWidth)
+    public void Draw(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize, ColorValue color, bool scroll, out float totalWidth)
     {
       totalWidth = 0;
       if (_font == null || String.IsNullOrEmpty(text))
@@ -148,12 +148,12 @@ namespace MediaPortal.SkinEngine.Fonts
       {
         if (false == _textFits)
         {
-          if (IsChanged(text, textBox, alignment, size, color))
+          if (IsChanged(text, textBox, alignment, fontSize, color))
           {
             _previousText = text;
             _previousTextBox = textBox;
             _previousAlignment = alignment;
-            _previousSize = size;
+            _previousSize = fontSize;
             _previousColor = color;
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
@@ -176,9 +176,8 @@ namespace MediaPortal.SkinEngine.Fonts
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
 
           textBox.X -= (float)_xPosition;
-          textBox.Width += 20.0f;
 
-          _font.AddString(textDraw, textBox, alignment, size, color, true, true, out _textFits, out totalWidth);
+          _font.AddString(textDraw, textBox, alignment, fontSize, color, true, true, out _textFits, out totalWidth);
 
           PositionColored2Textured[] verts = _font.Vertices;
           _context.OnVerticesChanged(_font.PrimitiveCount, ref verts);
@@ -213,17 +212,17 @@ namespace MediaPortal.SkinEngine.Fonts
         _characterIndex = 0;
         _xPosition = 0;
       }
-      if (IsChanged(text, textBox, alignment, size, color))
+      if (IsChanged(text, textBox, alignment, fontSize, color))
       {
         _previousText = text;
         _previousTextBox = textBox;
         _previousAlignment = alignment;
-        _previousSize = size;
+        _previousSize = fontSize;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
         _previousMatrix = SkinContext.FinalMatrix.Matrix;
 
-        _font.AddString(text, textBox, alignment, size, color, true, false, out _textFits, out totalWidth);
+        _font.AddString(text, textBox, alignment, fontSize, color, true, false, out _textFits, out totalWidth);
         //_font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
         PositionColored2Textured[] verts = _font.Vertices;
         _context.OnVerticesChanged(_font.PrimitiveCount, ref verts);

@@ -669,21 +669,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       return vertexBuffer;
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("shape.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.Arrange(finalRect);
+      base.Arrange(finalRect, 0.0f);
       if (Screen != null) Screen.Invalidate(this);
     }
 

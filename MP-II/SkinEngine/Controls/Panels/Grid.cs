@@ -160,11 +160,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("Grid.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("Grid.arrange :{0} X {1}, Y {2} W{3}x H{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Grid.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
-      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -197,7 +197,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         ArrangeChild(child, ref position, ref availableSize);
 
-        child.Arrange(new RectangleF(position, availableSize));
+        child.Arrange(new RectangleF(position, availableSize), zOrder + Z_ORDER_DELTA);
       }
       if (LayoutTransform != null)
       {
@@ -212,7 +212,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(finalRect);
+      base.Arrange(finalRect, 0.0f);
     }
 
     #endregion

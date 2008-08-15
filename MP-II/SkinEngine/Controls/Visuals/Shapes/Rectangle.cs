@@ -23,13 +23,13 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
-using RectangleF = System.Drawing.RectangleF;
-using SizeF = System.Drawing.SizeF;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -111,18 +111,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(System.Drawing.RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("Rectangle.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      //Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      ComputeInnerRectangle(ref finalRect);
 
-      layoutRect.X += (float)(Margin.Left * SkinContext.Zoom.Width);
-      layoutRect.Y += (float)(Margin.Top * SkinContext.Zoom.Height);
-      layoutRect.Width -= (float)((Margin.Left + Margin.Right) * SkinContext.Zoom.Width);
-      layoutRect.Height -= (float)((Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-      ActualPosition = new Vector3(layoutRect.Location.X, layoutRect.Location.Y, 1.0f); ;
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       IsArrangeValid = true;

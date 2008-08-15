@@ -166,6 +166,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
   public class UIElement : Visual, IContentEnabled
   {
+    public const float Z_ORDER_DELTA = 0.0001f; 
+
     #region Private/protected fields
 
     Property _nameProperty;
@@ -588,7 +590,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element.</param>
-    public virtual void Arrange(RectangleF finalRect)
+    /// <param name="zOrder">The drawing order of the child element.</param>
+    public virtual void Arrange(RectangleF finalRect, float zOrder)
     {
       IsArrangeValid = true;
       Initialize();
@@ -634,7 +637,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Arrange(_finalRect);
+          Arrange(_finalRect, 1.0f);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
           return;
@@ -652,7 +655,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           SizeF size = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
           Measure(ref childSize);
-          Arrange(new RectangleF(0, 0, size.Width, size.Height));
+          Arrange(new RectangleF(0, 0, size.Width, size.Height), 1.0f);
         }
         else
         {
@@ -672,7 +675,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           if (m != null)
             SkinContext.AddLayoutTransform(m);
           Arrange(new RectangleF((float)Canvas.GetLeft(element) * SkinContext.Zoom.Width,
-            (float)Canvas.GetTop(element) * SkinContext.Zoom.Height, w, h));
+            (float)Canvas.GetTop(element) * SkinContext.Zoom.Height, w, h), 1.0f);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

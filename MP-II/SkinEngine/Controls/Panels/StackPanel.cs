@@ -175,12 +175,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("StackPanel.arrange :{0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("StackPanel.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -220,8 +220,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               {
                 location.X = ((float)ActualWidth - Size.Width);
               }
-              
-              child.Arrange(new RectangleF(location, Size));
+
+              child.Arrange(new RectangleF(location, Size), zOrder + Z_ORDER_DELTA);
               totalHeight += Size.Height;
             }
           }
@@ -254,7 +254,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 location.Y += ((float)ActualHeight - Size.Height);
               }
 
-              child.Arrange(new RectangleF(location, Size));
+              child.Arrange(new RectangleF(location, Size), zOrder + Z_ORDER_DELTA);
               totalWidth += Size.Width;
             }
           }
@@ -273,7 +273,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
-      base.Arrange(finalRect);
+      base.Arrange(finalRect, 0.0f);
     }
     #endregion
 

@@ -228,15 +228,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //Trace.WriteLine(String.Format("Label.measure :{0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect, float zOrder)
     {
-      //Trace.WriteLine(String.Format("Label.arrange :{0} X {1}, Y {2} W{3} x H{4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
- 
+      //Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-       
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -281,24 +281,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+      RectangleF rect = new RectangleF(x, y, w, h);
       SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
         align = SkinEngine.Fonts.Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
 
-      if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
-      {
-        rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
-      }
-      if (VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
-      }
-
-      rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
-      rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
@@ -307,7 +296,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float)SkinContext.Opacity;
       color.Alpha *= (float)this.Opacity;
       if (_label != null)
-        _renderer.Draw(_label.ToString(), rect, align, FontSize, color, Scroll, out totalWidth);
+        _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();
 
     }
@@ -369,9 +358,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         ColorValue color = ColorConverter.FromColor(this.Color);
 
         base.DoRender();
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         float totalWidth;
-        float size = _asset.Font.Size;
         float x = (float)ActualPosition.X;
         float y = (float)ActualPosition.Y;
         float w = (float)ActualWidth;
@@ -383,24 +370,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _finalLayoutTransform.InvertXY(ref x, ref y);
           _finalLayoutTransform.InvertXY(ref w, ref h);
         }
-        System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+        Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
         SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
         if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
           align = SkinEngine.Fonts.Font.Align.Right;
         else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
           align = SkinEngine.Fonts.Font.Align.Center;
 
-        if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
-        {
-          rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
-        }
-        if (VerticalAlignment == VerticalAlignmentEnum.Center)
-        {
-          rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
-        }
-
-        rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
-        rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
         ExtendedMatrix m = new ExtendedMatrix();
         m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
         m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
@@ -409,7 +385,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         color.Alpha *= (float)SkinContext.Opacity;
         color.Alpha *= (float)this.Opacity;
         if (_label != null)
-          _renderer.Draw(_label.ToString(), rect, align, FontSize, color, Scroll, out totalWidth);
+          _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize, color, Scroll, out totalWidth);
         SkinContext.RemoveTransform();
       }
     }

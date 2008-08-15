@@ -208,7 +208,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Measure&arrange
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(System.Drawing.RectangleF finalRect, float zOrder)
     {
       System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
@@ -216,7 +216,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, 1.0f); ;
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -237,7 +237,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
         ArrangeContent(_content, ref location, layoutRect.Size);
-        _content.Arrange(new RectangleF(location, _content.DesiredSize));
+        _content.Arrange(new RectangleF(location, _content.DesiredSize), zOrder + Z_ORDER_DELTA);
       }
     }
 
