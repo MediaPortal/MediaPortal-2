@@ -155,7 +155,7 @@ namespace MediaPortal.SkinEngine.Rendering
       }
       if (verticeCount > 0)
       {
-        _vertices = new VertexBuffer(GraphicsDevice.Device, PositionColoredTextured.StrideSize * verticeCount, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+        _vertices = new VertexBuffer(GraphicsDevice.Device, PositionColoredTextured.StrideSize * verticeCount, Usage.Dynamic, PositionColored2Textured.Format, Pool.Default);
         using (DataStream stream = _vertices.Lock(0, 0, LockFlags.Discard))
         {
           foreach (PrimitiveContext primitive in _primitives)

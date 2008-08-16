@@ -217,7 +217,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void DoBuildRenderTree()
     {
-      if (!IsVisible) return;
+      if (!IsVisible) 
+        return;
       PerformLayout();
       _performLayout = false;
       _lastEvent = UIEvent.None;
@@ -669,28 +670,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       return vertexBuffer;
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
+      //Trace.WriteLine(String.Format("Label.Arrange Zorder {0}", ActualPosition.Z));
       _performLayout = true;
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      base.Arrange(finalRect, 0.0f);
+      base.Arrange(finalRect);
       if (Screen != null) Screen.Invalidate(this);
     }
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF(0, 0);
-
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
       if (LayoutTransform != null)

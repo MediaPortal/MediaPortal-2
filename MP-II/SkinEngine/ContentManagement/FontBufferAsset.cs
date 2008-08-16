@@ -193,7 +193,7 @@ namespace MediaPortal.SkinEngine.Fonts
 
           textBox.X -= (float)_xPosition;
 
-          _font.AddString(textDraw, textBox, alignment, size, color, true, true, out _textFits, out totalWidth);
+          _font.AddString(textDraw, textBox, 0.0f, alignment, size, color, true, true, out _textFits, out totalWidth);
           _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
           _font.ClearStrings();
 
@@ -236,7 +236,7 @@ namespace MediaPortal.SkinEngine.Fonts
         //_previousGradientUsed = SkinContext.GradientInUse;
         _previousMatrix = SkinContext.FinalMatrix.Matrix;
 
-        _font.AddString(text, textBox, alignment, size, color, true, false, out _textFits, out totalWidth);
+        _font.AddString(text, textBox, 0.0f, alignment, size, color, true, false, out _textFits, out totalWidth);
         _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
         _font.ClearStrings();
         _previousTotalWidth = totalWidth;

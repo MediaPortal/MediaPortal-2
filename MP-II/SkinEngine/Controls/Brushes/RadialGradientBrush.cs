@@ -197,7 +197,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
         _height = element.ActualHeight;
         _width = element.ActualWidth;
-        _position = new Vector3((float)element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z); ;
+        _position = new Vector3(element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z);
 
         if (_brushTexture == null)
         {

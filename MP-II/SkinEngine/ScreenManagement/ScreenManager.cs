@@ -444,6 +444,8 @@ namespace MediaPortal.SkinEngine
 
         CloseDialog();
         InternalCloseScreen();
+        // New screen - New z-order.
+        SkinContext.ResetZorder();
         return InternalShowScreen(newScreen);
       }
     }

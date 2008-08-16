@@ -183,10 +183,10 @@ namespace MediaPortal.SkinEngine
       float v1 = voff;
       float v2 = vmax;
 
-      Vector3 upperLeft = new Vector3(left, top, z + SkinContext.Z);
-      Vector3 bottomLeft = new Vector3(left, bottom, z + SkinContext.Z);
-      Vector3 bottomRight = new Vector3(right, bottom, z + SkinContext.Z);
-      Vector3 upperRight = new Vector3(right, top, z + SkinContext.Z);
+      Vector3 upperLeft = new Vector3(left, top, z);
+      Vector3 bottomLeft = new Vector3(left, bottom, z);
+      Vector3 bottomRight = new Vector3(right, bottom, z);
+      Vector3 upperRight = new Vector3(right, top, z);
 
 
       unchecked

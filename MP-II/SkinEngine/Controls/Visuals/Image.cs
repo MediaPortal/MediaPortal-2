@@ -67,7 +67,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     TextureRender _renderFallback;
 
     float _u, _v, _uoff, _voff, _w, _h;
-    Vector3 _pos;
+    Vector2 _pos;
     bool _performImageLayout;
 
     #endregion
@@ -206,14 +206,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Image.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Image.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -362,7 +362,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       float posy = _pos.Y + (float)ActualPosition.Y;
       if (_renderImage != null)
       {
-        _renderImage.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        _renderImage.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
         if (_renderImage.Texture.IsAllocated)
         {
           SkinContext.RemoveOpacity();
@@ -371,7 +371,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       if (_renderFallback != null)
       {
-        _renderFallback.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        _renderFallback.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
       }
       SkinContext.RemoveOpacity();
     }
@@ -459,7 +459,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float opacity = (float)SkinContext.Opacity;
         if (_image != null)
         {
-          _image.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          _image.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
           if (_image.Texture.IsAllocated)
           {
             SkinContext.RemoveTransform();
@@ -469,7 +469,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
         if (_fallbackImage != null)
         {
-          _fallbackImage.Draw(_pos.X, _pos.Y, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
         }
         SkinContext.RemoveTransform();
         SkinContext.RemoveOpacity();
@@ -483,7 +483,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float posy = _pos.Y + (float)ActualPosition.Y;
         if (_renderImage != null)
         {
-          _renderImage.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          _renderImage.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
           if (_renderImage.Texture.IsAllocated)
           {
             SkinContext.RemoveOpacity();
@@ -492,7 +492,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
         if (_renderFallback != null)
         {
-          _renderFallback.Draw(posx, posy, _pos.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+          _renderFallback.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
         }
         SkinContext.RemoveOpacity();
       }
@@ -519,7 +519,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           }
         }
 
-        Vector3 pos = new Vector3(0, 0, 1f);
+        Vector2 pos = new Vector2(0, 0);
         float height = (float)ActualHeight;
         float width = (float)ActualWidth;
         float pixelRatio = 1.0f;

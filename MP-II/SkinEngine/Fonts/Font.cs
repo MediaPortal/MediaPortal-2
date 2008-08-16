@@ -418,7 +418,7 @@ namespace MediaPortal.SkinEngine.Fonts
         PositionColored2Textured topLeft = new PositionColored2Textured(
           x + xOffset, 
           y + yOffset, 
-          z + SkinContext.Z,
+          z,
           c.X / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
           Color.ToArgb());
@@ -435,7 +435,7 @@ namespace MediaPortal.SkinEngine.Fonts
         PositionColored2Textured topRight = new PositionColored2Textured(
           topLeft.X + width,
           y + yOffset, 
-          z + SkinContext.Z,
+          z ,
           (c.X + c.Width) / (float)_charSet.Width,
           c.Y / (float)_charSet.Height,
           Color.ToArgb());
@@ -452,7 +452,7 @@ namespace MediaPortal.SkinEngine.Fonts
         PositionColored2Textured bottomRight = new PositionColored2Textured(
           topLeft.X + width, 
           topLeft.Y + height, 
-          z + SkinContext.Z,
+          z,
           (c.X + c.Width) / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
           Color.ToArgb());
@@ -469,7 +469,7 @@ namespace MediaPortal.SkinEngine.Fonts
         PositionColored2Textured bottomLeft = new PositionColored2Textured(
           x + xOffset, 
           topLeft.Y + height, 
-          z + SkinContext.Z,
+          z,
           c.X / (float)_charSet.Width,
           (c.Y + c.Height) / (float)_charSet.Height,
           Color.ToArgb());
@@ -487,10 +487,10 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <returns>The index of the added StringBlock</returns>
     /// <param name="scroll"></param>
     /// <param name="textFits"></param>
-    public int AddString(string text, RectangleF textBox, Align alignment, float size,
+    public int AddString(string text, RectangleF textBox, float zOrder, Align alignment, float size,
                          ColorValue color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
     {
-      StringBlock b = new StringBlock(text, textBox, alignment, size, color, kerning);
+      StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
       _strings.Add(b);
       _quads.AddRange(GetProcessedQuads(ref b, scroll, out textFits));
       if (_quads.Count > 0)
@@ -660,7 +660,7 @@ namespace MediaPortal.SkinEngine.Fonts
       int wordNumber = 1;
       double wordWidth = 0.0;
       bool firstCharOfLine = true;
-      float z = 0f;
+      float z = b.ZOrder;
       bool fadeOut = false;
       if (text == null)
       {
@@ -1123,6 +1123,7 @@ namespace MediaPortal.SkinEngine.Fonts
     public RectangleF TextBox;
     public Font.Align Alignment;
     public float Size;
+    public float ZOrder;
     public ColorValue Color;
     public bool Kerning;
 
@@ -1133,7 +1134,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="size">Font size</param>
     /// <param name="color">Color</param>
     /// <param name="kerning">true to use kerning, false otherwise.</param>
-    public StringBlock(string text, RectangleF textBox, Font.Align alignment,
+    public StringBlock(string text, RectangleF textBox, float zOrder, Font.Align alignment,
                        float size, ColorValue color, bool kerning)
     {
       Text = text;
@@ -1142,6 +1143,7 @@ namespace MediaPortal.SkinEngine.Fonts
       Size = size;
       Color = color;
       Kerning = kerning;
+      ZOrder = zOrder;
     }
   } ;
 }

@@ -260,9 +260,18 @@ namespace MediaPortal.SkinEngine
     {
       Device.SetRenderState(RenderState.CullMode, Cull.None);
       Device.SetRenderState(RenderState.Lighting, false);
-      Device.SetRenderState(RenderState.ZEnable, false);
-      Device.SetRenderState(RenderState.ZWriteEnable, false);
 
+      // Z order must be enabled for batching to work
+      if (SkinContext.UseBatching == true)
+      {
+        Device.SetRenderState(RenderState.ZEnable, true);
+        Device.SetRenderState(RenderState.ZWriteEnable, true);
+      }
+      else
+      {
+        Device.SetRenderState(RenderState.ZEnable, false);
+        Device.SetRenderState(RenderState.ZWriteEnable, false);
+      }
       Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       Device.SetRenderState(RenderState.AlphaBlendEnable, true);
       Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
@@ -422,11 +431,17 @@ namespace MediaPortal.SkinEngine
         try
         {
           _device.SetRenderTarget(0, _backBuffer);
+
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
-          //Dont remove this, MP-II uses the Z-buffer for some styles
-          //rendering goes wrong when zbuffer is not cleared
-          //_device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-          _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
+
+          if (SkinContext.UseBatching == true)
+          {
+            _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+          }
+          else
+          {
+            _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
+          }
 
           SetRenderState();
 

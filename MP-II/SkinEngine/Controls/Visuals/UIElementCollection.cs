@@ -82,6 +82,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public void FixZIndex()
     {
+      if (MediaPortal.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
+        return;
       if (_zIndexFixed) return;
       _zIndexFixed = true;
       double zindex1 = 0;

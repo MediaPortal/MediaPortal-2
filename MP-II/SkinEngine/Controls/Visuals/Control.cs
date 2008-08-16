@@ -437,15 +437,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //Trace.WriteLine(String.Format("Control.Measure returns '{0}' {1}x{2}", this.Name, totalSize.Width, totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
       FrameworkElement templateControl = TemplateControl;
-      //Trace.WriteLine(String.Format("Control.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Control.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, zOrder); ;
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, SkinContext.GetZorder()); ;
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       if (LayoutTransform != null)
@@ -456,7 +456,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       if (templateControl != null)
       {
-        templateControl.Arrange(layoutRect, zOrder + Z_ORDER_DELTA);
+        templateControl.Arrange(layoutRect);
         ActualPosition = templateControl.ActualPosition;
         ActualWidth = templateControl.ActualWidth;
         ActualHeight = templateControl.ActualHeight;

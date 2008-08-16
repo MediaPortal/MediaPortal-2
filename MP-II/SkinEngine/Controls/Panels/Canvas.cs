@@ -93,14 +93,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// and positions it in the finalrect
     /// </summary>
     /// <param name="finalRect">The final size that the parent computes for the child element</param>
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("canvas.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("canvas.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -130,7 +130,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         child.TotalDesiredSize(ref childSize);
 
         // Arrange the child
-        child.Arrange(new RectangleF(point, childSize), zOrder + Z_ORDER_DELTA);
+        child.Arrange(new RectangleF(point, childSize));
       }
       if (LayoutTransform != null)
       {
@@ -145,7 +145,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(finalRect, 0.0f);
+      base.Arrange(finalRect);
     }
 
     #region Attached properties

@@ -47,7 +47,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     FontBufferAsset _asset;
     FontRender _renderer;
     StringId _label;
-    bool _update = false;
 
     #endregion
 
@@ -99,22 +98,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnColorChanged(Property prop)
     {
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     void OnTextChanged(Property prop)
     {
       _label = new StringId(Text);
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
-      // Invalidate();
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     void OnScrollChanged(Property prop)
     {
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     protected override void OnFontChanged(Property prop)
@@ -124,10 +122,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _asset.Free(true);
         ContentManager.Remove(_asset);
       }
-
       _asset = null;
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     public Property TextProperty
@@ -228,18 +225,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //Trace.WriteLine(String.Format("Label.measure :{0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2} W {3}xH {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
+      //Trace.WriteLine(String.Format("Label.Arrange Zorder {0}", ActualPosition.Z));
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -253,7 +250,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsArrangeValid = true;
       IsInvalidLayout = false;
-      _update = true;
 
       if (Screen != null)
         Screen.Invalidate(this);
@@ -261,13 +257,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoBuildRenderTree()
     {
-      if (!IsVisible) return;
-      if (_asset == null) return;
-      //AllocFont();
-      ColorValue color = ColorConverter.FromColor(this.Color);
+      if (!IsVisible) 
+        return;
+      if (_asset == null) 
+        return;
 
       base.DoRender();
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+
       float totalWidth;
 
       float x = (float)ActualPosition.X;
@@ -293,8 +289,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
       SkinContext.AddTransform(m);
+
+      ColorValue color = ColorConverter.FromColor(this.Color);
       color.Alpha *= (float)SkinContext.Opacity;
       color.Alpha *= (float)this.Opacity;
+      
       if (_label != null)
         _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();
@@ -310,84 +309,45 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-      if (SkinContext.UseBatching == false)
+      if (_asset == null)
+        return;
+      ColorValue color = ColorConverter.FromColor(this.Color);
+
+      base.DoRender();
+      float totalWidth;
+
+      float x = _finalRect.X;
+      float y = _finalRect.Y;
+      float w = _finalRect.Width;
+      float h = _finalRect.Height;
+
+      if (_finalLayoutTransform != null)
       {
-        if (_asset == null) 
-          return;
-        ColorValue color = ColorConverter.FromColor(this.Color);
+        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
 
-        base.DoRender();
-        float totalWidth;
-   
-        float x = _finalRect.X;
-        float y = _finalRect.Y;
-        float w = _finalRect.Width;
-        float h = _finalRect.Height;
-
-        if (_finalLayoutTransform != null)
-        {
-          GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-          _finalLayoutTransform.InvertXY(ref x, ref y);
-          _finalLayoutTransform.InvertXY(ref w, ref h);
-        }
-        System.Drawing.RectangleF rect = new System.Drawing.RectangleF(x, y, w, h);
-        SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
-        if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-          align = SkinEngine.Fonts.Font.Align.Right;
-        else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-          align = SkinEngine.Fonts.Font.Align.Center;
-
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
-        m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-        m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-        SkinContext.AddTransform(m);
-        color.Alpha *= (float)SkinContext.Opacity;
-        color.Alpha *= (float)this.Opacity;
-
-        if (_label != null)
-        {
-          _asset.Draw(_label.ToString(), rect, align, FontSize, color, Scroll, out totalWidth);
-        }
-        SkinContext.RemoveTransform();
+        _finalLayoutTransform.InvertXY(ref x, ref y);
+        _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      else
+      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(x, y, w, h);
+      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        align = SkinEngine.Fonts.Font.Align.Right;
+      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        align = SkinEngine.Fonts.Font.Align.Center;
+
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
+      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
+      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
+      SkinContext.AddTransform(m);
+      color.Alpha *= (float)SkinContext.Opacity;
+      color.Alpha *= (float)this.Opacity;
+
+      if (_label != null)
       {
-        if (_asset == null) return;
-        ColorValue color = ColorConverter.FromColor(this.Color);
-
-        base.DoRender();
-        float totalWidth;
-        float x = (float)ActualPosition.X;
-        float y = (float)ActualPosition.Y;
-        float w = (float)ActualWidth;
-        float h = (float)ActualHeight;
-        if (_finalLayoutTransform != null)
-        {
-          GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-          _finalLayoutTransform.InvertXY(ref x, ref y);
-          _finalLayoutTransform.InvertXY(ref w, ref h);
-        }
-        Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
-        SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
-        if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-          align = SkinEngine.Fonts.Font.Align.Right;
-        else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-          align = SkinEngine.Fonts.Font.Align.Center;
-
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
-        m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-        m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
-        SkinContext.AddTransform(m);
-        color.Alpha *= (float)SkinContext.Opacity;
-        color.Alpha *= (float)this.Opacity;
-        if (_label != null)
-          _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize, color, Scroll, out totalWidth);
-        SkinContext.RemoveTransform();
+        _asset.Draw(_label.ToString(), rect, align, FontSize, color, Scroll, out totalWidth);
       }
+      SkinContext.RemoveTransform();
     }
 
     public override void Deallocate()
@@ -424,15 +384,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     
     public override void Update()
     {
+      //Trace.WriteLine("Label.Update");
       base.Update();
       if (_hidden == false)
       {
-        if (_update && _renderer != null)
-        {
-          DoBuildRenderTree();
-        }
+        DoBuildRenderTree();
       }
-      _update = false;
+
+      // If the text is scrolling, then we must keep on building the render tree
+      // Otherwise it wont scroll.
+      if (Scroll)
+      {
+        if (Screen != null)
+          Screen.Invalidate(this);
+      }
     }
   }
 }

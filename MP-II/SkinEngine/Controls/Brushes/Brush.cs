@@ -211,7 +211,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Z = SkinContext.Z;
+        verts[i].Z = element.ActualPosition.Z;
       }
     }
 

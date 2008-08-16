@@ -70,7 +70,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     private static bool _mouseHidden = false;
     private static DateTime _lastAction = DateTime.Now;
     private static Property _zoomProperty = new Property(typeof(System.Drawing.SizeF), new System.Drawing.SizeF(1, 1));
-    public static float Z = 0.0f;
+    private static float _Zorder = 1.0f;
 
     public static bool HandlingInput;
     public static uint TimePassed;
@@ -81,6 +81,19 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
     internal extern static Int32 ShowCursor(bool bShow);
+
+    // Zorder ranges from from 0.0f (as close as you can get) to 1.0f (as far away as you can get). 
+    // start far away and and move closer.
+    public static void ResetZorder()
+    {
+      _Zorder = 1.0f;
+    }
+
+    public static float GetZorder()
+    {
+      _Zorder -= 0.001f;
+      return _Zorder;
+    }
 
     public static void AddOpacity(double opacity)
     {

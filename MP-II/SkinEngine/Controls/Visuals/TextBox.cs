@@ -49,7 +49,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _colorProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
-    bool _update = false;
 
     // If we are editing the text.
     bool _editText = false; 
@@ -116,14 +115,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnColorChanged(Property prop)
     {
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     void OnTextChanged(Property prop)
     {
-      _update = true;
-
       // The skin is setting the text, also update the caret
       if (!_editText)
       {
@@ -142,8 +139,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       _asset = null;
-      _update = true;
-      if (Screen != null) Screen.Invalidate(this);
+      if (Screen != null) 
+        Screen.Invalidate(this);
     }
 
     // We need to override this one, so we can subscribe to raw data.
@@ -274,15 +271,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //Trace.WriteLine(String.Format("textbox.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Textbox.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Textbox.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -299,7 +296,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsArrangeValid = true;
       IsInvalidLayout = false;
-      _update = true;
     
       if (Screen != null)
         Screen.Invalidate(this);
@@ -367,90 +363,40 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-      if (SkinContext.UseBatching == false)
+      if (_asset == null)
+        return;
+      ColorValue color = ColorConverter.FromColor(this.Color);
+
+      base.DoRender();
+      float totalWidth;
+
+      float x = (float)ActualPosition.X;
+      float y = (float)ActualPosition.Y;
+      float w = (float)ActualWidth;
+      float h = (float)ActualHeight;
+      if (_finalLayoutTransform != null)
       {
-        if (_asset == null) 
-          return;
-        ColorValue color = ColorConverter.FromColor(this.Color);
+        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
 
-        base.DoRender();
-        float totalWidth;
-
-        float x = (float)ActualPosition.X;
-        float y = (float)ActualPosition.Y;
-        float w = (float)ActualWidth;
-        float h = (float)ActualHeight;
-        if (_finalLayoutTransform != null)
-        {
-          GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-          _finalLayoutTransform.InvertXY(ref x, ref y);
-          _finalLayoutTransform.InvertXY(ref w, ref h);
-        }
-        System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
-        SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
-        if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-          align = SkinEngine.Fonts.Font.Align.Right;
-        else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-          align = SkinEngine.Fonts.Font.Align.Center;
-
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
-        m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-        m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
-        SkinContext.AddTransform(m);
-        color.Alpha *= (float)SkinContext.Opacity;
-        color.Alpha *= (float)this.Opacity;
-        _asset.Draw(Text, rect, align, FontSize, color, false, out totalWidth);
-        SkinContext.RemoveTransform();
+        _finalLayoutTransform.InvertXY(ref x, ref y);
+        _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      else
-      {
-        if (_asset == null) return;
-        ColorValue color = ColorConverter.FromColor(this.Color);
+      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
+      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        align = SkinEngine.Fonts.Font.Align.Right;
+      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        align = SkinEngine.Fonts.Font.Align.Center;
 
-        base.DoRender();
-        float totalWidth;
-        float size = _asset.Font.Size;
-        float x = (float)ActualPosition.X;
-        float y = (float)ActualPosition.Y;
-        float w = (float)ActualWidth;
-        float h = (float)ActualHeight;
-        if (_finalLayoutTransform != null)
-        {
-          GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-          _finalLayoutTransform.InvertXY(ref x, ref y);
-          _finalLayoutTransform.InvertXY(ref w, ref h);
-        }
-        System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
-        SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
-        if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-          align = SkinEngine.Fonts.Font.Align.Right;
-        else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-          align = SkinEngine.Fonts.Font.Align.Center;
-
-        if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
-        {
-          rect.Height = (int)(_asset.Font.LineHeight(FontSize)* 1.2f * SkinContext.Zoom.Height);
-        }
-        if (VerticalAlignment == VerticalAlignmentEnum.Center)
-        {
-          rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
-        }
-
-        rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
-        rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
-        m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-        m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
-        SkinContext.AddTransform(m);
-        color.Alpha *= (float)SkinContext.Opacity;
-        color.Alpha *= (float)this.Opacity;
-        _renderer.Draw(Text, rect, ActualPosition.Z, align, size, color, false, out totalWidth);
-        SkinContext.RemoveTransform();
-      }
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
+      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      SkinContext.AddTransform(m);
+      color.Alpha *= (float)SkinContext.Opacity;
+      color.Alpha *= (float)this.Opacity;
+      _asset.Draw(Text, rect, align, FontSize, color, false, out totalWidth);
+      SkinContext.RemoveTransform();
     }
 
     public override void Deallocate()
@@ -488,12 +434,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.Update();
       if (_hidden == false)
       {
-        if (_update && _renderer != null)
-        {
-          DoBuildRenderTree();
-        }
+        DoBuildRenderTree();
       }
-      _update = false;
     }
 
     public override void OnKeyPressed(ref Key key)

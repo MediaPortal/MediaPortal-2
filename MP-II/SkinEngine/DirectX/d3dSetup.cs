@@ -1253,8 +1253,17 @@ namespace MediaPortal.SkinEngine.DirectX
     {
       _presentParams.Windowed = _graphicsSettings.IsWindowed;
       _presentParams.BackBufferCount = 2;
-      _presentParams.EnableAutoDepthStencil = false;
-      //_presentParams.ForceNoMultiThreadedFlag = false;
+
+      // Z order must be enabled for batching to work
+      if (MediaPortal.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
+      {
+        _presentParams.EnableAutoDepthStencil = true;
+        _presentParams.AutoDepthStencilFormat = Format.D24X8;
+      }
+      else
+      {
+        _presentParams.EnableAutoDepthStencil = false;
+      }
 
       ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
         _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
@@ -1263,7 +1272,7 @@ namespace MediaPortal.SkinEngine.DirectX
       {
         _presentParams.Multisample = MultisampleType.None;// _graphicsSettings.WindowedMultisampleType;
         _presentParams.MultisampleQuality = 0;// _graphicsSettings.WindowedMultisampleQuality;
-        _presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
+        //_presentParams.AutoDepthStencilFormat = _graphicsSettings.WindowedDepthStencilBufferFormat;
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
@@ -1286,7 +1295,7 @@ namespace MediaPortal.SkinEngine.DirectX
       {
         _presentParams.Multisample = _graphicsSettings.FullscreenMultisampleType;
         _presentParams.MultisampleQuality = _graphicsSettings.FullscreenMultisampleQuality;
-        _presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
+        //_presentParams.AutoDepthStencilFormat = _graphicsSettings.FullscreenDepthStencilBufferFormat;
 
         _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
         _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;
@@ -1306,7 +1315,6 @@ namespace MediaPortal.SkinEngine.DirectX
         _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;
       }
-      ;
     }
 
     public void SwitchExlusiveOrWindowed(bool exclusiveMode, string displaySetting)

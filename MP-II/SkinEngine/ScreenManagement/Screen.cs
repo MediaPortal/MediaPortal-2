@@ -187,7 +187,6 @@ namespace MediaPortal.SkinEngine
       uint time = (uint)Environment.TickCount;
       SkinContext.TimePassed = time;
       SkinContext.FinalMatrix = new ExtendedMatrix();
-      SkinContext.Z = 0;
 
       if (SkinContext.UseBatching)
       {
@@ -314,7 +313,8 @@ namespace MediaPortal.SkinEngine
 
     public void Invalidate(IUpdateEventHandler ctl)
     {
-      if (SkinContext.UseBatching == false) return;
+      if (SkinContext.UseBatching == false) 
+        return;
       if (!SkinContext.IsValid)
       {
         return;
@@ -337,8 +337,9 @@ namespace MediaPortal.SkinEngine
       List<IUpdateEventHandler> ctls;
       lock (_invalidControls)
       {
-        if (_invalidControls.Count == 0) return;
-          ctls = _invalidControls;
+        if (_invalidControls.Count == 0) 
+          return;
+        ctls = _invalidControls;
         _invalidControls = new List<IUpdateEventHandler>();
       }
       for (int i = 0; i < ctls.Count; ++i)

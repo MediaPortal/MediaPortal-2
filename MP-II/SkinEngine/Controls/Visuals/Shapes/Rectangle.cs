@@ -111,14 +111,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect, float zOrder)
+    public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2},Z {3} W {4}xH {5}", this.Name, (int)finalRect.X, (int)finalRect.Y, zOrder, (int)finalRect.Width, (int)finalRect.Height));
+      Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -196,12 +196,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
-      //Trace.WriteLine("Rectangle.PerformLayout() " + this.Name + "  " + this._performLayout);
-
       double w = ActualWidth;
       double h = ActualHeight;
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
+
+      Trace.WriteLine(String.Format("Rectangle.PerformLayout")); 
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)

@@ -151,13 +151,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("DockPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    public override void Arrange(RectangleF finalRect, float zOrder)
+    public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
-      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, zOrder);
+      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
@@ -196,9 +196,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           ArrangeChildHorizontal(child, ref location, ref availableSize);
 
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
 
           offsetTop += childSize.Height;
           availableSize.Height -= childSize.Height;
@@ -218,9 +218,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           ArrangeChildHorizontal(child, ref location, ref availableSize);
 
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
 
           offsetBottom += childSize.Height;
           availableSize.Height -= childSize.Height;
@@ -235,9 +235,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           ArrangeChildVertical(child, ref location, ref availableSize);
 
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
-            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
 
           offsetLeft += childSize.Width;
           availableSize.Width -= childSize.Width;
@@ -255,9 +255,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
           ArrangeChildVertical(child, ref location, ref availableSize);
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
-            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)), zOrder + Z_ORDER_DELTA);
+            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
 
           offsetRight += childSize.Width;
           availableSize.Width -= childSize.Width;
@@ -270,7 +270,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.Y += ActualPosition.Y;
           ArrangeChild(child, ref location, ref availableSize);
 
-          child.Arrange(new RectangleF(location, childSize), zOrder + Z_ORDER_DELTA);
+          child.Arrange(new RectangleF(location, childSize));
 
           // Do not remove child size from a border offset or from size - the child will
           // stay in the "empty space" without taking place from the border layouting variables
@@ -306,7 +306,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.Arrange(finalRect,0.0f);
+      base.Arrange(finalRect);
     }
 
     #region Attached properties
