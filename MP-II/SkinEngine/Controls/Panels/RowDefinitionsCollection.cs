@@ -82,6 +82,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public void SetHeight(int row, int rowSpan, float height)
     {
+      // Not set, don't bother.
+      if (double.IsNaN(height))
+        return;
+
       int relativeCount = 0;
       for (int i = 0; i < rowSpan; ++i)
       {
@@ -90,7 +94,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           height -= (float)rowDef.Height.Length;
         }
-        else relativeCount++;
+        else 
+          relativeCount++;
       }
       for (int i = 0; i < rowSpan; ++i)
       {

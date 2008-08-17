@@ -90,6 +90,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public void SetWidth(int column, int columnSpan, float width)
     {
+      // Not set, don't bother.
+      if (double.IsNaN(width))
+        return;
+
       int relativeCount = 0;
       for (int i = 0; i < columnSpan; ++i)
       {
@@ -98,7 +102,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           width -= (float)colDef.Width.Length;
         }
-        else relativeCount++;
+        else 
+          relativeCount++;
       }
       for (int i = 0; i < columnSpan; ++i)
       {
