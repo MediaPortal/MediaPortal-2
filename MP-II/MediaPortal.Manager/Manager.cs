@@ -24,26 +24,19 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-
 using MediaPortal.Utilities.CommandLine;
-
 using MediaPortal;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Threading;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-
 using MediaPortal.Services.PathManager;
-using MediaPortal.Services.Threading;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
-using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
 

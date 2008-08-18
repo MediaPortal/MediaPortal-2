@@ -33,7 +33,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.PluginManager.PluginSpace;
+using MediaPortal.Core.PluginManager.PluginSpace;
 
 namespace MediaPortal.Services.PluginManager.PluginDetails
 {

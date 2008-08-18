@@ -26,10 +26,9 @@
 #endregion
 
 using System;
-using System.Collections;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.PluginManager.PluginSpace;
+using MediaPortal.Core.PluginManager.PluginSpace;
 using MediaPortal.Services.PluginManager.PluginDetails;
 
 namespace MediaPortal.Services.PluginManager.Builders

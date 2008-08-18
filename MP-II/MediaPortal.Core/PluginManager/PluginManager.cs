@@ -32,10 +32,11 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.PluginManager.PluginSpace;
 using MediaPortal.Services.PluginManager.PluginDetails;
 using MediaPortal.Services.PluginManager.PluginSpace;
 
-namespace MediaPortal.Services.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// A <see cref="IPluginManager"/> implementation that uses .plugin files to find

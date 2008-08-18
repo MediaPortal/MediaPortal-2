@@ -26,30 +26,30 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Services.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
-	/// <summary>
-	/// Base class for exceptions thrown by the Plugin system.
-	/// </summary>
-	[Serializable()]
-	public class PluginException : Exception
+  /// <summary>
+  /// Base class for exceptions thrown by the Plugin system.
+  /// </summary>
+  [Serializable()]
+  public class PluginException : Exception
   {
     #region Constructors/Destructors
 
     public PluginException() : base()
-		{
-		}
+    {
+    }
 		
-		public PluginException(string message) : base(message)
-		{
-		}
+    public PluginException(string message) : base(message)
+    {
+    }
 		
-		public PluginException(string message, Exception innerException) : base(message, innerException)
-		{
-		}
+    public PluginException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 		
-		protected PluginException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
+    protected PluginException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
     }
 
     #endregion

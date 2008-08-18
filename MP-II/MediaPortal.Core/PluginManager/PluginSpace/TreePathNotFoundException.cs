@@ -27,34 +27,35 @@
 
 using System;
 using System.Runtime.Serialization;
+using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Services.PluginManager.PluginSpace
+namespace MediaPortal.Core.PluginManager.PluginSpace
 {
-	/// <summary>
-	/// Is thrown when the AddInTree could not find the requested path.
-	/// </summary>
-	[Serializable()]
-	public class TreePathNotFoundException : PluginException
+  /// <summary>
+  /// Is thrown when the AddInTree could not find the requested path.
+  /// </summary>
+  [Serializable()]
+  public class TreePathNotFoundException : PluginException
   {
     #region Constructors/Destructors
     /// <summary>
-		/// Constructs a new <see cref="TreePathNotFoundException"/>
-		/// </summary>
-		public TreePathNotFoundException(string path) : base("Treepath not found: " + path)
-		{
-		}
+    /// Constructs a new <see cref="TreePathNotFoundException"/>
+    /// </summary>
+    public TreePathNotFoundException(string path) : base("Treepath not found: " + path)
+    {
+    }
 		
-		// Required for Serialization
-		public TreePathNotFoundException() : base()
-		{
-		}
+    // Required for Serialization
+    public TreePathNotFoundException() : base()
+    {
+    }
 		
-		public TreePathNotFoundException(string message, Exception innerException) : base(message, innerException)
-		{
-		}
+    public TreePathNotFoundException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 		
-		protected TreePathNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
+    protected TreePathNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
     }
     #endregion
   }

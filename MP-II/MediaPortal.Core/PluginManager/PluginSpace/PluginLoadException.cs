@@ -25,30 +25,31 @@
 
 using System;
 using System.Runtime.Serialization;
+using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Services.PluginManager.PluginSpace
+namespace MediaPortal.Core.PluginManager.PluginSpace
 {
-	/// <summary>
-	/// Exception used when loading an AddIn fails.
-	/// </summary>
-	[Serializable]
-	public class PluginLoadException : PluginException
-	{
-		public PluginLoadException() : base()
-		{
-		}
+  /// <summary>
+  /// Exception used when loading an AddIn fails.
+  /// </summary>
+  [Serializable]
+  public class PluginLoadException : PluginException
+  {
+    public PluginLoadException() : base()
+    {
+    }
 		
-		public PluginLoadException(string message) : base(message)
-		{
-		}
+    public PluginLoadException(string message) : base(message)
+    {
+    }
 		
-		public PluginLoadException(string message, Exception innerException) : base(message, innerException)
-		{
-		}
+    public PluginLoadException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 
     protected PluginLoadException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-		{
-		}
-	}
+        : base(info, context)
+    {
+    }
+  }
 }

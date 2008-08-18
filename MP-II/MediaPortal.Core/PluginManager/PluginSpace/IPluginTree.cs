@@ -28,7 +28,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Services.PluginManager.PluginSpace
+namespace MediaPortal.Core.PluginManager.PluginSpace
 {
   /// <summary>
   /// Interface for the PluginTree.

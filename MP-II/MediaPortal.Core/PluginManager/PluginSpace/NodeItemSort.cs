@@ -26,12 +26,11 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace MediaPortal.Services.PluginManager.PluginSpace
+namespace MediaPortal.Core.PluginManager.PluginSpace
 {
   /// <summary>
   /// Description of PluginTreeNodeSort.

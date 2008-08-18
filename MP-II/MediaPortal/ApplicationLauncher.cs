@@ -40,7 +40,6 @@ using MediaPortal.Services.Threading;
 using MediaPortal.Services.TaskScheduler;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
-using MediaPortal.Services.PluginManager;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
 using MediaPortal.Services.ExtensionManager;

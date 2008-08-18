@@ -26,13 +26,11 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.PluginManager.PluginDetails;
 
-namespace MediaPortal.Services.PluginManager.PluginSpace
+namespace MediaPortal.Core.PluginManager.PluginSpace
 {
   /// <summary>
   /// Represents a node in the add in tree that can produce an item.
