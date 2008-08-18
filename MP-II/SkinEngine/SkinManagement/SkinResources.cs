@@ -275,25 +275,5 @@ namespace MediaPortal.SkinEngine.SkinManagement
           _localResourceFiles[resourceName] = resourceFile;
       }
     }
-
-    /// <summary>
-    /// Helper method to check the given version string to be equal or greater than the specified version number.
-    /// </summary>
-    protected static void CheckVersion(string versionStr, int expectedHigh, int expectedLow)
-    {
-      string[] numbers = versionStr.Split(new char[] { '.' });
-      int verMax = Int32.Parse(numbers[0]);
-      int verMin = 0;
-      if (numbers.Length > 1)
-        verMin = Int32.Parse(numbers[1]);
-      if (numbers.Length > 2)
-        throw new ArgumentException("Illegal version number '" + versionStr + "', expected format: '#.#'");
-      if (verMax >= expectedHigh)
-        return;
-      if (verMin >= expectedLow)
-        return;
-      throw new ArgumentException("Version number '" + versionStr +
-          "' is too low, at least '" + expectedHigh + "." + expectedLow + "' is needed");
-    }
   }
 }

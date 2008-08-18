@@ -27,6 +27,7 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.Strings;
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {
@@ -109,7 +110,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           switch (attr.Name)
           {
             case "Version":
-              CheckVersion(attr.Value, MIN_THEME_DESCRIPTOR_VERSION_HIGH, MIN_THEME_DESCRIPTOR_VERSION_LOW);
+              StringUtils.CheckVersionEG(attr.Value, MIN_THEME_DESCRIPTOR_VERSION_HIGH, MIN_THEME_DESCRIPTOR_VERSION_LOW);
               _specVersion = attr.Value;
               versionOk = true;
               break;
