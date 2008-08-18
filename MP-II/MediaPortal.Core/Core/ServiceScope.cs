@@ -350,8 +350,9 @@ namespace MediaPortal.Core
       isRunning = false;
 		}
 
-		#region IStatus
-		public List<string> GetStatus()
+		#region IStatus implementation
+
+    public IList<string> GetStatus()
 		{
 			List<string> status = new List<string>();
 			status.Add("== ServiceScope List Start");
@@ -367,6 +368,7 @@ namespace MediaPortal.Core
 			status.Add("== ServiceScope List End");
 			return status;
 		}
-		#endregion
+
+#endregion
 	}
 }

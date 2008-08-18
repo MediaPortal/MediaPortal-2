@@ -40,10 +40,13 @@ namespace MediaPortal.Services.PathManager
   public class PathManager : IPathManager
   {
     #region Variables
+
     private Dictionary<string, string> _paths;
+
     #endregion
 
     #region Constructors/Destructor
+
     public PathManager()
     {
       _paths = new Dictionary<string, string>();
@@ -54,6 +57,7 @@ namespace MediaPortal.Services.PathManager
       SetPath("DEFAULTS", @"<APPLICATION_ROOT>\Defaults");
       LoadDefaults();
     }
+
     #endregion
 
     #region IPathManager Implementation
@@ -114,10 +118,12 @@ namespace MediaPortal.Services.PathManager
     {
       return new DirectoryInfo(GetPath(path));
     }
+
     #endregion
 
-		#region IStatus Implementation
-		public List<string> GetStatus()
+		#region IStatus implementation
+
+		public IList<string> GetStatus()
 		{
 			List<string> status = new List<string>();
 			status.Add("=== PathManager");
@@ -127,9 +133,10 @@ namespace MediaPortal.Services.PathManager
 			}
 			return status;
 		}
+
 		#endregion
 
-    #region private
+    #region Private methods
 
     /// <summary>
     /// Loads default path values from the defaults Path.xml file.

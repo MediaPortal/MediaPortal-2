@@ -24,13 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
-
 using Components.Services.MediaManager.Views;
 
 namespace Components.Services.MediaManager
@@ -283,7 +279,7 @@ namespace Components.Services.MediaManager
     #endregion
 
     #region IStatus Implementation
-    public List<string> GetStatus()
+    public IList<string> GetStatus()
     {
       List<string> status = new List<string>();
       status.Add("=== MediaManager - Providers");

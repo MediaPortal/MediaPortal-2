@@ -196,7 +196,7 @@ namespace MediaPortal.Services.PluginManager
 
     #region IStatus Implementation
 
-    public List<string> GetStatus()
+    public IList<string> GetStatus()
     {
       List<string> status = new List<string>();
       status.Add("=== PlugInManager");
