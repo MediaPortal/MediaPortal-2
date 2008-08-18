@@ -240,7 +240,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
               _defaultThemeName = child.InnerText;
               break;
             default:
-              throw new ArgumentException("Error parsing skin descriptor: child element '" + child.Name + "' is unknown");
+              throw new ArgumentException("Child element '" + child.Name + "' is unknown");
           }
         }
       }
