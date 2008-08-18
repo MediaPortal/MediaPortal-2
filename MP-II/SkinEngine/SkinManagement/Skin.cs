@@ -180,10 +180,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
         XmlDocument doc = new XmlDocument();
         using (FileStream fs = metaFile.OpenRead())
           doc.Load(fs);
-        XmlElement themeElement = doc.DocumentElement;
+        XmlElement skinElement = doc.DocumentElement;
+        if (skinElement.Name != "Skin")
+          throw new ArgumentException("File is no skin descriptor (needs to contain a 'Skin' element)");
 
         bool versionOk = false;
-        foreach (XmlAttribute attr in themeElement.Attributes)
+        foreach (XmlAttribute attr in skinElement.Attributes)
         {
           switch (attr.Name)
           {
@@ -205,7 +207,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         if (!versionOk)
           throw new ArgumentException("Attribute 'Version' expected");
 
-        foreach (XmlNode child in themeElement.ChildNodes)
+        foreach (XmlNode child in skinElement.ChildNodes)
         {
           switch (child.Name)
           {
@@ -243,7 +245,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor: " + e.Message, e);
+        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor '" + metaFile.FullName + "'", e);
         return false;
       }
       return true;
