@@ -88,7 +88,7 @@ namespace MediaPortal.Services.Logging
 
 					writer.WriteLine("= MediaPortal Information");
 					writer.WriteLine();
-        	List<string> statusList = ServiceScope.Current.GetStatus();
+        	IList<string> statusList = ServiceScope.Current.GetStatus();
         	foreach (string status in statusList)
         	{
         		writer.WriteLine(status);
