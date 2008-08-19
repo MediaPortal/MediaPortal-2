@@ -227,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Arrange(RectangleF finalRect)
     {
-      Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2} W {3}xH {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2} W {3}xH {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
@@ -236,7 +236,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
-      //Trace.WriteLine(String.Format("Label.Arrange Zorder {0}", ActualPosition.Z));
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -316,8 +315,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DoRender();
       float totalWidth;
 
+
+      // The characters fits the textbox exactly, so to get some room between the top of the characters 
+      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
+      // of the value. Otherwise we will be outside of the inner rectangle.
+
+      float y = _finalRect.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
       float x = _finalRect.X;
-      float y = _finalRect.Y;
       float w = _finalRect.Width;
       float h = _finalRect.Height;
 
@@ -345,7 +349,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (_label != null)
       {
-        _asset.Draw(_label.ToString(), rect, align, FontSize, color, Scroll, out totalWidth);
+        _asset.Draw(_label.ToString(), rect, align, FontSize*0.9f, color, Scroll, out totalWidth);
       }
       SkinContext.RemoveTransform();
     }
