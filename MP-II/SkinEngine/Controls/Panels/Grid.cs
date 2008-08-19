@@ -97,10 +97,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #region Measure & arrange
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(ref SizeF totalSize)
     {
       SizeF childSize = new SizeF();

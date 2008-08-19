@@ -70,10 +70,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       set { _lastChildFillProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(ref SizeF totalSize)
     {
       SizeF childSize = new SizeF(0, 0);
@@ -262,37 +258,24 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           offsetRight += childSize.Width;
           availableSize.Width -= childSize.Width;
         }
-        else // Center - How should this work.
+        else // Center
         {
           PointF location = new PointF(offsetLeft, offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
-          ArrangeChild(child, ref location, ref availableSize);
-
-          child.Arrange(new RectangleF(location, childSize));
+          if (count == Children.Count && LastChildFill)
+            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+          else
+          {
+            ArrangeChild(child, ref location, ref availableSize);
+            child.Arrange(new RectangleF(location, childSize));
+          }
 
           // Do not remove child size from a border offset or from size - the child will
           // stay in the "empty space" without taking place from the border layouting variables
         }
       }
-      // FIXME
-      /*foreach (FrameworkElement child in Children)
-      {
-        if (!child.IsVisible) continue;
-        if (GetDock(child) == Dock.Center)
-        {
-          float width = (float)(ActualWidth - (offsetLeft + offsetRight));
-
-          PointF location = new PointF(offsetLeft, offsetTop);
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
-          ArrangeChild(child, ref location);
-          child.Arrange(new RectangleF(location, childSize));
-          offsetLeft += childSize.Width;
-        }
-      }*/
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
