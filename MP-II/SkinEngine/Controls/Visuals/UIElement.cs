@@ -750,7 +750,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Will be called when a key is pressed. Derived classes may override this method
     /// to implement special key handling code.
     /// </summary>
-    /// <param name="key">The key.</param>
+    /// <param name="key">The key. Will be set to 'Key.None' if handled by child.</param> 
     public virtual void OnKeyPressed(ref Key key)
     { }
 
