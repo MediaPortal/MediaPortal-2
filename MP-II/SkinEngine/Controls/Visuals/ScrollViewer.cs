@@ -43,7 +43,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      if (Content == null) return;
+      if (Content == null) 
+        return;
+      
       UIElement element = (UIElement)Content;
       FrameworkElement focusedElement = element.FindElement(FocusFinder.Instance) as FrameworkElement;
       if (focusedElement == null)
@@ -52,6 +54,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _searchOffset = 0;
         return;
       }
+
+      // Always call child OnKeyPressed. It could be a textbox that needs input.
+      // Child will set key to Key.None if handled.
+      Content.OnKeyPressed(ref key);
+
       if (key == MediaPortal.Control.InputManager.Key.PageDown)
       {
         if (OnPageDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
@@ -59,81 +66,68 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-
-      if (key == MediaPortal.Control.InputManager.Key.PageUp)
+      else if (key == MediaPortal.Control.InputManager.Key.PageUp)
       {
         if (OnPageUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-
-      if (key == MediaPortal.Control.InputManager.Key.Down)
+      else if (key == MediaPortal.Control.InputManager.Key.Down)
       {
         if (OnDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-
-      if (key == MediaPortal.Control.InputManager.Key.Up)
+      else if (key == MediaPortal.Control.InputManager.Key.Up)
       {
         if (OnUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-
-      if (key == MediaPortal.Control.InputManager.Key.Left)
+      else if (key == MediaPortal.Control.InputManager.Key.Left)
       {
         if (OnLeft(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-
-      if (key == MediaPortal.Control.InputManager.Key.Right)
+      else if (key == MediaPortal.Control.InputManager.Key.Right)
       {
         if (OnRight(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
         {
           key = MediaPortal.Control.InputManager.Key.None;
           _startsWith = "";
           _searchOffset = 0;
-          return;
         }
       }
-      if (key == MediaPortal.Control.InputManager.Key.Home)
+      else if (key == MediaPortal.Control.InputManager.Key.Home)
       {
         OnHome(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
         key = MediaPortal.Control.InputManager.Key.None;
         _startsWith = "";
         _searchOffset = 0;
-        return;
       }
-      if (key == MediaPortal.Control.InputManager.Key.End)
+      else if (key == MediaPortal.Control.InputManager.Key.End)
       {
         OnEnd(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
         key = MediaPortal.Control.InputManager.Key.None;
         _startsWith = "";
         _searchOffset = 0;
-        return;
       }
-      if (Char.IsLetterOrDigit(key.RawCode))
+      else if (Char.IsLetterOrDigit(key.RawCode))
       {
         if (_startsWith.Length == 1 && key.RawCode == _startsWith[0])
         {
@@ -147,9 +141,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           ScrollToItemWhichStartsWith();
         }
         key = MediaPortal.Control.InputManager.Key.None;
-        return;
       }
-      Content.OnKeyPressed(ref key);
     }
 
     void ScrollToItemWhichStartsWith()
