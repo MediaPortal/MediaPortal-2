@@ -129,70 +129,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       InitializeTriggers();
       IsInvalidLayout = false;
 
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect != finalRect)
-          _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+      _performLayout = true;
 
-        if (Screen != null)
-          Screen.Invalidate(this);
-      }
+      if (Screen != null)
+        Screen.Invalidate(this);
     }
-    /*
-    public override void DoRender()
-    {
-      if (!IsVisible) return;
-      if (Fill == null && Stroke == null) return;
-
-      if (Fill != null)
-      {
-        if ((_fillAsset != null && !_fillAsset.IsAllocated) || _fillAsset == null)
-          _performLayout = true;
-      }
-      if (Stroke != null)
-      {
-        if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
-          _performLayout = true;
-      }
-      if (_performLayout)
-      {
-        PerformLayout();
-        _performLayout = false;
-      }
-
-      SkinContext.AddOpacity(this.Opacity);
-      //ExtendedMatrix m = new ExtendedMatrix();
-      //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-      //SkinContext.AddTransform(m);
-      if (_fillAsset != null)
-      {
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillAsset.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
-        {
-          GraphicsDevice.Device.SetStreamSource(0, _fillAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
-          Fill.EndRender();
-        }
-        _fillAsset.LastTimeUsed = SkinContext.Now;
-      }
-      if (_borderAsset != null)
-      {
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
-        {
-          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
-          Stroke.EndRender();
-        }
-        _borderAsset.LastTimeUsed = SkinContext.Now;
-      }
-
-     // SkinContext.RemoveTransform();
-      SkinContext.RemoveOpacity();
-    }
-    */
 
     protected override void PerformLayout()
     {
