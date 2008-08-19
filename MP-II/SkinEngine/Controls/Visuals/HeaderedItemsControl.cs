@@ -184,6 +184,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
           //          Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} not expanded",
           //              name, Header.DesiredSize.Width, Header.DesiredSize.Height));
+          totalSize = _desiredSize;
+          AddMargin(ref totalSize);
           return;
         }
       }
@@ -193,9 +195,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         _desiredSize.Height += Header.DesiredSize.Height;
       }
-      //      Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}",
-      //          name, Header.DesiredSize.Width, Header.DesiredSize.Height,
-      //        _baseDesiredSize.Width, _baseDesiredSize.Height));
+
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("TreeView Item:Measure '{0}' returns header:{1}x{2} base:{3}x{4}", name, Header.DesiredSize.Width, Header.DesiredSize.Height, _baseDesiredSize.Width, _baseDesiredSize.Height));
     }
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
