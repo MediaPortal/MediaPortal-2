@@ -30,7 +30,6 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -38,7 +37,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 namespace MediaPortal.SkinEngine
 {
   /// <summary>
-  /// screen class respresenting a logical screen represented by a particular skin.
+  /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
   public class Screen: NameScope
   {
@@ -73,12 +72,11 @@ namespace MediaPortal.SkinEngine
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at
-    /// the <see cref="IInputManger"/>.
+    /// the <see cref="IInputManager"/>.
     /// </summary>
     private bool _attachedInput = false;
 
     private Property _opened;
-    private Thread _thread;
     public event EventHandler OnClose;
     private bool _history;
     UIElement _visual;
@@ -143,9 +141,9 @@ namespace MediaPortal.SkinEngine
     }
 
     /// <summary>
-    /// Returns if this window is still open or if it should be closed
+    /// Returns if this screen is still open or if it should be closed.
     /// </summary>
-    /// <value><c>true</c> if this window is still open; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this screen is still open; otherwise, <c>false</c>.</value>
     public bool IsOpened
     {
       get { return (bool)_opened.GetValue(); }
@@ -165,23 +163,28 @@ namespace MediaPortal.SkinEngine
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this window has focus.
+    /// Gets or sets a value indicating whether this screen has focus.
     /// </summary>
-    /// <value><c>true</c> if this window has focus; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this screen has focus; otherwise, <c>false</c>.</value>
     public bool HasFocus
     {
       get { return _hasFocus; }
       set { _hasFocus = value; }
     }
 
-    public bool IsAnimating
+    public string Name
     {
-      get { return false; }
+      get { return _name; }
     }
 
-    /// <summary>
-    /// Renders this window.
-    /// </summary>
+    public void Reset()
+    {
+      Trace.WriteLine("Screen Reset: " + Name);
+      GraphicsDevice.InitializeZoom();
+      _visual.Invalidate();
+      _visual.Initialize();
+    }
+
     public void Render()
     {
       uint time = (uint)Environment.TickCount;
@@ -227,12 +230,9 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Called when window should be shown
-    /// </summary>
     public void Show()
     {
-      Trace.WriteLine("screen Show: " + Name);
+      Trace.WriteLine("Screen Show: " + Name);
       FocusManager.FocusedElement = null;
       SkinContext.IsValid = false;
       lock (_visual)
@@ -251,12 +251,9 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Called when window should be hidden
-    /// </summary>
     public void Hide()
     {
-      Trace.WriteLine("screen Hide: " + Name);
+      Trace.WriteLine("Screen Hide: " + Name);
       lock (_visual)
       {
         Animator.StopAll();
@@ -267,36 +264,20 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Called when a keypress has been received
-    /// </summary>
-    /// <param name="key">The key.</param>
     private void OnKeyPressed(ref Key key)
     {
       if (!HasFocus || !_attachedInput)
-      {
         return;
-      }
       _visual.OnKeyPressed(ref key);
     }
 
-    /// <summary>
-    /// Called when the mouse was moved
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     private void OnMouseMove(float x, float y)
     {
       if (!HasFocus || !_attachedInput)
-      {
         return;
-      }
       _visual.OnMouseMove(x, y);
     }
 
-    /// <summary>
-    /// called when the window should close
-    /// </summary>
     public void DetachInput()
     {
       if (_attachedInput)
@@ -304,10 +285,9 @@ namespace MediaPortal.SkinEngine
         ServiceScope.Get<IInputManager>().OnKeyPressed -= _keyPressHandler;
         ServiceScope.Get<IInputManager>().OnMouseMove -= _mouseMoveHandler;
         _attachedInput = false;
+        // FIXME Albert78: Don't fire the OnClose event in method DetachInput
         if (OnClose != null)
-        {
           OnClose(this, null);
-        }
       }
     }
 
@@ -316,20 +296,15 @@ namespace MediaPortal.SkinEngine
       if (SkinContext.UseBatching == false) 
         return;
       if (!SkinContext.IsValid)
-      {
         return;
-      }
       FrameworkElement el = (FrameworkElement)ctl;
       if (el.IsArrangeValid == false)
-      {
         return;
-      }
       lock (_invalidControls)
       {
         if (!_invalidControls.Contains(ctl))
           _invalidControls.Add(ctl);
       }
-
     }
 
     void Update()
@@ -343,28 +318,7 @@ namespace MediaPortal.SkinEngine
         _invalidControls = new List<IUpdateEventHandler>();
       }
       for (int i = 0; i < ctls.Count; ++i)
-      {
         ctls[i].Update();
-      }
     }
-
-    #region IWindow implementation
-    /// <summary>
-    /// Gets the window-name.
-    /// </summary>
-    /// <value>The name.</value>
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    public void Reset()
-    {
-      Trace.WriteLine("screen Reset: " + Name);
-      GraphicsDevice.InitializeZoom();
-      _visual.Invalidate();
-      _visual.Initialize();
-    }
-    #endregion
   }
 }
