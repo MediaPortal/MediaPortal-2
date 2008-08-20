@@ -591,9 +591,16 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return false;
     }
 
-    protected bool FindNameScope(out INameScope nameScope)
+    /// <summary>
+    /// Returns the nearest element implementing <see cref="INameScope"/>, stepping up the
+    /// logical tree from our context object.
+    /// </summary>
+    /// <param name="result">Returns the nearest name scope element, if there is one.</param>
+    /// <returns><c>true</c>, if a name scope could be found, <c>false</c> if it could not
+    /// be found (yet).</returns>
+    protected bool FindNameScope(out INameScope result)
     {
-      nameScope = null;
+      result = null;
       DependencyObject current = _contextObject as DependencyObject;
       if (current == null)
         return false;
@@ -601,7 +608,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         if (current is INameScope)
         {
-          nameScope = current as INameScope;
+          result = current as INameScope;
           return true;
         }
         if (!FindParent(current, out current, FindParentMode.LogicalTree))
