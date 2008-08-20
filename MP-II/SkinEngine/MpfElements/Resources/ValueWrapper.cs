@@ -34,13 +34,11 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
   /// Class to wrap a value object which cannot directly be used. This may be the case if
   /// the object is resolved by a markup extension, for example.
   /// </summary>
-  public class ValueWrapper : DependencyObject, INameScope, IContentEnabled, IDeepCopyable
+  public class ValueWrapper : DependencyObject, IContentEnabled, IDeepCopyable
   {
     #region Protected fields
 
     protected object _value = null;
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     #endregion
 
@@ -58,9 +56,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ValueWrapper vw = (ValueWrapper) source;
       Value = copyManager.GetCopy(vw.Value);
-      _parent = copyManager.GetCopy(vw._parent);
-      foreach (KeyValuePair<string, object> kvp in vw._names)
-        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion
@@ -81,35 +76,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Value"));
       return true;
-    }
-
-    #endregion
-
-    #region INameScope implementation
-
-    public object FindName(string name)
-    {
-      if (_names.ContainsKey(name))
-        return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
-    }
-
-    public void RegisterName(string name, object instance)
-    {
-      _names.Add(name, instance);
-    }
-
-    public void UnregisterName(string name)
-    {
-      _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

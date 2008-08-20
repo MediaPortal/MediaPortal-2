@@ -51,14 +51,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     Explicit
   }
 
-  public enum SourceType
-  {
-    DataContext,
-    SourceProperty,
-    ElementName,
-    RelativeSource
-  }
-
   /// <summary>
   /// Implements the MPF Binding markup extension.
   /// </summary>
@@ -99,6 +91,24 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   /// </remarks>
   public class BindingMarkupExtension: BindingBase
   {
+    #region Enums
+
+    protected enum SourceType
+    {
+      DataContext,
+      SourceProperty,
+      ElementName,
+      RelativeSource
+    }
+
+    protected enum FindParentMode
+    {
+      LogicalTree,
+      HybridPreferVisualTree
+    }
+
+    #endregion
+
     #region Protected fields
 
     // Binding configuration properties
@@ -530,11 +540,12 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <returns><c>true</c>, if a valid parent was found. In this case, the
     /// <paramref name="parent"/> parameter references a not-<c>null</c> parent.
     /// <c>false</c>, if no valid parent was found.</returns>
-    protected bool FindParent(DependencyObject obj, out DependencyObject parent)
+    protected bool FindParent(DependencyObject obj, out DependencyObject parent,
+        FindParentMode findParentMode)
     {
       Visual v = obj as Visual;
       Property parentProperty;
-      if (v != null)
+      if (findParentMode == FindParentMode.HybridPreferVisualTree && v != null)
       { // The visual tree has priority to search our parent
         parentProperty = v.VisualParentProperty;
         AttachToSourcePathProperty(parentProperty);
@@ -565,7 +576,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       if (UsedAsDataContext)
       {
         // If we are already the data context, step one level up and start the search at our parent
-        if (!FindParent(current, out current))
+        if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
           return false;
       }
       while (current != null)
@@ -574,7 +585,26 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         if (GetDataContext(current, out parentBinding))
           // Data context found
           return parentBinding.Evaluate(out result);
-        if (!FindParent(current, out current))
+        if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
+          return false;
+      }
+      return false;
+    }
+
+    protected bool FindNameScope(out INameScope nameScope)
+    {
+      nameScope = null;
+      DependencyObject current = _contextObject as DependencyObject;
+      if (current == null)
+        return false;
+      while (current != null)
+      {
+        if (current is INameScope)
+        {
+          nameScope = current as INameScope;
+          return true;
+        }
+        if (!FindParent(current, out current, FindParentMode.LogicalTree))
           return false;
       }
       return false;
@@ -618,7 +648,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                 while (current != null)
                 {
                   DependencyObject last = current;
-                  FindParent(last, out current);
+                  FindParent(last, out current, FindParentMode.HybridPreferVisualTree);
                   if (last is UIElement && ((UIElement) last).IsTemplateRoot)
                   {
                     result = new ValueDataDescriptor(current);
@@ -627,7 +657,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                 }
                 return false;
               case RelativeSourceMode.FindAncestor:
-                if (!FindParent(current, out current)) // Start from the first ancestor
+                if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree)) // Start from the first ancestor
                   return false;
                 int ct = RelativeSource.AncestorLevel;
                 while (current != null)
@@ -640,7 +670,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                     result = new ValueDataDescriptor(current);
                     return true;
                   }
-                  if (!FindParent(current, out current))
+                  if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
                     return false;
                 }
                 return false;
@@ -653,9 +683,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                     string.Format("RelativeSourceMode '{0}' is not implemented", RelativeSource.Mode));
             }
           case SourceType.ElementName:
-            if (!(_contextObject is UIElement))
+            INameScope nameScope;
+            if (!FindNameScope(out nameScope))
               return false;
-            object obj = ((UIElement) _contextObject).FindElementInNamescope(ElementName);
+            object obj = nameScope.FindName(ElementName) as UIElement;
             if (obj == null)
               return false;
             result = new ValueDataDescriptor(obj);

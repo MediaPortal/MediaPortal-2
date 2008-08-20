@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.MpfElements.Resources
@@ -31,11 +33,13 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
   /// the object is resolved by a markup extension, for example. Instances of this class
   /// will be automatically converted to the underlaying <see cref="Resource"/> object.
   /// </summary>
-  public class ResourceWrapper : ValueWrapper
+  public class ResourceWrapper : ValueWrapper, INameScope
   {
     #region Protected fields
 
     protected bool _freezable = false;
+    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected INameScope _parent = null;
 
     #endregion
 
@@ -50,6 +54,9 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper) source;
       Freezable = copyManager.GetCopy(rw.Freezable);
+      _parent = copyManager.GetCopy(rw._parent);
+      foreach (KeyValuePair<string, object> kvp in rw._names)
+        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion
@@ -66,6 +73,35 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       get { return _freezable; }
       set { _freezable = value; }
+    }
+
+    #endregion
+
+    #region INameScope implementation
+
+    public object FindName(string name)
+    {
+      if (_names.ContainsKey(name))
+        return _names[name];
+      else if (_parent != null)
+        return _parent.FindName(name);
+      else
+        return null;
+    }
+
+    public void RegisterName(string name, object instance)
+    {
+      _names.Add(name, instance);
+    }
+
+    public void UnregisterName(string name)
+    {
+      _names.Remove(name);
+    }
+
+    public void RegisterParent(INameScope parent)
+    {
+      _parent = parent;
     }
 
     #endregion
