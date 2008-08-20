@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {

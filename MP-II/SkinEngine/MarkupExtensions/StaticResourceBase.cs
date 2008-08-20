@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
