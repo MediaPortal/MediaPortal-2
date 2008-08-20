@@ -28,6 +28,7 @@ using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Animations;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine
 {
@@ -277,7 +278,7 @@ namespace MediaPortal.SkinEngine
         {
           IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
           ac.Timeline.AddAllAnimatedProperties(ac.TimelineContext, animProperties);
-          ICollection<IDataDescriptor> conflicts = Intersection(
+          ICollection<IDataDescriptor> conflicts = CollectionUtils.Intersection(
               newProperties.Keys, animProperties.Keys);
           if (conflicts.Count > 0)
           {
@@ -315,16 +316,6 @@ namespace MediaPortal.SkinEngine
       else
         throw new NotImplementedException("Animator.HandleConflicts: handoff behavior '" + handoffBehavior.ToString() +
                                           "' is not implemented");
-    }
-
-    // Intersection can be replaced by the Intersect extension method from the beginning of .net 3.5
-    protected static ICollection<T> Intersection<T>(ICollection<T> c1, ICollection<T> c2)
-    {
-      ICollection<T> result = new List<T>();
-      foreach (T o in c1)
-        if (c2.Contains(o))
-          result.Add(o);
-      return result;
     }
   }
 }

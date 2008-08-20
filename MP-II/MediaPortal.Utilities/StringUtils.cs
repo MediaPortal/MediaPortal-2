@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Utilities.Strings
+namespace MediaPortal.Utilities
 {
   /// <summary>
   /// Contains String related utility methods.
@@ -71,7 +71,7 @@ namespace MediaPortal.Utilities.Strings
       if (verLow >= expectedLow)
         return;
       throw new ArgumentException("Version number '" + versionStr +
-          "' is too low, at least '" + expectedHigh + "." + expectedLow + "' is needed");
+                                  "' is too low, at least '" + expectedHigh + "." + expectedLow + "' is needed");
     }
   }
 }

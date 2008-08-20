@@ -35,7 +35,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Presentation.Screen;
-using MediaPortal.Utilities.CD;
+using MediaPortal.Utilities;
 
 namespace Components.Services.AutoPlay
 {
@@ -290,7 +290,7 @@ namespace Components.Services.AutoPlay
         if (Directory.Exists(strDrive + "\\VIDEO_TS"))
           return MediaType.DVD;
 
-        if (Utils.isARedBookCD(strDrive))
+        if (CdUtils.isARedBookCD(strDrive))
           return MediaType.AUDIO_CD;
 
         List<string> allfiles = new List<string>();
@@ -301,7 +301,7 @@ namespace Components.Services.AutoPlay
         foreach (string FileName in allfiles)
         {
           string ext = System.IO.Path.GetExtension(FileName).ToLower();
-          if (MediaPortal.Util.Utils.IsVideo(FileName)) return MediaType.VIDEOS;
+          if (MediaPortal.Util.CdUtils.IsVideo(FileName)) return MediaType.VIDEOS;
         }
 
         foreach (string FileName in allfiles)

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Strings;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {

@@ -26,9 +26,9 @@ using System;
 using MediaPortal.Utilities.Win32;
 using Un4seen.Bass.AddOn.Cd;
 
-namespace MediaPortal.Utilities.CD
+namespace MediaPortal.Utilities
 {
-  public class Utils
+  public class CdUtils
   {
     /// <summary>
     /// Checks, if the given Drive Letter is a Red Book (Audio) CD

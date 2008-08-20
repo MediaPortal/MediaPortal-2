@@ -68,7 +68,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cd\Utils.cs" />
+    <Compile Include="CdUtils.cs" />
+    <Compile Include="CollectionUtils.cs" />
     <Compile Include="CommandLine\CommandLine.cs" />
     <Compile Include="CommandLine\ICommandLineOptions.cs" />
     <Compile Include="Conversion\Conversion.cs" />
@@ -76,7 +77,7 @@
     <Compile Include="DeepCopy\ICopyManager.cs" />
     <Compile Include="DeepCopy\IDeepCopyable.cs" />
     <Compile Include="Drives\DriveUtils.cs" />
-    <Compile Include="Files\FileUtils.cs" />
+    <Compile Include="FileUtils.cs" />
     <Compile Include="Localisation\StringsFile\StringFile.cs" />
     <Compile Include="Localisation\StringsFile\StringLocalised.cs" />
     <Compile Include="Localisation\StringsFile\StringSection.cs" />
@@ -121,7 +122,7 @@
     <Compile Include="Screens\YesNoDialogScreen.Designer.cs">
       <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </Compile>
-    <Compile Include="Strings\StringUtils.cs" />
+    <Compile Include="StringUtils.cs" />
     <Compile Include="Win32\EnvironmentUtils.cs" />
     <Compile Include="Win32\Internet.cs" />
     <Compile Include="Win32\Win32API.cs" />

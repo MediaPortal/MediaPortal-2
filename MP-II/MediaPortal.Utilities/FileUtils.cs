@@ -25,11 +25,8 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 
-using MediaPortal.Utilities.Strings;
-
-namespace MediaPortal.Utilities.Files
+namespace MediaPortal.Utilities
 {
   /// <summary>
   /// Contains file and directory related utility methods.
@@ -108,7 +105,7 @@ namespace MediaPortal.Utilities.Files
     public static bool HasPathDelimiter(string path)
     {
       return path.Length > 0 &&
-        (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
+             (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
 
     /// <summary>

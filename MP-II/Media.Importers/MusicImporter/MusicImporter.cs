@@ -23,21 +23,17 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
 using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
-
-using MediaPortal.Utilities.CD;
+using MediaPortal.Utilities;
 using Media.Importers.MusicImporter.Freedb;
 using Media.Importers.MusicImporter.Tags;
 
@@ -363,7 +359,7 @@ namespace Media.Importers.MusicImporter
         // Is the given Folder a Redbook Audio CD? Then we need to query FreeDB
         if (folder.Length < 4)
         {
-          if (Utils.isARedBookCD(folder))
+          if (CdUtils.isARedBookCD(folder))
           {
             QueryFreeDB(folder, ref items);
             return;
