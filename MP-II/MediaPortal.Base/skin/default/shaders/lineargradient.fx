@@ -55,7 +55,7 @@ void renderPixelShader( in v2p IN, out p2f OUT)
   half4 pos=half4(IN.Texcoord.x,IN.Texcoord.y,0,1);
   pos=mul(pos, RelativeTransform);
   half dist=GetColor( half2(pos.x,pos.y) );
-  dist=clamp(dist,0,0.999999);
+  dist=clamp(dist,0,0.9999);
   OUT.Color = tex1D(textureSampler, dist);
   OUT.Color[3] *=g_opacity;
   //OUT.Color=color;
