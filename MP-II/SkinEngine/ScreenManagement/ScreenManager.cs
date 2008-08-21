@@ -44,7 +44,8 @@ namespace MediaPortal.SkinEngine
     private readonly Dictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
     private readonly Stack<string> _history = new Stack<string>();
     private Screen _currentScreen = null;
-    private Screen _currentDialog = null;
+
+    LinkedList<Screen> _dialogStack = new LinkedList<Screen>();
     private Skin _skin = null;
     private Theme _theme = null;
     private SkinManager _skinManager;
@@ -139,15 +140,19 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    protected void InternalCloseCurrentScreens()
+    protected void InternalCloseCurrentScreenAndDialogs()
     {
-      CloseDialog();
+      // Close all dialogs
+      for (int i = _dialogStack.Count; i > 0; i--)
+      {
+        InternalCloseDialog();
+      }
+      // Close the screen
       InternalCloseScreen();
     }
 
     protected bool InternalShowScreen(Screen screen)
     {
-      CloseDialog();
       lock (_history)
       {
         _currentScreen = screen;
@@ -175,10 +180,13 @@ namespace MediaPortal.SkinEngine
       {
         lock (_windowCache)
         {
-          if (_currentScreen != null)
-            _currentScreen.Render();
-          if (_currentDialog != null)
-            _currentDialog.Render();
+          if (_currentScreen == null)
+            return;
+          _currentScreen.Render();
+          foreach (Screen dialog in _dialogStack)
+          {
+            dialog.Render();
+          }
         }
       }
     }
@@ -202,7 +210,7 @@ namespace MediaPortal.SkinEngine
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
         bool currentScreenInHistory = _currentScreen == null ? false : _currentScreen.History;
 
-        InternalCloseCurrentScreens();
+        InternalCloseCurrentScreenAndDialogs();
 
         _windowCache.Clear();
 
@@ -339,31 +347,69 @@ namespace MediaPortal.SkinEngine
 
     public void Reset()
     {
-      if (_currentDialog != null)
-        _currentDialog.Reset();
+      // Reset all dialogs
+      LinkedListNode<Screen> dialog = _dialogStack.First;
+
+      while (dialog != null)
+      {
+        dialog.Value.Reset();
+        dialog = dialog.Next;
+      }
+
+      // Reset the screen
       if (_currentScreen != null)
-      _currentScreen.Reset();
+        _currentScreen.Reset();
+    }
+
+    private void InternalCloseDialog()
+    {
+      // Do we have a dialog?
+      if (_dialogStack.Count > 0)
+      {
+        LinkedListNode<Screen> oldDialog = _dialogStack.Last;
+
+        oldDialog.Value.ScreenState = Screen.State.Closing;
+        oldDialog.Value.DetachInput();
+        oldDialog.Value.Hide();
+
+        _dialogStack.RemoveLast();
+
+        // Is this the last dialog?
+        if (_dialogStack.Count == 0)
+        {
+          _currentScreen.AttachInput();
+        }
+        else
+        {
+          _dialogStack.Last.Value.AttachInput();
+        }
+      }
     }
 
     /// <summary>
-    /// Closes the opened dialog, if one is open.
+    /// Closes the N top most dialogs.
+    /// </summary>
+    public void CloseDialogN(string n)
+    {
+      int count = Int16.Parse(n);
+
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialogN {0}", count);
+      lock (_history)
+      {
+        for(int i=0;i<count;i++)
+          InternalCloseDialog();
+      }
+    }
+
+    /// <summary>
+    /// Closes the top most dialog, if one exists.
     /// </summary>
     public void CloseDialog()
     {
-      if (_currentDialog == null)
-        return;
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
       lock (_history)
       {
-        _currentDialog.ScreenState = Screen.State.Closing;
-        _currentDialog.DetachInput();
-        _currentDialog.Hide();
-        _currentDialog = null;
-
-        if (_currentScreen != null)
-        {
-          _currentScreen.AttachInput();
-          _currentScreen.Show();
-        }
+        InternalCloseDialog();
       }
     }
 
@@ -374,25 +420,28 @@ namespace MediaPortal.SkinEngine
     public void ShowDialog(string dialogName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog: {0}", dialogName);
-      CloseDialog();
       lock (_history)
       {
-        _currentDialog = GetScreen(dialogName);
-        if (_currentDialog == null)
+
+        Screen newDialog = GetScreen(dialogName);
+        if (newDialog == null)
         {
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to find dialog: {0}", dialogName);
           return;
         }
-        _currentScreen.DetachInput();
 
-        _currentDialog.AttachInput();
-        _currentDialog.Show();
-        _currentDialog.ScreenState = Screen.State.Running;
-      }
+        if (_dialogStack.Count == 0)
+          _currentScreen.DetachInput();
+        else
+        {
+          _dialogStack.Last.Value.DetachInput();
+        }
 
-      while (_currentDialog != null)
-      {
-        System.Windows.Forms.Application.DoEvents();
-        System.Threading.Thread.Sleep(10);
+        newDialog.AttachInput();
+        newDialog.Show();
+        newDialog.ScreenState = Screen.State.Running;
+        _dialogStack.AddLast(newDialog);  
+
       }
     }
 
@@ -401,8 +450,8 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     public void Reload()
     {
-      CloseDialog();
-      InternalCloseScreen();
+
+      InternalCloseCurrentScreenAndDialogs();
 
       Screen currentScreen;
       lock (_windowCache)
@@ -442,8 +491,8 @@ namespace MediaPortal.SkinEngine
           _history.Push(newScreen.Name);
         }
 
-        CloseDialog();
-        InternalCloseScreen();
+        InternalCloseCurrentScreenAndDialogs();
+
         // New screen - New z-order.
         SkinContext.ResetZorder();
         return InternalShowScreen(newScreen);
@@ -462,11 +511,6 @@ namespace MediaPortal.SkinEngine
           return;
         }
         ServiceScope.Get<ILogger>().Debug("ScreenManager: Show previous window");
-        if (_currentDialog != null)
-        {
-          CloseDialog();
-          return;
-        }
 
         if (_history.Count <= 1)
         {
@@ -475,7 +519,8 @@ namespace MediaPortal.SkinEngine
 
         if (_currentScreen.History)
           _history.Pop();
-        InternalCloseScreen();
+
+        InternalCloseCurrentScreenAndDialogs();
 
         Screen newScreen = GetScreen(_history.Peek());
         if (newScreen == null)

@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
@@ -256,7 +257,7 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
-      ServiceScope.Get<ILogger>().Info("keydown:{0}", e.KeyCode);
+      Trace.WriteLine(String.Format("keydown:{0}", e.KeyCode));
       IInputMapper mapper = ServiceScope.Get<IInputMapper>();
       Key key = mapper.Map(e.KeyCode, e.Alt);
       if (key != Key.None)

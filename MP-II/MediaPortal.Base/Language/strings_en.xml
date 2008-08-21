@@ -13,7 +13,8 @@
     <String name="done" text="Done"/>
     <String name="cancel" text="Cancel"/>
     <String name="back" text="Back"/>
-    <String name="save" text="Save"/>
+	<String name="add" text="Add"/>
+    <String name="remove" text="Remove"/>
   </Section>
   <Section name="general">
     <String name="name" text="Name"/>
@@ -200,7 +201,7 @@
     <String name="0" text="Please enter the name of your City!"/>
     <String name="1" text="Search"/>
     <String name="2" text="Select..."/>
-    <String name="3" text="Save"/>
+    <String name="3" text="Add city"/>
   </Section>
   <Section name="pictures">
     <String name="0" text="Title"/>

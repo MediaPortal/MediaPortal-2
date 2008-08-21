@@ -61,12 +61,15 @@ namespace Models.Weather
 {
   public class WeatherSetupViewModel : IPlugin
   {
-    private List<CitySetupInfo> _locations; // locations that are already in the list
-    private List<CitySetupInfo> _locationsSearch; // locations that return as result of searching for a city
-    private readonly ItemsCollection _locationsExposed = new ItemsCollection(); // Listcollection to expose _locations
+    // locations that are already in the list
+    private List<CitySetupInfo> _locations;
+    // locations that return as result of searching for a city
+    private List<CitySetupInfo> _locationsSearch; 
 
+    // vatiants of the above that is exposed to the skin
+    private readonly ItemsCollection _locationsExposed = new ItemsCollection(); 
     private readonly ItemsCollection _locationsSearchExposed = new ItemsCollection();
-    // Listcollection to expose _locationsExposed
+
 
     private ItemsCollection _mainMenu;
     private Property _searchCity;
@@ -110,7 +113,7 @@ namespace Models.Weather
       }
     }
     /// <summary>
-    /// exposes the current location to the skin
+    /// exposes the current search parameter to the skin
     /// </summary>
     public string SearchCity
     {
@@ -139,11 +142,9 @@ namespace Models.Weather
     /// <param name="name"></param>
     public void SearchLocations(string name)
     {
-      // get a grabber to search for citys
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
       LocationsSearch = ServiceScope.Get<IWeatherCatcher>().FindLocationsByName(name);
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
+
 
     /// <summary>
     /// saves the current state to the settings
@@ -269,11 +270,17 @@ namespace Models.Weather
       }
     }
 
+    /// <summary>
+    /// exposes the available locations
+    /// </summary>
     public ItemsCollection SetupLocations
     {
       get { return _locationsExposed; }
     }
 
+    /// <summary>
+    /// exposes the search result
+    /// </summary>
     public ItemsCollection SetupSearchLocations
     {
       get { return _locationsSearchExposed; }
