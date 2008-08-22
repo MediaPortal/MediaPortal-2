@@ -35,18 +35,33 @@ namespace Components.Configuration
 {
   class ConfigurationPlugin : IPlugin
   {
+
+    #region Constructors
+
     public ConfigurationPlugin()
     {
+
     }
 
+    #endregion
+
     #region IPlugin Members
+
     public void Initialise()
     {
+      
     }
+
+    #endregion
+
+    #region IDisposable Members
 
     public void Dispose()
     {
+      
     }
+
     #endregion
+
   }
 }

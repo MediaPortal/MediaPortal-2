@@ -101,7 +101,7 @@
     <Compile Include="ExtensionManager\ExtensionQueue.cs" />
     <Compile Include="ExtensionManager\ExtensionQueueObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\ObjectParser.cs" />
+    <Compile Include="Settings\SettingParser.cs" />
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Settings\xml\XmlNoNamespaceWriter.cs" />
     <Compile Include="Settings\xml\XmlFileHandler.cs" />

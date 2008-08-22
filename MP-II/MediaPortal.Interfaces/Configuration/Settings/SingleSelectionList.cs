@@ -31,24 +31,32 @@ using MediaPortal.Presentation.Localisation;
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class SingleSelectionList : SettingBase
+  public class SingleSelectionList : ItemList
   {
-    #region variables
-    protected List<StringId> _items;
+
+    #region Variables
+
     protected int _selected;
+
     #endregion
 
-    #region properties
-    public List<StringId> Items
-    {
-      get { return _items; }
-    }
+    #region Properties
 
+    /// <summary>
+    /// Gets or sets the index of the selected item.
+    /// </summary>
     public int Selected
     {
-      get { return _selected; }
+      get
+      {
+        if (_selected == -1 && base._items.Count > 0)
+          _selected = 0;
+        return _selected;
+      }
       set { _selected = value; }
     }
+
     #endregion
+
   }
 }

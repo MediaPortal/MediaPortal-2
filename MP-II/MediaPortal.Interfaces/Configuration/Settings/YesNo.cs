@@ -31,18 +31,27 @@ using MediaPortal.Presentation.Localisation;
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class YesNo : SettingBase
+  public class YesNo : ConfigBase
   {
-    #region variables
-    protected bool _yes;
+
+    #region Variables
+
+    protected bool _yes = false;
+
     #endregion
 
-    #region properties
+    #region Properties
+
+    /// <summary>
+    /// Gets or sets.
+    /// </summary>
     public bool Yes
     {
       get { return _yes; }
       set { _yes = value; }
     }
+
     #endregion
+
   }
 }

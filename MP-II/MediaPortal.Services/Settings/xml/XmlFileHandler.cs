@@ -31,58 +31,77 @@ namespace MediaPortal.Services.Settings
 {
   public class XmlFileHandler
   {
-    #region Private variables
-    private XmlDocument _document = null;
-    private bool _modified = false;
-    private string _filename = null;
-    #endregion
 
-    #region Ctor
+    #region Variables
 
     /// <summary>
-    /// Ctor
+    /// Document to write to.
     /// </summary>
-    /// <param name="xmlfilename">The xml file to write into</param>
-    public XmlFileHandler(string xmlfilename)
-    {
-      _filename = xmlfilename;
-      _document = new XmlDocument();
-      if (File.Exists(_filename))
-      {
-        XmlTextReader reader = new XmlTextReader(_filename);
-        _document.Load(reader);
-        if (_document.DocumentElement == null)
-        {
-          _document = null;
-        }
-        reader.Close();
-      }
-      else if (File.Exists(_filename + ".bak"))
-      {
-        XmlTextReader reader = new XmlTextReader(_filename + ".bak");
-        _document.Load(reader);
-        if (_document.DocumentElement == null)
-        {
-          _document = null;
-        }
-        reader.Close();
-      }
-      if (_document == null)
-      {
-        _document = new XmlDocument();
-      }
-    }
+    private XmlDocument _document;
+    /// <summary>
+    /// Keeps track of modifications.
+    /// </summary>
+    private bool _modified;
+    /// <summary>
+    /// Physical location of the xml file.
+    /// </summary>
+    private string _filename;
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
-    /// Read only , gets the Xml filename
+    /// Gets the Xml filename.
     /// </summary>
     public string FileName
     {
       get { return _filename; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Initializes a new instance of XmlFileHandler.
+    /// </summary>
+    /// <param name="xmlfilename">The xml file to read from and/or write into.</param>
+    public XmlFileHandler(string xmlfilename)
+    {
+      _filename = xmlfilename;
+      _document = new XmlDocument();
+      _modified = false;
+      try
+      {
+        if (File.Exists(_filename))               // try to get the file
+        {
+          using (XmlTextReader reader = new XmlTextReader(_filename))
+          {
+            _document.Load(reader);
+            if (_document.DocumentElement == null)
+              _document = null;
+          }
+        }
+        else if (File.Exists(_filename + ".bak")) // try to get the backup
+        {
+          using (XmlTextReader reader = new XmlTextReader(_filename + ".bak"))
+          {
+            _document.Load(reader);
+            if (_document.DocumentElement == null)
+              _document = null;
+          }
+        }
+      }
+      catch
+      {
+        // should we log?
+      }
+      finally
+      {
+        if (_document == null)
+          _document = new XmlDocument();
+      }
     }
 
     #endregion
@@ -92,38 +111,25 @@ namespace MediaPortal.Services.Settings
     /// <summary>
     /// Reads the value of a given entry in a given section
     /// </summary>
-    /// <param name="section">the section name</param>
-    /// <param name="entry">the entry name</param>
-    /// <param name="scope">the setting's scope : User or Global</param>
+    /// <param name="section">The section name.</param>
+    /// <param name="entry">The entry name.</param>
     /// <returns></returns>
     public string GetValue(string section, string entry)
     {
-      if (_document == null)
-      {
-        return null;
-      }
-
+      if (_document == null) return null;
       XmlElement root = _document.DocumentElement;
-      if (root == null)
-      {
-        return null;
-      }
-      XmlNode entryNode;
-      entryNode = root.SelectSingleNode(GetSectionPath(section) + "/" + GetEntryPath(entry));
-      if (entryNode == null)
-      {
-        return null;
-      }
+      if (root == null) return null;
+      XmlNode entryNode = root.SelectSingleNode(GetSectionPath(section) + "/" + GetEntryPath(entry));
+      if (entryNode == null) return null;
       return entryNode.InnerText;
     }
 
     /// <summary>
-    /// Sets the value of a given entry in a given section
+    /// Sets the value of a given entry in a given section.
     /// </summary>
-    /// <param name="section">the section name</param>
-    /// <param name="entry">the entry name</param>
-    /// <param name="scope">the setting's scope : User or Global</param>
-    /// <returns></returns>
+    /// <param name="section">The section name.</param>
+    /// <param name="entry">The entry name.</param>
+    /// <param name="value">Value to set.</param>
     public void SetValue(string section, string entry, string value)
     {
       // If the value is null, remove the entry
@@ -132,9 +138,7 @@ namespace MediaPortal.Services.Settings
         RemoveEntry(section, entry);
         return;
       }
-
-      string valueString = value.ToString();
-
+      // Make sure the root of the XML document tree is set.
       if (_document.DocumentElement == null)
       {
         XmlElement node = _document.CreateElement("Configuration");
@@ -163,7 +167,7 @@ namespace MediaPortal.Services.Settings
         element.Attributes.Append(attribute);
         entryNode = sectionNode.AppendChild(element);
       }
-      entryNode.InnerText = valueString;
+      entryNode.InnerText = value;
       _modified = true;
     }
 
@@ -172,65 +176,25 @@ namespace MediaPortal.Services.Settings
     /// </summary>
     public void Save()
     {
-      //      ILogger log = ServiceScope.Get<ILogger>();
-      //log.Debug("Saving({0},{1})", filename, modified.ToString());
-      if (!_modified)
+      if (!_modified
+        || _document == null
+        || _document.DocumentElement == null
+        || _document.ChildNodes.Count == 0
+        || _document.DocumentElement.ChildNodes == null)
       {
         return;
       }
-      // creates needed dirs if they don't exist
+      // Create needed directories if they don't exist
       FileInfo configFile = new FileInfo(_filename);
       if (!configFile.Directory.Exists)
         configFile.Directory.Create();
-
-      //log.Debug("Saving {0}", this.FileName);
-      if (_document == null)
-      {
-        return;
-      }
-      if (_document.DocumentElement == null)
-      {
-        return;
-      }
-      if (_document.ChildNodes.Count == 0)
-      {
-        return;
-      }
-      if (_document.DocumentElement.ChildNodes == null)
-      {
-        return;
-      }
-      try
-      {
-        if (File.Exists(_filename + ".bak"))
-        {
-          try
-          {
-            File.Delete(_filename + ".bak");
-          }
-          catch (Exception)
-          {
-          }
-        }
-        if (File.Exists(_filename))
-        {
-          try
-          {
-            File.Move(_filename, _filename + ".bak");
-          }
-          catch (Exception)
-          {
-          }
-        }
-      }
-
-      catch (Exception) { }
-
+      // Try to take a backup
+      TakeBackup(_filename);
+      // Write the file
       using (StreamWriter stream = new StreamWriter(_filename, false))
       {
         _document.Save(stream);
         stream.Flush();
-        stream.Close();
       }
       _modified = false;
     }
@@ -269,6 +233,31 @@ namespace MediaPortal.Services.Settings
       return "Setting[@name=\"" + entry + "\"]";
     }
 
+    private void TakeBackup(string fileName)
+    {
+      try
+      {
+        if (File.Exists(fileName + ".bak"))
+        {
+          try
+          {
+            File.Delete(fileName + ".bak");
+          }
+          catch (Exception) { }
+        }
+        if (File.Exists(fileName))
+        {
+          try
+          {
+            File.Move(fileName, fileName + ".bak");
+          }
+          catch (Exception) { }
+        }
+      }
+      catch (Exception) { }
+    }
+
     #endregion
+
   }
 }

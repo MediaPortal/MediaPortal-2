@@ -29,15 +29,60 @@ using System.Text;
 
 namespace MediaPortal.Configuration
 {
+
+  /// <summary>
+  /// Specifies the type of the setting. Settings are rendered according to their type.
+  /// </summary>
   public enum SettingType
   {
+    /// <summary>
+    /// Specifies that the type isn't known.
+    /// </summary>
     Unknown,
+    /// <summary>
+    /// Specifies that the setting is a section. Sections can be rendered as treenodes, pages, ...
+    /// </summary>
     Section,
-    Heading,
+    /// <summary>
+    /// Specifies that the setting is a group. A group should always be seen as a member of a Section.
+    /// </summary>
+    Group,
+    /// <summary>
+    /// Specifies that the setting is limited to 2 options: yes or no. Likely to be rendered as a checkbox.
+    /// </summary>
     YesNo,
+    /// <summary>
+    /// Specifies that only one member of the setting can be selected, likely to be rendered as a ComboBox or a list of RadioButtons.
+    /// </summary>
     SingleSelectionList,
+    /// <summary>
+    /// Specifies that multiple members of the setting can be selected, likely to be rendered as a CheckedListBox.
+    /// </summary>
     MultipleSelectionList,
+    /// <summary>
+    /// Specifies that the setting is a value/string, likely to be rendered as a TextBox.
+    /// </summary>
     Entry,
-    MultipleEntryList
+    /// <summary>
+    /// Specifies that the setting contains multiple entries, likely to be rendered as a multiline TextBox.
+    /// </summary>
+    MultipleEntryList,
+    /// <summary>
+    /// Specifies that the setting is a list of items which can be sorted by the user.
+    /// </summary>
+    PreferenceList,
+    /// <summary>
+    /// Specifies that the setting is a path.
+    /// </summary>
+    Path,
+    /// <summary>
+    /// Specifies that the setting is a number, likely to be rendered as a NumericUpDown or a TextBox.
+    /// </summary>
+    NumberSelect,
+    /// <summary>
+    /// Specifies that the setting is a number which can only be set between specific bounds,
+    /// likely to be rendered as a Slider, a NumericUpDown, or a TextBox.
+    /// </summary>
+    LimitedNumberSelect
   }
 }

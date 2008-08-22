@@ -1,17 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section name="configuration">
-    <String name="save_on_exit" text="World you like to save the changes before closing?"/>
+    <String name="save_on_exit" text="Would you like to save the changes before closing?"/>
     <String name="unsaved_warning" text="Warning: Unsaved Changes"/>
+    <String name="browse" text="Browse"/>
     <String name="areas.settings" text="Settings"/>
     <String name="areas.logs" text="Logs"/>
     <String name="system" text="System"/>
     <String name="system.fullscreen" text="Always start MediaPortal in fullscreen mode"/>
     <String name="system.fullscreen.help" text="Each time MediaPortal starts it will be in full screen mode"/>
+    <String name="system.autostart" text="Autostart MediaPortal on Windows startup"/>
+    <String name="system.autostart.help" text="MediaPortal will start when Windows starts up"/>
+    <String name="system.balloontips" text="Disable tray area's balloon tips (system wide setting)"/>
+    <String name="system.balloontips.help" text="Windows won't show balloon tips anymore"/>
     <String name="settings.button.save" text="Save"/>
     <String name="settings.button.apply" text="Apply"/>
     <String name="settings.general" text="General"/>
     <String name="settings.regional" text="Regional"/>
+    <String name="settings.appearance" text="Appearance"/>
     <String name="settings.folders" text="Folders"/>
     <String name="settings.hardware" text="Hardware"/>
     <String name="language" text="Language"/>
@@ -24,5 +30,9 @@
     <String name="location.region.help" text="Your Region"/>
     <String name="location.city" text="City"/>
     <String name="location.city.help" text="Your City"/>
+    <String name="appearance.skinconfig" text="Local skins"/>
+    <String name="appearance.skinbrowse" text="More skins"/>
+    <String name="skinengine.refreshratecontrol" text="Control refreshrate"/>
+    <String name="skinengine.refreshratecontrol.help" text="MediaPortal will control the refreshrate"/>
   </Section>
 </Language>

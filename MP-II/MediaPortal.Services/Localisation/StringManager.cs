@@ -151,7 +151,7 @@ namespace MediaPortal.Services.Localisation
       {
         if (((PluginMessaging.NotificationType)message.MessageData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginStartupFinished)
         {
-          List<PluginResourceDescriptor> languageResources = ServiceScope.Get<IPluginManager>().GetAllPluginItems<PluginResourceDescriptor>("/Resources/Language");
+          IList<PluginResourceDescriptor> languageResources = ServiceScope.Get<IPluginManager>().GetAllPluginItems<PluginResourceDescriptor>("/Resources/Language");
 
           foreach (PluginResourceDescriptor resource in languageResources)
           {

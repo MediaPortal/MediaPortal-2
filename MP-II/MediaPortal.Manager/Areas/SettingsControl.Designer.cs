@@ -54,163 +54,198 @@ namespace MediaPortal.Manager
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      this.sections = new System.Windows.Forms.TreeView();
-      this.sectionHeader = new System.Windows.Forms.Panel();
-      this.sectionIcon = new System.Windows.Forms.PictureBox();
-      this.sectionTitle = new System.Windows.Forms.Label();
-      this.buttonReset = new System.Windows.Forms.Button();
-      this.buttonSave = new System.Windows.Forms.Button();
-      this.buttonApply = new System.Windows.Forms.Button();
-      this.sectionSettings = new System.Windows.Forms.Panel();
-      this.buttonResetAll = new System.Windows.Forms.Button();
-      this.help = new System.Windows.Forms.ToolTip(this.components);
-      this.sectionHeader.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.sectionIcon)).BeginInit();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsControl));
+      this._treeSections = new System.Windows.Forms.TreeView();
+      this._sectionHeader = new System.Windows.Forms.Panel();
+      this._picSectionIcon = new System.Windows.Forms.PictureBox();
+      this._lblSectionTitle = new System.Windows.Forms.Label();
+      this._btnReset = new System.Windows.Forms.Button();
+      this._btnSave = new System.Windows.Forms.Button();
+      this._btnApply = new System.Windows.Forms.Button();
+      this._panelSectionSettings = new System.Windows.Forms.Panel();
+      this._btnResetAll = new System.Windows.Forms.Button();
+      this._help = new System.Windows.Forms.ToolTip(this.components);
+      this._btnSearch = new System.Windows.Forms.Button();
+      this._txtSearch = new System.Windows.Forms.TextBox();
+      this._sectionHeader.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this._picSectionIcon)).BeginInit();
       this.SuspendLayout();
       // 
-      // sections
+      // _treeSections
       // 
-      this.sections.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+      this._treeSections.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                   | System.Windows.Forms.AnchorStyles.Left)));
-      this.sections.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.sections.FullRowSelect = true;
-      this.sections.HideSelection = false;
-      this.sections.ItemHeight = 26;
-      this.sections.LineColor = System.Drawing.Color.White;
-      this.sections.Location = new System.Drawing.Point(0, 3);
-      this.sections.Name = "sections";
-      this.sections.ShowLines = false;
-      this.sections.Size = new System.Drawing.Size(221, 467);
-      this.sections.TabIndex = 3;
-      this.sections.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.sections_AfterSelect);
+      this._treeSections.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._treeSections.FullRowSelect = true;
+      this._treeSections.HideSelection = false;
+      this._treeSections.ItemHeight = 26;
+      this._treeSections.LineColor = System.Drawing.Color.White;
+      this._treeSections.Location = new System.Drawing.Point(0, 0);
+      this._treeSections.Name = "_treeSections";
+      this._treeSections.ShowLines = false;
+      this._treeSections.Size = new System.Drawing.Size(221, 444);
+      this._treeSections.TabIndex = 3;
+      this._treeSections.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.sections_AfterSelect);
       // 
-      // sectionHeader
+      // _sectionHeader
       // 
-      this.sectionHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      this._sectionHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.sectionHeader.BackColor = System.Drawing.SystemColors.Highlight;
-      this.sectionHeader.Controls.Add(this.sectionIcon);
-      this.sectionHeader.Controls.Add(this.sectionTitle);
-      this.sectionHeader.Location = new System.Drawing.Point(238, 3);
-      this.sectionHeader.Name = "sectionHeader";
-      this.sectionHeader.Size = new System.Drawing.Size(367, 59);
-      this.sectionHeader.TabIndex = 4;
+      this._sectionHeader.BackColor = System.Drawing.SystemColors.Highlight;
+      this._sectionHeader.Controls.Add(this._picSectionIcon);
+      this._sectionHeader.Controls.Add(this._lblSectionTitle);
+      this._sectionHeader.Location = new System.Drawing.Point(238, 3);
+      this._sectionHeader.Name = "_sectionHeader";
+      this._sectionHeader.Size = new System.Drawing.Size(367, 59);
+      this._sectionHeader.TabIndex = 4;
       // 
-      // sectionIcon
+      // _picSectionIcon
       // 
-      this.sectionIcon.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.sectionIcon.Location = new System.Drawing.Point(312, 5);
-      this.sectionIcon.Name = "sectionIcon";
-      this.sectionIcon.Size = new System.Drawing.Size(48, 48);
-      this.sectionIcon.TabIndex = 1;
-      this.sectionIcon.TabStop = false;
+      this._picSectionIcon.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this._picSectionIcon.Location = new System.Drawing.Point(312, 5);
+      this._picSectionIcon.Name = "_picSectionIcon";
+      this._picSectionIcon.Size = new System.Drawing.Size(48, 48);
+      this._picSectionIcon.TabIndex = 1;
+      this._picSectionIcon.TabStop = false;
       // 
-      // sectionTitle
+      // _lblSectionTitle
       // 
-      this.sectionTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.sectionTitle.ForeColor = System.Drawing.SystemColors.ControlLight;
-      this.sectionTitle.Location = new System.Drawing.Point(3, 22);
-      this.sectionTitle.Name = "sectionTitle";
-      this.sectionTitle.Size = new System.Drawing.Size(280, 16);
-      this.sectionTitle.TabIndex = 0;
-      this.sectionTitle.Text = "Test";
+      this._lblSectionTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._lblSectionTitle.ForeColor = System.Drawing.SystemColors.ControlLight;
+      this._lblSectionTitle.Location = new System.Drawing.Point(3, 22);
+      this._lblSectionTitle.Name = "_lblSectionTitle";
+      this._lblSectionTitle.Size = new System.Drawing.Size(280, 16);
+      this._lblSectionTitle.TabIndex = 0;
+      this._lblSectionTitle.Text = "Project";
       // 
-      // buttonReset
+      // _btnReset
       // 
-      this.buttonReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonReset.Enabled = false;
-      this.buttonReset.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.buttonReset.Location = new System.Drawing.Point(338, 487);
-      this.buttonReset.Name = "buttonReset";
-      this.buttonReset.Size = new System.Drawing.Size(86, 26);
-      this.buttonReset.TabIndex = 8;
-      this.buttonReset.Text = "Reset";
-      this.buttonReset.UseVisualStyleBackColor = true;
+      this._btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this._btnReset.Enabled = false;
+      this._btnReset.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._btnReset.Location = new System.Drawing.Point(338, 487);
+      this._btnReset.Name = "_btnReset";
+      this._btnReset.Size = new System.Drawing.Size(86, 26);
+      this._btnReset.TabIndex = 8;
+      this._btnReset.Text = "Reset";
+      this._btnReset.UseVisualStyleBackColor = true;
       // 
-      // buttonSave
+      // _btnSave
       // 
-      this.buttonSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonSave.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.buttonSave.Location = new System.Drawing.Point(430, 487);
-      this.buttonSave.Name = "buttonSave";
-      this.buttonSave.Size = new System.Drawing.Size(86, 26);
-      this.buttonSave.TabIndex = 7;
-      this.buttonSave.Text = "Save";
-      this.buttonSave.UseVisualStyleBackColor = true;
-      this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+      this._btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this._btnSave.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._btnSave.Location = new System.Drawing.Point(430, 487);
+      this._btnSave.Name = "_btnSave";
+      this._btnSave.Size = new System.Drawing.Size(86, 26);
+      this._btnSave.TabIndex = 7;
+      this._btnSave.Text = "Save";
+      this._btnSave.UseVisualStyleBackColor = true;
+      this._btnSave.Click += new System.EventHandler(this.buttonSave_Click);
       // 
-      // buttonApply
+      // _btnApply
       // 
-      this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonApply.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.buttonApply.Location = new System.Drawing.Point(522, 487);
-      this.buttonApply.Name = "buttonApply";
-      this.buttonApply.Size = new System.Drawing.Size(86, 26);
-      this.buttonApply.TabIndex = 6;
-      this.buttonApply.Text = "Apply";
-      this.buttonApply.UseVisualStyleBackColor = true;
-      this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
+      this._btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this._btnApply.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._btnApply.Location = new System.Drawing.Point(522, 487);
+      this._btnApply.Name = "_btnApply";
+      this._btnApply.Size = new System.Drawing.Size(86, 26);
+      this._btnApply.TabIndex = 6;
+      this._btnApply.Text = "Apply";
+      this._btnApply.UseVisualStyleBackColor = true;
+      this._btnApply.Click += new System.EventHandler(this.buttonApply_Click);
       // 
-      // sectionSettings
+      // _panelSectionSettings
       // 
-      this.sectionSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+      this._panelSectionSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                   | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.sectionSettings.AutoScroll = true;
-      this.sectionSettings.Location = new System.Drawing.Point(238, 68);
-      this.sectionSettings.Name = "sectionSettings";
-      this.sectionSettings.Size = new System.Drawing.Size(367, 402);
-      this.sectionSettings.TabIndex = 9;
+      this._panelSectionSettings.AutoScroll = true;
+      this._panelSectionSettings.Location = new System.Drawing.Point(238, 81);
+      this._panelSectionSettings.Name = "_panelSectionSettings";
+      this._panelSectionSettings.Size = new System.Drawing.Size(367, 389);
+      this._panelSectionSettings.TabIndex = 9;
+      this._panelSectionSettings.SizeChanged += new System.EventHandler(this.panelSectionSettings_SizeChanged);
       // 
-      // buttonResetAll
+      // _btnResetAll
       // 
-      this.buttonResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-      this.buttonResetAll.Enabled = false;
-      this.buttonResetAll.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.buttonResetAll.Location = new System.Drawing.Point(0, 487);
-      this.buttonResetAll.Name = "buttonResetAll";
-      this.buttonResetAll.Size = new System.Drawing.Size(86, 26);
-      this.buttonResetAll.TabIndex = 11;
-      this.buttonResetAll.Text = "Reset All";
-      this.buttonResetAll.UseVisualStyleBackColor = true;
+      this._btnResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this._btnResetAll.Enabled = false;
+      this._btnResetAll.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._btnResetAll.Location = new System.Drawing.Point(0, 487);
+      this._btnResetAll.Name = "_btnResetAll";
+      this._btnResetAll.Size = new System.Drawing.Size(86, 26);
+      this._btnResetAll.TabIndex = 11;
+      this._btnResetAll.Text = "Reset All";
+      this._btnResetAll.UseVisualStyleBackColor = true;
       // 
-      // help
+      // _help
       // 
-      this.help.AutoPopDelay = 5000;
-      this.help.InitialDelay = 1000;
-      this.help.ReshowDelay = 100;
+      this._help.AutoPopDelay = 5000;
+      this._help.InitialDelay = 1000;
+      this._help.ReshowDelay = 100;
+      this._help.ShowAlways = true;
+      // 
+      // _btnSearch
+      // 
+      this._btnSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this._btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+      this._btnSearch.ForeColor = System.Drawing.SystemColors.ButtonFace;
+      this._btnSearch.Image = ((System.Drawing.Image)(resources.GetObject("_btnSearch.Image")));
+      this._btnSearch.Location = new System.Drawing.Point(201, 450);
+      this._btnSearch.Name = "_btnSearch";
+      this._btnSearch.Size = new System.Drawing.Size(20, 20);
+      this._btnSearch.TabIndex = 13;
+      this._btnSearch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+      this._help.SetToolTip(this._btnSearch, "Find match");
+      this._btnSearch.UseVisualStyleBackColor = true;
+      this._btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+      // 
+      // _txtSearch
+      // 
+      this._txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this._txtSearch.Location = new System.Drawing.Point(0, 450);
+      this._txtSearch.Name = "_txtSearch";
+      this._txtSearch.Size = new System.Drawing.Size(204, 20);
+      this._txtSearch.TabIndex = 12;
+      this._txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
+      this._txtSearch.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSearch_KeyPress);
       // 
       // SettingsControl
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.Controls.Add(this.buttonResetAll);
-      this.Controls.Add(this.sectionSettings);
-      this.Controls.Add(this.buttonReset);
-      this.Controls.Add(this.buttonSave);
-      this.Controls.Add(this.buttonApply);
-      this.Controls.Add(this.sectionHeader);
-      this.Controls.Add(this.sections);
+      this.Controls.Add(this._btnSearch);
+      this.Controls.Add(this._btnResetAll);
+      this.Controls.Add(this._txtSearch);
+      this.Controls.Add(this._panelSectionSettings);
+      this.Controls.Add(this._btnReset);
+      this.Controls.Add(this._btnSave);
+      this.Controls.Add(this._btnApply);
+      this.Controls.Add(this._sectionHeader);
+      this.Controls.Add(this._treeSections);
       this.Name = "SettingsControl";
       this.RightToLeft = System.Windows.Forms.RightToLeft.No;
       this.Size = new System.Drawing.Size(608, 513);
-      this.sectionHeader.ResumeLayout(false);
-      ((System.ComponentModel.ISupportInitialize)(this.sectionIcon)).EndInit();
+      this._sectionHeader.ResumeLayout(false);
+      ((System.ComponentModel.ISupportInitialize)(this._picSectionIcon)).EndInit();
       this.ResumeLayout(false);
+      this.PerformLayout();
 
     }
 
     #endregion
 
-    private System.Windows.Forms.TreeView sections;
-    private System.Windows.Forms.Panel sectionHeader;
-    private System.Windows.Forms.Label sectionTitle;
-    private System.Windows.Forms.Button buttonReset;
-    private System.Windows.Forms.Button buttonSave;
-    private System.Windows.Forms.Button buttonApply;
-    private System.Windows.Forms.Panel sectionSettings;
-    private System.Windows.Forms.Button buttonResetAll;
-    private System.Windows.Forms.ToolTip help;
-    private System.Windows.Forms.PictureBox sectionIcon;
+    private System.Windows.Forms.TreeView _treeSections;
+    private System.Windows.Forms.Panel _sectionHeader;
+    private System.Windows.Forms.Label _lblSectionTitle;
+    private System.Windows.Forms.Button _btnReset;
+    private System.Windows.Forms.Button _btnSave;
+    private System.Windows.Forms.Button _btnApply;
+    private System.Windows.Forms.Panel _panelSectionSettings;
+    private System.Windows.Forms.Button _btnResetAll;
+    private System.Windows.Forms.ToolTip _help;
+    private System.Windows.Forms.PictureBox _picSectionIcon;
+    private System.Windows.Forms.TextBox _txtSearch;
+    private System.Windows.Forms.Button _btnSearch;
   }
 }

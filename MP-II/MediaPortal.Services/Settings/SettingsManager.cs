@@ -22,22 +22,32 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
+
 
 namespace MediaPortal.Services.Settings
 {
   /// <summary>
-  /// Main Config Service
+  /// Main Config Service.
   /// </summary>
   public class SettingsManager : ISettingsManager
   {
+
+    #region Public Methods
+
     /// <summary>
     /// Retrieves an object's public properties from an Xml file 
     /// </summary>
     /// <param name="settingsObject">Object's instance</param>
     public void Load(object settingsObject)
     {
-      ObjectParser.Deserialize(settingsObject);
+      string fileName = GetFilename(settingsObject);
+      SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
+      parser.Deserialize();
     }
 
     /// <summary>
@@ -46,7 +56,61 @@ namespace MediaPortal.Services.Settings
     /// <param name="settingsObject">Object's instance</param>
     public void Save(object settingsObject)
     {
-      ObjectParser.Serialize(settingsObject,true,true);
+      string fileName = GetFilename(settingsObject);
+      SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
+      parser.Serialize();
     }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// Returns a filename based on an setting class name
+    /// additionnaly appends an extension to the filename
+    /// if the settings class implements INamesSettings interface
+    /// see doc for more infos on INamedSettings
+    /// </summary>
+    /// <param name="obj">settings instance to name</param>
+    /// <returns></returns>
+    private string GetFilename(object obj)
+    {
+      string fileName;
+      INamedSettings namedSettings = obj as INamedSettings;
+      if (namedSettings != null)
+      {
+        fileName = obj + "." + namedSettings.Name + ".xml";
+      }
+      else
+      {
+        fileName = obj + ".xml";
+      }
+      return fileName;
+    }
+
+    /// <summary>
+    /// Returns full filename including config path and user subdir.
+    /// </summary>
+    /// <param name="fileName">Filename, can be retrieved with GetFileName(object).</param>
+    /// <returns></returns>
+    private string GetUserFilename(string filename)
+    {
+      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, filename);
+      return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
+    }
+
+    /// <summary>
+    /// Returns full filename including config path.
+    /// </summary>
+    /// <param name="fileName">Filename, can be retrieved with GetFileName(object).</param>
+    /// <returns></returns>
+    private string GetGlobalFilename(string filename)
+    {
+      string fullFileName = String.Format(@"<CONFIG>\{0}", filename);
+      return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
+    }
+
+    #endregion
+
   }
 }

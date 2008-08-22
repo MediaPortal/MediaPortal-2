@@ -15,14 +15,18 @@
     <Class id = "SkinEngine" class = "MediaPortal.SkinEngine.DirectxGui"/>
   </Register>
 
-  <Register location = "/Configuration/Settings/General">
-    <Setting id= "system"
-         text = "[configuration.system]"
-         type = "Heading"/>
-    <Setting id= "fullscreen"
+  <Register location = "/Configuration/Settings/Appearance">
+    <Setting type = "Group"
+             id= "system"
+             text = "[configuration.system]" />
+  </Register>
+
+  <Register location = "/Configuration/Settings/Appearance/System">
+    <Setting type = "YesNo"
+             id= "fullscreen"
              text = "[configuration.system.fullscreen]"
              help = "[configuration.system.fullscreen.help]"
-             type = "YesNo"
              class = "MediaPortal.SkinEngine.Settings.Fullscreen"/>
   </Register>
+  
 </Plugin>

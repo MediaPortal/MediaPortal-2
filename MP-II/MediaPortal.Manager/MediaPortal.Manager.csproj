@@ -65,6 +65,11 @@
     <Compile Include="Areas\SettingsControl.Designer.cs">
       <DependentUpon>SettingsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Designer\FormDesigner.cs" />
+    <Compile Include="Designer\PathDetails.cs" />
+    <Compile Include="Designer\Position.cs" />
+    <Compile Include="Designer\PreferenceListDetails.cs" />
+    <Compile Include="Designer\SectionDetails.cs" />
     <Compile Include="Windows\MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,6 +106,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Components\Configuration.Framework\Configuration.Framework.csproj">
+      <Project>{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}</Project>
+      <Name>Configuration.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>

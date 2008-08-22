@@ -40,7 +40,25 @@ namespace MediaPortal.Manager
 {
   public partial class MainWindow : Form
   {
-    SettingsControl _settingsArea;
+
+    #region Enums
+
+    private enum AreaType
+    {
+      SettingsArea,
+      LogArea
+    }
+
+    #endregion
+
+    #region Variables
+
+    private SettingsControl _settingsArea;
+    private AreaType _areaType;
+
+    #endregion
+
+    #region Constructors
 
     public MainWindow()
     {
@@ -48,7 +66,13 @@ namespace MediaPortal.Manager
 
       // Load plugins
       ServiceScope.Get<IPluginManager>().Startup();
-
+      // Add the manager if not existing
+      if (!ServiceScope.IsRegistered<IConfigurationManager>())
+      {
+        IConfigurationManager configManager = new ConfigurationManager();
+        ServiceScope.Add<IConfigurationManager>(configManager);
+        configManager.Load();
+      }
       // localise buttons
       StringId settings = new StringId("configuration", "areas.settings");
       this.areaSettings.Tag = settings;
@@ -65,13 +89,42 @@ namespace MediaPortal.Manager
 
       _settingsArea = new SettingsControl();
 
-      _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top 
+      _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top
         | System.Windows.Forms.AnchorStyles.Bottom)
         | System.Windows.Forms.AnchorStyles.Left)
         | System.Windows.Forms.AnchorStyles.Right)));
 
+      _areaType = AreaType.SettingsArea;
       areaControls.Controls.Add(_settingsArea);
     }
+
+    #endregion
+
+    #region Private Events
+
+    private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      e.Cancel = !_settingsArea.Closing();
+    }
+
+    private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+    {
+      if (e.Control && !e.Alt && !e.Shift && e.KeyCode == Keys.F)
+      {
+        switch (_areaType)
+        {
+          case AreaType.SettingsArea:
+            _settingsArea.FocusSearch();
+            break;
+          case AreaType.LogArea:
+            break;
+        }
+      }
+    }
+
+    #endregion
+
+    #region Private Methods
 
     private void LangageChange(object o)
     {
@@ -86,21 +139,15 @@ namespace MediaPortal.Manager
 
     private void CheckRightToLeft()
     {
-      if (ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft)
-      {
+      this.RightToLeftLayout = ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft;
+      if (this.RightToLeftLayout)
         this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-        this.RightToLeftLayout = true;
-      }
       else
-      {
         this.RightToLeft = System.Windows.Forms.RightToLeft.No;
-        this.RightToLeftLayout = false;
-      }
     }
 
-    private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
-    {
-      e.Cancel = !_settingsArea.Closing();
-    }
+    #endregion
+
+
   }
 }

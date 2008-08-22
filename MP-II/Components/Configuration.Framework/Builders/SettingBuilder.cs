@@ -40,25 +40,26 @@ namespace Components.Configuration.Builders
   public class SettingBuilder : IPluginItemBuilder
   {
     #region IPluginBuilder methods
+
     public object BuildItem(IPluginRegisteredItem item)
     {
-      SettingBase setting;
+      ConfigBase setting;
 
       try
       {
         if (item.Contains("class"))
-          setting = (SettingBase)item.Plugin.CreateObject(item["class"]);
+          setting = (ConfigBase)item.Plugin.CreateObject(item["class"]);
         else
-          setting = new SettingBase();
+          setting = new ConfigBase();
       }
       catch (Exception)
       {
         //log
-        setting = new SettingBase();
+        setting = new ConfigBase();
       }
 
       setting.Id = item.Id;
-      
+
       if (item.Contains("text"))
         setting.Text = new StringId(item["text"]);
       else
@@ -70,10 +71,18 @@ namespace Components.Configuration.Builders
         setting.Help = new StringId();
 
       if (item.Contains("iconsmall"))
-        setting.IconSmall = Path.Combine(item.Plugin.PluginPath.FullName, item["iconsmall"]).ToString();
+        setting.IconSmall = Path.Combine(item.Plugin.PluginPath.ToString(), item["iconsmall"]).ToString();
 
       if (item.Contains("iconlarge"))
-        setting.IconLarge = Path.Combine(item.Plugin.PluginPath.FullName, item["iconlarge"]).ToString();
+        setting.IconLarge = Path.Combine(item.Plugin.PluginPath.ToString(), item["iconlarge"]).ToString();
+
+      int width = -1;
+      if (item.Contains("width")) Int32.TryParse(item["width"], out width);
+      setting.Width = width;
+
+      int height = -1;
+      if (item.Contains("height")) Int32.TryParse(item["height"], out height);
+      setting.Height = height;
 
       if (item.Contains("type"))
       {
@@ -93,6 +102,7 @@ namespace Components.Configuration.Builders
 
       return setting;
     }
+
     #endregion
   }
 }

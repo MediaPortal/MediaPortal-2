@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core;
 
 namespace MediaPortal.Presentation.Localisation
@@ -33,66 +34,30 @@ namespace MediaPortal.Presentation.Localisation
   /// <remarks>
   /// String descriptors of this class hold a section name and a name of the to-be-localized
   /// string. These values are used to lookup the localized string in the language resource.
-  /// <see cref="ILocalisation"/>
+  /// <see cref="MediaPortal.Core.Localisation.ILocalization"/>
   /// </remarks>
-  public class StringId
+  public class StringId : IComparable<StringId>, IEquatable<StringId>
   {
-    #region Protected fields
 
-    protected readonly string _section;
-    protected readonly string _name;
-    protected string _localised;
+    #region VARIABLES
+
+    /// <summary>
+    /// The section in the language resource
+    /// where the localized string will be searched.
+    /// </summary>
+    private string _section;
+    /// <summary>
+    /// The name of the string in the language resource.
+    /// </summary>
+    private string _name;
+    /// <summary>
+    /// The Result, a localised string.
+    /// </summary>
+    private string _localised;
 
     #endregion
 
-    /// <summary>
-    /// Creates a new invalid string descriptor.
-    /// </summary>
-    public StringId()
-    {
-      _section = "system";
-      _name = "invalid";
-    }
-
-    /// <summary>
-    /// Creates a new string descriptor for the specified section and name.
-    /// </summary>
-    /// <param name="section">The section in the language resource
-    /// where the localized string will be searched.</param>
-    /// <param name="name">The name of the string in the specified section.</param>
-    public StringId(string section, string name)
-    {
-      _section = section;
-      _name = name;
-
-      ServiceScope.Get<ILocalisation>().LanguageChange += OnLangageChange;
-    }
-
-    /// <summary>
-    /// Creates a new string descriptor given a label describing the string. This label may come
-    /// from a skin file, for example.
-    /// </summary>
-    /// <param name="label">A label describing the localized string. This label has to be in the
-    /// form <c>[section.name]</c>.</param>
-    public StringId(string label)
-    {
-      if (IsResourceString(label))
-      { // Parse string if it has the form [section.name]
-        ParseResourceString(label, out _section, out _name);
-        ServiceScope.Get<ILocalisation>().LanguageChange += OnLangageChange;
-      }
-      else
-      { // No resource string - use plain string
-        _section = "plain"; // Dummy section & name
-        _name = label;
-        _localised = label;
-      }
-    }
-
-    public void Dispose()
-    {
-      ServiceScope.Get<ILocalisation>().LanguageChange -= OnLangageChange;
-    }
+    #region PROPERTIES
 
     /// <summary>
     /// The section name where the localized string will be searched in the language resource.
@@ -110,16 +75,84 @@ namespace MediaPortal.Presentation.Localisation
       get { return _name; }
     }
 
+    /// <summary>
+    /// Full link, formatted as "[section.name]".
+    /// </summary>
     public string Label
     {
       get { return "[" + _section + "." + _name + "]"; }
     }
 
-    private void OnLangageChange(object o)
+    #endregion
+
+    #region CONSTRUCTORS
+
+    /// <summary>
+    /// Initializes a new invalid string descriptor.
+    /// </summary>
+    public StringId()
     {
-      _localised = null;
+      _section = "system";
+      _name = "invalid";
     }
 
+    /// <summary>
+    /// Initializes a new string descriptor with the specified data.
+    /// </summary>
+    /// <param name="section">The section in the language resource
+    /// where the localized string will be searched.</param>
+    /// <param name="name">The name of the string in the language resource.</param>
+    public StringId(string section, string name)
+    {
+      _section = section;
+      _name = name;
+
+      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LanguageChange);
+    }
+
+    /// <summary>
+    /// Initializes a new string descriptor given a label describing the string. This label may come
+    /// from a skin file, for example.
+    /// </summary>
+    /// <param name="label">A label describing the localized string. This label has to be in the
+    /// form <c>[section.name]</c>.</param>
+    public StringId(string label)
+    {
+      // Parse string example [section.name]
+      if (IsResourceString(label))
+      {
+        int pos = label.IndexOf('.');
+        _section = label.Substring(1, pos - 1).ToLower();
+        _name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
+
+        ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LanguageChange);
+      }
+      else
+      {
+        // Should we raise an exception here?
+        _section = "system";
+        _name = label;
+        _localised = label;
+      }
+    }
+
+    #endregion
+
+    #region PUBLIC METHODS
+
+    /// <summary>
+    /// Disposes the instance.
+    /// </summary>
+    public void Dispose()
+    {
+      ServiceScope.Get<ILocalisation>().LanguageChange -= LanguageChange;
+    }
+
+    /// <summary>
+    /// Returns the localised string,
+    /// or (if not found) the Label-property.
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
       if (_localised == null)
@@ -131,19 +164,18 @@ namespace MediaPortal.Presentation.Localisation
         return _localised;
     }
 
-    /// <summary>
-    /// Parses the section and the name part of a given <see cref="StringId"/> label.
-    /// </summary>
-    /// <param name="label">Label to be parsed. The label has to be in the form
-    /// <code>[section.name]</code>.</param>
-    /// <param name="section">Parsed section.</param>
-    /// <param name="name">Parsed name.</param>
-    protected static void ParseResourceString(string label, out string section, out string name)
+    #endregion
+
+    #region PRIVATE METHODS
+
+    private void LanguageChange(object o)
     {
-      int pos = label.IndexOf('.');
-      section = label.Substring(1, pos - 1).ToLower();
-      name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
+      _localised = null;
     }
+
+    #endregion
+
+    #region STATIC METHODS
 
     /// <summary>
     /// Tests if the given string is of form <c>[section.name]</c> and hence can be looked up
@@ -159,5 +191,31 @@ namespace MediaPortal.Presentation.Localisation
 
       return false;
     }
+
+    #endregion
+
+    #region IComparable<StringId> Members
+
+    /// <summary>
+    /// Compares the localised strings.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public int CompareTo(StringId other)
+    {
+      return string.Compare(this.ToString(), other.ToString(), false, ServiceScope.Get<ILocalisation>().CurrentCulture);
+    }
+
+    #endregion
+
+    #region IEquatable<StringId> Members
+
+    public bool Equals(StringId other)
+    {
+      return this.Label == other.Label;
+    }
+
+    #endregion
+
   }
 }

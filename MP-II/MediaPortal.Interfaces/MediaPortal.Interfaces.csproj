@@ -59,6 +59,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\Settings\Entry.cs" />
+    <Compile Include="Configuration\Settings\LimitedNumberSelect.cs" />
+    <Compile Include="Configuration\Settings\MultipleEntryList.cs" />
+    <Compile Include="Configuration\Settings\MultipleSelectionList.cs" />
+    <Compile Include="Configuration\Settings\NumberSelect.cs" />
+    <Compile Include="Configuration\ItemList.cs" />
+    <Compile Include="Configuration\Settings\Path.cs" />
+    <Compile Include="Configuration\Settings\PreferenceList.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
@@ -66,7 +74,7 @@
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Configuration\Settings\YesNo.cs" />
     <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
-    <Compile Include="Configuration\SettingBase.cs" />
+    <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\SettingType.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />

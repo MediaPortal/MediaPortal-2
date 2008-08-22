@@ -108,7 +108,8 @@ namespace MediaPortal.Manager
       try
       {
 #endif
-        Application.Run(new MainWindow());
+        MainWindow window = new MainWindow();
+        Application.Run(window);
 #if !DEBUG
         }
         catch (Exception ex)
