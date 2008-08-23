@@ -66,34 +66,23 @@ namespace MediaPortal.Manager
 
       // Load plugins
       ServiceScope.Get<IPluginManager>().Startup();
-      // Add the manager if not existing
-      if (!ServiceScope.IsRegistered<IConfigurationManager>())
-      {
-        IConfigurationManager configManager = new ConfigurationManager();
-        ServiceScope.Add<IConfigurationManager>(configManager);
-        configManager.Load();
-      }
-      // localise buttons
+      ServiceScope.Get<IConfigurationManager>().Load();
+      // Localise window
       StringId settings = new StringId("configuration", "areas.settings");
       this.areaSettings.Tag = settings;
       this.areaSettings.Text = settings.ToString();
-
       StringId logs = new StringId("configuration", "areas.logs");
       this.areaLogs.Tag = logs;
       this.areaLogs.Text = logs.ToString();
       this.areaLogs.Enabled = false;
-
       ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
-
       CheckRightToLeft();
-
+      // Initialize SettingsControl
       _settingsArea = new SettingsControl();
-
       _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top
         | System.Windows.Forms.AnchorStyles.Bottom)
         | System.Windows.Forms.AnchorStyles.Left)
         | System.Windows.Forms.AnchorStyles.Right)));
-
       _areaType = AreaType.SettingsArea;
       areaControls.Controls.Add(_settingsArea);
     }

@@ -43,25 +43,34 @@ namespace Components.Configuration.Settings
   public class Balloontips : YesNo
   {
 
+    #region Constructors
+
     public Balloontips()
     {
-      SystemSettings settings = new SystemSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      base._yes = !settings.Balloontips;
+      base.SetSettingsObject(new SystemSettings());
     }
 
-    public override void Save()
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
-      Commit();
-      SystemSettings settings = new SystemSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      if (settings.Balloontips != base._yes) return;
-      settings.Balloontips = !base._yes;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      base._yes = !((SystemSettings)settingsObject).Balloontips;
     }
+
+    public override void Save(object settingsObject)
+    {
+      ((SystemSettings)settingsObject).Balloontips = !base._yes;
+      Commit();
+    }
+
+    #endregion
+
+    #region Private Methods
 
     /// <summary>
-    /// Commits the balloontip setting.
+    /// Commits the balloontip setting to the registry.
     /// </summary>
     private void Commit()
     {
@@ -92,6 +101,8 @@ namespace Components.Configuration.Settings
         ServiceScope.Get<ILogger>().Error("Can't write balloontip-value \"{0}\" to registry.", ex, base._yes);
       }
     }
+
+    #endregion
 
   }
 }

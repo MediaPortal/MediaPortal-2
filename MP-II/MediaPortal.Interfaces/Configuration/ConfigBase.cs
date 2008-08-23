@@ -85,6 +85,15 @@ namespace MediaPortal.Configuration
 
     #endregion
 
+    #region Private Variables
+
+    /// <summary>
+    /// The type of object which can be used to extract settings from.
+    /// </summary>
+    private object _settingsObject;
+
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -175,31 +184,57 @@ namespace MediaPortal.Configuration
       set { this._height = value; }
     }
 
+    /// <summary>
+    /// Gets the type of object which can be used to extract settings from.
+    /// </summary>
+    public object SettingsObject
+    {
+      get { return _settingsObject; }
+    }
+
     #endregion
 
     #region Public Methods
 
     /// <summary>
+    /// Loads the setting.
+    /// </summary>
+    public virtual void Load() { }
+
+    /// <summary>
     /// Loads the setting from the specified object.
     /// </summary>
-    /// <param name="settingsObject"></param>
-    public virtual void Load(object settingsObject)
-    {
-
-    }
+    /// <param name="settingsObject">Object to extract setting from.</param>
+    public virtual void Load(object settingsObject) { }
 
     /// <summary>
     /// Saves the setting.
     /// </summary>
-    public virtual void Save()
-    {
-    }
+    public virtual void Save() { }
+
+    /// <summary>
+    /// Saves the setting.
+    /// </summary>
+    /// <param name="settingsObject">Object to save setting to.</param>
+    public virtual void Save(object settingsObject) { }
 
     /// <summary>
     /// Applies the setting.
     /// </summary>
-    public virtual void Apply()
+    public virtual void Apply() { }
+
+    #endregion
+
+    #region Protected Methods
+
+    /// <summary>
+    /// Sets the type of object which can be used to extract settings from.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    protected void SetSettingsObject(object obj)
     {
+      _settingsObject = obj;
     }
 
     #endregion

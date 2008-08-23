@@ -57,12 +57,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\SettingBuilder.cs" />
-    <Compile Include="ConfigurationManager\ConfigurationManager.cs" />
-    <Compile Include="ConfigurationManager\ConfigurationNode.cs" />
-    <Compile Include="ConfigurationManager\ConfigurationNodeCollection.cs" />
-    <Compile Include="ConfigurationManager\TreeLoader.cs" />
+    <Compile Include="ConfigurationManagement\ConfigurationLoader.cs" />
+    <Compile Include="ConfigurationManagement\ConfigurationManager.cs" />
+    <Compile Include="ConfigurationManagement\ConfigurationNode.cs" />
+    <Compile Include="ConfigurationManagement\ConfigurationNodeCollection.cs" />
+    <Compile Include="ConfigurationManagement\NodeMatcher.cs" />
+    <Compile Include="ConfigurationManagement\SettingFile.cs" />
     <Compile Include="ConfigurationPlugin.cs" />
-    <Compile Include="ConfigurationManager\ConfigurationTree.cs" />
+    <Compile Include="ConfigurationManagement\ConfigurationTree.cs" />
     <Compile Include="IConfigurationNode.cs" />
     <Compile Include="IConfigurationManager.cs" />
     <Compile Include="NodeNotFoundException.cs" />

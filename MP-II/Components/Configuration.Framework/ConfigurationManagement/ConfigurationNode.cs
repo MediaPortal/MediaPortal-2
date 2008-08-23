@@ -37,9 +37,9 @@ namespace MediaPortal.Configuration
     /// </summary>
     private ConfigurationNodeCollection _nodes;
     /// <summary>
-    /// Keys representing the current node.
+    /// Matches the current ConfigBase with a specified value.
     /// </summary>
-    private ICollection<string> _searchKeys;
+    private NodeMatcher _matcher;
 
     #endregion
 
@@ -129,21 +129,9 @@ namespace MediaPortal.Configuration
     /// <returns></returns>
     public float Matches(string searchValue)
     {
-      if (_searchKeys == null)
-        UpdateSearchKeys();
-      searchValue = searchValue.ToLower();
-      if (searchValue == _setting.Text.ToString().ToLower())
-        return 1;
-      int result = 0;
-      lock (_searchKeys)
-      {
-        foreach (string key in _searchKeys)
-        {
-          if (key.ToLower().Contains(searchValue))
-            result++;
-        }
-      }
-      return (float)((double)result / _searchKeys.Count);
+      if (_matcher == null)
+        _matcher = new NodeMatcher(_setting);
+      return _matcher.Match(searchValue);
     }
 
     /// <summary>
@@ -160,33 +148,6 @@ namespace MediaPortal.Configuration
 
     #endregion
 
-    #region Private Methods
-
-    /// <summary>
-    /// Updates the searchkeys.
-    /// </summary>
-    private void UpdateSearchKeys()
-    {
-      _searchKeys = new List<string>();
-      // Add setting information to the keys
-      if (_setting.Text.Label != "[system.invalid]")
-        _searchKeys.Add(_setting.Text.ToString().ToLower());
-      if (_setting.Help.Label != "[system.invalid]")
-        _searchKeys.Add(_setting.Help.ToString().ToLower());
-      // If the setting is a list, add its items
-      if (_setting is ItemList)
-      {
-        foreach (object o in ((ItemList)_setting).Items)
-        {
-          string value = o.ToString();
-          if (value != null && value != "" && value != "[system.invalid]")
-            _searchKeys.Add(value);
-        }
-      }
-    }
-
-    #endregion
-
     #region IConfigurationNode Members
 
     /// <summary>
@@ -197,7 +158,7 @@ namespace MediaPortal.Configuration
       get { return _setting; }
       internal set
       {
-        _searchKeys = null;
+        _matcher = null;
         _setting = value;
       }
     }
@@ -210,7 +171,6 @@ namespace MediaPortal.Configuration
       get { return _parent; }
       internal set
       {
-        _searchKeys = null;
         _parent = (ConfigurationNode)value;
         if (_parent != null)
         {

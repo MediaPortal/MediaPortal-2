@@ -25,6 +25,7 @@
 
 using System;
 using System.Windows.Forms;
+
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal;
 using MediaPortal.Core;
@@ -39,6 +40,7 @@ using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.Settings;
 using MediaPortal.Services.Messaging;
+using MediaPortal.Configuration;
 
 
 namespace MediaPortal.Manager
@@ -76,9 +78,6 @@ namespace MediaPortal.Manager
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
 
-        // Register PathManager
-        ServiceScope.Add<IPathManager>(pathManager);
-
         //Check whether the user wants to log method names in the logger
         //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
         bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
@@ -89,6 +88,9 @@ namespace MediaPortal.Manager
         }
         ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
         ServiceScope.Add(logger);
+        
+        logger.Debug("Manager: Registering Path Manager");
+        ServiceScope.Add<IPathManager>(pathManager);
 
         logger.Debug("Manager: Registering Messaging");
         ServiceScope.Add<IMessageBroker>(new MessageBroker());
@@ -98,6 +100,9 @@ namespace MediaPortal.Manager
 
         logger.Debug("Manager: Registering Settings Manager");
         ServiceScope.Add<ISettingsManager>(new SettingsManager());
+
+        logger.Debug("Manager: Registering Configuration Manager");
+        ServiceScope.Add<IConfigurationManager>(new ConfigurationManager());
 
         logger.Debug("Manager: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());

@@ -4,16 +4,24 @@ using System.Threading;
 
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Settings;
 
 
 namespace MediaPortal.Configuration
 {
 
-  internal class TreeLoader
+  /// <summary>
+  /// ConfigurationLoader loads all configuration items from the PluginTree to a ConfigurationTree.
+  /// All configuration items are grouped per settingsclass in the SettingFiles property.
+  /// </summary>
+  internal class ConfigurationLoader
   {
 
     #region Constants
 
+    /// <summary>
+    /// Location to start searching for configuration items, in the plugintree.
+    /// </summary>
     private const string PLUGINSTART = "/Configuration/Settings/";
 
     #endregion
@@ -40,6 +48,10 @@ namespace MediaPortal.Configuration
     /// The index of the next-to-load section.
     /// </summary>
     private int _sectionIndex;
+    /// <summary>
+    /// All files, with their linked configuration items.
+    /// </summary>
+    private IList<SettingFile> _files;
 
     #endregion
 
@@ -51,6 +63,14 @@ namespace MediaPortal.Configuration
     public ConfigurationTree Tree
     {
       get { return _tree; }
+    }
+
+    /// <summary>
+    /// Gets all settingfiles, with all configuration classes linked to them.
+    /// </summary>
+    public ICollection<SettingFile> SettingFiles
+    {
+      get { return _files; }
     }
 
     /// <summary>
@@ -79,16 +99,34 @@ namespace MediaPortal.Configuration
 
     #endregion
 
+    #region Events
+
+    /// <summary>
+    /// Gets called when the current ConfigurationLoader is done with loading the tree.
+    /// </summary>
+    public event EventHandler OnTreeLoaded;
+
+    #endregion
+
     #region Constructors
 
-    public TreeLoader()
+    /// <summary>
+    /// Initializes a new instance of ConfigurationLoader.
+    /// </summary>
+    public ConfigurationLoader()
     {
       _tree = new ConfigurationTree();
+      _files = new List<SettingFile>();
     }
 
-    public TreeLoader(ConfigurationTree tree)
+    /// <summary>
+    /// Initializes a new instance of ConfigurationLoader.
+    /// </summary>
+    /// <param name="tree">Tree to load all configurations to.</param>
+    public ConfigurationLoader(ConfigurationTree tree)
     {
       _tree = tree;
+      _files = new List<SettingFile>();
     }
 
     #endregion
@@ -121,7 +159,7 @@ namespace MediaPortal.Configuration
         index = IndexOfNode(node.Nodes, path[i]);
         if (index == -1)
           throw new NodeNotFoundException(String.Format("Invalid node \"{0}\" specified: \"{1}\"", path[i], sectionPath));
-        if (node.Nodes[index].Setting.Type != SettingType.Section) break; // Load the section, not a group or item
+        if (node.Nodes[index].Setting.Type != SettingType.Section) break; // Stop at the last section, don't load a group or item
         node = node.Nodes[index];
       }
       // Load the node if not loaded yet
@@ -134,6 +172,8 @@ namespace MediaPortal.Configuration
           else                      // This is a rootnode, specify the tree
             node = new ConfigurationNode(node.Setting, ((ConfigurationNode)node).Tree);
         }
+        // LoadItem will add the settingfiles to the variable _files.
+        // This is intended behaviour: it's the only way to be 100% sure that all nodes share the same settingobjects.
         LoadItem(ServiceScope.Get<IPluginManager>(), PLUGINSTART + sectionPath + "/", (ConfigurationNodeCollection)node.Nodes);
       }
       return node;
@@ -155,6 +195,7 @@ namespace MediaPortal.Configuration
     {
       if (_isLoaded || _isLoading) return;
       _isLoading = true;
+      _files.Clear();
       IPluginManager manager = ServiceScope.Get<IPluginManager>();
       if (!_sectionsLoaded)
         LoadSections(manager, PLUGINSTART, _tree.Nodes);
@@ -162,6 +203,7 @@ namespace MediaPortal.Configuration
       _sectionIndex = 0;
       if (_tree.Nodes.Count == 0) return;
       Thread t = new Thread(new ThreadStart(LoadAllItems));
+      t.IsBackground = true;
       t.Name = "MPII - Configuration Framework Loader";
       t.Start();
     }
@@ -231,6 +273,20 @@ namespace MediaPortal.Configuration
         {
           node = new ConfigurationNode(setting, _tree);
           destCollection.Add(node);
+          if (node.Setting.Type != SettingType.Unknown
+            && node.Setting.Type != SettingType.Section
+            && node.Setting.Type != SettingType.Group)
+          {
+            SettingFile file = GetSettingFile(node.Setting.SettingsObject);
+            lock (file)
+            {
+              if (!file.LinkedNodes.Contains(node))
+              {
+                node.Setting.Load(file.SettingObject);
+                file.LinkedNodes.Add(node);
+              }
+            }
+          }
         }
         else
         {
@@ -292,6 +348,31 @@ namespace MediaPortal.Configuration
       _tree.Nodes.IsSet = true;
       _isLoaded = true;
       _isLoading = false;
+      if (OnTreeLoaded != null)
+        OnTreeLoaded(this, new EventArgs());
+    }
+
+    /// <summary>
+    /// Gets the SettingFile for the specified object.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    private SettingFile GetSettingFile(object settingsClass)
+    {
+      lock (_files)
+      {
+        foreach (SettingFile file in _files)
+        {
+          if (file.SettingObject == null && settingsClass == null)
+            return file;
+          if (file.SettingObject + "" == settingsClass + "")
+            return file;
+        }
+        if (settingsClass != null)
+          ServiceScope.Get<ISettingsManager>().Load(settingsClass);
+        _files.Add(new SettingFile(settingsClass));
+        return _files[_files.Count - 1];
+      }
     }
 
     #endregion

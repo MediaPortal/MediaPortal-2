@@ -41,10 +41,13 @@ namespace MediaPortal.Services.Settings
 
     /// <summary>
     /// Retrieves an object's public properties from an Xml file 
-    /// </summary>
+	  /// </summary>
+	  /// <exception cref="ArgumentNullException"></exception>
     /// <param name="settingsObject">Object's instance</param>
     public void Load(object settingsObject)
     {
+      if (settingsObject == null)
+        throw new ArgumentNullException();
       string fileName = GetFilename(settingsObject);
       SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
       parser.Deserialize();
@@ -52,10 +55,13 @@ namespace MediaPortal.Services.Settings
 
     /// <summary>
     /// Stores an object's public properties to an Xml file 
-    /// </summary>
+	  /// </summary>
+	  /// <exception cref="ArgumentNullException"></exception>
     /// <param name="settingsObject">Object's instance</param>
     public void Save(object settingsObject)
     {
+      if (settingsObject == null)
+        throw new ArgumentNullException();
       string fileName = GetFilename(settingsObject);
       SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
       parser.Serialize();

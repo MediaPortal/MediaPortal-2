@@ -58,10 +58,6 @@ namespace MediaPortal.Manager
     /// </summary>
     private IConfigurationManager _manager;
     /// <summary>
-    /// All settings which have been built to the resulting control.
-    /// </summary>
-    private List<ConfigBase> _designedSettings;
-    /// <summary>
     /// ToolTip to add all help string to.
     /// Use SetHelp() to add help.
     /// </summary>
@@ -76,19 +72,6 @@ namespace MediaPortal.Manager
     #endregion
 
     #region Properties
-
-    /// <summary>
-    /// Gets all instances of ConfigBase which have been used to design the form.
-    /// SettingTypes Section, Group, and Unknown aren't included.
-    /// Settings which are set to be hidden or not to be enabled are also not included.
-    /// </summary>
-    /// <remarks>
-    /// After the build, this list should be added to the tag, which is an instance of SectionDetails, of the TreeNode.
-    /// </remarks>
-    public IList<ConfigBase> SubSettings
-    {
-      get { return _designedSettings; }
-    }
 
     /// <summary>
     /// Gets or sets the ToolTip to add help text to.
@@ -219,7 +202,6 @@ namespace MediaPortal.Manager
     public FormDesigner(string configLocation)
     {
       _manager = ServiceScope.Get<IConfigurationManager>();
-      _designedSettings = new List<ConfigBase>();
       _configLocation = configLocation;
     }
 
@@ -236,7 +218,6 @@ namespace MediaPortal.Manager
     /// <returns></returns>
     public Panel BuildToPanel(bool rightToLeft, int width)
     {
-      _designedSettings.Clear();
       return BuildToPanel(_manager.GetItem(_configLocation), new Position(rightToLeft, width));
     }
 
@@ -271,13 +252,6 @@ namespace MediaPortal.Manager
       foreach (IConfigurationNode subNode in node.Nodes)
       {
         if (subNode.Setting.Hidden) continue;
-        if (subNode.Setting.Type != SettingType.Section
-          && subNode.Setting.Type != SettingType.Group
-          && subNode.Setting.Type != SettingType.Unknown
-          && subNode.Setting.Enabled)
-        {
-          _designedSettings.Add(subNode.Setting);
-        }
         switch (subNode.Setting.Type)
         {
           case SettingType.Group:                 // Panel

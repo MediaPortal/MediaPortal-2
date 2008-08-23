@@ -7,6 +7,13 @@ namespace MediaPortal.Configuration
   /// <summary>
   /// The default IConfigurationManager service.
   /// </summary>
+  /// <remarks>
+  /// Main features are:
+  /// <list type="bullet">
+  ///   <item>Async loading of the ConfigurationTree.</item>
+  ///   <item>Grouping of configuration items which share the same settingsclass.</item>
+  /// </list>
+  /// </remarks>
   public class ConfigurationManager : IConfigurationManager
   {
 
@@ -17,9 +24,13 @@ namespace MediaPortal.Configuration
     /// </summary>
     private ConfigurationTree _tree;
     /// <summary>
+    /// All files, with their linked configuration items.
+    /// </summary>
+    private ICollection<SettingFile> _files;
+    /// <summary>
     /// The object responsible for loading all items to the tree.
     /// </summary>
-    private TreeLoader _loader;
+    private ConfigurationLoader _loader;
 
     #endregion
 
@@ -31,7 +42,8 @@ namespace MediaPortal.Configuration
     public ConfigurationManager()
     {
       _tree = new ConfigurationTree();
-      _loader = new TreeLoader(_tree);
+      _loader = new ConfigurationLoader(_tree);
+      _loader.OnTreeLoaded += new EventHandler(_loader_OnTreeLoaded);
     }
 
     #endregion
@@ -77,7 +89,34 @@ namespace MediaPortal.Configuration
 
     #endregion
 
+    #region EventHandlers
+
+    private void _loader_OnTreeLoaded(object sender, EventArgs e)
+    {
+      _tree = _loader.Tree;
+      _files = _loader.SettingFiles;
+    }
+
+    #endregion
+
     #region IConfigurationManager Members
+
+    /// <summary>
+    /// Applies all settings managed by the current IConfigurationManager.
+    /// </summary>
+    public void Apply()
+    {
+      if (!_loader.IsLoaded)
+        _files = _loader.SettingFiles;
+      lock (_files)
+      {
+        foreach (SettingFile file in _files)
+        {
+          foreach (IConfigurationNode node in file.LinkedNodes)
+            node.Setting.Apply();
+        }
+      }
+    }
 
     /// <summary>
     /// Loads the tree.
@@ -87,6 +126,20 @@ namespace MediaPortal.Configuration
       if (_loader.IsLoaded || _loader.IsLoading)
         return;
       _loader.LoadTree();
+    }
+
+    /// <summary>
+    /// Saves all settings managed by the current ConfigurationManager.
+    /// </summary>
+    public void Save()
+    {
+      if (!_loader.IsLoaded)
+        _files = _loader.SettingFiles;
+      lock (_files)
+      {
+        foreach (SettingFile file in _files)
+          file.Save();
+      }
     }
 
     /// <summary>
@@ -156,13 +209,15 @@ namespace MediaPortal.Configuration
       // Try to find the requested item
       try
       {
+        // Search the requested node
         IConfigurationNode node = _tree.Nodes[_tree.Nodes.IndexOf(location[0])];
         for (int i = 1; i < location.Length; i++)
         {
           if (!((ConfigurationNodeCollection)node.Nodes).IsSet) break;
           node = node.Nodes[((ConfigurationNodeCollection)node.Nodes).IndexOf(location[i])];
         }
-        if (!((ConfigurationNodeCollection)node.Nodes).IsSet) // Make sure the item has been set
+        // If not set: load it's section first
+        if (!((ConfigurationNodeCollection)node.Nodes).IsSet)
         {
           node = _loader.LoadSection(itemLocation);
           location = itemLocation.Substring(node.ToString().Length).Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);

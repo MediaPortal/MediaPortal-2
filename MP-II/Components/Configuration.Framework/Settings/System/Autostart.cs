@@ -43,27 +43,35 @@ namespace Components.Configuration.Settings
   public class Autostart : YesNo
   {
 
+    #region Constructor
+
     public Autostart()
     {
-      SystemSettings settings = new SystemSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      base._yes = settings.Autostart;
+      base.SetSettingsObject(new SystemSettings());
     }
 
-    public override void Save()
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
-      Commit();
-      SystemSettings settings = new SystemSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      if (settings.Autostart == base._yes) return;
-      settings.Autostart = base._yes;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      base._yes = ((SystemSettings)settingsObject).Autostart;
     }
+
+    public override void Save(object settingsObject)
+    {
+      ((SystemSettings)settingsObject).Autostart = base._yes;
+      Commit();
+    }
+
+    #endregion
+
+    #region Private Methods
 
     /// <summary>
-    /// Commits the autostart setting.
+    /// Commits the autostart setting to the registry.
     /// </summary>
-    // should we write to the registry, or to the start menu entry?
     private void Commit()
     {
       try
@@ -93,6 +101,8 @@ namespace Components.Configuration.Settings
         ServiceScope.Get<ILogger>().Error("Can't write autostart-value \"{0}\" to registry.", ex, base._yes);
       }
     }
+
+    #endregion
 
   }
 }

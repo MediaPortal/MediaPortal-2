@@ -37,8 +37,8 @@ namespace MediaPortal.Manager
     #region Variables
 
     private ConfigBase _section;
-    private IList<ConfigBase> _settings;
     private FormControl _control;
+    private bool _designed;
     private bool _rightToLeft;
     private int _width;
 
@@ -56,21 +56,21 @@ namespace MediaPortal.Manager
     }
 
     /// <summary>
-    /// Gets or sets all settings inside the section.
-    /// </summary>
-    public IList<ConfigBase> Settings
-    {
-      get { return _settings; }
-      set { _settings = value; }
-    }
-
-    /// <summary>
     /// Gets or sets all controls inside the section.
     /// </summary>
     public FormControl Control
     {
       get { return _control; }
       set { _control = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets if the current SectionDetails have been designed to the Control property.
+    /// </summary>
+    public bool Designed
+    {
+      get { return _designed; }
+      set { _designed = value; }
     }
 
     /// <summary>
@@ -96,8 +96,8 @@ namespace MediaPortal.Manager
     public SectionDetails()
     {
       _section = new ConfigBase();
-      _settings = new List<ConfigBase>();
       _control = new FormControl();
+      _designed = false;
       _rightToLeft = false;
       _width = -1;
     }

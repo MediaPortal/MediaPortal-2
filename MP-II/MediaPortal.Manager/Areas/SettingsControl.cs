@@ -44,6 +44,7 @@ using MediaPortal.Configuration.Settings;
 // System.Windows.Forms.Control gets mixed up with MediaPortal.Control
 using FormControl = System.Windows.Forms.Control;
 
+
 namespace MediaPortal.Manager
 {
 
@@ -107,7 +108,7 @@ namespace MediaPortal.Manager
         switch (result)
         {
           case DialogResult.Yes:
-            SaveAll();
+            ServiceScope.Get<IConfigurationManager>().Save();
             break;
           case DialogResult.Cancel:
             return false;
@@ -174,103 +175,45 @@ namespace MediaPortal.Manager
     #region Apply/Save
 
     /// <summary>
-    /// Saves all settings.
-    /// </summary>
-    private void SaveAll()
-    {
-      SaveSectionTags(_treeSections.Nodes);
-    }
-
-    /// <summary>
-    /// Saves all settings from a TreeNodeCollection.
-    /// </summary>
-    /// <param name="treeNodes"></param>
-    private void SaveSectionTags(TreeNodeCollection treeNodes)
-    {
-      if (treeNodes == null) return;
-      foreach (TreeNode node in treeNodes)
-      {
-        if (node.Tag != null
-          && node.Tag is SectionDetails
-          && ((SectionDetails)node.Tag).Settings != null)
-        {
-          foreach (ConfigBase setting in ((SectionDetails)node.Tag).Settings)
-            setting.Save();
-        }
-        SaveSectionTags(node.Nodes);
-      }
-    }
-
-    /// <summary>
     /// Applies all settings.
     /// </summary>
     private void ApplyAll()
     {
-      foreach (TreeNode node in _treeSections.Nodes)
-      {
-        // Apply on all settings in this node
-        if (node.Tag != null
-          && node.Tag is SectionDetails
-          && ((SectionDetails)node.Tag).Settings != null)
-        {
-          foreach (ConfigBase setting in ((SectionDetails)node.Tag).Settings)
-            setting.Apply();
-        }
-
-        // Apply on all settings in subnodes
-        foreach (TreeNode subnode in node.Nodes)
-        {
-          if (subnode.Tag != null
-            && subnode.Tag is SectionDetails
-            && ((SectionDetails)subnode.Tag).Settings != null)
-          {
-            foreach (ConfigBase setting in ((SectionDetails)subnode.Tag).Settings)
-              setting.Apply();
-          }
-        }
-      }
-
-      // Redraw language strings on all controls
+      // Apply configuration
+      ServiceScope.Get<IConfigurationManager>().Apply();
+      // Apply language
       if (_languageChange)
       {
-        // update text on buttons
+        // Update text on buttons
         if (this._btnSave.Tag is StringId)
           this._btnSave.Text = ((StringId)this._btnSave.Tag).ToString();
 
         if (this._btnApply.Tag is StringId)
           this._btnApply.Text = ((StringId)this._btnApply.Tag).ToString();
-
-
-        // update text in section tree
-        // all section details controls need to be cleared and redrawn
+        // Update text in section tree,
+        // all section details controls need to be redrawn.
         foreach (TreeNode node in _treeSections.Nodes)
         {
           if (node.Tag is SectionDetails)
           {
             SectionDetails details = (SectionDetails)node.Tag;
             node.Text = details.Section.Text.ToString();
-            details.Control = null;
-            node.Tag = details;
+            details.Designed = false;
           }
-
           foreach (TreeNode subnode in node.Nodes)
           {
             if (subnode.Tag is SectionDetails)
             {
               SectionDetails details = (SectionDetails)subnode.Tag;
               subnode.Text = details.Section.Text.ToString();
-              details.Control = null;
-              subnode.Tag = details;
+              details.Designed = false;
             }
           }
         }
-
-        // Clear all help text
+        // Clear all help text -> needs to be localized again
         _help.RemoveAll();
-
-        // redraw currently selected section details
+        // Redraw currently selected section details
         DrawSettings();
-
         _languageChange = false;
       }
     }
@@ -396,8 +339,8 @@ namespace MediaPortal.Manager
       _picSectionIcon.Image = GetImage(((SectionDetails)_treeSections.SelectedNode.Tag).Section.IconLarge, ImageSize.L48);
       if (_treeSections.SelectedNode.Tag != null && _treeSections.SelectedNode.Tag is SectionDetails)
       {
-        if (((SectionDetails)_treeSections.SelectedNode.Tag).Control == null                       // no settings built yet
-          || ((SectionDetails)_treeSections.SelectedNode.Tag).RightToLeft != _rightToLeft          // rebuild to fit righ-to-left boolean
+        if (!((SectionDetails)_treeSections.SelectedNode.Tag).Designed                              // no settings built yet
+          || ((SectionDetails)_treeSections.SelectedNode.Tag).RightToLeft != _rightToLeft           // rebuild to fit righ-to-left boolean
           || ((SectionDetails)_treeSections.SelectedNode.Tag).Width != _panelSectionSettings.Width) // rebuild to fit new width
         {
           BuildSettings(_treeSections.SelectedNode);
@@ -447,7 +390,7 @@ namespace MediaPortal.Manager
       designer.ButtonClick = new EventHandler(ButtonClicked);
       designer.EntryLeave = new EventHandler(EntryChange);
       sectionTag.Control = designer.BuildToPanel(_rightToLeft, _panelSectionSettings.Width);
-      sectionTag.Settings = designer.SubSettings;
+      sectionTag.Designed = true;
       node.Tag = sectionTag;
     }
 
@@ -649,7 +592,7 @@ namespace MediaPortal.Manager
 
     private void buttonSave_Click(object sender, EventArgs e)
     {
-      SaveAll();
+      ServiceScope.Get<IConfigurationManager>().Save();
       this._btnSave.Enabled = false;
     }
 

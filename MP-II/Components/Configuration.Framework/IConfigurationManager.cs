@@ -8,9 +8,19 @@ namespace MediaPortal.Configuration
   {
 
     /// <summary>
+    /// Applies all settings managed by the current IConfigurationManager.
+    /// </summary>
+    void Apply();
+
+    /// <summary>
     /// Loads the manager.
     /// </summary>
     void Load();
+
+    /// <summary>
+    /// Saves all settings managed by the current IConfigurationManager.
+    /// </summary>
+    void Save();
 
     /// <summary>
     /// Returns all rootsections.
