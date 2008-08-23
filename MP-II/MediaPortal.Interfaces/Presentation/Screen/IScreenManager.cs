@@ -33,15 +33,22 @@ namespace MediaPortal.Presentation.Screen
   public interface IScreenManager
   {
     /// <summary>
-    /// Closes the current dialog.
+    /// Closes the top most main dialog (together with it's children).
     /// </summary>
     void CloseDialog();
 
     /// <summary>
-    /// Shows the dialog with the specified screen name.
+    /// Shows a (main) dialog with the specified name.
     /// </summary>
-    /// <param name="screen">Dialog screen name.</param>
-    void ShowDialog(string screen);
+    /// <param name="dialogName">The dialog name.</param>
+    void ShowDialog(string dialogName);
+
+    /// <summary>
+    /// Shows a child dialog with the specified name. The dialog will be marked as child and will 
+    /// be closed when main dialog is closed.
+    /// </summary>
+    /// <param name="dialogName">The dialog name.</param>
+    void ShowChildDialog(string dialogName);
 
     /// <summary>
     /// Prepares the specified screen by loading & initializing it.

@@ -25,7 +25,7 @@
 		  <Button  Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.add]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
     	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.remove]"
-              Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
         </StackPanel>
 		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
     	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"

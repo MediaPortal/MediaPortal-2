@@ -126,6 +126,57 @@ namespace MediaPortal.SkinEngine
       _theme = theme;
     }
 
+    private void InternalShowDialog(string dialogName, bool isChild)
+    {
+      Screen newDialog = GetScreen(dialogName);
+      if (newDialog == null)
+      {
+        ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to find dialog: {0}", dialogName);
+        return;
+      }
+
+      if (_dialogStack.Count == 0)
+        _currentScreen.DetachInput();
+      else
+      {
+        _dialogStack.Last.Value.DetachInput();
+      }
+
+      newDialog.AttachInput();
+      newDialog.Show();
+      newDialog.ScreenState = Screen.State.Running;
+      newDialog.IsChildDialog = isChild;
+      _dialogStack.AddLast(newDialog);
+    }
+
+    private bool InternalCloseDialog()
+    {
+
+      // Do we have a dialog?
+      if (_dialogStack.Count > 0)
+      {
+        LinkedListNode<Screen> oldDialog = _dialogStack.Last;
+
+        oldDialog.Value.ScreenState = Screen.State.Closing;
+        oldDialog.Value.DetachInput();
+        oldDialog.Value.Hide();
+
+        _dialogStack.RemoveLast();
+
+        // Is this the last dialog?
+        if (_dialogStack.Count == 0)
+        {
+          _currentScreen.AttachInput();
+        }
+        else
+        {
+          _dialogStack.Last.Value.AttachInput();
+        }
+        return oldDialog.Value.IsChildDialog;
+      }
+      return false;
+    }
+
     protected void InternalCloseScreen()
     {
       if (_currentScreen == null)
@@ -361,87 +412,45 @@ namespace MediaPortal.SkinEngine
         _currentScreen.Reset();
     }
 
-    private void InternalCloseDialog()
-    {
-      // Do we have a dialog?
-      if (_dialogStack.Count > 0)
-      {
-        LinkedListNode<Screen> oldDialog = _dialogStack.Last;
-
-        oldDialog.Value.ScreenState = Screen.State.Closing;
-        oldDialog.Value.DetachInput();
-        oldDialog.Value.Hide();
-
-        _dialogStack.RemoveLast();
-
-        // Is this the last dialog?
-        if (_dialogStack.Count == 0)
-        {
-          _currentScreen.AttachInput();
-        }
-        else
-        {
-          _dialogStack.Last.Value.AttachInput();
-        }
-      }
-    }
 
     /// <summary>
-    /// Closes the N top most dialogs.
-    /// </summary>
-    public void CloseDialogN(string n)
-    {
-      int count = Int16.Parse(n);
-
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialogN {0}", count);
-      lock (_history)
-      {
-        for(int i=0;i<count;i++)
-          InternalCloseDialog();
-      }
-    }
-
-    /// <summary>
-    /// Closes the top most dialog, if one exists.
+    /// See IScreenManager.
     /// </summary>
     public void CloseDialog()
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
       lock (_history)
       {
-        InternalCloseDialog();
+        // Close the children and the main dialog
+        do
+        {
+        } while (InternalCloseDialog()==true);
       }
     }
 
     /// <summary>
-    /// Shows the dialog with the specified name.
+    /// See IScreenManager.
     /// </summary>
-    /// <param name="dialogName">The dialog name.</param>
     public void ShowDialog(string dialogName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog: {0}", dialogName);
       lock (_history)
       {
 
-        Screen newDialog = GetScreen(dialogName);
-        if (newDialog == null)
-        {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to find dialog: {0}", dialogName);
-          return;
-        }
+        InternalShowDialog(dialogName, false);
+      }
+    }
 
-        if (_dialogStack.Count == 0)
-          _currentScreen.DetachInput();
-        else
-        {
-          _dialogStack.Last.Value.DetachInput();
-        }
+    /// <summary>
+    /// See IScreenManager.
+    /// </summary>
+    public void ShowChildDialog(string dialogName)
+    {
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show child dialog: {0}", dialogName);
+      lock (_history)
+      {
 
-        newDialog.AttachInput();
-        newDialog.Show();
-        newDialog.ScreenState = Screen.State.Running;
-        _dialogStack.AddLast(newDialog);  
-
+        InternalShowDialog(dialogName, true);
       }
     }
 

@@ -58,6 +58,9 @@ namespace MediaPortal.SkinEngine
     private bool _hasFocus;
     private State _state = State.Running;
 
+    // TRUE if the sceen is a dialog and is a child of another dialog.
+    private bool _isChildDialog;
+
     /// <summary>
     /// Our handler bound on our KeyPressed handler. Will be used to attach to
     /// the <see cref="IInputManager"/>'s KeyPressed event.
@@ -138,6 +141,12 @@ namespace MediaPortal.SkinEngine
     {
       get { return _history; }
       set { _history = value; }
+    }
+
+    public bool IsChildDialog
+    {
+      get { return _isChildDialog; }
+      set { _isChildDialog = value; }
     }
 
     /// <summary>

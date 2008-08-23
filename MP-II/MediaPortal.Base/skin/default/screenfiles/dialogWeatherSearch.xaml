@@ -24,7 +24,7 @@
             <Button.Command>
               <CommandList>
                 <Command Path="SearchLocations" Parameters="{LateBoundValue Value={Binding Path=SearchCity}}"/>
-                <Command Source="{Service ScreenManager}" Path="ShowDialog" Parameters="dialogWeatherSearchResult"/>
+                <Command Source="{Service ScreenManager}" Path="ShowChildDialog" Parameters="dialogWeatherSearchResult"/>
               </CommandList>
             </Button.Command>
           </Button>
