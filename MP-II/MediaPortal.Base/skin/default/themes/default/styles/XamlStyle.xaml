@@ -396,7 +396,7 @@
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid Margin="0,2,0,2">
             <Control Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="Check" Visibility="Hidden" Stretch="Fill" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Margin="11.382,12.079,0,6.635" Width="12.016" Data="M22.645977,12.578536L14.858618,23.864771L12.139105,20.117524"/>
+            <Path x:Name="Check" Visibility="Hidden" Stretch="None" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -850,10 +850,10 @@
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
-          <Grid Margin="0,2,0,2">
+          <Grid x:Name="GrdA" Margin="0,2,0,2">
             <Control Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="PathHorz" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="6.912,14.572,0,13.561" VerticalAlignment="Stretch" Width="18" Data="M4.6666667,15 L26.666667,15" StrokeThickness="2"/>
-            <Path x:Name="PathVert" Stretch="Fill" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Margin="15.912,7.005,0,0" VerticalAlignment="Top" Width="2" Height="17.001" Data="M13.666667,5.6666667 L13.666667,25" StrokeThickness="2"/>
+            <Path x:Name="PathHorz" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M6,13 L20,13" StrokeThickness="2"/>
+            <Path x:Name="PathVert" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M13,6 L13,20" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -1173,14 +1173,14 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeViewItem}">
-          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid x:Name="GrdB" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="32"/>
-              <ColumnDefinition Width="32"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="32"/>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}" VerticalAlignment="Top"/>
