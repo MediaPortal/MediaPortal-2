@@ -71,7 +71,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       foreach (ColumnDefinition colDef in this)
       {
-        colDef.Width.Length = 0.0;
+        if (colDef.Width.IsAbsolute) // Fixed size can never change.
+          colDef.Width.Length = colDef.Width.Value;
+        else
+          colDef.Width.Length = 0.0;
       }
     }
 

@@ -63,7 +63,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       foreach (RowDefinition rowDef in this)
       {
-        rowDef.Height.Length = 0.0;
+        if (rowDef.Height.IsAbsolute) // Fixed size can never change.
+          rowDef.Height.Length = rowDef.Height.Value;
+        else
+          rowDef.Height.Length = 0.0;
       }
     }
 
