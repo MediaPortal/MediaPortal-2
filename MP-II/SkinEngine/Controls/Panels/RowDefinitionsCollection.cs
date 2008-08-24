@@ -64,7 +64,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       foreach (RowDefinition rowDef in this)
       {
         if (rowDef.Height.IsAbsolute) // Fixed size can never change.
-          rowDef.Height.Length = rowDef.Height.Value;
+          rowDef.Height.Length = rowDef.Height.Value * SkinContext.Zoom.Height;
         else
           rowDef.Height.Length = 0.0;
       }
@@ -123,7 +123,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (row.Height.IsAbsolute)  // Fixed size controls get size from Height property
         {
-          row.Height.Length = (row.Height.Value * SkinContext.Zoom.Height);
           fixedHeight += row.Height.Length;
         }
         else if (row.Height.IsAuto) // Auto sized control should follow the child

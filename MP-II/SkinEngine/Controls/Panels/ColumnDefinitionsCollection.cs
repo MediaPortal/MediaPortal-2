@@ -72,7 +72,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       foreach (ColumnDefinition colDef in this)
       {
         if (colDef.Width.IsAbsolute) // Fixed size can never change.
-          colDef.Width.Length = colDef.Width.Value;
+          colDef.Width.Length = colDef.Width.Value * SkinContext.Zoom.Width;
         else
           colDef.Width.Length = 0.0;
       }
@@ -130,7 +130,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (column.Width.IsAbsolute) // Fixed size controls get size from Width property
         {
-          column.Width.Length = (column.Width.Value * SkinContext.Zoom.Width);
           fixedWidth += column.Width.Length;
         }
         else if (column.Width.IsAuto) // Auto sized control should follow the child
