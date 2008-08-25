@@ -186,7 +186,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _freezableProperty;
     Property _isTemplateRootProperty;
     protected SizeF _desiredSize;
-    protected SizeF _availableSize;
     protected RectangleF _finalRect;
     bool _isArrangeValid = false;
     ResourceDictionary _resources;
@@ -621,26 +620,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
       IsInvalidLayout = false;
       ExtendedMatrix m = _finalLayoutTransform;
-      if (_availableSize.Width > 0 && _availableSize.Height > 0)
-      {
-        SizeF sizeOld = new SizeF(_desiredSize.Width, _desiredSize.Height);
-        SizeF availsizeOld = new SizeF(_availableSize.Width, _availableSize.Height);
-        if (m != null)
-          SkinContext.AddLayoutTransform(m);
-        Measure(ref childSize);
-        if (m != null)
-          SkinContext.RemoveLayoutTransform();
-        _availableSize = availsizeOld;
-        if (_desiredSize == sizeOld)
-        {
-          if (m != null)
-            SkinContext.AddLayoutTransform(m);
-          Arrange(_finalRect);
-          if (m != null)
-            SkinContext.RemoveLayoutTransform();
-          return;
-        }
-      }
+
       if (VisualParent is UIElement)
       {
         ((UIElement) VisualParent).Invalidate();
