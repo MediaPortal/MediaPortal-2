@@ -151,9 +151,12 @@ namespace MediaPortal.SkinEngine.GUI
     {
       CheckTopMost();
 
+      // Start render thread before we show first screen, because the render thread does
+      // an invalidate, we don't want a double invalidate.
+      StartRenderThread();
       _screenManager.ShowStartupScreen();
 
-      StartRenderThread();
+
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
 
       // The form is active, so let's start listening on AutoPlay events
