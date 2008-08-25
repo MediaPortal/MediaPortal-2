@@ -34,6 +34,9 @@ namespace MediaPortal.Configuration.Settings
 
     #region Variables
 
+    /// <summary>
+    /// Value of the entry.
+    /// </summary>
     protected string _value;
 
     #endregion
@@ -41,12 +44,19 @@ namespace MediaPortal.Configuration.Settings
     #region Properties
 
     /// <summary>
-    /// Gets or sets the value.
+    /// Gets or sets the value of the current entry.
     /// </summary>
     public string Value
     {
       get { return this._value; }
-      set { this._value = value; }
+      set
+      {
+        if (this._value != value)
+        {
+          this._value = value;
+          base.NotifyChange();
+        }
+      }
     }
 
     #endregion

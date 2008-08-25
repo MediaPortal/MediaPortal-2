@@ -28,12 +28,13 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Localisation;
-
 using MediaPortal.Configuration;
+
 
 namespace Components.Configuration.Builders
 {
@@ -52,13 +53,13 @@ namespace Components.Configuration.Builders
         else
           setting = new ConfigBase();
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        //log
+        ServiceScope.Get<ILogger>().Warn("Can't create instance for {0}  [Exception: {1}]", item["class"], e.Message);
         setting = new ConfigBase();
       }
-
-      setting.Id = item.Id;
+      // All .plugin files should only contain english characters.
+      setting.Id = item.Id.ToLower(new System.Globalization.CultureInfo("en"));
 
       if (item.Contains("text"))
         setting.Text = new StringId(item["text"]);
@@ -99,6 +100,11 @@ namespace Components.Configuration.Builders
       {
         setting.Type = SettingType.Unknown;
       }
+
+      if (item.Contains("listento"))
+        setting.ListenItems = new List<string>(item["listento"].Replace(" ", "").Split(new char[] { '[', ']', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+      else
+        setting.ListenItems = new List<string>(0);
 
       return setting;
     }

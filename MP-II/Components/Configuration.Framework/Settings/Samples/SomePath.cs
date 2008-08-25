@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Settings;
 
@@ -12,25 +11,28 @@ namespace MediaPortal.Configuration.Settings
   public class SomePath : Path
   {
 
+    #region Constructors
+
     public SomePath()
     {
-      SampleSettings settings = new SampleSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      base._path = settings.Path;
-      base._pathType = PathType.FILE;
-      //base._pathType = PathType.FOLDER;
+      base.SetSettingsObject(new SampleSettings());
     }
 
-    public override void Save()
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
-      SampleSettings settings = new SampleSettings();
-      ISettingsManager manager = ServiceScope.Get<ISettingsManager>();
-      manager.Load(settings);
-      if (settings.Path != base._path)
-        return;
-      settings.Path = base._path;
-      manager.Save(settings);
+      base._path = ((SampleSettings)settingsObject).Path;
     }
+
+    public override void Save(object settingsObject)
+    {
+      ((SampleSettings)settingsObject).Path = base._path;
+    }
+
+    #endregion
 
   }
 }

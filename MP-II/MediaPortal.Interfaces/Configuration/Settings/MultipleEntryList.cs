@@ -24,7 +24,11 @@ namespace MediaPortal.Configuration.Settings
     public IList<string> Lines
     {
       get { return this._lines; }
-      set { this._lines = value; }
+      set
+      {
+        this._lines = value;
+        base.NotifyChange();
+      }
     }
 
     #endregion

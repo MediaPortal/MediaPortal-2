@@ -645,7 +645,8 @@ namespace MediaPortal.Manager
 
     private void btnSearch_Click(object sender, EventArgs e)
     {
-      FocusControl(((FormControl)sender).Tag.ToString());
+      if (((FormControl)sender).Tag != null)
+        FocusControl(((FormControl)sender).Tag.ToString());
     }
 
     #endregion

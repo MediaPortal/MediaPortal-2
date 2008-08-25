@@ -92,9 +92,19 @@ namespace MediaPortal.Configuration
     /// </summary>
     private object _settingsObject;
 
+    /// <summary>
+    /// The location where the current ConfigBase is registered.
+    /// </summary>
+    private string _registrationLocation;
+
+    /// <summary>
+    /// The items to be notified from on a change.
+    /// </summary>
+    private ICollection<string> _listenItems;
+
     #endregion
 
-    #region Properties
+    #region Public Properties
 
     /// <summary>
     /// Gets or sets the ID.
@@ -192,25 +202,42 @@ namespace MediaPortal.Configuration
       get { return _settingsObject; }
     }
 
+    /// <summary>
+    /// Gets or sets the items to be notified from on a change.
+    /// </summary>
+    public ICollection<string> ListenItems
+    {
+      get { return _listenItems; }
+      set { _listenItems = value; }
+    }
+
+    #endregion
+
+    #region Public Events
+
+    /// <summary>
+    /// Gets called when the UI must redraw the setting.
+    /// </summary>
+    public event ConfigChangedEventHandler RedrawSetting;
+
+    #endregion
+
+    #region Private Events
+
+    /// <summary>
+    /// Gets called if the configuration gets changed.
+    /// </summary>
+    private event ConfigChangedEventHandler OnChangeEvent;
+
     #endregion
 
     #region Public Methods
-
-    /// <summary>
-    /// Loads the setting.
-    /// </summary>
-    public virtual void Load() { }
 
     /// <summary>
     /// Loads the setting from the specified object.
     /// </summary>
     /// <param name="settingsObject">Object to extract setting from.</param>
     public virtual void Load(object settingsObject) { }
-
-    /// <summary>
-    /// Saves the setting.
-    /// </summary>
-    public virtual void Save() { }
 
     /// <summary>
     /// Saves the setting.
@@ -222,6 +249,25 @@ namespace MediaPortal.Configuration
     /// Applies the setting.
     /// </summary>
     public virtual void Apply() { }
+
+    /// <summary>
+    /// Sets the location in the configurationtree where the current ConfigBase is registered.
+    /// </summary>
+    /// <param name="location"></param>
+    public void SetRegistrationLocation(string location)
+    {
+      _registrationLocation = location;
+    }
+
+    /// <summary>
+    /// Registers an other instance of ConfigBase.
+    /// The current object will notify the registered object on a change.
+    /// </summary>
+    /// <param name="other"></param>
+    public void Register(ConfigBase other)
+    {
+      OnChangeEvent += new ConfigChangedEventHandler(other.ConfigChangedMainHandler);
+    }
 
     #endregion
 
@@ -235,6 +281,40 @@ namespace MediaPortal.Configuration
     protected void SetSettingsObject(object obj)
     {
       _settingsObject = obj;
+    }
+
+    /// <summary>
+    /// Notifies all registered items that the current setting is changed.
+    /// </summary>
+    protected void NotifyChange()
+    {
+      if (OnChangeEvent != null)
+        OnChangeEvent(this, _registrationLocation);
+    }
+
+    /// <summary>
+    /// Override this to handle changes in other instances of ConfigBase.
+    /// </summary>
+    /// <param name="sender">Sender of the change notification.</param>
+    /// <param name="senderLocation">Location of the sender in the configurationtree.</param>
+    protected virtual void ConfigChangedHandler(ConfigBase sender, string senderLocation)
+    {
+
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// Handler for a configuration change of another item.
+    /// </summary>
+    /// <param name="sender"></param>
+    private void ConfigChangedMainHandler(ConfigBase sender, string senderLocation)
+    {
+      ConfigChangedHandler(sender, senderLocation);
+      if (RedrawSetting!= null)
+        RedrawSetting(this, _registrationLocation);
     }
 
     #endregion

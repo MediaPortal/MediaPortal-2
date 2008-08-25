@@ -59,6 +59,12 @@ namespace MediaPortal.Configuration
       get;
     }
 
+    /// <summary>
+    /// Returns a string representing the location of the node in the tree.
+    /// </summary>
+    /// <returns></returns>
+    string ToString();
+
   }
 
 }

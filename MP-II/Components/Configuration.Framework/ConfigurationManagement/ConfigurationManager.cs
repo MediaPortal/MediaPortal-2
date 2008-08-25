@@ -206,6 +206,9 @@ namespace MediaPortal.Configuration
       string[] location = itemLocation.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
       if (location.Length == 0)
         throw new NodeNotFoundException("The parameter \"itemLocation\" can't be empty.");
+      // Make sure that the sections have been loaded
+      if (!_loader.SectionsLoaded)
+        _loader.LoadSections();
       // Try to find the requested item
       try
       {
@@ -214,7 +217,8 @@ namespace MediaPortal.Configuration
         for (int i = 1; i < location.Length; i++)
         {
           if (!((ConfigurationNodeCollection)node.Nodes).IsSet) break;
-          node = node.Nodes[((ConfigurationNodeCollection)node.Nodes).IndexOf(location[i])];
+          lock (node.Nodes)
+            node = node.Nodes[((ConfigurationNodeCollection)node.Nodes).IndexOf(location[i])];
         }
         // If not set: load it's section first
         if (!((ConfigurationNodeCollection)node.Nodes).IsSet)
@@ -222,7 +226,10 @@ namespace MediaPortal.Configuration
           node = _loader.LoadSection(itemLocation);
           location = itemLocation.Substring(node.ToString().Length).Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
           foreach (string loc in location)
-            node = node.Nodes[((ConfigurationNodeCollection)node.Nodes).IndexOf(loc)];
+          {
+            lock(node.Nodes)
+              node = node.Nodes[((ConfigurationNodeCollection)node.Nodes).IndexOf(loc)];
+          }
         }
         return node;
       }

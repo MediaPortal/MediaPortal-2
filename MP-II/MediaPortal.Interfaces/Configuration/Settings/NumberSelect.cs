@@ -66,7 +66,14 @@ namespace MediaPortal.Configuration.Settings
     public double Value
     {
       get { return this._value; }
-      set { this._value = value; }
+      set
+      {
+        if (this._value != value)
+        {
+          this._value = value;
+          base.NotifyChange();
+        }
+      }
     }
 
     /// <summary>
@@ -74,8 +81,8 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public NumberType Type
     {
-      get { return _type; }
-      protected set { _type = value; }
+      get { return this._type; }
+      protected set { this._type = value; }
     }
 
     #endregion

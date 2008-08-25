@@ -47,8 +47,15 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public bool Yes
     {
-      get { return _yes; }
-      set { _yes = value; }
+      get { return this._yes; }
+      set
+      {
+        if (this._yes != value)
+        {
+          this._yes = value;
+          base.NotifyChange();
+        }
+      }
     }
 
     #endregion

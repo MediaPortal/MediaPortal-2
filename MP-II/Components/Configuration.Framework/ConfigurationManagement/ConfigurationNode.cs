@@ -134,18 +134,6 @@ namespace MediaPortal.Configuration
       return _matcher.Match(searchValue);
     }
 
-    /// <summary>
-    /// Returns a string representing the location of the node in the tree.
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-      if (_parent == null)
-        return _setting.Id.ToString();
-      else
-        return String.Format("{0}/{1}", _parent.ToString(), _setting.Id.ToString());
-    }
-
     #endregion
 
     #region IConfigurationNode Members
@@ -212,6 +200,18 @@ namespace MediaPortal.Configuration
     public bool IsVisible
     {
       get { return (_setting != null ? _setting.Hidden : false); }
+    }
+
+    /// <summary>
+    /// Returns a string representing the location of the node in the tree.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      if (_parent == null)
+        return _setting.Id.ToString();
+      else
+        return String.Format("{0}/{1}", _parent.ToString(), _setting.Id.ToString());
     }
 
     #endregion

@@ -41,7 +41,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets all instances of IConfigurationNode which are linked to the same settingsclass.
     /// </summary>
-    public ICollection<IConfigurationNode> LinkedNodes
+    public IList<IConfigurationNode> LinkedNodes
     {
       get { return _linkedNodes; }
     }

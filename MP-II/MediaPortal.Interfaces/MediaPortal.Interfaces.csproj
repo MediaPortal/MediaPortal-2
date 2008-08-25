@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ConfigChangedEventHandler.cs" />
     <Compile Include="Configuration\Settings\Entry.cs" />
     <Compile Include="Configuration\Settings\LimitedNumberSelect.cs" />
     <Compile Include="Configuration\Settings\MultipleEntryList.cs" />

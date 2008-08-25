@@ -48,11 +48,12 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public IList<int> SelectedIndices
     {
-      get { return _selected; }
+      get { return this._selected; }
       set
       {
-        _selected.Clear();
-        _selected.AddRange(value);
+        this._selected.Clear();
+        this._selected.AddRange(value);
+        base.NotifyChange();
       }
     }
 
@@ -63,46 +64,46 @@ namespace MediaPortal.Configuration.Settings
     {
       get
       {
-        List<StringId> o = new List<StringId>(_selected.Count);
-        foreach (int i in _selected)
-          o.Add(_items[i]);
+        List<StringId> o = new List<StringId>(this._selected.Count);
+        foreach (int i in this._selected)
+          o.Add(base._items[i]);
         return o.AsReadOnly();
       }
     }
 
     #endregion
 
-    #region Public methods
+    //#region Public methods
 
-    /// <summary>
-    /// Adds an index to the selection.
-    /// </summary>
-    /// <param name="index"></param>
-    public void AddToSelection(int index)
-    {
-      if (!_selected.Contains(index))
-        _selected.Add(index);
-    }
+    ///// <summary>
+    ///// Adds an index to the selection.
+    ///// </summary>
+    ///// <param name="index"></param>
+    //public void AddToSelection(int index)
+    //{
+    //  if (!_selected.Contains(index))
+    //    _selected.Add(index);
+    //}
 
-    /// <summary>
-    /// Removes an index from the selection.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    public bool RemoveFromSelection(int index)
-    {
-      return this._selected.Remove(index);
-    }
+    ///// <summary>
+    ///// Removes an index from the selection.
+    ///// </summary>
+    ///// <param name="index"></param>
+    ///// <returns></returns>
+    //public bool RemoveFromSelection(int index)
+    //{
+    //  return this._selected.Remove(index);
+    //}
 
-    /// <summary>
-    /// Clears the selection.
-    /// </summary>
-    public void ClearSelection()
-    {
-      this._selected.Clear();
-    }
+    ///// <summary>
+    ///// Clears the selection.
+    ///// </summary>
+    //public void ClearSelection()
+    //{
+    //  this._selected.Clear();
+    //}
 
-    #endregion
+    //#endregion
 
   }
 }

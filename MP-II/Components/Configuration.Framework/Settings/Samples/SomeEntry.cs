@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Settings;
 
@@ -12,23 +11,28 @@ namespace MediaPortal.Configuration.Settings
   class SomeEntry : Entry
   {
 
+    #region Constructors
+
     public SomeEntry()
     {
-      SampleSettings settings = new SampleSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      base._value = settings.Entry;
+      base.SetSettingsObject(new SampleSettings());
     }
 
-    public override void Save()
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
-      SampleSettings settings = new SampleSettings();
-      ISettingsManager manager = ServiceScope.Get<ISettingsManager>();
-      manager.Load(settings);
-      if (settings.Entry == base._value)
-        return;
-      settings.Entry = base._value;
-      manager.Save(settings);
+      base._value = ((SampleSettings)settingsObject).Entry;
     }
+
+    public override void Save(object settingsObject)
+    {
+      ((SampleSettings)settingsObject).Entry = base._value;
+    }
+
+    #endregion
 
   }
 }

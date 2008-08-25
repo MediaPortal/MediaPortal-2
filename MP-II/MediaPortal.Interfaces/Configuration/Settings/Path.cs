@@ -63,7 +63,14 @@ namespace MediaPortal.Configuration.Settings
     public string SelectedPath
     {
       get { return this._path; }
-      set { this._path = value; }
+      set
+      {
+        if (this._path != value)
+        {
+          this._path = value;
+          base.NotifyChange();
+        }
+      }
     }
 
     /// <summary>
@@ -71,8 +78,8 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public PathType SelectedPathType
     {
-      get { return _pathType; }
-      set { _pathType = value; }
+      get { return this._pathType; }
+      set { this._pathType = value; }
     }
 
     #endregion

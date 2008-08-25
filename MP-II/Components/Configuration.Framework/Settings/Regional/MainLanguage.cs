@@ -38,14 +38,29 @@ namespace Components.Configuration.Settings
   public class MainLanguage : SingleSelectionList
   {
 
+    #region Variables
+
     private CultureInfo[] _cultures;
 
+    #endregion
+
+    #region Constructors
+
     public MainLanguage()
+    {
+      // Nothing to register
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
       _cultures = ServiceScope.Get<ILocalisation>().AvailableLanguages();
       CultureInfo current = ServiceScope.Get<ILocalisation>().CurrentCulture;
       // Fill items
-      List<StringId>  items = new List<StringId>(_cultures.Length);
+      List<StringId> items = new List<StringId>(_cultures.Length);
       for (int i = 0; i < _cultures.Length; i++)
         items.Add(new StringId(_cultures[i].DisplayName));
       items.Sort();
@@ -61,7 +76,7 @@ namespace Components.Configuration.Settings
       }
     }
 
-    public override void Save()
+    public override void Save(object settingsObject)
     {
       ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
     }
@@ -70,6 +85,8 @@ namespace Components.Configuration.Settings
     {
       ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
     }
+
+    #endregion
 
   }
 }

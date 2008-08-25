@@ -36,21 +36,28 @@ namespace MediaPortal.SkinEngine.Settings
   public class Fullscreen : YesNo
   {
 
+    #region Constructors
+
     public Fullscreen()
     {
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      base._yes = settings.FullScreen;
+      base.SetSettingsObject(new AppSettings());
     }
 
-    public override void Save()
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
     {
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
-      if (settings.FullScreen == base._yes) return;
-      settings.FullScreen = base._yes;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      base._yes = ((AppSettings)settingsObject).FullScreen;
     }
+
+    public override void Save(object settingsObject)
+    {
+      ((AppSettings)settingsObject).FullScreen = base._yes;
+    }
+
+    #endregion
 
   }
 }

@@ -49,7 +49,11 @@ namespace MediaPortal.Configuration.Settings
     public IList<int> Ranking
     {
       get { return _ranking; }
-      set { _ranking = value; }
+      set
+      {
+        this._ranking = value;
+        base.NotifyChange();
+      }
     }
 
     /// <summary>
@@ -59,19 +63,19 @@ namespace MediaPortal.Configuration.Settings
     {
       get
       {
-        List<string> items = new List<string>(_items.Count);
-        lock (_ranking)
+        List<string> items = new List<string>(base._items.Count);
+        lock (this._ranking)
         {
           lock (_items)
           {
             foreach (int i in _ranking)       // add ordered items
-              items.Add(_items[i].ToString());
-            if (items.Count < _items.Count)   // add remaining items, if any
+              items.Add(base._items[i].ToString());
+            if (items.Count < base._items.Count)   // add remaining items, if any
             {
               for (int i = 0; i < _items.Count; i++)
               {
-                if (!_ranking.Contains(i))
-                  items.Add(_items[i].ToString());
+                if (!this._ranking.Contains(i))
+                  items.Add(base._items[i].ToString());
               }
             }
           }
@@ -93,23 +97,23 @@ namespace MediaPortal.Configuration.Settings
     {
       List<int> ranking = new List<int>();
       // Filter all values to make them unique
-      for (int i = _ranking.Count - 1; i >= 0; i--)
+      for (int i = this._ranking.Count - 1; i >= 0; i--)
       {
-        if (_ranking[i] < _items.Count && !ranking.Contains(_ranking[i]))
-          ranking.Insert(0, _ranking[i]);
-        _ranking.RemoveAt(i);
+        if (this._ranking[i] < base._items.Count && !ranking.Contains(this._ranking[i]))
+          ranking.Insert(0, this._ranking[i]);
+        this._ranking.RemoveAt(i);
       }
       // Check if the number of ranked values equals the total amount of values
       // If there is a difference: ranking.Count will always be less, because of the filter
-      if (ranking.Count < _items.Count)
+      if (ranking.Count < base._items.Count)
       {
-        for (int i = 0; i < _items.Count; i++)
+        for (int i = 0; i < base._items.Count; i++)
         {
           if (!ranking.Contains(i))
             ranking.Add(i);
         }
       }
-      _ranking = ranking;
+      this._ranking = ranking;
     }
 
     #endregion

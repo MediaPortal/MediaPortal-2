@@ -8,7 +8,7 @@ namespace MediaPortal.Configuration
 {
 
   /// <summary>
-  /// OptionList has no actual functionality implemented,
+  /// ItemList has no actual functionality implemented,
   /// it's only used to define that the ConfigBase has a list of items.
   /// </summary>
   public class ItemList : ConfigBase

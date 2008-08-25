@@ -39,7 +39,7 @@ namespace MediaPortal.Configuration.Settings
 
     #endregion
 
-    #region Properties
+    #region Protected Properties
 
     /// <summary>
     /// Gets the lower limit.

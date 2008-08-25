@@ -49,11 +49,18 @@ namespace MediaPortal.Configuration.Settings
     {
       get
       {
-        if (_selected == -1 && base._items.Count > 0)
-          _selected = 0;
-        return _selected;
+        if (this._selected == -1 && base._items.Count > 0)
+          this._selected = 0;
+        return this._selected;
       }
-      set { _selected = value; }
+      set
+      {
+        if (this._selected != value)
+        {
+          this._selected = value;
+          base.NotifyChange();
+        }
+      }
     }
 
     #endregion
