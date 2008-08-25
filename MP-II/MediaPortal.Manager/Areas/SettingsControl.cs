@@ -383,15 +383,46 @@ namespace MediaPortal.Manager
       // Create controls
       FormDesigner designer = new FormDesigner(GetSectionPath(node));
       designer.Help = this._help;
+      designer.ConfigChangedHandler = new ConfigChangedEventHandler(UpdateConfigItem);
       designer.YesNoChange = new EventHandler(YesNoChange);
       designer.MultiSelectionListChange = new EventHandler(MultiSelectionListChange);
       designer.SingleSelectionListChange = new EventHandler(SingleSelectionListChange);
       designer.ListBoxSelectionChange = new EventHandler(ListSelectionChanged);
       designer.ButtonClick = new EventHandler(ButtonClicked);
       designer.EntryLeave = new EventHandler(EntryChange);
+      designer.NumUpDownChanged = new EventHandler(NumUpDownChanged);
       sectionTag.Control = designer.BuildToPanel(_rightToLeft, _panelSectionSettings.Width);
       sectionTag.Designed = true;
       node.Tag = sectionTag;
+    }
+
+    /// <summary>
+    /// Gets the TreeNode linked to the specified path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    private TreeNode GetTreeNode(string path)
+    {
+      string[] loc = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+      TreeNode parent = null;
+      TreeNodeCollection nodes = _treeSections.Nodes;
+      foreach (string l in loc)
+      {
+        bool found = false;
+        foreach (TreeNode node in nodes)
+        {
+          if (((SectionDetails)node.Tag).Section.Id == l)
+          {
+            parent = node;
+            nodes = node.Nodes;
+            found = true;
+            break;
+          }
+        }
+        if (!found) // Not found => next part of the path wasn't a section
+          break;
+      }
+      return parent;
     }
 
     /// <summary>
@@ -417,29 +448,45 @@ namespace MediaPortal.Manager
     }
 
     /// <summary>
+    /// Gets a control from the current panel.
+    /// </summary>
+    /// <exception cref="NullReferenceException">
+    /// A NullReferenceException is thrown if the specified control can't be found.
+    /// </exception>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    private FormControl GetFormControl(string path)
+    {
+      string[] location = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+      ControlCollection controls = _panelSectionSettings.Controls[0].Controls;
+      foreach (string loc in location)
+      {
+        bool found = false;
+        foreach (FormControl control in controls)
+        {
+          if (control.Tag != null && ((ConfigBase)control.Tag).Id == loc)
+          {
+            found = true;
+            controls = control.Controls;
+            break;
+          }
+        }
+        if (!found)
+          throw new NullReferenceException(String.Format("Can't find control \"{0}\" on panel \"{1}\"", path, _panelSectionSettings.Name));
+      }
+      return controls.Owner;
+    }
+
+    /// <summary>
     /// Focuses on the specified control.
     /// </summary>
     /// <param name="path">Path to the control, should be the same as IConfigurationNode.ToString()</param>
     private void FocusControl(string path)
     {
-      string sectionPath = _panelSectionSettings.Controls[0].Name;
-      sectionPath = sectionPath.Substring(0, sectionPath.IndexOf('_'));
-      path = path.Substring(sectionPath.Length);
-      string[] location = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-      ControlCollection controls = _panelSectionSettings.Controls[0].Controls;
-      foreach (string loc in location)
-      {
-        foreach (FormControl control in controls)
-        {
-          if (control.Tag != null && ((ConfigBase)control.Tag).Id == loc)
-          {
-            controls = control.Controls;
-            break;
-          }
-        }
-      }
-      if (controls.Owner.CanSelect)
-        controls.Owner.Select();
+      path = path.Substring(GetSectionPath(_treeSections.SelectedNode).Length);
+      FormControl control = GetFormControl(path);
+      if (control.CanSelect)
+        control.Select();
     }
 
     #endregion
@@ -655,6 +702,21 @@ namespace MediaPortal.Manager
 
     #region Dynamic Controls - Settings
 
+    private void UpdateConfigItem(ConfigBase sender, string senderLocation)
+    {
+      // Setting is on the visible page
+      if (senderLocation.StartsWith(GetSectionPath(_treeSections.SelectedNode), true, new System.Globalization.CultureInfo("en")))
+      {
+        ((SectionDetails)_treeSections.SelectedNode.Tag).Designed = false;
+        DrawSettings();
+      }
+      // Setting is on a different page
+      else
+      {
+        ((SectionDetails)GetTreeNode(senderLocation).Tag).Designed = false;
+      }
+    }
+
     private void YesNoChange(object sender, EventArgs e)
     {
       if (sender == null) return;
@@ -830,6 +892,23 @@ namespace MediaPortal.Manager
             default:
               return;
           }
+        }
+      }
+    }
+
+    private void NumUpDownChanged(object sender, EventArgs e)
+    {
+      if (sender == null) return;
+      if (sender is NumericUpDown)
+      {
+        NumericUpDown num = (NumericUpDown)sender;
+        if (num.Tag == null) return;
+        // Handle a PreferenceList
+        if (num.Tag is NumberSelect)
+        {
+          ((NumberSelect)num.Tag).Value = (double)num.Value;
+          this._btnSave.Enabled = true;
+          this._btnApply.Enabled = true;
         }
       }
     }

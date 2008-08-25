@@ -218,7 +218,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets called when the UI must redraw the setting.
     /// </summary>
-    public event ConfigChangedEventHandler RedrawSetting;
+    public event ConfigChangedEventHandler RedrawSettingEvent;
 
     #endregion
 
@@ -313,8 +313,8 @@ namespace MediaPortal.Configuration
     private void ConfigChangedMainHandler(ConfigBase sender, string senderLocation)
     {
       ConfigChangedHandler(sender, senderLocation);
-      if (RedrawSetting!= null)
-        RedrawSetting(this, _registrationLocation);
+      if (RedrawSettingEvent!= null)
+        RedrawSettingEvent(this, _registrationLocation);
     }
 
     #endregion

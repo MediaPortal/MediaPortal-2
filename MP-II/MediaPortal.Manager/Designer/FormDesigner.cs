@@ -62,12 +62,14 @@ namespace MediaPortal.Manager
     /// Use SetHelp() to add help.
     /// </summary>
     private ToolTip _help;
+    private ConfigChangedEventHandler _configChangedHandler;
     private EventHandler _yesnochange;
     private EventHandler _singleSelectionListChange;
     private EventHandler _multiSelectionListChange;
     private EventHandler _entryLeave;
     private EventHandler _listboxSelectionChanged; // can be used to disable/enable buttons
     private EventHandler _buttonClicked;
+    private EventHandler _numUpDownChanged;
 
     #endregion
 
@@ -83,6 +85,15 @@ namespace MediaPortal.Manager
     {
       get { return _help; }
       set { _help = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the eventhandler for a configuration change.
+    /// </summary>
+    public ConfigChangedEventHandler ConfigChangedHandler
+    {
+      get { return _configChangedHandler; }
+      set { _configChangedHandler = value; }
     }
 
     /// <summary>
@@ -173,7 +184,7 @@ namespace MediaPortal.Manager
     }
 
     /// <summary>
-    /// Gets or sets the EventHandler used to report 
+    /// Gets or sets the EventHandler used to report a clicked button.
     /// </summary>
     /// <remarks>
     /// Linked events:
@@ -186,6 +197,19 @@ namespace MediaPortal.Manager
     {
       get { return _buttonClicked; }
       set { _buttonClicked = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the EventHandler used to report a change in a NumericUpDown.ValueChanged.
+    /// </summary>
+    /// <remarks>
+    /// Linked events:
+    ///   NumericUpDown
+    /// </remarks>
+    public EventHandler NumUpDownChanged
+    {
+      get { return _numUpDownChanged; }
+      set { _numUpDownChanged = value; }
     }
 
     #endregion
@@ -234,6 +258,7 @@ namespace MediaPortal.Manager
     private Panel BuildToPanel(IConfigurationNode node, Position position)
     {
       Panel panel = new Panel();
+      panel.Tag = node.Setting;
       panel.AutoSize = false;
       panel.Height = 0;
       panel.Width = position.FullWidth;
@@ -252,6 +277,7 @@ namespace MediaPortal.Manager
       foreach (IConfigurationNode subNode in node.Nodes)
       {
         if (subNode.Setting.Hidden) continue;
+        subNode.Setting.RedrawSettingEvent += _configChangedHandler;
         switch (subNode.Setting.Type)
         {
           case SettingType.Group:                 // Panel
@@ -273,7 +299,7 @@ namespace MediaPortal.Manager
           case SettingType.YesNo:                 // CheckBox
             if (subNode.Setting is YesNo)
             {
-              int lblHeight = 0;
+              int lblHeight;
               panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
               lblHeight += position.Margin;
               CheckBox chk = CreateCheckBox(position);
@@ -290,7 +316,7 @@ namespace MediaPortal.Manager
           case SettingType.MultipleSelectionList: // CheckedListBox
             if (subNode.Setting is MultipleSelectionList && ((MultipleSelectionList)subNode.Setting).Items != null)
             {
-              int lblHeight = 0;
+              int lblHeight;
               panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
               position.LinePosition += lblHeight + position.Margin;
               CheckedListBox chk = CreateCheckedListBox(position);
@@ -364,7 +390,7 @@ namespace MediaPortal.Manager
           case SettingType.PreferenceList:     // Sortable list
             if (subNode.Setting is PreferenceList)
             {
-              int height = 0;
+              int height;
               panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
               position.LinePosition += height + position.Margin;
               Panel list = CreatePreferenceList(position, (PreferenceList)subNode.Setting);
@@ -375,12 +401,30 @@ namespace MediaPortal.Manager
           case SettingType.Path:              // Browsable Entry
             if (subNode.Setting is Path)
             {
-              int height = 0;
+              int height;
               panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
               position.LinePosition += height + position.Margin;
               Panel browse = CreateBrowseEntry(position, (Path)subNode.Setting);
               panel.Controls.Add(browse);
               position.LinePosition += browse.Height + position.Margin;
+            }
+            break;
+          case SettingType.NumberSelect:
+            if (subNode.Setting is NumberSelect)
+            {
+              int height;
+              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
+              panel.Controls.Add(CreateNumberSelect(position, (NumberSelect)subNode.Setting));
+              position.LinePosition += height + position.Margin;
+            }
+            break;
+          case SettingType.LimitedNumberSelect:
+            if (subNode.Setting is LimitedNumberSelect)
+            {
+              int height;
+              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
+              panel.Controls.Add(CreateLimitedNumberSelect(position, (LimitedNumberSelect)subNode.Setting));
+              position.LinePosition += height + position.Margin;
             }
             break;
         }
@@ -758,6 +802,46 @@ namespace MediaPortal.Manager
       panel.Name = "pathHolder" + position.TabIndex;
       panel.Margin = new Padding(0);
       return panel;
+    }
+
+    /// <summary>
+    /// Creates a number select.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="tag"></param>
+    /// <returns></returns>
+    private NumericUpDown CreateNumberSelect(Position position, NumberSelect tag)
+    {
+      NumericUpDown num = new NumericUpDown();
+      num.Tag = tag;
+      num.TabIndex = position.NextTabIndex;
+      num.Name = "numberSelect" + position.TabIndex.ToString();
+      num.Width = position.WidthColumnTwo;
+      num.Location = new Point(position.StartColumnTwo, position.LinePosition);
+      if (tag.ValueType != NumberSelect.NumberType.FixedPoint)
+      {
+        num.DecimalPlaces = 3;
+        num.Increment = (decimal)0.001;
+      }
+      num.Maximum = 999999999999999;
+      num.Minimum = -999999999999999;
+      num.Value = (decimal)tag.Value;
+      num.ValueChanged += _numUpDownChanged;
+      return num;
+    }
+
+    /// <summary>
+    /// Creates a default number select.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="tag"></param>
+    /// <returns></returns>
+    private NumericUpDown CreateLimitedNumberSelect(Position position, LimitedNumberSelect tag)
+    {
+      NumericUpDown num = CreateNumberSelect(position, tag);
+      num.Maximum = (decimal)tag.UpperLimit;
+      num.Minimum = (decimal)tag.LowerLimit;
+      return num;
     }
 
     #endregion

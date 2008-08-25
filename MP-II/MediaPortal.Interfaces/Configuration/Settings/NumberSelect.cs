@@ -79,7 +79,7 @@ namespace MediaPortal.Configuration.Settings
     /// <summary>
     /// Gets the type of the number.
     /// </summary>
-    public NumberType Type
+    public NumberType ValueType
     {
       get { return this._type; }
       protected set { this._type = value; }
