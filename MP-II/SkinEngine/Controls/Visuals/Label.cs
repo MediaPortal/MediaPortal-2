@@ -264,8 +264,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       float totalWidth;
 
+      // The characters fits the textbox exactly, so to get some room between the top of the characters 
+      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
+      // of the value. Otherwise we will be outside of the inner rectangle.
+
       float x = (float)ActualPosition.X;
-      float y = (float)ActualPosition.Y;
+      float y = (float)ActualPosition.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -293,7 +297,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float)this.Opacity;
       
       if (_label != null)
-        _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize, color, Scroll, out totalWidth);
+        _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize * 0.9f, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();
 
     }

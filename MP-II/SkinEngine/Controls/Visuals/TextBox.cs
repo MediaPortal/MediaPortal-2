@@ -308,11 +308,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ColorValue color = ColorConverter.FromColor(this.Color);
 
       base.DoRender();
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float totalWidth;
-      float size = _asset.Font.Size;
+
+      // The characters fits the textbox exactly, so to get some room between the top of the characters 
+      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
+      // of the value. Otherwise we will be outside of the inner rectangle.
       float x = (float)ActualPosition.X;
-      float y = (float)ActualPosition.Y;
+      float y = (float)ActualPosition.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -329,17 +331,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
         align = SkinEngine.Fonts.Font.Align.Center;
 
-      if (rect.Height < _asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height)
-      {
-        rect.Height = (int)(_asset.Font.LineHeight(FontSize) * 1.2f * SkinContext.Zoom.Height);
-      }
-      if (VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        rect.Y = (int)(y + (h - _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height) / 2.0);
-      }
-
-      rect.Width = (int)(((float)rect.Width) / SkinContext.Zoom.Width);
-      rect.Height = (int)(((float)rect.Height) / SkinContext.Zoom.Height);
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
@@ -348,7 +339,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float)SkinContext.Opacity;
       color.Alpha *= (float)this.Opacity;
 
-      _renderer.Draw(Text, rect, ActualPosition.Z, align, size, color, false, out totalWidth);
+      _renderer.Draw(Text, rect, ActualPosition.Z, align, FontSize * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
 
     }
