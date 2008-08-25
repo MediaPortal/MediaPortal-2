@@ -269,6 +269,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region Measure&Arrange
+
+    public override void Measure(ref SizeF totalSize)
+    {
+      // Call this before we measure. It will invalidate the layout (ApplyTemplate)
+      DoUpdateItems();
+      base.Measure(ref totalSize);
+    }
+
+    #endregion
+
     #region Item generation
 
     protected ItemsPresenter FindItemsPresenter()
@@ -315,11 +326,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     protected abstract FrameworkElement PrepareItemContainer(object dataItem);
 
-    public override void UpdateLayout()
-    {
-      DoUpdateItems();
-      base.UpdateLayout();
-    }
 
     public bool DoUpdateItems()
     {
@@ -329,11 +335,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return false;
     }
 
-    public override void DoRender()
-    {
-      DoUpdateItems();
-      base.DoRender();
-    }
 
     // FIXME Albert78: Remove this? Define the meaning of HasFocus property
     //public override bool HasFocus
