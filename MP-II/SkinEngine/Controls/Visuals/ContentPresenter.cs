@@ -193,7 +193,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
       IsInvalidLayout = false;

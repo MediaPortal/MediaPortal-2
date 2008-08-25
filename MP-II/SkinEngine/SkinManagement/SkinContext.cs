@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
@@ -83,7 +84,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     internal extern static Int32 ShowCursor(bool bShow);
 
     // Zorder ranges from from 0.0f (as close as you can get) to 1.0f (as far away as you can get). 
-    // start far away and and move closer.
+    // start far away and move closer.
     public static void ResetZorder()
     {
       _Zorder = 1.0f;

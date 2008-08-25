@@ -502,8 +502,6 @@ namespace MediaPortal.SkinEngine
 
         InternalCloseCurrentScreenAndDialogs();
 
-        // New screen - New z-order.
-        SkinContext.ResetZorder();
         return InternalShowScreen(newScreen);
       }
     }

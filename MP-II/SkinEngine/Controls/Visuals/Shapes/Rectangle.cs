@@ -124,7 +124,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
       IsInvalidLayout = false;
@@ -142,7 +141,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
-      Trace.WriteLine(String.Format("Rectangle.PerformLayout")); 
+      //Trace.WriteLine(String.Format("Rectangle.PerformLayout")); 
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)

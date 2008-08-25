@@ -467,7 +467,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
       IsInvalidLayout = false;

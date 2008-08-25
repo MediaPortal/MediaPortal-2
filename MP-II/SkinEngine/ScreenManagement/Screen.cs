@@ -126,7 +126,6 @@ namespace MediaPortal.SkinEngine
         if (_visual != null)
         {
           _history = _visual.History;
-          _visual.IsArrangeValid = true;
           _visual.SetWindow(this);
         }
       }
@@ -305,9 +304,6 @@ namespace MediaPortal.SkinEngine
       if (SkinContext.UseBatching == false) 
         return;
       if (!SkinContext.IsValid)
-        return;
-      FrameworkElement el = (FrameworkElement)ctl;
-      if (el.IsArrangeValid == false)
         return;
       lock (_invalidControls)
       {

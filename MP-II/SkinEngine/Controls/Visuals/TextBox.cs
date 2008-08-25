@@ -294,7 +294,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      IsArrangeValid = true;
       IsInvalidLayout = false;
     
       if (Screen != null)

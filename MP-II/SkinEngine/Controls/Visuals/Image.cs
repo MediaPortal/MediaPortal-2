@@ -235,7 +235,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _performImageLayout = true;
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
-      IsArrangeValid = true;
       IsInvalidLayout = false;
       if (Screen != null) Screen.Invalidate(this);
     }

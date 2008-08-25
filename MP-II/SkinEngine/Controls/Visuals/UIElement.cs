@@ -187,7 +187,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _isTemplateRootProperty;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
-    bool _isArrangeValid = false;
     ResourceDictionary _resources;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
@@ -536,16 +535,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _renderTransformOriginProperty.SetValue(value); }
     }
 
-    public bool IsArrangeValid
-    {
-      get {
-        // FIXME Albert78: This variable avoids the Invalidate call to set the _isLayoutInvalid variable
-        // What is the meaning of this property??? If it is not necessary, remove it
-        return _isArrangeValid;// _isArrangeValid;
-      }
-      set { _isArrangeValid = value; }
-    }
-
     public bool IsInvalidLayout
     {
       get { return _isLayoutInvalid; }
@@ -590,7 +579,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <param name="finalRect">The final size that the parent computes for the child element.</param>
     public virtual void Arrange(RectangleF finalRect)
     {
-      IsArrangeValid = true;
       Initialize();
       InitializeTriggers();
       IsInvalidLayout = false;
@@ -603,8 +591,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void Invalidate()
     {
-      if (!IsArrangeValid) 
-        return; // FIXME Albert78: Why this line??????
+  //    if (!IsArrangeValid) 
+  //      return; // FIXME Albert78: Why this line??????
       IsInvalidLayout = true;
     }
 
@@ -639,7 +627,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           float w = (float)element.Width * SkinContext.Zoom.Width;
           float h = (float)element.Height * SkinContext.Zoom.Height;
-          
+
+          // Root element - Start counting again
+          SkinContext.ResetZorder();
+
           if (Double.IsNaN(w)) 
             w = SkinContext.SkinWidth * SkinContext.Zoom.Width;
           if (Double.IsNaN(h)) 
