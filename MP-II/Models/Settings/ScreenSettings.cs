@@ -82,7 +82,7 @@ namespace Models.Settings
     {
       get
       {
-        IApplication app = ServiceScope.Get<IApplication>();
+        IScreenControl app = ServiceScope.Get<IScreenControl>();
         _fullScreen[0].Selected = app.IsFullScreen;
         _fullScreen[1].Selected = !app.IsFullScreen;
         return _fullScreen;
@@ -94,7 +94,7 @@ namespace Models.Settings
     /// <param name="item">The item.</param>
     public void SetFullScreen(ListItem item)
     {
-      IApplication app = ServiceScope.Get<IApplication>();
+      IScreenControl app = ServiceScope.Get<IScreenControl>();
       if (item == _fullScreen[0])
       {
         app.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);

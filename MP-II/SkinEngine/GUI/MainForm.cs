@@ -55,7 +55,7 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.SkinEngine.GUI
 {
   // MainForm must be first in file otherwise can't open in designer
-  public partial class MainForm : Form, IApplication
+  public partial class MainForm : Form, IScreenControl
   {
     private Thread _renderThread;
     private GraphicsDevice _directX;
@@ -78,7 +78,7 @@ namespace MediaPortal.SkinEngine.GUI
       //following stuff should be dynamicly build offcourse
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting");
 
-      ServiceScope.Add<IApplication>(this);
+      ServiceScope.Add<IScreenControl>(this);
       ServiceScope.Add<IInputMapper>(new InputMapper());
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create ICommandBuilder service");

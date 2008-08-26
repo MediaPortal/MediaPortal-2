@@ -43,7 +43,7 @@ namespace MediaPortal.Presentation.Screen
     Desktop // Used for GUI in ExclusiveMode
   };
 
-  public interface IApplication
+  public interface IScreenControl
   {
     /// <summary>
     /// Switches between diffrent sceen modes.

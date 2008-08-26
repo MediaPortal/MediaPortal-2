@@ -298,7 +298,7 @@ namespace MediaPortal.SkinEngine.Players
       if (fps > 1000.0f)
         fps /= 1000.0f;
 
-      IApplication app = ServiceScope.Get<IApplication>();
+      IScreenControl app = ServiceScope.Get<IScreenControl>();
 
       if (app.RefreshRateControlEnabled && app.IsFullScreen)
       {
@@ -321,7 +321,7 @@ namespace MediaPortal.SkinEngine.Players
       if (players[0] != this)
         return;
 
-      IApplication app = ServiceScope.Get<IApplication>();
+      IScreenControl app = ServiceScope.Get<IScreenControl>();
 
       if (!(app.RefreshRateControlEnabled && app.IsFullScreen))
         return;

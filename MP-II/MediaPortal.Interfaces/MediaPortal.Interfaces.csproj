@@ -150,7 +150,7 @@
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
-    <Compile Include="Presentation\Screen\IApplication.cs" />
+    <Compile Include="Presentation\Screen\IScreenControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\DataObjects\LocalizedStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\Property.cs" />

@@ -388,7 +388,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           MouseUsed = false;
           if (!_mouseHidden)
           {
-            if (ServiceScope.Get<IApplication>().IsFullScreen)
+            if (ServiceScope.Get<IScreenControl>().IsFullScreen)
             {
               ShowCursor(false);
               _mouseHidden = true;
@@ -474,7 +474,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         TimeSpan ts = DateTime.Now - _lastAction;
         if (ts.TotalSeconds < _idleTime) 
           return false;
-        if (!ServiceScope.Get<IApplication>().IsFullScreen) 
+        if (!ServiceScope.Get<IScreenControl>().IsFullScreen) 
           return false;
         PlayerCollection players = ServiceScope.Get<PlayerCollection>();
         if (players.Count > 0)
