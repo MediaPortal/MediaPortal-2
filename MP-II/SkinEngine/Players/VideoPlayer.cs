@@ -37,6 +37,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.Screen;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;

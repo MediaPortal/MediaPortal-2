@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.Players.Geometry;
 using MediaPortal.Core;

@@ -24,9 +24,8 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core
+namespace MediaPortal.Presentation.Screen
 {
-
   public enum ScreenMode
   {
     NormalWindowed,
