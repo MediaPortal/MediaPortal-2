@@ -206,6 +206,49 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
+    public override void Measure(ref SizeF totalSize)
+    {
+      InitializeTriggers();
+
+      float w = (float)Width * SkinContext.Zoom.Width;
+      float h = (float)Height * SkinContext.Zoom.Height;
+
+      if (_image != null)
+      {
+        if (Double.IsNaN(w))
+          w = _image.Texture.Width;
+        if (Double.IsNaN(h))
+          h = _image.Texture.Height;
+      }
+      else if (_fallbackImage != null)
+      {
+        if (Double.IsNaN(w))
+          w = _fallbackImage.Texture.Width;
+        if (Double.IsNaN(h))
+          h = _fallbackImage.Texture.Height;
+      }
+
+      _desiredSize = new SizeF(w, h);
+
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m = new ExtendedMatrix();
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      if (LayoutTransform != null)
+      {
+        SkinContext.RemoveLayoutTransform();
+      }
+
+      totalSize = _desiredSize;
+      AddMargin(ref totalSize);
+
+      //Trace.WriteLine(String.Format("Image.Measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+    }
+
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("Image.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
@@ -229,57 +272,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect!= finalRect)
-          _performImageLayout = true;
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      }
+      _performImageLayout = true;
+
       IsInvalidLayout = false;
-      if (Screen != null) Screen.Invalidate(this);
-    }
-
-    public override void Measure(ref SizeF totalSize)
-    {
-      InitializeTriggers();
-
-      float w = (float) Width * SkinContext.Zoom.Width;
-      float h = (float) Height * SkinContext.Zoom.Height;
-
-      if (_image != null)
-      {
-        if (Double.IsNaN(w))
-          w = _image.Texture.Width;
-        if (Double.IsNaN(h)) 
-          h = _image.Texture.Height;
-      }
-      else if (_fallbackImage != null)
-      {
-        if (Double.IsNaN(w)) 
-          w = _fallbackImage.Texture.Width;
-        if (Double.IsNaN(h)) 
-          h = _fallbackImage.Texture.Height;
-      }
-
-      _desiredSize = new SizeF(w, h);
-
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m = new ExtendedMatrix();
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("Image.Measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      if (Screen != null)
+        Screen.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()
@@ -507,14 +504,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           if (asset.Texture.Width > 0)
           {
-            imgScale.X = (float)(ActualWidth / (float) asset.Texture.Width);
+            imgScale.X = (float)(ActualWidth / (float)asset.Texture.Width);
           }
         }
         if (Height > 0.0f)
         {
           if (asset.Texture.Height > 0)
           {
-            imgScale.Y = (float)(ActualHeight / (float) asset.Texture.Height);
+            imgScale.Y = (float)(ActualHeight / (float)asset.Texture.Height);
           }
         }
 
@@ -522,7 +519,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float height = (float)ActualHeight;
         float width = (float)ActualWidth;
         float pixelRatio = 1.0f;
-        float fSourceFrameRatio = asset.Texture.Width / (float) asset.Texture.Height;
+        float fSourceFrameRatio = asset.Texture.Width / (float)asset.Texture.Height;
         float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
         if (this.Stretch == Stretch.Uniform || this.Stretch == Stretch.UniformToFill)
         {
@@ -595,7 +592,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           iSourceHeight = (imageHeight - 2.0f * fVertBorder);
         }
         // x-offset in texture
-        float uoffs = iSourceX / (float) asset.Texture.Width;
+        float uoffs = iSourceX / (float)asset.Texture.Width;
 
         // y-offset in texture
         float voffs = iSourceY / (float)asset.Texture.Height;
@@ -667,7 +664,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     public override void BecomesVisible()
-    { 
+    {
 
       if (_renderImage != null)
         _renderImage.Alloc();
