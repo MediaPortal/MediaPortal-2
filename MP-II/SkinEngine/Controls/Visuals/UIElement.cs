@@ -591,8 +591,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void Invalidate()
     {
-  //    if (!IsArrangeValid) 
-  //      return; // FIXME Albert78: Why this line??????
       IsInvalidLayout = true;
     }
 
