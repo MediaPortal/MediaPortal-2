@@ -151,6 +151,7 @@ namespace MediaPortal.Services.Settings
       foreach (PropertyInfo property in _obj.GetType().GetProperties())
       {
         SettingAttribute att = GetSettingAttribute(property);   // Get the attribute so we know the SettingScope and the default value
+        if (att == null) continue;
         string value = ""; // The value to add to the dictionary (with property.Name as the key)
         switch (GetObjectType(property.PropertyType)) // Get the type-category of the current property
         {
@@ -209,6 +210,7 @@ namespace MediaPortal.Services.Settings
       foreach (PropertyInfo property in _obj.GetType().GetProperties())
       {
         SettingAttribute att = GetSettingAttribute(property);
+        if (att == null) continue;
         XmlFileHandler reader = (att.SettingScope == SettingScope.Global ? xmlGlobalReader : xmlUserReader);
         object value;
         string strValue = reader.GetValue(_obj.ToString(), property.Name);  // holds the properties-value
@@ -322,18 +324,17 @@ namespace MediaPortal.Services.Settings
 
     /// <summary>
     /// Gets the SettingAttribute of a property.
-    /// If the attribute can't be found, a default is returned.
+    /// Returns null if the attribute can't be found.
     /// </summary>
     /// <param name="property"></param>
     /// <returns></returns>
     private SettingAttribute GetSettingAttribute(PropertyInfo property)
     {
-      SettingAttribute att = new SettingAttribute(SettingScope.Global, "");
       // Get the info stored in the SettingAttribute, if available
       object[] attributes = property.GetCustomAttributes(typeof(SettingAttribute), false);
       if (attributes.Length != 0)
-        att = (SettingAttribute)attributes[0];
-      return att;
+        return (SettingAttribute)attributes[0];
+      return null;
     }
 
     /// <summary>
