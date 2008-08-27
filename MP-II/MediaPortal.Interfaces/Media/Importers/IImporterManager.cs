@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Media.Importers
@@ -61,7 +60,7 @@ namespace MediaPortal.Media.Importers
     /// <summary>
     /// Returns a list of importers supporting the extension
     /// </summary>
-    /// <param name="name">The name.</param>
+    /// <param name="extension">The extension.</param>
     /// <returns></returns>
     List<IImporter> GetImporterByExtension(string extension);
 
@@ -90,12 +89,13 @@ namespace MediaPortal.Media.Importers
     /// the folder should already be added via AddShare()
     /// </remarks>
     /// <param name="folder">The folder.</param>
+    /// <param name="refresh">If set to <c>true</c>, the importer will also refresh existing items.</param>
     void ForceImport(string folder, bool refresh);
 
     /// <summary>
     /// Gets the meta data for a folder
     /// </summary>
-    /// <param name="folde">The folder.</param>
+    /// <param name="folder">The folder.</param>
     /// <param name="items">The items.</param>
     void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items);
 
