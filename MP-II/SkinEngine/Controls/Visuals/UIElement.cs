@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
@@ -441,7 +440,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           }
           catch
           {
-            throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns.ToString()+"'");
+            throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
       }
     }
@@ -568,7 +567,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Will measure this elements size and fill the <see cref="DesiredSize"/> property.
     /// </summary>
-    /// <param name="totalSizeSize">Total Size of the element including Margins</param>
+    /// <param name="totalSize">Total Size of the element including Margins</param>
     public virtual void Measure(ref SizeF totalSize)
     {
     }
