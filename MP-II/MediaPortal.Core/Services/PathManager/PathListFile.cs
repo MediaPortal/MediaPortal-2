@@ -22,22 +22,20 @@
 
 #endregion
 
-using System;
-using System.Xml;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Services.PathManager
-{
+namespace MediaPortal.Core.Services.PathManager
+{ 
   /// <summary>
-  /// Holds a named path. This class helps to deserialize a path from an XML file.
+  /// Holds a list of configured paths. This class helps to deserialize paths from an XML file.
   /// </summary>
-  public class PathDefinition
+  [XmlRoot("Paths")]
+  public class PathListFile
   {
     #region Variables
-    [XmlAttribute("name")]
-    public string Name;
-    [XmlAttribute("value")]
-    public string Value;
+    [XmlElement("Path")]
+    public List<PathDefinition> Paths;
     #endregion
   }
 }

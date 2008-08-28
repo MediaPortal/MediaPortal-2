@@ -24,7 +24,8 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.Settings;
-namespace MediaPortal.Core.PluginManager
+
+namespace MediaPortal.Core.Services.PluginManager
 {
   public class PluginManagerSettings
   {

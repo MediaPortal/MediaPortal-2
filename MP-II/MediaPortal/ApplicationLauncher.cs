@@ -24,6 +24,8 @@
 
 using System;
 using System.Windows.Forms;
+using MediaPortal.Core.Services.PluginManager;
+using MediaPortal.Core.Services.Registry;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.Registry;
@@ -36,13 +38,13 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.ExtensionManager;
-using MediaPortal.Services.PathManager;
-using MediaPortal.Services.Threading;
-using MediaPortal.Services.TaskScheduler;
+using MediaPortal.Core.Services.PathManager;
+using MediaPortal.Core.Services.Threading;
+using MediaPortal.Core.Services.TaskScheduler;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.Settings;
-using MediaPortal.Services.Messaging;
+using MediaPortal.Core.Services.Messaging;
 using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Services.Burning;
 
@@ -108,7 +110,7 @@ namespace MediaPortal
         ServiceScope.Add<IRegistry>(new Registry());
 
         logger.Debug("ApplicationLauncher: Registering ThreadPool");
-        MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
+        MediaPortal.Core.Services.Threading.ThreadPool pool = new MediaPortal.Core.Services.Threading.ThreadPool();
         pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
         pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
         pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);

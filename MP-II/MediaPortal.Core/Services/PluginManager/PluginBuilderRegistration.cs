@@ -22,7 +22,9 @@
 
 #endregion
 
-namespace MediaPortal.Core.PluginManager
+using MediaPortal.Core.PluginManager;
+
+namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
   /// Plugin builder registration class. Instances of this class are registered at the plugin manager to

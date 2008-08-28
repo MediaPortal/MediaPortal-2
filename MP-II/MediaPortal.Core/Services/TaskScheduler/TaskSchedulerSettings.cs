@@ -32,7 +32,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
 
-namespace MediaPortal.Services.TaskScheduler
+namespace MediaPortal.Core.Services.TaskScheduler
 {
   /// <summary>
   /// The TaskSchedulerSettings class is responsible for storing all settings of the <see cref="TaskScheduler"/>.

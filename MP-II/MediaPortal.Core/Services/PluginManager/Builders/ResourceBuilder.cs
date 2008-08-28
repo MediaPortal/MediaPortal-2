@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Core.PluginManager.Builders
+namespace MediaPortal.Core.Services.PluginManager.Builders
 {
   /// <summary>
   /// Builds an item of type "Resource". The resource item type provides access to a resource

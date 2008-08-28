@@ -25,7 +25,7 @@
 
 using System;
 using System.Windows.Forms;
-
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal;
 using MediaPortal.Core;
@@ -35,11 +35,11 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Services.PathManager;
+using MediaPortal.Core.Services.PathManager;
 using MediaPortal.Services.Localisation;
 using MediaPortal.Services.Logging;
 using MediaPortal.Services.Settings;
-using MediaPortal.Services.Messaging;
+using MediaPortal.Core.Services.Messaging;
 using MediaPortal.Configuration;
 
 

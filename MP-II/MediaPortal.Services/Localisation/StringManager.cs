@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;

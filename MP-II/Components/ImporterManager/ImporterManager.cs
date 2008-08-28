@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 

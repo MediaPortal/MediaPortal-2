@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
 
@@ -51,7 +52,8 @@ namespace Components.Services.PlayerManager
     {
       if (!_pluginServicesLoaded)
       {
-        ICollection<PlayerBuilder> builders = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PlayerBuilder>("/Media/Players", new FixedItemStateTracker());
+        ICollection<PlayerBuilder> builders = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PlayerBuilder>(
+            "/Media/Players", new FixedItemStateTracker());
         foreach (PlayerBuilder playerBuilder in builders)
         {
           Register(playerBuilder);

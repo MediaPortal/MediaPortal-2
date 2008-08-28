@@ -22,38 +22,20 @@
 
 #endregion
 
-using System.IO;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Core.Services.PathManager
 {
-  public enum PluginResourceType
-  {
-    Language,
-    Skin
-  }
-
   /// <summary>
-  /// Provides the file access location of a plugin resource.
+  /// Holds a named path. This class helps to deserialize a path from an XML file.
   /// </summary>
-  public class PluginResource
+  public class PathDefinition
   {
-    protected DirectoryInfo _location;
-    protected PluginResourceType _type;
-
-    public PluginResource(PluginResourceType type, DirectoryInfo location)
-    {
-      _type = type;
-      _location = location;
-    }
-
-    public PluginResourceType Type
-    {
-      get { return _type; }
-    }
-
-    public DirectoryInfo Location
-    {
-      get { return _location; }
-    }
+    #region Variables
+    [XmlAttribute("name")]
+    public string Name;
+    [XmlAttribute("value")]
+    public string Value;
+    #endregion
   }
 }

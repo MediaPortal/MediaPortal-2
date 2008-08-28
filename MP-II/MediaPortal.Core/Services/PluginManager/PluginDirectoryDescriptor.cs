@@ -28,9 +28,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
   /// Class providing all the static plugin metadata information contained in the plugin.xml file

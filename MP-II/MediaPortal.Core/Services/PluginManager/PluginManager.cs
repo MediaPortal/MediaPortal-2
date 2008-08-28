@@ -30,12 +30,13 @@ using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.PluginManager.Builders;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager.Builders;
 using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Core.PluginManager
+namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
   /// An <see cref="IPluginManager"/> implementation that reads plugins from plugin directories, with

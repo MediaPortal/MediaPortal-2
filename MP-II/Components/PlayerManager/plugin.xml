@@ -10,7 +10,7 @@
     <Assembly FileName = "Services.PlayerManager.dll"/>
   </Runtime>
 
-  <Builder Name = 'Player' ClassName = 'Components.Services.PlayerManager.PlayerBuilder'/>
+  <Builder Name = "Player" ClassName = "Components.Services.PlayerManager.PlayerBuilder"/>
 
   <Register Location = "/Services">
     <Instance Id = "IPlayerFactory" ClassName = "Components.Services.PlayerManager.PlayerFactory"/>

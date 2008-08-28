@@ -22,27 +22,38 @@
 
 #endregion
 
-namespace MediaPortal.Core.PluginManager
+using System.IO;
+
+namespace MediaPortal.Core.Services.PluginManager
 {
-  /// <summary>
-  /// Default implementation of a plugin item state tracker which will prevent to reject the item
-  /// and so prevents the item's plugin from being disabled.
-  /// </summary>
-  /// <remarks>
-  /// Instances of this class can be used if a requested item cannot be removed from the running system
-  /// any more.
-  /// If possible, every item user should try to be able to cancel its item usage. This helps the plugin
-  /// system to be able to remove plugins which have been loaded at runtime.
-  /// </remarks>
-  public class FixedItemStateTracker : IPluginItemStateTracker
+  public enum PluginResourceType
   {
-    public bool RequestEnd(PluginItemMetadata item)
+    Language,
+    Skin
+  }
+
+  /// <summary>
+  /// Provides the file access location of a plugin resource.
+  /// </summary>
+  public class PluginResource
+  {
+    protected DirectoryInfo _location;
+    protected PluginResourceType _type;
+
+    public PluginResource(PluginResourceType type, DirectoryInfo location)
     {
-      return false;
+      _type = type;
+      _location = location;
     }
 
-    public void Stop(PluginItemMetadata item) { }
+    public PluginResourceType Type
+    {
+      get { return _type; }
+    }
 
-    public void Continue(PluginItemMetadata item) { }
+    public DirectoryInfo Location
+    {
+      get { return _location; }
+    }
   }
 }

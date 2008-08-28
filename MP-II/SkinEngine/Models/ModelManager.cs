@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager;
 
 namespace MediaPortal.SkinEngine.Models
 {
@@ -148,7 +149,8 @@ namespace MediaPortal.SkinEngine.Models
       ServiceScope.Get<ILogger>().Debug("ModelManager: Load model registrationLocation '{0}', id '{1}'", registrationLocation, id);
       try
       {
-        object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>("/Models/" + registrationLocation, id, new FixedItemStateTracker());
+        object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+            "/Models/" + registrationLocation, id, new FixedItemStateTracker());
         if (model != null)
           return new Model(registrationLocation, id, model);
       }

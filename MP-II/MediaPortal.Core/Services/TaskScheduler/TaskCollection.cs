@@ -34,7 +34,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
 #endregion
 
-namespace MediaPortal.Services.TaskScheduler
+namespace MediaPortal.Core.Services.TaskScheduler
 {
   /// <summary>
   /// Maintains a collection of scheduled <see cref="Task"/>s for the <see cref="TaskScheduler"/>.

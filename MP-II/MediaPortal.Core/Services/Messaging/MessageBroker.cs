@@ -25,47 +25,47 @@
 using System.Collections.Generic;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Services.Messaging
+namespace MediaPortal.Core.Services.Messaging
 {
-  public class Queue : IMessageQueue
+  public class MessageBroker : IMessageBroker
   {
     #region Protected fields
 
-    protected IList<IMessageFilter> _filters;
+    protected IDictionary<string, IMessageQueue> _queues;
 
     #endregion
 
-    public Queue()
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MessageBroker"/> class.
+    /// </summary>
+    public MessageBroker()
     {
-      _filters = new List<IMessageFilter>();
+      _queues = new Dictionary<string, IMessageQueue>();
     }
 
-    #region IMessageQueue implementation
+    #region IMessageBroker implementation
 
-    public event MessageReceivedHandler OnMessageReceive;
 
-    public IList<IMessageFilter> Filters
+    public IMessageQueue GetOrCreate(string queueName)
     {
-      get { return _filters; }
-    }
-
-    public void Send(QueueMessage message)
-    {
-      message.MessageQueue = this;
-      foreach (IMessageFilter filter in _filters)
+      if (!_queues.ContainsKey(queueName))
       {
-        message = filter.Process(message);
-        if (message == null) return;
+        Queue q = new Queue();
+        _queues[queueName] = q;
       }
-      if (OnMessageReceive != null)
-      {
-        OnMessageReceive(message);
-      }
+      return _queues[queueName];
     }
 
-    public bool HasSubscribers
+    public IList<string> Queues
     {
-      get { return (OnMessageReceive != null); }
+      get 
+      {
+        List<string> queueNames = new List<string>();
+        IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
+        while (enumer.MoveNext())
+          queueNames.Add(enumer.Current.Key);
+        return queueNames;
+      }
     }
 
     #endregion

@@ -22,23 +22,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Serialization;
-using MediaPortal.Core.PathManager;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.PluginManager.Exceptions;
 
-namespace MediaPortal.Services.PathManager
-{ 
+namespace MediaPortal.Core.Services.PluginManager.Builders
+{
   /// <summary>
-  /// Holds a list of configured paths. This class helps to deserialize paths from an XML file.
+  /// Provides helper methods for plugin item builders.
   /// </summary>
-  [XmlRoot("Paths")]
-  public class PathListFile
+  public abstract class BuilderHelper
   {
-    #region Variables
-    [XmlElement("Path")]
-    public List<PathDefinition> Paths;
-    #endregion
+    public static void CheckParameter(string parameterName, PluginItemMetadata itemData)
+    {
+      if (!itemData.Attributes.ContainsKey(parameterName))
+        throw new PluginItemBuildException(
+            "'{0}' item at registration location '{1}' needs to specify the '{2}' parameter",
+                itemData.BuilderName, itemData.RegistrationLocation, parameterName);
+    }
   }
 }

@@ -29,7 +29,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Services.PathManager
+namespace MediaPortal.Core.Services.PathManager
 {
   /// <summary>
   /// Registration for local file path locations, like specified in <see cref="IPathManager"/>.

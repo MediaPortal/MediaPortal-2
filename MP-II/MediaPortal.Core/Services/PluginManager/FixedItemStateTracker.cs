@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,27 +23,28 @@
 #endregion
 
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.PluginManager.Exceptions;
 
-namespace MediaPortal.Core.PluginManager.Builders
+namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
-  /// Builds an item of type "Instance". The "Instance" item type provides an instance of a
-  /// specified class which will be loaded from the plugin's assemblies.
+  /// Default implementation of a plugin item state tracker which will prevent to reject the item
+  /// and so prevents the item's plugin from being disabled.
   /// </summary>
   /// <remarks>
-  /// The item registration has to provide the parameter "ClassName" which holds the fully
-  /// qualified name of the class to instantiate:
-  /// <example>
-  /// &lt;Instance ClassName="Foo"/&gt;
-  /// </example>
+  /// Instances of this class can be used if a requested item cannot be removed from the running system
+  /// any more.
+  /// If possible, every item user should try to be able to cancel its item usage. This helps the plugin
+  /// system to be able to remove plugins which have been loaded at runtime.
   /// </remarks>
-  public class InstanceBuilder : IPluginItemBuilder
+  public class FixedItemStateTracker : IPluginItemStateTracker
   {
-    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
+    public bool RequestEnd(PluginItemMetadata item)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+      return false;
     }
+
+    public void Stop(PluginItemMetadata item) { }
+
+    public void Continue(PluginItemMetadata item) { }
   }
 }

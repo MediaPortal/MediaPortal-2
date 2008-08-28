@@ -24,8 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Registry;
 
-namespace MediaPortal.Core.Registry
+namespace MediaPortal.Core.Services.Registry
 {
   public class RegistryNode: IRegistryNode, IStatus
   {

@@ -34,7 +34,7 @@ using MediaPortal.Core.Threading;
 
 #endregion
 
-namespace MediaPortal.Services.Threading
+namespace MediaPortal.Core.Services.Threading
 {
   #region Delegates
   /// <summary>

@@ -32,7 +32,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace MediaPortal.Services.Threading
+namespace MediaPortal.Core.Services.Threading
 {
   public class ThreadPoolStartInfo
   {

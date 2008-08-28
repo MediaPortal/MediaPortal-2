@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,21 +23,26 @@
 #endregion
 
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.PluginManager.Exceptions;
 
-namespace MediaPortal.Core.PluginManager.Builders
+namespace MediaPortal.Core.Services.PluginManager.Builders
 {
   /// <summary>
-  /// Provides helper methods for plugin item builders.
+  /// Builds an item of type "Instance". The "Instance" item type provides an instance of a
+  /// specified class which will be loaded from the plugin's assemblies.
   /// </summary>
-  public abstract class BuilderHelper
+  /// <remarks>
+  /// The item registration has to provide the parameter "ClassName" which holds the fully
+  /// qualified name of the class to instantiate:
+  /// <example>
+  /// &lt;Instance ClassName="Foo"/&gt;
+  /// </example>
+  /// </remarks>
+  public class InstanceBuilder : IPluginItemBuilder
   {
-    public static void CheckParameter(string parameterName, PluginItemMetadata itemData)
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      if (!itemData.Attributes.ContainsKey(parameterName))
-        throw new PluginItemBuildException(
-            "'{0}' item at registration location '{1}' needs to specify the '{2}' parameter",
-                itemData.BuilderName, itemData.RegistrationLocation, parameterName);
+      BuilderHelper.CheckParameter("ClassName", itemData);
+      return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
     }
   }
 }

@@ -80,22 +80,22 @@
     <Compile Include="Core\Messaging\IMessageQueue.cs" />
     <Compile Include="Core\Messaging\QueueMessage.cs" />
     <Compile Include="Core\PathManager\IPathManager.cs" />
-    <Compile Include="PluginManager\Builders\BuilderHelper.cs" />
+    <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
     <Compile Include="PluginManager\Exceptions\Exceptions.cs" />
-    <Compile Include="PluginManager\FixedItemStateTracker.cs" />
+    <Compile Include="Services\PluginManager\FixedItemStateTracker.cs" />
     <Compile Include="PluginManager\IPluginMetadata.cs" />
     <Compile Include="PluginManager\IPluginStateTracker.cs" />
-    <Compile Include="PluginManager\PluginBuilderRegistration.cs" />
+    <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
     <Compile Include="PluginManager\PluginItemRegistration.cs" />
     <Compile Include="PluginManager\IPluginItemStateTracker.cs" />
-    <Compile Include="PluginManager\PluginManagerSettings.cs" />
+    <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
     <Compile Include="PluginManager\PluginRuntime.cs" />
     <Compile Include="PluginManager\IPluginItemBuilder.cs" />
     <Compile Include="PluginManager\IPluginManager.cs" />
     <Compile Include="PluginManager\PluginItemMetadata.cs" />
-    <Compile Include="PluginManager\PluginDirectoryDescriptor.cs" />
+    <Compile Include="Services\PluginManager\PluginDirectoryDescriptor.cs" />
     <Compile Include="PluginManager\PluginManagerMessaging.cs" />
-    <Compile Include="PluginManager\PluginResource.cs" />
+    <Compile Include="Services\PluginManager\PluginResource.cs" />
     <Compile Include="PluginManager\PluginState.cs" />
     <Compile Include="Core\ServiceCreatorCallback.cs" />
     <Compile Include="Core\ServiceNotFoundException.cs" />
@@ -113,31 +113,34 @@
     <Compile Include="Core\Threading\IWorkInterval.cs" />
     <Compile Include="Core\Threading\Work.cs" />
     <Compile Include="Core\Threading\WorkEventArgs.cs" />
-    <Compile Include="Messaging\MessageBroker.cs" />
-    <Compile Include="Messaging\Queue.cs" />
-    <Compile Include="PathManager\PathDefinition.cs" />
-    <Compile Include="PathManager\PathListFile.cs" />
-    <Compile Include="PathManager\PathManager.cs" />
-    <Compile Include="PluginManager\Builders\InstanceBuilder.cs" />
-    <Compile Include="PluginManager\Builders\ResourceBuilder.cs" />
-    <Compile Include="PluginManager\PluginManager.cs" />
+    <Compile Include="Services\Messaging\MessageBroker.cs" />
+    <Compile Include="Services\Messaging\Queue.cs" />
+    <Compile Include="Services\PathManager\PathDefinition.cs" />
+    <Compile Include="Services\PathManager\PathListFile.cs" />
+    <Compile Include="Services\PathManager\PathManager.cs" />
+    <Compile Include="Services\PluginManager\Builders\InstanceBuilder.cs" />
+    <Compile Include="Services\PluginManager\Builders\ResourceBuilder.cs" />
+    <Compile Include="Services\PluginManager\PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registry\RegistryNode.cs" />
-    <Compile Include="Registry\Registry.cs" />
+    <Compile Include="Services\Registry\RegistryNode.cs" />
+    <Compile Include="Services\Registry\Registry.cs" />
     <Compile Include="Registry\IRegistryNode.cs" />
     <Compile Include="Registry\IRegistry.cs" />
-    <Compile Include="TaskScheduler\TaskCollection.cs" />
-    <Compile Include="TaskScheduler\TaskScheduler.cs" />
-    <Compile Include="TaskScheduler\TaskSchedulerSettings.cs" />
-    <Compile Include="Threading\ThreadPool.cs" />
-    <Compile Include="Threading\ThreadPoolStartInfo.cs" />
-    <Compile Include="Threading\WorkQueue.cs" />
+    <Compile Include="Services\TaskScheduler\TaskCollection.cs" />
+    <Compile Include="Services\TaskScheduler\TaskScheduler.cs" />
+    <Compile Include="Services\TaskScheduler\TaskSchedulerSettings.cs" />
+    <Compile Include="Services\Threading\ThreadPool.cs" />
+    <Compile Include="Services\Threading\ThreadPoolStartInfo.cs" />
+    <Compile Include="Services\Threading\WorkQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\PluginManager\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

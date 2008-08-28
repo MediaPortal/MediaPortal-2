@@ -25,47 +25,47 @@
 using System.Collections.Generic;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Services.Messaging
+namespace MediaPortal.Core.Services.Messaging
 {
-  public class MessageBroker : IMessageBroker
+  public class Queue : IMessageQueue
   {
     #region Protected fields
 
-    protected IDictionary<string, IMessageQueue> _queues;
+    protected IList<IMessageFilter> _filters;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MessageBroker"/> class.
-    /// </summary>
-    public MessageBroker()
+    public Queue()
     {
-      _queues = new Dictionary<string, IMessageQueue>();
+      _filters = new List<IMessageFilter>();
     }
 
-    #region IMessageBroker implementation
+    #region IMessageQueue implementation
 
+    public event MessageReceivedHandler OnMessageReceive;
 
-    public IMessageQueue GetOrCreate(string queueName)
+    public IList<IMessageFilter> Filters
     {
-      if (!_queues.ContainsKey(queueName))
-      {
-        Queue q = new Queue();
-        _queues[queueName] = q;
-      }
-      return _queues[queueName];
+      get { return _filters; }
     }
 
-    public IList<string> Queues
+    public void Send(QueueMessage message)
     {
-      get 
+      message.MessageQueue = this;
+      foreach (IMessageFilter filter in _filters)
       {
-        List<string> queueNames = new List<string>();
-        IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
-        while (enumer.MoveNext())
-          queueNames.Add(enumer.Current.Key);
-        return queueNames;
+        message = filter.Process(message);
+        if (message == null) return;
       }
+      if (OnMessageReceive != null)
+      {
+        OnMessageReceive(message);
+      }
+    }
+
+    public bool HasSubscribers
+    {
+      get { return (OnMessageReceive != null); }
     }
 
     #endregion

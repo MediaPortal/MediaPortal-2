@@ -31,7 +31,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Threading;
 using MediaPortal.Core.TaskScheduler;
 
-namespace MediaPortal.Services.TaskScheduler
+namespace MediaPortal.Core.Services.TaskScheduler
 {
   /// <summary>
   /// Default implementation of the TaskScheduler. See the <see cref="ITaskScheduler"/> description for details.

@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Media.MediaManager;
 using Components.Services.MediaManager.Views;
 
@@ -230,9 +231,10 @@ namespace Components.Services.MediaManager
     {
       if (!_providerPluginsLoaded)
       {
-        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IProvider>("/Media/Providers", new FixedItemStateTracker()))
+        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IProvider>(
+            "/Media/Providers", new FixedItemStateTracker()))
         {
-          this.Register(provider);
+          Register(provider);
         }
         _providerPluginsLoaded = true;
       }
