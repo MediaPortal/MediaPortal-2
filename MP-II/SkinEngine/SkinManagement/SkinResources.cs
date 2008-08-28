@@ -268,10 +268,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         resourceName = resourceName.Substring(directoryNameLength).ToLower();
         if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
           resourceName = resourceName.Substring(1);
-        if (_localResourceFiles.ContainsKey(resourceName))
-          logger.Info("Duplicate resource file for resource collection '{0}': '{1}', '{2}'",
-              _name, _localResourceFiles[resourceName].FullName, resourceName);
-        else
+        if (!_localResourceFiles.ContainsKey(resourceName))
           _localResourceFiles[resourceName] = resourceFile;
       }
     }
