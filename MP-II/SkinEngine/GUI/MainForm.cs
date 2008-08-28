@@ -275,7 +275,7 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
-      Trace.WriteLine(String.Format("keydown:{0}", e.KeyCode));
+      //Trace.WriteLine(String.Format("keydown:{0}", e.KeyCode));
       IInputMapper mapper = ServiceScope.Get<IInputMapper>();
       Key key = mapper.Map(e.KeyCode, e.Alt);
       if (key != Key.None)
@@ -444,21 +444,20 @@ namespace MediaPortal.SkinEngine.GUI
       {
         base.OnResizeEnd(e);
         _previousClientSize = ClientSize;
-        ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
+        //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
         ServiceScope.Get<PlayerCollection>().ReleaseResources();
 
         ContentManager.Free();
-        //
-        ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
+
+        //Trace.WriteLine("DirectX MainForm: Reset DirectX");
 
         if (WindowState != FormWindowState.Minimized)
         {
           GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), _displaySetting);
-          ServiceScope.Get<IScreenManager>().Reset();
 
-          ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Restart render thread");
+          //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread();
         }
         ServiceScope.Get<PlayerCollection>().ReallocResources();
