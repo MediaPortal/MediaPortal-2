@@ -86,7 +86,7 @@ namespace MediaPortal.Manager
         {
           level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
         }
-        ILogger logger = new FileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
+        ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
         ServiceScope.Add(logger);
         
         logger.Debug("Manager: Registering Path Manager");

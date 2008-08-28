@@ -69,7 +69,7 @@ namespace MediaPortal.Services.Logging
     {
       try
       {
-        using (TextWriter writer = (TextWriter)new StreamWriter(_filename, false))
+        using (TextWriter writer = new StreamWriter(_filename, false))
         {
           writer.WriteLine("Crash Log: {0}", _crashTime.ToString());
 
@@ -90,14 +90,13 @@ namespace MediaPortal.Services.Logging
 					writer.WriteLine();
         	IList<string> statusList = ServiceScope.Current.GetStatus();
         	foreach (string status in statusList)
-        	{
         		writer.WriteLine(status);
-        	}
-
         }
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Console.WriteLine("CrashLogger crashed:");
+        Console.WriteLine(e.ToString());
       }
     }
 
@@ -137,7 +136,7 @@ namespace MediaPortal.Services.Logging
       return exceptionInfo.ToString();
     }
 
-    private string SystemInfo()
+    private static string SystemInfo()
     {
       StringBuilder systemInfo = new StringBuilder();
       systemInfo.AppendLine("== Software");
@@ -153,7 +152,7 @@ namespace MediaPortal.Services.Logging
       return systemInfo.ToString();
     }
 
-    private string DriveInfo()
+    private static string DriveInfo()
     {
       StringBuilder driveInfo = new StringBuilder();
       ManagementClass mc = new ManagementClass("Win32_LogicalDisk");
@@ -199,46 +198,41 @@ namespace MediaPortal.Services.Logging
       return driveInfo.ToString();
     }
 
-    private string GetSizeString(object size)
+    private static string GetSizeString(object size)
     {
       string stringSize = "-";
-      string end;
       if (size != null)
       {
-        try
+        string end;
+
+        UInt64 uBytes = (UInt64)size;
+        double bytes = uBytes;
+
+        end = "B";
+        if (bytes > 1024)
         {
-          UInt64 uBytes = (UInt64)size;
-          double bytes = (double) uBytes;
-
-          end = "B";
-          if (bytes > 1024)
-          {
-            end = "KB";
-            bytes /= 1024;
-          }
-
-          if (bytes > 1024)
-          {
-            end = "MB";
-            bytes /= 1024;
-          }
-
-          if (bytes > 1024)
-          {
-            end = "GB";
-            bytes /= 1024;
-          }
-
-          stringSize = bytes.ToString("F02") + end;
+          end = "KB";
+          bytes /= 1024;
         }
-        catch (Exception)
+
+        if (bytes > 1024)
         {
+          end = "MB";
+          bytes /= 1024;
         }
+
+        if (bytes > 1024)
+        {
+          end = "GB";
+          bytes /= 1024;
+        }
+
+        stringSize = bytes.ToString("F02") + end;
       }
       return stringSize;
     }
 
-    private string GetCPUInfos()
+    private static string GetCPUInfos()
     {
       RegistryKey mainKey = Registry.LocalMachine.OpenSubKey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor");
       string[] subKeys = mainKey.GetSubKeyNames();
@@ -255,7 +249,7 @@ namespace MediaPortal.Services.Logging
       return cpuInfos;
     }
 
-    private void CopyLogFiles(string logPath, string crashLogPath)
+    private static void CopyLogFiles(string logPath, string crashLogPath)
     {
       DirectoryInfo path = new DirectoryInfo(logPath);
 
@@ -265,7 +259,7 @@ namespace MediaPortal.Services.Logging
       }
     }
 
-    private void CreateDxDiagLog(string destinationFolder)
+    private static void CreateDxDiagLog(string destinationFolder)
     {
       string dstFile = Path.Combine(destinationFolder,  "DxDiag_Info.txt");
 
