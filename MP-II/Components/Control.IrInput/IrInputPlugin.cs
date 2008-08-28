@@ -26,9 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 
 using MediaPortal.Core;
@@ -46,7 +44,7 @@ namespace Components.Control.IrInput
   /// <summary>
   /// MediaPortal Input Service plugin.
   /// </summary>
-  public class IrInputPlugin : IPlugin, IAutoStart
+  public class IrInputPlugin : IPluginStateTracker
   {
 
     #region IPlugin Members
@@ -65,16 +63,27 @@ namespace Components.Control.IrInput
 
     #endregion
 
-    #region IAutoStart Members
+    #region IPluginStateTracker Members
 
-    public void Startup()
+    public void Activated()
     {
-      Thread startupThread = new Thread(new ThreadStart(Start));
+      Thread startupThread = new Thread(Start);
       startupThread.IsBackground = true;
       startupThread.Priority = ThreadPriority.BelowNormal;
       startupThread.Name = "IrInputPlugin Startup";
       startupThread.Start();
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The IR plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 
@@ -148,6 +157,7 @@ namespace Components.Control.IrInput
       IrssMessage message = new IrssMessage(MessageType.RegisterClient, MessageFlags.Request);
       _client.Send(message);
     }
+
     void Disconnected(object obj)
     {
       ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Communications with server has been lost");
@@ -177,6 +187,7 @@ namespace Components.Control.IrInput
         return false;
       }
     }
+
     void StopClient()
     {
       if (_client == null)

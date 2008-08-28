@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.refreshrate]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="settings" ClassName="RefreshrateSettings"/>
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="RefreshrateSettings"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

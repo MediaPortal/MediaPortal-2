@@ -29,8 +29,6 @@ using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Database.Provider;
 
-using Components.Database.Sql;
-using Components.Database.SqlLite;
 
 namespace Components.Database
 {
@@ -51,7 +49,7 @@ namespace Components.Database
       if ((pos = connectionString.IndexOf(':')) > 0)
       {
         string database = connectionString.Substring(0, pos);
-        IDatabaseBuilder builder = (IDatabaseBuilder)ServiceScope.Get<IPluginManager>().GetPluginItem<IDatabaseBuilder>("/Databases", database);
+        IDatabaseBuilder builder = ServiceScope.Get<IPluginManager>().RequestPluginItem<IDatabaseBuilder>("/Databases", database, new FixedItemStateTracker());
         if (builder != null)
         {
           builder = builder.CreateNew();

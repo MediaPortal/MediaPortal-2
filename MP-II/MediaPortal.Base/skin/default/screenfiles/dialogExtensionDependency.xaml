@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[extensions.notification]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="MyExtensions" ClassName="Model"/>
+    <Model x:Key="DataContext" RegistrationLocation="MyExtensions" Id="Model"/>
 
     <!-- ListView style -->
     <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>

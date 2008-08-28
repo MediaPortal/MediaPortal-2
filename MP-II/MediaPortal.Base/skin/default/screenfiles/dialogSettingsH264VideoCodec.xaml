@@ -20,7 +20,7 @@
 
     <!-- Command -->
     <ResourceWrapper x:Key="Execute_Command_Stencil">
-      <CommandStencil Source="{Model AssemblyName=settings,ClassName=VideoSettings}" Path="Players.Settings.SetH264Codec"/>
+      <CommandStencil Source="{Model RegistrationLocation=Settings,Id=VideoSettings}" Path="Players.Settings.SetH264Codec"/>
     </ResourceWrapper>
 
   </Include.Resources>

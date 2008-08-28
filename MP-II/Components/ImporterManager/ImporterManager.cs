@@ -27,7 +27,6 @@ using System.Timers;
 using System.Threading;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
@@ -39,7 +38,9 @@ using MediaPortal.Media.MediaManager;
 
 namespace Components.Services.Importers
 {
-  public class ImporterManager : IImporterManager, IPlugin
+  // FIXME Albert78: Manage list of importer plugin items instead list of ImporterBuilder instances,
+  // create/revoke usage of importer items lazily and on-demand
+  public class ImporterManager : IImporterManager, IPluginStateTracker
   {
     class ImporterContext
     {
@@ -56,17 +57,15 @@ namespace Components.Services.Importers
         Refresh = refresh;
       }
     }
+
     #region variables
-    List<ImporterBuilder> _importers;
-    List<WatchedFolder> _folders;
+    ICollection<ImporterBuilder> _importers;
+    IList<WatchedFolder> _folders;
     System.Timers.Timer _timer;
     bool _reentrant;
     ImporterManagerSettings _settings;
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ImporterManager"/> class.
-    /// </summary>
     public ImporterManager()
     {
       _folders = new List<WatchedFolder>();
@@ -88,24 +87,30 @@ namespace Components.Services.Importers
       }
     }
 
-    #region IPlugin Members
-    public void Initialise()
+    #region IPluginStateTracker implementation
+
+    public void Activated()
     {
       // Get all Importer plugins
-      _importers = ServiceScope.Get<IPluginManager>().GetAllPluginItems<ImporterBuilder>("/Media/Importers");
+      _importers = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<ImporterBuilder>(
+          "/Media/Importers", new FixedItemStateTracker()); // FIXME: make importers able to be disabled again
     }
 
-    public void Dispose()
+    public bool RequestEnd()
     {
+      return false; // FIXME: The importer manager plugin should be able to be disabled
     }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
+
     #endregion
 
     #region IImporterManager Members
 
-    /// <summary>
-    /// Registers the specified importer.
-    /// </summary>
-    /// <param name="importer">The importer.</param>
     public void Register(IImporter importer)
     {
       // Use plugin space
@@ -115,10 +120,6 @@ namespace Components.Services.Importers
       //}
     }
 
-    /// <summary>
-    /// Unregisters the importer
-    /// </summary>
-    /// <param name="importer">The importer.</param>
     public void UnRegister(IImporter importer)
     {
       //if (_importers.Contains(importer))
@@ -127,10 +128,6 @@ namespace Components.Services.Importers
       //}
     }
 
-    /// <summary>
-    /// Gets the registered importers.
-    /// </summary>
-    /// <value>The registered importers.</value>
     public List<IImporter> Importers
     {
       get
@@ -144,11 +141,6 @@ namespace Components.Services.Importers
       }
     }
 
-    /// <summary>
-    /// Gets the importer for the specific name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
     public IImporter GetImporterByName(string name)
     {
       foreach (ImporterBuilder importerBuilder in _importers)
@@ -159,11 +151,6 @@ namespace Components.Services.Importers
       return null;
     }
 
-    /// <summary>
-    /// Returns a list of importers supporting the extension
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
     public List<IImporter> GetImporterByExtension(string extension)
     {
       List<IImporter> returnList = new List<IImporter>();
@@ -175,10 +162,6 @@ namespace Components.Services.Importers
       return returnList;
     }
 
-    /// <summary>
-    /// Adds a new share which should be imported & watched.
-    /// </summary>
-    /// <param name="folder">The folder.</param>
     public void AddShare(string folder)
     {
       //sanity checks
@@ -230,10 +213,6 @@ namespace Components.Services.Importers
       queue.Send(msg);
     }
 
-    /// <summary>
-    /// Removes a share
-    /// </summary>
-    /// <param name="folder">The folder.</param>
     public void RemoveShare(string folder)
     {
       //sanity checks
@@ -267,15 +246,8 @@ namespace Components.Services.Importers
         }
       }
       return;
-
-
-
     }
 
-    /// <summary>
-    /// Returns a list of all share being watched.
-    /// </summary>
-    /// <value>List containing all shares.</value>
     public List<string> Shares
     {
       get
@@ -289,10 +261,6 @@ namespace Components.Services.Importers
       }
     }
 
-    /// <summary>
-    /// Forces a complete import to be done on the folder
-    /// </summary>
-    /// <param name="folder">The folder.</param>
     public void ForceImport(string folder, bool refresh)
     {
       //check if folder is already monitored.
@@ -343,7 +311,6 @@ namespace Components.Services.Importers
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("importer:error _timer_Elapsed");
         ServiceScope.Get<ILogger>().Error(ex);
       }
       finally
@@ -355,8 +322,8 @@ namespace Components.Services.Importers
     /// <summary>
     /// Processes any changes to the filesystem.
     /// </summary>
-    /// <param name="changes">List of detected changes.</param>
-    void DoProcessChanges(List<FileChangeEvent> changes)
+    /// <param name="changes">Enumeration of detected changes.</param>
+    void DoProcessChanges(IEnumerable<FileChangeEvent> changes)
     {
       foreach (FileChangeEvent change in changes)
       {
@@ -424,11 +391,6 @@ namespace Components.Services.Importers
       }
     }
 
-    /// <summary>
-    /// Gets the meta data for a folder
-    /// </summary>
-    /// <param name="folde">The folder.</param>
-    /// <param name="items">The items.</param>
     public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
     {
       try
@@ -458,7 +420,6 @@ namespace Components.Services.Importers
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("importers:GetMetadataFor:{0} failed", folder);
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }

@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.shares]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="Shares" ClassName="Model"/>
+    <Model x:Key="DataContext" RegistrationLocation="Shares" Id="Model"/>
 
     <!-- Focused_Element -->
     <ResourceWrapper x:Key="Focused_Element" Resource="{Binding ElementName=list}"/>

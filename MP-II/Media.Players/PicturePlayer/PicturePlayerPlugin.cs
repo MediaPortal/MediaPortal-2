@@ -23,29 +23,35 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Presentation.Players;
 
 using MediaPortal.Media.MediaManager;
 
 
 namespace Media.Players.PicturePlayer
 {
-  public class PicturePlayerPlugin : IPlugin, IPlayerBuilder
+  public class PicturePlayerPlugin : IPluginStateTracker, IPlayerBuilder
   {
     PicturePlayerSettings _settings;
-    #region IPlugin Members
 
-    public void Initialise()
+    #region IPluginStateTracker implementation
+
+    public void Activated()
     {
       _settings = new PicturePlayerSettings();
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The player plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

@@ -25,27 +25,14 @@
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
 
 namespace Models.Settings
 {
-  public class General : IPlugin
+  public class General
   {
     ItemsCollection _mainMenu;
 
-    #region IPlugin Members
-    public General()
-    {
-    }
-
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
+    public General() { }
 
     /// <summary>
     /// exposes the main settings menu to the skin

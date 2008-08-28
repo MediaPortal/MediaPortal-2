@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.playback]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="settings" ClassName="VideoSettings"/>
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="VideoSettings"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

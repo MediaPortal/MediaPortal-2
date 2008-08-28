@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Presentation.Screen
@@ -72,6 +73,11 @@ namespace MediaPortal.Presentation.Screen
     /// Returns available display modes
     /// </summary>
     IList<string> DisplayModes{ get; }
+
+    /// <summary>
+    /// Returns the window handle of the main window.
+    /// </summary>
+    IntPtr MainWindowHandle { get; }
 
     /// <summary>
     /// Sets the display mode for a give frame rate

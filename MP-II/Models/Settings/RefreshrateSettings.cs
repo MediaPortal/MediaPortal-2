@@ -31,22 +31,12 @@ using MediaPortal.Presentation.Screen;
 
 namespace Models.Settings
 {
-  public class RefreshrateSettings : IPlugin
+  public class RefreshrateSettings
   {
     ItemsCollection _mainMenu;
     ItemsCollection _refreshrates;
     ItemsCollection _refreshRateControl;
     
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
-
     public RefreshrateSettings()
     {
       IScreenControl app = ServiceScope.Get<IScreenControl>();

@@ -41,19 +41,10 @@ using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
 
 namespace Components.UPnPServer
 {
-  public class UPnPServer : IPlugin, IAutoStart
+  public class UPnPServer : IPluginStateTracker
   {
-    #region IPlugin Members
-
     private MediaServerCore2 _mediaServerCore;
     private UPnPMediaServer2 _mediaServer;
-
-    public void Initialise()
-    {
-      //   Start();
-    }
-
-    #endregion
 
     #region IDisposable Members
 
@@ -63,9 +54,9 @@ namespace Components.UPnPServer
 
     #endregion
 
-    #region IAutoStart Members
+    #region IPluginStateTracker implementation
 
-    public void Startup()
+    public void Activated()
     {
 #if DEBUG
       return;
@@ -75,8 +66,18 @@ namespace Components.UPnPServer
       startupThread.Name = "UpnP server start";
       startupThread.Priority = ThreadPriority.BelowNormal;
       startupThread.Start();
-
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The UPnPServer plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

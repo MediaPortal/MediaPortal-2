@@ -26,33 +26,22 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.Importers;
 using MediaPortal.Presentation.Screen;
 
 namespace Models.Shares
 {
-  public class Model : IPlugin
+  public class Model
   {
     ItemsCollection _folders = new ItemsCollection();
     ItemsCollection _shares = new ItemsCollection();
     ListItem _selectedItem;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     public Model()
     {
       Refresh(_folders, null, true);
       RefreshShares();
     }
-    #endregion
 
     public ItemsCollection Shares
     {

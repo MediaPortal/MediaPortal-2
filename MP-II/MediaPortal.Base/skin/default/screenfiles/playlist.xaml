@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[playlists.playlist]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="PlayList" ClassName="PlayList"/>
+    <Model x:Key="DataContext" RegistrationLocation="PlayList" Id="PlayList"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
@@ -30,7 +30,7 @@
           Margin="10,0,10,0" Style="{StaticResource PlayListViewStyle}" ItemsSource="{Binding PlayListItems}"
           SelectionChanged="{CommandStencil Path=OnSelectionChange}">
         <ListView.Resources>
-          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="PlayItem" Parameters="{LateBoundValue Value={Binding}"/>
+          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="PlayItem" Parameters="{LateBoundValue Value={Binding}}"/>
         </ListView.Resources>
       </ListView>
     </ResourceWrapper>

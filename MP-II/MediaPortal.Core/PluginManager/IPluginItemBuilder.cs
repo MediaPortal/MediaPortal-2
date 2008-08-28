@@ -1,0 +1,48 @@
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+
+namespace MediaPortal.Core.PluginManager
+{
+  /// <summary>
+  /// Interface for plugin item builder classes. An item builder allows a plugin to
+  /// bring in almost all kinds of functionality to the system by providing new item types
+  /// which can then be used by plugin descriptors. In the plugin descriptor, only some
+  /// registration data for an item is needed, together with a reference to a plugin item builder,
+  /// which then will integrate the item into the system (= build it).
+  /// </summary>
+  /// <remarks>
+  /// Plugin item builder classes are used to instantiate plugin items out of a "parameter set"
+  /// from the plugin descriptor file, provided by the data from <see cref="PluginItemMetadata"/>.
+  /// For every plugin, the name of the builder will be specified which is needed to build the item
+  /// with the specified parameters.
+  /// </remarks>
+  public interface IPluginItemBuilder
+  {
+    /// <summary>
+    /// Will build an item from the specified item data.
+    /// </summary>
+    object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
+	}
+}

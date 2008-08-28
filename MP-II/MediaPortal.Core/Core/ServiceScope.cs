@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core
@@ -171,10 +170,6 @@ namespace MediaPortal.Core
           if (global == null)
           {
             new ServiceScope();
-            //current.services.Add(typeof(IMessageBroker), new ServiceCreatorCallback<IMessageBroker>(MessageBrokerRequested));
-            //current.services.Add(typeof(ILogger), new ServiceCreatorCallback<ILogger>(LoggerRequested));
-            //current.services.Add(typeof(ISettingsManager), new ServiceCreatorCallback<ISettingsManager>(SettingsManagerRequested));
-            //current.services.Add(typeof(ILocalisation), new ServiceCreatorCallback<ILocalisation>(LocalisationRequested));
           }
           current = global;
         }
@@ -244,7 +239,7 @@ namespace MediaPortal.Core
     /// (but not necessarily) an interface</typeparam>
     /// <returns>the service implementation.</returns>
     /// <exception cref="ServiceNotFoundException">when the requested service type is not found.</exception>
-    public static T Get<T>()
+    public static T Get<T>() where T : class
     {
       return Current.GetService<T>(true);
     }
@@ -252,7 +247,7 @@ namespace MediaPortal.Core
     /// <summary>
     /// Gets a service from the current <see cref="ServiceScope"/>
     /// </summary>
-    /// <typeparam name="T">the type of the service to get.  This is typically
+    /// <typeparam name="T">The type of the service to get. This is typically
     /// (but not necessarily) an interface</typeparam>
     /// <param name="throwIfNotFound">a <b>bool</b> indicating whether to throw a
     /// <see cref="ServiceNotFoundException"/> when the requested service is not found</param>
@@ -260,7 +255,7 @@ namespace MediaPortal.Core
     /// and <paramref name="throwIfNotFound"/> is false.</returns>
     /// <exception cref="ServiceNotFoundException">when <paramref="throwIfNotFound"/>
     /// is <b>true</b> andthe requested service type is not found.</exception>
-    public static T Get<T>(bool throwIfNotFound)
+    public static T Get<T>(bool throwIfNotFound) where T : class
     {
       return Current.GetService<T>(throwIfNotFound);
     }
@@ -285,7 +280,7 @@ namespace MediaPortal.Core
       return false;
     }
 
-    private T GetService<T>(bool throwIfNotFound)
+    private T GetService<T>(bool throwIfNotFound) where T : class
     {
       Type type = typeof(T);
       if (services.ContainsKey(type))
@@ -299,7 +294,7 @@ namespace MediaPortal.Core
       }
       if (oldInstance == null)
       {
-        object newService = Get<IPluginManager>().GetPluginItem<T>("/Services", type.Name);
+        object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name, new FixedItemStateTracker());
         if (newService != null)
         {
           Add<T>((T)newService);

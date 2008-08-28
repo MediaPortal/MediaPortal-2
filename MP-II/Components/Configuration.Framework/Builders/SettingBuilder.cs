@@ -1,5 +1,4 @@
-﻿
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,10 +23,7 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -35,61 +31,64 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration;
 
-
 namespace Components.Configuration.Builders
 {
   public class SettingBuilder : IPluginItemBuilder
   {
     #region IPluginBuilder methods
 
-    public object BuildItem(IPluginRegisteredItem item)
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       ConfigBase setting;
-
-      try
+      if (itemData.Attributes.ContainsKey("ClassName"))
       {
-        if (item.Contains("class"))
-          setting = (ConfigBase)item.Plugin.CreateObject(item["class"]);
-        else
+        string className = itemData.Attributes["ClassName"];
+        try
+        {
+          setting = (ConfigBase) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Error("Can't create instance for class '{0}'", e, className);
           setting = new ConfigBase();
+        }
       }
-      catch (Exception e)
-      {
-        ServiceScope.Get<ILogger>().Warn("Can't create instance for {0}  [Exception: {1}]", item["class"], e.Message);
+      else
         setting = new ConfigBase();
-      }
       // All .plugin files should only contain english characters.
-      setting.Id = item.Id.ToLower(new System.Globalization.CultureInfo("en"));
+      setting.Id = itemData.Id.ToLowerInvariant();
 
-      if (item.Contains("text"))
-        setting.Text = new StringId(item["text"]);
+      if (itemData.Attributes.ContainsKey("Text"))
+        setting.Text = new StringId(itemData.Attributes["Text"]);
       else
         setting.Text = new StringId();
 
-      if (item.Contains("help"))
-        setting.Help = new StringId(item["help"]);
+      if (itemData.Attributes.ContainsKey("Help"))
+        setting.Help = new StringId(itemData.Attributes["Help"]);
       else
         setting.Help = new StringId();
 
-      if (item.Contains("iconsmall"))
-        setting.IconSmall = Path.Combine(item.Plugin.PluginPath.ToString(), item["iconsmall"]).ToString();
+      if (itemData.Attributes.ContainsKey("IconSmall"))
+        setting.IconSmall = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconSmall"]);
 
-      if (item.Contains("iconlarge"))
-        setting.IconLarge = Path.Combine(item.Plugin.PluginPath.ToString(), item["iconlarge"]).ToString();
+      if (itemData.Attributes.ContainsKey("IconLarge"))
+        setting.IconLarge = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconLarge"]);
 
       int width = -1;
-      if (item.Contains("width")) Int32.TryParse(item["width"], out width);
+      if (itemData.Attributes.ContainsKey("Width"))
+        Int32.TryParse(itemData.Attributes["Width"], out width);
       setting.Width = width;
 
       int height = -1;
-      if (item.Contains("height")) Int32.TryParse(item["height"], out height);
+      if (itemData.Attributes.ContainsKey("Height"))
+        Int32.TryParse(itemData.Attributes["Height"], out height);
       setting.Height = height;
 
-      if (item.Contains("type"))
+      if (itemData.Attributes.ContainsKey("Type"))
       {
         try
         {
-          setting.Type = (SettingType)Enum.Parse(typeof(SettingType), item["type"], true);
+          setting.Type = (SettingType) Enum.Parse(typeof(SettingType), itemData.Attributes["Type"], true);
         }
         catch (Exception)
         {
@@ -101,8 +100,9 @@ namespace Components.Configuration.Builders
         setting.Type = SettingType.Unknown;
       }
 
-      if (item.Contains("listento"))
-        setting.ListenItems = new List<string>(item["listento"].Replace(" ", "").Split(new char[] { '[', ']', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+      if (itemData.Attributes.ContainsKey("ListenTo"))
+        // Very easy parser for a list of items of this kind: [Item1] [Item2] [Item3] ...
+        setting.ListenItems = new List<string>(itemData.Attributes["ListenTo"].Replace(" ", "").Split(new char[] { '[', ']', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
       else
         setting.ListenItems = new List<string>(0);
 

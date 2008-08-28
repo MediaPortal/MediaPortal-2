@@ -24,7 +24,6 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
@@ -39,7 +38,7 @@ namespace Models.Media
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model : IPlugin
+  public class Model
   {
     #region variables
     private ItemsCollection _sortMenu;
@@ -48,15 +47,6 @@ namespace Models.Media
     private IRootContainer currentItem = null;
 
     #endregion
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.
@@ -85,7 +75,6 @@ namespace Models.Media
       Refresh();
       _items.FireChange();
     }
-    #endregion
 
     #region music collection methods
 

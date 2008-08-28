@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.AutoPlay;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
@@ -39,12 +40,14 @@ using MediaPortal.Utilities;
 
 namespace Components.Services.AutoPlay
 {
-  public class AutoPlay : IAutoPlay
+  public class AutoPlay : IAutoPlay, IPluginStateTracker
   {
     #region Variables
+
     private ILogger Logger;
     private DeviceVolumeMonitor _deviceMonitor;
     private AutoPlaySettings _settings;
+    private IntPtr _windowHandle = IntPtr.Zero;
 
     enum MediaType
     {
@@ -58,6 +61,7 @@ namespace Components.Services.AutoPlay
     #endregion
 
     #region ctor / dtor
+
     public AutoPlay()
     {
       // We need BASS CD Support, so we need to load the plugin
@@ -71,30 +75,33 @@ namespace Components.Services.AutoPlay
 
     ~AutoPlay()
     {
-      if (_deviceMonitor != null)
-        _deviceMonitor.Dispose();
-
-      _deviceMonitor = null;
+      StopListening();
     }
+
     #endregion
 
     #region IAutoPlay implementation
-    public void StartListening(IntPtr aHandle)
+
+    public bool StartListening()
     {
+      if (_windowHandle == IntPtr.Zero)
+        return false;
       try
       {
-        _deviceMonitor = new DeviceVolumeMonitor(aHandle);
+        _deviceMonitor = new DeviceVolumeMonitor(_windowHandle);
         _deviceMonitor.OnVolumeInserted += new DeviceVolumeAction(VolumeInserted);
         _deviceMonitor.OnVolumeRemoved += new DeviceVolumeAction(VolumeRemoved);
         _deviceMonitor.AsynchronousEvents = true;
         _deviceMonitor.Enabled = true;
 
         Logger.Info("AutoPlay: Monitoring System for Media Changes");
+        return true;
       }
       catch (DeviceVolumeMonitorException ex)
       {
         Logger.Error("AutoPlay: Error enabling AutoPlay Service. {0}", ex.Message);
       }
+      return false;
     }
 
     public void StopListening()
@@ -266,6 +273,7 @@ namespace Components.Services.AutoPlay
     #endregion
 
     #region Private Methods
+
     private void LoadSettings()
     {
       _settings = new AutoPlaySettings();
@@ -275,7 +283,7 @@ namespace Components.Services.AutoPlay
     /// <summary>
     /// Detects the media type of the CD/DVD inserted into a drive.
     /// </summary>
-    /// <param name="driveLetter">The drive that contains the data.</param>
+    /// <param name="strDrive">The drive that contains the data.</param>
     /// <returns>The media type of the drive.</returns>
     private MediaType DetectMediaType(string strDrive)
     {
@@ -379,6 +387,52 @@ namespace Components.Services.AutoPlay
       catch (Exception)
       {
       }
+    }
+
+    #endregion
+
+    #region Event Handlers
+
+    /// <summary>
+    /// Called when the plugin manager notifies the system about its events.
+    /// Requests the main window handle from the main screen.
+    /// </summary>
+    /// <param name="message">Message containing the notification data.</param>
+    private void OnPluginManagerMessageReceived(QueueMessage message)
+    {
+      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+      {
+        IScreenControl sc = ServiceScope.Get<IScreenControl>();
+        _windowHandle = sc.MainWindowHandle;
+        StartListening();
+      }
+    }
+
+    #endregion
+
+    #region IPluginStateTracker implementation
+
+    public void Activated()
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
+      queue.OnMessageReceive += OnPluginManagerMessageReceived;
+    }
+
+    public bool RequestEnd()
+    {
+      return true;
+    }
+
+    public void Stop()
+    {
+      StopListening();
+    }
+
+    public void Continue() { }
+
+    public void Shutdown()
+    {
+      StopListening();
     }
 
     #endregion

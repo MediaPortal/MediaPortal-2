@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Presentation.Players

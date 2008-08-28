@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Media.MediaManager.Views;
 
 namespace MediaPortal.Media.MediaManager
 {

@@ -1,0 +1,14 @@
+<Plugin
+    Version = "1.0"
+    Name = "IrInput"
+    Author = "and-81"
+    Copyright = "GPL"
+    AutoActivate = "true" 
+    Description = "Ir Input Service plugin"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "Control.IrInput.dll"/>
+    <PluginStateTracker ClassName = "Components.Control.IrInput.IrInputPlugin"/>
+  </Runtime>
+</Plugin>

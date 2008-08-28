@@ -11,7 +11,7 @@
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
-      <Binding Source="{Model AssemblyName=settings,ClassName=Language}" Path="MainMenu" Mode="OneTime"/>
+      <Binding Source="{Model RegistrationLocation=Settings,Id=Language}" Path="MainMenu" Mode="OneTime"/>
     </ResourceWrapper>
 
     <!-- Menu command -->

@@ -31,22 +31,12 @@ using MediaPortal.Presentation.Screen;
 
 namespace Models.Settings
 {
-  public class ScreenSettings : IPlugin
+  public class ScreenSettings
   {
     ItemsCollection _mainMenu;
     ItemsCollection _fullScreen;
     ItemsCollection _aspect;
     
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
-
     public ScreenSettings()
     {
       _fullScreen = new ItemsCollection();

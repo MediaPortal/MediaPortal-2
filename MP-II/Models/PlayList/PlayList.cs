@@ -29,26 +29,16 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 
 
 namespace Models.PlayList
 {
-  public class PlayList : IPlugin
+  public class PlayList
   {
     private readonly ItemsCollection _playList;
     ListItem _selectedItem;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     public PlayList()
     {
@@ -56,7 +46,6 @@ namespace Models.PlayList
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
       queue.OnMessageReceive += new MessageReceivedHandler(onPlayListMessage);
     }
-    #endregion
 
     void onPlayListMessage(QueueMessage message)
     {

@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[general.sort]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="mypicture" ClassName="PictureModel"/>
+    <Model x:Key="DataContext" RegistrationLocation="Pictures" Id="PictureModel"/>
 
     <!-- ListView style -->
     <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>

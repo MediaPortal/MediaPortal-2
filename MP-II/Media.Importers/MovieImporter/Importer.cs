@@ -23,19 +23,15 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 
 using MediaPortal.Core;
 using MediaPortal.Database;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Threading;
-
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
@@ -44,9 +40,8 @@ using MediaPortal.Utilities.Scraper;
 
 namespace Media.Importers.MovieImporter
 {
-  public class Importer : IPlugin, IImporter
+  public class Importer : IPluginStateTracker, IImporter
   {
-    #region IPlugin Members
     //List<string> _extensions;
     IDatabase _movieDatabase;
     DateTime _lastImport = DateTime.MinValue;
@@ -65,12 +60,25 @@ namespace Media.Importers.MovieImporter
       //_extensions.Add(".ifo");
     }
 
-    public void Initialise()
+    #region IPluginStateTracker implementation
+
+    public void Activated()
     {
       CreateMovieDatabase();
       scraper = new Scraper();
       scraper.Load(@"scrapers\video\imdb.xml");
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The importer plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

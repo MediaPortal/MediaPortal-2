@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.screen]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="settings" ClassName="ScreenSettings"/>
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="ScreenSettings"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

@@ -26,6 +26,7 @@ using System;
 using System.Windows.Forms;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
+using MediaPortal.Core.Registry;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Presentation.Localisation;
@@ -101,10 +102,11 @@ namespace MediaPortal
         logger.Debug("ApplicationLauncher: Registering Logger");
         ServiceScope.Add(logger);
         logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
-        //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
-        //             "Some code change has caused MP2 to load in the wrong AppDomain.  Crash recovery will fail now...");
 
-        //register core service implementations
+        // Register core service implementations
+        logger.Debug("ApplicationLauncher: Registering Registry");
+        ServiceScope.Add<IRegistry>(new Registry());
+
         logger.Debug("ApplicationLauncher: Registering ThreadPool");
         MediaPortal.Services.Threading.ThreadPool pool = new MediaPortal.Services.Threading.ThreadPool();
         pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
@@ -149,7 +151,6 @@ namespace MediaPortal
         logger.Debug("ApplicationLauncher: Starting core");
         ApplicationCore core = new ApplicationCore();
         core.Start();
-        //throw new ArgumentException("Test Execption");
 #if !DEBUG
         }
         catch (Exception ex)

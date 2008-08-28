@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[extensions.myextensions]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="MyExtensions" ClassName="Model"/>
+    <Model x:Key="DataContext" RegistrationLocation="MyExtensions" Id="Model"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

@@ -59,7 +59,7 @@ using Models.Weather.Grabbers;
 
 namespace Models.Weather
 {
-  public class WeatherSetupViewModel : IPlugin
+  public class WeatherSetupViewModel
   {
     // locations that are already in the list
     private List<CitySetupInfo> _locations;
@@ -74,14 +74,6 @@ namespace Models.Weather
     private ItemsCollection _mainMenu;
     private Property _searchCity;
 
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
     /// <summary>
     /// constructor
     /// </summary>
@@ -96,7 +88,6 @@ namespace Models.Weather
       // load settings
       GetLocationsFromSettings();
     }
-    #endregion
 
     /// <summary>
     /// exposes the main menu to the skin

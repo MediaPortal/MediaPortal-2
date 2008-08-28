@@ -22,25 +22,33 @@
 
 #endregion
 
-using System.Windows.Forms;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.SkinEngine
 {
-  public class DirectxGui: IPlugin, IAutoStart
+  public class DirectxGui: IPluginStateTracker
   {
-    public void Initialise() {}
+    protected MainForm _mainForm = null;
 
-    public void Startup()
+    public void Activated()
     {
-      // removed by dukus 
-      //Application.EnableVisualStyles();
-      //Application.SetCompatibleTextRenderingDefault(false);
-      MainForm mainform = new MainForm();
-      Application.Run(mainform);
+      _mainForm = new MainForm();
+      _mainForm.Visible = true;
     }
 
-    public void Dispose() {}
+    public bool RequestEnd()
+    {
+      return true;
+    }
+
+    public void Stop()
+    {
+      _mainForm.Close();
+    }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
   }
 }

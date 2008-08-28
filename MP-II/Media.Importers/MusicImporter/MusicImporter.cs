@@ -39,7 +39,7 @@ using Media.Importers.MusicImporter.Tags;
 
 namespace Media.Importers.MusicImporter
 {
-  public class MusicImporter : IPlugin, IImporter
+  public class MusicImporter : IPluginStateTracker, IImporter
   {
     #region Variables
     private IDatabase _musicDatabase = null;
@@ -72,16 +72,25 @@ namespace Media.Importers.MusicImporter
     }
     #endregion
 
-    #region IPlugin Members
+    public MusicImporter() { }
 
-    public MusicImporter()
-    {
-    }
+    #region IPluginStateTracker implementation
 
-    public void Initialise()
+    public void Activated()
     {
       CreateMusicDatabase();
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The importer plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

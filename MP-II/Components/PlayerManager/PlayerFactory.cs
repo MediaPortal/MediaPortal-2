@@ -26,13 +26,12 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
 
 namespace Components.Services.PlayerManager
 {
-  public class PlayerFactory : IPlayerFactory, IPlugin
+  public class PlayerFactory : IPlayerFactory
   {
     List<IPlayerBuilder> _builders;
     bool _pluginServicesLoaded;
@@ -43,16 +42,6 @@ namespace Components.Services.PlayerManager
       _pluginServicesLoaded = false;
     }
 
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
-
     /// <summary>
     /// returns a player for the specified file
     /// </summary>
@@ -62,10 +51,10 @@ namespace Components.Services.PlayerManager
     {
       if (!_pluginServicesLoaded)
       {
-        List<PlayerBuilder> builders = ServiceScope.Get<IPluginManager>().GetAllPluginItems<PlayerBuilder>("/Media/Players");
+        ICollection<PlayerBuilder> builders = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PlayerBuilder>("/Media/Players", new FixedItemStateTracker());
         foreach (PlayerBuilder playerBuilder in builders)
         {
-          Register((IPlayerBuilder) playerBuilder);
+          Register(playerBuilder);
         }
 
         _pluginServicesLoaded = true;

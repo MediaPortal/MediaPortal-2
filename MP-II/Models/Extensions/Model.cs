@@ -34,7 +34,6 @@ using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Media.MediaManager;
@@ -47,7 +46,7 @@ namespace Models.Extensions
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model : IPlugin
+  public class Model
   {
     #region variables
 
@@ -83,7 +82,6 @@ namespace Models.Extensions
     }
     #endregion
 
-    #region IPlugin Members
     public Model()
     {
       //load our settings
@@ -107,8 +105,6 @@ namespace Models.Extensions
       }
 
       _items = new ItemsCollection();
-
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
 
       _dynamicContextMenuItems = new List<IMenuItem>();
       StringId menuText = new StringId("extensions", "install");
@@ -165,15 +161,6 @@ namespace Models.Extensions
       menuItem.CommandParameter = "MyExtensions:Model.SelectedItem";
       _dynamicContextMenuItems.Add(menuItem);
     }
-
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
 
     #region ctor
     private void _factory_OnChanged()

@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -73,7 +73,6 @@
     <Compile Include="Formatters\TextFormatter.cs" />
     <Compile Include="Formatters\TimeSpanFormatter.cs" />
     <Compile Include="MetaDataFormatterCollection.cs" />
-    <Compile Include="MetaDataMapperPlugin.cs" />
     <Compile Include="MetadataMapping.cs" />
     <Compile Include="MetaDataMappingCollection.cs" />
     <Compile Include="MetadataMappingItem.cs" />
@@ -91,7 +90,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Services.MetaDataMapper.plugin" />
+    <Content Include="plugin.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -102,7 +101,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(ProjectName).plugin" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

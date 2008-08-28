@@ -204,8 +204,10 @@ namespace Components.Services.AutoPlay
     /// <param name="aHandle">Window handle to be captured</param>
     public DeviceVolumeMonitor(IntPtr aHandle)
     {
-      if (aHandle != IntPtr.Zero) { fHandle = aHandle; }
-      else { throw new DeviceVolumeMonitorException("Invalid handle!"); }
+      if (aHandle == IntPtr.Zero)
+        throw new DeviceVolumeMonitorException("Invalid handle!");
+      else
+        fHandle = aHandle;
       Initialize();
     }
 

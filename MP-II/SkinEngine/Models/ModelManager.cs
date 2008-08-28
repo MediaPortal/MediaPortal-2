@@ -72,15 +72,15 @@ namespace MediaPortal.SkinEngine.Models
     /// <summary>
     /// Determines whether the ModelManager did already load the specified model.
     /// </summary>
-    /// <param name="assemblyName">Assembly name of the model to check.</param>
-    /// <param name="className">Class name of the model to check.</param>
+    /// <param name="registrationLocation">Registration location of the model to check.</param>
+    /// <param name="id">Id of the model to check.</param>
     /// <returns>
     /// <c>true</c> if the specified model was already load into the model cache,
     /// else <c>false</c>.
     /// </returns>
-    public bool Contains(string assemblyName, string className)
+    public bool Contains(string registrationLocation, string id)
     {
-      return _models.ContainsKey(GetInternalModelName(assemblyName, className));
+      return _models.ContainsKey(GetInternalModelName(registrationLocation, id));
     }
 
     /// <summary>
@@ -88,17 +88,17 @@ namespace MediaPortal.SkinEngine.Models
     /// cache, if it was already load. Else, it will be load and stored in the
     /// model cache.
     /// </summary>
-    /// <param name="assemblyName">Assembly name of the model to get or load.</param>
-    /// <param name="className">Class name of the model to get or load.</param>
+    /// <param name="registrationLocation">Registration location of the model to get or load.</param>
+    /// <param name="id">Id of the model to get or load.</param>
     /// <returns>Instance of the specified <see cref="Model"/>.</returns>
-    public Model GetOrLoadModel(string assemblyName, string className)
+    public Model GetOrLoadModel(string registrationLocation, string id)
     {
-      Model result = GetModel(assemblyName, className);
+      Model result = GetModel(registrationLocation, id);
       if (result == null)
       {
-        result = Load(assemblyName, className);
+        result = Load(registrationLocation, id);
         if (result != null)
-          _models.Add(GetInternalModelName(assemblyName, className), result);
+          _models.Add(GetInternalModelName(registrationLocation, id), result);
       }
       return result;
     }
@@ -106,25 +106,25 @@ namespace MediaPortal.SkinEngine.Models
     /// <summary>
     /// Returns the specified model from the model cache.
     /// </summary>
-    /// <param name="assemblyName">Assembly name of the model to retrieve.</param>
-    /// <param name="className">Class name of the model to retrieve.</param>
+    /// <param name="registrationLocation">Registration location of the model to retrieve.</param>
+    /// <param name="id">Id of the model to retrieve.</param>
     /// <returns><see cref="Model"/> instance or <c>null</c>, if the model
     /// was not loaded yet.</returns>
-    public Model GetModel(string assemblyName, string className)
+    public Model GetModel(string registrationLocation, string id)
     {
-      return GetModelByInternalName(GetInternalModelName(assemblyName, className));
+      return GetModelByInternalName(GetInternalModelName(registrationLocation, id));
     }
 
     /// <summary>
     /// Returns a model by its composed name. The composed name is in the form:
     /// <code>
-    /// [model.Assembly]:[model.ClassName]
+    /// [model.RegistrationLocation]/[model.Id]
     /// </code>
     /// This method is a convenience method for method
     /// <see cref="GetModel(string,string)"/>.
     /// </summary>
     /// <param name="internalName">Name of the model to retrieve. The model name is of
-    /// the form <c>[model.Assembly]:[model.ClassName]</c>.</param>
+    /// the form <c>[model.RegistrationLocation]/[model.Id]</c>.</param>
     /// <returns></returns>
     public Model GetModelByInternalName(string internalName)
     {
@@ -139,29 +139,29 @@ namespace MediaPortal.SkinEngine.Models
     /// the internal model cache. To get a model instance from outside this class, use
     /// method <see cref="GetOrLoadModel(string,string)"/>.
     /// </summary>
-    /// <param name="assemblyName">Assembly name of the model to load.</param>
-    /// <param name="className">Class name of the model to load.</param>
+    /// <param name="registrationLocation">Registration location of the model to load.</param>
+    /// <param name="id">Id of the model to load.</param>
     /// <returns>The model requested to load, else <code>null</code> if the model was not
     /// registered as expected and therefore it could not be load.</returns>
-    protected static Model Load(string assemblyName, string className)
+    protected static Model Load(string registrationLocation, string id)
     {
-      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model assemblyName: {0} class: {1}", assemblyName, className);
+      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model registrationLocation '{0}', id '{1}'", registrationLocation, id);
       try
       {
-        object model = ServiceScope.Get<IPluginManager>().GetPluginItem<object>("/Models/" + assemblyName, className);
+        object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>("/Models/" + registrationLocation, id, new FixedItemStateTracker());
         if (model != null)
-          return new Model(assemblyName, className, model);
+          return new Model(registrationLocation, id, model);
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model assemblyName: {0} class: {1}", ex, assemblyName, className);
+        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model registrationLocation: {0} id: {1}", ex, registrationLocation, id);
       }
       return null;
     }
 
-    internal static string GetInternalModelName(string assemblyName, string className)
+    internal static string GetInternalModelName(string registrationLocation, string id)
     {
-      return assemblyName + ":" + className;
+      return registrationLocation + "/" + id;
     }
   }
 }

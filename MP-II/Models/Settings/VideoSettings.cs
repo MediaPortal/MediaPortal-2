@@ -25,23 +25,12 @@
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
 
 namespace Models.Settings
 {
-  public class VideoSettings : IPlugin
+  public class VideoSettings
   {
     ItemsCollection _mainMenu;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
 
     public VideoSettings()
     {

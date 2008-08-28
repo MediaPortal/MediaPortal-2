@@ -1,0 +1,21 @@
+<Plugin
+    Version = "1.0"
+    Name = "MusicImporter"
+    Author = "hwahrmann"
+    Copyright = "GPL"
+    Description = "Music Importer"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name="ImporterManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "MusicImporter.dll"/>
+    <PluginStateTracker ClassName = "Media.Importers.MusicImporter.MusicImporter"/>
+  </Runtime>
+
+  <Register Location = "/Media/Importers">
+    <Importer Id = "MusicImporter" ClassName = "Media.Importers.MusicImporter.MusicImporter" Extensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc"/>
+  </Register>
+</Plugin>

@@ -1,0 +1,172 @@
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.PluginManager.Exceptions;
+
+namespace MediaPortal.Core.PluginManager
+{
+  /// <summary>
+  /// Interface to access the MediaPortal plugin manager. It exposes the globally available methods
+  /// to be called from throughout the application.
+  /// </summary>
+  /// <remarks>
+  /// The plugin manager is responsible for managing all installed plugins. It resolves plugin conflicts,
+  /// defines the load order and manages the lifecycle of the plugins.
+  /// Its external interface provides methods to access items by their registration location and id.
+  /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
+  /// built yet.
+  /// </remarks>
+  public interface IPluginManager : IStatus
+  {
+    /// <summary>
+    /// Returns a dictionary containing the names of all plugins available in the system, mapped to
+    /// the plugin runtime descriptors.
+    /// </summary>
+    IDictionary<string, PluginRuntime> AvailablePlugins { get; }
+
+    /// <summary>
+    /// Starts the plugin manager. This will initialize internal structures, load the list
+    /// of available plugins, initializes the plugins and handles the plugin's auto-activations.
+    /// </summary>
+    void Startup();
+
+    /// <summary>
+    /// Called on system shutdown. The plugin manager will notify all plugins about the ongoing shutdown.
+    /// </summary>
+    void Shutdown();
+
+    /// <summary>
+    /// Tries to enable the specified <paramref name="plugin"/>. The plugin will be enabled if it doesn't
+    /// stand in conflict with already loaded plugins and if all plugins the specified plugin is dependent on
+    /// can be enabled. The plugin will be activated automatically if its
+    /// <see cref="IPluginMetadata.AutoActivate"/> property or the <paramref name="activate"/>
+    /// parameter is set.
+    /// </summary>
+    /// <param name="plugin">The metadata of the plugin to be enabled. The plugin may not be
+    /// available at the plugin manager yet.</param>
+    /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
+    /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
+    /// is already enabled or activated, the return value will be <c>true</c>.</returns>
+    bool TryStartPlugin(IPluginMetadata plugin, bool activate);
+
+    /// <summary>
+    /// Tries to disable the specified plugin. The plugin will be deactivated and disabled if
+    /// every item user agrees with the deactivation, and every plugin which depends on this plugin
+    /// can be stopped too.
+    /// </summary>
+    /// <param name="plugin">The metadata of the plugin to be stopped.</param>
+    /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
+    /// is already disabled, the return value will be <c>true</c>.</returns>
+    bool TryStopPlugin(IPluginMetadata plugin);
+
+    /// <summary>
+    /// Returns all conflicting plugins.
+    /// </summary>
+    /// <param name="plugin">The metadata of the plugin to check.</param>
+    /// <returns>Collection of plugin metadata structures of the conflicting plugins.</returns>
+    /// <exception cref="PluginMissingDependencyException">If the specified plugin depends from
+    /// a missing plugin.</exception>
+    ICollection<IPluginMetadata> FindConflicts(IPluginMetadata plugin);
+
+    /// <summary>
+    /// Returns the names of all plugins, from which the specified <paramref name="plugin"/> is dependent
+    /// and which are not known by the plugin manager yet.
+    /// </summary>
+    /// <param name="plugin">The plugin whose dependencies should be checked.</param>
+    /// <returns>Collection of plugin names.</returns>
+    ICollection<string> FindMissingDependencies(IPluginMetadata plugin);
+
+    /// <summary>
+    /// Returns the metadata of a registered item at the specified <paramref name="location"/> with
+    /// the specified <paramref name="id"/>. This metadata contains all registration information of
+    /// the specified item and can be evaluated before the item usage is requested. This method doesn't
+    /// need to load the item's plugin.
+    /// </summary>
+    /// <param name="location">Registration location of the requested item in the plugin tree.</param>
+    /// <param name="id">Id which was used to register the requested item.</param>
+    /// <returns>Item metadata structure, or <c>null</c>, if the specified item was not registered.</returns>
+    PluginItemMetadata GetPluginItemMetadata(string location, string id);
+
+    /// <summary>
+    /// Returns the metadata of all registered items at the specified <paramref name="location"/>.
+    /// The metadata structures contain all registration information of the specified items and can be
+    /// evaluated before the item usages are requested. This method doesn't need to load the items'
+    /// plugin.
+    /// </summary>
+    /// <param name="location">Registration location of the requested items in the plugin tree.</param>
+    /// <param name="id">Id which was used to register the requested item.</param>
+    /// <returns>Collection of item metadata structures at the specified registration location.</returns>
+    ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location, string id);
+
+    /// <summary>
+    /// Returns a single plugin item registered at the given <paramref name="location"/> with the
+    /// given <paramref name="id"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the requested item.</typeparam>
+    /// <param name="location">Registration location of the requested item in the plugin tree.</param>
+    /// <param name="id">Id which was used to register the requested item.</param>
+    /// <param name="stateTracker">Instance used to manage the item's state.</param>
+    /// <returns>The plugin item instance, or <c>null</c>, if the item was not registered.</returns>
+    /// <remarks>
+    /// This method will build the item if it was not built yet.
+    /// </remarks>
+    T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
+
+    /// <summary>
+    /// Returns all plugin items registered at the given location, which have the specified type
+    /// <see cref="T"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the requested items.</typeparam>
+    /// <param name="location">Registration location of the requested items in the plugin tree.</param>
+    /// <param name="stateTracker">Instance used to manage the item's state.</param>
+    /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
+    /// <remarks>
+    /// Plugin items If no instance of the plugin items exists they will be instantiated.
+    /// </remarks>
+    ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
+
+    /// <summary>
+    /// Revokes the usage of the item with the specified <paramref name="location"/> and the specified
+    /// <paramref name="id"/> for the specified <paramref name="stateTracker"/>.
+    /// This is necessary to release an item which was requested before.
+    /// </summary>
+    /// <param name="location">Registration location of the item to revoke.</param>
+    /// <param name="id">Id which was used to register the item to revoke.</param>
+    /// <param name="stateTracker">State tracker instance which was registered by the call to
+    /// <see cref="RequestPluginItem{T}"/> or <see cref="RequestAllPluginItems{T}"/> before.</param>
+    void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker);
+
+    /// <summary>
+    /// Revokes the usage of all items with the specified <paramref name="location"/> for the specified
+    /// <paramref name="stateTracker"/>.
+    /// This is necessary to release the items requested before.
+    /// </summary>
+    /// <param name="location">Registration location of the items to revoke.</param>
+    /// <param name="stateTracker">State tracker instance which was registered by the call to
+    /// <see cref="RequestAllPluginItems{T}"/> before.</param>
+    void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker);
+  }
+}

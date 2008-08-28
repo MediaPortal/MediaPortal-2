@@ -228,7 +228,7 @@ namespace MediaPortal.Configuration
     /// <param name="destCollection">Collection to load sections to.</param>
     private void LoadSections(IPluginManager manager, string pluginLocation, IList<IConfigurationNode> destCollection)
     {
-      IList<ConfigBase> settings = manager.GetAllPluginItems<ConfigBase>(pluginLocation);
+      ICollection<ConfigBase> settings = manager.RequestAllPluginItems<ConfigBase>(pluginLocation, new FixedItemStateTracker());
       lock (destCollection)
       {
         foreach (ConfigBase setting in settings)
@@ -264,7 +264,7 @@ namespace MediaPortal.Configuration
       lock (destCollection)
       {
         if (destCollection.IsSet) return;
-        IList<ConfigBase> settings = manager.GetAllPluginItems<ConfigBase>(pluginLocation);
+        ICollection<ConfigBase> settings = manager.RequestAllPluginItems<ConfigBase>(pluginLocation, new FixedItemStateTracker());
         foreach (ConfigBase setting in settings)
         {
           int index = IndexOfNode(destCollection, setting.Id);

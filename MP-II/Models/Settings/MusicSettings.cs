@@ -25,26 +25,15 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.PluginManager;
 
 using Media.Players.BassPlayer;
 
 namespace Models.Settings
 {
-  public class MusicSettings : IPlugin
+  public class MusicSettings 
   {
     BassPlayerSettings _settings;
     
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
-
     public MusicSettings()
     {
       // Load the Settings

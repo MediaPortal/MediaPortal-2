@@ -23,11 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Players;
 
@@ -40,8 +35,7 @@ namespace Components.Services.PlayerManager
     #region variables
     string _type;
     string _extensions;
-    IPluginRegisteredItem _item;
-    IPlayerBuilder _playerInstance; // should this be IPlayer?
+    IPlayerBuilder _builderInstance;
     #endregion
 
     #region Properties
@@ -54,20 +48,7 @@ namespace Components.Services.PlayerManager
     #region Public methods
     public IPlayer GetPlayer(IMediaItem mediaItem, Uri uri)
     {
-      if (_playerInstance == null)
-      {
-        try
-        {
-          _playerInstance = (IPlayerBuilder)_item.Plugin.CreateObject(_item["class"]);
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error(e.ToString() + "Can't create player : " + _item.Id);
-          return null;
-        }
-      }
-      // return _playerInstance; // should a new instance be created each time?
-      return _playerInstance.GetPlayer(mediaItem, uri);
+      return _builderInstance.GetPlayer(mediaItem, uri);
     }
     #endregion
 
@@ -88,7 +69,6 @@ namespace Components.Services.PlayerManager
         {
           if (mimeType.Contains(_type))
           {
-            //if (_extensions.IndexOf(ext) > -1)
             return true;
           }
         }
@@ -99,20 +79,21 @@ namespace Components.Services.PlayerManager
     #endregion
 
     #region IPluginBuilder methods
-    public object BuildItem(IPluginRegisteredItem item)
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       PlayerBuilder builder = new PlayerBuilder();
-      builder._item = item;
 
-      if (item.Contains("extensions"))
+      if (itemData.Attributes.ContainsKey("Extensions"))
       {
-        builder._extensions = item["extensions"];
+        builder._extensions = itemData.Attributes["Extensions"];
       }
 
-      if (item.Contains("type"))
+      if (itemData.Attributes.ContainsKey("Type"))
       {
-        builder._type = item["type"];
+        builder._type = itemData.Attributes["Type"];
       }
+
+      _builderInstance = (IPlayerBuilder) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
 
       return builder;
     }

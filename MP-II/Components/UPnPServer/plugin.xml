@@ -1,0 +1,18 @@
+<Plugin
+    Version = "1.0"
+    Name = "UPnPServer"
+    Author = "Frodo"
+    Copyright = "GPL"
+    AutoActivate = "true" 
+    Description = "UPNP Server"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name = "MediaManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "UPnPServer.dll"/>
+    <PluginStateTracker ClassName = "Components.UPnPServer.UPnPServer"/>
+  </Runtime>
+</Plugin>

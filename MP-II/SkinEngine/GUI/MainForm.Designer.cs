@@ -70,7 +70,6 @@ namespace MediaPortal.SkinEngine.GUI
       this.Name = "MainForm";
       this.Text = "MediaPortal II";
       this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
-      this.Load += new System.EventHandler(this.MainForm_Load);
       this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseUp);
       this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
       this.Activated += new System.EventHandler(this.MainForm_Activated);

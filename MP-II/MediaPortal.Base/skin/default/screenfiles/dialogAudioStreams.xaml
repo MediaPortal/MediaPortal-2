@@ -20,7 +20,7 @@
 
     <!-- Command -->
     <ResourceWrapper x:Key="Execute_Command_Stencil">
-      <CommandStencil Source="{Model AssemblyName=mymovies,ClassName=Model}" Path="Players.SetAudioStream"/>
+      <CommandStencil Source="{Model RegistrationLocation=Movies,Id=Model}" Path="Players.SetAudioStream"/>
     </ResourceWrapper>
 
   </Include.Resources>

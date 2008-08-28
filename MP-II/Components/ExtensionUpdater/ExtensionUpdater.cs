@@ -22,11 +22,9 @@
 
 #endregion
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
 using System.IO;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
@@ -40,7 +38,7 @@ using MediaPortal.Services.ExtensionManager;
 
 namespace MediaPortal.Plugins.ExtensionUpdater
 {
-  public class ExtensionUpdater : IPlugin, IAutoStart
+  public class ExtensionUpdater : IPluginStateTracker
   {
     #region variables
 
@@ -69,32 +67,17 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       updaterClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdaterDownloadEnd);
     }
 
-    #region IPlugin Members
-    public void Initialise()
+    #region IPluginStateTracker Members
+
+    public void Activated()
     {
-      
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
-
-    #region IAutoStart Members
-
-    public void Startup()
-    {
-      string localdir = ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>");
-      Directory.CreateDirectory(localdir);
-      string listFile = String.Format(@"{0}\Mpilist.xml", localdir);
-
       Task task;
       Task updatertask;
       ServiceScope.Get<ISettingsManager>().Load(_settings);
       task = ServiceScope.Get<ITaskScheduler>().GetTask(_settings.TaskId);
       if (task == null)
       {
-        task = new Task("ExtensionUpdater",new TimeSpan(0, 0, 40), DateTime.MaxValue,true,false);
+        task = new Task("ExtensionUpdater",new TimeSpan(0, 0, 40), DateTime.MaxValue, true, false);
         ServiceScope.Get<ITaskScheduler>().AddTask(task);
       }
 
@@ -118,6 +101,17 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       }
 
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The extension updater should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

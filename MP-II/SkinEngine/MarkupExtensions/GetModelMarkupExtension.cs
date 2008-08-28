@@ -33,8 +33,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected fields
 
-    protected string _assemblyName = null;
-    protected string _className = null;
+    protected string _registrationLocation = null;
+    protected string _id = null;
 
     #endregion
 
@@ -42,16 +42,16 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Properties
 
-    public string AssemblyName
+    public string RegistrationLocation
     {
-      get { return _assemblyName; }
-      set { _assemblyName = value; }
+      get { return _registrationLocation; }
+      set { _registrationLocation = value; }
     }
 
-    public string ClassName
+    public string Id
     {
-      get { return _className; }
-      set { _className = value; }
+      get { return _id; }
+      set { _id = value; }
     }
 
     #endregion
@@ -60,11 +60,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
-      if (AssemblyName == null || ClassName == null)
-        throw new XamlBindingException("GetModelMarkupExtension: Both properties AssemblyName and ClassName have to be set");
-      Model model = ModelManager.Instance.GetOrLoadModel(AssemblyName, ClassName);
+      if (RegistrationLocation == null || Id == null)
+        throw new XamlBindingException("GetModelMarkupExtension: Both properties RegistrationLocation and Id have to be set");
+      Model model = ModelManager.Instance.GetOrLoadModel(RegistrationLocation, Id);
       if (model == null)
-        throw new XamlBindingException("GetModelMarkupExtension: Unknown model: {0}.{1}", AssemblyName, ClassName);
+        throw new XamlBindingException("GetModelMarkupExtension: Unknown model: {0}.{1}", RegistrationLocation, Id);
       return model.Instance;
     }
 

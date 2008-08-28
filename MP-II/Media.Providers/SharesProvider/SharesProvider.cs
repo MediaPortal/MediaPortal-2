@@ -24,21 +24,14 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.Importers;
 
 namespace Media.Providers.SharesProvider
 {
-  public class SharesProvider : IPlugin, IProvider
+  public class SharesProvider : IProvider
   {
-    public void Initialise()
-    {
-    }
-
-    public void Dispose() { }
-
     #region IProvider Members
 
     /// <summary>

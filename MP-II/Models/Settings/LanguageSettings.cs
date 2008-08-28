@@ -33,20 +33,10 @@ using MediaPortal.Presentation.Screen;
 
 namespace Models.Settings
 {
-  public class Language : IPlugin
+  public class Language
   {
     ItemsCollection _mainMenu;
     ItemsCollection _languages;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
 
     public Language()
     {

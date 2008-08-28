@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[weathersetup.3]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="Weather" ClassName="WeatherSetupModel"/>
+    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherSetupModel"/>
 
     <!-- ListView style -->
     <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>

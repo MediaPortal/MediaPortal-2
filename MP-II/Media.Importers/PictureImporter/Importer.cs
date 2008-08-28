@@ -25,7 +25,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -38,9 +37,8 @@ using MediaPortal.Media.MediaManager.Views;
 
 namespace Media.Importers.PictureImporter
 {
-  public class Importer : IPlugin, IImporter
+  public class Importer : IPluginStateTracker, IImporter
   {
-    #region IPlugin Members
     List<string> _extensions;
     IDatabase _pictureDatabase;
 
@@ -53,10 +51,23 @@ namespace Media.Importers.PictureImporter
       _extensions.Add(".tga");
     }
 
-    public void Initialise()
+    #region IPluginStateTracker implementation
+
+    public void Activated()
     {
       CreatePictureDatabase();
     }
+
+    public bool RequestEnd()
+    {
+      return false; // FIXME: The importer plugin should be able to be disabled
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
 
     #endregion
 

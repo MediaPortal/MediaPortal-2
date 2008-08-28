@@ -24,32 +24,30 @@
 
 using System;
 using System.IO;
-using System.Collections;
 using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Services.PluginManager.Builders
+namespace MediaPortal.Core.PluginManager.Builders
 {
   /// <summary>
-  /// Builds a resource item
+  /// Builds an item of type "Resource". The resource item type provides access to a resource
+  /// directory which is provided by a plugin.
   /// </summary>
+  /// <remarks>
+  /// The item registration has to provide the parameters "Type" and "Directory":
+  /// <example>
+  /// &lt;Resource Type="Skin" Directory="Skin"/&gt;
+  /// </example>
+  /// The values for the "Type" parameter come from the type <see cref="PluginResourceType"/>.
+  /// </remarks>
   public class ResourceBuilder : IPluginItemBuilder
   {
-    #region IPluginItemBuilder Members
-    public object BuildItem(IPluginRegisteredItem item)
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      PluginResourceDescriptor resource = new PluginResourceDescriptor();
-
-      resource.PluginName = item.Plugin.Name;
-      resource.Location = Path.Combine(item.Plugin.PluginPath.FullName, item["location"]);
-
-      // test to see if it is a relative path
-      if (!Directory.Exists(resource.Location))
-      {
-        // Location string returned as is
-        resource.Location = item["location"];
-      }
-      return resource;
+      BuilderHelper.CheckParameter("Type", itemData);
+      BuilderHelper.CheckParameter("Directory", itemData);
+      return new PluginResource(
+          (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
+          new DirectoryInfo(itemData.Attributes["Directory"]));
     }
-    #endregion
   }
 }

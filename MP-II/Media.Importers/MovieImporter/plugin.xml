@@ -1,0 +1,21 @@
+<Plugin
+    Version = "1.0"
+    Name = "MovieImporter"
+    Author = "Frodo"
+    Copyright = "GPL"
+    Description = "Movie Importer"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name="ImporterManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "MovieImporter.dll"/>
+    <PluginStateTracker ClassName = "Media.Importers.MovieImporter.Importer"/>
+  </Runtime>
+
+  <Register Location = "/Media/Importers">
+    <Importer Id = "MovieImporter" ClassName = "Media.Importers.MovieImporter.Importer" Extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
+  </Register>
+</Plugin>

@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.music]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="settings" ClassName="MusicSettings"/>
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="MusicSettings"/>
 
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">

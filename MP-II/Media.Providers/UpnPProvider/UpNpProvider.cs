@@ -22,23 +22,17 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using Intel.UPNP.AV.MediaServer.CP;
-using Intel.UPNP.AV.CdsMetadata;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
 namespace Media.Providers.UpNpProvider
 {
-  public class UpNpProvider : IPlugin, IProvider
+  public class UpNpProvider : IProvider
   {
     #region variables
 
@@ -63,15 +57,6 @@ namespace Media.Providers.UpNpProvider
       // startupThread.Start();
       Start();
     }
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-    #endregion
-
-    public void Dispose() { }
-
 
     /// <summary>
     /// Starts the upnp provider.

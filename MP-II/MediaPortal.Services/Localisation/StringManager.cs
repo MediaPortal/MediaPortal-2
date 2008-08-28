@@ -45,6 +45,7 @@ namespace MediaPortal.Services.Localisation
     #endregion
 
     #region Constructors/Destructors
+
     public StringManager()
     {
       ServiceScope.Get<ILogger>().Debug("StringsManager: Loading Settings");
@@ -67,17 +68,43 @@ namespace MediaPortal.Services.Localisation
         _strings = new LocalisationStrings("Language", settings.Culture);
       }
 
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginMessaging.Queue);
-      queue.OnMessageReceive += new MessageReceivedHandler(OnPluginMessageReceive);
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
+      queue.OnMessageReceive += OnPluginManagerMessageReceived;
     }
 
     public StringManager(string directory, string cultureName)
     {
       _strings = new LocalisationStrings(directory, cultureName);
     }
+
+    #endregion
+
+    #region Protected methods
+
+    protected void InitializeLanguageResources()
+    {
+      try
+      {
+        ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>("/Resources/Language", new FixedItemStateTracker());
+
+        foreach (PluginResource resource in languageResources)
+        {
+          if (resource.Location.Exists)
+            AddDirectory(resource.Location.FullName);
+          else
+            ServiceScope.Get<ILogger>().Error("StringManager: Language directory doesn't exist: {0}", resource.Location);
+        }
+      }
+      catch (Exception)
+      {
+        ServiceScope.Get<ILogger>().Error("StringManager: Error initializing language resources");
+      }
+    }
+
     #endregion
 
     #region ILocalisation Implementation
+
     #region Events
     public event LanguageChangeHandler LanguageChange;
     #endregion
@@ -137,36 +164,22 @@ namespace MediaPortal.Services.Localisation
       _strings.AddDirectory(stringsDirectory);
     }
     #endregion
+
     #endregion
 
     #region Event Handlers
-    /// <summary>
-    /// Called when [plugin message is received].
-    /// Adds Plugin language resource folders to the Directory list when plugins are enabled.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    private void OnPluginMessageReceive(QueueMessage message)
-    {
-      try
-      {
-        if (((PluginMessaging.NotificationType)message.MessageData[PluginMessaging.Notification]) == PluginMessaging.NotificationType.OnPluginStartupFinished)
-        {
-          IList<PluginResourceDescriptor> languageResources = ServiceScope.Get<IPluginManager>().GetAllPluginItems<PluginResourceDescriptor>("/Resources/Language");
 
-          foreach (PluginResourceDescriptor resource in languageResources)
-          {
-            if (Directory.Exists(resource.Location))
-              AddDirectory(resource.Location);
-            else
-              ServiceScope.Get<ILogger>().Error("StringManager: Plugin [{0}] language directory doesn't exist: {1}", resource.PluginName, resource.Location);
-          }
-        }
-      }
-      catch (Exception)
-      {
-        ServiceScope.Get<ILogger>().Error("StringManager: Error in Plugin Message");
-      }
+    /// <summary>
+    /// Called when the plugin manager notifies the system about its events.
+    /// Adds Plugin language resource folders to the directory list when all plugins are initialized.
+    /// </summary>
+    /// <param name="message">Message containing the notification data.</param>
+    private void OnPluginManagerMessageReceived(QueueMessage message)
+    {
+      if (((PluginManagerMessaging.NotificationType)message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+        InitializeLanguageResources();
     }
+
     #endregion
   }
 }

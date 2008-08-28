@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[general.options]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="music" ClassName="Model"/>
+    <Model x:Key="DataContext" RegistrationLocation="Music" Id="Model"/>
 
     <!-- ListView style -->
     <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>

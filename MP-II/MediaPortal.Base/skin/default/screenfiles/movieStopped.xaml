@@ -2,7 +2,7 @@
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model AssemblyName=mymovies,ClassName=Model}}"
+    DataContext="{Binding Source={Model RegistrationLocation=Movies,Id=Model}}"
     FocusedElement="{Binding ElementName=MainMenu}"
     History="False">
 

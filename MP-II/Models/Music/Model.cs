@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
@@ -33,7 +32,6 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MetaData;
 using MediaPortal.Media.MediaManager;
 
@@ -43,7 +41,7 @@ namespace Models.Music
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model : IPlugin
+  public class Model
   {
     #region variables
 
@@ -65,15 +63,6 @@ namespace Models.Music
       AddAllToPlaylist = 1,
     }
     #endregion
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.
@@ -150,8 +139,6 @@ namespace Models.Music
       Refresh();
       _songs.FireChange();
     }
-
-    #endregion
 
     #region music collection methods
     /// <summary>

@@ -24,9 +24,7 @@
 
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
@@ -40,66 +38,65 @@ namespace Components.Services.Importers
     #region variables
     string _type;
     string _extensions;
-    IPluginRegisteredItem _item;
+    string _name;
     IImporter _importerInstance;
     #endregion
 
-    #region IPluginBuilder methods
-    public object BuildItem(IPluginRegisteredItem item)
+    #region IPluginItemBuilder methods
+
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       ImporterBuilder builder = new ImporterBuilder();
-      builder._item = item;
 
-      if (item.Contains("extensions"))
+      if (itemData.Attributes.ContainsKey("Extensions"))
       {
-        builder._extensions = item["extensions"];
+        builder._extensions = itemData.Attributes["Extensions"];
       }
 
-      if (item.Contains("type"))
+      if (itemData.Attributes.ContainsKey("Type"))
       {
-        builder._type = item["type"];
+        builder._type = itemData.Attributes["Type"];
       }
+
+      builder._importerInstance = (IImporter) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+
+      builder._name = itemData.Id;
 
       return builder;
     }
     #endregion
 
     #region IImporterBuilder
+
     /// <summary>
     /// Gets the importer name.
     /// </summary>
-    /// <value>The importer name.</value>
     public string Name
     {
-      get { return _item.Id; }
+      get { return _name; }
     }
 
     /// <summary>
-    /// Gets the file-extensions the importer supports
+    /// Gets the file-extensions the importer supports.
     /// </summary>
-    /// <value>The file-extensions.</value>
     public string Extensions
     {
       get { return _extensions; }
     }
 
     /// <summary>
-    /// Gets the Importer
+    /// Gets the instance of the importer.
     /// </summary>
-    /// <value>The Importer instance.</value>
     public IImporter Importer
     {
-      get
-      {
-        Build();
-        return _importerInstance;
-      }
+      get { return _importerInstance; }
     }
 
     /// <summary>
     /// Called by the importer manager when a full-import needs to be done from the folder
     /// </summary>
-    /// <param name="folder">The folder.</param>
+    /// <param name="folder">The folder to import.</param>
+    /// <param name="since">Only import files older than this value.</param>
     public void ImportFolder(string folder, DateTime since)
     {
       List<string> availableFiles = new List<string>();
@@ -107,7 +104,6 @@ namespace Components.Services.Importers
 
       if (availableFiles.Count > 0)
       {
-        Build();
         _importerInstance.BeforeImport(availableFiles.Count);
         foreach (string filename in availableFiles)
         {
@@ -121,12 +117,11 @@ namespace Components.Services.Importers
     /// Called by the importer manager after it detected that a file was deleted
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the deleted file.</param>
+    /// <param name="filename">The filename of the deleted file.</param>
     public void FileDeleted(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
       {
-        Build();
         _importerInstance.FileDeleted(filename);
       }
     }
@@ -135,12 +130,11 @@ namespace Components.Services.Importers
     /// Called by the importer manager after it detected that a file was created
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the new file.</param>
+    /// <param name="filename">The filename of the new file.</param>
     public void FileCreated(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
       {
-        Build();
         _importerInstance.FileCreated(filename);
       }
     }
@@ -149,26 +143,25 @@ namespace Components.Services.Importers
     /// Called by the importer manager after it detected that a file was changed
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
+    /// <param name="filename">The filename of the changed file.</param>
     public void FileChanged(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
       {
-        Build();
         _importerInstance.FileChanged(filename);
       }
     }
 
     /// <summary>
-    /// Called by the importer manager after it detected that a file or dikrectory was renamed
+    /// Called by the importer manager after it detected that a file or directory was renamed
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
+    /// <param name="filename">The new filename of the changed file.</param>
+    /// <param name="oldFileName">The old filename of the changed file.</param>
     public void FileRenamed(string filename, string oldFileName)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
       {
-        Build();
         _importerInstance.FileRenamed(filename, oldFileName);
       }
     }
@@ -177,40 +170,24 @@ namespace Components.Services.Importers
     /// Called by the importer manager after it detected that a directory was deleted
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
+    /// <param name="directoryname">The directory name of the deleted directory.</param>
     public void DirectoryDeleted(string directoryname)
     {
-      Build();
       _importerInstance.DirectoryDeleted(directoryname);
     }
 
     public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
     {
-      Build();
       _importerInstance.GetMetaDataFor(folder, ref items);
     }
     #endregion
 
     #region Private
-    private void Build()
-    {
-      if (_importerInstance == null)
-      {
-        try
-        {
-          _importerInstance = (IImporter)_item.Plugin.CreateObject(_item["class"]);
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error(e.ToString() + "Can't create importer : " + _item.Id);
-        }
-      }
-    }
 
     void Import(string folder, ref List<string> availableFiles, DateTime since)
     {
       //since = _lastImport;
-      ServiceScope.Get<ILogger>().Info("Importer:{0} Importing:{1}", _item.Id, folder);
+      ServiceScope.Get<ILogger>().Info("Importer '{0}': Importing '{1}'", _name, folder);
       try
       {
         string[] subFolders = Directory.GetDirectories(folder);
@@ -234,13 +211,13 @@ namespace Components.Services.Importers
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("Importer:{0}:error Importing:{1}", _item.Id, folder);
+        ServiceScope.Get<ILogger>().Info("Importer '{0}': Error importing '{1}'", _name, folder);
         ServiceScope.Get<ILogger>().Error(ex);
       }
       //_lastImport = DateTime.Now;
     }
 
-    bool CheckFile(string fileName, DateTime lastImport)
+    static bool CheckFile(string fileName, DateTime lastImport)
     {
       if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
       {

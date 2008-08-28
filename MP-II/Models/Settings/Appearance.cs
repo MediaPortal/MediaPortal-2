@@ -37,22 +37,12 @@ using MediaPortal.Presentation.Screen;
 namespace Models.Settings
 {
 
-  public class Appearance : IPlugin
+  public class Appearance
   {
     ItemsCollection _mainMenu;
 
     ItemsCollection _skins;
     ItemsCollection _themes;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-    #endregion
 
     public Appearance()
     {

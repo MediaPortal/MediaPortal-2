@@ -22,27 +22,23 @@
 
 #endregion
 
-using MediaPortal.Core.Logging;
+using System.Windows.Forms;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// This is the MediaPortal Core
+  /// Starter class for the MediaPortal system. Before calling the <see cref="Start()"/> method,
+  /// the <see cref="ServiceScope"/> has to be configured with all needed services.
   /// </summary>
   public class ApplicationCore
   {
     public void Start()
     {
-      //Start the plugins
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       pluginManager.Startup();
-
-      ServiceScope.Get<ILogger>().Info("Application: Starting Autostart plugins");
-      foreach (IAutoStart plugin in pluginManager.GetAllPluginItems<IAutoStart>("/AutoStart"))
-      {
-        plugin.Startup();
-      }
+      Application.Run();
+      pluginManager.Shutdown();
     }
   }
 }

@@ -195,7 +195,7 @@ namespace MediaPortal.Services.Settings
 
     /// <summary>
     /// Deserializes public properties of a Settings object from a given xml file.
-    /// During deserialization the xml file will be created if it doesn't exist alreayd,
+    /// During deserialization the xml file will be created if it doesn't exist already,
     /// and will also be updated with possible new settings.
     /// </summary>
     public void Deserialize()

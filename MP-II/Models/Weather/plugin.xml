@@ -1,0 +1,17 @@
+<Plugin
+    Version = "1.0"
+    Name = "Weather"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Weather Plugin"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "Weather.dll"/>
+  </Runtime>
+
+  <Register Location = "/Models/Weather">
+    <Instance Id = "WeatherModel" ClassName = "Models.Weather.WeatherViewModel"/>
+	  <Instance Id = "WeatherSetupModel" ClassName = "Models.Weather.WeatherSetupViewModel"/>
+  </Register>
+</Plugin>

@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Presentation.AutoPlay
 {
@@ -33,7 +30,7 @@ namespace MediaPortal.Presentation.AutoPlay
     /// <summary>
     /// Starts Listening for Volume Change Events
     /// </summary>
-    void StartListening(IntPtr aHandle);
+    bool StartListening();
 
     /// <summary>
     /// Stops Listening for Volume Change Events

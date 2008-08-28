@@ -39,7 +39,7 @@ namespace Models.Weather
   /// <summary>
   /// ViewModel Class for weather.xml
   /// </summary>
-  public class WeatherViewModel : IPlugin
+  public class WeatherViewModel
   {
     private Property _currentLocation;
     private readonly List<City> _locations = new List<City>();
@@ -49,15 +49,6 @@ namespace Models.Weather
 
     private ItemsCollection _mainMenu;
 
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-
     public WeatherViewModel()
     {
       _currentLocation = new Property(typeof(City), new City("No Data", "No Data"));
@@ -66,7 +57,6 @@ namespace Models.Weather
       // add citys from settings to the locations list
       GetLocationsFromSettings(true);
     }
-    #endregion
 
     /// <summary>
     /// exposes the main menu to the skin

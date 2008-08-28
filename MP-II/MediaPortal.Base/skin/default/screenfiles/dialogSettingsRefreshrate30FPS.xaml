@@ -11,7 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[refreshrate.8]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="settings" ClassName="RefreshrateSettings"/>
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="RefreshrateSettings"/>
 
     <!-- ListView style -->
     <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>

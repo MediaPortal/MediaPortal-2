@@ -24,23 +24,16 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MediaManager.Views;
 
 namespace Media.Providers.DatabaseProvider
 {
-  public class DatabaseProvider : IPlugin, IProvider
+  public class DatabaseProvider : IProvider
   {
 
     public DatabaseProvider() { }
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-    #endregion
 
     public void Dispose() { }
 

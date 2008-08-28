@@ -31,6 +31,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
@@ -38,7 +40,6 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Presentation.AutoPlay;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.MenuManager;
@@ -145,9 +146,23 @@ namespace MediaPortal.SkinEngine.GUI
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       _displaySetting = GraphicsDevice.DesktopDisplayMode;
+
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
+      queue.OnMessageReceive += OnPluginManagerMessageReceived;
     }
 
-    private void MainForm_Load(object sender, EventArgs e)
+    /// <summary>
+    /// Called when the plugin manager notifies the system about its events.
+    /// Shows the main screen when all plugins are initialized.
+    /// </summary>
+    /// <param name="message">Message containing the notification data.</param>
+    private void OnPluginManagerMessageReceived(QueueMessage message)
+    {
+      if (((PluginManagerMessaging.NotificationType)message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+        Start();
+    }
+
+    protected void Start()
     {
       CheckTopMost();
 
@@ -156,11 +171,7 @@ namespace MediaPortal.SkinEngine.GUI
       StartRenderThread();
       _screenManager.ShowStartupScreen();
 
-
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
-
-      // The form is active, so let's start listening on AutoPlay events
-      ServiceScope.Get<IAutoPlay>().StartListening(Handle);
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -173,6 +184,10 @@ namespace MediaPortal.SkinEngine.GUI
       _directX.Dispose();
       _directX = null;
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Closing");
+      // We have to call ExitThread() explicitly because the application was started without
+      // setting the MainForm, which would have added an event handler which calls
+      // Application.ExitThread() for us
+      Application.ExitThread();
     }
 
     private void RenderLoop()
@@ -572,11 +587,10 @@ namespace MediaPortal.SkinEngine.GUI
       }
     }
 
-    protected static string ToString(DisplayMode mode)
+    public IntPtr MainWindowHandle
     {
-      return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
+      get { return Handle; }
     }
-
 
     public void SetDisplayMode(FPS fps, string displaymode)
     {
@@ -619,6 +633,11 @@ namespace MediaPortal.SkinEngine.GUI
         default:
           throw new ArgumentException("Illegal frame rate");
       }
+    }
+
+    protected static string ToString(DisplayMode mode)
+    {
+      return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
     }
 
     protected void StartRenderThread()

@@ -30,9 +30,9 @@ using Components.Database.Notifies;
 
 namespace Components.Database
 {
-  public class DatabasePlugin : IPlugin, IAutoStart
+  public class DatabasePlugin : IPluginStateTracker
   {
-    public void Initialise()
+    public void Activated()
     {
       ServiceScope.Add<IDatabaseNotifier>(new DatabaseNotifier());
       ServiceScope.Add<IDatabaseBuilderFactory>(new DatabaseBuilderFactory());
@@ -40,12 +40,15 @@ namespace Components.Database
       //ServiceScope.Get<ILogger>().Debug("Application: database builder service");
     }
 
-    public void Startup()
+    public bool RequestEnd()
     {
+      return false;
     }
 
-    public void Dispose()
-    {
-    }
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
   }
 }

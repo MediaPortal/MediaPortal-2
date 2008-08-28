@@ -32,7 +32,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
@@ -47,7 +46,7 @@ namespace Models.Movies
   /// Model which exposes a movie collection
   /// The movie collection are just movies & folders on the HDD
   /// </summary>
-  public class Model : IPlugin
+  public class Model
   {
     #region imports
 
@@ -80,15 +79,6 @@ namespace Models.Movies
       ForceImport = 2,
     }
     #endregion
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Model"/> class.
@@ -148,7 +138,6 @@ namespace Models.Movies
       //create our dynamic context menu items
       _dynamicContextMenuItems = new List<IMenuItem>();
     }
-    #endregion
 
     /// <summary>
     /// Called when [importer message received].

@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 using MediaPortal.Core;
@@ -35,16 +34,14 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-
 using MediaPortal.Media.MediaManager;
 
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Mix;
 
-
 namespace Media.Players.BassPlayer
 {
-  public class BassPlugin : IPlugin, IPlayer, IPlayerBuilder
+  public class BassPlugin : IPluginStateTracker, IPlayer, IPlayerBuilder
   {
     #region Variables
     private BassPlayerSettings _settings;       // The Settings of the Player
@@ -78,9 +75,9 @@ namespace Media.Players.BassPlayer
     };
     #endregion
 
-    #region IPlugin Members
+    #region IPluginStateTracker implementation
 
-    public void Initialise()
+    void IPluginStateTracker.Activated()
     {
       // Load the Settings
       LoadSettings();
@@ -90,6 +87,17 @@ namespace Media.Players.BassPlayer
       IMessageQueue queueBass = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
       queueBass.OnMessageReceive += new MessageReceivedHandler(bass_OnMessageReceive);
     }
+
+    bool IPluginStateTracker.RequestEnd()
+    {
+      return false; // FIXME: The player plugin should be able to be disabled
+    }
+
+    void IPluginStateTracker.Stop() { }
+
+    void IPluginStateTracker.Continue() { }
+
+    void IPluginStateTracker.Shutdown() { }
 
     #endregion
 

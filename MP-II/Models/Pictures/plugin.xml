@@ -1,0 +1,20 @@
+<Plugin
+    Version = "1.0"
+    Name = "Pictures"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Pictures Plugin"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name = "MediaManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "Pictures.dll"/>
+  </Runtime>
+
+  <Register Location = "/Models/Pictures">
+    <Instance Id = "PictureModel" ClassName = "Models.Pictures.PictureModel"/>
+  </Register>
+</Plugin>

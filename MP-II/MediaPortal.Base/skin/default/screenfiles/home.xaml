@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[login.welcome]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="Menu" ClassName="HomeMenu"/>
+    <Model x:Key="DataContext" RegistrationLocation="Menu" Id="HomeMenu"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

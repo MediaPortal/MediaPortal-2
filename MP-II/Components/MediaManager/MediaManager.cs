@@ -33,7 +33,7 @@ using Components.Services.MediaManager.Views;
 
 namespace Components.Services.MediaManager
 {
-  public class MediaManager : IPlugin, IMediaManager
+  public class MediaManager : IMediaManager, IPluginStateTracker
   {
     #region Variables
     private bool _providerPluginsLoaded = false;
@@ -52,11 +52,9 @@ namespace Components.Services.MediaManager
     }
     #endregion
 
-    #region IPlugin Implementation
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    public void Initialise()
+    #region IPluginStateTracker Implementation
+
+    public void Activated()
     {
       ViewLoader loader = new ViewLoader();
       foreach (FileInfo viewFile in new DirectoryInfo(ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_ROOT>/Views")).GetFiles())
@@ -65,6 +63,18 @@ namespace Components.Services.MediaManager
         Register(cont);
       }
     }
+
+    public bool RequestEnd()
+    {
+      return false;
+    }
+
+    public void Stop() { }
+
+    public void Continue() { }
+
+    public void Shutdown() { }
+
     #endregion
 
     /// <summary>
@@ -220,7 +230,7 @@ namespace Components.Services.MediaManager
     {
       if (!_providerPluginsLoaded)
       {
-        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().GetAllPluginItems<IProvider>("/Media/Providers"))
+        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IProvider>("/Media/Providers", new FixedItemStateTracker()))
         {
           this.Register(provider);
         }

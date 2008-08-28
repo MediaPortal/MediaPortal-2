@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[movies.onlineresult]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" AssemblyName="mymovies" ClassName="Model"/>
+    <Model x:Key="DataContext" RegistrationLocation="Movies" Id="Model"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">

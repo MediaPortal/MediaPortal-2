@@ -28,7 +28,6 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.UserManagement;
 
 namespace Models.Login
@@ -36,19 +35,10 @@ namespace Models.Login
   /// <summary>
   /// viewmodel for handling logins
   /// </summary>
-  public class LoginModel : IPlugin
+  public class LoginModel
   {
     private ItemsCollection _usersExposed = new ItemsCollection();
     private Property _currentUser;
-
-    #region IPlugin Members
-    public void Initialise()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     /// <summary>
     /// constructor
@@ -58,7 +48,6 @@ namespace Models.Login
       _currentUser = new Property(null);
       LoadUsers();
     }
-    #endregion
 
     /// <summary>
     /// will load the users from somewhere
