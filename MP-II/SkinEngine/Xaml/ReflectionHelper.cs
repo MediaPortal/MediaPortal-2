@@ -41,7 +41,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// Given the instance <paramref name="obj"/> and the <paramref name="propertyName"/>,
     /// this method searches the best matching property on the instance. It first searches
     /// a property with name [PropertyName]Property, casts it as
-    /// <see cref="Property"/> and returns a <see cref="IPropertyDescriptor">property descriptor</see>
+    /// <see cref="Property"/> and returns a <see cref="IDataDescriptor">property descriptor</see>
     /// for it in the parameter <paramref name="dd"/>. If there is no such property, this method
     /// searches a property with the given name, returning a property descriptor for it.
     /// If there is no property found with the given name, this method returns false and a
