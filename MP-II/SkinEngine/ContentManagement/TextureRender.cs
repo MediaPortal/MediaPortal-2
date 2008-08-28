@@ -69,8 +69,6 @@ namespace MediaPortal.SkinEngine
       _context.Parameters = new EffectParameters();
       _vertices = new PositionColored2Textured[6];
       Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
-      RenderPipeline.Instance.Add(_context);
-      _added = true;
     }
 
 
@@ -326,6 +324,11 @@ namespace MediaPortal.SkinEngine
       //GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       //_effect.Render(_texture, 0);
+      if (!_added)
+      {
+        RenderPipeline.Instance.Add(_context);
+        _added = true;
+      }
       _lastTimeUsed = SkinContext.Now;
     }
 
