@@ -113,7 +113,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Arrange(System.Drawing.RectangleF finalRect)
     {
-      Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
