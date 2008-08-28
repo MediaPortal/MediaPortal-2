@@ -98,6 +98,7 @@ namespace MediaPortal
 #else
         ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), level, logMethods);
 #endif
+        logger.Debug("ApplicationLauncher: Registering Logger");
         ServiceScope.Add(logger);
         logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
         //Debug.Assert(AppDomain.CurrentDomain.FriendlyName == "MPApplication",
