@@ -69,17 +69,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\ApplicationCore.cs" />
-    <Compile Include="Core\Exceptions\Exceptions.cs" />
-    <Compile Include="Core\IStatus.cs" />
-    <Compile Include="Core\Logging\ILogger.cs" />
-    <Compile Include="Core\Logging\LogLevel.cs" />
-    <Compile Include="Core\Logging\NoLogger.cs" />
-    <Compile Include="Core\Messaging\IMessageBroker.cs" />
-    <Compile Include="Core\Messaging\IMessageFilter.cs" />
-    <Compile Include="Core\Messaging\IMessageQueue.cs" />
-    <Compile Include="Core\Messaging\QueueMessage.cs" />
-    <Compile Include="Core\PathManager\IPathManager.cs" />
+    <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Exceptions\Exceptions.cs" />
+    <Compile Include="IStatus.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\NoLogger.cs" />
+    <Compile Include="Messaging\IMessageBroker.cs" />
+    <Compile Include="Messaging\IMessageFilter.cs" />
+    <Compile Include="Messaging\IMessageQueue.cs" />
+    <Compile Include="Messaging\QueueMessage.cs" />
+    <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
     <Compile Include="PluginManager\Exceptions\Exceptions.cs" />
     <Compile Include="Services\PluginManager\FixedItemStateTracker.cs" />
@@ -97,22 +97,22 @@
     <Compile Include="PluginManager\PluginManagerMessaging.cs" />
     <Compile Include="Services\PluginManager\PluginResource.cs" />
     <Compile Include="PluginManager\PluginState.cs" />
-    <Compile Include="Core\ServiceCreatorCallback.cs" />
-    <Compile Include="Core\ServiceNotFoundException.cs" />
-    <Compile Include="Core\ServiceScope.cs" />
-    <Compile Include="Core\Settings\INamedSettings.cs" />
-    <Compile Include="Core\Settings\ISettingsManager.cs" />
-    <Compile Include="Core\Settings\NoSettingsManager.cs" />
-    <Compile Include="Core\Settings\SettingAttribute.cs" />
-    <Compile Include="Core\TaskScheduler\ITaskScheduler.cs" />
-    <Compile Include="Core\TaskScheduler\Task.cs" />
-    <Compile Include="Core\TaskScheduler\TaskMessage.cs" />
-    <Compile Include="Core\Threading\IntervalWork.cs" />
-    <Compile Include="Core\Threading\IThreadPool.cs" />
-    <Compile Include="Core\Threading\IWork.cs" />
-    <Compile Include="Core\Threading\IWorkInterval.cs" />
-    <Compile Include="Core\Threading\Work.cs" />
-    <Compile Include="Core\Threading\WorkEventArgs.cs" />
+    <Compile Include="ServiceCreatorCallback.cs" />
+    <Compile Include="ServiceNotFoundException.cs" />
+    <Compile Include="ServiceScope.cs" />
+    <Compile Include="Settings\INamedSettings.cs" />
+    <Compile Include="Settings\ISettingsManager.cs" />
+    <Compile Include="Settings\NoSettingsManager.cs" />
+    <Compile Include="Settings\SettingAttribute.cs" />
+    <Compile Include="TaskScheduler\ITaskScheduler.cs" />
+    <Compile Include="TaskScheduler\Task.cs" />
+    <Compile Include="TaskScheduler\TaskMessage.cs" />
+    <Compile Include="Threading\IntervalWork.cs" />
+    <Compile Include="Threading\IThreadPool.cs" />
+    <Compile Include="Threading\IWork.cs" />
+    <Compile Include="Threading\IWorkInterval.cs" />
+    <Compile Include="Threading\Work.cs" />
+    <Compile Include="Threading\WorkEventArgs.cs" />
     <Compile Include="Services\Messaging\MessageBroker.cs" />
     <Compile Include="Services\Messaging\Queue.cs" />
     <Compile Include="Services\PathManager\PathDefinition.cs" />
@@ -138,9 +138,6 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\PluginManager\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
