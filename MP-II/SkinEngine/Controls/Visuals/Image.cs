@@ -209,23 +209,43 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void Measure(ref SizeF totalSize)
     {
       InitializeTriggers();
-
+      Deallocate();
       float w = (float)Width * SkinContext.Zoom.Width;
       float h = (float)Height * SkinContext.Zoom.Height;
+
+      if (_image == null && Source != null)
+      {
+        _image = ContentManager.Load(Source, Thumbnail);
+        _image.Texture.UseThumbNail = Thumbnail;
+        _image.Texture.Allocate();
+
+        if (SkinContext.UseBatching)
+          _renderImage = new TextureRender(_image.Texture);
+      }
+
+      if (_fallbackImage == null && FallbackSource != null)
+      {
+        _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
+        _fallbackImage.Texture.UseThumbNail = Thumbnail;
+        _fallbackImage.Texture.Allocate();
+
+        if (SkinContext.UseBatching)
+          _renderFallback = new TextureRender(_fallbackImage.Texture);
+      }
 
       if (_image != null)
       {
         if (Double.IsNaN(w))
-          w = _image.Texture.Width;
+          w = _image.Texture.Width * SkinContext.Zoom.Width;
         if (Double.IsNaN(h))
-          h = _image.Texture.Height;
+          h = _image.Texture.Height * SkinContext.Zoom.Height;
       }
       else if (_fallbackImage != null)
       {
         if (Double.IsNaN(w))
-          w = _fallbackImage.Texture.Width;
+          w = _fallbackImage.Texture.Width * SkinContext.Zoom.Width;
         if (Double.IsNaN(h))
-          h = _fallbackImage.Texture.Height;
+          h = _fallbackImage.Texture.Height * SkinContext.Zoom.Height;
       }
 
       _desiredSize = new SizeF(w, h);
@@ -272,7 +292,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      _performImageLayout = true;
+      if (_image != null)
+      {
+        PerformLayout(_image);
+      }
+
+      if (_fallbackImage != null)
+      {
+        PerformLayout(_fallbackImage);
+      }
 
       IsInvalidLayout = false;
       if (Screen != null)
@@ -281,76 +309,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoBuildRenderTree()
     {
-      if (_renderImage != null)
-      {
-        _renderImage.Free();
-        _renderImage = null;
-      }
-      if (_renderFallback != null)
-      {
-        _renderFallback.Free();
-        _renderFallback = null;
-      }
-      if (_hidden) return;
+      if (_hidden) 
+        return;
 
-      if (!IsVisible) return;
-      if (!IsEnabled && Opacity == 0.0) return;
-      if (_image == null && Source != null)
-      {
-        _image = ContentManager.Load(Source, Thumbnail);
-        _image.Texture.UseThumbNail = Thumbnail;
-        _image.Texture.Allocate();
-
-      }
-      if (_image != null)
-        _renderImage = new TextureRender(_image.Texture);
-      if (_fallbackImage == null && FallbackSource != null)
-      {
-        _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
-        _fallbackImage.Texture.UseThumbNail = Thumbnail;
-        _fallbackImage.Texture.Allocate();
-
-      }
-      if (_fallbackImage != null)
-        _renderFallback = new TextureRender(_fallbackImage.Texture);
-      _performImageLayout = true;
-
-      if (_performImageLayout)
-      {
-        if (_image != null)
-        {
-          if (_image.Texture.IsAllocated)
-          {
-            _performImageLayout = false;
-            if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
-            {
-              Invalidate();
-            }
-            else
-            {
-              PerformLayout(_image);
-            }
-          }
-        }
-        if (_performImageLayout)
-        {
-          if (_fallbackImage != null)
-          {
-            if (_fallbackImage.Texture.IsAllocated)
-            {
-              _performImageLayout = false;
-              if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
-              {
-                Invalidate();
-              }
-              else
-              {
-                PerformLayout(_fallbackImage);
-              }
-            }
-          }
-        }
-      }
+      if (!IsVisible) 
+        return;
+      if (!IsEnabled && Opacity == 0.0) 
+        return;
 
       SkinContext.AddOpacity(this.Opacity);
       float opacity = (float)SkinContext.Opacity;
@@ -388,115 +353,37 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-      if (!IsEnabled && Opacity == 0.0) return;
-      if (_image == null && Source != null)
-      {
-        _image = ContentManager.Load(Source, Thumbnail);
-        _image.Texture.UseThumbNail = Thumbnail;
+      if (!IsEnabled && Opacity == 0.0)
+        return;
 
-        if (SkinContext.UseBatching)
-          _renderImage = new TextureRender(_image.Texture);
-        _performImageLayout = true;
-      }
-      if (_fallbackImage == null && FallbackSource != null)
+      base.DoRender();
+      SkinContext.AddOpacity(this.Opacity);
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      SkinContext.AddTransform(m);
+      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      float opacity = (float)SkinContext.Opacity;
+      if (_image != null)
       {
-        _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
-        _fallbackImage.Texture.UseThumbNail = Thumbnail;
-
-        if (SkinContext.UseBatching)
-          _renderFallback = new TextureRender(_fallbackImage.Texture);
-        _performImageLayout = true;
+        _image.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        if (_image.Texture.IsAllocated)
+        {
+          SkinContext.RemoveTransform();
+          SkinContext.RemoveOpacity();
+          return;
+        }
       }
-
-      if (_performImageLayout)
+      if (_fallbackImage != null)
       {
-        if (_image != null)
-        {
-          if (_image.Texture.IsAllocated)
-          {
-            _performImageLayout = false;
-            if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
-            {
-              Invalidate();
-            }
-            else
-            {
-              PerformLayout(_image);
-            }
-          }
-        }
-        if (_performImageLayout)
-        {
-          if (_fallbackImage != null)
-          {
-            if (_fallbackImage.Texture.IsAllocated)
-            {
-              _performImageLayout = false;
-              if (_desiredSize.Width == 0 || _desiredSize.Height == 0)
-              {
-                Invalidate();
-              }
-              else
-              {
-                PerformLayout(_fallbackImage);
-              }
-            }
-          }
-        }
+        _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
       }
-      if (SkinContext.UseBatching == false)
-      {
-        base.DoRender();
-        SkinContext.AddOpacity(this.Opacity);
-        ExtendedMatrix m = new ExtendedMatrix();
-        m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-        SkinContext.AddTransform(m);
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        float opacity = (float)SkinContext.Opacity;
-        if (_image != null)
-        {
-          _image.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-          if (_image.Texture.IsAllocated)
-          {
-            SkinContext.RemoveTransform();
-            SkinContext.RemoveOpacity();
-            return;
-          }
-        }
-        if (_fallbackImage != null)
-        {
-          _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-        }
-        SkinContext.RemoveTransform();
-        SkinContext.RemoveOpacity();
-      }
-      else
-      {
-        base.DoRender();
-        SkinContext.AddOpacity(this.Opacity);
-        float opacity = (float)SkinContext.Opacity;
-        float posx = _pos.X + (float)ActualPosition.X;
-        float posy = _pos.Y + (float)ActualPosition.Y;
-        if (_renderImage != null)
-        {
-          _renderImage.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-          if (_renderImage.Texture.IsAllocated)
-          {
-            SkinContext.RemoveOpacity();
-            return;
-          }
-        }
-        if (_renderFallback != null)
-        {
-          _renderFallback.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-        }
-        SkinContext.RemoveOpacity();
-      }
+      SkinContext.RemoveTransform();
+      SkinContext.RemoveOpacity();
     }
+
 
     void PerformLayout(VertextBufferAsset asset)
     {
-      //Trace.WriteLine("Image.PerformLayout()");
       if (asset != null && asset.Texture.IsAllocated)
       {
         Vector3 imgScale = new Vector3(1, 1, 1);
@@ -504,14 +391,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           if (asset.Texture.Width > 0)
           {
-            imgScale.X = (float)(ActualWidth / (float)asset.Texture.Width);
+            imgScale.X = (float)(ActualWidth / (float)asset.Texture.Width * SkinContext.Zoom.Width);
           }
         }
         if (Height > 0.0f)
         {
           if (asset.Texture.Height > 0)
           {
-            imgScale.Y = (float)(ActualHeight / (float)asset.Texture.Height);
+            imgScale.Y = (float)(ActualHeight / (float)asset.Texture.Height * SkinContext.Zoom.Height);
           }
         }
 
@@ -624,6 +511,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _h = height;
         _pos = pos;
       }
+      else
+        Trace.WriteLine("Not Allocated");
     }
 
     public override void Deallocate()
