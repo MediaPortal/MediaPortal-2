@@ -153,23 +153,19 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       resultCollectionType = null;
       resultEntryType = null;
+      // First check generic interfaces
       IDictionary<Type, Type> foundGeneric = new Dictionary<Type, Type>();
-      IList<Type> foundNonGeneric = new List<Type>();
       foreach (Type interfaceType in type.GetInterfaces())
       {
-        Type collectionType = nonGenericType;
         Type[] genericArguments;
         if (interfaceType.IsGenericType && (genericArguments = interfaceType.GetGenericArguments()).Length == 1)
         {
           Type entryType = genericArguments[0];
-          collectionType = genericType;
-          collectionType = collectionType.MakeGenericType(entryType);
+          Type collectionType = genericType.MakeGenericType(entryType);
           if (collectionType.IsAssignableFrom(type))
             if (!foundGeneric.ContainsKey(collectionType))
               foundGeneric.Add(collectionType, entryType);
         }
-        else if (collectionType.IsAssignableFrom(type))
-          foundNonGeneric.Add(collectionType);
       }
       IEnumerator<KeyValuePair<Type, Type>> ge = foundGeneric.GetEnumerator();
       if (ge.MoveNext())
@@ -178,10 +174,10 @@ namespace MediaPortal.SkinEngine.Xaml
         resultEntryType = ge.Current.Value;
         return;
       }
-      IEnumerator<Type> nge = foundNonGeneric.GetEnumerator();
-      if (nge.MoveNext())
+      // Fallback: Check non-generic type
+      if (nonGenericType.IsAssignableFrom(type))
       {
-        resultCollectionType = nge.Current;
+        resultCollectionType = nonGenericType;
         resultEntryType = null;
         return;
       }
@@ -208,23 +204,20 @@ namespace MediaPortal.SkinEngine.Xaml
       resultDictionaryType = null;
       resultKeyType = null;
       resultValueType = null;
+      // First check generic interfaces
       IDictionary<Type, KeyValuePair<Type, Type>> foundGeneric = new Dictionary<Type, KeyValuePair<Type, Type>>();
-      IList<Type> foundNonGeneric = new List<Type>();
       foreach (Type interfaceType in type.GetInterfaces())
       {
-        Type collectionType = typeof(IDictionary);
         Type[] genericArguments;
         if (interfaceType.IsGenericType && (genericArguments = interfaceType.GetGenericArguments()).Length == 2)
         {
           Type keyType = genericArguments[0];
           Type valueType = genericArguments[1];
-          collectionType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
+          Type collectionType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
           if (collectionType.IsAssignableFrom(type))
             if (!foundGeneric.ContainsKey(collectionType))
               foundGeneric.Add(collectionType, new KeyValuePair<Type, Type>(keyType, valueType));
         }
-        else if (collectionType.IsAssignableFrom(type))
-          foundNonGeneric.Add(collectionType);
       }
       IEnumerator<KeyValuePair<Type, KeyValuePair<Type, Type>>> ge = foundGeneric.GetEnumerator();
       if (ge.MoveNext())
@@ -234,10 +227,10 @@ namespace MediaPortal.SkinEngine.Xaml
         resultValueType = ge.Current.Value.Value;
         return;
       }
-      IEnumerator<Type> nge = foundNonGeneric.GetEnumerator();
-      if (nge.MoveNext())
+      // Fallback: Check non-generic type
+      if (typeof(IDictionary).IsAssignableFrom(type))
       {
-        resultDictionaryType = nge.Current;
+        resultDictionaryType = typeof(IDictionary);
         resultKeyType = null;
         resultValueType = null;
         return;
