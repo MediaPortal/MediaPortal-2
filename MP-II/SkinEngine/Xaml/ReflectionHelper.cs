@@ -92,31 +92,15 @@ namespace MediaPortal.SkinEngine.Xaml
     public static bool GetEnumerationEntryByIndex(object maybeCollection, int index,
         out IDataDescriptor result)
     {
-      object value = maybeCollection;
-// FIXME Albert78: The following out-commented code is absolutely wrong!?!?? It should be removed.
-//                 After this, remove unnecessary variable "value"
-/*
-      if (!(value is IEnumerable))
+      if (maybeCollection is IList)
       {
-        // Value cannot be indexed, try to get content property
-        IDataDescriptor dd;
-        if (value is IContentEnabled &&
-            ((IContentEnabled) value).FindContentProperty(out dd))
-        {
-          result = new ValueDataDescriptor(dd.Value);
-          return true;
-        }
-      }
-*/
-      if (value is IList)
-      {
-        result = new ListIndexerDataDescriptor((IList) value, index);
+        result = new ListIndexerDataDescriptor((IList)maybeCollection, index);
         return true;
       }
-      if (value is IEnumerable)
+      if (maybeCollection is IEnumerable)
       {
         int i = 0;
-        foreach (object o in (IEnumerable) value)
+        foreach (object o in (IEnumerable)maybeCollection)
         {
           if (i++ == index)
           {
@@ -339,7 +323,7 @@ namespace MediaPortal.SkinEngine.Xaml
       Type resultType;
       Type entryType;
       MethodInfo method;
-      ReflectionHelper.FindImplementedListType(targetType, out resultType, out entryType);
+      FindImplementedListType(targetType, out resultType, out entryType);
       if (resultType != null)
       {
         method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] { entryType });
@@ -356,11 +340,11 @@ namespace MediaPortal.SkinEngine.Xaml
       // Check for Dictionary
       Type keyType;
       Type valueType;
-      ReflectionHelper.FindImplementedDictionaryType(targetType, out resultType, out keyType, out valueType);
+      FindImplementedDictionaryType(targetType, out resultType, out keyType, out valueType);
       Type sourceDictType;
       Type sourceKeyType;
       Type sourceValueType;
-      ReflectionHelper.FindImplementedDictionaryType(value.GetType(), out sourceDictType, out sourceKeyType, out sourceValueType);
+      FindImplementedDictionaryType(value.GetType(), out sourceDictType, out sourceKeyType, out sourceValueType);
       if (resultType != null && sourceDictType != null)
       {
         PropertyInfo targetItemProperty = keyType == null ? targetType.GetProperty("Item") : targetType.GetProperty("Item", new Type[] { keyType });
