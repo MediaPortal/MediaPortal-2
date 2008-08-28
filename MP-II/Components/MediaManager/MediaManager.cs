@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.MediaManager;
 using Components.Services.MediaManager.Views;
@@ -57,10 +59,9 @@ namespace Components.Services.MediaManager
     public void Initialise()
     {
       ViewLoader loader = new ViewLoader();
-      string[] files = System.IO.Directory.GetFiles("Views");
-      for (int i = 0; i < files.Length; ++i)
+      foreach (FileInfo viewFile in new DirectoryInfo(ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_ROOT>/Views")).GetFiles())
       {
-        MediaContainer cont = loader.Load(files[i]);
+        MediaContainer cont = loader.Load(viewFile);
         Register(cont);
       }
     }

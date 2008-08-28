@@ -35,15 +35,14 @@ namespace Components.Services.MediaManager.Views
     /// <summary>
     /// Loads the specified view definition
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="file">Name of the file.</param>
     /// <returns></returns>
-    public MediaContainer Load(string fileName)
+    public MediaContainer Load(FileInfo file)
     {
-      if (!File.Exists(fileName)) return null;
+      if (!file.Exists) return null;
       XmlDocument doc = new XmlDocument();
-      XmlTextReader reader = new XmlTextReader(fileName);
-      doc.Load(reader);
-      reader.Close();
+      using (FileStream fs = file.OpenRead())
+        doc.Load(fs);
 
       XmlNode definitionNode = doc.SelectSingleNode("/ViewDefinition");
       if (definitionNode == null) return null;
@@ -64,10 +63,7 @@ namespace Components.Services.MediaManager.Views
       {
         View view = LoadView(node);
         view.Databases = databases;
-        if (view != null)
-        {
-          container.Items.Add(new ViewContainer(view, container, null));
-        }
+        container.Items.Add(new ViewContainer(view, container, null));
       }
       return container;
     }
