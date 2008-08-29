@@ -129,9 +129,8 @@ namespace MediaPortal.Core.PluginManager
     /// plugin.
     /// </summary>
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
-    /// <param name="id">Id which was used to register the requested item.</param>
     /// <returns>Collection of item metadata structures at the specified registration location.</returns>
-    ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location, string id);
+    ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location);
 
     /// <summary>
     /// Returns a single plugin item registered at the given <paramref name="location"/> with the

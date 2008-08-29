@@ -209,7 +209,7 @@ namespace MediaPortal.Core.Services.PluginManager
       return registration == null ? null : registration.Metadata;
     }
 
-    public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location, string id)
+    public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location)
     {
       ICollection<PluginItemMetadata> result = new List<PluginItemMetadata>();
       foreach (PluginItemRegistration registration in PluginRuntime.GetItemRegistrations(location))
