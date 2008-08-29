@@ -56,9 +56,9 @@ namespace MediaPortal.Core.PathManager
     /// <summary>
     /// Registers the specified <paramref name="pathPattern"/> for the specified
     /// <paramref name="label"/>. If the label is already registered, a
-    /// <see cref="Sytem.ArgumentException"/> will be thrown. To set a path registration,
+    /// <see cref="System.ArgumentException"/> will be thrown. To set a path registration,
     /// whether or not it is already registered, use method
-    /// <see cref="ReplacePath(string label, string pathPattern)"/>.
+    /// <see cref="ReplacePath(string, string)"/>.
     /// </summary>
     /// <param name="label">The lookup label for the new path.</param>
     /// <param name="pathPattern">The path pattern to be registered with the <paramref name="label"/>.
@@ -95,7 +95,7 @@ namespace MediaPortal.Core.PathManager
     /// </summary>
     /// <param name="pathPattern">The path pattern to be resolved.</param>
     /// <returns>The resolved path as DirectoryInfo.</returns>
-    /// <seealso cref="GetPath(string pathPattern)"/>
+    /// <seealso cref="GetPath(string)"/>
     DirectoryInfo GetDirectoryInfo(string pathPattern);
   }
 }
