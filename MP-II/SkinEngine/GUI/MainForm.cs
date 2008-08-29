@@ -31,21 +31,12 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Commands;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.UserManagement;
 using MediaPortal.Presentation.Screen;
-using MediaPortal.Services.InputManager;
-using MediaPortal.Services.MenuManager;
-using MediaPortal.Services.UserManagement;
-
 using MediaPortal.SkinEngine;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.SkinManagement;
 
 using MediaPortal.SkinEngine.Settings;
@@ -71,48 +62,13 @@ namespace MediaPortal.SkinEngine.GUI
     private string _displaySetting;
     private ScreenManager _screenManager;
 
-    public MainForm()
+    public MainForm(ScreenManager screenManager)
     {
-      //**********************************************************
-      //following stuff should be dynamically build offcourse
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting");
-
-      ServiceScope.Add<IScreenControl>(this);
-      ServiceScope.Add<IInputMapper>(new InputMapper());
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create ICommandBuilder service");
-      CommandBuilder cmdBuilder = new CommandBuilder();
-      ServiceScope.Add<ICommandBuilder>(cmdBuilder);
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IInputManager service");
-      InputManager inputManager = new InputManager();
-      ServiceScope.Add<IInputManager>(inputManager);
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IMenuManager service");
-
-      MenuCollection menuCollection = new MenuCollection();
-      ServiceScope.Add<IMenuCollection>(menuCollection);
-
-      MenuBuilder menuBuilder = new MenuBuilder();
-      ServiceScope.Add<IMenuBuilder>(menuBuilder);
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IScreenManager service");
-      _screenManager = new ScreenManager();
+      _screenManager = screenManager;
       ServiceScope.Add<IScreenManager>(_screenManager);
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IPlayerFactory service");
-      PlayerFactory playerFactory = new PlayerFactory();
-      ServiceScope.Get<IPlayerFactory>().Register(playerFactory);
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IPlayerCollection service");
-      MediaPlayers players = new MediaPlayers();
-      ServiceScope.Add<IPlayerCollection>(players);
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create UserService service");
-      UserService userservice = new UserService();
-      ServiceScope.Add<IUserService>(userservice);
-
-      //**********************************************************
+      ServiceScope.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
+      ServiceScope.Add<IScreenControl>(this);
 
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
@@ -144,29 +100,15 @@ namespace MediaPortal.SkinEngine.GUI
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       _displaySetting = GraphicsDevice.DesktopDisplayMode;
-
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
-      queue.OnMessageReceive += OnPluginManagerMessageReceived;
     }
 
-    /// <summary>
-    /// Called when the plugin manager notifies the system about its events.
-    /// Shows the main screen when all plugins are initialized.
-    /// </summary>
-    /// <param name="message">Message containing the notification data.</param>
-    private void OnPluginManagerMessageReceived(QueueMessage message)
-    {
-      if (((PluginManagerMessaging.NotificationType)message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
-        Start();
-    }
-
-    protected void Start()
+    public void Start()
     {
       CheckTopMost();
 
       // Start render thread before we show first screen, because the render thread does
       // an invalidate, we don't want a double invalidate.
-      StartRenderThread();
+      StartRenderThread_Async();
       _screenManager.ShowStartupScreen();
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
@@ -434,7 +376,7 @@ namespace MediaPortal.SkinEngine.GUI
           GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), _displaySetting);
 
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
-          StartRenderThread();
+          StartRenderThread_Async();
         }
         ServiceScope.Get<IPlayerCollection>().ReallocResources();
       }
@@ -525,7 +467,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       ServiceScope.Get<IPlayerCollection>().ReallocResources();
 
-      StartRenderThread();
+      StartRenderThread_Async();
     }
 
     public bool IsFullScreen
@@ -615,7 +557,7 @@ namespace MediaPortal.SkinEngine.GUI
       return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
     }
 
-    protected void StartRenderThread()
+    protected void StartRenderThread_Async()
     {
       if (_renderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
@@ -666,7 +608,7 @@ namespace MediaPortal.SkinEngine.GUI
               if (GraphicsDevice.ReclaimDevice())
               {
                 GraphicsDevice.DeviceLost = false;
-                StartRenderThread();
+                StartRenderThread_Async();
               }
             }
           }

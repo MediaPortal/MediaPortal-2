@@ -31,7 +31,6 @@ using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.Commands;
 
 namespace MediaPortal.SkinEngine.Players
@@ -75,7 +74,6 @@ namespace MediaPortal.SkinEngine.Players
       Application.Idle += OnIdle;
       _seeking = new Seeking();
 
-      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       _pipMenu = new ListItem("Name", _pip.ToString());
       _pipMenu.Command = new ReflectionCommand("ScreenManager.ShowDialog");
       _pipMenu.CommandParameter = new StringParameter("dialogPictureInPicture");

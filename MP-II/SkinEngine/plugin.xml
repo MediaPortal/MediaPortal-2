@@ -13,7 +13,7 @@
 
   <Runtime>
     <Assembly FileName = "MediaPortal.SkinEngine.dll"/>
-    <PluginStateTracker ClassName= "MediaPortal.SkinEngine.DirectxGui"/>
+    <PluginStateTracker ClassName= "MediaPortal.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
   <Register Location = "/Configuration/Settings/Appearance">
