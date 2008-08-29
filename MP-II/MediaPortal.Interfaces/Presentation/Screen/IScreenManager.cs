@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Presentation.Screen
 {
   /// <summary>
@@ -54,10 +56,10 @@ namespace MediaPortal.Presentation.Screen
     /// Prepares the specified screen by loading & initializing it.
     /// The screen won't be shown (yet).
     /// </summary>
-    /// <param name="screen">The name of the screen to be prepared.</param>
+    /// <param name="screenName">The name of the screen to be prepared.</param>
     /// <returns><c>true</c>, if the specified screen is available and could be loaded,
     /// <c>false</c> if the screen isn't available or if there was a error while loading it.</returns>
-    bool PrepareScreen(string window);
+    bool PrepareScreen(string screenName);
 
     /// <summary>
     /// Shows the specified screen.
@@ -65,10 +67,10 @@ namespace MediaPortal.Presentation.Screen
     /// showing it.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
-    bool ShowScreen(string windowName);
+    bool ShowScreen(string screenName);
 
     /// <summary>
-    /// Shows the previous screen from the screen history.
+    /// Closes a currently visible dialog or shows the previous screen from the screen history.
     /// </summary>
     void ShowPreviousScreen();
 
@@ -101,38 +103,49 @@ namespace MediaPortal.Presentation.Screen
     /// </summary>
     string CurrentScreenName { get; }
 
+    /// <summary>
+    /// Returns <c>true</c> if a dialog is currently visible, else <c>false</c>.
+    /// </summary>
+    bool IsDialogVisible { get; }
+
     #region To be removed
 
     /// <summary>
     /// Gets / Sets the Title of a Dialog
     /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     string DialogTitle { get; set; }
 
     /// <summary>
     /// Gets / Sets Dialog Line 1
     /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     string DialogLine1 { get; set; }
 
     /// <summary>
     /// Gets / Sets Dialog Line 2
     /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     string DialogLine2 { get; set; }
 
     /// <summary>
     /// Gets / Sets Dialog Line 3
     /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     string DialogLine3 { get; set; }
 
     /// <summary>
     /// Gets the Dialog Response (Yes/No)
     /// </summary>
     /// <returns></returns>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     bool GetDialogResponse();
 
     /// <summary>
     /// Sets the Dialog Response
     /// </summary>
     /// <param name="response"></param>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     void SetDialogResponse(string response);
 
     #endregion

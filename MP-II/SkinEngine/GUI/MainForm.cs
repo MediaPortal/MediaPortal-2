@@ -1,4 +1,3 @@
-//#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
@@ -27,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
@@ -76,7 +74,7 @@ namespace MediaPortal.SkinEngine.GUI
     public MainForm()
     {
       //**********************************************************
-      //following stuff should be dynamicly build offcourse
+      //following stuff should be dynamically build offcourse
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting");
 
       ServiceScope.Add<IScreenControl>(this);
@@ -102,13 +100,13 @@ namespace MediaPortal.SkinEngine.GUI
       _screenManager = new ScreenManager();
       ServiceScope.Add<IScreenManager>(_screenManager);
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerFactory service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IPlayerFactory service");
       PlayerFactory playerFactory = new PlayerFactory();
       ServiceScope.Get<IPlayerFactory>().Register(playerFactory);
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create PlayerCollection service");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create IPlayerCollection service");
       MediaPlayers players = new MediaPlayers();
-      ServiceScope.Add<PlayerCollection>(players);
+      ServiceScope.Add<IPlayerCollection>(players);
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Create UserService service");
       UserService userservice = new UserService();
@@ -179,7 +177,7 @@ namespace MediaPortal.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop players");
-      ServiceScope.Get<PlayerCollection>().Dispose();
+      ServiceScope.Get<IPlayerCollection>().Dispose();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
@@ -194,7 +192,7 @@ namespace MediaPortal.SkinEngine.GUI
     {
       // The render loop is restarted after toggle windowed / fullscreen
       // Make sure we invalidate all windows so the layout is re-done 
-      // Big window layout does not fitt small window ;-)
+      // Big window layout does not fit into small window ;-)
       _screenManager.Reset();
 
       _fpsTimer = DateTime.Now;
@@ -235,10 +233,7 @@ namespace MediaPortal.SkinEngine.GUI
       bool shouldWait = GraphicsDevice.Render(true);
       if (shouldWait || !_hasFocus)
       {
-#if PROFILE_PERFORMANCE
-#else
         Thread.Sleep(100);
-#endif
       }
       _fpsCounter += 1.0f;
     }
@@ -263,33 +258,14 @@ namespace MediaPortal.SkinEngine.GUI
       _previousMousePosition.Y = e.Y;
       float x = e.X;
       float y = e.Y;
-      //x *= SkinContext.SkinWidth / (float) ClientSize.Width;
-      //y *= SkinContext.SkinHeight / (float) ClientSize.Height;
-      //x *= (SkinContext.SkinWidth / (float) GraphicsDevice.Width;
-      //y *= SkinContext.SkinHeight / (float) GraphicsDevice.Height;
-      //      this.Text = String.Format("{0},{1}", x.ToString("f2"), y.ToString("f2"));
       ServiceScope.Get<IInputManager>().MouseMove(x, y);
     }
-
-    private void MainForm_KeyUp(object sender, KeyEventArgs e) { }
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       //Trace.WriteLine(String.Format("keydown:{0}", e.KeyCode));
       IInputMapper mapper = ServiceScope.Get<IInputMapper>();
       Key key = mapper.Map(e.KeyCode, e.Alt);
-      if (key != Key.None)
-      {
-        IInputManager manager = ServiceScope.Get<IInputManager>();
-        manager.KeyPressed(key);
-        e.Handled = true;
-      }
-    }
-
-    protected override void OnKeyPress(KeyPressEventArgs e)
-    {
-      IInputMapper mapper = ServiceScope.Get<IInputMapper>();
-      Key key = mapper.Map(e.KeyChar);
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();
@@ -407,7 +383,7 @@ namespace MediaPortal.SkinEngine.GUI
           }
         }
       }
-      ServiceScope.Get<PlayerCollection>().OnMessage(m);
+      ServiceScope.Get<IPlayerCollection>().OnMessage(m);
       base.WndProc(ref m);
     }
 
@@ -447,7 +423,7 @@ namespace MediaPortal.SkinEngine.GUI
         //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
-        ServiceScope.Get<PlayerCollection>().ReleaseResources();
+        ServiceScope.Get<IPlayerCollection>().ReleaseResources();
 
         ContentManager.Free();
 
@@ -460,7 +436,7 @@ namespace MediaPortal.SkinEngine.GUI
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread();
         }
-        ServiceScope.Get<PlayerCollection>().ReallocResources();
+        ServiceScope.Get<IPlayerCollection>().ReallocResources();
       }
     }
 
@@ -518,7 +494,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
-      ServiceScope.Get<PlayerCollection>().ReleaseResources();
+      ServiceScope.Get<IPlayerCollection>().ReleaseResources();
 
       ContentManager.Free();
 
@@ -547,7 +523,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
 
-      ServiceScope.Get<PlayerCollection>().ReallocResources();
+      ServiceScope.Get<IPlayerCollection>().ReallocResources();
 
       StartRenderThread();
     }

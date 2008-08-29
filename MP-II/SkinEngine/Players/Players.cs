@@ -36,7 +36,7 @@ using MediaPortal.SkinEngine.Commands;
 
 namespace MediaPortal.SkinEngine.Players
 {
-  public class MediaPlayers : PlayerCollection
+  public class MediaPlayers : IPlayerCollection
   {
 
     #region variables
@@ -57,7 +57,7 @@ namespace MediaPortal.SkinEngine.Players
 
     #region ctor
     /// <summary>
-    /// Initializes a new instance of the <see cref="PlayerCollection"/> class.
+    /// Initializes a new instance of the <see cref="IPlayerCollection"/> class.
     /// </summary>
     public MediaPlayers()
     {

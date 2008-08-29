@@ -41,16 +41,17 @@ namespace MediaPortal.SkinEngine
 
     #region Variables
 
-    private readonly Dictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
+    private readonly IDictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
     private readonly Stack<string> _history = new Stack<string>();
     private Screen _currentScreen = null;
+    private readonly Stack<Screen> _dialogStack = new Stack<Screen>();
 
-    LinkedList<Screen> _dialogStack = new LinkedList<Screen>();
+    private readonly SkinManager _skinManager;
     private Skin _skin = null;
     private Theme _theme = null;
-    private SkinManager _skinManager;
-    public TimeUtils _utils = new TimeUtils();
 
+    // Albert78: Next fields are to be removed
+    public TimeUtils _utils = new TimeUtils();
     private string _dialogTitle;
     private string[] _dialogLines = new string[3];
     private bool _dialogResponse;  // Yes = true, No = false
@@ -139,29 +140,26 @@ namespace MediaPortal.SkinEngine
         _currentScreen.DetachInput();
       else
       {
-        _dialogStack.Last.Value.DetachInput();
+        _dialogStack.Peek().DetachInput();
       }
 
       newDialog.AttachInput();
       newDialog.Show();
       newDialog.ScreenState = Screen.State.Running;
       newDialog.IsChildDialog = isChild;
-      _dialogStack.AddLast(newDialog);
+      _dialogStack.Push(newDialog);
     }
 
     private bool InternalCloseDialog()
     {
-
       // Do we have a dialog?
       if (_dialogStack.Count > 0)
       {
-        LinkedListNode<Screen> oldDialog = _dialogStack.Last;
+        Screen oldDialog = _dialogStack.Pop();
 
-        oldDialog.Value.ScreenState = Screen.State.Closing;
-        oldDialog.Value.DetachInput();
-        oldDialog.Value.Hide();
-
-        _dialogStack.RemoveLast();
+        oldDialog.ScreenState = Screen.State.Closing;
+        oldDialog.DetachInput();
+        oldDialog.Hide();
 
         // Is this the last dialog?
         if (_dialogStack.Count == 0)
@@ -170,9 +168,9 @@ namespace MediaPortal.SkinEngine
         }
         else
         {
-          _dialogStack.Last.Value.AttachInput();
+          _dialogStack.Peek().AttachInput();
         }
-        return oldDialog.Value.IsChildDialog;
+        return oldDialog.IsChildDialog;
       }
       return false;
     }
@@ -268,7 +266,7 @@ namespace MediaPortal.SkinEngine
         // FIXME Albert78: Find a better way to make the InputManager, PlayerCollection and
         // ContentManager observe the current skin
         ServiceScope.Get<IInputManager>().Reset();
-        ServiceScope.Get<PlayerCollection>().Dispose();
+        ServiceScope.Get<IPlayerCollection>().Dispose();
         ContentManager.Clear();
 
         try
@@ -393,19 +391,19 @@ namespace MediaPortal.SkinEngine
 
     public string CurrentScreenName
     {
-      get { return _currentScreen.Name; }
+      get { return IsDialogVisible ? _dialogStack.Peek().Name : _currentScreen.Name; }
+    }
+
+    public bool IsDialogVisible
+    {
+      get { return _dialogStack.Count > 0; }
     }
 
     public void Reset()
     {
       // Reset all dialogs
-      LinkedListNode<Screen> dialog = _dialogStack.First;
-
-      while (dialog != null)
-      {
-        dialog.Value.Reset();
-        dialog = dialog.Next;
-      }
+      foreach (Screen dialog in _dialogStack)
+        dialog.Reset();
 
       // Reset the screen
       if (_currentScreen != null)
@@ -413,9 +411,6 @@ namespace MediaPortal.SkinEngine
     }
 
 
-    /// <summary>
-    /// See IScreenManager.
-    /// </summary>
     public void CloseDialog()
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
@@ -428,28 +423,20 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// See IScreenManager.
-    /// </summary>
     public void ShowDialog(string dialogName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog: {0}", dialogName);
       lock (_history)
       {
-
         InternalShowDialog(dialogName, false);
       }
     }
 
-    /// <summary>
-    /// See IScreenManager.
-    /// </summary>
     public void ShowChildDialog(string dialogName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Show child dialog: {0}", dialogName);
       lock (_history)
       {
-
         InternalShowDialog(dialogName, true);
       }
     }
@@ -459,7 +446,6 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     public void Reload()
     {
-
       InternalCloseCurrentScreenAndDialogs();
 
       Screen currentScreen;
@@ -481,10 +467,6 @@ namespace MediaPortal.SkinEngine
       return GetScreen(windowName) != null;
     }
 
-    /// <summary>
-    /// Shows the window with the specified name.
-    /// </summary>
-    /// <param name="windowName">Name of the window.</param>
     public bool ShowScreen(string windowName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Show window: {0}", windowName);
@@ -506,9 +488,6 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Shows the previous window from the window history.
-    /// </summary>
     public void ShowPreviousScreen()
     {
       lock (_history)
@@ -517,27 +496,31 @@ namespace MediaPortal.SkinEngine
         {
           return;
         }
-        ServiceScope.Get<ILogger>().Debug("ScreenManager: Show previous window");
+        ServiceScope.Get<ILogger>().Debug("ScreenManager: Show previous screen");
 
-        if (_history.Count <= 1)
+        if (IsDialogVisible)
+          InternalCloseDialog();
+        else
         {
-          return;
+          if (_history.Count <= 1)
+            return;
+
+          if (_currentScreen.History)
+            _history.Pop();
+
+          InternalCloseCurrentScreenAndDialogs();
+
+          Screen newScreen = GetScreen(_history.Peek());
+          if (newScreen == null)
+              // Error message was shown in GetScreen()
+            return;
+          InternalShowScreen(newScreen);
         }
-
-        if (_currentScreen.History)
-          _history.Pop();
-
-        InternalCloseCurrentScreenAndDialogs();
-
-        Screen newScreen = GetScreen(_history.Peek());
-        if (newScreen == null)
-          // Error message was shown in GetScreen()
-          return;
-        InternalShowScreen(newScreen);
       }
     }
 
     // FIXME Albert78: Move this, if needed, to an own service in ServiceScope
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public TimeUtils TimeUtils
     {
       get
@@ -550,10 +533,7 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Sets a Dialog Response
-    /// </summary>
-    /// <param name="response"></param>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public void SetDialogResponse(string response)
     {
       if (response.ToLower() == "yes")
@@ -564,18 +544,13 @@ namespace MediaPortal.SkinEngine
       CloseDialog();
     }
 
-    /// <summary>
-    /// Gets the Dialog Response
-    /// </summary>
-    /// <returns></returns>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public bool GetDialogResponse()
     {
       return _dialogResponse;
     }
 
-    /// <summary>
-    /// Gets / Sets the Dialopg Title
-    /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogTitle
     {
       get
@@ -588,9 +563,7 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Gets / Sets Dialog Line 1
-    /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogLine1
     {
      get
@@ -602,10 +575,8 @@ namespace MediaPortal.SkinEngine
         _dialogLines[0] = value;
       }
     }
-    
-    /// <summary>
-    /// Gets / Sets Dialog Line 2
-    /// </summary>
+
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogLine2
     {
      get
@@ -618,9 +589,7 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-    /// <summary>
-    /// Gets / Sets Dialog Line 3
-    /// </summary>
+    [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogLine3
     {
       get

@@ -36,7 +36,7 @@ namespace MediaPortal.Services.InputManager
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
       switch (keycode)
       {
         case Keys.F9:

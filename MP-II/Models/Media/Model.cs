@@ -154,7 +154,7 @@ namespace Models.Media
         //window.WaitCursorVisible = true;
 
         //stop any other movies
-        PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+        IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
         //create a new player for our movie
         IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
         player = factory.GetPlayer(item.Item);

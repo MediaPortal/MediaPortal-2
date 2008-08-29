@@ -67,7 +67,7 @@ namespace Media.Players.PicturePlayer
     public void Stop()
     {
       //remove this player
-      ServiceScope.Get<PlayerCollection>().Remove(this);
+      ServiceScope.Get<IPlayerCollection>().Remove(this);
       //goto the previous window
       ServiceScope.Get<IScreenManager>().ShowPreviousScreen();
     }
@@ -82,7 +82,7 @@ namespace Media.Players.PicturePlayer
         if (ServiceScope.Get<IScreenManager>().CurrentScreenName != "pictureviewer")
         {
           _state = PlaybackState.Stopped;
-          ServiceScope.Get<PlayerCollection>().Remove(this);
+          ServiceScope.Get<IPlayerCollection>().Remove(this);
         }
       }
     }

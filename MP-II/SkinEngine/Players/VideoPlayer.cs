@@ -151,7 +151,7 @@ namespace MediaPortal.SkinEngine.Players
     private TimeSpan _currentTime;
     private TimeSpan _currentStreamPosition;
     private static EvrResult _evrResult = EvrResult.NotTried;
-    private PlayerCollection _players;
+    private IPlayerCollection _players;
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
@@ -287,7 +287,7 @@ namespace MediaPortal.SkinEngine.Players
 
     void SetRefreshRate(IMediaItem mediaItem)
     {
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
       float fps;
       if (players.Count != 0)
         return;
@@ -316,7 +316,7 @@ namespace MediaPortal.SkinEngine.Players
 
     void ResetRefreshRate()
     {
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
 
       if (players[0] != this)
         return;
@@ -345,7 +345,7 @@ namespace MediaPortal.SkinEngine.Players
         ServiceScope.Get<ILogger>().Debug("VideoPlayer.Play:{0}", _fileName.ToString());
       }
 
-      _players = ServiceScope.Get<PlayerCollection>();
+      _players = ServiceScope.Get<IPlayerCollection>();
       int hr = 0;
 
       SetRefreshRate(mediaItem);
@@ -461,7 +461,7 @@ namespace MediaPortal.SkinEngine.Players
         return;
       }
       OnGraphRunning();
-      ServiceScope.Get<PlayerCollection>().Paused = false;
+      ServiceScope.Get<IPlayerCollection>().Paused = false;
       _initialized = true;
 
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
@@ -737,7 +737,7 @@ namespace MediaPortal.SkinEngine.Players
         int hr = 0;
 
 
-        ServiceScope.Get<PlayerCollection>().Remove(this);
+        ServiceScope.Get<IPlayerCollection>().Remove(this);
 
 
 

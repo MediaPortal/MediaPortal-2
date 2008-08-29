@@ -364,7 +364,7 @@ namespace Models.Movies
       try
       {
         //window.WaitCursorVisible = true;
-        PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+        IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
         IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
         IMediaItem mediaItem = new DvdMediaItem();
         mediaItem.MetaData["MyMovies.Model"] = true;
@@ -441,7 +441,7 @@ namespace Models.Movies
           //window.WaitCursorVisible = true;
 
           //stop any other movies
-          PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+          IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
           //create a new player for our movie
           IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
           IPlayer player = factory.GetPlayer(movie.MediaItem);
@@ -624,7 +624,7 @@ namespace Models.Movies
     /// <param name="message">The message.</param>
     void OnPlayerMessageReceived(QueueMessage message)
     {
-      PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
       IPlayer player = message.MessageData["player"] as IPlayer;
       string action = message.MessageData["action"] as string;
       if (player != null && player.IsVideo)
@@ -652,7 +652,7 @@ namespace Models.Movies
 
     public void StopAndDeleteMovie()
     {
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
       if (players.Count > 0)
       {
         IPlayer player = players[0];

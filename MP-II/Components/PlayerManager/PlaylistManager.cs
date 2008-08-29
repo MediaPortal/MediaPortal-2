@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
@@ -46,7 +43,7 @@ namespace Components.Services.PlayerManager
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
     }
 
 
@@ -77,7 +74,7 @@ namespace Components.Services.PlayerManager
         if (_currentIndex >= 0 && _currentIndex < _playlist.Queue.Count)
           return -1;
 
-        PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+        IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
         if (players.Count > 0)
         {
           if (players[0].MediaItem == _playlist.Queue[_currentIndex])
@@ -99,7 +96,7 @@ namespace Components.Services.PlayerManager
       {
         if (_currentIndex >= 0 && _currentIndex < _playlist.Queue.Count)
         {
-          PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+          IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
           if (players.Count > 0)
           {
             if (players[0].MediaItem == _playlist.Queue[_currentIndex])
@@ -192,7 +189,7 @@ namespace Components.Services.PlayerManager
         IPlayer player = factory.GetPlayer(_playlist.Queue[_currentIndex]);
         if (player != null)
         {
-          PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+          IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
           if (player.Name == "Bass")
           {
             // Only add the Player once

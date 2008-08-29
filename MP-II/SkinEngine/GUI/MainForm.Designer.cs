@@ -73,7 +73,6 @@ namespace MediaPortal.SkinEngine.GUI
       this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseUp);
       this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
       this.Activated += new System.EventHandler(this.MainForm_Activated);
-      this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
       this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseMove);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);

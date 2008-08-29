@@ -476,7 +476,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           return false;
         if (!ServiceScope.Get<IScreenControl>().IsFullScreen) 
           return false;
-        PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+        IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
         if (players.Count > 0)
         {
           if (players[0].IsVideo) return false;

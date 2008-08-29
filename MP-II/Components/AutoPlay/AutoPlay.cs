@@ -137,7 +137,7 @@ namespace Components.Services.AutoPlay
             try
             {
               //window.WaitCursorVisible = true;
-              PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+              IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
               IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
               IMediaItem mediaItem = new AutoPlayMediaItem(strDrive + @"\VIDEO_TS\VIDEO_TS.IFO");
               mediaItem.Title = "DVD";

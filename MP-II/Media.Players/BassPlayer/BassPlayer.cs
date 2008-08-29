@@ -23,20 +23,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManager;
-
-using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Mix;
 
 namespace Media.Players.BassPlayer
 {
@@ -176,7 +167,7 @@ namespace Media.Players.BassPlayer
     public void Stop()
     {
       _playerInstance.Stop();
-      ServiceScope.Get<PlayerCollection>().Remove(this);
+      ServiceScope.Get<IPlayerCollection>().Remove(this);
     }
 
     public void Render()

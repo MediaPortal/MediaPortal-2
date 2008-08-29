@@ -48,7 +48,7 @@ namespace MediaPortal.SkinEngine.Commands
 
       if (name == "Players")
       {
-        return ServiceScope.Get<PlayerCollection>();
+        return ServiceScope.Get<IPlayerCollection>();
       }
 
       Model model = ModelManager.Instance.GetModelByInternalName(name);

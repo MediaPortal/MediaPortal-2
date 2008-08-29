@@ -45,7 +45,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       TYPE_MAPPING.Add("ScreenManager", typeof(IScreenManager));
       TYPE_MAPPING.Add("InputManager", typeof(IInputManager));
-      TYPE_MAPPING.Add("Players", typeof(PlayerCollection));
+      TYPE_MAPPING.Add("Players", typeof(IPlayerCollection));
     }
 
     protected string _interfaceName = null;

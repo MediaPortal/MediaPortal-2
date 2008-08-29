@@ -32,7 +32,7 @@ namespace MediaPortal.Presentation.Players
   /// </summary>
   public delegate void OnPlaybackStoppedHandler(IPlayer player);
 
-  public interface PlayerCollection : IDisposable
+  public interface IPlayerCollection : IDisposable
   {
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace MediaPortal.Presentation.Players
     bool IsMuted { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="PlayerCollection"/> is paused.
+    /// Gets or sets a value indicating whether this <see cref="IPlayerCollection"/> is paused.
     /// </summary>
     /// <value><c>true</c> if paused; otherwise, <c>false</c>.</value>
     bool Paused { get; set; }

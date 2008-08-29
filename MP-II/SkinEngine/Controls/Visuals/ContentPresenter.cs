@@ -306,22 +306,34 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return Content.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      if (Content != null)
+        return Content.PredictFocusUp(focusedFrameworkElement, ref key, strict);
+      else
+        return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return Content.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      if (Content != null)
+        return Content.PredictFocusDown(focusedFrameworkElement, ref key, strict);
+      else
+        return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return Content.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      if (Content != null)
+        return Content.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
+      else
+        return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
     }
 
     public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
-      return Content.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      if (Content != null)
+        return Content.PredictFocusRight(focusedFrameworkElement, ref key, strict);
+      else
+        return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
     }
 
     #endregion

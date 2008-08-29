@@ -168,7 +168,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
 
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
       if (players.Count <= Stream) return false;
 
       if (Transform != null)
@@ -186,8 +186,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
-      PlayerCollection players = ServiceScope.Get<PlayerCollection>();
-      players = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
+      players = ServiceScope.Get<IPlayerCollection>();
       if (players.Count <= Stream) return;
 
       IPlayer player = players[Stream];

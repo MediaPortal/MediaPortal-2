@@ -34,7 +34,6 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Effects;
 
@@ -70,7 +69,7 @@ namespace MediaPortal.SkinEngine.Players.Vmr9
     private Surface _surface;
     private object _lock;
     private bool _usingEvr = false;
-    private PlayerCollection _players;
+    private IPlayerCollection _players;
     private IPlayer _player;
     private bool _guiBeingReinitialized = false;
     EffectAsset _normalEffect;
@@ -85,7 +84,7 @@ namespace MediaPortal.SkinEngine.Players.Vmr9
     /// <param name="usingEvr">if set to <c>true</c> [using evr].</param>
     public Allocator(IPlayer player, bool usingEvr)
     {
-      _players = ServiceScope.Get<PlayerCollection>();
+      _players = ServiceScope.Get<IPlayerCollection>();
       _player = player;
       _usingEvr = usingEvr;
       _lock = new Object();

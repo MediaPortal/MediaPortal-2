@@ -164,7 +164,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       _seekTimeoutTimer = SkinContext.Now;
       _seekTimerRunning = true;
-      PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
       if (collection.Count == 0)
       {
         return false;
@@ -289,7 +289,7 @@ namespace MediaPortal.SkinEngine.Players
         return;
       }
       _seekTimerRunning = false;
-      PlayerCollection collection = ServiceScope.Get<PlayerCollection>();
+      IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
       if (collection.Count != 0)
       {
         IPlayer player = collection[0];
