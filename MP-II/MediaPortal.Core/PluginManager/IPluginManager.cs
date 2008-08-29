@@ -28,6 +28,13 @@ using MediaPortal.Core.PluginManager.Exceptions;
 
 namespace MediaPortal.Core.PluginManager
 {
+  public enum PluginManagerState
+  {
+    Initializing,
+    Running,
+    ShuttingDown
+  }
+
   /// <summary>
   /// Interface to access the MediaPortal plugin manager. It exposes the globally available methods
   /// to be called from throughout the application.
@@ -41,6 +48,11 @@ namespace MediaPortal.Core.PluginManager
   /// </remarks>
   public interface IPluginManager : IStatus
   {
+    /// <summary>
+    /// Denotes the current state of the plugin manager.
+    /// </summary>
+    PluginManagerState State { get; }
+
     /// <summary>
     /// Returns a dictionary containing the names of all plugins available in the system, mapped to
     /// the plugin runtime descriptors.

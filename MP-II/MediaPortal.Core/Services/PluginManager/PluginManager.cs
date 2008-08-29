@@ -66,6 +66,8 @@ namespace MediaPortal.Core.Services.PluginManager
 
     protected IDictionary<string, PluginState> _pendingPlugins = new Dictionary<string, PluginState>();
 
+    protected PluginManagerState _state = PluginManagerState.Initializing;
+
     #endregion
 
     #region Ctor
@@ -78,6 +80,11 @@ namespace MediaPortal.Core.Services.PluginManager
     #endregion
 
     #region IPluginManager implementation
+
+    public PluginManagerState State
+    {
+      get { return _state; }
+    }
 
     public IDictionary<string, PluginRuntime> AvailablePlugins
     {
@@ -104,12 +111,14 @@ namespace MediaPortal.Core.Services.PluginManager
           TryEnable(plugin, true);
       }
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
+      _state = PluginManagerState.Running;
       ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
     }
 
     public void Shutdown()
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
+      _state = PluginManagerState.ShuttingDown;
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Shutdown);
       foreach (PluginRuntime plugin in _availablePlugins.Values)
       {

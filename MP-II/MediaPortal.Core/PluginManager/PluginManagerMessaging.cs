@@ -40,16 +40,22 @@ namespace MediaPortal.Core.PluginManager
     {
       /// <summary>
       /// This message will be sent before the plugin manager performs its startup tasks.
+      /// When this message is sent, the plugin manager is in state
+      /// <see cref="PluginManagerState.Initializing"/>.
       /// </summary>
       Startup,
 
       /// <summary>
       /// This message will be sent after all plugins were loaded, enabled and auto-started.
+      /// After this message is sent, the plugin manager will change its state to
+      /// <see cref="PluginManagerState.Running"/>.
       /// </summary>
       PluginsInitialized,
 
       /// <summary>
       /// This message will be sent before the plugin manager shuts down.
+      /// When this message is sent, the plugin manager is in state
+      /// <see cref="PluginManagerState.ShuttingDown"/>.
       /// </summary>
       Shutdown
     }
