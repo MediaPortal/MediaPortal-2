@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for standard menu screens:
+A header text, left the menu, under the menu a small video preview,
+at the right side the content pane and at the bottom the current play control.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screenfiles\master_menu.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Menu_Items">
+        [Collection of ListItem instances]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Contents_Element">
+        [UI element to be displayed in the content area. This element will
+         be placed into a ScrollViewer.]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Menu_Command">
+        [Command to be assigned to the menu button.]
+      </ResourceWrapper>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Menu_Items (Collection of ListItem): Items to be displayed as menu items
+ - Contents_Element (Any UI element): Contents to be displayed in the content
+   area at the right side
+ - Menu_Command (IExecutableCommand): Command to be assigned to the menu buttons.
+   The specified Command instance will be copied and integrated into the button's
+   visual tree, so the button's current menu item (one of the Menu_Items) will be
+   available as data context.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screenfiles\master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <!-- Client_Element -->
+    <ResourceWrapper x:Key="Client_Element">
+      <DockPanel>
+        <StackPanel x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+          <ListView x:Name="MainMenu" Height="304" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
+            <ListView.Resources>
+              <CommandBridge x:Key="Menu_Command"
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  CommandParameter="{Binding Path=CommandParameter,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
+          <Button x:Name="VideoWindow" Style="{StaticResource VideoWindowButtonStyle}"
+              IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}" Width="160" Height="120" VerticalAlignment="Bottom"
+              Command="{Command Source={Service ScreenManager},Path=ShowWindow,Parameters=fullscreenvideo}"/>
+        </StackPanel>
+
+        <!-- Order matters here: ContentViewer has to be the last control to fill the rest of the space -->
+        <StackPanel x:Name="OSDPanel" DockPanel.Dock="Bottom">
+          <Include Source="screenfiles\osd.xaml"/>
+        </StackPanel>
+        <ScrollViewer Margin="10,0,10,0" x:Name="ContentViewer" DockPanel.Dock="Center" Style="{StaticResource DefaultScrollViewerStyle}">
+          <ScrollViewer.Content>
+            <DynamicResource ResourceKey="Contents_Element"/>
+          </ScrollViewer.Content>
+        </ScrollViewer>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>
