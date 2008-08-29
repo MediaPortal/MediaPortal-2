@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[general.view]" image="" command="list.SwitchStyle" parameter=""/>
-    <item text="[general.sort]" image="" command="ScreenManager.ShowDialog" parameter="dialogMyPictureSortMenu"/>
-    <item text="[pictures.4]" image="" command="ScreenManager.ShowDialog" parameter="dialogMyPictureViewMenu"/>    
-    <item text="[pictures.6]" image="" command="mypicture:PictureModel.SlideShow.Start+ScreenManager.ShowScreen" parameter="+pictureviewer"/>
-  </items>
-
-</menu>

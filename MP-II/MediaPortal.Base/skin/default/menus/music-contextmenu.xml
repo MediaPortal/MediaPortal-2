@@ -1,6 +1,0 @@
-<menu>
-  <items>
-    <item text="[shares.shares]" image="" command="ScreenManager.ShowScreen" parameter="shares"/>
-  </items>
-
-</menu>

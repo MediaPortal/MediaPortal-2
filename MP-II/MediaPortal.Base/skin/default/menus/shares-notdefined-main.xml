@@ -1,6 +1,0 @@
-<menu>
-  <items>
-    <item text="[shares.addnewshares]" image="" command="ScreenManager.ShowScreen" parameter="sharesAdd"/>
-    <item text="[shares.back]" image="" command="ScreenManager.ShowPreviousScreen" parameter=""/>
-  </items>
-</menu>

@@ -41,7 +41,7 @@ namespace MediaPortal.Core.Services.PathManager
   {
     #region Variables
 
-    private Dictionary<string, string> _paths;
+    private readonly Dictionary<string, string> _paths;
 
     #endregion
 
@@ -89,7 +89,7 @@ namespace MediaPortal.Core.Services.PathManager
         foreach (Match labelMatch in pathLabels)
         {
           if (!_paths.ContainsKey(labelMatch.Value))
-            throw new ArgumentException("Unkown path label");
+            throw new ArgumentException("Unkown path label '" + labelMatch.Value + "'");
 
           pathPattern = pathPattern.Replace(labelMatch.Value, _paths[labelMatch.Value]);
         }

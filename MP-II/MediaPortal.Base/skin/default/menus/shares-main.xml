@@ -1,7 +1,0 @@
-<menu>
-  <items>
-    <item text="[shares.addnewshares]" image="" command="ScreenManager.ShowScreen" parameter="sharesAdd"/>
-    <item text="[shares.removeshares]" image="" command="ScreenManager.ShowScreen" parameter="sharesRemove"/>
-    <item text="[importers.refresh]" image="" command="Shares:Model.RefreshLibrary+ScreenManager.ShowScreen" parameter="+sharesrefreshing"/>
-  </items>
-</menu>

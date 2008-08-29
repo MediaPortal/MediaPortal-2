@@ -25,7 +25,8 @@
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager;
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {
@@ -34,16 +35,45 @@ namespace MediaPortal.SkinEngine.SkinManagement
   /// </summary>
   public class SkinManager
   {
+    /// <summary>
+    /// Plugin item state tracker which allows skin resources to be revoked. When skin resources
+    /// are revoked by the plugin manager, the <see cref="SkinManager.ReloadSkins()"/> method
+    /// will be called from the <see cref="SkinResourcesPluginItemStateTracker.Stop"/> method.
+    /// </summary>
+    protected class SkinResourcesPluginItemStateTracker: IPluginItemStateTracker
+    {
+      protected SkinManager _skinManager;
+
+      public SkinResourcesPluginItemStateTracker(SkinManager skinManager)
+      {
+        _skinManager = skinManager;
+      }
+
+      public bool RequestEnd(PluginItemMetadata item)
+      {
+        return true;
+      }
+
+      public void Stop(PluginItemMetadata item)
+      {
+        _skinManager.ReloadSkins();
+      }
+
+      public void Continue(PluginItemMetadata item) { }
+    }
+
     public const string DEFAULT_SKIN = "default";
 
     #region Variables
 
     protected IDictionary<string, Skin> _skins = new Dictionary<string, Skin>();
+    protected SkinResourcesPluginItemStateTracker _skinResourcesPluginItemStateTracker;
 
     #endregion
 
     public SkinManager()
     {
+      _skinResourcesPluginItemStateTracker = new SkinResourcesPluginItemStateTracker(this);
       ReloadSkins();
     }
 
@@ -75,19 +105,22 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     public void ReloadSkins()
     {
-      _skins.Clear();
-      // Search application Skin directory
-      DirectoryInfo skinDirectories = new DirectoryInfo(ServiceScope.Get<IPathManager>().GetPath("<SKIN>"));
-      foreach (DirectoryInfo skinDirectory in skinDirectories.GetDirectories())
-      {
-        string skinName = skinDirectory.Name;
-        Skin skin;
-        if (_skins.ContainsKey(skinName))
-          skin = _skins[skinName];
-        else
-          skin = _skins[skinName] = new Skin(skinDirectory.Name);
-        skin.AddRootDirectory(skinDirectory);
-      }
+      // We won't clear the skins so we don't loose our object references to the skins
+      foreach (Skin skin in _skins.Values)
+        skin.Release();
+
+      ICollection<DirectoryInfo> skinDirectories = GetSkinRootDirectories();
+      foreach (DirectoryInfo rootDirectory in skinDirectories)
+        foreach (DirectoryInfo skinDirectory in rootDirectory.GetDirectories())
+        {
+          string skinName = skinDirectory.Name;
+          Skin skin;
+          if (_skins.ContainsKey(skinName))
+            skin = _skins[skinName];
+          else
+            skin = _skins[skinName] = new Skin(skinDirectory.Name);
+          skin.AddRootDirectory(skinDirectory);
+        }
       // Setup the resource chain: Inherit the default theme resources for all
       // skins other than the default skin
       Skin defaultSkin = DefaultSkin;
@@ -111,6 +144,20 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return _skins[skinName];
       else
         return null;
+    }
+
+    /// <summary>
+    /// Returns all relevant skin root directories available in the system.
+    /// </summary>
+    /// <returns></returns>
+    protected ICollection<DirectoryInfo> GetSkinRootDirectories()
+    {
+      ICollection<DirectoryInfo> result = new List<DirectoryInfo>();
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
+          "/Resources/Skin", _skinResourcesPluginItemStateTracker))
+        result.Add(skinDirectoryResource.Location);
+      return result;
     }
   }
 }

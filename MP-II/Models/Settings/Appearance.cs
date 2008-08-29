@@ -23,12 +23,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Globalization;
+using System.Text.RegularExpressions;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;
@@ -46,24 +47,24 @@ namespace Models.Settings
 
     public Appearance()
     {
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
-
-      CultureInfo[] langs = localProvider.AvailableLanguages();
-
       _skins = new ItemsCollection();
-      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
-      string[] skins = Directory.GetDirectories(skinPath);
-      for (int i = 0; i < skins.Length; ++i)
-      {
-        string skinName = new DirectoryInfo(skins[i]).Name;
-        ListItem item = new ListItem("Name", skinName);
-        // FIXME Albert78: Use the SkinContext resolving mechanism here, after this class was moved
-        // to SkinEngine project
-        string previewImagePath = String.Format("{0}\\{1}\\themes\\default\\media\\preview.png", skinPath, skinName);
-        item.Add("CoverArt", previewImagePath);
-        item.Add("defaulticon", previewImagePath);
-        _skins.Add(item);
-      }
+      // FIXME Albert78: Use the SkinResources lookup mechanism here, after this class was moved
+      // to SkinEngine project.
+      // THIS IS A HACK!
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginItemStateTracker stateTracker = new FixedItemStateTracker();
+      foreach (PluginResource rootDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
+          "/Resources/Skin", stateTracker))
+        foreach (DirectoryInfo skinDirectory in rootDirectoryResource.Location.GetDirectories())
+        {
+          string skinName = skinDirectory.Name;
+          ListItem item = new ListItem("Name", skinName);
+          string previewImagePath = String.Format("{0}\\themes\\default\\media\\preview.png", skinDirectory.FullName);
+          item.Add("CoverArt", previewImagePath);
+          item.Add("defaulticon", previewImagePath);
+          _skins.Add(item);
+        }
+      pluginManager.RevokeAllPluginItems("/Resources/Skin", stateTracker);
 
       _themes = new ItemsCollection();
       UpdateThemes();
@@ -71,18 +72,19 @@ namespace Models.Settings
 
     void UpdateThemes()
     {
-      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
-      string skinPath = ServiceScope.Get<IPathManager>().GetPath("<SKIN>");
-      string[] themes = Directory.GetDirectories(String.Format(@"{0}\{1}\themes", skinPath, mgr.SkinName));
-      
+      // HACK!!!! Has to be replaced by the SkinResources lookup mechanism
       _themes.Clear();
-      for (int i = 0; i < themes.Length; ++i)
+      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
+      IResourceAccessor ra = mgr.SkinResourceContext;
+      foreach (FileInfo file in ra.GetResourceFiles("themes\\\\[\\w]*\\\\theme.xml").Values)
       {
-        DirectoryInfo themeDirectory = new DirectoryInfo(themes[i]);
-        string themeName = themeDirectory.Name;
+        Regex re = new Regex(".*\\\\themes\\\\([\\w]*)\\\\theme.xml");
+        string themeName = re.Matches(file.FullName)[0].Groups[1].ToString();
 
         ListItem item = new ListItem("Name", themeName);
-        item.Add("CoverArt", String.Format(@"{0}\media\preview.png", themeDirectory.FullName));
+        FileInfo previewImage = ra.GetResourceFile("themes\\" + themeName + "\\media\\preview.png");
+        if (previewImage != null)
+          item.Add("CoverArt", previewImage.FullName);
         _themes.Add(item);
       }
     }

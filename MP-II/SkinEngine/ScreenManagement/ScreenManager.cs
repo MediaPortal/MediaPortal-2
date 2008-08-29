@@ -369,6 +369,11 @@ namespace MediaPortal.SkinEngine
       }
     }
 
+    public IResourceAccessor SkinResourceContext
+    {
+      get { return SkinContext.SkinResources; }
+    }
+
     public void SwitchTheme(string newThemeName)
     {
       SwitchSkinAndTheme(SkinContext.SkinName, newThemeName);

@@ -29,8 +29,6 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;

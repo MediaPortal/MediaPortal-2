@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[extensions.name]" image="" command="" parameter=""/>
-    <item text="[extensions.downloads]" image="" command="" parameter=""/>
-	<item text="[extensions.size]" image="" command="" parameter=""/>	
-	<item text="[extensions.date]" image="" command="" parameter=""/>	
-  </items>
-
-</menu>

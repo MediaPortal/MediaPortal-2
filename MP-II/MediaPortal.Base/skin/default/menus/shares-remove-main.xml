@@ -1,6 +1,0 @@
-<menu>
-  <items>
-    <item text="[shares.done]" image="" command="ScreenManager.ShowPreviousScreen" parameter=""/>
-    <item text="[shares.cancel]" image="" command="ScreenManager.ShowPreviousScreen" parameter=""/>
-  </items>
-</menu>

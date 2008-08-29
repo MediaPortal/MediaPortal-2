@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[playback.34]" image="" command="Players.Stop+ScreenManager.ShowPreviousScreen" parameter=""/>
-    <item text="[playback.35]" image="" command="Players.Resume+ScreenManager.ShowScreen" parameter="+fullscreenvideo"/>
-    <item text="[playback.36]" image="" command="Players.Restart+ScreenManager.ShowScreen" parameter="+fullscreenvideo"/>
-    <item text="[playback.37]" image="" command="mymovies:Model.StopAndDeleteMovie+ScreenManager.ShowScreen" parameter="+fullscreenvideo"/>
-  </items>
-
-</menu>

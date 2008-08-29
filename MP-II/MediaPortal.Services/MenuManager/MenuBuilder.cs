@@ -22,7 +22,7 @@
 
 #endregion
 
-using System;
+using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
@@ -42,17 +42,17 @@ namespace MediaPortal.Services.MenuManager
     /// <returns></returns>
     public IMenu Build(string menuName)
     {
-      MediaPortal.Services.MenuManager.Menu menu = new MediaPortal.Services.MenuManager.Menu(menuName);
+      Menu menu = new Menu(menuName);
       //load menu configurarion
       //for now we simply load it from an .xml file since 
       //i dont know yet how the pluginmanager could do this.
 
-      string skinName = ServiceScope.Get<IScreenManager>().SkinName;
-      menuName = menuName.Replace("/", "_");
-      string xmlName = String.Format(@"skin\{0}\menus\{1}.xml", skinName, menuName);
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      FileInfo file = screenManager.SkinResourceContext.GetResourceFile(string.Format("menus\\{0}.xml", menuName));
 
       XmlDocument doc = new XmlDocument();
-      doc.Load(xmlName);
+      using (FileStream fs = file.OpenRead())
+        doc.Load(fs);
       XmlNodeList nodesItems = doc.SelectNodes("/menu/items/item");
       foreach (XmlNode nodeItem in nodesItems)
       {

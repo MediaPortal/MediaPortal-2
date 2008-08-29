@@ -85,7 +85,8 @@ namespace MediaPortal.Services.Localisation
     {
       try
       {
-        ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>("/Resources/Language", new FixedItemStateTracker());
+        ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>(
+            "/Resources/Language", new FixedItemStateTracker());
 
         foreach (PluginResource resource in languageResources)
         {

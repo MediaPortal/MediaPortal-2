@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Skin defaultFamily="SansBetween" defaultSize="30">
- <family name="ritzyNormal" ttf="RitzyNormal.ttf"/>
- <family name="eurofurence" ttf="eurof55.ttf"/>
- <family name="SketchyTimes" ttf="SketchyTimes.ttf"/>
- <family name="SansBetween" ttf="SansBetween.ttf"/>
-</Skin>

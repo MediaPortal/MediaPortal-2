@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[movies.4]" image="" command="list.SwitchStyle" parameter=""/>
-    <item text="[movies.5]" image="" command="ScreenManager.ShowDialog" parameter="dialogMediaSortMenu"/>
-    <item text="[movies.6]" image="" command="MyMedia:Model.PlayDvd" parameter=""/>
-    <item text="[movies.7]" image="" command="MyMedia:Model.Eject" parameter=""/>
-  </items>
-
-</menu>

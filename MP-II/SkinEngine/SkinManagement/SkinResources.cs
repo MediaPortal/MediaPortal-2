@@ -26,8 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Presentation.Screen;
 using MediaPortal.Utilities;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 
@@ -50,7 +49,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
   /// When the resources of this instance are no longer needed, method <see cref="Release()"/>
   /// can be called to reduce the memory consumption of this class.
   /// </remarks>
-  public class SkinResources
+  public class SkinResources: IResourceAccessor
   {
     public const string STYLES_DIRECTORY = "styles";
     public const string SCREENFILES_DIRECTORY = "screenfiles";
@@ -128,14 +127,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return null;
     }
 
-    /// <summary>
-    /// Returns the resource file for the specified resource name.
-    /// </summary>
-    /// <param name="resourceName">Name of the resource. This is the
-    /// path of the resource relative to the root directory level of this resource
-    /// collection directory.</param>
-    /// <returns>System filename of the specified resource or <c>null</c> if
-    /// the resource is not defined.</returns>
     public FileInfo GetResourceFile(string resourceName)
     {
       CheckResourcesInitialized();
@@ -147,19 +138,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
       return null;
     }
 
-    /// <summary>
-    /// Returns all resource files in this resource collection, where their relative directory
-    /// name match the specified regular expression pattern <paramref name="regExPattern"/>.
-    /// </summary>
-    /// <param name="regExPattern">Regular expression pattern which will be applied on the
-    /// unified resource name.</param>
-    /// <returns>Dictionary with a mapping of unified resource names to file infos of those
-    /// resource files which match the search criterion.</returns>
     public IDictionary<string, FileInfo> GetResourceFiles(string regExPattern)
     {
       CheckResourcesInitialized();
       Dictionary<string, FileInfo> result = new Dictionary<string, FileInfo>();
-      Regex regex = new Regex(regExPattern.ToLower());
+      Regex regex = new Regex(regExPattern);
       foreach (KeyValuePair<string, FileInfo> kvp in _localResourceFiles)
         if (regex.IsMatch(kvp.Key))
           result.Add(kvp.Key, kvp.Value);
@@ -193,6 +176,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (skinFile == null)
         return null;
       return XamlLoader.Load(skinFile);
+    }
+
+    public void ClearRootDirectories()
+    {
+      Release();
+      _rootDirectories.Clear();
     }
 
     /// <summary>
@@ -249,7 +238,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           {
             ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
             if (rd == null)
-              throw new InvalidCastException("Style resource file '" + resource.Value.ToString() +
+              throw new InvalidCastException("Style resource file '" + resource.Value +
                   "' doesn't contain a ResourceDictionary");
             _localStyleResources.Merge(rd);
           }
@@ -259,7 +248,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     protected virtual void LoadDirectory(DirectoryInfo rootDirectory)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
       // Add resource files for this directory
       int directoryNameLength = rootDirectory.FullName.Length;
       foreach (FileInfo resourceFile in FileUtils.GetAllFilesRecursively(rootDirectory))

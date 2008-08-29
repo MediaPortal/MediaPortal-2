@@ -83,7 +83,7 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IScreenManager service");
       ScreenManager screenManager = new ScreenManager();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create DirectX main form");
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create DirectX main window");
       _mainForm = new MainForm(screenManager);
       _mainForm.Visible = true;
       _mainForm.Start();
