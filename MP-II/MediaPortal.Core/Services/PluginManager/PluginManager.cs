@@ -624,9 +624,11 @@ namespace MediaPortal.Core.Services.PluginManager
       try
       {
         // Handle dependencies
-        foreach (PluginRuntime child in plugin.DependentPlugins)
-          if (!TryDisable(child))
-            return false;
+        ICollection<PluginRuntime> dependencies = plugin.DependentPlugins;
+        if (dependencies != null)
+          foreach (PluginRuntime child in dependencies)
+            if (!TryDisable(child))
+              return false;
         if (plugin.State == PluginState.Active)
         {
           plugin.State = PluginState.EndRequest;
