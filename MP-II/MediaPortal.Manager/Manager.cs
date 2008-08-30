@@ -25,7 +25,9 @@
 
 using System;
 using System.Windows.Forms;
+using MediaPortal.Core.Registry;
 using MediaPortal.Core.Services.PluginManager;
+using MediaPortal.Core.Services.Registry;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal;
 using MediaPortal.Core;
@@ -88,7 +90,10 @@ namespace MediaPortal.Manager
         }
         ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
         ServiceScope.Add(logger);
-        
+
+        logger.Debug("Manager: Registering Registry");
+        ServiceScope.Add<IRegistry>(new Registry());
+
         logger.Debug("Manager: Registering Path Manager");
         ServiceScope.Add<IPathManager>(pathManager);
 
