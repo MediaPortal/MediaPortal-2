@@ -67,6 +67,7 @@
     <Compile Include="IConfigurationNode.cs" />
     <Compile Include="IConfigurationManager.cs" />
     <Compile Include="NodeNotFoundException.cs" />
+    <Compile Include="Settings\Regional\LocalizationSettings.cs" />
     <Compile Include="Settings\Samples\SomePath.cs" />
     <Compile Include="Settings\Samples\SampleSettings.cs" />
     <Compile Include="Settings\System\Balloontips.cs" />
