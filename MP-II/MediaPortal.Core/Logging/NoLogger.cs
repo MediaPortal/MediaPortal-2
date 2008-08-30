@@ -47,6 +47,7 @@ namespace MediaPortal.Core.Logging
 
     public void Debug(string format, params object[] args) { }
     public void Info(string format, params object[] args) { }
+    public void Warn(string format, Exception ex, params object[] args) { }
     public void Warn(string format, params object[] args) { }
     public void Error(string format, params object[] args) { }
     public void Error(string format, Exception ex, params object[] args) { }

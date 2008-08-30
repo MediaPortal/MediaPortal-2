@@ -60,6 +60,14 @@ namespace MediaPortal.Core.Logging
     void Warn(string format, params object[] args);
 
     /// <summary>
+    /// Writes a warning to the log, passing the original <see cref="Exception"/>.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
+    /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    void Warn(string format, Exception ex, params object[] args);
+
+    /// <summary>
     /// Writes a debug message to the log.
     /// </summary>
     /// <param name="format">A composite format string.</param>

@@ -88,6 +88,12 @@ namespace MediaPortal.Core.Services.Logging
       Write(string.Format(format, args), LogLevel.Warning);
     }
 
+    public void Warn(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Warning);
+      Error(ex);
+    }
+
     public void Debug(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Debug);
