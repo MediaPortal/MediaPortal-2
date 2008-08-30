@@ -159,6 +159,8 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void Reset(TimelineContext context)
     {
       PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      if (patc.DataDescriptor == null)
+        return;
       patc.DataDescriptor.Value = patc.OriginalValue;
     }
 
