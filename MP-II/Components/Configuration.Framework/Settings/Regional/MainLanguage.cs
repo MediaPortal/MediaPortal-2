@@ -23,14 +23,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Globalization;
 
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
 
 namespace Components.Configuration.Settings

@@ -24,18 +24,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using Microsoft.Win32;
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Settings;
-using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
 
 namespace Components.Configuration.Settings
