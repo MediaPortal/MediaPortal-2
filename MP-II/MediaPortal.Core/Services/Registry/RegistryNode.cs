@@ -79,6 +79,8 @@ namespace MediaPortal.Core.Services.Registry
         return null;
       if (path.StartsWith("/"))
         throw new ArgumentException("Registry path expression has to be a relative path (no '/' character at the beginning)");
+      if (path.EndsWith("/"))
+        path = path.Substring(0, path.Length - 1);
       string nodeName;
       int i = path.IndexOf('/');
       if (i == -1)
