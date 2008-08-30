@@ -192,7 +192,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     IExecutableCommand _loaded;
     bool _triggersInitialized;
     bool _fireLoaded = true;
-    bool _isVisible = true;
 
     #endregion
 
@@ -286,11 +285,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         ((UIElement) VisualParent).Invalidate();
       }
-      _isVisible = (Visibility == VisibilityEnum.Visible);
-      if (!_isVisible)
-        FireUIEvent(UIEvent.Hidden, this);
-      else
+      if (IsVisible)
         FireUIEvent(UIEvent.Visible, this);
+      else
+        FireUIEvent(UIEvent.Hidden, this);
     }
 
     void OnFocusPropertyChanged(Property property)
@@ -480,7 +478,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool IsVisible
     {
-      get { return _isVisible; }
+      get { return Visibility == VisibilityEnum.Visible; }
       set
       {
         if (value)
