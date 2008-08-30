@@ -56,7 +56,7 @@ namespace Components.Configuration.Builders
       else
         setting = new ConfigBase();
       // All .plugin files should only contain english characters.
-      setting.Id = itemData.Id.ToLowerInvariant();
+      setting.Id = itemData.Id;
 
       if (itemData.Attributes.ContainsKey("Text"))
         setting.Text = new StringId(itemData.Attributes["Text"]);

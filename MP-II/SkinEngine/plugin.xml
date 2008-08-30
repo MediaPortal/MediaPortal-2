@@ -18,14 +18,14 @@
 
   <Register Location = "/Configuration/Settings/Appearance">
     <Setting
-        Id= "system"
+        Id= "System"
         Type = "Group"
         Text = "[configuration.system]" />
   </Register>
 
   <Register Location = "/Configuration/Settings/Appearance/System">
     <Setting
-        Id= "fullscreen"
+        Id= "Fullscreen"
         Type = "YesNo"
         Text = "[configuration.system.fullscreen]"
         Help = "[configuration.system.fullscreen.help]"
