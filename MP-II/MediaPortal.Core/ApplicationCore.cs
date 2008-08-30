@@ -83,6 +83,7 @@ namespace MediaPortal.Core
     public void Start()
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      pluginManager.Initialize();
       pluginManager.Startup();
       Application.Run();
       pluginManager.Shutdown();

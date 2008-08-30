@@ -30,7 +30,9 @@ namespace MediaPortal.Core.PluginManager
 {
   public enum PluginManagerState
   {
+    Uninitialized,
     Initializing,
+    Starting,
     Running,
     ShuttingDown
   }
@@ -60,8 +62,13 @@ namespace MediaPortal.Core.PluginManager
     IDictionary<string, PluginRuntime> AvailablePlugins { get; }
 
     /// <summary>
-    /// Starts the plugin manager. This will initialize internal structures, load the list
-    /// of available plugins, initializes the plugins and handles the plugin's auto-activations.
+    /// Initializes the plugin manager. This will initialize internal structures, load the list
+    /// of available plugins and initializes the plugins.
+    /// </summary>
+    void Initialize();
+
+    /// <summary>
+    /// Starts the plugin manager. This will handles the plugin's auto-activations.
     /// </summary>
     void Startup();
 

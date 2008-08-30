@@ -66,7 +66,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     protected IDictionary<string, PluginState> _pendingPlugins = new Dictionary<string, PluginState>();
 
-    protected PluginManagerState _state = PluginManagerState.Initializing;
+    protected PluginManagerState _state = PluginManagerState.Uninitialized;
 
     #endregion
 
@@ -91,18 +91,26 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _availablePlugins; }
     }
 
+    public void Initialize()
+    {
+      ServiceScope.Get<ILogger>().Info("PluginManager: Initialize");
+      _state = PluginManagerState.Initializing;
+      ServiceScope.Get<ILogger>().Debug("PluginManager: Loading plugins");
+      IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
+      foreach (IPluginMetadata pm in loadedPlugins.Values)
+        AddPlugin(pm);
+      ServiceScope.Get<ILogger>().Debug("PluginManager: Initialized");
+    }
+
     public void Startup()
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
+      _state = PluginManagerState.Starting;
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
       PluginManagerSettings settings = new PluginManagerSettings();
       ICollection<string> disabledPlugins = settings.UserDisabledPlugins;
       ServiceScope.Get<ISettingsManager>().Load(settings);
-      ServiceScope.Get<ILogger>().Debug("PluginManager: Loading plugins");
-      IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
       ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
-      foreach (IPluginMetadata pm in loadedPlugins.Values)
-        AddPlugin(pm);
       foreach (PluginRuntime plugin in _availablePlugins.Values)
       {
         if (disabledPlugins.Contains(plugin.Metadata.Name))

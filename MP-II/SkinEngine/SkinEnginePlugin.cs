@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine
       InitializeServices();
 
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      if (pluginManager.State == PluginManagerState.Initializing)
+      if (pluginManager.State == PluginManagerState.Starting)
       {
         // The main form will be created when all plugins are loaded
         IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
