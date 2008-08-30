@@ -36,7 +36,8 @@ namespace MediaPortal.Configuration.Settings
 
     #region Variables
 
-    protected int _selected;
+    // Private because we want to make sure NotifyChange() is called on a change.
+    private int _selected;
 
     #endregion
 

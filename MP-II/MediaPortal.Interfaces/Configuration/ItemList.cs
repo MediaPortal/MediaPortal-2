@@ -16,7 +16,7 @@ namespace MediaPortal.Configuration
 
     #region Variables
 
-    protected IList<StringId> _items = new List<StringId>();
+    protected List<StringId> _items = new List<StringId>();
 
     #endregion
 
