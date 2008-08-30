@@ -619,34 +619,37 @@ namespace MediaPortal.Core.Services.PluginManager
         foreach (PluginRuntime child in plugin.DependentPlugins)
           if (!TryDisable(child))
             return false;
-        plugin.State = PluginState.EndRequest;
-        if (plugin.StateTracker != null)
-          if (!plugin.StateTracker.RequestEnd())
+        if (plugin.State == PluginState.Active)
+        {
+          plugin.State = PluginState.EndRequest;
+          if (plugin.StateTracker != null)
+            if (!plugin.StateTracker.RequestEnd())
+            {
+              plugin.State = PluginState.Active;
+              return false;
+            }
+          IDictionary<PluginItemMetadata, ICollection<IPluginItemStateTracker>> endRequestsToClose;
+          if (AllEndRequestsSucceed(plugin.ItemRegistrations.Values, out endRequestsToClose))
           {
-            plugin.State = PluginState.Active;
+            plugin.State = PluginState.Stopping;
+            if (plugin.StateTracker != null)
+              plugin.StateTracker.Stop();
+            StopOpenEndRequests(endRequestsToClose);
+
+            plugin.UnregisterItems();
+            foreach (string builderName in plugin.Metadata.Builders.Keys)
+              _builders.Remove(builderName);
+          }
+          else
+          {
+            if (plugin.StateTracker != null)
+              plugin.StateTracker.Continue();
+            ContinueOpenEndRequests(endRequestsToClose);
             return false;
           }
-        IDictionary<PluginItemMetadata, ICollection<IPluginItemStateTracker>> endRequestsToClose;
-        if (AllEndRequestsSucceed(plugin.ItemRegistrations.Values, out endRequestsToClose))
-        {
-          plugin.State = PluginState.Stopping;
-          if (plugin.StateTracker != null)
-            plugin.StateTracker.Stop();
-          StopOpenEndRequests(endRequestsToClose);
-
-          plugin.UnregisterItems();
-          foreach (string builderName in plugin.Metadata.Builders.Keys)
-            _builders.Remove(builderName);
-          plugin.State = PluginState.Disabled;
-          return true;
         }
-        else
-        {
-          if (plugin.StateTracker != null)
-            plugin.StateTracker.Continue();
-          ContinueOpenEndRequests(endRequestsToClose);
-          return false;
-        }
+        plugin.State = PluginState.Disabled;
+        return true;
       }
       finally
       {
