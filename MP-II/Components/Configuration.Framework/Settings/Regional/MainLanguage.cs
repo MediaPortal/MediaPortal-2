@@ -78,12 +78,12 @@ namespace Components.Configuration.Settings
 
     public override void Save(object settingsObject)
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base.Selected].Name);
     }
 
     public override void Apply()
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base._selected].Name);
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base.Selected].Name);
     }
 
     #endregion
