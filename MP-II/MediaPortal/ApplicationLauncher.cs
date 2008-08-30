@@ -24,28 +24,13 @@
 
 using System;
 using System.Windows.Forms;
-using MediaPortal.Core.Services.PluginManager;
-using MediaPortal.Core.Services.Registry;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
-using MediaPortal.Core.Registry;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
 using MediaPortal.Core.DeviceManager;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.ExtensionManager;
-using MediaPortal.Core.Services.PathManager;
-using MediaPortal.Core.Services.Threading;
-using MediaPortal.Core.Services.TaskScheduler;
 using MediaPortal.Services.Localisation;
-using MediaPortal.Services.Logging;
-using MediaPortal.Services.Settings;
-using MediaPortal.Core.Services.Messaging;
-using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
@@ -78,15 +63,13 @@ namespace MediaPortal
 
       using (new ServiceScope(true)) //This is the first servicescope
       {
-        // Create PathManager
-        PathManager pathManager = new PathManager();
+        ApplicationCore.RegisterCoreServices();
+
+        IPathManager pathManager = ServiceScope.Get<IPathManager>();
 
         // Check if user wants to override the default Application Data location.
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
-
-        // Register PathManager
-        ServiceScope.Add<IPathManager>(pathManager);
 
         //Check whether the user wants to log method names in the logger
         //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
@@ -96,52 +79,19 @@ namespace MediaPortal
         {
           level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
         }
-#if DEBUG
-        ILogger logger = new ConsoleLogger(level, logMethods);
-#else
-        ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), level, logMethods);
-#endif
-        logger.Debug("ApplicationLauncher: Registering Logger");
-        ServiceScope.Add(logger);
+
+        ILogger logger = ServiceScope.Get<ILogger>();
+        logger.Level = level;
+        logger.LogMethodNames = logMethods;
+
         logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
-
-        // Register core service implementations
-        logger.Debug("ApplicationLauncher: Registering Registry");
-        ServiceScope.Add<IRegistry>(new Registry());
-
-        logger.Debug("ApplicationLauncher: Registering ThreadPool");
-        MediaPortal.Core.Services.Threading.ThreadPool pool = new MediaPortal.Core.Services.Threading.ThreadPool();
-        pool.ErrorLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Error);
-        pool.WarnLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Warn);
-        pool.InfoLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Info);
-        pool.DebugLog += new LoggerDelegate(ServiceScope.Get<ILogger>().Debug);
-        ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
-
-        logger.Debug("ApplicationLauncher: Registering Message Broker");
-        ServiceScope.Add<IMessageBroker>(new MessageBroker());
-
-        logger.Debug("ApplicationLauncher: Registering Plugin Manager");
-        ServiceScope.Add<IPluginManager>(new PluginManager());
-
-        logger.Debug("ApplicationLauncher: Registering Settings Manager");
-        ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
         logger.Debug("ApplicationLauncher: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
 
-        logger.Debug("ApplicationLauncher: Registering TaskScheduler");
-        ServiceScope.Add<ITaskScheduler>(new TaskScheduler());
-
         logger.Debug("ApplicationLauncher: Registering BurnManager");
         ServiceScope.Add<IBurnManager>(new BurnManager());
         EventHelper.Init(); // only for quick test simulating a plugin
-
-        //MPInstaller - for testing only 
-        logger.Debug("ApplicationLauncher: Executing ExtensionInstaller");
-        ExtensionInstaller Installer = new ExtensionInstaller();
-        ServiceScope.Add<IExtensionInstaller>(Installer);
-        Installer.LoadQueue();
-        Installer.ExecuteQueue(false);
 
 #if !DEBUG
         // Not in Debug mode (ie Release) then catch all Exceptions

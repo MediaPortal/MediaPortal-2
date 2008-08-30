@@ -23,13 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 
 
-namespace MediaPortal.Services.Settings
+namespace MediaPortal.Core.Services.Settings
 {
   /// <summary>
   /// Main Config Service.

@@ -25,9 +25,8 @@
 using System;
 using System.IO;
 using System.Xml;
-using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.Settings
+namespace MediaPortal.Core.Services.Settings
 {
   public class XmlFileHandler
   {

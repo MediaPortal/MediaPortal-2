@@ -25,25 +25,15 @@
 
 using System;
 using System.Windows.Forms;
-using MediaPortal.Core.Registry;
-using MediaPortal.Core.Services.PluginManager;
-using MediaPortal.Core.Services.Registry;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Services.PathManager;
 using MediaPortal.Services.Localisation;
-using MediaPortal.Services.Logging;
-using MediaPortal.Services.Settings;
-using MediaPortal.Core.Services.Messaging;
 using MediaPortal.Configuration;
-
 
 namespace MediaPortal.Manager
 {
@@ -73,9 +63,9 @@ namespace MediaPortal.Manager
 
       using (new ServiceScope(true)) //This is the first servicescope
       {
-        // Create PathManager
-        PathManager pathManager = new PathManager();
+        ApplicationCore.RegisterCoreServices();
 
+        IPathManager pathManager = ServiceScope.Get<IPathManager>();
         // Check if user wants to override the default Application Data location.
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
@@ -88,23 +78,9 @@ namespace MediaPortal.Manager
         {
           level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
         }
-        ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\Manager.log"), level, logMethods);
-        ServiceScope.Add(logger);
-
-        logger.Debug("Manager: Registering Registry");
-        ServiceScope.Add<IRegistry>(new Registry());
-
-        logger.Debug("Manager: Registering Path Manager");
-        ServiceScope.Add<IPathManager>(pathManager);
-
-        logger.Debug("Manager: Registering Messaging");
-        ServiceScope.Add<IMessageBroker>(new MessageBroker());
-
-        logger.Debug("Manager: Registering Plugin Manager");
-        ServiceScope.Add<IPluginManager>(new PluginManager());
-
-        logger.Debug("Manager: Registering Settings Manager");
-        ServiceScope.Add<ISettingsManager>(new SettingsManager());
+        ILogger logger = ServiceScope.Get<ILogger>();
+        logger.Level = level;
+        logger.LogMethodNames = logMethods;
 
         logger.Debug("Manager: Registering Configuration Manager");
         ServiceScope.Add<IConfigurationManager>(new ConfigurationManager());
@@ -118,8 +94,10 @@ namespace MediaPortal.Manager
       try
       {
 #endif
-        MainWindow window = new MainWindow();
-        Application.Run(window);
+        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        pluginManager.Startup();
+        Application.Run(new MainWindow());
+        pluginManager.Shutdown();
 #if !DEBUG
         }
         catch (Exception ex)

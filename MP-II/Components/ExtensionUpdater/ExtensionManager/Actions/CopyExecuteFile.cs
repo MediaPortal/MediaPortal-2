@@ -24,26 +24,39 @@
 
 using System;
 using System.IO;
+using System.Diagnostics;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.ExtensionManager;
-using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Services.ExtensionManager.Actions
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
 {
-  class CopyRegisterFile:CopyFile,IExtensionFileAction
+  class CopyExecuteFile : CopyFile, IExtensionFileAction
   {
     public new bool Install(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
       if (base.Install(holder, fileItem, pak))
       {
+        Process p = null;
         try
         {
-          System.Diagnostics.Process.Start(string.Format("regsvr32 /s {0}", GetDirEntry(fileItem)));
+          p = new Process();
+          string x_path = fileItem.Param2;
+          foreach (KeyValuePair<string, string> kp in base._dirs)
+          {
+            x_path = x_path.Replace(kp.Key, kp.Value);
+          }
+          x_path = x_path.Replace(@"\\",@"\");
+          p.StartInfo.WorkingDirectory = Path.GetDirectoryName(GetDirEntry(fileItem));
+          p.StartInfo.FileName = Path.GetFileName(GetDirEntry(fileItem));
+
+          p.StartInfo.Arguments = x_path;
+          p.Start();
+          p.WaitForExit();
           return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+          System.Windows.Forms.MessageBox.Show(ex.Message);
           return false;
         }
       }
@@ -52,20 +65,17 @@ namespace MediaPortal.Services.ExtensionManager.Actions
 
     public new bool UnInstall(object holder, IExtensionFileItem fileItem, IExtensionPackage pak)
     {
-      try
-      {
-        System.Diagnostics.Process.Start(string.Format("regsvr32 /u {0}", GetDirEntry(fileItem)));
-      }
-      catch (Exception)
-      {
-        return false;
-      }
       return base.UnInstall(holder, fileItem, pak);
     }
 
     public new string Description()
     {
-      return "Copy a file to Param1 location and \n register it with regsvr32";
+      return "Copy a file to Param1 location and \n execute it whit Param2 parameters";
+    }
+
+    public new List<string> Param2List()
+    {
+      return Param1List();
     }
   }
 }

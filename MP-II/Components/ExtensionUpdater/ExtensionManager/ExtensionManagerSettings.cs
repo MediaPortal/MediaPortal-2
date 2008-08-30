@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2008 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2008 Team MediaPortal
+    Copyright (C) 2008 Team MediaPortal
     http://www.team-mediaportal.com
  
     This file is part of MediaPortal II
@@ -22,52 +22,59 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Services.MenuManager;
-using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.ExtensionManager.Actions.Helpers
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
-  class ExtMenuItem:MenuItem
+  public class ExtensionManagerSettings
   {
-    private string _literalText;
-    private string _packages;
-    
-    public ExtMenuItem(string text, string imagePath, string command, string commandParameter,string packages)
+    #region variables
+
+    private string _updateUrl = "";
+    private string _baseUrl = "";
+
+    #endregion
+
+    #region Ctor
+    public ExtensionManagerSettings()
     {
-      LiteralText = text;
-      ImagePath = imagePath;
-      Command = command;
-      CommandParameter = commandParameter;
-      Items = new List<IMenuItem>();
-      Packages = packages;
+
     }
+    #endregion
 
+    #region Properties
 
-    public string LiteralText
-    {
-      get
-      {
-        return _literalText;
-      }
-      set
-      {
-        _literalText = value;
-      }
-    }
-
-    public string Packages
+    /// <summary>
+    /// Gets or sets the update URL.
+    /// </summary>
+    /// <value>The update URL.</value>
+    [Setting(SettingScope.Global, "http://openmaid.team-mediaportal.com/xtern.php?sync")]
+    public string UpdateUrl
     {
       get
       {
-        return _packages;
+        return _updateUrl;
       }
       set
       {
-        _packages = value;
+        _updateUrl = value;
       }
     }
+
+    [Setting(SettingScope.Global, "http://openmaid.team-mediaportal.com")]
+    public string BaseUrl
+    {
+      get
+      {
+        return _baseUrl;
+      }
+      set
+      {
+        _baseUrl = value;
+      }
+    }
+
+
+    #endregion
   }
 }

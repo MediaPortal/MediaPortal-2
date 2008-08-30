@@ -30,7 +30,7 @@ using System.Text;
 using System.Threading;
 using MediaPortal.Core.Logging;
 
-namespace MediaPortal.Services.Logging
+namespace MediaPortal.Core.Services.Logging
 {
   /// <summary>
   /// A <see cref="ILogger"/> implementation that writes messages to a <see cref="TextWriter"/>.
@@ -64,18 +64,13 @@ namespace MediaPortal.Services.Logging
       _logMethodNames = logMethodNames;
     }
 
-    /// <summary>
-    /// Indicates whether the logger will append the calling classname and method before each log line.
-    /// </summary>
-    /// <remarks>
-    /// Warning!! Turning this option on causes a severe performance degradation!!!</remarks>
+    #region ILogger implementation
+
     public bool LogMethodNames
     {
       get { return _logMethodNames; }
       set { _logMethodNames = value; }
     }
-
-    #region ILogger implementation
 
     public LogLevel Level
     {

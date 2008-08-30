@@ -23,12 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   /// <summary>
   /// Implement the IMPIFileItem interface, store one file dat included in package

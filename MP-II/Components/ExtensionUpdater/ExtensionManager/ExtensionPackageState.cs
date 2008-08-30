@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   public enum ExtensionPackageState
   {

@@ -51,10 +51,6 @@
     <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.Services.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.4.369, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MediaPortal.Base\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=2.4.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\MediaPortal.References\nunit.framework.dll</HintPath>
@@ -79,34 +75,10 @@
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\LocalisationStrings.cs" />
     <Compile Include="Localisation\StringManager.cs" />
-    <Compile Include="Logging\ConsoleLogger.cs" />
-    <Compile Include="Logging\CrashLogger.cs" />
-    <Compile Include="Logging\DefaultLogger.cs" />
-    <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="MenuManager\Menu.cs" />
     <Compile Include="MenuManager\MenuBuilder.cs" />
     <Compile Include="MenuManager\MenuCollection.cs" />
-    <Compile Include="ExtensionManager\Actions\CopyExecuteFile.cs" />
-    <Compile Include="ExtensionManager\Actions\CopyFile.cs" />
-    <Compile Include="ExtensionManager\Actions\CopyMenu.cs" />
-    <Compile Include="ExtensionManager\Actions\CopyRegisterFile.cs" />
-    <Compile Include="ExtensionManager\Actions\Helpers\ExtMenuItem.cs" />
-    <Compile Include="ExtensionManager\Actions\ScreenShot.cs" />
-    <Compile Include="ExtensionManager\ExtensionDependency.cs" />
-    <Compile Include="ExtensionManager\ExtensionEnumerator.cs" />
-    <Compile Include="ExtensionManager\ExtensionEnumeratorObject.cs" />
-    <Compile Include="ExtensionManager\ExtensionFileItem.cs" />
-    <Compile Include="ExtensionManager\ExtensionManagerSettings.cs" />
-    <Compile Include="ExtensionManager\ExtensionInstaller.cs" />
-    <Compile Include="ExtensionManager\ExtensionPackage.cs" />
-    <Compile Include="ExtensionManager\ExtensionPackageState.cs" />
-    <Compile Include="ExtensionManager\ExtensionQueue.cs" />
-    <Compile Include="ExtensionManager\ExtensionQueueObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\SettingParser.cs" />
-    <Compile Include="Settings\SettingsManager.cs" />
-    <Compile Include="Settings\xml\XmlNoNamespaceWriter.cs" />
-    <Compile Include="Settings\xml\XmlFileHandler.cs" />
     <Compile Include="ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
@@ -118,6 +90,7 @@
     <Compile Include="UserManagement\Role.cs" />
     <Compile Include="UserManagement\User.cs" />
     <Compile Include="UserManagement\UserService.cs" />
+    <Compile Include="Logging\CrashLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

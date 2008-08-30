@@ -22,71 +22,49 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Text;
+using MediaPortal.Presentation.MenuManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions.Helpers
 {
-  [Serializable]
-  public class ExtensionDependency
+  class ExtMenuItem:MenuItem
   {
-    public ExtensionDependency(string id,string oper,string version)
-    {
-      ExtensionId = id;
-      Operator = oper;
-      Version = version;
-    }
+    private string _literalText;
+    private string _packages;
     
-    public ExtensionDependency()
+    public ExtMenuItem(string text, string imagePath, string command, string commandParameter,string packages)
     {
-      ExtensionId = string.Empty;
-      Operator = string.Empty;
-      Version = string.Empty;
+      LiteralText = text;
+      ImagePath = imagePath;
+      Command = command;
+      CommandParameter = commandParameter;
+      Items = new List<IMenuItem>();
+      Packages = packages;
     }
 
-    string _extensionId;
-    [XmlAttribute]
-    public string ExtensionId
-    {
-      get
-      {
-        return _extensionId;
-      }
-      set
-      {
-        _extensionId = value;
-      }
-    }
 
-    string _operator;
-    [XmlAttribute]
-    public string Operator
+    public string LiteralText
     {
       get
       {
-        return _operator;
+        return _literalText;
       }
       set
       {
-        _operator = value;
+        _literalText = value;
       }
     }
 
-    string _version;
-    [XmlAttribute]
-    public string Version
+    public string Packages
     {
       get
       {
-        return _version;
+        return _packages;
       }
       set
       {
-        _version = value;
+        _packages = value;
       }
     }
-
   }
 }

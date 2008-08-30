@@ -25,11 +25,10 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.ExtensionManager;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Services.ExtensionManager.Actions
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
 {
   public class CopyFile:IExtensionFileAction
   {

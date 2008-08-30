@@ -24,18 +24,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Settings;
-using MediaPortal.Services.ExtensionManager.Actions;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionInstaller: IExtensionInstaller
   {
@@ -326,7 +325,7 @@ namespace MediaPortal.Services.ExtensionManager
         if (_fileActions[item.Action].GetZipEntry(item) == entry)
           return item;
       }
-        return null;
+      return null;
     }
 
     #endregion

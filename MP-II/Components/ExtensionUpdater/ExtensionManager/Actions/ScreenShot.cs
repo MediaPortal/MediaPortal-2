@@ -22,13 +22,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager.Actions
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
 {
   public class ScreenShot : IExtensionFileAction
   {

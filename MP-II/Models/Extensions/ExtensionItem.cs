@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Services.ExtensionManager;
 
 namespace Models.Extensions
 {

@@ -27,6 +27,7 @@ using System.IO;
 
 namespace Models.Extensions
 {
+  // FIXME: Use class from MediaPortal.Utilities
   public class FileUtil
   {
     #region helper functions

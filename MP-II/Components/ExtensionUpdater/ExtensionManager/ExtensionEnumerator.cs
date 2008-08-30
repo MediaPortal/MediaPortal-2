@@ -24,14 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionEnumerator
   {
@@ -82,7 +82,7 @@ namespace MediaPortal.Services.ExtensionManager
       {
         return false;
       }
-        return false;
+      return false;
     }
 
     /// <summary>
@@ -398,7 +398,7 @@ namespace MediaPortal.Services.ExtensionManager
             foreach (XmlLinkedNode filnode in nodepak.SelectNodes("Files/File"))
             {
               obj.Items.Add(new ExtensionFileItem(filnode.Attributes["FileName"].Value,
-                filnode.Attributes["Action"].Value, filnode.Attributes["Param1"].Value, filnode.Attributes["Param2"].Value, filnode.Attributes["Param3"].Value));
+                                                  filnode.Attributes["Action"].Value, filnode.Attributes["Param1"].Value, filnode.Attributes["Param2"].Value, filnode.Attributes["Param3"].Value));
             }
           }
           _items.Add(ext, list);

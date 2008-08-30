@@ -24,13 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using MediaPortal.Core.ExtensionManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   /// <summary>
   /// Implementation of IMPIPackage, manage data 
@@ -245,7 +243,7 @@ namespace MediaPortal.Services.ExtensionManager
       return true;
     }
 
-   #endregion
+    #endregion
     #region methods 
     
     public int Compare(ExtensionPackage pak)

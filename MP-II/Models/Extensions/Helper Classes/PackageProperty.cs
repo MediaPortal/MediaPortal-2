@@ -22,8 +22,8 @@
 
 #endregion
 
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core;
 

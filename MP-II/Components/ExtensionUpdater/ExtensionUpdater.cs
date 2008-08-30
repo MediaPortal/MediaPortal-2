@@ -34,7 +34,7 @@ using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Threading;
-using MediaPortal.Services.ExtensionManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 
 namespace MediaPortal.Plugins.ExtensionUpdater
 {
@@ -43,28 +43,34 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     #region variables
 
     private ExtensionUpdaterSettings _settings ;
-    ExtensionInstaller installer;
-    WebClient client;
-    WebClient updaterClient;
+    ExtensionInstaller _installer;
+    WebClient _client;
+    WebClient _updaterClient;
     string _tempfile;
     string _finalfile;
-    string listFile;
+    string _listFile;
     private IMessageQueue _queue;
 
     #endregion
 
     public ExtensionUpdater()
     {
-      installer = (ExtensionInstaller)ServiceScope.Get<IExtensionInstaller>();
-      listFile = String.Format(@"{0}\Mpilist.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
+      //MPInstaller - for testing only 
+      _installer = new ExtensionInstaller();
+      ServiceScope.Add<IExtensionInstaller>(_installer);
+      _installer.LoadQueue();
+      _installer.ExecuteQueue(false);
+
+      _installer = (ExtensionInstaller)ServiceScope.Get<IExtensionInstaller>();
+      _listFile = String.Format(@"{0}\Mpilist.xml", ServiceScope.Get<IPathManager>().GetPath("<MPINSTALLER>"));
       _settings = new ExtensionUpdaterSettings();
       _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("extensionupdater");
-      client = new WebClient();
-      updaterClient = new WebClient();
-      client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
-      client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadEnd);
-      updaterClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(UpdaterDownloadProgressCallback);
-      updaterClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdaterDownloadEnd);
+      _client = new WebClient();
+      _updaterClient = new WebClient();
+      _client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
+      _client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadEnd);
+      _updaterClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(UpdaterDownloadProgressCallback);
+      _updaterClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdaterDownloadEnd);
     }
 
     #region IPluginStateTracker Members
@@ -94,8 +100,8 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       _settings.UpdaterTaskId = updatertask.ID;
       ServiceScope.Get<ISettingsManager>().Save(_settings);
       ServiceScope.Get<ILogger>().Info("Extension Updater Started");
-      installer.Settings.UpdateUrl = _settings.UpdateUrl;
-      if (!File.Exists(listFile))
+      _installer.Settings.UpdateUrl = _settings.UpdateUrl;
+      if (!File.Exists(_listFile))
       {
         StartUpdate();
       }
@@ -126,7 +132,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
             if (msg.Task.ID == _settings.TaskId)
             {
               // test if download is in progress, if not try to download the next needed extension
-              if (!client.IsBusy)
+              if (!_client.IsBusy)
               {
                 GetNextPendingExtension();
               }
@@ -134,7 +140,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
             if (msg.Task.ID == _settings.UpdaterTaskId)
             {
               // test if download is in progress, if not try to download the next needed extension
-              if (!updaterClient.IsBusy)
+              if (!_updaterClient.IsBusy)
               {
                 StartUpdate();
               }
@@ -190,13 +196,13 @@ namespace MediaPortal.Plugins.ExtensionUpdater
       if (e.Error == null)
       {
 
-        if (File.Exists(listFile))
+        if (File.Exists(_listFile))
         {
           try
           {
-            installer.Enumerator.UpdateList(listFile);
-            installer.Enumerator.Save();
-            installer.UpdateAll();
+            _installer.Enumerator.UpdateList(_listFile);
+            _installer.Enumerator.Save();
+            _installer.UpdateAll();
             ServiceScope.Get<ILogger>().Info("Updating all extensions");
             SendMessage("listupdated");
           }
@@ -211,17 +217,17 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     /// </summary>
     private void GetNextPendingExtension()
     {
-      ExtensionQueue Queue = (ExtensionQueue)installer.GetQueue();
+      ExtensionQueue Queue = (ExtensionQueue)_installer.GetQueue();
       foreach (ExtensionQueueObject item in Queue.Items)
       {
         if (!File.Exists(item.FileName))
         {
-          ExtensionEnumeratorObject obj = installer.Enumerator.GetItem(item.PackageId);
+          ExtensionEnumeratorObject obj = _installer.Enumerator.GetItem(item.PackageId);
           if (obj != null && !string.IsNullOrEmpty(obj.DownloadUrl))
           {
             _finalfile = item.FileName;
             _tempfile = Path.GetTempFileName();
-            DownloadFile(client, obj.DownloadUrl, _tempfile);
+            DownloadFile(_client, obj.DownloadUrl, _tempfile);
             ServiceScope.Get<ILogger>().Info("Download started for {0}", obj.Name);
           }
         }
@@ -232,7 +238,7 @@ namespace MediaPortal.Plugins.ExtensionUpdater
     {
       string url = _settings.UpdateUrl;
       ServiceScope.Get<ILogger>().Info("Get updates from : {0}", url);
-      DownloadFile(updaterClient,url, listFile);
+      DownloadFile(_updaterClient,url, _listFile);
     }
 
     /// <summary>

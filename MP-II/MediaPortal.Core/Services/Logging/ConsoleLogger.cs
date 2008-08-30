@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Logging;
 
-namespace MediaPortal.Services.Logging
+namespace MediaPortal.Core.Services.Logging
 {
   /// <summary>
   /// A <see cref="ILogger"/> implementation that writes messages to the application console.

@@ -32,6 +32,13 @@ namespace MediaPortal.Core.Logging
   public interface ILogger
   {
     /// <summary>
+    /// Indicates whether the logger will append the calling classname and method before each log line.
+    /// </summary>
+    /// <remarks>
+    /// Warning!! Turning this option on causes a severe performance degradation!!!</remarks>
+    bool LogMethodNames { get; set; }
+
+    /// <summary>
     /// Gets or sets the log level.
     /// </summary>
     /// <value>A <see cref="LogLevel"/> value that indicates the minimum level messages must have to be 

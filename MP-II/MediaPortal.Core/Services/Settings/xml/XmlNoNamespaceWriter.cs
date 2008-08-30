@@ -25,7 +25,7 @@
 using System.IO;
 using System.Xml;
 
-namespace MediaPortal.Services.Settings
+namespace MediaPortal.Core.Services.Settings
 {
   /// <summary>
   /// Xml Writer that doesn't write the Namespace attributes when they are standard.

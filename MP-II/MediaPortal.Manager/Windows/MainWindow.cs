@@ -65,7 +65,6 @@ namespace MediaPortal.Manager
       InitializeComponent();
 
       // Load plugins
-      ServiceScope.Get<IPluginManager>().Startup();
       ServiceScope.Get<IConfigurationManager>().Load();
       // Localise window
       StringId settings = new StringId("configuration", "areas.settings");

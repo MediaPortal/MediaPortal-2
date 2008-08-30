@@ -23,60 +23,57 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Core.ExtensionManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
-  public class ExtensionEnumeratorObject:ExtensionPackage
+  public class ExtensionEnumeratorObject : ExtensionPackage
   {
-    public ExtensionEnumeratorObject(ExtensionPackage package, ExtensionPackageState state)
-      :base(package)
+    public ExtensionEnumeratorObject(ExtensionPackage package, ExtensionPackageState state) : base(package)
     {
-      this.State = state;
-      this.DownloadUrl = string.Empty;
-      this.Downloads = 0;
-      this.Date = DateTime.MinValue;
-      this.Size = 0;
+      State = state;
+      DownloadUrl = string.Empty;
+      Downloads = 0;
+      Date = DateTime.MinValue;
+      Size = 0;
     }
 
     public ExtensionEnumeratorObject()
-      : base()
+        : base()
     {
-      this.State =ExtensionPackageState.Unknown;
-      this.DownloadUrl = string.Empty;
-      this.Downloads = 0;
-      this.Date = DateTime.MinValue;
-      this.Size = 0;
+      State =ExtensionPackageState.Unknown;
+      DownloadUrl = string.Empty;
+      Downloads = 0;
+      Date = DateTime.MinValue;
+      Size = 0;
     }
 
     public ExtensionEnumeratorObject(ExtensionDependency dep)
     {
-      this.State = ExtensionPackageState.Unknown;
-      this.PackageId = string.Empty;
-      this.ExtensionId = dep.ExtensionId;
-      this.Name = string.Empty;
-      this.FileName = string.Empty;
-      this.Version = dep.Version;
-      this.VersionType = string.Empty;
-      this.Author = string.Empty;
-      this.Description = string.Empty;
-      this.DownloadUrl = string.Empty;
-      this.Downloads = 0;
-      this.Date = DateTime.MinValue;
-      this.Size = 0;
+      State = ExtensionPackageState.Unknown;
+      PackageId = string.Empty;
+      ExtensionId = dep.ExtensionId;
+      Name = string.Empty;
+      FileName = string.Empty;
+      Version = dep.Version;
+      VersionType = string.Empty;
+      Author = string.Empty;
+      Description = string.Empty;
+      DownloadUrl = string.Empty;
+      Downloads = 0;
+      Date = DateTime.MinValue;
+      Size = 0;
     }
 
     public ExtensionEnumeratorObject(ExtensionEnumeratorObject obj)
-      :base(obj)
+        :base(obj)
     {
-      this.State = obj.State;
-      this.Description = obj.Description;
-      this.DownloadUrl = obj.DownloadUrl;
-      this.Downloads = obj.Downloads;
-      this.Date = obj.Date;
-      this.Size = obj.Size;
+      State = obj.State;
+      Description = obj.Description;
+      DownloadUrl = obj.DownloadUrl;
+      Downloads = obj.Downloads;
+      Date = obj.Date;
+      Size = obj.Size;
     }
 
     ExtensionPackageState _state = ExtensionPackageState.Unknown;
@@ -162,7 +159,7 @@ namespace MediaPortal.Services.ExtensionManager
 
     public override string ToString()
     {
-      return string.Format("{0}[{1}]",this.Name,this.ExtensionId);
+      return string.Format("{0}[{1}]", Name, ExtensionId);
     }
   }
 }

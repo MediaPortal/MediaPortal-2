@@ -23,7 +23,16 @@
 #endregion
 
 using System.Windows.Forms;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Registry;
+using MediaPortal.Core.Services.Logging;
+using MediaPortal.Core.Services.Messaging;
+using MediaPortal.Core.Services.Settings;
+using MediaPortal.Core.Settings;
+using MediaPortal.Core.TaskScheduler;
 
 namespace MediaPortal.Core
 {
@@ -33,6 +42,44 @@ namespace MediaPortal.Core
   /// </summary>
   public class ApplicationCore
   {
+    public static void RegisterCoreServices()
+    {
+#if DEBUG
+      ILogger logger = new ConsoleLogger(LogLevel.Information, false);
+#else
+        ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), LogLevel.Information, false);
+#endif
+      logger.Debug("ApplicationCore: Registering ILogger");
+      ServiceScope.Add(logger);
+
+      logger.Debug("ApplicationCore: Registering IPathManager");
+      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
+      ServiceScope.Add<IPathManager>(pathManager);
+
+      logger.Debug("ApplicationCore: Registering IRegistry");
+      ServiceScope.Add<IRegistry>(new Services.Registry.Registry());
+
+      logger.Debug("ApplicationLauncher: Registering IThreadPool");
+      Services.Threading.ThreadPool pool = new Services.Threading.ThreadPool();
+      pool.ErrorLog += ServiceScope.Get<ILogger>().Error;
+      pool.WarnLog += ServiceScope.Get<ILogger>().Warn;
+      pool.InfoLog += ServiceScope.Get<ILogger>().Info;
+      pool.DebugLog += ServiceScope.Get<ILogger>().Debug;
+      ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
+
+      logger.Debug("ApplicationLauncher: Registering IMessageBroker");
+      ServiceScope.Add<IMessageBroker>(new MessageBroker());
+
+      logger.Debug("ApplicationLauncher: Registering IPluginManager");
+      ServiceScope.Add<IPluginManager>(new Services.PluginManager.PluginManager());
+
+      logger.Debug("ApplicationLauncher: Registering ISettingsManager");
+      ServiceScope.Add<ISettingsManager>(new SettingsManager());
+
+      logger.Debug("ApplicationLauncher: Registering ITaskScheduler");
+      ServiceScope.Add<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
+    }
+
     public void Start()
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();

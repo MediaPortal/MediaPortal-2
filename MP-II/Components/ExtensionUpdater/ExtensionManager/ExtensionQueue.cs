@@ -24,12 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
-using System.Runtime.Serialization;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   [Serializable]
   public class ExtensionQueue : IExtensionQueue//, ISerializable 
@@ -39,7 +36,7 @@ namespace MediaPortal.Services.ExtensionManager
       _items = new List<ExtensionQueueObject>();
     }
 
-     List<ExtensionQueueObject> _items;
+    List<ExtensionQueueObject> _items;
     /// <summary>
     /// Gets or sets the queue item.
     /// </summary>

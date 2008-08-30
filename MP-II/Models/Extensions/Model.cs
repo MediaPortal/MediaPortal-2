@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
@@ -35,7 +36,6 @@ using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Screen;
-using MediaPortal.Services.ExtensionManager;
 using MediaPortal.Media.MediaManager;
 
 using Models.Extensions.Helper;
@@ -609,7 +609,7 @@ namespace Models.Extensions
             }
             else
             {
-              if (item.Item.State == MediaPortal.Services.ExtensionManager.ExtensionPackageState.Installed)
+              if (item.Item.State == ExtensionPackageState.Installed)
               {
                 menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.Unistall]);
                 menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.Reinstall]);

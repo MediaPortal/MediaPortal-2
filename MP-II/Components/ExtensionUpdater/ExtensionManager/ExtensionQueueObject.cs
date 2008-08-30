@@ -23,17 +23,15 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Services.ExtensionManager
+namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
 {
   [Serializable]
-  public class ExtensionQueueObject:IExtensionQueueObject
+  public class ExtensionQueueObject : IExtensionQueueObject
   {
     public ExtensionQueueObject()
     {
@@ -132,10 +130,10 @@ namespace MediaPortal.Services.ExtensionManager
     string _action;
     [XmlAttribute]
     /// <summary>
-    /// Gets or sets the action.
-    /// </summary>
-    /// <value>The action.</value>
-    public string Action
+      /// Gets or sets the action.
+      /// </summary>
+      /// <value>The action.</value>
+      public string Action
     {
       get
       {

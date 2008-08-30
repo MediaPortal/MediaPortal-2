@@ -80,6 +80,9 @@
     <Compile Include="Messaging\IMessageQueue.cs" />
     <Compile Include="Messaging\QueueMessage.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
+    <Compile Include="Services\Logging\ConsoleLogger.cs" />
+    <Compile Include="Services\Logging\DefaultLogger.cs" />
+    <Compile Include="Services\Logging\FileLogger.cs" />
     <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
     <Compile Include="PluginManager\Exceptions\Exceptions.cs" />
     <Compile Include="Services\PluginManager\FixedItemStateTracker.cs" />
@@ -100,6 +103,10 @@
     <Compile Include="ServiceCreatorCallback.cs" />
     <Compile Include="ServiceNotFoundException.cs" />
     <Compile Include="ServiceScope.cs" />
+    <Compile Include="Services\Settings\SettingParser.cs" />
+    <Compile Include="Services\Settings\SettingsManager.cs" />
+    <Compile Include="Services\Settings\xml\XmlFileHandler.cs" />
+    <Compile Include="Services\Settings\xml\XmlNoNamespaceWriter.cs" />
     <Compile Include="Settings\INamedSettings.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\NoSettingsManager.cs" />

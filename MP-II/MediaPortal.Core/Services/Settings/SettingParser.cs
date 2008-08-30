@@ -36,7 +36,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 
 
-namespace MediaPortal.Services.Settings
+namespace MediaPortal.Core.Services.Settings
 {
   /// <summary>
   /// Class used to store or retrieve settings classes.
