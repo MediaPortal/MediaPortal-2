@@ -27,10 +27,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Text;
 using System.Windows.Forms;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 
@@ -483,7 +481,10 @@ namespace MediaPortal.Manager
     /// <param name="path">Path to the control, should be the same as IConfigurationNode.ToString()</param>
     private void FocusControl(string path)
     {
-      path = path.Substring(GetSectionPath(_treeSections.SelectedNode).Length);
+      string section = GetSectionPath(_treeSections.SelectedNode);
+      if (section.Length >= path.Length)
+        return;
+      path = path.Substring(section.Length);
       FormControl control = GetFormControl(path);
       if (control.CanSelect)
         control.Select();
@@ -539,7 +540,7 @@ namespace MediaPortal.Manager
       }
       else
       {
-        ServiceScope.Get<ILogger>().Error("Image not found: {0}", location);
+        ServiceScope.Get<ILogger>().Info("Image not found: {0}", location);
       }
       // Try to load a default image
       string path = ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_ROOT>") + @"\Plugins\Configuration.Framework\Images\";

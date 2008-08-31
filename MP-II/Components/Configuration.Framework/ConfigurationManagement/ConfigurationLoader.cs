@@ -178,7 +178,7 @@ namespace MediaPortal.Configuration
     {
       // Do some basic checks on the path
       if (sectionPath == null)
-        throw new ArgumentNullException("sectionPath can't be null");
+        throw new ArgumentNullException("The parameter sectionPath can't be null.");
       string[] path = sectionPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
       if (path.Length == 0)
         throw new NodeNotFoundException(String.Format("Invalid path: \"{0}\"", sectionPath));
@@ -378,7 +378,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets the SettingFile for the specified object.
     /// </summary>
-    /// <param name="obj"></param>
+    /// <param name="settingsClass"></param>
     /// <returns></returns>
     private SettingFile GetSettingFile(object settingsClass)
     {
