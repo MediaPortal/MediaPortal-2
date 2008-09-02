@@ -102,7 +102,7 @@ namespace MediaPortal.SkinEngine.Xaml
           out convertedIndices))
       { // Collection index
         if (!ReflectionHelper.GetEnumerationEntryByIndex(value, (int) convertedIndices[0], out result))
-          throw new XamlBindingException("Index '{0}' cannot be applied on '{2}'",
+          throw new XamlBindingException("Index '{0}' cannot be applied on '{1}'",
               ToString(), value);
         return true;
       }
@@ -283,7 +283,6 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
     {
-      obj = null;
       mi = null;
       Type type;
       MemberInfo memberInfo;
@@ -325,7 +324,7 @@ namespace MediaPortal.SkinEngine.Xaml
   /// of the resulting value during the parsing operation of the path expression,
   /// we do a "compilation" of the path expression, storing the expression in an
   /// internal format with additional context information for it
-  /// (for example references to <see cref="INamespace"/>s),
+  /// (for example references to <see cref="INamespaceHandler"/>s),
   /// so we don't need the parser context at the future time of evaluation.
   /// This means once a path expression is compiled, it can be evaluated even after
   /// the XAML parsing process has finished and the parser context is disposed.
