@@ -272,7 +272,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     /// <summary>
     /// Specifies a binding source object relative to our
-    /// <see cref="_contextObject">context object</see>. The context object is
+    /// <see cref="BindingBase._contextObject">context object</see>. The context object is
     /// the target object this binding is applied to.
     /// Only one of the properties <see cref="Source"/>, <see cref="RelativeSource"/>
     /// and <see cref="ElementName"/> can be set on this instance.
@@ -514,7 +514,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool GetDataContext(object obj, out BindingMarkupExtension dataContext)
     {
       DependencyObject current = obj as DependencyObject;
-      if (obj == null)
+      if (current == null)
       {
         dataContext = null;
         return false;
@@ -537,6 +537,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <param name="obj">The object to get the parent of.</param>
     /// <param name="parent">The parent which was found navigating the visual or
     /// logical tree.</param>
+    /// <param name="findParentMode">Specifies, which tree will be used to find the parent
+    /// object.</param>
     /// <returns><c>true</c>, if a valid parent was found. In this case, the
     /// <paramref name="parent"/> parameter references a not-<c>null</c> parent.
     /// <c>false</c>, if no valid parent was found.</returns>
