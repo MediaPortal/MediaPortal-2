@@ -29,6 +29,7 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.PluginManager.Settings;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Services.PluginManager
@@ -58,7 +59,8 @@ namespace MediaPortal.Core.Services.PluginManager
     protected string _stateTrackerClassName = null;
     protected ICollection<FileInfo> _assemblyFiles = new List<FileInfo>();
     protected IDictionary<string, string> _builders = new Dictionary<string, string>();
-    protected ICollection<PluginItemMetadata> _itemRegistrations = new List<PluginItemMetadata>();
+    protected ICollection<PluginItemMetadata> _itemsMetadata = new List<PluginItemMetadata>();
+    protected ICollection<SettingRegistrationBase> _settingsMetadata = new List<SettingRegistrationBase>();
 
     #endregion
 
@@ -135,20 +137,23 @@ namespace MediaPortal.Core.Services.PluginManager
             continue;
           switch (childElement.Name)
           {
-            case "Builder":
-              ParseBuilderElement(childElement);
-              break;
             case "Runtime":
               ParseRuntimeElement(childElement, pluginDirectory);
               break;
+            case "Builder":
+              _builders.Add(ParseBuilderElement(childElement));
+              break;
             case "Register":
-              ParseRegisterElement(childElement);
+              CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childElement));
               break;
             case "DependsOn":
               CollectionUtils.AddAll(_dependsOn, ParsePluginNameEnumeration(childElement));
               break;
             case "ConflictsWith":
               CollectionUtils.AddAll(_conflictsWith, ParsePluginNameEnumeration(childElement));
+              break;
+            case "Configuration":
+              CollectionUtils.AddAll(_settingsMetadata, ParseConfigurationElement(childElement));
               break;
             default:
               throw new ArgumentException("'Plugin' element doesn't define a child element '" + child.Name + "'");
@@ -162,6 +167,8 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       return true;
     }
+
+    #region Parsing methods
 
     /// <summary>
     /// Processes the <i>Runtime</i> sub element of the <i>Plugin</i> element.
@@ -194,7 +201,7 @@ namespace MediaPortal.Core.Services.PluginManager
               throw new ArgumentException("'PluginStateTracker' element needs an attribute 'ClassName'");
             break;
           default:
-            throw new ArgumentException("'Runtime' element doesn't define a child element '" + child.Name + "'");
+            throw new ArgumentException("'Runtime' element doesn't define a child element '" + childElement.Name + "'");
         }
       }
     }
@@ -203,7 +210,8 @@ namespace MediaPortal.Core.Services.PluginManager
     /// Processes the <i>Builder</i> sub element of the <i>Plugin</i> element.
     /// </summary>
     /// <param name="builderElement">Builder element.</param>
-    protected void ParseBuilderElement(XmlElement builderElement)
+    /// <returns>Parsed builder - name to classname mapping.</returns>
+    protected static KeyValuePair<string, string> ParseBuilderElement(XmlElement builderElement)
     {
       string name = null;
       string className = null;
@@ -227,14 +235,15 @@ namespace MediaPortal.Core.Services.PluginManager
         throw new ArgumentException("'Builder' element needs an attribute 'ClassName'");
       if (builderElement.ChildNodes.Count > 0)
         throw new ArgumentException("'Builder' element doesn't support child nodes");
-      _builders.Add(name, className);
+      return new KeyValuePair<string, string>(name, className);
     }
 
     /// <summary>
     /// Processes the <i>Register</i> sub element of the <i>Plugin</i> element.
     /// </summary>
     /// <param name="registerElement">Register element.</param>
-    protected void ParseRegisterElement(XmlElement registerElement)
+    /// <returns>Metadata structures of all registered items in the given element.</returns>
+    protected static ICollection<PluginItemMetadata> ParseRegisterElement(XmlElement registerElement)
     {
       string location = null;
       string id = null;
@@ -251,6 +260,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       if (location == null)
         throw new ArgumentException("'Register' element needs an attribute 'Location'");
+      ICollection<PluginItemMetadata> result = new List<PluginItemMetadata>();
       foreach (XmlNode child in registerElement.ChildNodes)
       {
         XmlElement childElement = child as XmlElement;
@@ -272,8 +282,9 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         if (id == null)
           throw new ArgumentException("'Id' attribute has to be given for plugin item '" + childElement.Name + "'");
-        _itemRegistrations.Add(new PluginItemMetadata(location, builderName, id, attributes));
+        result.Add(new PluginItemMetadata(location, builderName, id, attributes));
       }
+      return result;
     }
 
     /// <summary>
@@ -312,11 +323,229 @@ namespace MediaPortal.Core.Services.PluginManager
             result.Add(name);
             break;
           default:
-            throw new ArgumentException("'" + enumElement.Name + "' doesn't define a child element '" + child.Name + "'");
+            throw new ArgumentException("'" + enumElement.Name + "' element doesn't define a child element '" + child.Name + "'");
         }
       }
       return result;
     }
+
+    /// <summary>
+    /// Processes the <i>Configuration</i> sub element of the <i>Plugin</i> element.
+    /// </summary>
+    /// <param name="configurationElement">Configuration element.</param>
+    /// <returns>Parsed setting registrations.</returns>
+    protected static ICollection<SettingRegistrationBase> ParseConfigurationElement(XmlElement configurationElement)
+    {
+      ICollection<SettingRegistrationBase> result = new List<SettingRegistrationBase>();
+      foreach (XmlNode child in configurationElement.ChildNodes)
+      {
+        XmlElement childElement = child as XmlElement;
+        if (childElement == null)
+          continue;
+        CollectionUtils.AddAll(result, ParseSettingRegistrationElement(childElement, string.Empty));
+      }
+      return result;
+    }
+
+    protected static ICollection<SettingRegistrationBase> ParseSettingRegistrationElement(XmlElement element, string parentLocation)
+    {
+      switch (element.Name)
+      {
+        case "Section":
+          return ParseSectionElement(element, parentLocation);
+        case "Group":
+          return ParseGroupElement(element, parentLocation);
+        case "Setting":
+          return new List<SettingRegistrationBase>(
+            new Setting[] { ParseSettingElement(element, parentLocation) });
+        default:
+          throw new ArgumentException("Setting registration element doesn't define a nested element type '" + element.Name + "'");
+      }
+    }
+
+    /// <summary>
+    /// Processes the <i>Section</i> sub element of the <i>Plugin/Configuration</i> element.
+    /// </summary>
+    /// <param name="sectionElement">Section element.</param>
+    /// <param name="parentLocation">Location of the parent element, if given. Else this parameter
+    /// should be set to <see cref="string.Empty"/>.</param>
+    /// <returns>Parsed Setting element and all nested elements.</returns>
+    protected static ICollection<SettingRegistrationBase> ParseSectionElement(
+        XmlElement sectionElement, string parentLocation)
+    {
+      string location = null;
+      string text = null;
+      string iconSmall = null;
+      string iconLarge = null;
+      foreach (XmlAttribute attr in sectionElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Location":
+            location = attr.Value;
+            break;
+          case "Text":
+            text = attr.Value;
+            break;
+          case "IconSmall":
+            iconSmall = attr.Value;
+            break;
+          case "IconLarge":
+            iconLarge = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'Section' element doesn't define an attribute '" + attr.Name + "'");
+        }
+      }
+      if (text == null)
+        throw new ArgumentException("'Section' element needs an attribute 'Text'");
+      string concatenatedLocation = SettingRegistrationBase.ConcatLocations(parentLocation, location);
+      ICollection<SettingRegistrationBase> result = new List<SettingRegistrationBase>();
+      result.Add(new Section(concatenatedLocation, text, iconSmall, iconLarge));
+      foreach (XmlNode child in sectionElement.ChildNodes)
+      {
+        XmlElement childElement = child as XmlElement;
+        if (childElement == null)
+          continue;
+        CollectionUtils.AddAll(result, ParseSettingRegistrationElement(childElement, concatenatedLocation));
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Processes the <i>Group</i> sub element of the <i>Plugin/Configuration</i> element.
+    /// </summary>
+    /// <param name="groupElement">Group element.</param>
+    /// <param name="parentLocation">Location of the parent element, if given. Else this parameter
+    /// should be set to <see cref="string.Empty"/>.</param>
+    /// <returns>Parsed Setting element and all nested elements.</returns>
+    protected static ICollection<SettingRegistrationBase> ParseGroupElement(XmlElement groupElement, string parentLocation)
+    {
+      string location = null;
+      string text = null;
+      foreach (XmlAttribute attr in groupElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Location":
+            location = attr.Value;
+            break;
+          case "Text":
+            text = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'Group' element doesn't define an attribute '" + attr.Name + "'");
+        }
+      }
+      if (text == null)
+        throw new ArgumentException("'Group' element needs an attribute 'Text'");
+      string concatenatedLocation = SettingRegistrationBase.ConcatLocations(parentLocation, location);
+      ICollection<SettingRegistrationBase> result = new List<SettingRegistrationBase>();
+      result.Add(new Group(concatenatedLocation, text));
+      foreach (XmlNode child in groupElement.ChildNodes)
+      {
+        XmlElement childElement = child as XmlElement;
+        if (childElement == null)
+          continue;
+        CollectionUtils.AddAll(result, ParseSettingRegistrationElement(childElement, concatenatedLocation));
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Processes the <i>Setting</i> sub element of the <i>Plugin/Configuration</i> element.
+    /// </summary>
+    /// <param name="settingElement">Setting element.</param>
+    /// <param name="parentLocation">Location of the parent element, if given. Else this parameter
+    /// should be set to <see cref="string.Empty"/>.</param>
+    /// <returns>Parsed Setting element.</returns>
+    protected static Setting ParseSettingElement(XmlElement settingElement, string parentLocation)
+    {
+      string location = null;
+      string text = null;
+      string className = null;
+      string helpText = null;
+      foreach (XmlAttribute attr in settingElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Location":
+            location = attr.Value;
+            break;
+          case "Text":
+            text = attr.Value;
+            break;
+          case "ClassName":
+            className = attr.Value;
+            break;
+          case "HelpText":
+            helpText = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'Setting' element doesn't define an attribute '" + attr.Name + "'");
+        }
+      }
+      if (text == null)
+        throw new ArgumentException("'Setting' element needs an attribute 'Text'");
+      string concatenatedLocation = SettingRegistrationBase.ConcatLocations(parentLocation, location);
+      ICollection<string> listenTo = null;
+      foreach (XmlNode child in settingElement.ChildNodes)
+      {
+        XmlElement childElement = child as XmlElement;
+        if (childElement == null)
+          continue;
+        switch (childElement.Name)
+        {
+          case "ListenTo":
+            listenTo = ParseListenToElement(childElement);
+            break;
+          default:
+            throw new ArgumentException("'Setting' element doesn't define a child element '" + childElement.Name + "'");
+        }
+      }
+      return new Setting(concatenatedLocation, text, className, helpText, listenTo);
+    }
+
+    protected static ICollection<string> ParseListenToElement(XmlElement listenToElement)
+    {
+      ICollection<string> result = new List<string>();
+      foreach (XmlNode child in listenToElement.ChildNodes)
+      {
+        XmlElement childElement = child as XmlElement;
+        if (childElement == null)
+          continue;
+        switch (childElement.Name)
+        {
+          case "SettingReference":
+            result.Add(ParseSettingReferenceElement(childElement));
+            break;
+          default:
+            throw new ArgumentException("'ListenTo' element doesn't define a child element '" + childElement.Name + "'");
+        }
+      }
+      return result;
+    }
+
+    protected static string ParseSettingReferenceElement(XmlElement settingReferenceElement)
+    {
+      string location = null;
+      foreach (XmlAttribute attr in settingReferenceElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Location":
+            location = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'SettingReference' element doesn't define an attribute '" + attr.Name + "'");
+        }
+      }
+      if (location == null)
+        throw new ArgumentException("'SettingReference' element needs an attribute 'Location'");
+      return location;
+    }
+
+    #endregion
 
     #region IPluginMetadata implementation
 
@@ -375,15 +604,20 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _builders; }
     }
 
-    public ICollection<PluginItemMetadata> PluginItemRegistrations
+    public ICollection<PluginItemMetadata> PluginItemsMetadata
     {
-      get { return _itemRegistrations; }
+      get { return _itemsMetadata; }
+    }
+
+    public ICollection<SettingRegistrationBase> PluginSettingsMetadata
+    {
+      get { return _settingsMetadata; }
     }
 
     public ICollection<string> GetNecessaryBuilders()
     {
       ICollection<string> result = new List<string>();
-      foreach (PluginItemMetadata itemMetadata in _itemRegistrations)
+      foreach (PluginItemMetadata itemMetadata in _itemsMetadata)
         result.Add(itemMetadata.BuilderName);
       return result;
     }

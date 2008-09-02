@@ -1,0 +1,61 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+
+namespace MediaPortal.Core.PluginManager.Settings
+{
+  /// <summary>
+  /// Setting metadata structure. Holds all values to describe a plugin's setting.
+  /// </summary>
+  public class Setting : SettingRegistrationBase
+  {
+    protected string _className;
+    protected string _helpText;
+    protected ICollection<string> _listenTo;
+
+    public Setting(string location, string text, string className,
+        string helpText, ICollection<string> listenTo) : base(location, text)
+    {
+      _className = className;
+      _helpText = helpText;
+      _listenTo = listenTo;
+    }
+
+    public string ClassName
+    {
+      get { return _className; }
+    }
+
+    public string HelpText
+    {
+      get { return _helpText; }
+    }
+
+    public ICollection<string> ListenTo
+    {
+      get { return _listenTo; }
+    }
+  }
+}

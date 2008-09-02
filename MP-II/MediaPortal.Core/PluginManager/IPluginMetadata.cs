@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using MediaPortal.Core.PluginManager.Settings;
 
 namespace MediaPortal.Core.PluginManager
 {
@@ -91,16 +92,22 @@ namespace MediaPortal.Core.PluginManager
     IDictionary<string, string> Builders { get; }
 
     /// <summary>
-    /// Returns all plugin's item registrations.
+    /// Returns all plugin's item registration metadata, which contain the item's ids, the registration
+    /// locations and the additional attributes of the item.
     /// </summary>
-    ICollection<PluginItemMetadata> PluginItemRegistrations { get; }
+    ICollection<PluginItemMetadata> PluginItemsMetadata { get; }
 
     /// <summary>
-    /// Returns a collection of names of the builders that are necessary to build all items of this
-    /// plugin. This is a convenience method for iterating over <see cref="PluginItemRegistrations.Values"/>
+    /// Contains the metadata for all settings exposed by this plugin.
+    /// </summary>
+    ICollection<SettingRegistrationBase> PluginSettingsMetadata { get; }
+
+    /// <summary>
+    /// Returns the names of all builders which are necessary to build the items of this
+    /// plugin. This is a convenience method for iterating over <see cref="PluginItemsMetadata.Values"/>
     /// and collecting all builder names.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Collection of builder names.</returns>
     ICollection<string> GetNecessaryBuilders();
 
     /// <summary>

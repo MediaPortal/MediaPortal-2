@@ -200,7 +200,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     internal void RegisterItems()
     {
-      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemRegistrations)
+      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
         _itemRegistrations.Add(itemMetadata, RegisterItem(itemMetadata));
     }
 
@@ -209,7 +209,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     internal void UnregisterItems()
     {
-      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemRegistrations)
+      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
       {
         UnregisterItem(itemMetadata);
         _itemRegistrations.Remove(itemMetadata);
