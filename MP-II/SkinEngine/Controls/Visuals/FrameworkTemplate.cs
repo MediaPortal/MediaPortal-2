@@ -94,7 +94,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public UIElement LoadContent()
     {
       UIElement element = MpfCopyManager.DeepCopyCutLP(_templateElement);
-      element.IsTemplateRoot = true;
+      element.TemplateNamescope = new NameScope();
       return element;
     }
 

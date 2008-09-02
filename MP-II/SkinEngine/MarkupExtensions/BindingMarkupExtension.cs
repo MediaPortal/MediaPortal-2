@@ -613,6 +613,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           result = current as INameScope;
           return true;
         }
+        else if (current is UIElement && (result = ((UIElement)current).TemplateNamescope) != null)
+          return true;
         if (!FindParent(current, out current, FindParentMode.LogicalTree))
           return false;
       }
@@ -658,7 +660,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                 {
                   DependencyObject last = current;
                   FindParent(last, out current, FindParentMode.HybridPreferVisualTree);
-                  if (last is UIElement && ((UIElement) last).IsTemplateRoot)
+                  if (last is UIElement && ((UIElement) last).IsTemplateControlRoot)
                   {
                     result = new ValueDataDescriptor(current);
                     return true;

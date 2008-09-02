@@ -183,7 +183,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _opacityMaskProperty;
     Property _opacityProperty;
     Property _freezableProperty;
-    Property _isTemplateRootProperty;
+    INameScope _templateNamescope;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     ResourceDictionary _resources;
@@ -222,7 +222,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _opacityProperty = new Property(typeof(double), 1.0);
 
       _opacityMaskProperty = new Property(typeof(Brushes.Brush), null);
-      _isTemplateRootProperty = new Property(typeof(bool), false);
     }
 
     void Attach()
@@ -263,7 +262,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
-      IsTemplateRoot = copyManager.GetCopy(el.IsTemplateRoot);
+      TemplateNamescope = copyManager.GetCopy(el.TemplateNamescope);
       // Simply reuse the Resources
       SetResources(el._resources);
 
@@ -543,15 +542,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get { return _desiredSize; }
     }
 
-    public Property IsTemplateRootProperty
+    public bool IsTemplateControlRoot
     {
-      get { return _isTemplateRootProperty; }
+      get { return _templateNamescope != null; }
     }
 
-    public bool IsTemplateRoot
+    public INameScope TemplateNamescope
     {
-      get { return (bool) _isTemplateRootProperty.GetValue(); }
-      set { _isTemplateRootProperty.SetValue(value); }
+      get { return _templateNamescope; }
+      set { _templateNamescope = value; }
     }
 
     #endregion
