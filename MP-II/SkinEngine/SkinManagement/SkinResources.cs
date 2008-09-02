@@ -234,7 +234,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
         _localStyleResources = new ResourceDictionary();
         foreach (KeyValuePair<string, FileInfo> resource in _localResourceFiles)
         {
-          if (resource.Key.StartsWith(STYLES_DIRECTORY))
+          string resourceKey = resource.Key;
+          if (resourceKey.StartsWith(STYLES_DIRECTORY) &&
+              resourceKey.Substring(STYLES_DIRECTORY.Length + 1).IndexOf('\\') == -1)
           {
             ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
             if (rd == null)

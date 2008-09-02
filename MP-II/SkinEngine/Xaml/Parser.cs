@@ -209,23 +209,29 @@ namespace MediaPortal.SkinEngine.Xaml
     public Parser(FileInfo xamlFile, ImportNamespaceDlgt importNamespace,
         GetEventHandlerDlgt getEventHandler)
     {
-      if (importNamespace == null)
-        throw new ArgumentNullException("importNamespace", "The ImportNamespace delegate must not be null");
-      _importCustomNamespace = importNamespace;
-      if (getEventHandler == null)
-        throw new ArgumentNullException("The GetEventHandler delegate must not be null");
-      _getEventHandler = getEventHandler;
-      XmlDocument doc = new XmlDocument();
-      if (xamlFile.Exists)
+      try
       {
-        _xamlFile = xamlFile;
-        using (FileStream fs = _xamlFile.OpenRead())
-          doc.Load(fs);
-        _xmlDocument = doc;
-      }
-      else
+        if (importNamespace == null)
+          throw new ArgumentNullException("importNamespace", "The ImportNamespace delegate must not be null");
+        _importCustomNamespace = importNamespace;
+        if (getEventHandler == null)
+          throw new ArgumentNullException("The GetEventHandler delegate must not be null");
+        _getEventHandler = getEventHandler;
+        XmlDocument doc = new XmlDocument();
+        if (xamlFile.Exists)
+        {
+          _xamlFile = xamlFile;
+          using (FileStream fs = _xamlFile.OpenRead())
+            doc.Load(fs);
+          _xmlDocument = doc;
+        }
+        else
+        {
+          throw new IOException(string.Format("XAML file '{0}' does not exist", xamlFile.FullName));
+        }
+      } catch (Exception e)
       {
-        throw new IOException(string.Format("XAML file '{0}' does not exist", xamlFile.FullName));
+        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, xamlFile.FullName);
       }
     }
 
@@ -278,7 +284,7 @@ namespace MediaPortal.SkinEngine.Xaml
         return _rootObject;
       }
       else
-        throw new XamlParserException("XAML Parser for file '{0}': Parse() method was invoked multiple times", _xamlFile);
+        throw new XamlParserException("XAML Parser parsing file '{0}': Parse() method was invoked multiple times", _xamlFile);
     }
 
     #endregion
