@@ -31,11 +31,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class XamlException : ApplicationException
   {
-    public XamlException(string msg, params object[] args)
-      :
+    public XamlException(string msg, params object[] args):
       base(string.Format(msg, args)) { }
-    public XamlException(string msg, Exception ex, params object[] args)
-      :
+    public XamlException(string msg, Exception ex, params object[] args):
       base(string.Format(msg, args), ex) { }
   }
 
@@ -44,11 +42,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class XamlNamespaceNotSupportedException : XamlException
   {
-    public XamlNamespaceNotSupportedException(string msg, params object[] args)
-      :
+    public XamlNamespaceNotSupportedException(string msg, params object[] args):
       base(msg, args) { }
-    public XamlNamespaceNotSupportedException(string msg, Exception ex, params object[] args)
-      :
+    public XamlNamespaceNotSupportedException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
 
@@ -57,11 +53,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class XamlParserException : XamlException
   {
-    public XamlParserException(string msg, params object[] args)
-      :
+    public XamlParserException(string msg, params object[] args):
       base(msg, args) { }
-    public XamlParserException(string msg, Exception ex, params object[] args)
-      :
+    public XamlParserException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
 
@@ -71,11 +65,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class XamlBindingException : XamlException
   {
-    public XamlBindingException(string msg, params object[] args)
-      :
+    public XamlBindingException(string msg, params object[] args):
       base(msg, args) { }
-    public XamlBindingException(string msg, Exception ex, params object[] args)
-      :
+    public XamlBindingException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
 
@@ -84,11 +76,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class XamlLoadException : XamlException
   {
-    public XamlLoadException(string msg, params object[] args)
-      :
+    public XamlLoadException(string msg, params object[] args):
       base(msg, args) { }
-    public XamlLoadException(string msg, Exception ex, params object[] args)
-      :
+    public XamlLoadException(string msg, Exception ex, params object[] args):
       base(msg, ex, args) { }
   }
 
@@ -97,11 +87,9 @@ namespace MediaPortal.SkinEngine.Xaml.Exceptions
   /// </summary>
   public class ConvertException : ApplicationException
   {
-    public ConvertException(string msg, params object[] args)
-      :
+    public ConvertException(string msg, params object[] args):
       base(string.Format(msg, args)) { }
-    public ConvertException(string msg, Exception ex, params object[] args)
-      :
+    public ConvertException(string msg, Exception ex, params object[] args):
       base(string.Format(msg, args), ex) { }
   }
 }
