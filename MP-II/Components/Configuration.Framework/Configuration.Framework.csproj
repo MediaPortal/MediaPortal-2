@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -68,19 +68,13 @@
     <Compile Include="IConfigurationManager.cs" />
     <Compile Include="NodeNotFoundException.cs" />
     <Compile Include="Settings\Regional\LocalizationSettings.cs" />
-    <Compile Include="Settings\Samples\SomePath.cs" />
-    <Compile Include="Settings\Samples\SampleSettings.cs" />
     <Compile Include="Settings\System\Balloontips.cs" />
     <Compile Include="Settings\Regional\City.cs" />
     <Compile Include="Settings\System\Autostart.cs" />
-    <Compile Include="Settings\Samples\SomePreferenceList.cs" />
-    <Compile Include="Settings\Samples\SomeMultiEntry.cs" />
     <Compile Include="Settings\Regional\MainLanguage.cs" />
     <Compile Include="Settings\Regional\Country.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Regional\Region.cs" />
-    <Compile Include="Settings\Samples\SomeEntry.cs" />
-    <Compile Include="Settings\Samples\SomeMultiSelection.cs" />
     <Compile Include="Settings\System\SystemSettings.cs" />
   </ItemGroup>
   <ItemGroup>
