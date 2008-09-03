@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.SkinEngine.Xaml;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
@@ -95,14 +96,20 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public void UpdateTarget()
     {
-      object newValue;
-      if (!TypeConverter.Convert(_sourceDd.Value, _targetDd.DataType, out newValue))
+      object value = _sourceDd.Value;
+      if (_negate && value != null)
+      {
+        // If negate, we need to convert to bool
+        if (!TypeConverter.Convert(value, typeof(bool), out value))
+          return;
+        if (_negate)
+          value = !(bool) value;
+      }
+      if (!TypeConverter.Convert(value, _targetDd.DataType, out value))
         return;
-      if (_negate)
-        newValue = !(bool) newValue;
-      if (_targetDd.Value == newValue)
+      if (_targetDd.Value == value)
         return;
-      _targetDd.Value = newValue;
+      _targetDd.Value = value;
     }
   }
 }
