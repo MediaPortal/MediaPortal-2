@@ -39,69 +39,53 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   /// <summary>
   /// Controls the tree type to be used when searching a resource in the DynamicResource
   /// markup extension.
-  /// <list type="table">
-  /// <listheader><term>Value</term><term>Description</term></listheader>
-  /// <item>
-  ///   <term><see cref="LogicalTree"/></term>
-  ///   <description>The resource will be searched by stepping-up the logical tree until the resource
-  ///   is found. This is the default setting, which is compliant to the WPF behavior of the
-  ///   DynamicResource markup extension.</description>
-  /// </item>
-  /// <item>
-  ///   <term><see cref="VisualTree"/></term>
-  ///   <description>The resource will be searched by stepping-up the visual tree until the resource
-  ///   is found.</description>
-  /// </item>
-  /// <item>
-  ///   <term><see cref="Hybrid"/></term>
-  ///   <description>The resource will be searched by first stepping-up the logical tree,
-  ///   and if no logical parent is available, stepping-up the visual tree. In every parent search
-  ///   the logical parent will be checked first.</description>
-  /// </item>
-  /// </list>
   /// </summary>
   public enum TreeSearchMode
   {
+    /// <summary>
+    /// The resource will be searched by stepping-up the logical tree until the resource
+    /// is found. This is the default setting, which is compliant to the WPF behavior of the
+    /// DynamicResource markup extension.
+    /// </summary>
     LogicalTree,
+
+    /// <summary>
+    /// The resource will be searched by stepping-up the visual tree until the resource is found.
+    /// </summary>
     VisualTree,
+
+    /// <summary>
+    /// The resource will be searched by first stepping-up the logical tree, and if no logical parent
+    /// is available, stepping-up the visual tree. In every parent search the logical parent will
+    /// be checked first.
+    /// </summary>
     Hybrid
   }
 
   /// <summary>
   /// Controls how the DynamicResource markup extension will assign the specified resource to
   /// its target property.
-  /// <list type="table">
-  /// <listheader><term>Value</term><term>Description</term></listheader>
-  /// <item>
-  ///   <term><see cref="Reference"/></term>
-  ///   <description>A reference to the specified resource will be copied to the target property.
-  ///   This is the default setting, which is compliant to the WPF behavior of the DynamicResource
-  ///   markup extension.</description>
-  /// </item>
-  /// <item>
-  ///   <term><see cref="Copy"/></term>
-  ///   <description>Will assign a copy of the resource to the target property. The logical parent
-  ///   of the resource will be modified to reference the target object.</description>
-  /// </item>
-  /// </list>
   /// </summary>
   public enum AssignmentMode
   {
+    /// <summary>
+    /// A reference to the specified resource will be copied to the target property. This is the
+    /// default setting, which is compliant to the WPF behavior of the DynamicResource markup extension.
+    /// </summary>
     Reference,
+
+    /// <summary>
+    /// Will assign a copy of the resource to the target property. The logical parent of the resource
+    /// will be modified to reference the target object.
+    /// </summary>
     Copy
   }
 
   /// <summary>
   /// Implements the MPF DynamicResource markup extension, with extended functionality.
   /// There are some more properties to finer control the behavior of this class.
-  /// <list type="table">
-  /// <listheader><term>Property</term><term>Description</term></listheader>
-  /// <item>
-  ///   <term><see cref="TreeSearchMode"/></term>
-  ///   <description>Controls, which tree will used for the step-up to the parent controls while
-  ///   searching the resource.</description>
-  /// </item>
-  /// </list>
+  /// <seealso cref="TreeSearchMode"/>
+  /// <seealso cref="AssignmentMode"/>
   /// </summary>
   /// <remarks>
   /// This class is realized as a <see cref="IBinding">Binding</see>, because it
