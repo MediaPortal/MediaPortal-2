@@ -35,6 +35,20 @@
     <String name="5" text="Friday"/>
     <String name="6" text="Saturday"/>
   </Section>
+  <Section name="months">
+    <String name="1" text="January"/>
+    <String name="2" text="February"/>
+    <String name="3" text="March"/>
+    <String name="4" text="April"/>
+    <String name="5" text="May"/>
+    <String name="6" text="June"/>
+    <String name="7" text="July"/>
+	<String name="8" text="August"/>
+    <String name="9" text="September"/>
+	<String name="10" text="October"/>
+    <String name="11" text="November"/>
+	<String name="12" text="December"/>
+  </Section>
   <Section name="importers">
     <String name="addshare" text="Add share"/>
     <String name="removeshare" text="Remove share"/>
