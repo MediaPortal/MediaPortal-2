@@ -747,7 +747,8 @@ Global
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x64.ActiveCfg = Release|Any CPU
-		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.ActiveCfg = Release|Any CPU
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.ActiveCfg = Release|x86
+		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Release|x86.Build.0 = Release|x86
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
 		{ECF060E7-CAA1-4466-851F-F80B857641EA}.Xml Documentation|x64.ActiveCfg = Xml Documentation|x86

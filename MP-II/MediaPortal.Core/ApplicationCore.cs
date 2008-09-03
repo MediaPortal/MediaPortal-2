@@ -44,17 +44,16 @@ namespace MediaPortal.Core
   {
     public static void RegisterCoreServices()
     {
+      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
+      ServiceScope.Add<IPathManager>(pathManager);
+
 #if DEBUG
       ILogger logger = new ConsoleLogger(LogLevel.Information, false);
 #else
-        ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), LogLevel.Information, false);
+      ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), LogLevel.Information, false);
 #endif
       logger.Debug("ApplicationCore: Registering ILogger");
       ServiceScope.Add(logger);
-
-      logger.Debug("ApplicationCore: Registering IPathManager");
-      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
-      ServiceScope.Add<IPathManager>(pathManager);
 
       logger.Debug("ApplicationCore: Registering IRegistry");
       ServiceScope.Add<IRegistry>(new Services.Registry.Registry());

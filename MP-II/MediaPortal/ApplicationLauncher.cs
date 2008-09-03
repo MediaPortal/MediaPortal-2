@@ -24,6 +24,7 @@
 
 using System;
 using System.Windows.Forms;
+using MediaPortal.Services.Logging;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
