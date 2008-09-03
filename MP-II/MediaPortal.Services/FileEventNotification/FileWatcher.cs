@@ -856,6 +856,10 @@ namespace MediaPortal.Services.FileEventNotification
           foreach (FileWatcherInfo subscription in subscriptions)
             Add(subscription);
         }
+        // Notify subscriptions of the enabled watch.
+        Queue<FileWatchEvent> events = new Queue<FileWatchEvent>(1);
+        events.Enqueue(new FileWatchEvent(FileWatchChangeType.Enabled, _path));
+        RaiseEvents(events);
       }
       else
       {
