@@ -99,7 +99,6 @@ namespace MediaPortal.SkinEngine.Xaml
     /// <returns><c>true</c>, if the conversion was successful, else <c>false</c>.</returns>
     protected static bool ToCollection(object obj, Type entryType, out ICollection result)
     {
-      result = null;
       if (obj is IInclude)
         obj = ((IInclude) obj).Content;
       if (obj.GetType() != typeof(string)) // Don't treat strings as a collection of characters
@@ -226,8 +225,12 @@ namespace MediaPortal.SkinEngine.Xaml
       System.ComponentModel.TypeConverter tc = TypeDescriptor.GetConverter(targetType);
       if (tc != null && tc.CanConvertFrom(val.GetType()))
       {
-        result = tc.ConvertFrom(val);
-        return true;
+        try
+        {
+          result = tc.ConvertFrom(val);
+          return true;
+        }
+        catch { }
       }
 
       tc = TypeDescriptor.GetConverter(val);
