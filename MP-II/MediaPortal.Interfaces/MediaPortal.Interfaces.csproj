@@ -68,6 +68,13 @@
     <Compile Include="Configuration\ItemList.cs" />
     <Compile Include="Configuration\Settings\Path.cs" />
     <Compile Include="Configuration\Settings\PreferenceList.cs" />
+    <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
+    <Compile Include="FileEventNotification\FileEventHandler.cs" />
+    <Compile Include="FileEventNotification\FileWatchInfo.cs" />
+    <Compile Include="FileEventNotification\IFileEventNotifier.cs" />
+    <Compile Include="FileEventNotification\IFileWatchEventArgs.cs" />
+    <Compile Include="FileEventNotification\InvalidFileWatchInfoException.cs" />
+    <Compile Include="FileEventNotification\NotSupportedDriveTypeException.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
