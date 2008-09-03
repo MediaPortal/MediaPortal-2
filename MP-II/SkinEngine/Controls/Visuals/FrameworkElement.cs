@@ -82,14 +82,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
+      // Default is not set
       _widthProperty = new Property(typeof(double), Double.NaN);
       _heightProperty = new Property(typeof(double), Double.NaN);
 
+      // Default is not set
       _actualWidthProperty = new Property(typeof(double), Double.NaN);
       _actualHeightProperty = new Property(typeof(double), Double.NaN);
+
+      // Default is not set
       _styleProperty = new Property(typeof(Style), null);
-      _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Center);
-      _verticalAlignmentProperty = new Property(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Center);
+
+      // Default is stretch
+      _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
+      _verticalAlignmentProperty = new Property(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
     }
 
     void Attach()
