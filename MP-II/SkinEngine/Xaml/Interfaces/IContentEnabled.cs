@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.SkinEngine.Xaml;
+
 namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
@@ -36,12 +38,14 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
     /// Normal content enabled classes will return their content property instance,
     /// wrapped in a <see cref="DependencyPropertyDataDescriptor"/> in the
     /// <paramref name="dd"/> parameter, if they have a property instance, else they would
-    /// return a <see cref="SimplePropertyDataDescriptor"/> in this parameter.
+    /// return a <see cref="SimplePropertyDataDescriptor"/> or
+    /// <see cref="FieldDataDescriptor"/> in this parameter.
     /// Anyway, it is possible to return a property on a completely different instance,
     /// which will be realized by returning a property descriptor to that other
     /// property.
     /// </summary>
-    /// <param name="dd">Descriptor of the property used as content property for this instance.</param>
+    /// <param name="dd">Descriptor of the property or member used as content property for this
+    /// instance.</param>
     /// <returns><c>true</c>, if the search for the class which displays the content
     /// is successful, else <c>false</c>.</returns>
     bool FindContentProperty(out IDataDescriptor dd);

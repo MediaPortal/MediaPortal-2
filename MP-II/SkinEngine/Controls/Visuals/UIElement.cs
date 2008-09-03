@@ -757,7 +757,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool FindContentProperty(out IDataDescriptor dd)
     {
-      return ReflectionHelper.FindPropertyDescriptor(this, "Content", out dd);
+      return ReflectionHelper.FindMemberDescriptor(this, "Content", out dd);
     }
 
     #endregion

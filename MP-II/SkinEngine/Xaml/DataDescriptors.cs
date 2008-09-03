@@ -230,25 +230,30 @@ namespace MediaPortal.SkinEngine.Xaml
   }
 
   /// <summary>
-  /// A data descriptor with an underlaying list object and an index to
-  /// access that list.
-  /// Supports reading and writing the indexed list value.
+  /// A data descriptor which applies indices to an underlaying object. The object can be a
+  /// list, but also can be any other object with a <c>this[]</c> oberator.
+  /// Supports reading and writing the indexed value if the underlaying indexer supports
+  /// those operations. Also supports target operations.
   /// </summary>
-  public class ListIndexerDataDescriptor : IDataDescriptor
+  public class IndexerDataDescriptor : IDataDescriptor
   {
     #region Protected fields
 
-    protected IList _list;
-    protected int _index;
+    protected object _target;
+    protected object[] _indices;
 
     #endregion
 
     #region Ctor
 
-    public ListIndexerDataDescriptor(IList list, int index)
+    public IndexerDataDescriptor(object target, object[] indices)
     {
-      _list = list;
-      _index = index;
+      if (target == null)
+        throw new ArgumentNullException("Target object for indexer cannot be null");
+      _target = target;
+      if (!IndicesCompatible(_target.GetType(), indices))
+        throw new ArgumentException("Indices are not compatible with indexer parameters");
+      _indices = indices;
     }
 
     #endregion
@@ -257,12 +262,20 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public bool SupportsRead
     {
-      get { return true; }
+      get
+      {
+        PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
+        return itemPi.CanRead;
+      }
     }
 
     public bool SupportsWrite
     {
-      get { return true; }
+      get
+      {
+        PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
+        return itemPi.CanWrite;
+      }
     }
 
     public bool SupportsChangeNotification
@@ -272,13 +285,21 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public bool SupportsTargetOperations
     {
-      get { return false; }
+      get { return true; }
     }
 
     public object Value
     {
-      get { return _list[_index]; }
-      set { _list[_index] = value; }
+      get
+      {
+        PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
+        return itemPi.GetValue(_target, _indices);
+      }
+      set
+      {
+        PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
+        itemPi.SetValue(_target, value, _indices);
+      }
     }
 
     public Type DataType
@@ -293,13 +314,18 @@ namespace MediaPortal.SkinEngine.Xaml
     public object TargetObject
     {
       // Not supported
-      get { return null; }
+      get { return _target; }
     }
 
     public IDataDescriptor Retarget(object newTarget)
     {
-      // Not supported
-      return null;
+      if (newTarget == null)
+        throw new NullReferenceException("Target object 'null' is not supported");
+      if (!IndicesCompatible(newTarget.GetType(), _indices))
+        throw new InvalidOperationException(
+            "Type of new target object is not compatible with the indices of this property descriptor");
+      IndexerDataDescriptor result = new IndexerDataDescriptor(newTarget, _indices);
+      return result;
     }
 
     public void Attach(DataChangedHandler handler)
@@ -314,25 +340,66 @@ namespace MediaPortal.SkinEngine.Xaml
 
     #endregion
 
+    protected static bool IndicesCompatible(Type t, object[] indices)
+    {
+      ParameterInfo[] pis = GetIndexerTypes(t);
+      int i = 0;
+      for (; i < pis.Length; i++)
+      {
+        if (indices.Length <= i && pis[i].IsOptional)
+          break;
+        if (!pis[i].ParameterType.IsAssignableFrom(indices[i].GetType()))
+          return false;
+      }
+      if (i < indices.Length)
+        return false;
+      return true;
+    }
+
+    public static ParameterInfo[] GetIndexerTypes(Type t)
+    {
+      PropertyInfo pi = GetIndexerPropertyInfo(t);
+      return pi == null ? null : pi.GetIndexParameters();
+    }
+
+    public static PropertyInfo GetIndexerPropertyInfo(Type t)
+    {
+      return t.GetProperty("Item");
+    }
+
+    public bool IndicesEquals(object[] otherIndices)
+    {
+      if (_indices == null)
+        return otherIndices == null;
+      else if (otherIndices == null)
+        return false;
+      if (_indices.GetLength(0) != otherIndices.GetLength(0))
+        return false;
+      for (int i = 0; i < _indices.GetLength(0); i++)
+        if (!_indices[i].Equals(otherIndices[i]))
+          return false;
+      return true;
+    }
+  
     /// <summary>
     /// Returns the information if the specified <paramref name="other"/> descriptor
     /// is targeted at the same list index on the same list.
     /// </summary>
     /// <param name="other">Other descriptor whose target object and property should be compared.</param>
-    public bool TargetEquals(ListIndexerDataDescriptor other)
+    public bool TargetEquals(IndexerDataDescriptor other)
     {
-      return _list.Equals(other._list) && _index.Equals(other._index);
+      return _target.Equals(other._target) && IndicesEquals(other._indices);
     }
 
     public override int GetHashCode()
     {
-      return _list.GetHashCode()+_index.GetHashCode();
+      return _target.GetHashCode()+_indices.GetHashCode();
     }
 
     public override bool Equals(object other)
     {
-      if (other is ListIndexerDataDescriptor)
-        return TargetEquals((ListIndexerDataDescriptor) other);
+      if (other is IndexerDataDescriptor)
+        return TargetEquals((IndexerDataDescriptor) other);
       else
         return false;
     }
@@ -464,7 +531,7 @@ namespace MediaPortal.SkinEngine.Xaml
           return false;
       return true;
     }
-  
+
     /// <summary>
     /// Returns the information if the specified <paramref name="other"/> descriptor
     /// is targeted at the same property on the same object.
@@ -613,7 +680,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public override bool Equals(object other)
     {
-      if (other is SimplePropertyDataDescriptor)
+      if (other is FieldDataDescriptor)
         return TargetEquals((FieldDataDescriptor) other);
       else
         return false;

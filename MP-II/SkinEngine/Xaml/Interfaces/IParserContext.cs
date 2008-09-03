@@ -68,16 +68,16 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
     INamespaceHandler GetNamespaceHandler(string namespaceURI);
 
     /// <summary>
-    /// Sets the property specified by the <paramref name="dd"/> property descriptor
+    /// Sets the member specified by the <paramref name="dd"/> data descriptor
     /// to the given value.
-    /// The property can either be defined on a visual's instance or
+    /// The member can either be defined on a visual's instance or
     /// on a markup extension instance, or it may be an attached property.
     /// This method handles unbound/simple values like strings or other simple typed values
     /// and also complex types which may be bound to the property, like markup extensions.
     /// </summary>
-    /// <param name="dd">Property descriptor describing the property to assign.</param>
-    /// <param name="value">Value to set the property to. The value type will
-    /// be converted to the property's type, if necessary.</param>
-    void HandlePropertyAssignment(IDataDescriptor dd, object value);
+    /// <param name="dd">Data descriptor describing the member to assign.</param>
+    /// <param name="value">Value to set the member to. The value type will
+    /// be converted to the member's type, if necessary.</param>
+    void HandleMemberAssignment(IDataDescriptor dd, object value);
   }
 }

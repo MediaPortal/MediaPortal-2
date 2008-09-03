@@ -121,7 +121,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       {
         string propertyName = Property;
         IDataDescriptor result;
-        if (ReflectionHelper.FindPropertyDescriptor(target, propertyName, out result))
+        if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out result))
           return result;
         else
           throw new ArgumentException(

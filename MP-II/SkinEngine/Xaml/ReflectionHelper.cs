@@ -38,37 +38,45 @@ namespace MediaPortal.SkinEngine.Xaml
   public class ReflectionHelper
   {
     /// <summary>
-    /// Given the instance <paramref name="obj"/> and the <paramref name="propertyName"/>,
-    /// this method searches the best matching property on the instance. It first searches
-    /// a property with name [PropertyName]Property, casts it as
-    /// <see cref="Property"/> and returns a <see cref="IDataDescriptor">property descriptor</see>
+    /// Given the instance <paramref name="obj"/> and the <paramref name="memberName"/>,
+    /// this method searches the best matching member on the instance. It first searches
+    /// a property with name [PropertyName]Property, casts it to
+    /// <see cref="Property"/> and returns a <see cref="DependencyPropertyDataDescriptor"/>
     /// for it in the parameter <paramref name="dd"/>. If there is no such property, this method
-    /// searches a property with the given name, returning a property descriptor for it.
-    /// If there is no property found with the given name, this method returns false and a
+    /// searches a simple property with the given name, returning a property descriptor for it.
+    /// Then, the method will search for a field with the specified name, returning a
+    /// <see cref="FieldDataDescriptor"/> for it.
+    /// If there is no member found with the given name, this method returns false and a
     /// <c>null</c> value in <paramref name="dd"/>.
     /// </summary>
-    /// <param name="obj">The object where to search the property with the
-    /// specified <paramref name="propertyName"/>.</param>
-    /// <param name="propertyName">The name of the property to be searched.</param>
-    /// <param name="dd">Property descriptor which will be returned for the property,
+    /// <param name="obj">The object where to search the member with the
+    /// specified <paramref name="memberName"/>.</param>
+    /// <param name="memberName">The name of the member to be searched.</param>
+    /// <param name="dd">Data descriptor which will be returned for the property or member,
     /// if it was found, else a <c>null</c> value will be returned.</param>
-    /// <returns>true, if a property with the specified name was found, else false.</returns>
-    public static bool FindPropertyDescriptor(object obj, string propertyName, out IDataDescriptor dd)
+    /// <returns><c>true</c>, if a member with the specified name was found, else <c>false</c>.</returns>
+    public static bool FindMemberDescriptor(object obj, string memberName, out IDataDescriptor dd)
     {
       if (obj == null)
         throw new NullReferenceException("Property target object 'null' is not supported");
       DependencyPropertyDataDescriptor dpdd;
       if (DependencyPropertyDataDescriptor.CreateDependencyPropertyDataDescriptor(
-            obj, propertyName, out dpdd))
+            obj, memberName, out dpdd))
       {
         dd = dpdd;
         return true;
       }
       SimplePropertyDataDescriptor spdd;
       if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(
-          obj, propertyName, out spdd))
+          obj, memberName, out spdd))
       {
         dd = spdd;
+        return true;
+      }
+      FieldDataDescriptor fdd;
+      if (FieldDataDescriptor.CreateFieldDataDescriptor(obj, memberName, out fdd))
+      {
+        dd = fdd;
         return true;
       }
       dd = null;
@@ -94,7 +102,7 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       if (maybeCollection is IList)
       {
-        result = new ListIndexerDataDescriptor((IList)maybeCollection, index);
+        result = new IndexerDataDescriptor(maybeCollection, new object[] { index });
         return true;
       }
       if (maybeCollection is IEnumerable)

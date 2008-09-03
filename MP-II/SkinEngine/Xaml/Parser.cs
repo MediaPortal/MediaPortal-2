@@ -301,8 +301,8 @@ namespace MediaPortal.SkinEngine.Xaml
     /// have to be imported. In the current implementation, its attributes will
     /// also already be processed.
     /// When this method returns, the returned visual element is completely set up,
-    /// this means, it was instantiated, its properties and events were processed
-    /// and its content property was assigned. The processing of the complete
+    /// this means, it was instantiated, its members and events were processed
+    /// and its content member was assigned. The processing of the complete
     /// structure under <paramref name="currentElement"/> has finished.
     /// </remarks>
     /// <param name="currentElement">The XML element under the
@@ -375,27 +375,27 @@ namespace MediaPortal.SkinEngine.Xaml
         if (name != null)
           RegisterName(name, elementContext.Instance);
 
-        // Step 5: Properties and events in attribute syntax
+        // Step 5: Members and events in attribute syntax
         foreach (XmlAttribute attr in remainingAttributes)
         {
-          HandlePropertyOrEventAssignment(attr);
+          HandleMemberOrEventAssignment(attr);
         }
 
-        // Step 6: Properties in property element syntax
+        // Step 6: Member values in member element syntax
         foreach (XmlNode node in currentElement.ChildNodes)
         {
           // Hint: We do not enforce, that object elements, which are used to fill the
-          // XAML content property within an object element, must be contiguous
-          if (node is XmlElement && node.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a property declaration
+          // XAML content member within an object element, must be contiguous
+          if (node is XmlElement && node.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a member declaration
           {
-            // Check XML attributes on property element - only x:Uid is permitted
+            // Check XML attributes on member element - only x:Uid is permitted
             foreach (XmlAttribute attr in node.Attributes)
             {
               if (attr.NamespaceURI != XAML_NS_URI || attr.LocalName != "Uid")
-                throw new XamlParserException("No attributes are allowed on property elements except x:Uid");
+                throw new XamlParserException("No attributes are allowed on member elements except x:Uid");
               // TODO: Handle x:Uid markup extension
             }
-            HandlePropertyOrEventAssignment(node);
+            HandleMemberOrEventAssignment(node);
           }
         }
 
@@ -405,7 +405,7 @@ namespace MediaPortal.SkinEngine.Xaml
           ((INativeXamlObject)elementContext.Instance).HandleChildren(this, currentElement);
         }
         else
-        { // Content property/Children handled by this XAML parser
+        { // Content member value/Children handled by this XAML parser
           object value = ParseValue(currentElement);
           if (value != null)
           {
@@ -413,7 +413,7 @@ namespace MediaPortal.SkinEngine.Xaml
             if (elementContext.Instance is IContentEnabled &&
                 ((IContentEnabled) elementContext.Instance).FindContentProperty(out dd))
             {
-              HandlePropertyAssignment(dd, value);
+              HandleMemberAssignment(dd, value);
             }
             else if (ReflectionHelper.CheckHandleCollectionAssignment(elementContext.Instance, value))
             { }
@@ -450,18 +450,18 @@ namespace MediaPortal.SkinEngine.Xaml
     }
 
     /// <summary>
-    /// Handles nodes for property or event assignment to the currently processed
-    /// element in both attribute syntax and property element syntax.
+    /// Handles nodes for member or event assignment to the currently processed
+    /// element in both attribute syntax and member element syntax.
     /// This method ignores attributes from the <c>x:</c> namespace, which
     /// will be handled in method
-    /// <see cref="CheckNameOrKey(XmlNode,string,string)"/>.
+    /// <see cref="CheckNameOrKey(XmlNode,ref string,ref string)"/>.
     /// </summary>
-    /// <param name="memberDeclarationNode">Node containing a property or
+    /// <param name="memberDeclarationNode">Node containing a member or
     /// event assignment for the current element. This node can either
     /// be an <see cref="XmlAttribute"/> node (for attribute syntax) or an
-    /// <see cref="XmlElement"/> node (for property element syntax).
+    /// <see cref="XmlElement"/> node (for member element syntax).
     /// Nodes in the <c>x:</c> namespace will be ignored.</param>
-    protected void HandlePropertyOrEventAssignment(XmlNode memberDeclarationNode)
+    protected void HandleMemberOrEventAssignment(XmlNode memberDeclarationNode)
     {
       ElementContextInfo elementContext = _elementContextStack.CurrentElementContext;
       string memberName = memberDeclarationNode.LocalName;
@@ -492,25 +492,25 @@ namespace MediaPortal.SkinEngine.Xaml
         IDataDescriptor attachedPropertyDD = GetNamespaceHandler(namespaceURI).GetAttachedProperty(
             explicitTargetQualifier, memberName, elementContext.Instance, namespaceURI);
         object value = ParseValue(memberDeclarationNode);
-        HandlePropertyAssignment(attachedPropertyDD, value);
+        HandleMemberAssignment(attachedPropertyDD, value);
       }
       else
-      { // Local property
+      { // Local member
         // We have to check if <c>memberDeclarationNode.Prefix == string.Empty</c>, because
         // unprefixed names normally match the default's namespace URI,
         // but here the namespace URI of those unprefixed nodes implicitly
         // belong to the current element.
         if (memberDeclarationNode.Prefix == string.Empty ||
             memberDeclarationNode.NamespaceURI == elementContext.Element.NamespaceURI)
-        { // Property or event attribute located in the same namespace as the element
+        { // Member or event attribute located in the same namespace as the element
           object value = ParseValue(memberDeclarationNode);
           Type t = elementContext.Instance.GetType();
-          // Search Property value
+          // Search Member data descriptor
           IDataDescriptor dd;
-          if (ReflectionHelper.FindPropertyDescriptor(elementContext.Instance, memberName, out dd))
-          { // Property assignment
+          if (ReflectionHelper.FindMemberDescriptor(elementContext.Instance, memberName, out dd))
+          { // Member assignment
             if (value != null)
-              HandlePropertyAssignment(dd, value);
+              HandleMemberAssignment(dd, value);
             return;
           }
           EventInfo evt = t.GetEvent(memberName);
@@ -520,7 +520,7 @@ namespace MediaPortal.SkinEngine.Xaml
                 (string) Convert(value, typeof(string)));
             return;
           }
-          throw new XamlBindingException("XAML parser: Property '{0}' was not found on type '{1}'",
+          throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
             memberName, t.Name);
         }
         else if (memberDeclarationNode.NamespaceURI == XAML_NS_URI)
@@ -535,29 +535,29 @@ namespace MediaPortal.SkinEngine.Xaml
 
     /// <summary>
     /// Checks the existance of a <c>Name</c> and the <c>x:Name</c> and <c>x:Key</c>
-    /// pseudo property nodes in both attribute syntax and property element syntax.
+    /// pseudo member nodes in both attribute syntax and member element syntax.
     /// Other nodes from the <c>x:</c> namespace will be rejected by throwing
     /// an exception.
     /// Names given by a <c>x:Name</c> will be automatically assigned to the
     /// current element's "Name" attribute, if it is present.
-    /// Except <c>Name</c>, this method ignores "normal" properties and events,
+    /// Except <c>Name</c>, this method ignores "normal" members and events,
     /// which will be handled in method
-    /// <see cref="HandlePropertyOrEventAssignment(XmlNode)"/>.
+    /// <see cref="HandleMemberOrEventAssignment"/>.
     /// </summary>
     /// <remarks>
     /// Implementation node: We separate this method from method
-    /// <see cref="HandlePropertyOrEventAssignment(XmlNode)"/>
+    /// <see cref="HandleMemberOrEventAssignment"/>
     /// because both methods handle attributes of different scopes. The <c>x:</c>
     /// attributes are attributes which affect the outside world, as they associate
     /// a name or key to the current element in the outer scope. In contrast to
-    /// this, "Normal" properties are set on the current element and do not affect
+    /// this, "Normal" members are set on the current element and do not affect
     /// the outer scope.
     /// </remarks>
     /// <param name="memberDeclarationNode">Node containing a <c>x:</c> attribute
     /// for the current element. This node can either
     /// be an <see cref="XmlAttribute"/> node (for attribute syntax) or an
-    /// <see cref="XmlElement"/> node (for property element syntax).
-    /// This method ignores "normal" property and event attributes.</param>
+    /// <see cref="XmlElement"/> node (for member element syntax).
+    /// This method ignores "normal" member and event attributes.</param>
     /// <param name="name">Will be set if the node to handle is an <c>x:Name</c>.</param>
     /// <param name="key">Will be set if the node to handle is an <c>x:Key</c>.</param>
     protected void CheckNameOrKey(XmlNode memberDeclarationNode, ref string name, ref string key)
@@ -581,12 +581,12 @@ namespace MediaPortal.SkinEngine.Xaml
         if (name == null)
         {
           name = value;
-          // Assign name to "Name" property, if one exists
+          // Assign name to "Name" member, if one exists
           IDataDescriptor dd;
-          if (ReflectionHelper.FindPropertyDescriptor(
+          if (ReflectionHelper.FindMemberDescriptor(
               elementContext.Instance, "Name", out dd))
-            // Property assignment
-            HandlePropertyAssignment(dd, value);
+            // Member assignment
+            HandleMemberAssignment(dd, value);
         }
         else
           throw new XamlBindingException("Attribute '{0}' was specified multiple times", memberDeclarationNode.Name);
@@ -654,9 +654,9 @@ namespace MediaPortal.SkinEngine.Xaml
     /// instance or an IList<object>.</returns>
     protected object ParseValue(XmlNode node)
     {
-      if (node is XmlAttribute) // Property attribute
+      if (node is XmlAttribute) // Member attribute
         return ParseValue(node.Value);
-      else if (node is XmlElement) // Explicit or implicit (Content) property element
+      else if (node is XmlElement) // Explicit or implicit (Content) member element
       {
         // Return value's type will vary depending on parameter 'needDict'
         IList<object> resultList = new List<object>();
@@ -666,8 +666,8 @@ namespace MediaPortal.SkinEngine.Xaml
         {
           if (childNode is XmlElement)
           {
-            if (childNode.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a property declaration
-            { // Ignore property assignments here - we focus on our real children
+            if (childNode.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a member declaration
+            { // Ignore member assignments here - we focus on our real children
               continue;
             }
             else
@@ -760,30 +760,30 @@ namespace MediaPortal.SkinEngine.Xaml
             if (elementContext.Instance is INameScope && oldNameScope != null)
               oldNameScope.RegisterParent(oldNameScope);
 
-            // Step 5: Properties and events in attribute syntax
+            // Step 5: Members and events in attribute syntax
 
             // We only process the given parameters and assign their values to the
-            // target properties. Property value inheritance, for example the
-            // inheritance of a "Context" property for bindings, has to be
+            // target members. Property value inheritance, for example the
+            // inheritance of a "Context" member for bindings, has to be
             // implemented on the visual's element class hierarchy.
-            foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified property
+            foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified member
             {
-              string propertyName = parameter.Key;
+              string memberName = parameter.Key;
               IDataDescriptor dd;
-              if (ReflectionHelper.FindPropertyDescriptor(elementContext.Instance, propertyName, out dd))
+              if (ReflectionHelper.FindMemberDescriptor(elementContext.Instance, memberName, out dd))
               {
                 object paramVal = ParseValue(parameter.Value);
-                HandlePropertyAssignment(dd, paramVal);
+                HandleMemberAssignment(dd, paramVal);
                 // Step 4: Name registration
-                if (propertyName == "Name")
+                if (memberName == "Name")
                 {
                   string value = Convert(paramVal, typeof(string)) as string;
                   RegisterName(value, elementContext.Instance);
                 }
               }
               else
-                throw new XamlBindingException("XAML parser: Property '{0}' was not found on element type '{1}'",
-                                               propertyName, elementContext.Instance.GetType().Name);
+                throw new XamlBindingException("XAML parser: Member '{0}' was not found on element type '{1}'",
+                                               memberName, elementContext.Instance.GetType().Name);
             }
           }
           else
@@ -803,9 +803,9 @@ namespace MediaPortal.SkinEngine.Xaml
             if (elementContext.Instance is INameScope && oldNameScope != null)
               oldNameScope.RegisterParent(oldNameScope);
 
-            // Step 5: Properties and events in attribute syntax (doesn't apply here)
+            // Step 5: Members and events in attribute syntax (doesn't apply here)
           }
-          // Step 6: Properties in property element syntax (doesn't apply here)
+          // Step 6: Member values in member element syntax (doesn't apply here)
           // Step 7: Handle child elements (doesn't apply here)
           // Step 8: Initialize
           if (elementContext.Instance is IInitializable)
@@ -825,7 +825,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// </summary>
     /// <remarks>
     /// In contrast to method
-    /// <see cref="HandlePropertyAssignment(IDataDescriptor,object)"/>,
+    /// <see cref="HandleMemberAssignment"/>,
     /// this method can only be used for the current element, which is part of the
     /// visual tree. We do not support adding event handlers to markup extension
     /// instances.
@@ -929,8 +929,8 @@ namespace MediaPortal.SkinEngine.Xaml
       return _elementContextStack.GetNamespaceHandler(namespaceURI);
     }
 
-    /// <see cref="IParserContext.HandlePropertyAssignment(IDataDescriptor,object)"/>
-    public void HandlePropertyAssignment(IDataDescriptor dd, object value)
+    /// <see cref="IParserContext.HandleMemberAssignment"/>
+    public void HandleMemberAssignment(IDataDescriptor dd, object value)
     {
       if (value is IBinding)
       {

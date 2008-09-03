@@ -89,13 +89,13 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       result = null;
       object value = source.Value;
-      PropertyInfo itemPi = value.GetType().GetProperty("Item");
+      ParameterInfo[] indexerParams = IndexerDataDescriptor.GetIndexerTypes(value.GetType());
       object[] convertedIndices;
       // Search indexer on source type
-      if (itemPi != null && ParserHelper.ConsumeParameters(_indices,
-          itemPi.GetIndexParameters(), false, out convertedIndices))
+      if (indexerParams != null && ParserHelper.ConsumeParameters(_indices,
+          indexerParams, false, out convertedIndices))
       { // Index on Item property
-        result = new ValueDataDescriptor(itemPi.GetValue(value, convertedIndices));
+        result = new IndexerDataDescriptor(value, convertedIndices);
         return true;
       }
       else if (ParserHelper.ConvertTypes(_indices, new Type[] { typeof(int) },

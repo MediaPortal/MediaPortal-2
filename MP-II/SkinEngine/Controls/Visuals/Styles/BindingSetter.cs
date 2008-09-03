@@ -88,7 +88,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       {
         string propertyName = Property;
         IDataDescriptor targetDd;
-        if (ReflectionHelper.FindPropertyDescriptor(target, propertyName, out targetDd))
+        if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out targetDd))
           _bindingWrapper.Binding.CopyAndRetarget(targetDd);
       }
     }
