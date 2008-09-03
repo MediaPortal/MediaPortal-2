@@ -243,7 +243,7 @@ namespace MediaPortal.SkinEngine.Xaml
           return false;
       if (mi is FieldInfo)
       { // Field access
-        result = new ValueDataDescriptor(((FieldInfo) mi).GetValue(obj));
+        result = new FieldDataDescriptor(obj, (FieldInfo) mi);
         return true;
       }
       else if (mi is PropertyInfo)

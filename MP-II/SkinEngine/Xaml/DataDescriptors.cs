@@ -23,14 +23,14 @@
 #endregion
 
 using System;
+using System.Collections;
+
 using System.Reflection;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 
 namespace MediaPortal.SkinEngine.Xaml
 {
-  using System.Collections;
-
   public delegate void DataChangedHandler(IDataDescriptor dd);
 
   /// <summary>
@@ -417,7 +417,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public object[] Indices
     {
-      get { return _indices;  }
+      get { return _indices; }
       set { _indices = value; }
     }
 
@@ -464,7 +464,7 @@ namespace MediaPortal.SkinEngine.Xaml
           return false;
       return true;
     }
-
+  
     /// <summary>
     /// Returns the information if the specified <paramref name="other"/> descriptor
     /// is targeted at the same property on the same object.
@@ -487,6 +487,134 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       if (other is SimplePropertyDataDescriptor)
         return TargetEquals((SimplePropertyDataDescriptor) other);
+      else
+        return false;
+    }
+  }
+
+  /// <summary>
+  /// A data descriptor with an underlaying field.
+  /// Supports reading and writing of the value.
+  /// </summary>
+  public class FieldDataDescriptor : IDataDescriptor
+  {
+    #region Protected fields
+
+    protected object _obj;
+    protected FieldInfo _fld;
+
+    #endregion
+
+    #region Ctor & static methods
+
+    public FieldDataDescriptor(object obj, FieldInfo fld)
+    {
+      _obj = obj;
+      _fld = fld;
+    }
+
+    public static bool CreateFieldDataDescriptor(object targetObj,
+        string fieldName, out FieldDataDescriptor result)
+    {
+      result = null;
+      if (targetObj == null)
+        throw new NullReferenceException("Target object 'null' is not supported");
+      FieldInfo fi;
+      if (!FindField(targetObj.GetType(), fieldName, out fi))
+        return false;
+      result = new FieldDataDescriptor(targetObj, fi);
+      return true;
+    }
+
+    public static bool FindField(Type type, string fieldName, out FieldInfo fi)
+    {
+      fi = type.GetField(fieldName);
+      return fi != null;
+    }
+
+    #endregion
+
+    #region IDataDescriptor implementation
+
+    public bool SupportsRead
+    {
+      get { return true; }
+    }
+
+    public bool SupportsWrite
+    {
+      get { return true; }
+    }
+
+    public bool SupportsChangeNotification
+    {
+      get { return false; }
+    }
+
+    public bool SupportsTargetOperations
+    {
+      get { return true; }
+    }
+
+    public object Value
+    {
+      get { return _fld.GetValue(_obj); }
+      set { _fld.SetValue(_obj, value); }
+    }
+
+    public Type DataType
+    {
+      get { return _fld.FieldType; }
+    }
+
+    public object TargetObject
+    {
+      get { return _obj; }
+    }
+
+    public IDataDescriptor Retarget(object newTarget)
+    {
+      if (newTarget == null)
+        throw new NullReferenceException("Target object 'null' is not supported");
+      if (!_fld.DeclaringType.IsAssignableFrom(newTarget.GetType()))
+        throw new InvalidOperationException(string.Format(
+            "Type of new target object is not compatible with this property descriptor (expected type: {0}, new target type: {1}",
+            _fld.DeclaringType.Name, newTarget.GetType().Name));
+      FieldDataDescriptor result = new FieldDataDescriptor(newTarget, _fld);
+      return result;
+    }
+
+    public void Attach(DataChangedHandler handler)
+    {
+      // Not supported
+    }
+
+    public void Detach(DataChangedHandler handler)
+    {
+      // Not supported
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Returns the information if the specified <paramref name="other"/> descriptor
+    /// is targeted at the same field on the same object.
+    /// </summary>
+    /// <param name="other">Other descriptor whose target object and field should be compared.</param>
+    public bool TargetEquals(FieldDataDescriptor other)
+    {
+      return _obj.Equals(other._obj) && _fld.Equals(other._fld);
+    }
+
+    public override int GetHashCode()
+    {
+      return _obj.GetHashCode() + _fld.GetHashCode();
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is SimplePropertyDataDescriptor)
+        return TargetEquals((FieldDataDescriptor) other);
       else
         return false;
     }
