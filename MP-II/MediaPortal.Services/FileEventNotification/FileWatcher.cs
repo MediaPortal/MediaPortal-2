@@ -169,6 +169,14 @@ namespace MediaPortal.Services.FileEventNotification
       get { return _isDisposed; }
     }
 
+    /// <summary>
+    /// Gets the subscriptions of the current FileWatcher.
+    /// </summary>
+    public IList<FileWatcherInfo> Subscriptions
+    {
+      get { return _subscriptions; }
+    }
+
     #endregion
 
     #region Public Events

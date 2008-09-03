@@ -177,7 +177,7 @@ namespace MediaPortal.Services.FileEventNotification
       {
         lock (_watchers)      // Don't let other threads add a new item to the disposed watcher
         {
-          // Find and dispose the disposed watcher
+          // Find and remove the disposed watcher
           foreach (KeyValuePair<string, FileWatcher> pair in _watchers)
           {
             // The Value must equal the object.
@@ -188,6 +188,12 @@ namespace MediaPortal.Services.FileEventNotification
               break;
             }
           }
+        }
+        // Free the ID's
+        foreach (FileWatcherInfo subscription in watcher.Subscriptions)
+        {
+          _freeId.Enqueue(subscription.Id);
+          subscription.Id = -1;
         }
       }
     }
