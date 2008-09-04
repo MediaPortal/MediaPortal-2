@@ -131,8 +131,8 @@ namespace MediaPortal.SkinEngine
                                                       Format.A8R8G8B8);
       int vertexShaderVersion = Device.GetDeviceCaps().VertexShaderVersion.Major;
       int pixelShaderVersion = Device.GetDeviceCaps().PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support:{0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support:{0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;

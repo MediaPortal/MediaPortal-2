@@ -515,7 +515,7 @@ namespace MediaPortal.SkinEngine.DirectX
       // Make sure to allow multithreaded apps if we need them
       //presentParams.ForceNoMultiThreadedFlag = !isMultiThreaded;
 
-      ServiceScope.Get<ILogger>().Info("DirectX: Using adapter:{0} {1} {2}",
+      ServiceScope.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
               _graphicsSettings.AdapterOrdinal,
               Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
               _graphicsSettings.DevType);

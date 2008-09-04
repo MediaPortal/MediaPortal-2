@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
@@ -672,7 +671,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Arrange(RectangleF finalRect)
     {
-      Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 

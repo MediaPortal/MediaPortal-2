@@ -579,6 +579,9 @@ namespace MediaPortal.Core.Services.PluginManager
         return false;
       if (plugin.State == PluginState.Active)
         return true;
+      string pluginName = plugin.Metadata.Name;
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("PluginManager: Trying to activate plugin '{0}'", pluginName);
       StateChangeStart(plugin, PluginState.Active);
       try
       {
@@ -586,6 +589,7 @@ namespace MediaPortal.Core.Services.PluginManager
         foreach (string parentName in plugin.Metadata.DependsOn)
         {
           PluginRuntime parent = _availablePlugins[parentName];
+          logger.Debug("PluginManager: Processing dependency '{0}' for plugin '{1}'", parentName, pluginName);
           if (!TryActivate(parent))
             return false;
         }
@@ -598,6 +602,7 @@ namespace MediaPortal.Core.Services.PluginManager
               plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName) as IPluginStateTracker;
           plugin.StateTracker.Activated();
         }
+        logger.Info("PluginManager: Plugin '{0}' activated.", pluginName);
         return true;
       }
       finally

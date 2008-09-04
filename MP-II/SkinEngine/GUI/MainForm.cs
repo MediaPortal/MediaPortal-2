@@ -568,10 +568,10 @@ namespace MediaPortal.SkinEngine.GUI
 
     protected void StopRenderThread()
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
       _renderThreadStopped = true;
       if (_renderThread == null)
         return;
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
       _renderThread.Join();
       _renderThread = null;
     }
