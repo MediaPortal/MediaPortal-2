@@ -292,9 +292,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Double.IsNaN(childSize.Height))
         return;
 
-      if (child.GetType() == typeof(MediaPortal.SkinEngine.Controls.Panels.DockPanel))
-        return;
-
       if(childSize.Width < availableSize.Width)
       {
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
@@ -329,7 +326,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public void ArrangeChildHorizontal(FrameworkElement child, ref PointF p, ref SizeF availableSize)
     {
       SizeF childSize = new SizeF();
-
+  
       child.TotalDesiredSize(ref childSize);
 
       if (!Double.IsNaN(child.Width) && childSize.Width < availableSize.Width)
