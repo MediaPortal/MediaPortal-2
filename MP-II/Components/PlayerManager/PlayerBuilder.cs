@@ -93,7 +93,7 @@ namespace Components.Services.PlayerManager
         builder._type = itemData.Attributes["Type"];
       }
 
-      _builderInstance = (IPlayerBuilder) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+      builder._builderInstance = (IPlayerBuilder) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
 
       return builder;
     }
