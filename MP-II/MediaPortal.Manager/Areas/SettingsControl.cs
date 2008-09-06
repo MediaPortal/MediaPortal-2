@@ -451,7 +451,7 @@ namespace MediaPortal.Manager
     /// <exception cref="NullReferenceException">
     /// A NullReferenceException is thrown if the specified control can't be found.
     /// </exception>
-    /// <param name="path"></param>
+    /// <param name="path">Path to the control, should be the same as IConfigurationNode.ToString()</param>
     /// <returns></returns>
     private FormControl GetFormControl(string path)
     {

@@ -127,8 +127,9 @@ namespace MediaPortal.Services.FileEventNotification
         }
         if (!foundWatcher)
         {
-          FileWatcher watcher = new FileWatcher(fileWatcherInfo);
+          FileWatcher watcher = new FileWatcher(fileWatcherInfo.Path);
           watcher.Disposed += FileWatcher_Disposed;
+          watcher.Add(fileWatcherInfo);
           _watchers.Add(fileWatcherInfo.Path, watcher);
         }
       }
@@ -152,8 +153,17 @@ namespace MediaPortal.Services.FileEventNotification
               fileWatcherInfo.Path));
         _freeId.Enqueue(fileWatcherInfo.Id);
         fileWatcherInfo.Id = -1;
-        return (_watchers.ContainsKey(fileWatcherInfo.Path) // Must contain key to be able to remove
-                && _watchers[fileWatcherInfo.Path].Remove(fileWatcherInfo)); // Remove the FileWatcherInfo
+        if (_watchers.ContainsKey(fileWatcherInfo.Path))// Must contain key to be able to remove
+        {
+          FileWatcher watcher = _watchers[fileWatcherInfo.Path];
+          if (watcher.Remove(fileWatcherInfo))
+          {
+            if (watcher.Subscriptions.Count == 0)
+              watcher.Dispose();
+            return true;
+          }
+        }
+        return false;
       }
       throw new InvalidFileWatchInfoException(
         String.Format(

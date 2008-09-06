@@ -36,6 +36,8 @@ namespace MediaPortal.FileEventNotification
     /// Subscribes the specified instance of FileWatchInfo.
     /// The return value is needed to unsubscribe.
     /// </summary>
+    /// <exception cref="NotSupportedDriveTypeException"> </exception>
+    /// <exception cref="System.NullReferenceException"></exception>
     /// <param name="fileWatchInfo">The FileWatchInfo to subscribe.</param>
     /// <returns>The subscribed item.</returns>
     FileWatchInfo Subscribe(FileWatchInfo fileWatchInfo);

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Timers;
 // Conflict between System.Timers.Timer and System.Threading.Timer
@@ -62,14 +63,26 @@ namespace MediaPortal.Services.FileEventNotification
     #region Variables
 
     /// <summary>
-    /// The watched path,
-    /// should be the same as _filesystemWatcher.Path.
+    /// The path to watch.
     /// </summary>
-    private string _path;
+    private DirectoryInfo _path;
     /// <summary>
-    /// Listens to the file system change notifications and raises events when a directory, or file in a directory, changes.
+    /// The IP address of the server containing the path.
+    /// (used if the path a UNC)
     /// </summary>
-    private FileSystemWatcher _fileSystemWatcher;
+    private IPAddress _serverAddress;
+    /// <summary>
+    /// The FileSystemWatcher used to watch the path.
+    /// </summary>
+    private FileSystemWatcher _watcher;
+    /// <summary>
+    /// Indicates whether we're watching the path.
+    /// </summary>
+    private bool _watching;
+    /// <summary>
+    /// Indicates whether the current FileWatcher is disposed.
+    /// </summary>
+    private bool _isDisposed;
     /// <summary>
     /// All subscriptions for events comming from the current watcher.
     /// </summary>
@@ -79,87 +92,35 @@ namespace MediaPortal.Services.FileEventNotification
     /// </summary>
     private IList<FileWatchEvent> _events;
     /// <summary>
+    /// The timer used to poll the path, to know if it is available.
+    /// </summary>
+    private SystemTimer _pollTimer;
+    /// <summary>
     /// Timer to periodically check if any events are received.
     /// </summary>
     private SystemTimer _notifyTimer;
-    /// <summary>
-    /// Timer to periodically check if the path is available.
-    /// </summary>
-    private SystemTimer _checkkTimer;
-    /// <summary>
-    /// Timer to periodically check if we can initialize the FileSystemWatcher.
-    /// </summary>
-    private SystemTimer _enableTimer;
     /// <summary>
     /// Time to wait between different checks for events.
     /// (milliseconds)
     /// </summary>
     private int _msConsolidationInterval;
     /// <summary>
-    /// Time to wait between different verifications of the specified path.
-    /// (milliseconds)
+    /// Time to wait between the different polls.
+    /// (in milliseconds)
     /// </summary>
-    private int _msCheckkInterval;
+    private int _msPollInterval;
     /// <summary>
-    /// Indicates whether the specified path needs to be periodically checked on its existance.
+    /// Object used for synchronization of the _notifyTimer.
     /// </summary>
-    private bool _isVolatile;
+    private object _syncNotify;
     /// <summary>
-    /// Indicates whether the path is available.
+    /// Object used for synchronization of the _pollTimer.
     /// </summary>
-    private bool _isPathAvailable;
-    /// <summary>
-    /// Indicates whether the current FileWatcher is disposed.
-    /// </summary>
-    private bool _isDisposed;
-    /// <summary>
-    /// Object used for synchronization of the _notifyTimer's events.
-    /// </summary>
-    private object _syncRoot;
+    private object _syncPoll;
 
     #endregion
 
-    #region Public Properties
-
-    /// <summary>
-    /// Gets or sets the watched path.
-    /// </summary>
-    /// <exception cref="NotSupportedDriveTypeException"></exception>
-    public string Path
-    {
-      get { return _path; }
-      set
-      {
-        // Check if the path's drive type is valid.
-        if (!IsValidDriveType(value))
-          throw new NotSupportedDriveTypeException("The drive type of \"" + value + "\" is not supported by the system.");
-        // Check if the path is volatile.
-        _isVolatile = IsVolatileLocation(value);
-        // Lock the _syncRoot to make sure no events are processed during the change.
-        lock (_syncRoot)
-        {
-          _path = value;
-          _fileSystemWatcher.Path = value;
-          _events.Clear();
-        }
-        if (_isVolatile)
-        {
-          // Volatile location, make sure we have the _checkTimer watching.
-          if (_checkkTimer == null)
-          {
-            _checkkTimer = new SystemTimer(_msCheckkInterval);
-            _checkkTimer.Elapsed += CheckTimer_Elapsed;
-          }
-          _checkkTimer.Enabled = _fileSystemWatcher.EnableRaisingEvents;
-        }
-        else if (_checkkTimer != null)
-        {
-          // Not a volatile location, _checkTimer isn't needed.
-          _checkkTimer.Dispose();
-          _checkkTimer = null;
-        }
-      }
-    }
+    #region Properties
 
     /// <summary>
     /// Gets whether the current FileWatcher is disposed.
@@ -188,112 +149,44 @@ namespace MediaPortal.Services.FileEventNotification
 
     #endregion
 
-    #region Constructors
+    #region Constructor
 
     /// <summary>
-    /// Initializes a new instance of the FileWatcher class, given the specified FileWatcherInfo.
+    /// Initializes a new instance of the FileWatcher class, given the path to watch.
     /// </summary>
-    /// <exception cref="ArgumentNullException">
-    /// The Path property of the specified FileWatcherInfo is a null reference. 
-    /// -or- 
-    /// The Filter property of the specified FileWatcherInfo parameter is a null reference.
+    /// <exception cref="NotSupportedDriveTypeException">
+    /// The drive type of the specified path is not supported by the system.
     /// </exception>
-    /// <exception cref="ArgumentException">
-    /// The Path property of the specified FileWatcherInfo is an empty string ("").
-    /// -or-
-    /// The path specified through the Path property of the specified FileWatcherInfo does not exist.
+    /// <exception cref="NullReferenceException">
+    /// The parameter \"path\" is a null reference.
     /// </exception>
-    /// <param name="fileWatchInfo">FileWatcherInfo containing the path and filter.</param>
-    public FileWatcher(FileWatcherInfo fileWatchInfo)
+    /// <param name="path">The path to watch.</param>
+    public FileWatcher(string path)
     {
-      if (fileWatchInfo.Filter == null)
-        throw new ArgumentNullException("The Filter property of the"
-          + " specified FileWatcherInfo parameter is a null reference.");
+      if (path == null)
+        throw new NullReferenceException("The parameter \"path\" is a null reference.");
+      _syncNotify = new object();
+      _syncPoll = new object();
+      _msConsolidationInterval = 1000;
+      _msPollInterval = 1500;
+      _path = new DirectoryInfo(path);
+      if (!IsValidDriveType(_path.Root.FullName))
+        throw new NotSupportedDriveTypeException("The drive type of \"" + _path.Root.FullName + "\" is not supported by the system.");
       _subscriptions = new List<FileWatcherInfo>();
-      _path = fileWatchInfo.Path;
-      if (IsPathAvailable(_path))
-      {
-        _fileSystemWatcher = new FileSystemWatcher(_path);
-        Initialize();
-        Add(fileWatchInfo);
-      }
-      // Else: we can't initialize yet, FileSystemWatcher would throw an Exception.
-      else
-      {
-        _subscriptions.Add(fileWatchInfo);
-        _enableTimer = new SystemTimer(2500);
-        _enableTimer.Elapsed += EnableTimer_Elapsed;
-        _enableTimer.Enabled = true;
-      }
+      _events = new List<FileWatchEvent>();
+      // Initialize the Component to watch the path's availability.
+      InitializePollTimer();
+      // _pollTimer is responsible to initialize the service.
     }
 
-    /// <summary>
-    /// Initializes a new instance of the FileWatcher class, given the specified collection of FileWatcherInfo.
-    /// </summary>
-    /// <exception cref="ArgumentNullException">
-    /// The Path property of one of the specified FileWatcherInfo instances is a null reference. 
-    /// -or- 
-    /// The Filter property of one of the specified FileWatcherInfo instances is a null reference.
-    /// -or-
-    /// The specified fileWatchInfoCollection is a null reference.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// The Path property of one of the specified FileWatcherInfo instances is an empty string ("").
-    /// -or-
-    /// The path specified through the Path property of one of the specified FileWatcherInfo instances does not exist.
-    /// -or-
-    /// Not all paths specified through the Path property of the specified FileWatcherInfo instances, are equal.
-    /// -or-
-    /// The specified fileWatchInfoCollection is empty.
-    /// </exception>
-    /// <param name="fileWatchInfoCollection">Collection of FileWatcherInfo containing the path and filter.</param>
-    public FileWatcher(IEnumerable<FileWatcherInfo> fileWatchInfoCollection)
+    #endregion
+
+    #region Destructor
+
+    ~FileWatcher()
     {
-      if (fileWatchInfoCollection == null)
-        throw new ArgumentNullException("The specified fileWatchInfoCollection "
-          + "is a null reference.");
-      IEnumerator<FileWatcherInfo> enumerator = fileWatchInfoCollection.GetEnumerator();
-      if (!enumerator.MoveNext())
-        throw new ArgumentException("The specified fileWatchInfoCollection is empty.");
-      _path = enumerator.Current.Path;
-      // The path must be accessible if we want to initialize the current FileWatcher.
-      if (IsPathAvailable(_path))
-      {
-        // Initialize the FileSystemWatcher using the first instance of FileWatcherInfo.
-        _fileSystemWatcher = new FileSystemWatcher(enumerator.Current.Path);
-        _subscriptions = new List<FileWatcherInfo>();
-        Initialize();
-        do // We already did a MoveNext()
-        {
-          if (enumerator.Current.Path != _path)
-            throw new ArgumentException(
-              String.Format(
-                "The current FileWatcher watches \"{0}\", while an item from the specified "
-                + "fileWatchInfoCollection wants to watch \"{1}\"",
-                _path, enumerator.Current.Path));
-          Add(enumerator.Current);
-        } while (enumerator.MoveNext());
-      }
-      // Else: we can't initialize yet, because of unavailable path
-      else
-      {
-        foreach (FileWatcherInfo fileWatcherInfo in fileWatchInfoCollection)
-        {
-          // Check if all paths are equal,
-          // we don't want to throw any exceptions while we try to initialize the current FileWatcher later on.
-          // Especially not because that's going to happen in a different thread.
-          if (fileWatcherInfo.Path != _path)
-            throw new ArgumentException(
-              String.Format("The current FileWatcher watches \"{0}\", while an item from the specified "
-                            + "fileWatchInfoCollection wants to watch \"{1}\"",
-                            _path, enumerator.Current.Path));
-          _subscriptions.Add(fileWatcherInfo);
-        }
-        // Check if we can initialize, every 2 seconds
-        _enableTimer = new SystemTimer(2000);
-        _enableTimer.Elapsed += EnableTimer_Elapsed;
-        _enableTimer.Enabled = true;
-      }
+      // Make sure to have released all resources.
+      Dispose();
     }
 
     #endregion
@@ -307,28 +200,23 @@ namespace MediaPortal.Services.FileEventNotification
     /// <exception cref="ArgumentException">
     /// The given fileWatchInfo contains a different path than the one being watched.
     /// </exception>
-    /// <param name="fileWatchInfo">The FileWatcherInfo to add.</param>
-    public void Add(FileWatcherInfo fileWatchInfo)
+    /// <param name="fileWatcherInfo">The FileWatcherInfo to add.</param>
+    public void Add(FileWatcherInfo fileWatcherInfo)
     {
-      if (fileWatchInfo.Path != _path)
-        throw new ArgumentException(String.Format("Invalid path specified in the given fileWatchInfo. Contains \"{0}\", while \"{1}\" is excpected",
-          fileWatchInfo.Path, _path));
+      if (fileWatcherInfo.Path != _path.FullName)
+        throw new InvalidFileWatchInfoException("The specified path does not equal the watched path.");
       lock (_subscriptions)
       {
-        // Don't add it twice
-        if (!_subscriptions.Contains(fileWatchInfo))
+        if (!_subscriptions.Contains(fileWatcherInfo))
         {
-          _subscriptions.Add(fileWatchInfo);
-          if (_fileSystemWatcher != null)
+          _subscriptions.Add(fileWatcherInfo);
+          if (fileWatcherInfo.EventHandler != null)
           {
-            if (!_fileSystemWatcher.IncludeSubdirectories
-                && fileWatchInfo.IncludeSubdirectories)
-              _fileSystemWatcher.IncludeSubdirectories = true;
-            // We have to enable the resources if this is ther first subscription.
-            if (_subscriptions.Count == 1)
-              EnableRaisingEvents();
+            FileWatchEventArgs eventArgs =
+              new FileWatchEventArgs(_watching ? FileWatchChangeType.Enabled : FileWatchChangeType.Disabled,
+                                     fileWatcherInfo.Path);
+            RaiseEvent(new EventData(fileWatcherInfo, eventArgs));
           }
-          // Else: another thread is trying to initialize the _fileSystemWatcher
         }
       }
     }
@@ -337,33 +225,12 @@ namespace MediaPortal.Services.FileEventNotification
     /// Removes the given FileWatcherInfo from the current watch.
     /// The eventhandler won't be called anymore on a change in the current watch.
     /// </summary>
-    /// <param name="fileWatchInfo">The FileWatcherInfo to remove.</param>
+    /// <param name="fileWatcherInfo">The FileWatcherInfo to remove.</param>
     /// <returns>True if the FileWatcherInfo is found and removed.</returns>
-    public bool Remove(FileWatcherInfo fileWatchInfo)
+    public bool Remove(FileWatcherInfo fileWatcherInfo)
     {
-      bool removed;
       lock (_subscriptions)
-        removed = _subscriptions.Remove(fileWatchInfo);
-      if (removed)
-      {
-        if (_subscriptions.Count == 0)
-          Dispose();  // No subscriptions left, release all resources.
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Returns a string representation of the current FileWatcher.
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-      return String.Format("Path: {0}   Status: {1}",
-                           // The watched path
-                           _path,
-                           // Status: Disposed, Enabled, or Disabled
-                           (_isDisposed ? "Disposed" : (_fileSystemWatcher.EnableRaisingEvents ? "Enabled" : "Disabled")));
+        return _subscriptions.Remove(fileWatcherInfo);
     }
 
     #endregion
@@ -376,265 +243,163 @@ namespace MediaPortal.Services.FileEventNotification
     public void Dispose()
     {
       _isDisposed = true;
-      ServiceScope.Get<ILogger>().Debug("Disposing FileWatcher for \"{0}\"", _path);
-      if (_fileSystemWatcher != null)
-        _fileSystemWatcher.Dispose();
       if (_notifyTimer != null)
         _notifyTimer.Dispose();
-      if (_checkkTimer != null)
-        _checkkTimer.Dispose();
-      if (_enableTimer != null)
-        _enableTimer.Dispose();
+      if (_pollTimer != null)
+        _pollTimer.Dispose();
+      if (_watcher != null)
+        _watcher.Dispose();
+      if (_events != null)
+        _events.Clear();
+      _watching = false;
+      RaiseEvent(FileWatchChangeType.Disposed);
       if (Disposed != null)
-        Disposed(this, new EventArgs());
+        Dispose();
     }
 
     #endregion
 
-    #region Private Methods
+    #region Initializers
 
     /// <summary>
-    /// Helps the constructors,
-    /// by initializing all local variables, except for _fileSystemWatcher.
-    /// </summary>
-    /// <exception cref="NotSupportedDriveTypeException"></exception>
-    private void Initialize()
-    {
-      // Set the timer intervals.
-      _msConsolidationInterval = 1000;
-      _msCheckkInterval = 2000;
-      // Do some basic checks regarding the path.
-      _isVolatile = IsVolatileLocation(_path);
-      _isPathAvailable = IsPathAvailable(_path);
-      // Object used to synchronize.
-      if (_syncRoot == null)
-        _syncRoot = new object();
-      // List of received events.
-      if (_events == null)
-        _events = new List<FileWatchEvent>();
-      // List of subscriptions, to send events to.
-      if (_subscriptions == null)
-        _subscriptions = new List<FileWatcherInfo>();
-      // Configure _fileSystemWatcher.
-      _fileSystemWatcher.Filter = "*";
-      _fileSystemWatcher.Changed += FileSystemEventHandler;
-      _fileSystemWatcher.Created += FileSystemEventHandler;
-      _fileSystemWatcher.Deleted += FileSystemEventHandler;
-      _fileSystemWatcher.Renamed += FileSystemEventHandler;
-      _fileSystemWatcher.Error += ErrorEventHandler;
-      // Initialize the timer to periodically check if any events have been received.
-      _notifyTimer = new SystemTimer(_msConsolidationInterval);
-      _notifyTimer.Elapsed += NotifyTimer_Elapsed;
-      _notifyTimer.AutoReset = true;
-      _notifyTimer.Enabled = _fileSystemWatcher.EnableRaisingEvents;
-      if (_isVolatile)
-      {
-        // Initialize the timer to periodically check if the path is still available.
-        _checkkTimer = new SystemTimer(_msCheckkInterval);
-        _checkkTimer.Elapsed += CheckTimer_Elapsed;
-        _checkkTimer.Enabled = _fileSystemWatcher.EnableRaisingEvents;
-      }
-    }
-
-    /// <summary>
-    /// Creates a new instance of the FileSystemWatcher, which is based on the current one.
-    /// The calling thread is blocked untill the Watch is fully reinitialized.
-    /// </summary>
-    private void ReInitializeWatcher()
-    {
-      // No need to reinitialize if the current FileWatcher is disposed.
-      if (_isDisposed)
-        return;
-      // Disable the timers, to make sure no events are processed during reinitialization.
-      if (_notifyTimer != null)
-        _notifyTimer.Enabled = false;
-      if (_checkkTimer != null)
-        _checkkTimer.Enabled = false;
-      // Create a new instance of the internal FileSystemWatcher.
-      _fileSystemWatcher = new FileSystemWatcher(_path, _fileSystemWatcher.Filter);
-      // Keep trying to enable the FileSystemWatcher, and block the calling thread 'till we're done.
-      bool enabled = _fileSystemWatcher.EnableRaisingEvents;
-      while (!enabled)
-      {
-        if (IsPathAvailable(_path))
-        {
-          try
-          {
-            _fileSystemWatcher.EnableRaisingEvents = true;
-            enabled = true;
-          }
-          catch (FileNotFoundException)
-          {
-            // IsPathAvailable isn't always correct for UNC paths,
-            // it appears like Directory.Exists() isn't updated quick enough.
-            // We'll have to try again later.
-            Thread.Sleep(500);
-          }
-        }
-        else
-        {
-          Thread.Sleep(1500);
-        }
-      }
-      // Enable the timers again.
-      if (_notifyTimer != null)
-        _notifyTimer.Enabled = true;
-      if (_checkkTimer != null)
-        _checkkTimer.Enabled = true;
-    }
-
-    /// <summary>
-    /// Notifies subscribers that the watch is disabled,
-    /// and disables the _notifyTimer.
-    /// </summary>
-    private void NotifyDisabledWatch()
-    {
-      // Disable the timer responsible for sending events.
-      _notifyTimer.Enabled = false;
-      // Notify subscriptions that the watch is lost.
-      Queue<FileWatchEvent> report = new Queue<FileWatchEvent>(1);
-      report.Enqueue(new FileWatchEvent(FileWatchChangeType.Disabled, _path));
-      RaiseEvents(report);
-    }
-
-    /// <summary>
-    /// Restores a previously lost watch by removing all items
-    /// which don't need to be autorestored.
-    /// And by then reinitializing the watcher.
-    /// Finally all subscribers are notified about the new status.
-    /// </summary>
-    private void ReEnableWatch()
-    {
-      // Remove all items which don't need to be restored.
-      for (int i = _subscriptions.Count - 1; i > -1; i--)
-      {
-        if (!_subscriptions[i].AutoRestore)
-          _subscriptions.RemoveAt(i);
-      }
-      // Dispose this if no subscriptions left.
-      if (_subscriptions.Count == 0)
-      {
-        Dispose();
-      }
-      // Else: reinitialize the watcher.
-      else
-      {
-        ReInitializeWatcher();
-        // Notify subscribers that the watch is enabled.
-        Queue<FileWatchEvent> _report = new Queue<FileWatchEvent>(1);
-        _report.Enqueue(new FileWatchEvent(FileWatchChangeType.Enabled, _path));
-        RaiseEvents(_report);
-      }
-    }
-
-    /// <summary>
-    /// Enables the current resources,
-    /// meaning the current FileWatcher starts watching.
-    /// </summary>
-    private void EnableRaisingEvents()
-    {
-      if (IsPathAvailable(_path))
-      {
-        _fileSystemWatcher.EnableRaisingEvents = true;
-        if (_subscriptions.Count != 0)
-        {
-          _notifyTimer.Enabled = true;
-          if (_checkkTimer != null)
-            _checkkTimer.Enabled = true;
-        }
-      }
-      // Else: periodically check if the path is available to watch
-      else
-      {
-        if (_checkkTimer == null)
-        {
-          _checkkTimer = new SystemTimer(_msCheckkInterval);
-          _checkkTimer.Elapsed += CheckTimer_Elapsed;
-        }
-        _checkkTimer.Enabled = true;
-      }
-    }
-
-    /// <summary>
-    /// Raises all queued events.
-    /// </summary>
-    /// <exception cref="ArgumentNullException">
-    /// The parameter "eventQueue" is a null reference.
-    /// </exception>
-    /// <param name="eventQueue"></param>
-    private void RaiseEvents(Queue<FileWatchEvent> eventQueue)
-    {
-      if (eventQueue == null)
-        throw new ArgumentNullException("The parameter \"eventQueue\" is a null reference.");
-      while (eventQueue.Count > 0)
-      {
-        FileWatchEvent watchEvent = eventQueue.Dequeue();
-        lock (_subscriptions)
-        {
-          foreach (FileWatcherInfo info in _subscriptions)
-          {
-            IFileWatchEventArgs args = new FileWatchEventArgs(watchEvent);
-            if (info.MayRaiseEventFor(args))
-              new Thread(RaiseEvent).Start(new EventData(info, args));
-          }
-        }
-      }
-    }
-
-    /// <summary>
-    /// Raises an event for the given EventData.
-    /// </summary>
-    /// <param name="eventData">An instance of EventData.</param>
-    private void RaiseEvent(object eventData)
-    {
-      // Should we give the current Thread a name?
-      EventData data = (EventData)eventData;
-      data.Info.EventHandler(data.Info, data.Args);
-    }
-
-    /// <summary>
-    /// Determines whether the specified path links to a potential volatile location.
+    /// Initializes a FileSystemWatcher for the specified path.
     /// </summary>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    /// <param name="path"></param>
+    /// <param name="path">Path to watch.</param>
     /// <returns></returns>
-    private bool IsVolatileLocation(string path)
+    private FileSystemWatcher InitializeWatcher(string path)
     {
-      if (path == null)
-        throw new ArgumentNullException("The \"path\" parameter is a null reference.");
-      if (path.StartsWith(@"\\"))
-        return true;
-      DriveInfo driveInfo = new DriveInfo(path);
-      switch (driveInfo.DriveType)
+      FileSystemWatcher watcher = new FileSystemWatcher(path);
+      watcher.Changed += FileSystemEventHandler;
+      watcher.Created += FileSystemEventHandler;
+      watcher.Deleted += FileSystemEventHandler;
+      watcher.Renamed += FileSystemEventHandler;
+      watcher.Error += ErrorEventHandler;
+      watcher.Disposed += Watcher_Disposed;
+      return watcher;
+    }
+
+    /// <summary>
+    /// Initializes the watch service which will watch the path itself,
+    /// so we'll know if/when the path is created and deleted.
+    /// </summary>
+    private void InitializePollTimer()
+    {
+      if (_pollTimer == null)
       {
-        case DriveType.Fixed:
-          // A fixed drive should never "disappear"
-          return false;
-        case DriveType.NoRootDirectory:
-          // Should never be returned, if it does get returned: fix it.
-          throw new NotSupportedException(String.Format("Illegal return value while trying to get the drive type for \"{0}\"", path));
-        default: // Volatile DriveTypes: Unknown, Removable, Network, CDRom, and Ram
-          return true;
+        _pollTimer = new SystemTimer(_msPollInterval);
+        _pollTimer.Elapsed += PollTimer_Elapsed;
+        _pollTimer.Enabled = true;
+      }
+      else if (!_pollTimer.Enabled)
+      {
+        _pollTimer.Enabled = true;
       }
     }
+
+    /// <summary>
+    /// Tries to initialize the service.
+    /// </summary>
+    /// <returns></returns>
+    private bool TryInitializeService()
+    {
+      if (!_watching && IsPathAvailable(_path.FullName))
+      {
+        try
+        {
+          _watcher = InitializeWatcher(_path.FullName);
+          _watcher.IncludeSubdirectories = true;
+          _watcher.EnableRaisingEvents = true;
+          _watching = true;
+          _notifyTimer = new SystemTimer(_msConsolidationInterval);
+          _notifyTimer.Elapsed += NotifyTimer_Elapsed;
+          _notifyTimer.Enabled = true;
+        }
+        catch (Exception)
+        {
+          _watching = false;
+          if (_watcher != null)
+          {
+            _watcher.Dispose();
+            _watcher = null;
+          }
+          if (_notifyTimer != null)
+          {
+            _notifyTimer.Dispose();
+            _notifyTimer = null;
+          }
+        }
+        if (_watcher != null)
+        {
+          RaiseEvent(_path.FullName, FileWatchChangeType.Enabled);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Enable/Disable
+
+    /// <summary>
+    /// Enables the watch service.
+    /// </summary>
+    private void EnableWatch()
+    {
+      // ToDo: CHECK IF THIS IS AN APPROPRIATE PLACE!! FORGOT WHERE TO PLACE IT...
+      InitializePollTimer();
+      if (_watcher == null)
+      {
+        TryInitializeService();
+        return;
+      }
+      try
+      {
+        _watcher.EnableRaisingEvents = true;
+      }
+      catch (FileNotFoundException)
+      {
+        return;
+      }
+      _watching = true;
+      _notifyTimer.Enabled = true;
+      RaiseEvent(_path.FullName, FileWatchChangeType.Enabled);
+    }
+
+    /// <summary>
+    /// Disables the watch service.
+    /// </summary>
+    private void DisableWatch()
+    {
+      if (_watcher != null)
+      {
+        _notifyTimer.Enabled = false;
+        _watching = false;
+        _watcher.Dispose();
+        _watcher = null;
+        RaiseEvent(_path.FullName, FileWatchChangeType.Disabled);
+      }
+    }
+
+    #endregion
+
+    #region PathChecks
 
     /// <summary>
     /// Returns whether the drive's type is valid.
     /// A valid drive type should be watchable by the FileSystemWatcher.
     /// </summary>
-    /// <exception cref="ArgumentNullException">The "path" parameter is a null reference</exception>
     /// <param name="path"></param>
     /// <returns></returns>
     private bool IsValidDriveType(string path)
     {
-      if (path == null)
-        throw new ArgumentNullException("The \"path\" parameter is a null reference.");
       if (path.StartsWith(@"\\"))
         return true;
       try
       {
-        return new DriveInfo(path).DriveFormat.StartsWith("NTFS");
+        return new DriveInfo(path).DriveFormat == "NTFS";
       }
       catch (ArgumentException)
       {
@@ -652,17 +417,32 @@ namespace MediaPortal.Services.FileEventNotification
       // Is it a UNC path? If so, we'll need to take a different approach to optimize performance.
       if (path.StartsWith(@"\\"))
       {
-        // Get the servers hostname
-        string host = path.Substring(2);
-        int index = host.IndexOf('\\');
-        if (index != -1)
-          host = host.Substring(0, index);
+        // We save a lot of time by pinging the server first.
         try
         {
-          // Try to resolve the UNC path by DNS.
-          // If server isn't active: we loose about 2 seconds
-          // If we would do an immediate Directory.Exist: we loose up to 10 seconds.
-          Dns.GetHostEntry(host);
+          // Ping the host to see if its online.
+          if (_serverAddress == null || !Ping(_serverAddress))
+          {
+            // Get the servers hostname
+            string host = path.Substring(2); // Remove the "\\" in front of the hostname.
+            int index = host.IndexOf(@"\");  // Find the next "\" to extract the hostname.
+            if (index != -1)
+              host = host.Substring(0, index);
+            // Tesolve the UNC path by DNS.
+            IPHostEntry hostEntry = Dns.GetHostEntry(host);
+            bool pingAble = false;
+            foreach (IPAddress address in hostEntry.AddressList)
+            {
+              if (Ping(address))
+              {
+                _serverAddress = address; // Save the address, the DNS entry might get lost.
+                pingAble = true;
+                break;
+              }
+            }
+            if (!pingAble)
+              return false;
+          }
         }
         catch (System.Net.Sockets.SocketException)
         {
@@ -677,49 +457,164 @@ namespace MediaPortal.Services.FileEventNotification
             + "the specified path doesn't exist. This may result in a noticeable performance drop.", path);
         return exists;
       }
-      // Else: it's no UNC path, using Directory.Exist should be save and fast.
-      return Directory.Exists(path);
+      // Else: it's no UNC path, using DirectoryInfo.Exist should be save and fast.
+      // We need a workaround for Directory.Exists(), because its result can't be trusted!
+      DirectoryInfo nfo = new DirectoryInfo(path);
+      nfo.Refresh();
+      if (!nfo.Exists)
+        return false;
+      try
+      {
+        nfo.GetFileSystemInfos();
+      }
+      catch (UnauthorizedAccessException)
+      {
+        return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Returns whether a ping to the given IPAddress succeeded.
+    /// </summary>
+    /// <param name="ipAddress"></param>
+    /// <returns></returns>
+    private bool Ping(IPAddress ipAddress)
+    {
+      bool pingAble;
+      try
+      {
+        // ICMP message should be returned in < 5ms on any modern network, we'll timout at 25ms
+        pingAble = (new Ping().Send(ipAddress, 25).Status == IPStatus.Success);
+      }
+      catch (PingException)
+      {
+        pingAble = false;
+      }
+      return pingAble;
     }
 
     #endregion
 
-    #region Private EventHandlers
+    #region EventRaisers
 
     /// <summary>
-    /// Handles all events comming from the _fileSystemWatcher.
+    /// Notifies all subscriptions about the given change.
+    /// </summary>
+    /// <param name="changeType"></param>
+    /// <param name="path"></param>
+    private void RaiseEvent(string path, FileWatchChangeType changeType)
+    {
+      Queue<FileWatchEvent> _report = new Queue<FileWatchEvent>(1);
+      _report.Enqueue(new FileWatchEvent(changeType, path));
+      RaiseEvents(_report);
+    }
+
+    /// <summary>
+    /// Raises all queued events.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// The parameter "eventQueue" is a null reference.
+    /// </exception>
+    /// <param name="eventQueue"></param>
+    private void RaiseEvents(Queue<FileWatchEvent> eventQueue)
+    {
+      if (eventQueue == null)
+        throw new ArgumentNullException("The parameter \"eventQueue\" is a null reference.");
+      while (eventQueue.Count > 0)
+      {
+        FileWatchEvent watchEvent = eventQueue.Dequeue();
+        IFileWatchEventArgs args = new FileWatchEventArgs(watchEvent);
+        lock (_subscriptions)
+        {
+          foreach (FileWatcherInfo info in _subscriptions)
+          {
+            if (info.MayRaiseEventFor(args))
+              new Thread(RaiseEvent).Start(new EventData(info, args));
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Raises an event for the given EventData.
+    /// </summary>
+    /// <param name="eventData">An instance of EventData.</param>
+    private void RaiseEvent(object eventData)
+    {
+      // Should we give the current Thread a name?
+      EventData data = (EventData)eventData;
+      if (data.Info.EventHandler != null)
+        data.Info.EventHandler(data.Info, data.Args);
+    }
+
+    #endregion
+
+    #region FileSystemWatcher EventHandlers
+
+    /// <summary>
+    /// Handles all events incomming from the _fileSystemWatcher.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void FileSystemEventHandler(object sender, FileSystemEventArgs e)
     {
-      lock (_events)
-        _events.Add(new FileWatchEvent(e));
+      FileSystemWatcher fileSystemWatcher = (FileSystemWatcher) sender;
+      // Received an event for the watched path?
+      if (fileSystemWatcher.Path == _path.FullName && _watching)
+      {
+        lock (_events)
+          _events.Add(new FileWatchEvent(e));
+      }
+      // Received an event for the parent path, regarding the watched path?
+      else if (e.FullPath + "\\" == _path.FullName)
+      {
+        if ((e.ChangeType & WatcherChangeTypes.Deleted) == WatcherChangeTypes.Deleted)
+        {
+          DisableWatch();
+          _events.Clear();
+        }
+        else if ((e.ChangeType & WatcherChangeTypes.Created) == WatcherChangeTypes.Created
+            || (e.ChangeType & WatcherChangeTypes.Renamed) == WatcherChangeTypes.Renamed)
+        {
+          EnableWatch();
+        }
+      }
+      // Else: discart the event
     }
 
     /// <summary>
-    /// Handles errors from the _fileSystemWatcher.
+    /// Handles errors from the FileSystemWatchers.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void ErrorEventHandler(object sender, ErrorEventArgs e)
     {
-      ServiceScope.Get<ILogger>().Warn("A FileSystemWatcher error has occurred: {0}", e.GetException().Message);
-      // We need to create a new instance of the FileSystemWatcher because the old one is now corrupted.
-      if (IsPathAvailable(_path))
+      Monitor.Enter(_syncPoll);
+      _watching = false;
+      try
       {
-        ReInitializeWatcher();
+        DisableWatch();
       }
-      else if (_checkkTimer == null)
+      finally
       {
-        _checkkTimer = new SystemTimer(_msCheckkInterval);
-        _checkkTimer.Elapsed += CheckTimer_Elapsed;
-        _checkkTimer.Enabled = true;
-      }
-      else
-      {
-        _checkkTimer.Enabled = true;
+        Monitor.Exit(_syncPoll);
       }
     }
+
+    /// <summary>
+    /// Handles the Disposed event for the FileSystemWatchers.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Watcher_Disposed(object sender, EventArgs e)
+    {
+      _watching = false;
+    }
+
+    #endregion
+
+    #region Timer EventHandlers
 
     /// <summary>
     /// Filters all received events, and raises the waiting ones.
@@ -728,10 +623,12 @@ namespace MediaPortal.Services.FileEventNotification
     /// <param name="e"></param>
     private void NotifyTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      Thread.CurrentThread.Name = "FileWatcher - Raising Events";
+      // Set the current threads name for logging purpose.
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "FileEventNotifier";
       // We don't fire the events inside the lock. We will queue them here until the code exits the locks.
       Queue<FileWatchEvent> eventsToBeFired = null;
-      if (Monitor.TryEnter(_syncRoot))
+      if (Monitor.TryEnter(_syncNotify))
       {
         // Only one thread at a time is processing the events                
         try
@@ -777,7 +674,7 @@ namespace MediaPortal.Services.FileEventNotification
         }
         finally
         {
-          Monitor.Exit(_syncRoot);
+          Monitor.Exit(_syncNotify);
         }
       }
       // else - this timer event was skipped, processing will happen during the next timer event
@@ -787,84 +684,32 @@ namespace MediaPortal.Services.FileEventNotification
     }
 
     /// <summary>
-    /// Checks if the location is available,
-    /// and raises events if the status has changed.
+    /// Polls if the location is available,
+    /// and handles changes in status.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void CheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+    private void PollTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      // Disable the timer to avoid simultaneous checks.
-      _checkkTimer.Enabled = false;
-      // Set the current threads name for logging purpose.
-      Thread.CurrentThread.Name = "FileWatcher - CheckPath";
-      // Check if the watched path still exists.
-      bool pathAvailable = IsPathAvailable(_path);
-      // Is the set state still up to date?
-      if (_isPathAvailable != pathAvailable)
+      _watching = (_watcher != null && _watcher.EnableRaisingEvents);
+      if (Monitor.TryEnter(_syncPoll))
       {
-        _isPathAvailable = pathAvailable;
-        if (pathAvailable)
-          // Path was unavailable and is now available again, we'll have to restore.
-          ReEnableWatch();
-        else
-          // Path was available, and is now unavailable, we'll have to handle the lost watch.
-          NotifyDisabledWatch();
-      }
-      // Maybe we missed the path going offline and then quickly going online again,
-      // this means that the FileSystemWatcher stopped watching without us noticing it.
-      else if (!_fileSystemWatcher.EnableRaisingEvents)
-      {
-        NotifyDisabledWatch();  // Send a notification that the path is offline
-        Thread.Sleep(100);  // Give subscribers a chance to alter their data (they are notified in different threads)
-        ReEnableWatch();     // Now get it to watch again
-      }
-      // Enable the timer and wait for the next check
-      if (!_isDisposed)
-        _checkkTimer.Enabled = true;
-    }
-
-    /// <summary>
-    /// Provides delayed initialization of the current FileWatcher.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void EnableTimer_Elapsed(object sender, ElapsedEventArgs e)
-    {
-      // Disable the timer, checking the path might take some time.
-      _enableTimer.Enabled = false;
-      // Set the current threads name for logging purpose.
-      Thread.CurrentThread.Name = "FileWatcher - EnableAttempt";
-      if (_subscriptions.Count == 0)
-      {
-        // No need to initialize, no subscriptions.
-        Dispose();
-      }
-      else if (IsPathAvailable(_subscriptions[0].Path))
-      {
-        // Don't need the timer anymore.
-        _enableTimer.Dispose();
-        _enableTimer = null;
-        // Now we can initialize all resources.
-        _fileSystemWatcher = new FileSystemWatcher(_subscriptions[0].Path);
-        Initialize();
-        // Add all waiting subscriptions with the Add() method.
-        lock (_subscriptions)
+        // IsPathAvailable might take some time,
+        // we'll do this inside the lock to make sure we don't have dozens of checks at the same time.
+        bool pathAvailable = IsPathAvailable(_path.FullName);
+        //ServiceScope.Get<ILogger>().Debug("[FileEventNotifier] Path available: " + pathAvailable);
+        //ServiceScope.Get<ILogger>().Debug("[FileEventNotifier] Watching: " + _watching);
+        try
         {
-          IList<FileWatcherInfo> subscriptions = _subscriptions;
-          _subscriptions = new List<FileWatcherInfo>(subscriptions.Count);
-          foreach (FileWatcherInfo subscription in subscriptions)
-            Add(subscription);
+          if (!_watching && pathAvailable)
+            EnableWatch();
+          else if (_watching && !pathAvailable)
+            DisableWatch();
         }
-        // Notify subscriptions of the enabled watch.
-        Queue<FileWatchEvent> events = new Queue<FileWatchEvent>(1);
-        events.Enqueue(new FileWatchEvent(FileWatchChangeType.Enabled, _path));
-        RaiseEvents(events);
-      }
-      else
-      {
-        // We'll have to check again later.
-        _enableTimer.Enabled = true;
+        finally
+        {
+          Monitor.Exit(_syncPoll);
+        }
       }
     }
 
