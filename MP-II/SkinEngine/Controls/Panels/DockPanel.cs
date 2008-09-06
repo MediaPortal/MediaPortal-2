@@ -170,7 +170,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
 
       int count = 0;
-      SizeF childSize = new SizeF(0, 0);
+      // Size of the child
+      SizeF childSize = new SizeF();
+      // Area allocated to child
+      SizeF childArea = new SizeF();
+
       foreach (FrameworkElement child in Children)
       {
         count++;
@@ -183,21 +187,23 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         if (GetDock(child) == Dock.Top)
         {
-
           PointF location = new PointF(offsetLeft, offsetTop);
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          ArrangeChildHorizontal(child, ref location, ref availableSize);
-
+          // Allocate area to child
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+            childArea = new SizeF(availableSize.Width, availableSize.Height);
           else
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
+            childArea = new SizeF(availableSize.Width, childSize.Height);
 
-          offsetTop += childSize.Height;
-          availableSize.Height -= childSize.Height;
+          // Position the child within the child area
+          ArrangeChildHorizontal(child, ref location, ref childArea);
+          child.Arrange(new RectangleF(location, childArea));
+
+          offsetTop += childArea.Height;
+          availableSize.Height -= childArea.Height;
         }
         else if (GetDock(child) == Dock.Bottom)
         {
@@ -211,15 +217,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          ArrangeChildHorizontal(child, ref location, ref availableSize);
-
+          // Allocate area to child
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+            childArea = new SizeF(availableSize.Width, availableSize.Height);
           else
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, childSize.Height)));
+            childArea = new SizeF(availableSize.Width, childSize.Height);
 
-          offsetBottom += childSize.Height;
-          availableSize.Height -= childSize.Height;
+          // Position the child within the child area
+          ArrangeChildHorizontal(child, ref location, ref childArea);
+          child.Arrange(new RectangleF(location, childArea));
+
+          offsetBottom += childArea.Height;
+          availableSize.Height -= childArea.Height;
         }
         else if (GetDock(child) == Dock.Left)
         {
@@ -228,15 +237,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          ArrangeChildVertical(child, ref location, ref availableSize);
-
+          // Allocate area to child
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+            childArea = new SizeF(availableSize.Width, availableSize.Height);
           else
-            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
+            childArea = new SizeF(childSize.Width, availableSize.Height);
 
-          offsetLeft += childSize.Width;
-          availableSize.Width -= childSize.Width;
+          // Position the child within the child area
+          ArrangeChildVertical(child, ref location, ref childArea);
+          child.Arrange(new RectangleF(location, childArea));
+
+          offsetLeft += childArea.Width;
+          availableSize.Width -= childArea.Width;
         }
         else if (GetDock(child) == Dock.Right)
         {
@@ -249,14 +261,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
-          ArrangeChildVertical(child, ref location, ref availableSize);
+          // Allocate area to child
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+            childArea = new SizeF(availableSize.Width,availableSize.Height);
           else
-            child.Arrange(new RectangleF(location, new SizeF(childSize.Width, availableSize.Height)));
+            childArea = new SizeF(childSize.Width,availableSize.Height);
 
-          offsetRight += childSize.Width;
-          availableSize.Width -= childSize.Width;
+          // Position the child within the child area
+          ArrangeChildVertical(child, ref location, ref childArea);
+          child.Arrange(new RectangleF(location, childArea));
+
+          offsetRight += childArea.Width;
+          availableSize.Width -= childArea.Width;
         }
         else // Center
         {
@@ -268,7 +284,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
           else
           {
-            ArrangeChild(child, ref location, ref availableSize);
+            ArrangeChild(child, ref location, ref childSize);
             child.Arrange(new RectangleF(location, childSize));
           }
 
