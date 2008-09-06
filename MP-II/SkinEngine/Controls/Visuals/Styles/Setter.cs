@@ -95,6 +95,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
         return;
       if (WasApplied)
         dd.Value = _originalValue;
+      _isSet = false;
     }
 
     protected IDataDescriptor GetPropertyDescriptor(UIElement element)
