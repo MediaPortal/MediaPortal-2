@@ -29,7 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class TreeView : ItemsControl
+  public class TreeView : HeaderedItemsControl
   {
     #region Protected fields
 
@@ -104,37 +104,5 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    protected override FrameworkElement PrepareItemContainer(object dataItem)
-    {
-      TreeViewItem container = new TreeViewItem();
-      container.Style = ItemContainerStyle;
-      container.ItemContainerStyle = ItemContainerStyle; // TreeItems also have to build containers...
-      container.ItemsPanel = ItemsPanel;
-      container.Context = dataItem;
-      // FIXME: Are the next 3 lines debugging code?
-      container.TemplateControl = new ItemsPresenter();
-      container.TemplateControl.Margin = new Thickness(64, 0, 0, 0);
-      container.TemplateControl.VisualParent = container;
-      
-      if (dataItem is ListItem)
-      {
-        ListItem listItem = (ListItem) dataItem;
-        container.ItemsSource = listItem.SubItems;
-      }
-
-      container.HeaderTemplateSelector = ItemTemplateSelector;
-      container.HeaderTemplate = ItemTemplate;
-      FrameworkElement containerTemplateControl = ItemContainerStyle.Get();
-      containerTemplateControl.Context = dataItem;
-      ContentPresenter headerContentPresenter = containerTemplateControl.FindElement(new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-      headerContentPresenter.Content = (FrameworkElement)container.HeaderTemplate.LoadContent();
-
-      container.Header = containerTemplateControl;
-
-      ItemsPresenter p = container.Header.FindElement(new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
-      if (p != null) p.IsVisible = false;
-      return container;
-    }
   }
 }

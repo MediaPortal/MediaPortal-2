@@ -106,8 +106,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       _fillProperty.Attach(OnFillBrushPropertyChanged);
       _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Attach(OnStrokeThicknessChanged);
-      // FIXME: ??
-      // _strokeProperty.Attach(OnStrokeThicknessChanged);
     }
 
     void Detach()
@@ -115,8 +113,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       _fillProperty.Detach(OnFillBrushPropertyChanged);
       _strokeProperty.Detach(OnStrokeBrushPropertyChanged);
       _strokeThicknessProperty.Detach(OnStrokeThicknessChanged);
-      // FIXME: ??
-      // _strokeProperty.Detach(OnStrokeThicknessChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void Execute(UIElement element)
     {
       if (Storyboard != null)
-        element.StartStoryboard(Storyboard as Storyboard, HandoffBehavior);
+        element.StartStoryboard(Storyboard, HandoffBehavior);
     }
   }
 }

@@ -459,7 +459,7 @@ namespace Models.Extensions
       Installer.AddToQueue(latestObj as IExtensionPackage, "Install");
       
       UpdateContextMenu();
-      ContextMenu.FireChange(true);
+      ContextMenu.FireChange();
       NotifyAction();
     }
     /// <summary>
@@ -478,7 +478,7 @@ namespace Models.Extensions
         Installer.AddToQueue(item.Item as IExtensionPackage, "Install");
       }
       UpdateContextMenu();
-      ContextMenu.FireChange(true);
+      ContextMenu.FireChange();
       NotifyAction();
     }
 
@@ -495,7 +495,7 @@ namespace Models.Extensions
         Installer.AddToQueue(item.Item as IExtensionPackage, "Uninstall");
       }
       UpdateContextMenu();
-      ContextMenu.FireChange(true);
+      ContextMenu.FireChange();
       NotifyAction();
     }
 
@@ -512,7 +512,7 @@ namespace Models.Extensions
         Installer.AddToQueue(item.Item as IExtensionPackage, "Install");
       }
       UpdateContextMenu();
-      ContextMenu.FireChange(true);
+      ContextMenu.FireChange();
       NotifyAction();
     }
 

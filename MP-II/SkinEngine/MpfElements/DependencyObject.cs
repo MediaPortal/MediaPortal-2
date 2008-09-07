@@ -112,7 +112,7 @@ namespace MediaPortal.SkinEngine.Controls
       return DataContext;
     }
 
-    public INameScope FindNameScope()
+    public virtual INameScope FindNameScope()
     {
       if (this is INameScope)
         return this as INameScope;

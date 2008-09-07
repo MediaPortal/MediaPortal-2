@@ -60,7 +60,10 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       foreach (ResourceDictionary crd in rd._mergedDictionaries)
         _mergedDictionaries.Add(copyManager.GetCopy(crd));
       foreach (KeyValuePair<string, object> kvp in rd._names)
-        _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+        if (_names.ContainsKey(kvp.Key))
+          continue;
+        else
+          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
       _parent = copyManager.GetCopy(rd._parent);
     }
 

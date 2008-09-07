@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Diagnostics;
 using System.Collections;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
@@ -102,6 +101,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _prepare = false;
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
+      OnItemsSourceChanged(_itemsSourceProperty);
       Attach();
     }
 
@@ -116,6 +116,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _attachedItemsCollection.Changed -= OnCollectionChanged;
         _attachedItemsCollection = null;
       }
+      // FIXME Albert78: Don't access ItemsCollection directly, use an interface exposing
+      // the change event
       ItemsCollection coll = ItemsSource as ItemsCollection;
       if (coll != null)
       {
@@ -127,9 +129,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnCollectionChanged(bool refreshAll)
+    void OnCollectionChanged()
     {
       _prepare = true;
+      Invalidate();
       if (Screen != null) Screen.Invalidate(this);
     }
 
@@ -137,13 +140,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (HasFocus)
         SetFocusOnFirstItem();
-    }
-
-    void OnItemsSourcePropChanged(Property property)
-    {
-      _prepare = true;
-      if (Screen != null) Screen.Invalidate(this);
-      Invalidate();
     }
 
     void OnItemTemplateChanged(Property property)
@@ -234,7 +230,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the DataTemplate used to display each item.
+    /// Gets or sets the DataTemplate used to display each item. For subclasses displaying
+    /// hierarchical data, this should be a <see cref="HierarchicalDataTemplate"/>.
     /// </summary>
     public DataTemplate ItemTemplate
     {
@@ -314,7 +311,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
       {
-        FrameworkElement container = PrepareItemContainer(enumer.Current);
+        UIElement container = PrepareItemContainer(enumer.Current);
         children.Add(container);
       }
       children.SetParent(_itemsHostPanel);
@@ -324,7 +321,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return true;
     }
 
-    protected abstract FrameworkElement PrepareItemContainer(object dataItem);
+    /// <summary>
+    /// Creates an UI element which displays one of the items of this <see cref="ItemsControl"/>.
+    /// The specified <paramref name="dataItem"/> is one of the items from the <see cref="ItemsSource"/>
+    /// collection.
+    /// </summary>
+    /// <remarks>
+    /// The implementor should use the <see cref="ItemContainerStyle"/> as style for the new container,
+    /// and it should use the <see cref="ItemTemplate"/> as data template to display the
+    /// <paramref name="dataItem"/>.
+    /// </remarks>
+    /// <param name="dataItem">Item to build a visible container for.</param>
+    /// <returns>UI element which renders the specified <paramref name="dataItem"/>.</returns>
+    protected abstract UIElement PrepareItemContainer(object dataItem);
 
 
     public bool DoUpdateItems()

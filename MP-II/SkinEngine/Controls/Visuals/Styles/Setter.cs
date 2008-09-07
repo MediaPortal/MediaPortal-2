@@ -33,8 +33,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     #region Protected fields
 
     protected object _value;
-    // FIXME Albert78: Move the original value out of the setter instance to a kind of context -
-    // it doesn't belong to the setter, as it may be shared between different elements
     protected Object _originalValue = null;
     protected bool _isSet = false;
     protected object _setterValue;

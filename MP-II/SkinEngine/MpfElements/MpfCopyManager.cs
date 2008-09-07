@@ -78,7 +78,9 @@ namespace MediaPortal.SkinEngine.MpfElements
       MpfCopyManager cm = new MpfCopyManager();
       foreach (KeyValuePair<object, object> kvp in identities)
         cm.AddIdentity(kvp.Key, kvp.Value);
-      return cm.GetDeepCopy(o);
+      T result = cm.GetCopy(o);
+      cm.FinishCopy();
+      return result;
     }
 
     /// <summary>

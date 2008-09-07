@@ -49,11 +49,8 @@ namespace Models.PlayList
 
     void onPlayListMessage(QueueMessage message)
     {
-      bool refreshAll = false;
-      if (message.MessageData.ContainsKey("refreshAll") && (bool)message.MessageData["refreshAll"] == true)
-        refreshAll = true;
       Refresh();
-      _playList.FireChange(refreshAll);
+      _playList.FireChange();
     }
 
     public ItemsCollection MainMenu

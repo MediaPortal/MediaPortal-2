@@ -258,7 +258,7 @@
       <Setter.Value>
         <ControlTemplate>
           <Grid Margin="0,2,0,2">
-		    <Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Control Style="{ThemeResource ButtonControlStyle}"/>
@@ -395,12 +395,12 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid Margin="0,2,0,2">
-            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
             <Path x:Name="Check" Visibility="Hidden" Stretch="None" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
-              <Setter Property="Visibility" TargetName="Check" Value="Visible"/>
+              <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
@@ -833,31 +833,39 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <ControlTemplate.Resources>
-            <!-- storyboard whichs turns the background to be transparent. is used by buttons when they are not enabled  -->
-            <Storyboard x:Key="PlusMinusButton_DisabledStoryboard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonColor}"/>
-              </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonColor}"/>
-              </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="PathHorz" Storyboard.TargetProperty="(UIElement.Opacity)">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
-              </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="PathVert" Storyboard.TargetProperty="(UIElement.Opacity)">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-          </ControlTemplate.Resources>
           <Grid x:Name="GrdA" Margin="0,2,0,2">
-            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
             <Path x:Name="PathHorz" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M6,13 L20,13" StrokeThickness="2"/>
             <Path x:Name="PathVert" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M13,6 L13,20" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="PathVert" Property="Visibility" Value="Hidden"/>
+            </Trigger>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -998,7 +1006,7 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Item container styles ********************************* -->
+  <!-- ************************* ListView Item container styles ************************** -->
 
   <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
@@ -1039,7 +1047,7 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Item data templates ********************************* -->
+  <!-- *************************** ListView Item data templates ****************************** -->
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
@@ -1052,24 +1060,16 @@
   <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Height="46">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="6" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" FontSize="28"/>
-      <Label Grid.Row="0" Grid.Column="7" Grid.ColumnSpan="4" HorizontalAlignment="Right" Text="{Binding Size}" FontSize="20"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Text="{Binding [Name]}" FontSize="28"/>
+      <Label Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Text="{Binding Size}" FontSize="20"/>
     </Grid>
   </DataTemplate>
 
@@ -1104,7 +1104,7 @@
         <ColumnDefinition/>
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [CoverArt]}" FallbackSource="{Binding [defaulticon]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Text="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
@@ -1155,10 +1155,11 @@
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
-  <!-- ****************************** TreeView styles ********************************** -->
+  <!-- *************************** TreeView Item data templates ****************************** -->
 
   <!-- A data template for a ListItem in tree mode -->
-  <DataTemplate x:Key="TreeItemDataTemplate" DataType="{x:Type collections:ListItem}">
+  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:ListItem}"
+      ItemsSource="{Binding SubItems}">
     <Grid>
       <Label x:Name="ItemLabel" Height="32" Text="{Binding [Name]}" FontSize="28"/>
       <Grid.Triggers>
@@ -1167,37 +1168,57 @@
         </Trigger>
       </Grid.Triggers>
     </Grid>
-  </DataTemplate>
+  </HierarchicalDataTemplate>
 
-  <Style x:Key="TreeItemContainerStyle" TargetType="{x:Type TreeViewItem}">
+  <!-- ************************** TreeView item container styles ***************************** -->
+
+  <Style x:Key="DefaultSelectableTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type TreeViewItem}">
+        <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
           <Grid x:Name="GrdB" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}" VerticalAlignment="Top"/>
-            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top" IsChecked="{Binding Mode=TwoWay,Path=Selected}"/>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}"
+                IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                VerticalAlignment="Top"/>
+            <CheckBox x:Name="Checker" Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top"
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
             <ContentPresenter Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <ItemsPresenter x:Name="ItemsHost" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="2" Grid.Row="1" IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </StackPanel>
+<!-- Testcode -->
+
+<!--
+            <Label Name="SubItemsHost" Grid.Column="2" Grid.Row="1" Text="Opened">
+              <Label.LayoutTransform>
+                <ScaleTransform ScaleX="1" ScaleY="0"/>
+              </Label.LayoutTransform>
+            </Label>
+-->
+
+<!-- -->
           </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
   </Style>
 
-  <Style x:Key="MpTreeView" TargetType="{x:Type TreeView}">
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="VerticalAlignment" Value="Top"/>
-    <Setter Property="ItemTemplate" Value="{StaticResource TreeItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource TreeItemContainerStyle}"/>
+  <!-- ****************************** TreeView styles ********************************** -->
+
+  <!-- Standard TreeView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
+  <Style x:Key="DefaultTreeViewStyle" TargetType="{x:Type TreeView}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
@@ -1214,6 +1235,11 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="DefaultSelectableTreeViewStyle" BasedOn="{StaticResource DefaultTreeViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultTreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultSelectableTreeItemContainerStyle}"/>
   </Style>
 
   <!-- ***************************** Busy cursor ******************************** -->

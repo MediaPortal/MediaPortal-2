@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;

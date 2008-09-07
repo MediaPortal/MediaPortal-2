@@ -56,7 +56,10 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       Freezable = copyManager.GetCopy(rw.Freezable);
       _parent = copyManager.GetCopy(rw._parent);
       foreach (KeyValuePair<string, object> kvp in rw._names)
-        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+        if (_names.ContainsKey(kvp.Key))
+          continue;
+        else
+          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion

@@ -672,7 +672,7 @@ namespace MediaPortal.SkinEngine.Xaml
             }
             else
             {
-              string key = null;
+              string key;
               object value = Instantiate((XmlElement)childNode, out key);
               // Handle the case if a markup extension was instantiated as a child
               if (value is IEvaluableMarkupExtension)

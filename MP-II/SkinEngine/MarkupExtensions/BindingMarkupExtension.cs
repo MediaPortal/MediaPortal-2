@@ -613,8 +613,14 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           result = current as INameScope;
           return true;
         }
-        else if (current is UIElement && (result = ((UIElement)current).TemplateNamescope) != null)
-          return true;
+        else if (current is UIElement)
+        {
+          UIElement uiElement = (UIElement) current;
+          Property templateNameScopeProperty = uiElement.TemplateNameScopeProperty;
+          AttachToSourcePathProperty(templateNameScopeProperty);
+          if ((result = ((INameScope) templateNameScopeProperty.GetValue())) != null)
+            return true;
+        }
         if (!FindParent(current, out current, FindParentMode.LogicalTree))
           return false;
       }
@@ -727,7 +733,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       _sourceValueValid = false;
       IDataDescriptor evaluatedValue;
       if (!GetSourceDataDescriptor(out evaluatedValue))
-        // Do nothing if not all necessary properties can be resolved at the current time
+          // Do nothing if not all necessary properties can be resolved at the current time
         return false;
       if (_compiledPath != null)
         try

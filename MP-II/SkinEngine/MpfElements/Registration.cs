@@ -79,10 +79,10 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("ScrollContentPresenter", typeof(SkinEngine.Controls.Visuals.ScrollContentPresenter));
       objectClassRegistrations.Add("ProgressBar", typeof(SkinEngine.Controls.Visuals.ProgressBar));
       objectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
+      objectClassRegistrations.Add("HeaderedItemsControl", typeof(SkinEngine.Controls.Visuals.HeaderedItemsControl));
       objectClassRegistrations.Add("TreeView", typeof(SkinEngine.Controls.Visuals.TreeView));
       objectClassRegistrations.Add("TreeViewItem", typeof(SkinEngine.Controls.Visuals.TreeViewItem));
       objectClassRegistrations.Add("ItemsPresenter", typeof(SkinEngine.Controls.Visuals.ItemsPresenter));
-      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.DataTemplate));
       objectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
       objectClassRegistrations.Add("DataTemplateSelector", typeof(SkinEngine.Controls.Visuals.DataTemplateSelector));
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
@@ -136,6 +136,8 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
       objectClassRegistrations.Add("Setter", typeof(SkinEngine.Controls.Visuals.Styles.Setter));
       objectClassRegistrations.Add("BindingSetter", typeof(SkinEngine.Controls.Visuals.Styles.BindingSetter));
+      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.DataTemplate));
+      objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.HierarchicalDataTemplate));
       objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Styles.ControlTemplate));
       objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
 
@@ -300,8 +302,6 @@ namespace MediaPortal.SkinEngine.MpfElements
       {
         Label resultLabel = new Label();
         resultLabel.Text = (string)value;
-        // FIXME Albert78: Use default font (from FontManager?) rather than hard coded font
-        //resultLabel.Font = "font12";
         result = resultLabel;
         return true;
       }
@@ -351,9 +351,9 @@ namespace MediaPortal.SkinEngine.MpfElements
         target = source;
         return true;
       }
-      else if (source is DataTemplate)
+      else if (source is DataTemplate && !(source is HierarchicalDataTemplate))
       {
-        // DataTemplate objects are unmodifyable
+        // DataTemplate objects are unmodifyable, except HierarchicalDataTemplate
         target = source;
         return true;
       }

@@ -72,28 +72,17 @@ namespace MediaPortal.Presentation.DataObjects
       }
     }
 
-    public delegate void ItemsChangedHandler(bool refreshAll);
+    public delegate void ItemsChangedHandler();
 
     /// <summary>
-    /// event which gets fired when collection changes
+    /// Event which gets fired when the collection changes.
     /// </summary>
     public event ItemsChangedHandler Changed;
 
-    /// <summary>
-    /// helper method to fire a change.
-    /// </summary>
     public void FireChange()
     {
       if (Changed != null)
-      {
-        Changed(true);
-      }
-    }
-
-    public void FireChange(bool refreshAll)
-    {
-      if (Changed != null)
-        Changed(refreshAll);
+        Changed();
     }
   }
 }

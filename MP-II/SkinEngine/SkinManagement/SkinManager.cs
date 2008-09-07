@@ -22,9 +22,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
 
@@ -111,16 +113,26 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       ICollection<DirectoryInfo> skinDirectories = GetSkinRootDirectories();
       foreach (DirectoryInfo rootDirectory in skinDirectories)
-        foreach (DirectoryInfo skinDirectory in rootDirectory.GetDirectories())
-        {
-          string skinName = skinDirectory.Name;
-          Skin skin;
-          if (_skins.ContainsKey(skinName))
-            skin = _skins[skinName];
-          else
-            skin = _skins[skinName] = new Skin(skinDirectory.Name);
-          skin.AddRootDirectory(skinDirectory);
-        }
+        if (rootDirectory.Exists)
+          try
+          {
+            foreach (DirectoryInfo skinDirectory in rootDirectory.GetDirectories())
+            {
+              string skinName = skinDirectory.Name;
+              Skin skin;
+              if (_skins.ContainsKey(skinName))
+                skin = _skins[skinName];
+              else
+                skin = _skins[skinName] = new Skin(skinDirectory.Name);
+              skin.AddRootDirectory(skinDirectory);
+            }
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error loading skins from directory '{0}'", e, rootDirectory.FullName);
+          }
+        else
+          ServiceScope.Get<ILogger>().Warn("Skin resource directory '{0}' doesn't exist", rootDirectory.FullName);
       // Setup the resource chain: Inherit the default theme resources for all
       // skins other than the default skin
       Skin defaultSkin = DefaultSkin;

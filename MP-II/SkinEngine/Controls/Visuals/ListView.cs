@@ -105,7 +105,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected override FrameworkElement PrepareItemContainer(object dataItem)
+    protected override UIElement PrepareItemContainer(object dataItem)
     {
       ListViewItem container = new ListViewItem();
       container.Style = ItemContainerStyle;

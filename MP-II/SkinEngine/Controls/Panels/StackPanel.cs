@@ -97,10 +97,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #region Measure and arrange
 
-    /// <summary>
-    /// measures the size in layout required for child elements and determines a size for the FrameworkElement-derived class.
-    /// </summary>
-    /// <param name="availableSize">The available size that this element can give to child elements.</param>
     public override void Measure(ref SizeF totalSize)
     {
 
@@ -134,6 +130,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         }
       }
       // FIXME MrHipp. What is this?
+      // Albert78: This is the code to do the logical scrolling. See FIXME in
+      // method RenderChildren. Please fix the code to handle logical scrolling (See IScrollInfo)
       float totalHeight = _totalHeight;
       float totalWidth = _totalWidth;
       if (IsItemsHost)
@@ -170,11 +168,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("StackPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("StackPanel.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
@@ -297,7 +290,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             continue;
           float posY = (float)(element.ActualPosition.Y - ActualPosition.Y);
 
-          // FIXME Albert78: What should this code do?
+          // FIXME Albert78: Fix code for logical scrolling here
           if (_isScrolling)
           {
             // if (posY < _physicalScrollOffsetY) continue;

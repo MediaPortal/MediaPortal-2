@@ -84,34 +84,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       set { _targetTypeProperty.SetValue(value); }
     }
 
-    // FIXME Albert78: Rework the TreeView and HeaderedItemsControl methods PrepareItemContainer,
-    // which are the only pieces of code using this method. Then remove this method.
-    public FrameworkElement Get()
-    {
-      foreach (SetterBase sb in _setters)
-      {
-        // The whole code here is hack
-        Setter setter = sb as Setter;
-        if (sb == null)
-          continue;
-        if (setter.Property == "Template")
-        {
-          FrameworkElement element;
-          if (setter.Value is FrameworkTemplate)
-            element = (FrameworkElement)((FrameworkTemplate)setter.Value).LoadContent();
-          else
-            element = MpfCopyManager.DeepCopyCutLP(setter.Value) as FrameworkElement;
-          foreach (SetterBase setter2 in _setters)
-          {
-            if (setter2.Property != "Template")
-              setter2.Set(element);
-          }
-          return element;
-        }
-      }
-      return null;
-    }
-
     /// <summary>
     /// Applies this <see cref="Style"/> to the specified <paramref name="element"/>.
     /// </summary>

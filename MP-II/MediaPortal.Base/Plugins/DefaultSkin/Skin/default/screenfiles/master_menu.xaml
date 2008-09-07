@@ -61,7 +61,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </ListView>
           <Button x:Name="VideoWindow" Style="{StaticResource VideoWindowButtonStyle}"
               IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}" Width="160" Height="120" VerticalAlignment="Bottom"
-              Command="{Command Source={Service ScreenManager},Path=ShowWindow,Parameters=fullscreenvideo}"/>
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=fullscreenvideo}"/>
         </StackPanel>
 
         <!-- Order matters here: ContentViewer has to be the last control to fill the rest of the space -->

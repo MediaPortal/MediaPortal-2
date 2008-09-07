@@ -24,55 +24,52 @@
 
 using System.Collections;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class TreeViewItem : HeaderedItemsControl
+  public class HierarchicalDataTemplate : DataTemplate
   {
-    public TreeViewItem()
+    #region Private fields
+
+    Property _itemsSourceProperty;
+
+    #endregion
+
+    #region Ctor
+
+    public HierarchicalDataTemplate()
     {
-      Attach();
+      Init();
     }
 
-    void Attach()
+    void Init()
     {
-      ItemTemplateProperty.Attach(OnItemTemplateChanged);
-    }
-
-    void Detach()
-    {
-      ItemTemplateProperty.Detach(OnItemTemplateChanged);
+      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Detach();
       base.DeepCopy(source, copyManager);
-      Attach();
+      HierarchicalDataTemplate hdt = source as HierarchicalDataTemplate;
+      ItemsSource = copyManager.GetCopy(hdt.ItemsSource);
     }
 
-    void OnItemTemplateChanged(Property property)
+    #endregion
+
+    #region Public properties
+
+    public Property ItemsSourceProperty
     {
-      if (ItemTemplate is HierarchicalDataTemplate)
-      {
-        HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
-        hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
-        ItemsSource = hdt.ItemsSource;
-      }
+      get { return _itemsSourceProperty; }
     }
 
-    void OnTemplateItemsSourceChanged(Property property)
+    public IEnumerable ItemsSource
     {
-      ItemsSource = property.GetValue() as IEnumerable;
+      get { return (IEnumerable) _itemsSourceProperty.GetValue(); }
+      set { _itemsSourceProperty.SetValue(value); }
     }
 
-    protected override bool Prepare()
-    {
-      if (!IsExpanded)
-        return true;
-      return base.Prepare();
-    }
+    #endregion
   }
 }

@@ -46,7 +46,13 @@ namespace MediaPortal.Utilities.DeepCopy
       get { return _identities; }
     }
 
-    protected void AddIdentity<T>(T source, T result)
+    /// <summary>
+    /// Adds an object reference which should be copied to a fixed value.
+    /// </summary>
+    /// <typeparam name="T">Type of the object reference.</typeparam>
+    /// <param name="source">Source object.</param>
+    /// <param name="result">Target object.</param>
+    public void AddIdentity<T>(T source, T result)
     {
       _identities.Add(source, result);
     }
@@ -91,17 +97,10 @@ namespace MediaPortal.Utilities.DeepCopy
     }
 
     /// <summary>
-    /// Returns the deep copy of the specified object <paramref name="o"/>.
+    /// Finishes the copying process.
     /// </summary>
-    /// <remarks>
-    /// If this method is called recursively for the same object <c>o</c> before
-    /// the object has finished its deep copy, all calls after the first call
-    /// for object <c>o</c> will return the current, not yet finished copy of
-    /// <c>o</c>.
-    /// </remarks>
-    protected T GetDeepCopy<T>(T o)
+    public void FinishCopy()
     {
-      object result = ((ICopyManager) this).GetCopy(o);
       while (_toBeCompleted.Count > 0)
       {
         IDeepCopyable source = _toBeCompleted.First.Value;
@@ -116,7 +115,6 @@ namespace MediaPortal.Utilities.DeepCopy
       if (CopyCompleted != null)
         CopyCompleted(this);
       CopyCompleted = null;
-      return (T) result;
     }
 
     /// <summary>
@@ -128,7 +126,10 @@ namespace MediaPortal.Utilities.DeepCopy
     /// <returns>Deep copy of the specified object.</returns>
     public static T DeepCopy<T>(T o)
     {
-      return new CopyManager().GetDeepCopy(o);
+      CopyManager cm = new CopyManager();
+      T result = cm.GetCopy(o);
+      cm.FinishCopy();
+      return result;
     }
 
     public T GetCopy<T>(T source)

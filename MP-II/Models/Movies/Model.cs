@@ -181,7 +181,7 @@ namespace Models.Movies
           _folder = new FolderItem(p.MediaItem.Parent);
         }
       }
-      _movies.FireChange(true);
+      _movies.FireChange();
     }
 
     #region menus

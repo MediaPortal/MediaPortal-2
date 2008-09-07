@@ -75,14 +75,13 @@ namespace Models.Login
       // clear the exposed users list
       Users.Clear();
       // add users to expose them
-      ListItem buff = null;
       foreach (IUser user in users)
       {
         if (user == null)
         {
           continue;
         }
-        buff = new ListItem();
+        ListItem buff = new ListItem();
         buff.Add("UserName", user.UserName);
         buff.Add("UserImage", user.UserImage);
         if (user.NeedsPassword)

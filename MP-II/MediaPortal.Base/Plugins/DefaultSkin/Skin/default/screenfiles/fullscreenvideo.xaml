@@ -17,7 +17,7 @@
   <Canvas.Triggers>
     <Trigger Property="{Binding Source={Service Players},Path=OSD.IsVideo}" Value="False">
       <Trigger.EnterActions>
-        <TriggerCommand Command="{Command Source={Service ScreenManager},Path=ShowPreviousWindow}" />
+        <TriggerCommand Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}" />
       </Trigger.EnterActions>
     </Trigger>
   </Canvas.Triggers>

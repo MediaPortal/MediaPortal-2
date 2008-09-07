@@ -215,7 +215,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _opacityMaskProperty;
     Property _opacityProperty;
     Property _freezableProperty;
-    INameScope _templateNamescope;
+    Property _templateNameScopeProperty;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     ResourceDictionary _resources;
@@ -252,24 +252,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _isEnabledProperty = new Property(typeof(bool), true);
       _freezableProperty = new Property(typeof(bool), false);
       _opacityProperty = new Property(typeof(double), 1.0);
+      _templateNameScopeProperty = new Property(typeof(INameScope), null);
 
       _opacityMaskProperty = new Property(typeof(Brushes.Brush), null);
     }
 
     void Attach()
     {
-      _marginProperty.Attach(OnPropertyChanged);
+      _marginProperty.Attach(OnLayoutPropertyChanged);
       _visibilityProperty.Attach(OnVisibilityPropertyChanged);
       _opacityProperty.Attach(OnOpacityPropertyChanged);
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
+      _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
     }
 
     void Detach()
     {
-      _marginProperty.Detach(OnPropertyChanged);
+      _marginProperty.Detach(OnLayoutPropertyChanged);
       _visibilityProperty.Detach(OnVisibilityPropertyChanged);
       _opacityProperty.Detach(OnOpacityPropertyChanged);
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
+      _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -294,9 +297,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
-      TemplateNamescope = copyManager.GetCopy(el.TemplateNamescope);
+      TemplateNameScope = copyManager.GetCopy(el.TemplateNameScope);
       // Simply reuse the Resources
       SetResources(el._resources);
+
+      OnLayoutTransformPropertyChanged(_layoutTransformProperty); // Need to manually call this because we are in a detached state
 
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
@@ -333,19 +338,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         FireEvent("OnLostFocus");
     }
 
-    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
-    { }
-
     /// <summary>
-    /// Called when a property value has been changed
-    /// Since all UIElement properties are layout properties
-    /// we're simply calling Invalidate() here to invalidate the layout
+    /// Called when a property value has been changed which makes the current layout invalid.
+    /// This method will call Invalidate() to invalidate the layout.
     /// </summary>
-    /// <param name="property">The property.</param>
-    void OnPropertyChanged(Property property)
+    /// <param name="property">The property which was changed.</param>
+    void OnLayoutPropertyChanged(Property property)
     {
       Invalidate();
     }
+
+    void OnLayoutTransformPropertyChanged(Property property)
+    {
+      if (LayoutTransform != null)
+        LayoutTransform.Attach(OnLayoutPropertyChanged);
+    }
+
+    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
+    { }
 
     public void SetResources(ResourceDictionary resources)
     {
@@ -576,13 +586,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool IsTemplateControlRoot
     {
-      get { return _templateNamescope != null; }
+      get { return TemplateNameScope != null; }
     }
 
-    public INameScope TemplateNamescope
+    public Property TemplateNameScopeProperty
     {
-      get { return _templateNamescope; }
-      set { _templateNamescope = value; }
+      get { return _templateNameScopeProperty; }
+    }
+
+    public INameScope TemplateNameScope
+    {
+      get { return (INameScope) _templateNameScopeProperty.GetValue(); }
+      set { _templateNameScopeProperty.SetValue(value); }
     }
 
     #endregion
@@ -754,6 +769,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual bool ReplaceElementType(Type t, UIElement newElement)
     {
       return false;
+    }
+
+    public override INameScope FindNameScope()
+    {
+      if (this is INameScope)
+        return this as INameScope;
+      else if (TemplateNameScope != null)
+        return TemplateNameScope;
+      else
+        return LogicalParent == null ? null : LogicalParent.FindNameScope();
     }
 
     /// <summary>

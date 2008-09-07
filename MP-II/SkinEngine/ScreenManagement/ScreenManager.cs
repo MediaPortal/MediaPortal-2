@@ -327,7 +327,7 @@ namespace MediaPortal.SkinEngine
     /// a skin file. The window will not be shown yet.
     /// </summary>
     /// <param name="screenName">Name of the screen to return the window instance for.</param>
-    /// <returns>screen or <c>null</c>, if an error occured loading the window.</returns>
+    /// <returns>screen or <c>null</c>, if an error occured while loading the window.</returns>
     public Screen GetScreen(string screenName)
     {
       try
@@ -352,7 +352,7 @@ namespace MediaPortal.SkinEngine
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for window '{0}'", ex, screenName);
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
           // TODO Albert78: Show error dialog with skin loading message
           return null;
         }

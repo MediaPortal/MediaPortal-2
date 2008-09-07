@@ -36,7 +36,7 @@ namespace MediaPortal.SkinEngine.Commands
     {
       if (name == "ScreenManager")
       {
-        ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
+        IScreenManager manager = ServiceScope.Get<IScreenManager>();
         return manager;
       }
 

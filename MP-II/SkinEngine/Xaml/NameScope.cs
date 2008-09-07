@@ -38,7 +38,10 @@ namespace MediaPortal.SkinEngine.Xaml
       NameScope ns = source as NameScope;
       _parent = copyManager.GetCopy(ns._parent);
       foreach (KeyValuePair<string, object> kvp in ns._names)
-        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+        if (_names.ContainsKey(kvp.Key))
+          continue;
+        else
+          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #region INamescope implementation

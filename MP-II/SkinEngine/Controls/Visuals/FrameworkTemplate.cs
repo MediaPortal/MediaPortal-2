@@ -75,7 +75,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
       _parent = copyManager.GetCopy(ft._parent);
       foreach (KeyValuePair<string, object> kvp in ft._names)
-        _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+        if (_names.ContainsKey(kvp.Key))
+          continue;
+        else
+          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion
@@ -93,9 +96,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public UIElement LoadContent()
     {
-      UIElement element = MpfCopyManager.DeepCopyCutLP(_templateElement);
-      element.TemplateNamescope = new NameScope();
-      return element;
+      MpfCopyManager cm = new MpfCopyManager();
+      cm.AddIdentity(this, null);
+      UIElement result = cm.GetCopy(_templateElement);
+      INameScope ns = new NameScope();
+      foreach (KeyValuePair<string, object> nameRegistration in _names)
+        ns.RegisterName(cm.GetCopy(nameRegistration.Key), cm.GetCopy(nameRegistration.Value));
+      cm.FinishCopy();
+      result.TemplateNameScope = ns;
+      return result;
     }
 
     #endregion

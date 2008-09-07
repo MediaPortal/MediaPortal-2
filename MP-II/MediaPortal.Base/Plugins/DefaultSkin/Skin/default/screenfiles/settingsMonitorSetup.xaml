@@ -32,7 +32,7 @@
           </CheckBox>
         </StackPanel>
         <Button Style="{StaticResource ButtonStyle}" Width="160" Height="32"
-            Command="{Command Source={Service ScreenManager},Path=ShowWindow,Parameters=settingsMonitorSetup2}">
+            Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsMonitorSetup2}">
           <Label Font="font13" Text="[settings.next]" Height="32"/>
         </Button>
       </DockPanel>

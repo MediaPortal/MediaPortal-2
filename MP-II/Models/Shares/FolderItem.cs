@@ -46,8 +46,7 @@ namespace Models.Shares
       Add("Name", name);
       Add("Size", "");
       Add("Date", "");
-      Add("path", folder);
-      Add("selected", "false");
+      Add("Path", folder);
       _folder = folder;
       _name = name;
       _parentfolder = parentfolder;

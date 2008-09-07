@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
