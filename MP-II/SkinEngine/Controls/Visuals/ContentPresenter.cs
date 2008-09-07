@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
+using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
@@ -272,16 +274,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    public override UIElement FindElement(IFinder finder)
+    public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      UIElement found = base.FindElement(finder);
-      if (found != null) return found;
+      base.AddChildren(childrenOut);
       if (Content != null)
-      {
-        found = Content.FindElement(finder);
-        return found;
-      }
-      return null;
+        childrenOut.Add(Content);
     }
 
     public override void Deallocate()

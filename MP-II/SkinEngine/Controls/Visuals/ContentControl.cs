@@ -22,8 +22,10 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -162,16 +164,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Base overrides
 
-    public override UIElement FindElement(IFinder finder)
+    public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      UIElement found = base.FindElement(finder);
-      if (found != null) return found;
-      if (Content != null) // Hint: Content can be set in XAML, so it is a LogicalTree property
-      {
-        found = Content.FindElement(finder);
-        return found;
-      }
-      return null;
+      base.AddChildren(childrenOut);
+      if (Content != null)
+        childrenOut.Add(Content);
     }
 
     #endregion

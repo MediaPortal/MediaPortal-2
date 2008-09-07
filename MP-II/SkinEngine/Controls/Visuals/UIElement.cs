@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
@@ -165,6 +166,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
   public class UIElement : Visual, IContentEnabled
   {
+    protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
 
     #region Private/protected fields
 
@@ -725,23 +727,58 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Adds all children in the visual tree to the specified <paramref name="childrenOut"/> collection.
+    /// </summary>
+    /// <param name="childrenOut">Colletion to add children to.</param>
+    public virtual void AddChildren(ICollection<UIElement> childrenOut) { }
+
+    /// <summary>
     /// Steps the structure down (in direction to the child elements) along
     /// the visual tree to find an <see cref="UIElement"/> which fulfills the
     /// condition specified by <paramref name="finder"/>. This method has to be
     /// overridden in all descendants exposing visual children, for every child
     /// this method has to be called.
-    /// For performance reasons, this method does a depth-first search.
+    /// This method does a depth-first search.
     /// </summary>
-    /// <param name="finder">Callback interface which decides if an element
+    /// <param name="finder">Callback interface which decides whether an element
     /// is the element searched for.</param>
     /// <returns><see cref="UIElement"/> for which the specified
     /// <paramref name="finder"/> delegate returned <c>true</c>.</returns>
-    public virtual UIElement FindElement(IFinder finder)
+    public UIElement FindElement(IFinder finder)
     {
-      if (finder.Query(this))
-        return this;
-      else
-        return null;
+      return FindElement_BreadthFirst(finder);
+    }
+
+    public UIElement FindElement_DepthFirst(IFinder finder)
+    {
+      Stack<UIElement> searchStack = new Stack<UIElement>();
+      IList<UIElement> elementList = new List<UIElement>();
+      searchStack.Push(this);
+      while (searchStack.Count > 0)
+      {
+        UIElement current = searchStack.Pop();
+        if (finder.Query(current))
+          return current;
+        elementList.Clear();
+        current.AddChildren(elementList);
+        foreach (UIElement child in elementList)
+          searchStack.Push(child);
+      }
+      return null;
+    }
+
+    public UIElement FindElement_BreadthFirst(IFinder finder)
+    {
+      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] {this});
+      LinkedListNode<UIElement> current;
+      while ((current = searchList.First) != null)
+      {
+        if (finder.Query(current.Value))
+          return current.Value;
+        searchList.RemoveFirst();
+        current.Value.AddChildren(searchList);
+      }
+      return null;
     }
 
     public UIElement FindElementInNamescope(string name)

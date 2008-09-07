@@ -22,8 +22,7 @@
 
 #endregion
 
-using System;
-using System.Drawing;
+using System.Collections.Generic;
 using SlimDX;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
@@ -357,16 +356,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override UIElement FindElement(IFinder finder)
+    public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      UIElement found = base.FindElement(finder);
-      if (found != null) return found;
+      base.AddChildren(childrenOut);
       if (Header != null)
-      {
-        found = Header.FindElement(finder);
-        return found;
-      }
-      return null;
+        childrenOut.Add(Header);
     }
 
     public override void Deallocate()

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
@@ -449,16 +450,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       return false;
     }
 
-    public override UIElement FindElement(IFinder finder)
+    public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      UIElement found = base.FindElement(finder);
-      if (found != null) return found;
-      foreach (UIElement element in Children)
-      {
-        found = element.FindElement(finder);
-        if (found != null) return found;
-      }
-      return null;
+      base.AddChildren(childrenOut);
+      CollectionUtils.AddAll(childrenOut, Children);
     }
 
     #region Focus prediction

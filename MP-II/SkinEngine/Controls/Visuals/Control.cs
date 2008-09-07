@@ -23,10 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
@@ -491,22 +493,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.FireEvent(eventName);
     }
 
-    #region findXXX methods
-
-    public override UIElement FindElement(IFinder finder)
+    public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      UIElement found = base.FindElement(finder);
-      if (found != null) return found;
+      base.AddChildren(childrenOut);
       FrameworkElement templateControl = TemplateControl;
       if (templateControl != null)
-      {
-        found = templateControl.FindElement(finder);
-        return found;
-      }
-      return null;
+        childrenOut.Add(templateControl);
     }
-
-    #endregion
 
     #region Input handling
 
