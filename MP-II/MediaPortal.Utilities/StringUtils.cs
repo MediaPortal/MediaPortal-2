@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Utilities
 {
@@ -31,6 +32,40 @@ namespace MediaPortal.Utilities
   /// </summary>
   public class StringUtils
   {
+
+    /// <summary>
+    /// Replaces the tag 'tag' in the input string with value 'value'
+    /// If value is the empty string then the tag is removed from the input string.
+    /// </summary>
+    /// <param name="input">The string to process.</param>
+    /// <param name="tag">The tag to replace.</param>
+    /// <param name="value">The value of the replacement.</param>
+    /// 
+    public static void ReplaceTag(ref string input, string tag, string value)
+    {
+
+      Regex r = new Regex(String.Format(@"\[[^%]*{0}[^\]]*[\]]", tag));
+      if (value == string.Empty)
+      {
+        Match match = r.Match(input);
+        if (match != null && match.Length > 0)
+        {
+          input = input.Remove(match.Index, match.Length);
+        }
+      }
+      else
+      {
+        Match match = r.Match(input);
+        if (match != null && match.Length > 0)
+        {
+          input = input.Remove(match.Index, match.Length);
+          string m = match.Value.Substring(1, match.Value.Length - 2);
+          input = input.Insert(match.Index, m);
+        }
+      }
+      input = input.Replace(tag, value);
+    }
+
     /// <summary>
     /// Tries to parse the specified version string in the format <c>#.#</c> or <c>#</c>, where # stands
     /// for an int number.
