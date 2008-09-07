@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 
 using System.Reflection;
 using MediaPortal.Presentation.DataObjects;

@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Reflection;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -42,8 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     protected Property _enterActionsProperty;
     protected Property _exitActionsProperty;
     protected Property _settersProperty;
-    protected Property _property;
-    protected PropertyChangedHandler _handler;
+    protected IDataDescriptor _dataDescriptor;
 
     #endregion
 
@@ -61,7 +61,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
       _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
       _settersProperty = new Property(typeof(IList<Setter>), new List<Setter>());
-      _handler = OnPropertyChanged;
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -139,39 +138,30 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void Setup(UIElement element)
     {
       base.Setup(element);
-      if (_property != null)
+      if (_dataDescriptor != null)
       {
-        _property.Detach(_handler);
-        _property = null;
+        _dataDescriptor.Detach(OnPropertyChanged);
+        _dataDescriptor = null;
       }
       if (!String.IsNullOrEmpty(Property))
       {
-        // FIXME: Use ReflectionHelper here
-        Type t = element.GetType();
-        PropertyInfo pinfo = t.GetProperty(Property + "Property");
-        if (pinfo == null)
-        {
-          Trace.WriteLine(String.Format("trigger property {0} not found on {1}", this.Property, element));
-          return;
-        }
-        MethodInfo minfo = pinfo.GetGetMethod();
-        _property = minfo.Invoke(element, null) as Property;
-        _property.Attach(_handler);
+        if (ReflectionHelper.FindMemberDescriptor(element, Property, out _dataDescriptor))
+          _dataDescriptor.Attach(OnPropertyChanged);
       }
       foreach (TriggerAction action in EnterActions)
         action.Setup(element);
       foreach (TriggerAction action in ExitActions)
         action.Setup(element);
-      OnPropertyChanged(_property);
+      OnPropertyChanged(_dataDescriptor);
     }
 
     /// <summary>
-    /// Listens for changes of our trigger property.
+    /// Listens for changes of our trigger property data descriptor.
     /// </summary>
-    void OnPropertyChanged(Property p)
+    void OnPropertyChanged(IDataDescriptor dd)
     {
-      if (_property == null) return;
-      if ((bool) _property.GetValue() == Value)
+      if (_dataDescriptor == null) return;
+      if ((bool) _dataDescriptor.Value == Value)
       {
         //execute start actions
         foreach (TriggerAction action in EnterActions)
