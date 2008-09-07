@@ -50,6 +50,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
+    // FIXME: Use weak references here to allow the objects to be disposed
     protected static IDictionary<object, ICollection<BindingBase>> _objects2Bindings =
         new Dictionary<object, ICollection<BindingBase>>();
 
