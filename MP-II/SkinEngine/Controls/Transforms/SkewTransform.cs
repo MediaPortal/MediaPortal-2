@@ -21,7 +21,7 @@
 */
 
 #endregion
-
+using System;
 using MediaPortal.Presentation.DataObjects;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
@@ -139,27 +139,37 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     {
       base.UpdateTransform();
       _matrix = Matrix.Identity;
-      return;
-      ///@todo: fix skew transform
-      double cx = CenterX;
-      double cy = CenterY;
 
-      bool translation = ((cx != 0.0) || (cy != 0.0));
-      if (translation)
-        _matrix = Matrix.Translation((float)cx, (float)cy, 0);
-      else
-        _matrix = Matrix.Identity;
+      bool flag = (CenterX != 0.0 || CenterY != 0.0);
+      if (flag)
+      {
+        _matrix = Matrix.Translation((float)-CenterX, (float)-CenterY, 0);
+      }
 
-      double ax = AngleX;
-      //      if (ax != 0.0)
-      //        _matrix.xy = Math.Tan(ax * Math.PI / 180);
+      double skewX = AngleX % 360.0;
+      double skewY = AngleY % 360.0;
+      _matrix *= CreateSkewRadians(skewX * 0.017453292519943295, skewY * 0.017453292519943295);
 
-      double ay = AngleY;
-      //if (ay != 0.0)
-      //        _matrix.yx = Math.Tan(ay * Math.PI / 180);
 
-      if (translation)
-        _matrix = Matrix.Translation((float)-cx, (float)-cy, 0);
+      if (flag)
+      {
+        _matrix *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
+      }
+    }
+    Matrix CreateSkewRadians(double skewX, double skewY)
+    {
+      Matrix matrix = Matrix.Identity;
+      SetMatrix(ref matrix, 1.0, Math.Tan(skewY), Math.Tan(skewX), 1.0, 0.0, 0.0);
+      return matrix;
+    }
+    void SetMatrix(ref Matrix m, double m11, double m12, double m21, double m22, double offsetX, double offsetY)
+    {
+      m.M11 = (float)m11;
+      m.M12 = (float)m12;
+      m.M21 = (float)m21;
+      m.M22 = (float)m22;
+      m.M41 = (float)offsetX;
+      m.M42 = (float)offsetY;
     }
   }
 }
