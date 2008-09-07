@@ -38,8 +38,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <DockPanel Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
     <Grid x:Name="Grid1" DockPanel.Dock="Top" HorizontalAlignment="Left">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="2*"/>
+        <ColumnDefinition Width="1*"/>
       </Grid.ColumnDefinitions>  
 	  <Label Margin="60,0,0,0" Grid.Column="0" Grid.Row="0" FontFamily="ritzyNormal" FontSize="60" Text="{DynamicResource Header_Text}" />
 	  <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
