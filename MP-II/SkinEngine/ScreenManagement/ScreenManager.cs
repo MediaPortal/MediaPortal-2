@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine
     private Theme _theme = null;
 
     // Albert78: Next fields are to be removed
-    public TimeUtils _utils = new TimeUtils();
+    //public TimeUtils _utils = new TimeUtils();
     private string _dialogTitle;
     private string[] _dialogLines = new string[3];
     private bool _dialogResponse;  // Yes = true, No = false
@@ -223,7 +223,6 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     public void Render()
     {
-      TimeUtils.Update();
       SkinContext.Now = DateTime.Now;
       lock (_history)
       {
@@ -530,11 +529,7 @@ namespace MediaPortal.SkinEngine
     {
       get
       {
-        return _utils;
-      }
-      set
-      {
-        _utils = value;
+        return TimeUtils.Instance;
       }
     }
 
