@@ -160,7 +160,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Resources.Merge(Template.Resources);
         foreach (TriggerBase t in Template.Triggers)
           Triggers.Add(t);
-        element.SetWindow(Screen);
+        element.SetScreen(Screen);
       }
       Invalidate();
     }
@@ -589,46 +589,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusUp(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusDown(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl == null) return null;
-      FrameworkElement element = ((FrameworkElement) templateControl).PredictFocusRight(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-    }
-
-    #endregion
-
     #region Layouting
 
     void PerformLayout()
@@ -904,14 +864,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (templateControl != null)
         templateControl.DestroyRenderTree();
       base.DestroyRenderTree();
-    }
-
-    public override void SetWindow(Screen screen)
-    {
-      base.SetWindow(screen);
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl != null)
-        templateControl.SetWindow(screen);
     }
 
     public virtual void BecomesVisible()

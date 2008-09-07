@@ -455,42 +455,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (_content == null) return null;
-      FrameworkElement element = ((FrameworkElement)_content).PredictFocusUp(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (_content == null) return null;
-      FrameworkElement element = ((FrameworkElement)_content).PredictFocusDown(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (_content == null) return null;
-      FrameworkElement element = ((FrameworkElement)_content).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (_content == null) return null;
-      FrameworkElement element = ((FrameworkElement)_content).PredictFocusRight(focusedFrameworkElement, ref key, strict);
-      if (element != null) return element;
-      return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-    }
-
-    #endregion
-
     #region Layouting
 
     protected override void PerformLayout()
@@ -832,15 +796,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_content != null)
       {
         _content.DestroyRenderTree();
-      }
-    }
-
-    public override void SetWindow(Screen screen)
-    {
-      base.SetWindow(screen);
-      if (_content != null)
-      {
-        _content.SetWindow(screen);
       }
     }
   }

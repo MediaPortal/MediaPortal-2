@@ -88,7 +88,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Content == null)
         return;
       Content.VisualParent = this;
-      Content.SetWindow(Screen);
+      Content.SetScreen(Screen);
     }
 
     public Property ContentProperty
@@ -296,51 +296,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Content != null)
       {
         Content.Allocate();
-      }
-    }
-
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (Content != null)
-        return Content.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-      else
-        return base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (Content != null)
-        return Content.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-      else
-        return base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (Content != null)
-        return Content.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-      else
-        return base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (Content != null)
-        return Content.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-      else
-        return base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-    }
-
-    #endregion
-
-    public override void SetWindow(Screen screen)
-    {
-      base.SetWindow(screen);
-      if (Content != null)
-      {
-        Content.SetWindow(screen);
       }
     }
   }

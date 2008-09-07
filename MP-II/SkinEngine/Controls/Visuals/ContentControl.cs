@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals

@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
@@ -126,7 +124,7 @@ namespace MediaPortal.SkinEngine
         if (_visual != null)
         {
           _history = _visual.History;
-          _visual.SetWindow(this);
+          _visual.SetScreen(this);
         }
       }
     }

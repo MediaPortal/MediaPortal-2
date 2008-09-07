@@ -408,17 +408,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (!IsVisible)
-      {
         return null;
+      foreach (UIElement child in GetChildren())
+      {
+        FrameworkElement childFE = child as FrameworkElement;
+        FrameworkElement result;
+        if (childFE != null && (result = childFE.PredictFocusUp(focusedFrameworkElement, ref key, strict)) != null)
+          return result;
       }
       if (IsEnabled && Focusable)
       {
         if (ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
         {
           if (!strict)
-          {
             return this;
-          }
           //           |-------------------------------|  
           //   |----------------------------------------------|
           //   |----------------------|
@@ -430,9 +433,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
               (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
                ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
-          {
             return this;
-          }
         }
       }
       return null;
@@ -448,26 +449,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (!IsVisible)
-      {
         return null;
+      foreach (UIElement child in GetChildren())
+      {
+        FrameworkElement childFE = child as FrameworkElement;
+        FrameworkElement result;
+        if (childFE != null && (result = childFE.PredictFocusDown(focusedFrameworkElement, ref key, strict)) != null)
+          return result;
       }
       if (IsEnabled && Focusable)
       {
         if (ActualPosition.Y > focusedFrameworkElement.ActualPosition.Y)
         {
           if (!strict)
-          {
             return this;
-          }
           if ((ActualPosition.X >= focusedFrameworkElement.ActualPosition.X &&
                ActualPosition.X <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
               (ActualPosition.X <= focusedFrameworkElement.ActualPosition.X &&
                ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
               (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
                ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
-          {
             return this;
-          }
         }
       }
       return null;
@@ -482,16 +484,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (!IsVisible)
-      {
         return null;
+      foreach (UIElement child in GetChildren())
+      {
+        FrameworkElement childFE = child as FrameworkElement;
+        FrameworkElement result;
+        if (childFE != null && (result = childFE.PredictFocusLeft(focusedFrameworkElement, ref key, strict)) != null)
+          return result;
       }
       if (IsEnabled && Focusable)
-      {
         if (ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
-        {
           return this;
-        }
-      }
       return null;
     }
 
@@ -504,16 +507,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
     {
       if (!IsVisible)
-      {
         return null;
+      foreach (UIElement child in GetChildren())
+      {
+        FrameworkElement childFE = child as FrameworkElement;
+        FrameworkElement result;
+        if (childFE != null && (result = childFE.PredictFocusRight(focusedFrameworkElement, ref key, strict)) != null)
+          return result;
       }
       if (IsEnabled && Focusable)
-      {
         if (ActualPosition.X > focusedFrameworkElement.ActualPosition.X)
-        {
           return this;
-        }
-      }
       return null;
     }
 

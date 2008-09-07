@@ -195,7 +195,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public void SetChildren(UIElementCollection children)
     {
       _childrenProperty.SetValue(children);
-      SetWindow(Screen);
+      SetScreen(Screen);
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
     }
@@ -439,7 +439,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           Children[i] = newElement;
           Children[i].VisualParent = this;
-          Children[i].SetWindow(Screen);
+          Children[i].SetScreen(Screen);
           return true;
         }
       }
@@ -464,6 +464,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Control.InputManager.Key.None)
@@ -507,6 +508,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Control.InputManager.Key.None)
@@ -550,6 +552,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Control.InputManager.Key.None)
@@ -593,6 +596,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float bestDistance = float.MaxValue;
       foreach (FrameworkElement c in Children)
       {
+        if (!c.IsVisible) continue;
         if (!c.IsFocusScope) continue;
         FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
         if (key == MediaPortal.Control.InputManager.Key.None)
@@ -705,15 +709,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       foreach (UIElement child in Children)
       {
         child.DestroyRenderTree();
-      }
-    }
-
-    public override void SetWindow(Screen screen)
-    {
-      base.SetWindow(screen);
-      foreach (UIElement child in Children)
-      {
-        child.SetWindow(screen);
       }
     }
 

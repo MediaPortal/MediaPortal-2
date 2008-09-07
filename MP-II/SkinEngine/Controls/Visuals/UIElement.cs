@@ -164,6 +164,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
   }
 
+  /// <summary>
+  /// Delegate interface which takes an action on an <see cref="UIElement"/>.
+  /// </summary>
+  public interface IUIElementAction
+  {
+    /// <summary>
+    /// Executes this action on the specified <paramref name="element"/>.
+    /// </summary>
+    /// <param name="element">The element to execute this action.</param>
+    void Execute(UIElement element);
+  }
+
+  /// <summary>
+  /// UI element action which sets the specified screen to ui elements.
+  /// </summary>
+  public class SetScreenAction : IUIElementAction
+  {
+    protected Screen _screen;
+
+    public SetScreenAction(Screen screen)
+    {
+      _screen = screen;
+    }
+
+    public void Execute(UIElement element)
+    {
+      element.Screen = _screen;
+    }
+  }
+
   public class UIElement : Visual, IContentEnabled
   {
     protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
@@ -733,6 +763,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual void AddChildren(ICollection<UIElement> childrenOut) { }
 
     /// <summary>
+    /// Convenience method for <see cref="AddChildren"/>.
+    /// </summary>
+    /// <returns>Collection of child elements.</returns>
+    public ICollection<UIElement> GetChildren()
+    {
+      ICollection<UIElement> result = new List<UIElement>();
+      AddChildren(result);
+      return result;
+    }
+
+    /// <summary>
     /// Steps the structure down (in direction to the child elements) along
     /// the visual tree to find an <see cref="UIElement"/> which fulfills the
     /// condition specified by <paramref name="finder"/>. This method has to be
@@ -790,6 +831,34 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return null;
     }
 
+    public void ForEachElementInTree_BreadthFirst(IUIElementAction action)
+    {
+      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] { this });
+      LinkedListNode<UIElement> current;
+      while ((current = searchList.First) != null)
+      {
+        action.Execute(current.Value);
+        searchList.RemoveFirst();
+        current.Value.AddChildren(searchList);
+      }
+    }
+
+    public void ForEachElementInTree_DepthFirst(IUIElementAction action)
+    {
+      Stack<UIElement> searchStack = new Stack<UIElement>();
+      IList<UIElement> elementList = new List<UIElement>();
+      searchStack.Push(this);
+      while (searchStack.Count > 0)
+      {
+        UIElement current = searchStack.Pop();
+        action.Equals(current);
+        elementList.Clear();
+        current.AddChildren(elementList);
+        foreach (UIElement child in elementList)
+          searchStack.Push(child);
+      }
+    }
+
     #region IContentEnabled members
 
     public bool FindContentProperty(out IDataDescriptor dd)
@@ -816,9 +885,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
     }
 
-    public virtual void SetWindow(Screen screen)
+    public void SetScreen(Screen screen)
     {
-      Screen = screen;
+      ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
     }
   }
 }

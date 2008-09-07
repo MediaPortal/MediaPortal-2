@@ -91,7 +91,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void OnContentChanged(Property property)
     {
       Header.VisualParent = this;
-      Header.SetWindow(Screen);
+      Header.SetScreen(Screen);
     }
 
     #endregion
@@ -378,59 +378,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Header != null)
       {
         Header.Allocate();
-      }
-    }
-
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (IsExpanded)
-      {
-        FrameworkElement element = base.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-        if (element != null) return element;
-      }
-      return (Header).PredictFocusUp(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (IsExpanded)
-      {
-        FrameworkElement element = base.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-        if (element != null) return element;
-      }
-      return (Header).PredictFocusDown(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
-      {
-        FrameworkElement element = base.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-        if (element != null) return element;
-      }
-      return (Header).PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      if (IsExpanded && base.FindElement(FocusFinder.Instance) != null)
-      {
-        FrameworkElement element = base.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-        if (element != null) return element;
-      }
-      return (Header).PredictFocusRight(focusedFrameworkElement, ref key, strict);
-    }
-
-    #endregion
-
-    public override void SetWindow(Screen screen)
-    {
-      base.SetWindow(screen);
-      if (Header != null)
-      {
-        Header.SetWindow(screen);
       }
     }
 
