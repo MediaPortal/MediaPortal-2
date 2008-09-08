@@ -61,18 +61,6 @@ namespace MediaPortal.SkinEngine
     private bool _isChildDialog;
 
     /// <summary>
-    /// Our handler bound on our KeyPressed handler. Will be used to attach to
-    /// the <see cref="IInputManager"/>'s KeyPressed event.
-    /// </summary>
-    private KeyPressedHandler _keyPressHandler;
-
-    /// <summary>
-    /// Our handler bound on our MouseMoved handler. Will be used to attach to
-    /// the <see cref="IInputManager"/>'s MouseMoved event.
-    /// </summary>
-    private MouseMoveHandler _mouseMoveHandler;
-
-    /// <summary>
     /// Holds the information if our input handlers are currently attached at
     /// the <see cref="IInputManager"/>.
     /// </summary>
@@ -106,8 +94,6 @@ namespace MediaPortal.SkinEngine
       _history = true;
       _opened = new Property(typeof(bool), true);
       _name = name;
-      _keyPressHandler = OnKeyPressed;
-      _mouseMoveHandler = OnMouseMove;
       _animator = new Animator();
     }
 
@@ -230,8 +216,8 @@ namespace MediaPortal.SkinEngine
     {
       if (!_attachedInput)
       {
-        ServiceScope.Get<IInputManager>().OnKeyPressed += _keyPressHandler;
-        ServiceScope.Get<IInputManager>().OnMouseMove += _mouseMoveHandler;
+        ServiceScope.Get<IInputManager>().OnKeyPressed += OnKeyPressed;
+        ServiceScope.Get<IInputManager>().OnMouseMove += OnMouseMove;
         _attachedInput = true;
         HasFocus = true;
       }
@@ -289,8 +275,8 @@ namespace MediaPortal.SkinEngine
     {
       if (_attachedInput)
       {
-        ServiceScope.Get<IInputManager>().OnKeyPressed -= _keyPressHandler;
-        ServiceScope.Get<IInputManager>().OnMouseMove -= _mouseMoveHandler;
+        ServiceScope.Get<IInputManager>().OnKeyPressed -= OnKeyPressed;
+        ServiceScope.Get<IInputManager>().OnMouseMove -= OnMouseMove;
         _attachedInput = false;
         // FIXME Albert78: Don't fire the OnClose event in method DetachInput
         if (OnClose != null)

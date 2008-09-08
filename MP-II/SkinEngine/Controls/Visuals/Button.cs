@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine;
