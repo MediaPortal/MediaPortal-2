@@ -43,6 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     float _totalHeight;
     float _totalWidth;
     float _physicalScrollOffsetY = 0;
+    float _physicalScrollOffsetX = 0;
 
     #endregion
 
@@ -129,24 +130,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             _totalHeight = childSize.Height;
         }
       }
-      // FIXME MrHipp. What is this?
-      // Albert78: This is the code to do the logical scrolling. See FIXME in
-      // method RenderChildren. Please fix the code to handle logical scrolling (See IScrollInfo)
-      float totalHeight = _totalHeight;
-      float totalWidth = _totalWidth;
-      if (IsItemsHost)
-      {
-        /*if (totalHeight > availableSize.Height && availableSize.Height > 0)
-        {
-          totalHeight = availableSize.Height;
-          _isScrolling = true;
-        }
-        else
-        {
-          _isScrolling = false;
-          _physicalScrollOffsetY = 0;
-        }*/
-      }
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
@@ -176,6 +159,32 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
+
+      // Check if content is large than size, then we need to set scrolling to true.
+      if (IsItemsHost)
+      {
+        switch (Orientation)
+        {
+          case Orientation.Vertical:
+            if (_totalHeight > finalRect.Height)
+              _isScrolling = true;
+            else
+            {
+              _isScrolling = false;
+              _physicalScrollOffsetY = 0;
+            }
+            break;
+          case Orientation.Horizontal:
+            if (_totalWidth > finalRect.Width)
+              _isScrolling = true;
+            else
+            {
+              _isScrolling = false;
+              _physicalScrollOffsetX = 0;
+            }
+            break;
+        }
+      }
 
       if (LayoutTransform != null)
       {
