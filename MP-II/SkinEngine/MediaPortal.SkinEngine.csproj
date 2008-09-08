@@ -119,8 +119,10 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
-    <Compile Include="Controls\Visuals\HierarchicalDataTemplate.cs" />
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
+    <Compile Include="Controls\Visuals\Styles\HierarchicalDataTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />

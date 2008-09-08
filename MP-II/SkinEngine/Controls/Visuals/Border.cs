@@ -24,12 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing.Drawing2D;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Brushes;
-using MediaPortal.Utilities;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine;

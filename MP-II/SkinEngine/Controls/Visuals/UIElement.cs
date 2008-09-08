@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
