@@ -53,13 +53,13 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     void Attach()
     {
       _childrenProperty.Attach(OnPropertyChanged);
-      Children.Attach(OnPropertyChanged);
+      Children.ObjectChanged += OnChildrenChanged;
     }
 
     void Detach()
     {
       _childrenProperty.Detach(OnPropertyChanged);
-      Children.Detach(OnPropertyChanged);
+      Children.ObjectChanged -= OnChildrenChanged;
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -73,6 +73,13 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     }
 
     #endregion
+
+    protected void OnChildrenChanged(IObservable observable)
+    {
+      _needUpdate = true;
+      _needUpdateRel = true;
+      Fire();
+    }
 
     protected void OnPropertyChanged(Property property)
     {

@@ -31,7 +31,6 @@ using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
@@ -44,7 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
   ///   - viewbox
   ///   - resource cleanup (textures & vertexbuffers)
   /// </summary>
-  public class Brush : Property, IDeepCopyable
+  public class Brush : DependencyObject, IObservable
   {
     #region Private fields
 
@@ -61,7 +60,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public Brush(): base(null)
+    public Brush()
     {
       Init();
       Attach();
@@ -88,7 +87,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _opacityProperty.Detach(OnPropertyChanged);
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
       Brush b = source as Brush;
@@ -102,7 +101,15 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
+    public event ObjectChangedHandler ObjectChanged;
+
     #region Protected methods
+
+    protected void Fire()
+    {
+      if (ObjectChanged != null)
+        ObjectChanged(this);
+    }
 
     protected virtual void OnPropertyChanged(Property prop)
     { }

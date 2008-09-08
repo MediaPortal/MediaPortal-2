@@ -24,13 +24,13 @@
 
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
 using MediaPortal.SkinEngine;
-using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Transforms
 {
-  public class Transform : Property, IDeepCopyable
+  public class Transform : DependencyObject, IObservable
   {
     #region Private/protected fields
 
@@ -43,7 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     
     #region Ctor
 
-    public Transform(): base(null)
+    public Transform()
     {
       Attach();
     }
@@ -58,10 +58,22 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       SkinContext.ZoomProperty.Detach(OnZoomChanged);
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    { }
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      _needUpdate = true;
+      _needUpdateRel = true;
+    }
 
     #endregion
+
+    public event ObjectChangedHandler ObjectChanged;
+
+    protected void Fire()
+    {
+      if (ObjectChanged != null)
+        ObjectChanged(this);
+    }
 
     void OnZoomChanged(Property prop)
     {

@@ -128,8 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    /// FIXME Albert78: this method is never called?
-    void OnBrushPropertyChanged(Property property)
+    void OnBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.OpacityChange;
       if (Screen != null) Screen.Invalidate(this);
@@ -168,12 +167,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       get { return (Brush) _backgroundProperty.GetValue(); }
       set {
-        // FIXME Albert78: Is it necessary to attach to the brush here?
-        // If yes, detach from old brush before attaching to new
+        // FIXME Albert78: Move this into a change handler of BackgroundProperty
         if (value != _backgroundProperty.GetValue())
         {
           _backgroundProperty.SetValue(value);
-          value.Attach(OnBrushPropertyChanged);
+          value.ObjectChanged += OnBrushChanged;
         }
       }
     }

@@ -86,16 +86,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _borderProperty.Attach(OnBorderBrushChanged);
-      _backgroundProperty.Attach(OnBackgroundBrushChanged);
+      _borderProperty.Attach(OnBorderBrushPropertyChanged);
+      _backgroundProperty.Attach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Attach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
-      _borderProperty.Detach(OnBorderBrushChanged);
-      _backgroundProperty.Detach(OnBackgroundBrushChanged);
+      _borderProperty.Detach(OnBorderBrushPropertyChanged);
+      _backgroundProperty.Detach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Detach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Detach(OnLayoutPropertyChanged);
     }
@@ -116,33 +116,31 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Change event handlers
 
-    void OnBackgroundBrushChanged(Property property)
-    {
-      Brush brush = property.GetValue() as Brush;
-      if (brush != null)
-      {
-        brush.ClearAttachedEvents();
-        brush.Attach(OnBackgroundBrushPropertyChanged);
-      }
-    }
-
-    void OnBorderBrushChanged(Property property)
-    {
-      Brush brush = property.GetValue() as Brush;
-      if (brush != null)
-      {
-        brush.ClearAttachedEvents();
-        brush.Attach(OnBorderBrushPropertyChanged);
-      }
-    }
-
     void OnBackgroundBrushPropertyChanged(Property property)
+    {
+      Brush brush = property.GetValue() as Brush;
+      if (brush != null)
+      {
+        brush.ObjectChanged += OnBackgroundBrushChanged;
+      }
+    }
+
+    void OnBorderBrushPropertyChanged(Property property)
+    {
+      Brush brush = property.GetValue() as Brush;
+      if (brush != null)
+      {
+        brush.ObjectChanged += OnBorderBrushChanged;
+      }
+    }
+
+    void OnBackgroundBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.FillChange;
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnBorderBrushPropertyChanged(Property property)
+    void OnBorderBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.StrokeChange;
       if (Screen != null) Screen.Invalidate(this);

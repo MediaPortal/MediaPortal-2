@@ -24,7 +24,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
@@ -33,8 +32,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public class GradientStopEnumerator : IEnumerator<GradientStop>
     {
       int index = -1;
-      List<GradientStop> _elements;
-      public GradientStopEnumerator(List<GradientStop> elements)
+      IList<GradientStop> _elements;
+      public GradientStopEnumerator(IList<GradientStop> elements)
       {
         _elements = elements;
       }
@@ -74,8 +73,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     #region Private fields
 
     GradientBrush _parent;
-    List<GradientStop> _elements;
-    PropertyChangedHandler _handler;
+    IList<GradientStop> _elements;
 
     #endregion
 
@@ -98,12 +96,11 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     void Init()
     {
       _elements = new List<GradientStop>();
-      _handler = OnStopChanged;
     }
 
     #endregion
 
-    void OnStopChanged(Property prop)
+    void OnStopChanged(IObservable observable)
     {
       if (_parent != null)
       _parent.OnGradientsChanged();
@@ -111,7 +108,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public void Add(GradientStop element)
     {
-      element.Attach(_handler);
+      element.ObjectChanged += OnStopChanged;
       _elements.Add(element);
       if (_parent != null)
       _parent.OnGradientsChanged();
@@ -122,7 +119,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       if (_elements.Contains(element))
       {
         _elements.Remove(element);
-        element.Detach(_handler);
+        element.ObjectChanged -= OnStopChanged;
       }
       if (_parent != null)
       _parent.OnGradientsChanged();
@@ -131,7 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public void Clear()
     {
       foreach (GradientStop stop in _elements)
-        stop.Detach(_handler);
+        stop.ObjectChanged -= OnStopChanged;
       _elements.Clear();
       if (_parent != null)
       _parent.OnGradientsChanged();
@@ -149,15 +146,14 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       {
         if (value != _elements[index])
         {
-          _elements[index].Detach(_handler);
+          _elements[index].ObjectChanged -= OnStopChanged;
           _elements[index] = value;
-          _elements[index].Attach(_handler);
+          _elements[index].ObjectChanged += OnStopChanged;
           if (_parent != null)
           _parent.OnGradientsChanged();
         }
       }
     }
-
 
     #region IEnumerable<GradientStop> Members
 

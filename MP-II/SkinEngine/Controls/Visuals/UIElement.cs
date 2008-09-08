@@ -347,10 +347,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
+    void OnLayoutTransformChanged(IObservable observable)
+    {
+      Invalidate();
+    }
+
     void OnLayoutTransformPropertyChanged(Property property)
     {
       if (LayoutTransform != null)
-        LayoutTransform.Attach(OnLayoutPropertyChanged);
+        LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }
 
     public virtual void FireUIEvent(UIEvent eventType, UIElement source)

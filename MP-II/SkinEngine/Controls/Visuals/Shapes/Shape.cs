@@ -135,16 +135,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnFillBrushPropertyChanged(Property property)
+    void OnFillBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.FillChange;
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnStrokeBrushPropertyChanged(Property property)
+    void OnStrokeBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.StrokeChange;
       if (Screen != null) Screen.Invalidate(this);
+    }
+
+    void OnFillBrushPropertyChanged(Property property)
+    {
+      OnFillBrushChanged(null);
+    }
+
+    void OnStrokeBrushPropertyChanged(Property property)
+    {
+      OnStrokeBrushChanged(null);
     }
 
     public Property StretchProperty
@@ -169,11 +179,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set
       {
         if (Fill != null)
-          Fill.Detach(OnFillBrushPropertyChanged);
+          Fill.ObjectChanged -= OnFillBrushChanged;
 
         _fillProperty.SetValue(value);
         if (value != null)
-          value.Attach(OnFillBrushPropertyChanged);
+          value.ObjectChanged += OnFillBrushChanged;
       }
     }
 
@@ -187,8 +197,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       get { return (Brush) _strokeProperty.GetValue(); }
       set
       {
+        // FIXME: Move this into change handler of StrokeProperty
         if (Stroke != null)
-          Stroke.Detach(OnStrokeBrushPropertyChanged);
+          Stroke.ObjectChanged -= OnStrokeBrushChanged;
 
         _strokeProperty.SetValue(value);
         if (value != null)

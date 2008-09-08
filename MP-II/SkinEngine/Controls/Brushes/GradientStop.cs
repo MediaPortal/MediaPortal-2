@@ -28,7 +28,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
-  public class GradientStop : Property, IDeepCopyable
+  public class GradientStop : DependencyObject, IObservable
   {
     #region Private fields
 
@@ -39,13 +39,13 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public GradientStop(): base(null)
+    public GradientStop()
     {
       Init();
       Attach();
     }
 
-    public GradientStop(double offset, Color color): base(null)
+    public GradientStop(double offset, Color color)
     {
       Init();
       Color = color;
@@ -71,8 +71,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _offsetProperty.Detach(OnPropertyChanged);
     }
 
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      base.DeepCopy(source, copyManager);
       Detach();
       GradientStop s = source as GradientStop;
       Color = copyManager.GetCopy(s.Color);
@@ -82,7 +83,15 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
+    public event ObjectChangedHandler ObjectChanged;
+
     #region Protected methods
+
+    protected void Fire()
+    {
+      if (ObjectChanged != null)
+        ObjectChanged(this);
+    }
 
     protected void OnPropertyChanged(Property prop)
     {

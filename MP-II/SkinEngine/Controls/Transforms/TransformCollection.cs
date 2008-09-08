@@ -24,18 +24,18 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Transforms
 {
-  public class TransformCollection : Property, IEnumerable<Transform>
+  public class TransformCollection : DependencyObject, IObservable, IEnumerable<Transform>
   {
     public class TransformEnumerator : IEnumerator<Transform>
     {
       int index = -1;
-      List<Transform> _elements;
+      IList<Transform> _elements;
 
-      public TransformEnumerator(List<Transform> elements)
+      public TransformEnumerator(IList<Transform> elements)
       {
         _elements = elements;
       }
@@ -72,16 +72,24 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       }
     }
 
-    PropertyChangedHandler _handler;
-    List<Transform> _elements;
+    IList<Transform> _elements;
 
-    public TransformCollection(): base(null)
+    public event ObjectChangedHandler ObjectChanged;
+
+    public TransformCollection()
     {
       _elements = new List<Transform>();
-      _handler = OnPropertyChanged;
     }
 
-    protected void OnPropertyChanged(Property property)
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      TransformCollection tc = source as TransformCollection;
+      foreach (Transform element in tc._elements)
+        Add(copyManager.GetCopy(element));
+    }
+
+    protected void OnChildChanged(IObservable observable)
     {
       Fire();
     }
@@ -93,7 +101,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     public void Add(Transform element)
     {
       _elements.Add(element);
-      element.Attach(_handler);
+      element.ObjectChanged += OnChildChanged;
     }
 
     /// <summary>
@@ -105,7 +113,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       if (_elements.Contains(element))
       {
         _elements.Remove(element);
-        element.Detach(_handler);
+        element.ObjectChanged -= OnChildChanged;
       }
     }
 
@@ -116,7 +124,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     {
       foreach (Transform e in _elements)
       {
-        e.Detach(_handler);
+        e.ObjectChanged -= OnChildChanged;
       }
       _elements.Clear();
     }
@@ -147,13 +155,18 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       {
         if (value != _elements[index])
         {
-          _elements[index].Detach(_handler);
+          _elements[index].ObjectChanged -= OnChildChanged;
           _elements[index] = value;
-          _elements[index].Attach(_handler);
+          _elements[index].ObjectChanged += OnChildChanged;
         }
       }
     }
 
+    protected void Fire()
+    {
+      if (ObjectChanged != null)
+        ObjectChanged(this);
+    }
 
     #region IEnumerable<Transform> Members
 
