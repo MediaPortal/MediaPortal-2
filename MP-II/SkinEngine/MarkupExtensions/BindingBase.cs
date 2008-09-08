@@ -50,17 +50,13 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
-    // FIXME: Use weak references here to allow the objects to be disposed
-    protected static IDictionary<object, ICollection<BindingBase>> _objects2Bindings =
-        new Dictionary<object, ICollection<BindingBase>>();
-
     // Empty enumerator for optimized use in method GetBindingsOfObject()
     protected static readonly IEnumerable<BindingBase> EMPTY_BINDING_ENUMERABLE =
       new List<BindingBase>();
 
     // State variables
     protected bool _active = false; // Should the binding react to changes of source properties?
-    protected object _contextObject = null; // Bound to which object? May be null.
+    protected DependencyObject _contextObject = null; // Bound to which object? May be null.
     protected IDataDescriptor _targetDataDescriptor = null; // Bound to which target property?
 
     #endregion
@@ -131,43 +127,23 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected properties and methods
 
-    protected void AttachToTargetObject(object obj)
+    protected void AttachToTargetObject(DependencyObject obj)
     {
       if (obj == null)
         return;
       // obj may be of arbitrary type; The type isn't fixed to DependencyObject
       _contextObject = obj;
-      ICollection<BindingBase> bindingsOfObject;
-      if (_objects2Bindings.ContainsKey(_contextObject))
-        bindingsOfObject = _objects2Bindings[_contextObject];
-      else
-        _objects2Bindings[_contextObject] = bindingsOfObject = new List<BindingBase>();
-      bindingsOfObject.Add(this);
+      _contextObject.GetOrCreateBindingCollection().Add(this);
     }
 
     protected void DetachFromTargetObject()
     {
       if (_contextObject == null)
         return;
-      if (_objects2Bindings.ContainsKey(_contextObject))
-        _objects2Bindings[_contextObject].Remove(this);
+      _contextObject.GetOrCreateBindingCollection().Remove(this);
     }
 
     #endregion
-
-    /// <summary>
-    /// Returns all bindings which bind to properties of the specified
-    /// <paramref name="obj">object</paramref>, or which are its data context.
-    /// </summary>
-    /// <param name="obj">Object, whose bindings should be returned.</param>
-    /// <returns>Collection of bindings bound to the specified object.</returns>
-    public static IEnumerable<BindingBase> GetBindingsOfObject(object obj)
-    {
-      if (_objects2Bindings.ContainsKey(obj))
-        return _objects2Bindings[obj];
-      else
-        return EMPTY_BINDING_ENUMERABLE;
-    }
 
     #region IBinding implementation
 
@@ -179,7 +155,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public virtual void Prepare(IParserContext context, IDataDescriptor dd)
     {
       _targetDataDescriptor = dd;
-      AttachToTargetObject(dd.TargetObject);
+      DependencyObject depObj = dd.TargetObject as DependencyObject;
+      if (depObj == null)
+        throw new ArgumentException("Can only bind to instances of class DependencyObject");
+      AttachToTargetObject(depObj);
     }
 
     public virtual void Activate()

@@ -35,14 +35,14 @@ namespace MediaPortal.SkinEngine.Controls
   /// <summary>
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
-  /// needed for
+  /// which is needed for
   /// <see cref="MediaPortal.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
-  /// TODO: Documentation of logical tree
   /// </summary>
   public class DependencyObject: IDeepCopyable, IInitializable
   {
     #region Protected fields
 
+    protected ICollection<BindingBase> _bindings = null;
     protected IDictionary<string, Property> _attachedProperties = null; // Lazy initialized
     protected Property _dataContextProperty;
     protected Property _logicalParentProperty;
@@ -70,8 +70,9 @@ namespace MediaPortal.SkinEngine.Controls
           SetAttachedPropertyValue(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()));
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
-      foreach (BindingBase binding in BindingBase.GetBindingsOfObject(d))
-        copyManager.GetCopy(binding);
+      if (d._bindings != null)
+        foreach (BindingBase binding in d._bindings)
+          copyManager.GetCopy(binding);
     }
 
     #endregion
@@ -110,6 +111,13 @@ namespace MediaPortal.SkinEngine.Controls
       if (DataContext == null)
         DataContext = new BindingMarkupExtension(this);
       return DataContext;
+    }
+
+    public ICollection<BindingBase> GetOrCreateBindingCollection()
+    {
+      if (_bindings == null)
+        _bindings = new List<BindingBase>();
+      return _bindings;
     }
 
     public virtual INameScope FindNameScope()

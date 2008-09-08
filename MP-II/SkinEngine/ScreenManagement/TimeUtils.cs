@@ -2,13 +2,14 @@
 using System;
 using System.Timers;
 using MediaPortal.Core;
+using MediaPortal.SkinEngine.Controls;
 using MediaPortal.Utilities;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.SkinEngine
 {
-  public class TimeUtils
+  public class TimeUtils : DependencyObject
   {
     /// <summary>
     /// Singleton instance variable.
