@@ -12,7 +12,7 @@
 
     <!-- Contents_Element -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Label Font="font13" Text="[extensions.installinfo]" Color="#FFF1E994" VerticalAlignment="Top"/>
+      <Label Font="font13" Content="[extensions.installinfo]" Color="#FFF1E994" VerticalAlignment="Top"/>
     </ResourceWrapper>
 
   </Include.Resources>

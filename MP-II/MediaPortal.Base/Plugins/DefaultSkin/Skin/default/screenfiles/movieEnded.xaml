@@ -19,10 +19,10 @@
       </Canvas.OpacityMask>
     </Canvas>
     <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
-      <Label Font="font26" Text="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
+      <Label Font="font26" Content="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
     </Grid>
     <Image Canvas.Left="170" Canvas.Top="90" Source="logo_stop.png" />
-    <Label Canvas.Left="240" Canvas.Top="100" Font="font26" Text="[playback.38]" Width="500" Height="50" Color="#7FFFFFFF"/>
+    <Label Canvas.Left="240" Canvas.Top="100" Font="font26" Content="[playback.38]" Width="500" Height="50" Color="#7FFFFFFF"/>
     <Canvas Canvas.Left="240" Canvas.Top="170">
     <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding MovieEndedMenu}">
       <ListView.Resources>

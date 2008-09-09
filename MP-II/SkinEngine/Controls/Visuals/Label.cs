@@ -40,7 +40,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _textProperty;
+    Property _contentProperty;
     Property _colorProperty;
     Property _scrollProperty;
     FontBufferAsset _asset;
@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _textProperty = new Property(typeof(string), "");
+      _contentProperty = new Property(typeof(string), "");
       _colorProperty = new Property(typeof(Color), Color.White);
       _scrollProperty = new Property(typeof(bool), false);
 
@@ -68,14 +68,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _textProperty.Attach(OnTextChanged);
+      _contentProperty.Attach(OnContentChanged);
       _scrollProperty.Attach(OnScrollChanged);
       _colorProperty.Attach(OnColorChanged);
     }
 
     void Detach()
     {
-      _textProperty.Detach(OnTextChanged);
+      _contentProperty.Detach(OnContentChanged);
       _scrollProperty.Detach(OnScrollChanged);
       _colorProperty.Detach(OnColorChanged);
     }
@@ -85,11 +85,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       Label l = source as Label;
-      Text = copyManager.GetCopy(l.Text);
+      Content = copyManager.GetCopy(l.Content);
       Color = copyManager.GetCopy(l.Color);
       Scroll = copyManager.GetCopy(l.Scroll);
 
-      _label = new StringId(Text);
+      _label = new StringId(Content);
       Attach();
     }
 
@@ -101,9 +101,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    void OnTextChanged(Property prop)
+    void OnContentChanged(Property prop)
     {
-      _label = new StringId(Text);
+      _label = new StringId(Content);
       if (Screen != null) 
         Screen.Invalidate(this);
     }
@@ -126,15 +126,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    public Property TextProperty
+    public Property ContentProperty
     {
-      get { return _textProperty; }
+      get { return _contentProperty; }
     }
 
-    public string Text
+    public string Content
     {
-      get { return _textProperty.GetValue() as string; }
-      set { _textProperty.SetValue(value); }
+      get { return _contentProperty.GetValue() as string; }
+      set { _contentProperty.SetValue(value); }
     }
 
     public Property ColorProperty
@@ -358,7 +358,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Deallocate()
     {
-      //Trace.WriteLine("lbl Deallocate:" + Text);
+      //Trace.WriteLine("lbl Deallocate:" + Content);
       base.Deallocate();
       if (_asset != null)
       {
@@ -373,14 +373,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void BecomesHidden()
     {
-     // Trace.WriteLine("lbl BecomesHidden:" + Text);
+     // Trace.WriteLine("lbl BecomesHidden:" + Content);
       if (_renderer != null)
         _renderer.Free();
     }
 
     public override void BecomesVisible()
     {
-      //Trace.WriteLine("lbl BecomesVisible:" + Text);
+      //Trace.WriteLine("lbl BecomesVisible:" + Content);
       if (_renderer != null)
       {
         _renderer.Alloc();

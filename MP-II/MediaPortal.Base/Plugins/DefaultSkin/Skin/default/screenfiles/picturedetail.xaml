@@ -35,27 +35,27 @@
       </Image.Triggers>
     </Image>
 
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="29" Width="200" Height="30" Text="[pictures.0]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="89" Width="200" Height="30" Text="[pictures.model]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="119" Width="500" Height="30" Text="[pictures.maker]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="149" Width="300" Height="30" Text="[pictures.dimension]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="179" Width="300" Height="30" Text="[pictures.expcomp]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="209" Width="300" Height="30" Text="[pictures.exptime]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="239" Width="300" Height="30" Text="[pictures.metmod]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="269" Width="300" Height="30" Text="[pictures.sspeed]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="299" Width="300" Height="30" Text="[pictures.flash]" />
-    <Label Font="font12" Canvas.Left="10" Canvas.Top="329" Width="300" Height="30" Text="[pictures.fstop]" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="29" Width="500" Height="30" Text="{Binding Path=SlideShow.Info.ImgTitle}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="59" Width="500" Height="30" Text="{Binding Path=SlideShow.Info.Date}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="89" Width="500" Height="30" Text="{Binding Path=SlideShow.Info.CameraModel}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="119" Width="500" Height="30" Text="{Binding Path=SlideShow.Info.EquipmentMake}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="149" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.ImgDimensions}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="179" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.ExposureCompensation}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="209" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.ExposureTime}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="239" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.MeteringMod}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="269" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.ShutterSpeed}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="299" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.Flash}" />
-    <Label Font="font12" Canvas.Left="250" Canvas.Top="329" Width="300" Height="30" Text="{Binding Path=SlideShow.Info.Fstop}" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="29" Width="200" Height="30" Content="[pictures.0]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="89" Width="200" Height="30" Content="[pictures.model]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="119" Width="500" Height="30" Content="[pictures.maker]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="149" Width="300" Height="30" Content="[pictures.dimension]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="179" Width="300" Height="30" Content="[pictures.expcomp]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="209" Width="300" Height="30" Content="[pictures.exptime]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="239" Width="300" Height="30" Content="[pictures.metmod]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="269" Width="300" Height="30" Content="[pictures.sspeed]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="299" Width="300" Height="30" Content="[pictures.flash]" />
+    <Label Font="font12" Canvas.Left="10" Canvas.Top="329" Width="300" Height="30" Content="[pictures.fstop]" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="29" Width="500" Height="30" Content="{Binding Path=SlideShow.Info.ImgTitle}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="59" Width="500" Height="30" Content="{Binding Path=SlideShow.Info.Date}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="89" Width="500" Height="30" Content="{Binding Path=SlideShow.Info.CameraModel}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="119" Width="500" Height="30" Content="{Binding Path=SlideShow.Info.EquipmentMake}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="149" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.ImgDimensions}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="179" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.ExposureCompensation}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="209" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.ExposureTime}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="239" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.MeteringMod}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="269" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.ShutterSpeed}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="299" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.Flash}" />
+    <Label Font="font12" Canvas.Left="250" Canvas.Top="329" Width="300" Height="30" Content="{Binding Path=SlideShow.Info.Fstop}" />
   </Canvas>
   <KeyBinding KeyPress="Left" Command="{Command SlideShow.ShowPreviousPicture}"/>
   <KeyBinding KeyPress="Right" Command="{Command SlideShow.ShowNextPicture}"/>

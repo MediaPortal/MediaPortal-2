@@ -28,10 +28,10 @@
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel DataContext="{Binding Source={StaticResource DataContext}}"
           DockPanel.Dock="Left" Margin="20,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" >
-        <Label x:Name="headerReflection"  Font="font13" Margin="130,100,0,0" Text="{Binding SelectedPackage.LongNameProperty}" Width="500" Height="32"/>
-        <Label x:Name="headerReflection1"  Font="font13" Margin="130,140,0,0" Text="{Binding SelectedPackage.AuthorProperty}" Width="500" Height="32"/>
-        <Label x:Name="headerReflection2"  Font="font13" Margin="130,175,0,0" Text="{Binding SelectedPackage.DescriptionProperty}" Width="500" Height="132"/>
-        <Label x:Name="headerReflection3"  Font="font13" Margin="30,195,0,0" Text="[extensions.dependon]" Width="500" Height="132"/>
+        <Label x:Name="headerReflection"  Font="font13" Margin="130,100,0,0" Content="{Binding SelectedPackage.LongNameProperty}" Width="500" Height="32"/>
+        <Label x:Name="headerReflection1"  Font="font13" Margin="130,140,0,0" Content="{Binding SelectedPackage.AuthorProperty}" Width="500" Height="32"/>
+        <Label x:Name="headerReflection2"  Font="font13" Margin="130,175,0,0" Content="{Binding SelectedPackage.DescriptionProperty}" Width="500" Height="132"/>
+        <Label x:Name="headerReflection3"  Font="font13" Margin="30,195,0,0" Content="[extensions.dependon]" Width="500" Height="132"/>
         <ListView x:Name="list" Style="{StaticResource MenuListViewStyle}" Margin="30,220,0,0" ItemsSource="{Binding SelectedPackage.DependOn}" />
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command"

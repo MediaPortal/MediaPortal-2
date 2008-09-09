@@ -6,7 +6,7 @@
     FocusedElement="{Binding ElementName=BtnChangeText}">
 
   <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
-    <Label Canvas.Left="0" Canvas.Top="0" Width="600" Text="{Binding Path=HelloString}" />
+    <Label Canvas.Left="0" Canvas.Top="0" Width="600" Content="{Binding Path=HelloString}" />
 	<Button Canvas.Left="60" Canvas.Top="60" x:Name="BtnChangeText" Style="{StaticResource ButtonStyle}" Content="Click Me!">
     <Button.Command>
       <Command Path="ChangeHelloWorldString"/>

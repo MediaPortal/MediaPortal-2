@@ -301,7 +301,7 @@ namespace MediaPortal.SkinEngine.MpfElements
       else if (targetType.IsAssignableFrom(typeof(FrameworkElement)) && value is string)
       {
         Label resultLabel = new Label();
-        resultLabel.Text = (string)value;
+        resultLabel.Content = (string)value;
         result = resultLabel;
         return true;
       }

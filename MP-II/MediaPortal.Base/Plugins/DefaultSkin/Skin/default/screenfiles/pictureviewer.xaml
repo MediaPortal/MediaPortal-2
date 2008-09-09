@@ -53,7 +53,7 @@
       </Border>
 
       <Image x:Name="pause" Source="video-pause.png" Canvas.Left="604" Canvas.Top="22" Width="92" Height="34"  />
-      <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Text="{Binding SlideShow.CurrentTitle}" Color="White"/>
+      <Label Font="font13" Canvas.Left="40" Canvas.Top="29" Width="470" Height="30" Content="{Binding SlideShow.CurrentTitle}" Color="White"/>
     </Canvas>
     <KeyBinding KeyPress="ContextMenu"
         Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogMyPictureContextMenu}"/>

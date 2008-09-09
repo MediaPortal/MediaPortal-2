@@ -41,13 +41,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="2*"/>
         <ColumnDefinition Width="1*"/>
       </Grid.ColumnDefinitions>  
-	  <Label Margin="60,0,0,0" Grid.Column="0" Grid.Row="0" FontFamily="ritzyNormal" FontSize="60" Text="{DynamicResource Header_Text}" />
+	  <Label Margin="60,0,0,0" Grid.Column="0" Grid.Row="0" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}" />
 	  <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-	    <Label x:Name="Date" FontSize="20" Text="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
-        <Label x:Name="Time" FontSize="20" Text="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentTime}" />
+	    <Label x:Name="Date" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
+        <Label x:Name="Time" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentTime}" />
 	  </StackPanel>
 	</Grid>
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Text="{DynamicResource Header_Text}"
+    <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}"
         Opacity="0.75" RenderTransformOrigin="0.4,0.4">
       <Label.RenderTransform>
         <TransformGroup>

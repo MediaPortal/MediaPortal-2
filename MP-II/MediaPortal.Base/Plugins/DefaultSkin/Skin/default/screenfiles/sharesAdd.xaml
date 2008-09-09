@@ -18,15 +18,15 @@
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}" Margin="60,0,10,0">
-        <Label FontSize="30" Text="[shares.selectsharestoadd]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <Label FontSize="30" Content="[shares.selectsharestoadd]" Width="660" Height="32" DockPanel.Dock="Top"/>
 
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
           <Button Style="{StaticResource ButtonStyle}" Margin="0,0,10,0"
               Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=sharesCancel}">
-            <Label FontSize="30" Text="[system.cancel]" Height="32" />
+            <Label FontSize="30" Content="[system.cancel]" Height="32" />
           </Button>
           <Button Style="{StaticResource ButtonStyle}" Margin="10,0,10,10" Command="{Command Path=Save}" >
-            <Label FontSize="30" Text="[system.done]" Height="32" />
+            <Label FontSize="30" Content="[system.done]" Height="32" />
           </Button>
         </StackPanel>
         <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">

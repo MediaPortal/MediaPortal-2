@@ -8,7 +8,7 @@
 
   <Canvas Loaded="{Command Path=Editor.Reset}"  Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
 
-    <Label Font="font13" Canvas.Left="230" Canvas.Top="100" Width="500" Height="30" Text="{Binding SlideShow.Info.ImgTitle}"/>
+    <Label Font="font13" Canvas.Left="230" Canvas.Top="100" Width="500" Height="30" Content="{Binding SlideShow.Info.ImgTitle}"/>
     <Image x:Name="picture" Source="{Binding Path=Editor.CurrentPicture}"  Canvas.Left="230" Canvas.Top="130" Width="400" Height="300" Thumbnail="False" Stretch="Uniform"/>
 
     <Button Style="{StaticResource ArrowButtonLeftStyle}" Width="32" Height="32"   Canvas.Left="230" Canvas.Top="435" Command="{Command Path=Editor.MoveLeft}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
@@ -24,23 +24,23 @@
     <Button Style="{StaticResource RotateRightButtonStyle}" Width="32" Height="32" Canvas.Left="488" Canvas.Top="435" Command="{Command Path=Editor.RotateRight}"/>
     <StackPanel x:Name="menuPanel" Canvas.Left="30" Canvas.Top="120" Width="180" Margin="0,0,20,0">
       <Button Style="{StaticResource ButtonStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
-        <Label Font="font13" Text="[pictures.save]"/>
+        <Label Font="font13" Content="[pictures.save]"/>
       </Button>
       <Button Style="{StaticResource ButtonStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
-        <Label Font="font13" Text="[pictures.cancel]"/>
+        <Label Font="font13" Content="[pictures.cancel]"/>
       </Button>
       <CheckBox x:Name="cropButton" Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
-        <Label Font="font13" Text="[pictures.crop]"/>
+        <Label Font="font13" Content="[pictures.crop]"/>
       </CheckBox>
       <CheckBox Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
-        <Label Font="font13" Text="[pictures.redeye]"/>
+        <Label Font="font13" Content="[pictures.redeye]"/>
       </CheckBox>
       <CheckBox Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
-        <Label Font="font13" Text="[pictures.contrast]"/>
+        <Label Font="font13" Content="[pictures.contrast]"/>
       </CheckBox>
       <Button Style="{StaticResource ButtonStyle}" Height="32" >
         <!-- TODO: Button.Command -->
-        <Label Font="font13" Text="[pictures.print]"/>
+        <Label Font="font13" Content="[pictures.print]"/>
       </Button>
     </StackPanel>
   </Canvas>

@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
@@ -172,7 +171,7 @@ namespace MediaPortal.SkinEngine
 
     public void Reset()
     {
-      Trace.WriteLine("Screen Reset: " + Name);
+      //Trace.WriteLine("Screen Reset: " + Name);
       GraphicsDevice.InitializeZoom();
       _visual.Invalidate();
       _visual.Initialize();
@@ -225,7 +224,7 @@ namespace MediaPortal.SkinEngine
 
     public void Show()
     {
-      Trace.WriteLine("Screen Show: " + Name);
+      //Trace.WriteLine("Screen Show: " + Name);
       FocusManager.FocusedElement = null;
       SkinContext.IsValid = false;
       lock (_visual)
@@ -246,7 +245,7 @@ namespace MediaPortal.SkinEngine
 
     public void Hide()
     {
-      Trace.WriteLine("Screen Hide: " + Name);
+      //Trace.WriteLine("Screen Hide: " + Name);
       lock (_visual)
       {
         Animator.StopAll();
