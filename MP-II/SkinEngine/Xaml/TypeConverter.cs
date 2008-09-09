@@ -192,11 +192,11 @@ namespace MediaPortal.SkinEngine.Xaml
 
       // Collection types
 
-      Type collectionType;
+      Type enumerableType;
       Type entryType;
-      ReflectionHelper.FindImplementedCollectionType(targetType, out collectionType, out entryType);
+      ReflectionHelper.FindImplementedEnumerableType(targetType, out enumerableType, out entryType);
 
-      if (collectionType != null) // Targets IList, ICollection, IList<>, ICollection<>
+      if (enumerableType != null) // Targets IList, ICollection, IList<>, ICollection<>
       {
         IList<object> resultList = new List<object>();
         ICollection col;

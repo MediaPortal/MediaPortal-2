@@ -123,7 +123,24 @@ namespace MediaPortal.SkinEngine.Xaml
     }
 
     /// <summary>
-    /// Tries to find an implemented <see cref="ICollection{T}"/> or <see cref="ICollection{T}"/>
+    /// Tries to find an implemented <see cref="IEnumerable{T}"/> or <see cref="IEnumerable"/>
+    /// interface and returns it. If the resulting enumerable is a generic type,
+    /// the entry type (type parameter T) of this enumerable will be returned too.
+    /// </summary>
+    /// <param name="type">The type to examine.</param>
+    /// <param name="enumerableType">Returns the enumerable type found. If an implemented
+    /// generic enumerable type was found, this type will be returned. Else, if the standard
+    /// enumerable type is implemented, this type will be returned. If no enumerable type is
+    /// implemented, this value will be <c>null</c>.</param>
+    /// <param name="entryType">Returns the entry type (type parameter T) of the implemented
+    /// generic type, if any.</param>
+    public static void FindImplementedEnumerableType(Type type, out Type enumerableType, out Type entryType)
+    {
+      FindImplementedEnumerableType(type, typeof(IEnumerable), typeof(IEnumerable<>), out enumerableType, out entryType);
+    }
+
+    /// <summary>
+    /// Tries to find an implemented <see cref="ICollection{T}"/> or <see cref="ICollection"/>
     /// interface and returns it. If the resulting collection is a generic type,
     /// the entry type (type parameter T) of this collection will be returned too.
     /// </summary>
@@ -136,7 +153,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// generic type, if any.</param>
     public static void FindImplementedCollectionType(Type type, out Type collectionType, out Type entryType)
     {
-      FindImplementedCollectionOrListType(type, typeof(ICollection), typeof(ICollection<>), out collectionType, out entryType);
+      FindImplementedEnumerableType(type, typeof(ICollection), typeof(ICollection<>), out collectionType, out entryType);
     }
 
     /// <summary>
@@ -153,13 +170,13 @@ namespace MediaPortal.SkinEngine.Xaml
     /// generic type, if any.</param>
     public static void FindImplementedListType(Type type, out Type listType, out Type entryType)
     {
-      FindImplementedCollectionOrListType(type, typeof(IList), typeof(IList<>), out listType, out entryType);
+      FindImplementedEnumerableType(type, typeof(IList), typeof(IList<>), out listType, out entryType);
     }
 
-    protected static void FindImplementedCollectionOrListType(Type type,
-      Type nonGenericType, Type genericType, out Type resultCollectionType, out Type resultEntryType)
+    protected static void FindImplementedEnumerableType(Type type,
+      Type nonGenericType, Type genericType, out Type resultEnumerableType, out Type resultEntryType)
     {
-      resultCollectionType = null;
+      resultEnumerableType = null;
       resultEntryType = null;
       // First check generic interfaces
       IDictionary<Type, Type> foundGeneric = new Dictionary<Type, Type>();
@@ -178,14 +195,14 @@ namespace MediaPortal.SkinEngine.Xaml
       IEnumerator<KeyValuePair<Type, Type>> ge = foundGeneric.GetEnumerator();
       if (ge.MoveNext())
       {
-        resultCollectionType = ge.Current.Key;
+        resultEnumerableType = ge.Current.Key;
         resultEntryType = ge.Current.Value;
         return;
       }
       // Fallback: Check non-generic type
       if (nonGenericType.IsAssignableFrom(type))
       {
-        resultCollectionType = nonGenericType;
+        resultEnumerableType = nonGenericType;
         resultEntryType = null;
         return;
       }
