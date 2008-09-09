@@ -207,16 +207,10 @@ namespace MediaPortal.SkinEngine.Fonts
       // Font does not contain glypth
       if (glypthIndex == 0 && charIndex != 0)
       {
-        // Copy 'not defined' glypth
-        _charSet.Characters[charIndex] = new BitmapCharacter();
-        _charSet.Characters[charIndex].Width = _charSet.Characters[0].Width;
-        _charSet.Characters[charIndex].Height = _charSet.Characters[0].Height;
 
-        _charSet.Characters[charIndex].X = _charSet.Characters[0].X;
-        _charSet.Characters[charIndex].Y = _charSet.Characters[0].Y;
-        _charSet.Characters[charIndex].XOffset = _charSet.Characters[0].XOffset;
-        _charSet.Characters[charIndex].YOffset = _charSet.Characters[0].YOffset;
-        _charSet.Characters[charIndex].XAdvance = _charSet.Characters[0].XAdvance;
+        // Copy 'not defined' glypth
+        _charSet.SetCharacter(charIndex,_charSet.GetCharacter(0));
+
         return true;
       }
 
@@ -267,17 +261,20 @@ namespace MediaPortal.SkinEngine.Fonts
       if (_currentY  + pheight > MAX_HEIGHT)
         return false;
 
-      _charSet.Characters[charIndex] = new BitmapCharacter();
-      _charSet.Characters[charIndex].Width = cwidth + PAD;
-      _charSet.Characters[charIndex].Height = cheight + PAD;
+      BitmapCharacter Character = new BitmapCharacter(); 
+  
+      Character.Width = cwidth + PAD;
+      Character.Height = cheight + PAD;
 
-      _charSet.Characters[charIndex].X = _currentX;
-      _charSet.Characters[charIndex].Y = _currentY;
-      _charSet.Characters[charIndex].XOffset = Glyph.left;
-      _charSet.Characters[charIndex].YOffset = _charSet.Base - Glyph.top;
+      Character.X = _currentX;
+      Character.Y = _currentY;
+      Character.XOffset = Glyph.left;
+      Character.YOffset = _charSet.Base - Glyph.top;
 
       // Convert fixed point 16.16 to float by divison with 2^16
-      _charSet.Characters[charIndex].XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
+      Character.XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
+
+      _charSet.SetCharacter(charIndex, Character);
       //Trace.WriteLine("Glyph " + (char)charIndex + " - " + _charSet.Characters[charIndex].Height + " " + _charSet.RenderedSize); 
       // Copy the glypth bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
@@ -628,12 +625,10 @@ namespace MediaPortal.SkinEngine.Fonts
 
     private BitmapCharacter Character(char c)
     {
-      if (c >= _charSet.Characters.Length)
-        throw new ArgumentException("Width index out of range.");
 
-      if (_charSet.Characters[c] == null)
+      if (_charSet.GetCharacter(c) == null)
         AddGlypth(c);
-      return _charSet.Characters[c];
+      return _charSet.GetCharacter(c);
     }
 
     /// <summary>Gets the list of Quads from a StringBlock all ready to render.</summary>
@@ -670,8 +665,7 @@ namespace MediaPortal.SkinEngine.Fonts
       for (int i = 0; i < text.Length; i++)
       {
         char chk = text[i];
-        if (chk >= _charSet.Characters.Length)
-          throw new ArgumentException("GetProcessedQuads index out of range.");
+
         BitmapCharacter c = Character(chk);
 
         double xOffset = c.XOffset * sizeScale;
@@ -771,7 +765,7 @@ namespace MediaPortal.SkinEngine.Fonts
                   if (b.Kerning)
                   {
                     _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.Characters[newLineLastChar].KerningList.Find(FindKerningNode);
+                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
                     if (kern != null)
                     {
                       x += kern.Amount * sizeScale;
@@ -796,7 +790,7 @@ namespace MediaPortal.SkinEngine.Fonts
                   if (b.Kerning)
                   {
                     _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.Characters[newLineLastChar].KerningList.Find(FindKerningNode);
+                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
                     if (kern != null)
                     {
                       float kerning = kern.Amount * sizeScale;
@@ -823,7 +817,7 @@ namespace MediaPortal.SkinEngine.Fonts
                   if (b.Kerning)
                   {
                     _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.Characters[newLineLastChar].KerningList.Find(FindKerningNode);
+                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
                     if (kern != null)
                     {
                       float kerning = kern.Amount * sizeScale;
@@ -902,7 +896,7 @@ namespace MediaPortal.SkinEngine.Fonts
         if (b.Kerning && !firstCharOfLine)
         {
           _nextChar = text[i];
-          Kerning kern = _charSet.Characters[lastChar].KerningList.Find(FindKerningNode);
+          Kerning kern = _charSet.GetCharacter(lastChar).KerningList.Find(FindKerningNode);
           if (kern != null)
           {
             kernAmount = kern.Amount * sizeScale;
@@ -1048,22 +1042,52 @@ namespace MediaPortal.SkinEngine.Fonts
     #endregion
   } ;
 
+  internal class BitmapCharacterRow
+  {
+    public const int MAX_CHARS = 256;
+
+    public BitmapCharacter[] Characters;
+
+    /// <summary>Creates a new BitmapCharacterSet</summary>
+    public BitmapCharacterRow()
+    {
+      Characters = new BitmapCharacter[MAX_CHARS];
+    }
+  } ;
+
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
   {
-    public int MaxCharacters = 256;
+    public const int MAX_ROWS = 256;
     public int LineHeight;
     public int Base;
     public int RenderedSize;
     public int Width;
     public int Height;
-    public BitmapCharacter[] Characters;
+    private BitmapCharacterRow[] Rows;
 
     /// <summary>Creates a new BitmapCharacterSet</summary>
     public BitmapCharacterSet()
     {
-      Characters = new BitmapCharacter[MaxCharacters];
+      Rows = new BitmapCharacterRow[MAX_ROWS];
     }
+
+    public BitmapCharacter GetCharacter(uint index)
+    {
+      uint row = index / BitmapCharacterRow.MAX_CHARS;
+      if (Rows[row] == null)
+        Rows[row] = new BitmapCharacterRow();
+      return Rows[row].Characters[index % BitmapCharacterRow.MAX_CHARS];
+    }
+
+    public void SetCharacter(uint index, BitmapCharacter character)
+    {
+      uint row = index / BitmapCharacterRow.MAX_CHARS;
+      if (Rows[row] == null)
+        Rows[row] = new BitmapCharacterRow();
+      Rows[row].Characters[index % BitmapCharacterRow.MAX_CHARS] = character;  
+    }
+
   } ;
 
   /// <summary>Represents a single bitmap character.</summary>
