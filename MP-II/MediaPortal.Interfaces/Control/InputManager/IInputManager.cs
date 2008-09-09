@@ -63,7 +63,7 @@ namespace MediaPortal.Control.InputManager
     /// returns all registered keys.
     /// </summary>
     /// <value>The keys.</value>
-    List<Key> Keys { get; }
+    ICollection<Key> Keys { get; }
 
     void Reset();
   }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -203,9 +204,22 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
-      //Trace.WriteLine(String.Format("keydown:{0}", e.KeyCode));
+      // We'll handle special keys here
       IInputMapper mapper = ServiceScope.Get<IInputMapper>();
-      Key key = mapper.Map(e.KeyCode, e.Alt);
+      Key key = mapper.MapSpecialKey(e.KeyCode, e.Alt);
+      if (key != Key.None)
+      {
+        IInputManager manager = ServiceScope.Get<IInputManager>();
+        manager.KeyPressed(key);
+        e.Handled = true;
+      }
+    }
+
+    private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+    {
+      // We'll handle alpha-numeric keys here
+      IInputMapper mapper = ServiceScope.Get<IInputMapper>();
+      Key key = mapper.MapAlphaNumericKey(e.KeyChar);
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();

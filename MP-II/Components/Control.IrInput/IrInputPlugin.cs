@@ -297,7 +297,7 @@ namespace Components.Control.IrInput
       {
         if (mapped.Code == remoteButton)
         {
-          key = inputMapper.Map(mapped.Key, alt);
+          key = inputMapper.MapSpecialKey(mapped.Key, alt);
 
           inputManager.KeyPressed(key);
 

@@ -434,65 +434,61 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      Boolean predict = true;
       if (!HasFocus) 
         return;
-      if (key == MediaPortal.Control.InputManager.Key.None)
+      if (key == Key.None)
         return;
      
       _editText = true;
-
-      if (key == MediaPortal.Control.InputManager.Key.BackSpace)
+      if (key == Key.BackSpace)
       {
         if (CaretIndex > 0)
         {
           Text = Text.Remove(CaretIndex - 1, 1);
           CaretIndex = CaretIndex - 1;
         }
+        key = Key.None;
       }
-      else if (key == MediaPortal.Control.InputManager.Key.Left)
+      else if (key == Key.Left)
       {
         if (CaretIndex > 0)
-        {
           CaretIndex = CaretIndex - 1;
-          predict = false;
-        }
+        key = Key.None;
       }
-      else if (key == MediaPortal.Control.InputManager.Key.Right)
+      else if (key == Key.Right)
       {
         if (CaretIndex < Text.Length)
-        {
           CaretIndex = CaretIndex + 1;
-          predict = false;
-        }
-        
+        key = Key.None;
       }
-      else if (key == MediaPortal.Control.InputManager.Key.Home)
+      else if (key == Key.Home)
       {
         CaretIndex = 0;
+        key = Key.None;
       }
-      else if (key == MediaPortal.Control.InputManager.Key.End)
+      else if (key == Key.End)
       {
         CaretIndex = Text.Length;
+        key = Key.None;
       } 
-      else if (key != MediaPortal.Control.InputManager.Key.Up && 
-               key != MediaPortal.Control.InputManager.Key.Down &&
-               key != MediaPortal.Control.InputManager.Key.Enter)
+      else if (key != Key.Up && 
+               key != Key.Down &&
+               key != Key.Enter)
       {
         Text = Text.Insert(CaretIndex, key.Name);
         CaretIndex = CaretIndex + 1;
+        key = Key.None;
       }
 
       _editText = false;
 
-      if (predict)
+      if (key == Key.None)
+        return;
+      UIElement cntl = FocusManager.PredictFocus(this, ref key);
+      if (cntl != null)
       {
-        UIElement cntl = FocusManager.PredictFocus(this, ref key);
-        if (cntl != null)
-        {
-          cntl.HasFocus = true;
-          key = MediaPortal.Control.InputManager.Key.None;
-        }
+        cntl.HasFocus = true;
+        key = Key.None;
       }
     }
   }

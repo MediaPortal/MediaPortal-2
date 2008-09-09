@@ -31,12 +31,17 @@ namespace MediaPortal.SkinEngine
 {
   public class InputManager : IInputManager
   {
+    #region Protected fields
+
+    private ICollection<Key> _registeredKeys;
+    private bool _needRawKeyboardData;
+
+    #endregion
+
     #region events
 
-    private List<Key> _registeredKeys;
     public event MouseMoveHandler OnMouseMove;
     public event KeyPressedHandler OnKeyPressed;
-    private bool _needRawKeyboarData;
 
     #endregion
 
@@ -45,7 +50,7 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     public InputManager()
     {
-      _needRawKeyboarData = false;
+      _needRawKeyboardData = false;
       _registeredKeys = new List<Key>();
       _registeredKeys.Add(Key.ContextMenu);
       _registeredKeys.Add(Key.Down);
@@ -78,7 +83,7 @@ namespace MediaPortal.SkinEngine
     /// returns all registered keys.
     /// </summary>
     /// <value>The keys.</value>
-    public List<Key> Keys
+    public ICollection<Key> Keys
     {
       get { return _registeredKeys; }
     }
@@ -119,14 +124,14 @@ namespace MediaPortal.SkinEngine
     /// <summary>
     /// Called by the skin when it wants to press a key
     /// </summary>
-    /// <param name="keyChar">string containing the key name.</param>
-    public void PressKey(string keyChar)
+    /// <param name="keyName">string containing the key name.</param>
+    public void PressKey(string keyName)
     {
       SkinContext.HandlingInput = true;
       SkinContext.ScreenSaverActive = false;
       foreach (Key key in Keys)
       {
-        if (String.Compare(keyChar, key.Name, true) == 0)
+        if (String.Compare(keyName, key.Name, true) == 0)
         {
           Key k = key;
           if (OnKeyPressed != null)
@@ -143,8 +148,8 @@ namespace MediaPortal.SkinEngine
     /// <value><c>true</c> if [need raw key data]; otherwise, <c>false</c>.</value>
     public bool NeedRawKeyData
     {
-      get { return _needRawKeyboarData; }
-      set { _needRawKeyboarData = value; }
+      get { return _needRawKeyboardData; }
+      set { _needRawKeyboardData = value; }
     }
   }
 }

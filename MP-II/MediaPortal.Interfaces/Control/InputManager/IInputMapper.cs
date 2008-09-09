@@ -28,7 +28,7 @@ namespace MediaPortal.Control.InputManager
 {
   public interface IInputMapper
   {
-    Key Map(Keys keyCode, bool alt);
-    Key Map(char keyChar);
+    Key MapSpecialKey(Keys keyCode, bool alt);
+    Key MapAlphaNumericKey(char keyChar);
   }
 }

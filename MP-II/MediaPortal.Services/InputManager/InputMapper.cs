@@ -32,7 +32,7 @@ namespace MediaPortal.Services.InputManager
 {
   public class InputMapper : IInputMapper
   {
-    public Key Map(Keys keycode, bool alt)
+    public Key MapSpecialKey(Keys keycode, bool alt)
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
@@ -147,7 +147,7 @@ namespace MediaPortal.Services.InputManager
       return Key.None;
     }
 
-    public Key Map(char keyChar)
+    public Key MapAlphaNumericKey(char keyChar)
     {
       if (keyChar >= (char)32)
         return new Key(keyChar);
