@@ -35,8 +35,8 @@ namespace MediaPortal.Control.InputManager
 
   public interface IInputManager
   {
-    event MouseMoveHandler OnMouseMove;
-    event KeyPressedHandler OnKeyPressed;
+    event MouseMoveHandler MouseMoved;
+    event KeyPressedHandler KeyPressed;
 
     /// <summary>
     /// Gets or sets a value indicating whether skinengine needs raw key data (for a textbox for example)
@@ -45,22 +45,26 @@ namespace MediaPortal.Control.InputManager
     bool NeedRawKeyData { get; set; }
 
     /// <summary>
-    /// called when the mouse moved.
+    /// Called when the mouse moved.
     /// </summary>
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     void MouseMove(float x, float y);
 
     /// <summary>
-    /// called when a key was pressed.
+    /// Called when a key was pressed.
     /// </summary>
     /// <param name="key">The key.</param>
-    void KeyPressed(Key key);
-
-    void PressKey(string key);
+    void KeyPress(Key key);
 
     /// <summary>
-    /// returns all registered keys.
+    /// Called by the skin when it wants to press a key
+    /// </summary>
+    /// <param name="keyName">string containing the key name.</param>
+    void KeyPress(string keyName);
+
+    /// <summary>
+    /// Returns all registered keys.
     /// </summary>
     /// <value>The keys.</value>
     ICollection<Key> Keys { get; }

@@ -299,7 +299,7 @@ namespace Components.Control.IrInput
         {
           key = inputMapper.MapSpecialKey(mapped.Key, alt);
 
-          inputManager.KeyPressed(key);
+          inputManager.KeyPress(key);
 
           ServiceScope.Get<ILogger>().Info("IrInputPlugin: Mapped \"{0}\" to \"{1}\"", remoteButton, mapped.Key);
 

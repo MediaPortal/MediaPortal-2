@@ -26,6 +26,7 @@ using System;
 using System.Drawing;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.InputManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
@@ -47,7 +48,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return;
       
       UIElement element = (UIElement)Content;
-      FrameworkElement focusedElement = element.FindElement(FocusFinder.Instance) as FrameworkElement;
+      FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null)
       {
         _startsWith = "";
@@ -168,7 +169,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       IScrollInfo info = GetScrollInfo();
       if (info == null) return;
-      Panel element = (Panel)info;
       info.End(new PointF(0, 0));
     }
 

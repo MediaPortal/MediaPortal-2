@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -210,7 +209,7 @@ namespace MediaPortal.SkinEngine.GUI
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();
-        manager.KeyPressed(key);
+        manager.KeyPress(key);
         e.Handled = true;
       }
     }
@@ -223,7 +222,7 @@ namespace MediaPortal.SkinEngine.GUI
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();
-        manager.KeyPressed(key);
+        manager.KeyPress(key);
         e.Handled = true;
       }
     }
@@ -233,11 +232,11 @@ namespace MediaPortal.SkinEngine.GUI
       SkinContext.MouseUsed = true;
       if (e.Button == MouseButtons.Left)
       {
-        ServiceScope.Get<IInputManager>().KeyPressed(Key.Enter);
+        ServiceScope.Get<IInputManager>().KeyPress(Key.Enter);
       }
       if (e.Button == MouseButtons.Right)
       {
-        ServiceScope.Get<IInputManager>().KeyPressed(Key.ContextMenu);
+        ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);
       }
     }
 

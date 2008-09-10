@@ -249,7 +249,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnMouseMove(float x, float y)
     {
-      if (!IsFocusScope) return;
       if (Content != null)
       {
         Content.OnMouseMove(x, y);

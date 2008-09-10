@@ -24,24 +24,25 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
-using MediaPortal.SkinEngine.Controls.Brushes;
 using MediaPortal.SkinEngine;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
+using Brush=MediaPortal.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// Finder implementation which looks for a panel which has its
-  /// <see cref="Panel.ItemsHost"/> property set.
+  /// <see cref="Panel.IsItemsHost"/> property set.
   /// </summary>
   public class ItemsHostFinder: IFinder
   {
@@ -292,7 +293,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       UpdateRenderOrder();
 
-      SkinContext.AddOpacity(this.Opacity);
+      SkinContext.AddOpacity(Opacity);
       if (Background != null)
       {
         if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
@@ -320,13 +321,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public void PerformLayout()
     {
-      //Trace.WriteLine("Panel.PerformLayout() " + this.Name + " -" + this.GetType().ToString());
+      //Trace.WriteLine("Panel.PerformLayout() " + Name + " -" + GetType().ToString());
 
       if (Background != null)
       {
         double w = ActualWidth;
         double h = ActualHeight;
-        System.Drawing.SizeF rectSize = new System.Drawing.SizeF((float)w, (float)h);
+        SizeF rectSize = new SizeF((float)w, (float)h);
 
         ExtendedMatrix m = new ExtendedMatrix();
         if (_finalLayoutTransform != null)
@@ -338,9 +339,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           m.Matrix *= em.Matrix;
         }
         m.InvertSize(ref rectSize);
-        System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-        rect.X += (float)ActualPosition.X;
-        rect.Y += (float)ActualPosition.Y;
+        RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+        rect.X += ActualPosition.X;
+        rect.Y += ActualPosition.Y;
         PositionColored2Textured[] verts = new PositionColored2Textured[6];
         unchecked
         {
@@ -357,7 +358,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           if (_backgroundAsset == null)
           {
-            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + this.Name);
+            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name);
             ContentManager.Add(_backgroundAsset);
           }
           _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
@@ -425,7 +426,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
-        if (key == MediaPortal.Control.InputManager.Key.None) return;
+        if (key == Key.None) return;
       }
     }
 
@@ -453,186 +454,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       base.AddChildren(childrenOut);
       CollectionUtils.AddAll(childrenOut, Children);
     }
-
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      foreach (FrameworkElement c in Children)
-      {
-        if (!c.IsVisible) continue;
-        if (!c.IsFocusScope) continue;
-        FrameworkElement match = c.PredictFocusUp(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Control.InputManager.Key.None)
-        {
-          return match;
-        }
-        if (match != null)
-        {
-          if (match.Focusable)
-          {
-            if (match == focusedFrameworkElement)
-            {
-              continue;
-            }
-            if (bestMatch == null)
-            {
-              bestMatch = match;
-              bestDistance = Distance(match, focusedFrameworkElement);
-            }
-            else
-            {
-              if (match.ActualPosition.Y + match.ActualHeight >= bestMatch.ActualPosition.Y + bestMatch.ActualHeight)
-              {
-                float distance = Distance(match, focusedFrameworkElement);
-                if (distance < bestDistance)
-                {
-                  bestMatch = match;
-                  bestDistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      foreach (FrameworkElement c in Children)
-      {
-        if (!c.IsVisible) continue;
-        if (!c.IsFocusScope) continue;
-        FrameworkElement match = c.PredictFocusDown(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Control.InputManager.Key.None)
-        {
-          return match;
-        }
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-          {
-            continue;
-          }
-          if (match.Focusable)
-          {
-            if (bestMatch == null)
-            {
-              bestMatch = match;
-              bestDistance = Distance(match, focusedFrameworkElement);
-            }
-            else
-            {
-              if (match.ActualPosition.Y <= bestMatch.ActualPosition.Y)
-              {
-                float distance = Distance(match, focusedFrameworkElement);
-                if (distance < bestDistance)
-                {
-                  bestMatch = match;
-                  bestDistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      foreach (FrameworkElement c in Children)
-      {
-        if (!c.IsVisible) continue;
-        if (!c.IsFocusScope) continue;
-        FrameworkElement match = c.PredictFocusLeft(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Control.InputManager.Key.None)
-        {
-          return match;
-        }
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-          {
-            continue;
-          }
-          if (match.Focusable)
-          {
-            if (bestMatch == null)
-            {
-              bestMatch = match;
-              bestDistance = Distance(match, focusedFrameworkElement);
-            }
-            else
-            {
-              if (match.ActualPosition.X >= bestMatch.ActualPosition.X)
-              {
-                float distance = Distance(match, focusedFrameworkElement);
-                if (distance < bestDistance)
-                {
-                  bestMatch = match;
-                  bestDistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      foreach (FrameworkElement c in Children)
-      {
-        if (!c.IsVisible) continue;
-        if (!c.IsFocusScope) continue;
-        FrameworkElement match = c.PredictFocusRight(focusedFrameworkElement, ref key, strict);
-        if (key == MediaPortal.Control.InputManager.Key.None)
-        {
-          return match;
-        }
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-          {
-            continue;
-          }
-          if (match.Focusable)
-          {
-            if (bestMatch == null)
-            {
-              bestMatch = match;
-              bestDistance = Distance(match, focusedFrameworkElement);
-            }
-            else
-            {
-              if (match.ActualPosition.X <= bestMatch.ActualPosition.X)
-              {
-                float distance = Distance(match, focusedFrameworkElement);
-                if (distance < bestDistance)
-                {
-                  bestMatch = match;
-                  bestDistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    #endregion
 
     public override void Deallocate()
     {

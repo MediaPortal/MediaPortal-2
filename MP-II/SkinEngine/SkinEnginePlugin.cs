@@ -36,6 +36,7 @@ using MediaPortal.Services.UserManagement;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Players;
 
 namespace MediaPortal.SkinEngine

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.InputManagement
 {
   public class InputManager : IInputManager
   {
@@ -38,16 +38,13 @@ namespace MediaPortal.SkinEngine
 
     #endregion
 
-    #region events
+    #region Events
 
-    public event MouseMoveHandler OnMouseMove;
-    public event KeyPressedHandler OnKeyPressed;
+    public event MouseMoveHandler MouseMoved;
+    public event KeyPressedHandler KeyPressed;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputManager"/> class.
-    /// </summary>
     public InputManager()
     {
       _needRawKeyboardData = false;
@@ -75,57 +72,40 @@ namespace MediaPortal.SkinEngine
 
     public void Reset()
     {
-      OnMouseMove = null;
-      OnKeyPressed = null;
+      MouseMoved = null;
+      KeyPressed = null;
     }
 
-    /// <summary>
-    /// returns all registered keys.
-    /// </summary>
-    /// <value>The keys.</value>
     public ICollection<Key> Keys
     {
       get { return _registeredKeys; }
     }
 
-    /// <summary>
-    /// called by window when a mouse move is detected
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public void MouseMove(float x, float y)
     {
       SkinContext.HandlingInput = true;
       SkinContext.MouseUsed = true;
-      if (OnMouseMove != null)
+      if (MouseMoved != null)
       {
-        OnMouseMove(x, y);
+        MouseMoved(x, y);
       }
       SkinContext.HandlingInput = false;
       SkinContext.ScreenSaverActive = false;
     }
 
-    /// <summary>
-    /// called by window when a keypress has been received
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public void KeyPressed(Key key)
+    public void KeyPress(Key key)
     {
       SkinContext.HandlingInput = true;
-      if (OnKeyPressed != null)
+      if (KeyPressed != null)
       {
-        OnKeyPressed(ref key);
+        KeyPressed(ref key);
       }
 
       SkinContext.HandlingInput = false;
       SkinContext.ScreenSaverActive = false;
     }
 
-    /// <summary>
-    /// Called by the skin when it wants to press a key
-    /// </summary>
-    /// <param name="keyName">string containing the key name.</param>
-    public void PressKey(string keyName)
+    public void KeyPress(string keyName)
     {
       SkinContext.HandlingInput = true;
       SkinContext.ScreenSaverActive = false;
@@ -134,18 +114,14 @@ namespace MediaPortal.SkinEngine
         if (String.Compare(keyName, key.Name, true) == 0)
         {
           Key k = key;
-          if (OnKeyPressed != null)
+          if (KeyPressed != null)
           {
-            OnKeyPressed(ref k);
+            KeyPressed(ref k);
           }
         }
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether skinengine needs raw key data (for a textbox for example)
-    /// </summary>
-    /// <value><c>true</c> if [need raw key data]; otherwise, <c>false</c>.</value>
     public bool NeedRawKeyData
     {
       get { return _needRawKeyboardData; }

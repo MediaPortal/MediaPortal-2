@@ -153,7 +153,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         IInputManager manager = ServiceScope.Get<IInputManager>();
         
         // We now have focus, so set that we need raw data
-        if (value == true)
+        if (value)
         {
           manager.NeedRawKeyData = true;
         }
@@ -481,15 +481,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       _editText = false;
-
-      if (key == Key.None)
-        return;
-      UIElement cntl = FocusManager.PredictFocus(this, ref key);
-      if (cntl != null)
-      {
-        cntl.HasFocus = true;
-        key = Key.None;
-      }
     }
   }
 }

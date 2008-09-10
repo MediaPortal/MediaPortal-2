@@ -22,11 +22,12 @@
 
 #endregion
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -64,7 +65,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
+      _itemsSourceProperty = new Property(typeof(IEnumerable<object>), null);
       _itemTemplateProperty = new Property(typeof(DataTemplate), null);
       _itemTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
       _itemContainerStyleProperty = new Property(typeof(Style), null);
@@ -136,12 +137,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnHasFocusChanged(Property property)
-    {
-      if (HasFocus)
-        SetFocusOnFirstItem();
-    }
-
     void OnItemTemplateChanged(Property property)
     {
       _prepare = true;
@@ -190,9 +185,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets or sets a collection used to generate the content of the ItemsControl.
     /// </summary>
-    public IEnumerable ItemsSource
+    public IEnumerable<object> ItemsSource
     {
-      get { return _itemsSourceProperty.GetValue() as IEnumerable; }
+      get { return (IEnumerable<object>) _itemsSourceProperty.GetValue(); }
       set { _itemsSourceProperty.SetValue(value); }
     }
 
@@ -277,7 +272,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Item generation
+    #region Item management
 
     protected ItemsPresenter FindItemsPresenter()
     {
@@ -292,7 +287,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (TemplateControl == null) return false;
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
-      IEnumerator enumer = ItemsSource.GetEnumerator();
+      IEnumerator<object> enumer = ItemsSource.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
 
@@ -344,30 +339,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return false;
     }
 
-
-    // FIXME Albert78: Remove this? Define the meaning of HasFocus property
-    //public override bool HasFocus
-    //{
-    //  get
-    //  {
-    //    return (FindElement(FocusFinder.Instance) != null);
-    //  }
-    //  set
-    //  {
-    //    if (value)
-    //    {
-    //      if (!HasFocus)
-    //        SetFocusOnFirstItem();
-    //    }
-    //    else
-    //    {
-    //      UIElement element = FindElement(FocusFinder.Instance);
-    //      if (element != null)
-    //        element.HasFocus = false;
-    //    }
-    //  }
-    //}
-
     public void SetFocusOnFirstItem()
     {
       ItemsPresenter presenter = FindItemsPresenter();
@@ -376,11 +347,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Panel panel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;
         if (panel != null)
         {
-          if (panel.Children != null && panel.Children.Count > 0)
-          {
-            FrameworkElement element = (FrameworkElement)panel.Children[0];
-            element.OnMouseMove(element.ActualPosition.X, element.ActualPosition.Y);
-          }
+          FrameworkElement focusable = FocusManager.FindFirstFocusableElement(panel);
+          if (focusable != null)
+            focusable.HasFocus = true;
         }
       }
     }

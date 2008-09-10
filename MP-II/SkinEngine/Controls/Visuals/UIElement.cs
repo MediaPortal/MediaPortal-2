@@ -86,6 +86,50 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   }
 
   /// <summary>
+  /// Finder implementation which returns an element if multiple child finders accept it.
+  /// </summary>
+  public class MultiFinder : IFinder
+  {
+    protected IFinder[] _finders;
+
+    public MultiFinder(IFinder[] finders)
+    {
+      _finders = finders;
+    }
+
+    public bool Query(UIElement current)
+    {
+      foreach (IFinder finder in _finders)
+        if (!finder.Query(current))
+          return false;
+      return true;
+    }
+  }
+
+  /// <summary>
+  /// Finder implementation which returns an element if it is visible.
+  /// </summary>
+  public class VisibleElementFinder : IFinder
+  {
+    private static VisibleElementFinder _instance = null;
+
+    public bool Query(UIElement current)
+    {
+      return current.IsVisible;
+    }
+
+    public static VisibleElementFinder Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new VisibleElementFinder();
+        return _instance;
+      }
+    }
+  }
+
+  /// <summary>
   /// Finder implementation which looks for elements of the specified type.
   /// </summary>
   public class TypeFinder : IFinder
@@ -141,29 +185,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   }
 
   /// <summary>
-  /// Finder implementation which looks for focused elements.
-  /// </summary>
-  public class FocusFinder : IFinder
-  {
-    private static FocusFinder _instance = null;
-
-    public bool Query(UIElement current)
-    {
-      return current.HasFocus;
-    }
-
-    public static FocusFinder Instance
-    {
-      get
-      {
-        if (_instance == null)
-          _instance = new FocusFinder();
-        return _instance;
-      }
-    }
-  }
-
-  /// <summary>
   /// Delegate interface which takes an action on an <see cref="UIElement"/>.
   /// </summary>
   public interface IUIElementAction
@@ -200,9 +221,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Private/protected fields
 
     Property _nameProperty;
-    Property _focusableProperty;
-    Property _isFocusScopeProperty;
-    Property _hasFocusProperty;
     Property _acutalPositionProperty;
     Property _marginProperty;
     Property _triggerProperty;
@@ -237,9 +255,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Init()
     {
       _nameProperty = new Property(typeof(string), "");
-      _focusableProperty = new Property(typeof(bool), false);
-      _isFocusScopeProperty = new Property(typeof(bool), true);
-      _hasFocusProperty = new Property(typeof(bool), false);
       _acutalPositionProperty = new Property(typeof(Vector3), new Vector3(0, 0, 1));
       _marginProperty = new Property(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
@@ -261,7 +276,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _marginProperty.Attach(OnLayoutPropertyChanged);
       _visibilityProperty.Attach(OnVisibilityPropertyChanged);
       _opacityProperty.Attach(OnOpacityPropertyChanged);
-      _hasFocusProperty.Attach(OnFocusPropertyChanged);
       _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
     }
 
@@ -270,7 +284,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _marginProperty.Detach(OnLayoutPropertyChanged);
       _visibilityProperty.Detach(OnVisibilityPropertyChanged);
       _opacityProperty.Detach(OnOpacityPropertyChanged);
-      _hasFocusProperty.Detach(OnFocusPropertyChanged);
       _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
     }
 
@@ -280,8 +293,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       UIElement el = source as UIElement;
       Name = copyManager.GetCopy(el.Name);
-      Focusable = copyManager.GetCopy(el.Focusable);
-      IsFocusScope = copyManager.GetCopy(el.IsFocusScope);
       // We do not copy the focus flag, only one element can have focus
       //HasFocus = copyManager.GetCopy(el.HasFocus);
       ActualPosition = copyManager.GetCopy(el.ActualPosition);
@@ -324,17 +335,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         FireUIEvent(UIEvent.Visible, this);
       else
         FireUIEvent(UIEvent.Hidden, this);
-    }
-
-    void OnFocusPropertyChanged(Property property)
-    {
-      if (HasFocus)
-      {
-        FocusManager.FocusedElement = this;
-        FireEvent("OnGotFocus");
-      }
-      else
-        FireEvent("OnLostFocus");
     }
 
     /// <summary>
@@ -486,39 +486,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
       }
-    }
-
-    public Property HasFocusProperty
-    {
-      get { return _hasFocusProperty; }
-    }
-
-    public virtual bool HasFocus
-    {
-      get { return (bool) _hasFocusProperty.GetValue(); }
-      set { _hasFocusProperty.SetValue(value); }
-    }
-
-    public Property FocusableProperty
-    {
-      get { return _focusableProperty; }
-    }
-
-    public bool Focusable
-    {
-      get { return (bool)_focusableProperty.GetValue(); }
-      set { _focusableProperty.SetValue(value); }
-    }
-
-    public Property IsFocusScopeProperty
-    {
-      get { return _isFocusScopeProperty; }
-    }
-
-    public bool IsFocusScope
-    {
-      get { return (bool)_isFocusScopeProperty.GetValue(); }
-      set { _isFocusScopeProperty.SetValue(value); }
     }
 
     public bool IsVisible

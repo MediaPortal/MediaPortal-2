@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -80,15 +79,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
 
-      int count = 0;
       foreach (UIElement child in Children)
       {
-        count++;
         if (!child.IsVisible)
           continue;
         
@@ -159,7 +156,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -173,7 +170,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       // Size of the child
       SizeF childSize = new SizeF();
       // Area allocated to child
-      SizeF childArea = new SizeF();
+      SizeF childArea;
 
       foreach (FrameworkElement child in Children)
       {
@@ -302,7 +299,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
       base.Arrange(finalRect);

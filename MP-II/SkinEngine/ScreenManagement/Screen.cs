@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -66,7 +67,7 @@ namespace MediaPortal.SkinEngine
     private bool _attachedInput = false;
 
     private Property _opened;
-    public event EventHandler OnClose;
+    public event EventHandler Closed;
     private bool _history;
     UIElement _visual;
     bool _setFocusedElement = false;
@@ -215,17 +216,31 @@ namespace MediaPortal.SkinEngine
     {
       if (!_attachedInput)
       {
-        ServiceScope.Get<IInputManager>().OnKeyPressed += OnKeyPressed;
-        ServiceScope.Get<IInputManager>().OnMouseMove += OnMouseMove;
+        ServiceScope.Get<IInputManager>().KeyPressed += OnKeyPressed;
+        ServiceScope.Get<IInputManager>().MouseMoved += OnMouseMove;
+        FocusManager.AttachInput(this);
         _attachedInput = true;
         HasFocus = true;
+      }
+    }
+
+    public void DetachInput()
+    {
+      if (_attachedInput)
+      {
+        ServiceScope.Get<IInputManager>().KeyPressed -= OnKeyPressed;
+        ServiceScope.Get<IInputManager>().MouseMoved -= OnMouseMove;
+        FocusManager.DetachInput(this);
+        _attachedInput = false;
+        // FIXME Albert78: Don't fire the Closed event in method DetachInput
+        if (Closed != null)
+          Closed(this, null);
       }
     }
 
     public void Show()
     {
       //Trace.WriteLine("Screen Show: " + Name);
-      FocusManager.FocusedElement = null;
       SkinContext.IsValid = false;
       lock (_visual)
       {
@@ -268,19 +283,6 @@ namespace MediaPortal.SkinEngine
       if (!HasFocus || !_attachedInput)
         return;
       _visual.OnMouseMove(x, y);
-    }
-
-    public void DetachInput()
-    {
-      if (_attachedInput)
-      {
-        ServiceScope.Get<IInputManager>().OnKeyPressed -= OnKeyPressed;
-        ServiceScope.Get<IInputManager>().OnMouseMove -= OnMouseMove;
-        _attachedInput = false;
-        // FIXME Albert78: Don't fire the OnClose event in method DetachInput
-        if (OnClose != null)
-          OnClose(this, null);
-      }
     }
 
     public void Invalidate(IUpdateEventHandler ctl)

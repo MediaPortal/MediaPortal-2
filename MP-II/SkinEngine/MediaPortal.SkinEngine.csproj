@@ -251,8 +251,8 @@
     <Compile Include="GUI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputManager\FocusManager.cs" />
-    <Compile Include="InputManager\InputManager.cs">
+    <Compile Include="InputManagement\FocusManager.cs" />
+    <Compile Include="InputManagement\InputManager.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MarkupExtensions\BindingDependency.cs" />

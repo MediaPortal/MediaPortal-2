@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Collections;
+using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
@@ -66,7 +66,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnTemplateItemsSourceChanged(Property property)
     {
-      ItemsSource = property.GetValue() as IEnumerable;
+      ItemsSource = (IEnumerable<object>) property.GetValue();
     }
 
     protected override bool Prepare()

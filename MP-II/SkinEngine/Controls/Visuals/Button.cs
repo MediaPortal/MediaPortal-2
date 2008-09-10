@@ -24,7 +24,6 @@
 
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -109,19 +108,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       if (!HasFocus) return;
-      if (key == MediaPortal.Control.InputManager.Key.None) return;
-      if (key == MediaPortal.Control.InputManager.Key.Enter)
+      if (key == Key.None) return;
+      if (key == Key.Enter)
       {
         IsPressed = true;
         if (Command != null)
           Command.Execute();
-      }
-
-      UIElement cntl = FocusManager.PredictFocus(this, ref key);
-      if (cntl != null)
-      {
-        cntl.HasFocus = true;
-        key = MediaPortal.Control.InputManager.Key.None;
       }
     }
   }

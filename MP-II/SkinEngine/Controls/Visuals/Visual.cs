@@ -55,8 +55,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Init()
     {
       _history = true;
-      _visualParentProperty = new Property(typeof(UIElement), null);
-      _focusedElement = new Property(typeof(UIElement), null);
+      _visualParentProperty = new Property(typeof(Visual), null);
+      _focusedElement = new Property(typeof(FrameworkElement), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -113,7 +113,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public Visual VisualParent
     {
-      get { return (UIElement)_visualParentProperty.GetValue(); }
+      get { return (Visual) _visualParentProperty.GetValue(); }
       set { _visualParentProperty.SetValue(value); }
     }
 
@@ -126,9 +126,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Gets or sets the default focused element.
     /// </summary>
     /// <value>The focused element.</value>
-    public UIElement FocusedElement
+    public FrameworkElement FocusedElement
     {
-      get { return _focusedElement.GetValue() as UIElement; }
+      get { return _focusedElement.GetValue() as FrameworkElement; }
       set { _focusedElement.SetValue(value); }
     }
 

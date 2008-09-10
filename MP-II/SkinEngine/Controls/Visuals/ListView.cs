@@ -25,6 +25,7 @@
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Commands;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -89,14 +90,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void UpdateCurrentItem()
     {
-      UIElement element = FindElement(FocusFinder.Instance);
+      FrameworkElement element = FocusManager.FocusedElement;
       if (element == null)
         CurrentItem = null;
       else
       {
         // FIXME Albert78: This does not necessarily find the right ListViewItem
         while (!(element is ListViewItem) && element.VisualParent != null)
-          element = element.VisualParent as UIElement;
+          element = element.VisualParent as FrameworkElement;
         CurrentItem = element.Context;
       }
       if (SelectionChanged != null)

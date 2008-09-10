@@ -26,9 +26,9 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.InputManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
@@ -53,6 +53,29 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Stretch = 3,
   };
 
+  public class FocusableElementFinder : IFinder
+  {
+    private static FocusableElementFinder _instance = null;
+
+    public bool Query(UIElement current)
+    {
+      FrameworkElement fe = current as FrameworkElement;
+      if (fe == null)
+        return false;
+      return fe.Focusable;
+    }
+
+    public static FocusableElementFinder Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new FocusableElementFinder();
+        return _instance;
+      }
+    }
+  }
+
   public class FrameworkElement: UIElement
   {
     #region Private fields
@@ -65,6 +88,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _horizontalAlignmentProperty;
     Property _verticalAlignmentProperty;
     Property _styleProperty;
+    Property _focusableProperty;
+    Property _hasFocusProperty;
     bool _updateOpacityMask;
     bool _mouseOver = false;
     VisualAssetContext _opacityMaskContext;
@@ -95,6 +120,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // Default is stretch
       _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
       _verticalAlignmentProperty = new Property(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
+
+      // Focus properties
+      _focusableProperty = new Property(typeof(bool), false);
+      _hasFocusProperty = new Property(typeof(bool), false);
     }
 
     void Attach()
@@ -104,6 +133,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _actualHeightProperty.Attach(OnActualHeightChanged);
       _actualWidthProperty.Attach(OnActualWidthChanged);
       _styleProperty.Attach(OnStyleChanged);
+      _hasFocusProperty.Attach(OnFocusPropertyChanged);
     }
 
     void Detach()
@@ -113,6 +143,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _actualHeightProperty.Detach(OnActualHeightChanged);
       _actualWidthProperty.Detach(OnActualWidthChanged);
       _styleProperty.Detach(OnStyleChanged);
+      _hasFocusProperty.Detach(OnFocusPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -127,6 +158,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ActualHeight = copyManager.GetCopy(fe.ActualHeight);
       HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
       VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
+      Focusable = copyManager.GetCopy(fe.Focusable);
       Attach();
     }
 
@@ -147,6 +179,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void OnActualWidthChanged(Property property)
     {
       _updateOpacityMask = true;
+    }
+
+    void OnFocusPropertyChanged(Property property)
+    {
+      if (HasFocus)
+      {
+        FocusManager.FrameworkElementGotFocus(this);
+        FireEvent("OnGotFocus");
+      }
+      else
+      {
+        FocusManager.FrameworkElementLostFocus(this);
+        FireEvent("OnLostFocus");
+      }
     }
 
     /// <summary>
@@ -239,11 +285,43 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <value>The control style.</value>
     public Style Style
     {
-      get { return _styleProperty.GetValue() as Style; }
+      get { return (Style) _styleProperty.GetValue(); }
       set { _styleProperty.SetValue(value); }
     }
 
+    public Property HasFocusProperty
+    {
+      get { return _hasFocusProperty; }
+    }
+
+    public virtual bool HasFocus
+    {
+      get { return (bool) _hasFocusProperty.GetValue(); }
+      set { _hasFocusProperty.SetValue(value); }
+    }
+
+    public Property FocusableProperty
+    {
+      get { return _focusableProperty; }
+    }
+
+    public bool Focusable
+    {
+      get { return (bool) _focusableProperty.GetValue(); }
+      set { _focusableProperty.SetValue(value); }
+    }
+
     #endregion
+
+    /// <summary>
+    /// Checks if this element is focusable. This is the case if the element is visible, enabled and
+    /// focusable. If this is the case, this method will set the focus to this element.
+    /// </summary>
+    public void TrySetFocus()
+    {
+      if (IsVisible && IsEnabled && Focusable)
+        HasFocus = true;
+    }
 
     /// <summary>
     /// Adds the element's margin to totalSize.
@@ -295,11 +373,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
         {
-          p.X += (float)((availableSize.Width - childSize.Width) / 2);
+          p.X += (availableSize.Width - childSize.Width) / 2;
         }
         else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
         {
-          p.X += (float)(availableSize.Width - childSize.Width);
+          p.X += availableSize.Width - childSize.Width;
         }
         availableSize.Width = childSize.Width;
       }
@@ -308,11 +386,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
         {
-          p.Y += (float)((availableSize.Height - childSize.Height) / 2);
+          p.Y += (availableSize.Height - childSize.Height) / 2;
         }
         else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
         {
-          p.Y += (float)(availableSize.Height - childSize.Height);
+          p.Y += availableSize.Height - childSize.Height;
         }
         availableSize.Height = childSize.Height;
       }
@@ -333,11 +411,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
         {
-          p.X += (float)((availableSize.Width - childSize.Width) / 2);
+          p.X += (availableSize.Width - childSize.Width) / 2;
         }
         else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
         {
-          p.X += (float)(availableSize.Width - childSize.Width);
+          p.X += availableSize.Width - childSize.Width;
         }
         availableSize.Width = childSize.Width;
       }
@@ -356,11 +434,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
         {
-          p.Y += (float)((availableSize.Height - childSize.Height) / 2);
+          p.Y += (availableSize.Height - childSize.Height) / 2;
         }
         else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
         {
-          p.Y += (float)(availableSize.Height - childSize.Height);
+          p.Y += availableSize.Height - childSize.Height;
         }
         availableSize.Height = childSize.Height;
       }
@@ -377,10 +455,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             _mouseOver = true;
             FireEvent("OnMouseEnter");
           }
-          if (IsEnabled && Focusable && !HasFocus)
-          {
-            HasFocus = true;
-          }
+          if (!HasFocus)
+            TrySetFocus();
           return;
         }
       }
@@ -389,150 +465,234 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _mouseOver = false;
         FireEvent("OnMouseLeave");
       }
-      if (IsEnabled && Focusable && HasFocus)
-      {
+      if (HasFocus)
         HasFocus = false;
-      }
     }
 
 
     #region Focus & control predicition
 
     /// <summary>
-    /// Predicts the next control which is position above this control
+    /// Predicts the next control which is positioned above the specified
+    /// <paramref name="focusedFrameworkElement"/>.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused control.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public virtual FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    /// <param name="focusedFrameworkElement">The currently focused control.</param>
+    /// <returns>Framework element which will get the focus.</returns>
+    public virtual FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement)
     {
       if (!IsVisible)
         return null;
+      if (IsEnabled && Focusable)
+        if (focusedFrameworkElement == null || ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
+          return this;
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      float bestCenterDistance = float.MaxValue;
       foreach (UIElement child in GetChildren())
       {
-        FrameworkElement childFE = child as FrameworkElement;
-        FrameworkElement result;
-        if (childFE != null && (result = childFE.PredictFocusUp(focusedFrameworkElement, ref key, strict)) != null)
-          return result;
-      }
-      if (IsEnabled && Focusable)
-      {
-        if (ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
+        if (!child.IsVisible || !(child is FrameworkElement)) continue;
+        FrameworkElement fe = (FrameworkElement)child;
+
+        FrameworkElement match = fe.PredictFocusUp(focusedFrameworkElement);
+        if (match != null)
         {
-          if (!strict)
-            return this;
-          //           |-------------------------------|  
-          //   |----------------------------------------------|
-          //   |----------------------|
-          //                          |-----|
-          //                          |-----------------------|
-          if ((ActualPosition.X >= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
-              (ActualPosition.X <= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
-              (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
-            return this;
+          if (match == focusedFrameworkElement)
+            continue;
+          if (match.Focusable && match.IsVisible)
+          {
+            float distance = BorderDistance(match, focusedFrameworkElement);
+            float centerDistance = CenterDistance(match, focusedFrameworkElement);
+            if (bestMatch == null || distance < bestDistance ||
+                distance == bestDistance && centerDistance < bestCenterDistance)
+            {
+              bestMatch = match;
+              bestDistance = distance;
+              bestCenterDistance = centerDistance;
+            }
+          }
         }
       }
-      return null;
+      return bestMatch;
     }
 
 
     /// <summary>
-    /// Predicts the next control which is position below this control
+    /// Predicts the next control which is positioned below the specified
+    /// <paramref name="focusedFrameworkElement"/>.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused control.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public virtual FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    /// <param name="focusedFrameworkElement">The currently focused control.</param>
+    /// <returns>Framework element which will get the focus.</returns>
+    public virtual FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement)
     {
       if (!IsVisible)
         return null;
+      if (IsEnabled && Focusable)
+        if (focusedFrameworkElement == null || ActualPosition.Y + ActualHeight > focusedFrameworkElement.ActualPosition.Y + focusedFrameworkElement.ActualHeight)
+          return this;
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      float bestCenterDistance = float.MaxValue;
       foreach (UIElement child in GetChildren())
       {
-        FrameworkElement childFE = child as FrameworkElement;
-        FrameworkElement result;
-        if (childFE != null && (result = childFE.PredictFocusDown(focusedFrameworkElement, ref key, strict)) != null)
-          return result;
-      }
-      if (IsEnabled && Focusable)
-      {
-        if (ActualPosition.Y > focusedFrameworkElement.ActualPosition.Y)
+        if (!child.IsVisible || !(child is FrameworkElement)) continue;
+        FrameworkElement fe = (FrameworkElement)child;
+
+        FrameworkElement match = fe.PredictFocusDown(focusedFrameworkElement);
+        if (match != null)
         {
-          if (!strict)
-            return this;
-          if ((ActualPosition.X >= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
-              (ActualPosition.X <= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth) ||
-              (ActualPosition.X + ActualWidth >= focusedFrameworkElement.ActualPosition.X &&
-               ActualPosition.X + ActualWidth <= focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth))
-            return this;
+          if (match == focusedFrameworkElement)
+            continue;
+          if (match.Focusable && match.IsVisible)
+          {
+            float distance = BorderDistance(match, focusedFrameworkElement);
+            float centerDistance = CenterDistance(match, focusedFrameworkElement);
+            if (bestMatch == null || distance < bestDistance ||
+                distance == bestDistance && centerDistance < bestCenterDistance)
+            {
+              bestMatch = match;
+              bestDistance = distance;
+              bestCenterDistance = centerDistance;
+            }
+          }
         }
       }
-      return null;
+      return bestMatch;
     }
 
     /// <summary>
-    /// Predicts the next control which is position left of this control
+    /// Predicts the next control which is positioned left of the specified
+    /// <paramref name="focusedFrameworkElement"/>.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused control.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public virtual FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    /// <param name="focusedFrameworkElement">The currently focused control.</param>
+    /// <returns>Framework element which will get the focus.</returns>
+    public virtual FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement)
     {
       if (!IsVisible)
         return null;
+      if (IsEnabled && Focusable)
+        if (focusedFrameworkElement == null || ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
+          return this;
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      float bestCenterDistance = float.MaxValue;
       foreach (UIElement child in GetChildren())
       {
-        FrameworkElement childFE = child as FrameworkElement;
-        FrameworkElement result;
-        if (childFE != null && (result = childFE.PredictFocusLeft(focusedFrameworkElement, ref key, strict)) != null)
-          return result;
+        if (!child.IsVisible || !(child is FrameworkElement)) continue;
+        FrameworkElement fe = (FrameworkElement)child;
+
+        FrameworkElement match = fe.PredictFocusLeft(focusedFrameworkElement);
+        if (match != null)
+        {
+          if (match == focusedFrameworkElement)
+            continue;
+          if (match.Focusable && match.IsVisible)
+          {
+            float distance = BorderDistance(match, focusedFrameworkElement);
+            float centerDistance = CenterDistance(match, focusedFrameworkElement);
+            if (bestMatch == null || distance < bestDistance ||
+                distance == bestDistance && centerDistance < bestCenterDistance)
+            {
+              bestMatch = match;
+              bestDistance = distance;
+              bestCenterDistance = centerDistance;
+            }
+          }
+        }
       }
-      if (IsEnabled && Focusable)
-        if (ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
-          return this;
-      return null;
+      return bestMatch;
     }
 
     /// <summary>
-    /// Predicts the next control which is position right of this control
+    /// Predicts the next control which is positioned right of the specified
+    /// <paramref name="focusedFrameworkElement"/>.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The current  focused control.</param>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
-    public virtual FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement, ref Key key, bool strict)
+    /// <param name="focusedFrameworkElement">The currently focused control.</param>
+    /// <returns>Framework element which will get the focus.</returns>
+    public virtual FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement)
     {
       if (!IsVisible)
         return null;
+      if (IsEnabled && Focusable)
+        if (focusedFrameworkElement == null || ActualPosition.X + ActualWidth > focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth)
+          return this;
+      FrameworkElement bestMatch = null;
+      float bestDistance = float.MaxValue;
+      float bestCenterDistance = float.MaxValue;
       foreach (UIElement child in GetChildren())
       {
-        FrameworkElement childFE = child as FrameworkElement;
-        FrameworkElement result;
-        if (childFE != null && (result = childFE.PredictFocusRight(focusedFrameworkElement, ref key, strict)) != null)
-          return result;
+        if (!child.IsVisible || !(child is FrameworkElement)) continue;
+        FrameworkElement fe = (FrameworkElement)child;
+
+        FrameworkElement match = fe.PredictFocusRight(focusedFrameworkElement);
+        if (match != null)
+        {
+          if (match == focusedFrameworkElement)
+            continue;
+          if (match.Focusable && match.IsVisible)
+          {
+            float distance = BorderDistance(match, focusedFrameworkElement);
+            float centerDistance = CenterDistance(match, focusedFrameworkElement);
+            if (bestMatch == null || distance < bestDistance ||
+                distance == bestDistance && centerDistance < bestCenterDistance)
+            {
+              bestMatch = match;
+              bestDistance = distance;
+              bestCenterDistance = centerDistance;
+            }
+          }
+        }
       }
-      if (IsEnabled && Focusable)
-        if (ActualPosition.X > focusedFrameworkElement.ActualPosition.X)
-          return this;
-      return null;
+      return bestMatch;
     }
 
-
-    /// <summary>
-    /// Calculates the distance between 2 controls
-    /// </summary>
-    /// <param name="c1">The c1.</param>
-    /// <param name="c2">The c2.</param>
-    /// <returns></returns>
-    public float Distance(FrameworkElement c1, FrameworkElement c2)
+    protected static float BorderDistance(FrameworkElement c1, FrameworkElement c2)
     {
-      float y = Math.Abs(c1.ActualPosition.Y - c2.ActualPosition.Y);
-      float x = Math.Abs(c1.ActualPosition.X - c2.ActualPosition.X);
-      float distance = (float)Math.Sqrt(y * y + x * x);
-      return distance;
+      if (c1 == null || c2 == null)
+        return 0;
+      Rectangle r1 = GetActualBorderRectangle(c1);
+      Rectangle r2 = GetActualBorderRectangle(c2);
+      return BorderDistance(r1, r2);
+    }
+
+    protected static float CenterDistance(FrameworkElement c1, FrameworkElement c2)
+    {
+      if (c1 == null || c2 == null)
+        return 0;
+      Rectangle r1 = GetActualBorderRectangle(c1);
+      Rectangle r2 = GetActualBorderRectangle(c2);
+      return CenterDistance(r1, r2);
+    }
+
+    private static Rectangle GetActualBorderRectangle(FrameworkElement e)
+    {
+      return new Rectangle((int) e.ActualPosition.X, (int) e.ActualPosition.Y,
+          (int) e.ActualWidth, (int) e.ActualHeight);
+    }
+
+    private static float BorderDistance(Rectangle r1, Rectangle r2)
+    {
+      float distX;
+      float distY;
+      if (r1.Left > r2.Right)
+        distX = r1.Left - r2.Right;
+      else if (r1.Right < r2.Left)
+        distX = r2.Left - r1.Right;
+      else
+        distX = 0;
+      if (r1.Top > r2.Bottom)
+        distY = r1.Top - r2.Bottom;
+      else if (r1.Bottom < r2.Top)
+        distY = r2.Top - r1.Bottom;
+      else
+        distY = 0;
+      return (float) Math.Sqrt(distX * distX + distY * distY);
+    }
+
+    private static float CenterDistance(Rectangle r1, Rectangle r2)
+    {
+      float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
+      float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
+      return (float) Math.Sqrt(distX * distX + distY * distY);
     }
 
     #endregion
@@ -567,7 +727,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         //Apply the rendertransform
         if (RenderTransform != null)
         {
-          Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+          Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
@@ -598,18 +758,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
               //copy the correct rectangle from the backbuffer in the opacitytexture
               GraphicsDevice.Device.StretchRect(backBuffer,
-                                                     new System.Drawing.Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
-                                                     textureOpacitySurface,
-                                                     new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
-                                                     TextureFilter.None);
+                  new Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
+                  textureOpacitySurface,
+                  new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
+                  TextureFilter.None);
             }
             else
             {
               GraphicsDevice.Device.StretchRect(backBuffer,
-                                                     new System.Drawing.Rectangle(0, 0, desc.Width, desc.Height),
-                                                     textureOpacitySurface,
-                                                     new System.Drawing.Rectangle((int)0, (int)0, (int)(ActualWidth), (int)(ActualHeight)),
-                                                     TextureFilter.None);
+                  new Rectangle(0, 0, desc.Width, desc.Height),
+                  textureOpacitySurface,
+                  new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
+                  TextureFilter.None);
 
             }
 
@@ -652,7 +812,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           matrix = new ExtendedMatrix();
           matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
-          Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+          Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
@@ -675,12 +835,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (!IsVisible) 
         return;
       UpdateLayout();
-      SkinContext.AddOpacity(this.Opacity);
+      SkinContext.AddOpacity(Opacity);
       if (RenderTransform != null)
       {
         ExtendedMatrix matrix = new ExtendedMatrix();
         matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
-        Vector2 center = new Vector2((float)(this.ActualPosition.X + this.ActualWidth * RenderTransformOrigin.X), (float)(this.ActualPosition.Y + this.ActualHeight * RenderTransformOrigin.Y));
+        Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
         matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
         Matrix mNew;
         RenderTransform.GetTransform(out mNew);
@@ -709,7 +869,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_opacityMaskContext == null)
       {
         //Trace.WriteLine("FrameworkElement: Allocate _opacityMaskContext");
-        _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + this.Name);
+        _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name);
         ContentManager.Add(_opacityMaskContext);
       }
       if (_opacityMaskContext.VertexBuffer == null)
@@ -733,56 +893,56 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
-      ColorValue col = ColorConverter.FromColor(System.Drawing.Color.White);
+      ColorValue col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float)Opacity;
-      int color = (int)col.ToArgb();
+      int color = col.ToArgb();
       SurfaceDescription desc = _opacityMaskContext.Texture.GetLevelDescription(0);
 
-      float maxU = w / ((float)desc.Width);
-      float maxV = h / ((float)desc.Height);
+      float maxU = w / desc.Width;
+      float maxV = h / desc.Height;
       //upperleft
-      verts[0].X = (float)this.ActualPosition.X - 0.5f;
-      verts[0].Y = (float)this.ActualPosition.Y - 0.5f;
+      verts[0].X = ActualPosition.X - 0.5f;
+      verts[0].Y = ActualPosition.Y - 0.5f;
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
       verts[0].Z = ActualPosition.Z;
 
       //bottom left
-      verts[1].X = (float)(this.ActualPosition.X) - 0.5f;
-      verts[1].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
+      verts[1].X = ActualPosition.X - 0.5f;
+      verts[1].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
       verts[1].Color = color;
       verts[1].Tu1 = 0;
       verts[1].Tv1 = maxV;
       verts[1].Z = ActualPosition.Z;
 
       //bottomright
-      verts[2].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
-      verts[2].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
+      verts[2].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
+      verts[2].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
       verts[2].Z = ActualPosition.Z;
 
       //upperleft
-      verts[3].X = (float)this.ActualPosition.X - 0.5f;
-      verts[3].Y = (float)this.ActualPosition.Y - 0.5f;
+      verts[3].X = ActualPosition.X - 0.5f;
+      verts[3].Y = ActualPosition.Y - 0.5f;
       verts[3].Color = color;
       verts[3].Tu1 = 0;
       verts[3].Tv1 = 0;
       verts[3].Z = ActualPosition.Z;
 
       //upper right
-      verts[4].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
-      verts[4].Y = (float)(this.ActualPosition.Y) - 0.5f;
+      verts[4].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
+      verts[4].Y = ActualPosition.Y - 0.5f;
       verts[4].Color = color;
       verts[4].Tu1 = maxU;
       verts[4].Tv1 = 0;
       verts[4].Z = ActualPosition.Z;
 
       //bottomright
-      verts[5].X = (float)(this.ActualPosition.X + this.ActualWidth) + 0.5f;
-      verts[5].Y = (float)(this.ActualPosition.Y + this.ActualHeight) + 0.5f;
+      verts[5].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
+      verts[5].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
       verts[5].Color = color;
       verts[5].Tu1 = maxU;
       verts[5].Tv1 = maxV;

@@ -24,8 +24,9 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.InputManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -103,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -188,7 +189,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -287,7 +288,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (_isScrolling)
         {
-          GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
+          GraphicsDevice.Device.ScissorRect = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
           ExtendedMatrix m = new ExtendedMatrix();
           m.Matrix = Matrix.Translation(new Vector3(0, -_physicalScrollOffsetY, 0));
@@ -297,7 +298,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           if (!element.IsVisible) 
             continue;
-          float posY = (float)(element.ActualPosition.Y - ActualPosition.Y);
+          float posY = element.ActualPosition.Y - ActualPosition.Y;
 
           // FIXME Albert78: Fix code for logical scrolling here
           if (_isScrolling)
@@ -323,26 +324,20 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     }
     #endregion
 
-    protected FrameworkElement FindFocusedElement()
-    {
-      return (FrameworkElement) FindElement(FocusFinder.Instance);
-    }
-
     #region IScrollInfo Members
 
     public bool LineDown(PointF point)
     {
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = FindFocusedElement();
+        FrameworkElement focusedElement = FocusManager.FocusedElement;
         if (focusedElement == null) return false;
-        MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
-        FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
+        FrameworkElement nextElement = PredictFocusDown(focusedElement);
         if (nextElement == null) return false;
         float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
         if ((posY - _physicalScrollOffsetY) < ActualHeight) return false;
         _physicalScrollOffsetY += (nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
-        nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+        nextElement.TrySetFocus();
         return true;
       }
       return false;
@@ -351,16 +346,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public bool LineUp(PointF point)
     {
       if (_physicalScrollOffsetY <= 0) return false;
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
-        FrameworkElement focusedElement = FindFocusedElement();
+        FrameworkElement focusedElement = FocusManager.FocusedElement;
         if (focusedElement == null) return false;
-        MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
-        FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
+        FrameworkElement prevElement = PredictFocusUp(focusedElement);
         if (prevElement == null) return false;
         if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
         _physicalScrollOffsetY -= (focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
-        prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
+        prevElement.TrySetFocus();
         return true;
       }
       return false;
@@ -383,33 +377,32 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageDown(PointF point)
     {
-      FrameworkElement focusedElement = FindFocusedElement();
+      FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null) return false;
       float offsetEnd = (float)(_physicalScrollOffsetY + ActualHeight);
-      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
-      if (this.Orientation == Orientation.Vertical)
+      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
+      if (Orientation == Orientation.Vertical)
       {
         while (true)
         {
 
-          if (this.Orientation == Orientation.Vertical)
+          if (Orientation == Orientation.Vertical)
           {
-            focusedElement = FindFocusedElement();
+            focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return false;
-            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
-            FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
+            FrameworkElement nextElement = PredictFocusDown(focusedElement);
             if (nextElement == null) return false;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
             if ((posY - _physicalScrollOffsetY) < ActualHeight)
             {
-              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+              nextElement.TrySetFocus();
             }
             else
             {
-              float diff = (float)(nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
+              float diff = nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y;
               if (_physicalScrollOffsetY + diff > offsetEnd) break;
               _physicalScrollOffsetY += diff;
-              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+              nextElement.TrySetFocus();
             }
           }
         }
@@ -431,34 +424,33 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool PageUp(PointF point)
     {
-      FrameworkElement focusedElement = FindFocusedElement();
+      FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null) return false;
-      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
+      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
 
       float offsetEnd = (float)(_physicalScrollOffsetY - ActualHeight);
       if (offsetEnd <= 0) offsetEnd = 0;
-      if (this.Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Vertical)
       {
         while (true)
         {
 
-          if (this.Orientation == Orientation.Vertical)
+          if (Orientation == Orientation.Vertical)
           {
-            focusedElement = FindFocusedElement();
+            focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return false;
-            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Up;
-            FrameworkElement prevElement = PredictFocusUp(focusedElement, ref key, false);
+            FrameworkElement prevElement = PredictFocusUp(focusedElement);
             if (prevElement == null) return false;
             if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY))
             {
-              prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
+              prevElement.TrySetFocus();
             }
             else
             {
-              float diff = (float)(focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
+              float diff = focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y;
               if ((_physicalScrollOffsetY - diff) < offsetEnd) break;
               _physicalScrollOffsetY -= diff;
-              prevElement.OnMouseMove((float)prevElement.ActualPosition.X, (float)prevElement.ActualPosition.Y);
+              prevElement.TrySetFocus();
             }
           }
         }
@@ -485,41 +477,40 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public void Home(PointF point)
     {
-      FrameworkElement focusedElement = FindFocusedElement();
+      FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null) return;
       _physicalScrollOffsetY = 0;
-      OnMouseMove((float)ActualPosition.X + 5, (float)(ActualPosition.Y + 5));
+      TrySetFocus();
     }
 
     public void End(PointF point)
     {
-      FrameworkElement focusedElement = FindFocusedElement();
+      FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null) return;
       float offsetEnd = (float)(_totalHeight - ActualHeight);
-      float y = (float)(focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY));
-      if (this.Orientation == Orientation.Vertical)
+      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
+      if (Orientation == Orientation.Vertical)
       {
         while (true)
         {
 
-          if (this.Orientation == Orientation.Vertical)
+          if (Orientation == Orientation.Vertical)
           {
-            focusedElement = FindFocusedElement();
+            focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return;
-            MediaPortal.Control.InputManager.Key key = MediaPortal.Control.InputManager.Key.Down;
-            FrameworkElement nextElement = PredictFocusDown(focusedElement, ref key, false);
+            FrameworkElement nextElement = PredictFocusDown(focusedElement);
             if (nextElement == null) return;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
             if ((posY - _physicalScrollOffsetY) < ActualHeight)
             {
-              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+              nextElement.TrySetFocus();
             }
             else
             {
-              float diff = (float)(nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
+              float diff = nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y;
               if (_physicalScrollOffsetY + diff > offsetEnd) break;
               _physicalScrollOffsetY += diff;
-              nextElement.OnMouseMove((float)nextElement.ActualPosition.X, (float)nextElement.ActualPosition.Y);
+              nextElement.TrySetFocus();
             }
           }
         }
@@ -538,13 +529,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #region Input handling
 
-    public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
+    public override void OnKeyPressed(ref Key key)
     {
       foreach (UIElement element in Children)
       {
         if (false == element.IsVisible) continue;
         element.OnKeyPressed(ref key);
-        if (key == MediaPortal.Control.InputManager.Key.None) return;
+        if (key == Key.None) return;
       }
     }
 

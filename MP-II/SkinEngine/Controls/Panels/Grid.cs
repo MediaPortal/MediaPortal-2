@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
