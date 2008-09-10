@@ -14,10 +14,10 @@
 
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
-      <DockPanel>
-        <Label Margin="60,0,0,0" FontSize="30" Content="[shares.canceled]" Width="660" Height="32" DockPanel.Dock="Top"/>
-        <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" DockPanel.Dock="Bottom">
-          <Button x:Name="btnFinish" Style="{StaticResource ButtonStyle}" Margin="0,380,10,0" Width="160" Height="32"
+      <DockPanel Margin="60,0,10,0">
+        <Label FontSize="30" Content="[shares.canceled]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+          <Button x:Name="btnFinish" Style="{StaticResource ButtonStyle}" Margin="0,0,10,0" Height="32"
               Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
             <Label FontSize="30" Content="[system.done]" Height="32"/>
           </Button>

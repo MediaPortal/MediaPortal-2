@@ -35,32 +35,34 @@ Parameters which have to be accessible by a DynamicResource lookup:
     FocusedElement="{DynamicResource Focused_Element}"
     Context="{DynamicResource DataContext}"
     >
-  <DockPanel Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
+  <DockPanel Background="{StaticResource BackgroundBrush}" Width="720" Height="576" LastChildFill="True">
     <Grid x:Name="Grid1" DockPanel.Dock="Top" HorizontalAlignment="Left">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="2*"/>
-        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>  
-	  <Label Margin="60,0,0,0" Grid.Column="0" Grid.Row="0" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}" />
-	  <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-	    <Label x:Name="Date" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
+      <StackPanel x:Name="HeaderPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+        <Label Margin="60,0,0,0" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}" />
+        <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}"
+            Opacity="0.75" RenderTransformOrigin="0.4,0.4">
+          <Label.RenderTransform>
+            <TransformGroup>
+              <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+            </TransformGroup>
+          </Label.RenderTransform>
+          <Label.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#FF000000" />
+              <GradientStop Offset="1.0" Color="#00000000" />
+            </LinearGradientBrush>
+          </Label.OpacityMask>
+        </Label>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Label x:Name="Date" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
         <Label x:Name="Time" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentTime}" />
-	  </StackPanel>
-	</Grid>
-    <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="ritzyNormal" FontSize="60" Content="{DynamicResource Header_Text}"
-        Opacity="0.75" RenderTransformOrigin="0.4,0.4">
-      <Label.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-        </TransformGroup>
-      </Label.RenderTransform>
-      <Label.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#FF000000" />
-          <GradientStop Offset="1.0" Color="#00000000" />
-        </LinearGradientBrush>
-      </Label.OpacityMask>
-    </Label>
+	    </StackPanel>
+    </Grid>
 
     <StackPanel x:Name="ClientPanel" DockPanel.Dock="Center" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
       <ContentPresenter Content="{DynamicResource Client_Element}"/>
