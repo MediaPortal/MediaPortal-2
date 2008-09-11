@@ -28,7 +28,6 @@ using System.Windows.Forms;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Services.Logging; // Needed for Release build configuration
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Localisation;

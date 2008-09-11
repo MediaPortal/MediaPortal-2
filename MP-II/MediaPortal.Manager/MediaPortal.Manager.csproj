@@ -65,6 +65,7 @@
     <Compile Include="Areas\SettingsControl.Designer.cs">
       <DependentUpon>SettingsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Designer\FormDesigner.cs" />
     <Compile Include="Designer\PathDetails.cs" />
     <Compile Include="Designer\Position.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -125,10 +127,6 @@
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaPortal\MediaPortal.csproj">
-      <Project>{53EFA17B-5F8B-4942-8211-2015FFC2223C}</Project>
-      <Name>MediaPortal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
