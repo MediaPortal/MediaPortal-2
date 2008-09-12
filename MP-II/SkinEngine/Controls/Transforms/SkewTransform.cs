@@ -148,8 +148,8 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
 
       double skewX = AngleX % 360.0;
       double skewY = AngleY % 360.0;
-      _matrix *= CreateSkewRadians(skewX * 0.017453292519943295, skewY * 0.017453292519943295);
-
+      _matrix *= CreateSkewRadians(skewX * Math.PI / 180.0, skewY * Math.PI / 180.0);
+ 
 
       if (flag)
       {
