@@ -82,6 +82,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// localized string label.
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
+    /// <param name="value">Localized string value of the new item.</param>
     public ListItem(string name, StringId value)
     {
       _labels[name] = new LocalizedStringBuilder(value);
@@ -116,9 +117,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <returns>Label property instance with the specified name or a new label property with the default value.</returns>
     public IStringBuilder Label(string name, string defValue)
     {
-      if (_labels.ContainsKey(name))
-        return _labels[name];
-      return CreateLabelProperty(defValue);
+      return _labels.ContainsKey(name) ? _labels[name] : CreateLabelProperty(defValue);
     }
 
 
@@ -216,19 +215,19 @@ namespace MediaPortal.Presentation.DataObjects
     /// </summary>
     public string this[string name]
     {
-      get { return Label(name, "").Evaluate().ToString(); }
+      get { return Label(name, "").Evaluate(); }
     }
 
     public override string ToString()
     {
-      IList<string> l = new List<string>();
+      List<string> l = new List<string>();
       foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
-        l.Add(kvp.Key.ToString() + "=" + kvp.Value.ToString());
+        l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
       if (_subItems.Count > 0)
         l.Add(_subItems.Count + " sub items");
       string[] sl = new string[l.Count];
-      l.CopyTo(sl, 0);
-      return typeof(ListItem).Name + ": " + string.Join(",", sl);
+      l.CopyTo(sl);
+      return typeof(ListItem).Name + ": " + string.Join(", ", sl);
     }
 
     /// <summary>
@@ -242,8 +241,7 @@ namespace MediaPortal.Presentation.DataObjects
     {
       if (StringId.IsResourceString(value))
         return new LocalizedStringBuilder(new StringId(value));
-      else
-        return new StaticStringBuilder(value);
+      return new StaticStringBuilder(value);
     }
   }
 }

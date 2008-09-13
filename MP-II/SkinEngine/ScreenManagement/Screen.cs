@@ -297,7 +297,7 @@ namespace MediaPortal.SkinEngine
 
     public void Invalidate(IUpdateEventHandler ctl)
     {
-      if (SkinContext.UseBatching == false) 
+      if (!SkinContext.UseBatching)
         return;
 
       lock (_invalidControls)

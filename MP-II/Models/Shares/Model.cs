@@ -35,8 +35,8 @@ namespace Models.Shares
 {
   public class Model
   {
-    ItemsCollection _folders = new ItemsCollection();
-    ItemsCollection _shares = new ItemsCollection();
+    protected readonly ItemsCollection _folders = new ItemsCollection();
+    protected readonly ItemsCollection _shares = new ItemsCollection();
 
     public Model()
     {
@@ -66,6 +66,7 @@ namespace Models.Shares
         return new ItemsCollection(menuCollect.GetMenu("shares-notdefined-main"));
       }
     }
+
     public ItemsCollection SharesRemoveMainMenu
     {
       get
@@ -74,6 +75,7 @@ namespace Models.Shares
         return new ItemsCollection(menuCollect.GetMenu("shares-remove-main"));
       }
     }
+
     public ItemsCollection SharesAddMainMenu
     {
       get
@@ -286,7 +288,7 @@ namespace Models.Shares
             childrenCollection.Add(new FolderItem(folderName, folderList[i], folder));
           }
         }
-        catch (IOException e) { }
+        catch (IOException) { }
       }
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
       foreach (FolderItem item in childrenCollection)
