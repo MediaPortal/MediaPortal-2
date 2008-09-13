@@ -52,7 +52,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DockPanel p = source as DockPanel;
+      DockPanel p = (DockPanel) source;
       LastChildFill = copyManager.GetCopy(p.LastChildFill);
     }
 

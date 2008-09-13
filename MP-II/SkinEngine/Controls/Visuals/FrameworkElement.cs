@@ -158,7 +158,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      FrameworkElement fe = source as FrameworkElement;
+      FrameworkElement fe = (FrameworkElement) source;
       Width = copyManager.GetCopy(fe.Width);
       Height = copyManager.GetCopy(fe.Height);
       Style = copyManager.GetCopy(fe.Style);

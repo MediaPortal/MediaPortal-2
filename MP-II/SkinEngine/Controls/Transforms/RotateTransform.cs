@@ -73,7 +73,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      RotateTransform t = source as RotateTransform;
+      RotateTransform t = (RotateTransform) source;
       CenterX = copyManager.GetCopy(t.CenterX);
       CenterY = copyManager.GetCopy(t.CenterY);
       Angle = copyManager.GetCopy(t.Angle);

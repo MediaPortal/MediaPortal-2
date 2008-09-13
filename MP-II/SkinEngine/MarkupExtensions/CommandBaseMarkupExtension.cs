@@ -63,7 +63,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      CommandBaseMarkupExtension cbme = source as CommandBaseMarkupExtension;
+      CommandBaseMarkupExtension cbme = (CommandBaseMarkupExtension) source;
       _source.Source = copyManager.GetCopy(cbme._source.Source);
       _source.ElementName = copyManager.GetCopy(cbme._source.ElementName);
       _source.RelativeSource = copyManager.GetCopy(cbme._source.RelativeSource);

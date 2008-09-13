@@ -44,7 +44,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      RowDefinition rd = source as RowDefinition;
+      RowDefinition rd = (RowDefinition) source;
       Height = copyManager.GetCopy(rd.Height);
     }
 

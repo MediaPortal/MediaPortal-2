@@ -100,7 +100,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      GradientBrush b = source as GradientBrush;
+      GradientBrush b = (GradientBrush) source;
       ColorInterpolationMode = copyManager.GetCopy(b.ColorInterpolationMode);
       SpreadMethod = copyManager.GetCopy(b.SpreadMethod);
       MappingMode = copyManager.GetCopy(b.MappingMode);

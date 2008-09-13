@@ -84,7 +84,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Line l = source as Line;
+      Line l = (Line) source;
       X1 = copyManager.GetCopy(l.X1);
       Y1 = copyManager.GetCopy(l.Y1);
       X2 = copyManager.GetCopy(l.X2);

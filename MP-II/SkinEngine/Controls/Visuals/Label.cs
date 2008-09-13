@@ -84,7 +84,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Label l = source as Label;
+      Label l = (Label) source;
       Content = copyManager.GetCopy(l.Content);
       Color = copyManager.GetCopy(l.Color);
       Scroll = copyManager.GetCopy(l.Scroll);

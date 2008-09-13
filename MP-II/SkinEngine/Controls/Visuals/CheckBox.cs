@@ -54,7 +54,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      CheckBox cb = source as CheckBox;
+      CheckBox cb = (CheckBox) source;
       IsChecked = copyManager.GetCopy(cb.IsChecked);
       Checked = copyManager.GetCopy(cb.Checked);
       Unchecked = copyManager.GetCopy(cb.Unchecked);

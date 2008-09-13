@@ -53,7 +53,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      TreeView tv = source as TreeView;
+      TreeView tv = (TreeView) source;
       SelectionChanged = copyManager.GetCopy(tv.SelectionChanged);
     }
 

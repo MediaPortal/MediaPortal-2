@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      KeyBinding b = source as KeyBinding;
+      KeyBinding b = (KeyBinding) source;
       Command = copyManager.GetCopy(b.Command);
       KeyPress = copyManager.GetCopy(b.KeyPress);
     }

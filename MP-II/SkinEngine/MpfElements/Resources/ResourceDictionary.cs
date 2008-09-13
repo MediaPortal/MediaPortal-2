@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ResourceDictionary rd = source as ResourceDictionary;
+      ResourceDictionary rd = (ResourceDictionary) source;
       Source = copyManager.GetCopy(rd.Source);
       foreach (ResourceDictionary crd in rd._mergedDictionaries)
         _mergedDictionaries.Add(copyManager.GetCopy(crd));

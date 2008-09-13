@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      BeginStoryboard s = source as BeginStoryboard;
+      BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
       Name = copyManager.GetCopy(s.Name);
       HandoffBehavior = copyManager.GetCopy(s.HandoffBehavior);

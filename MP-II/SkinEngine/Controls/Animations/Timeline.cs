@@ -145,7 +145,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Timeline t = source as Timeline;
+      Timeline t = (Timeline) source;
       BeginTime = copyManager.GetCopy(t.BeginTime);
       Accelleration = copyManager.GetCopy(t.Accelleration);
       AutoReverse = copyManager.GetCopy(t.AutoReverse);

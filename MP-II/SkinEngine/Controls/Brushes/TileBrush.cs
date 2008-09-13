@@ -95,7 +95,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TileBrush b = source as TileBrush;
+      TileBrush b = (TileBrush) source;
       AlignmentX = copyManager.GetCopy(b.AlignmentX);
       AlignmentY = copyManager.GetCopy(b.AlignmentY);
       Stretch = copyManager.GetCopy(b.Stretch);

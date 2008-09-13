@@ -91,7 +91,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      BindingBase bb = source as BindingBase;
+      BindingBase bb = (BindingBase) source;
       if (bb._targetDataDescriptor != null)
       {
         // Copy values initialized by the Prepare(IDataDescriptor) call,

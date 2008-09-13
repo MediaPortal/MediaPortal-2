@@ -203,7 +203,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      BindingMarkupExtension bme = source as BindingMarkupExtension;
+      BindingMarkupExtension bme = (BindingMarkupExtension) source;
       Source = copyManager.GetCopy(bme.Source);
       ElementName = copyManager.GetCopy(bme.ElementName);
       RelativeSource = copyManager.GetCopy(bme.RelativeSource);

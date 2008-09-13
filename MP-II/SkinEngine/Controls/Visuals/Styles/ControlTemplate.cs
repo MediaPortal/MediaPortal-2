@@ -60,7 +60,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ControlTemplate ct = source as ControlTemplate;
+      ControlTemplate ct = (ControlTemplate) source;
       TargetType = copyManager.GetCopy(ct.TargetType);
       foreach (TriggerBase t in ct.Triggers)
         Triggers.Add(copyManager.GetCopy(t));

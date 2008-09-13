@@ -78,7 +78,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      VirtualizingStackPanel p = source as VirtualizingStackPanel;
+      VirtualizingStackPanel p = (VirtualizingStackPanel) source;
       Orientation = copyManager.GetCopy(p.Orientation);
       Attach();
     }

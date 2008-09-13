@@ -53,7 +53,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DoubleAnimationUsingKeyFrames a = source as DoubleAnimationUsingKeyFrames;
+      DoubleAnimationUsingKeyFrames a = (DoubleAnimationUsingKeyFrames) source;
       IList<DoubleKeyFrame> keyFrames = KeyFrames;
       foreach (DoubleKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));

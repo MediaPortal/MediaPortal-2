@@ -64,7 +64,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ProgressBar pb = source as ProgressBar;
+      ProgressBar pb = (ProgressBar) source;
       Value = copyManager.GetCopy(pb.Value);
       Attach();
     }

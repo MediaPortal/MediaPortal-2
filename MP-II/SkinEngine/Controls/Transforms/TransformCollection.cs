@@ -85,7 +85,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      TransformCollection tc = source as TransformCollection;
+      TransformCollection tc = (TransformCollection) source;
       foreach (Transform element in tc._elements)
         Add(copyManager.GetCopy(element));
     }

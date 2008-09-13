@@ -120,7 +120,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Shape s = source as Shape;
+      Shape s = (Shape) source;
       Fill = copyManager.GetCopy(s.Fill);
       Stroke = copyManager.GetCopy(s.Stroke);
       StrokeThickness = copyManager.GetCopy(s.StrokeThickness);

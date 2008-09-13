@@ -293,7 +293,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      UIElement el = source as UIElement;
+      UIElement el = (UIElement) source;
       Name = copyManager.GetCopy(el.Name);
       // We do not copy the focus flag, only one element can have focus
       //HasFocus = copyManager.GetCopy(el.HasFocus);

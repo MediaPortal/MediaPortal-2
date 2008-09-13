@@ -152,7 +152,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      TimelineGroup grp = source as TimelineGroup;
+      TimelineGroup grp = (TimelineGroup) source;
       foreach (Timeline t in grp.Children)
         Children.Add(copyManager.GetCopy(t));
     }

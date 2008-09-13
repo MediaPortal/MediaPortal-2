@@ -118,7 +118,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Panel p = source as Panel;
+      Panel p = (Panel) source;
       AlignmentX = copyManager.GetCopy(p.AlignmentX);
       AlignmentY = copyManager.GetCopy(p.AlignmentY);
       Background = copyManager.GetCopy(p.Background);

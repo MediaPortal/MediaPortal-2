@@ -70,7 +70,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      FrameworkTemplate ft = source as FrameworkTemplate;
+      FrameworkTemplate ft = (FrameworkTemplate) source;
       _templateElement = copyManager.GetCopy(ft._templateElement);
       _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
       _parent = copyManager.GetCopy(ft._parent);

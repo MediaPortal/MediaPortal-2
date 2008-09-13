@@ -72,7 +72,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      SplineColorKeyFrame kf = source as SplineColorKeyFrame;
+      SplineColorKeyFrame kf = (SplineColorKeyFrame) source;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
       Attach();
       OnSplineChanged(_keySplineProperty);

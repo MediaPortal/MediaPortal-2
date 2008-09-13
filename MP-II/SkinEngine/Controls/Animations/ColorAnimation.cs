@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ColorAnimation a = source as ColorAnimation;
+      ColorAnimation a = (ColorAnimation) source;
       From = copyManager.GetCopy(a.From);
       To = copyManager.GetCopy(a.To);
       By = copyManager.GetCopy(a.By);

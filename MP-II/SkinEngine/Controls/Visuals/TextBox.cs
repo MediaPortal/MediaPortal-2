@@ -103,7 +103,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TextBox t = source as TextBox;
+      TextBox t = (TextBox) source;
       Text = copyManager.GetCopy(t.Text);
       Color = copyManager.GetCopy(t.Color);
       TextWrapping = copyManager.GetCopy(t.TextWrapping);

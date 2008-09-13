@@ -75,7 +75,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Rectangle r = source as Rectangle;
+      Rectangle r = (Rectangle) source;
       RadiusX = copyManager.GetCopy(r.RadiusX);
       RadiusY = copyManager.GetCopy(r.RadiusY);
       Attach();

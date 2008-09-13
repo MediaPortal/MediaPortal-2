@@ -54,7 +54,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      PointAnimationUsingKeyFrames a = source as PointAnimationUsingKeyFrames;
+      PointAnimationUsingKeyFrames a = (PointAnimationUsingKeyFrames) source;
       IList<PointKeyFrame> keyFrames = KeyFrames;
       foreach (PointKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));

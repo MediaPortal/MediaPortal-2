@@ -106,7 +106,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      RadialGradientBrush b = source as RadialGradientBrush;
+      RadialGradientBrush b = (RadialGradientBrush) source;
       Center = copyManager.GetCopy(b.Center);
       GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
       RadiusX = copyManager.GetCopy(b.RadiusX);

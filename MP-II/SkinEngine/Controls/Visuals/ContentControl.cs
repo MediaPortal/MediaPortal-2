@@ -72,7 +72,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ContentControl c = source as ContentControl;
+      ContentControl c = (ContentControl) source;
       Content = copyManager.GetCopy(c.Content);
       ContentTemplateSelector = copyManager.GetCopy(c.ContentTemplateSelector);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);

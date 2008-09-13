@@ -95,7 +95,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ItemsControl c = source as ItemsControl;
+      ItemsControl c = (ItemsControl) source;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
       ItemTemplateSelector = copyManager.GetCopy(c.ItemTemplateSelector);
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);

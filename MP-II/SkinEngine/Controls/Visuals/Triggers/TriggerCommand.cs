@@ -55,7 +55,7 @@ namespace MediaPortal.SkinEngine.Controls.Bindings
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      TriggerCommand ic = source as TriggerCommand;
+      TriggerCommand ic = (TriggerCommand) source;
       Command = copyManager.GetCopy(ic.Command);
     }
 

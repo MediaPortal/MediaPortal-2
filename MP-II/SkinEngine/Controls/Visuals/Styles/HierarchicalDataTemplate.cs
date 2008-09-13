@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      HierarchicalDataTemplate hdt = source as HierarchicalDataTemplate;
+      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) source;
       ItemsSource = copyManager.GetCopy(hdt.ItemsSource);
     }
 

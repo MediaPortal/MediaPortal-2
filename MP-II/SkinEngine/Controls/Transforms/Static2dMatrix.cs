@@ -43,7 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Static2dMatrix m = source as Static2dMatrix;
+      Static2dMatrix m = (Static2dMatrix) source;
       _elements = (float[]) m._elements.Clone();
       CreateMatrix();
     }

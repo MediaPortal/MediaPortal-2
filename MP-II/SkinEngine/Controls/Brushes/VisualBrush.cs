@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      VisualBrush b = source as VisualBrush;
+      VisualBrush b = (VisualBrush) source;
       Visual = copyManager.GetCopy(b.Visual);
     }
 

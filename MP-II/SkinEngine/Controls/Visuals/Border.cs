@@ -105,7 +105,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Border b = source as Border;
+      Border b = (Border) source;
       BorderBrush = copyManager.GetCopy(b.BorderBrush);
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = copyManager.GetCopy(b.BorderThickness);

@@ -44,7 +44,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      SetterBase sb = source as SetterBase;
+      SetterBase sb = (SetterBase) source;
       TargetName = copyManager.GetCopy(sb.TargetName);
       Property = copyManager.GetCopy(sb.Property);
     }

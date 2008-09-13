@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.Commands
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      CommandList cl = source as CommandList;
+      CommandList cl = (CommandList) source;
       foreach (IExecutableCommand cmd in cl._commands)
         _commands.Add(copyManager.GetCopy(cmd));
     }

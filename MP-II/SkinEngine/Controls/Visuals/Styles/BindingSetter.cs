@@ -45,7 +45,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      BindingSetter bs = source as BindingSetter;
+      BindingSetter bs = (BindingSetter) source;
       BindingWrapper = copyManager.GetCopy(bs.BindingWrapper);
     }
 

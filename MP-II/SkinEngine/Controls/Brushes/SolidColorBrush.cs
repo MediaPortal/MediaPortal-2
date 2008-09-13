@@ -81,7 +81,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      SolidColorBrush b = source as SolidColorBrush;
+      SolidColorBrush b = (SolidColorBrush) source;
       Color = copyManager.GetCopy(b.Color);
       Attach();
     }

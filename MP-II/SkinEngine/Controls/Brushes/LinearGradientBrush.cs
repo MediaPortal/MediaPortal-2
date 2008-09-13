@@ -93,7 +93,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      LinearGradientBrush b = source as LinearGradientBrush;
+      LinearGradientBrush b = (LinearGradientBrush) source;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
       Attach();

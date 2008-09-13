@@ -63,7 +63,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Path p = source as Path;
+      Path p = (Path) source;
       Data = copyManager.GetCopy(p.Data);
     }
 

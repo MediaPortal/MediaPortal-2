@@ -54,7 +54,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      EventTrigger t = source as EventTrigger;
+      EventTrigger t = (EventTrigger) source;
       RoutedEvent = copyManager.GetCopy(t.RoutedEvent);
       foreach (TriggerAction action in t._actions)
         _actions.Add(copyManager.GetCopy(action));

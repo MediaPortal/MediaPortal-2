@@ -96,7 +96,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      PropertyAnimationTimeline t = source as PropertyAnimationTimeline;
+      PropertyAnimationTimeline t = (PropertyAnimationTimeline) source;
       _propertyExpression = copyManager.GetCopy(t._propertyExpression);
     }
 

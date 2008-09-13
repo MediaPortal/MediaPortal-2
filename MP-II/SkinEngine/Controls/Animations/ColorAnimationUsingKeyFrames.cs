@@ -54,7 +54,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ColorAnimationUsingKeyFrames a = source as ColorAnimationUsingKeyFrames;
+      ColorAnimationUsingKeyFrames a = (ColorAnimationUsingKeyFrames) source;
       IList<ColorKeyFrame> keyFrames = KeyFrames;
       foreach (ColorKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));

@@ -62,7 +62,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Visual v = source as Visual;
+      Visual v = (Visual) source;
       History = copyManager.GetCopy(v.History);
       VisualParent = copyManager.GetCopy(v.VisualParent);
       Screen = copyManager.GetCopy(v.Screen);

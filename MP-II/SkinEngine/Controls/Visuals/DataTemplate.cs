@@ -56,7 +56,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DataTemplate dt = source as DataTemplate;
+      DataTemplate dt = (DataTemplate) source;
       foreach (TriggerBase t in dt.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
       DataType = copyManager.GetCopy(dt.DataType);

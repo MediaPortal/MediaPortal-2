@@ -77,7 +77,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      WrapPanel p = source as WrapPanel;
+      WrapPanel p = (WrapPanel) source;
       Orientation = copyManager.GetCopy(p.Orientation);
       Attach();
     }

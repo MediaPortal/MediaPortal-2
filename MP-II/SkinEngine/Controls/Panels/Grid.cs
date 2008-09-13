@@ -61,7 +61,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Grid g = source as Grid;
+      Grid g = (Grid) source;
       foreach (RowDefinition row in g.RowDefinitions)
         RowDefinitions.Add(copyManager.GetCopy(row));
       foreach (ColumnDefinition col in g.ColumnDefinitions)

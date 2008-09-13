@@ -50,7 +50,7 @@ namespace MediaPortal.SkinEngine.Commands
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      InvokeCommand ic = source as InvokeCommand;
+      InvokeCommand ic = (InvokeCommand) source;
       CommandStencil = copyManager.GetCopy(ic.CommandStencil);
       foreach (object o in ic._commandParameters)
         _commandParameters.Add(copyManager.GetCopy(o));

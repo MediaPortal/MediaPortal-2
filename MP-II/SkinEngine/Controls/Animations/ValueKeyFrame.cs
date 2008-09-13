@@ -53,7 +53,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      ValueKeyFrame<T> kf = source as ValueKeyFrame<T>;
+      ValueKeyFrame<T> kf = (ValueKeyFrame<T>) source;
       KeyTime = copyManager.GetCopy(kf.KeyTime);
       Value = copyManager.GetCopy(kf.Value);
     }

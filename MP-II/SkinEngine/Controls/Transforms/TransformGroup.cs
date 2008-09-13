@@ -67,7 +67,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TransformGroup g = source as TransformGroup;
+      TransformGroup g = (TransformGroup) source;
       foreach (Transform t in g.Children)
         Children.Add(copyManager.GetCopy(t));
       Attach();

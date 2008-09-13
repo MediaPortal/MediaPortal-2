@@ -71,7 +71,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      SplineDoubleKeyFrame kf = source as SplineDoubleKeyFrame;
+      SplineDoubleKeyFrame kf = (SplineDoubleKeyFrame) source;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
       Attach();
       OnSplineChanged(_keySplineProperty);

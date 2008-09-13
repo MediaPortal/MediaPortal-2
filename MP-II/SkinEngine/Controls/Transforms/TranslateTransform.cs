@@ -68,7 +68,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      TranslateTransform t = source as TranslateTransform;
+      TranslateTransform t = (TranslateTransform) source;
       X = copyManager.GetCopy(t.X);
       Y = copyManager.GetCopy(t.Y);
       Attach();

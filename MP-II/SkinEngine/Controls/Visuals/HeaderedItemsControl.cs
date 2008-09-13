@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      HeaderedItemsControl c = source as HeaderedItemsControl;
+      HeaderedItemsControl c = (HeaderedItemsControl) source;
       IsExpanded = copyManager.GetCopy(c.IsExpanded);
     }
 

@@ -56,7 +56,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      PointAnimation a = source as PointAnimation;
+      PointAnimation a = (PointAnimation) source;
       From = copyManager.GetCopy(a.From);
       To = copyManager.GetCopy(a.To);
       By = copyManager.GetCopy(a.By);

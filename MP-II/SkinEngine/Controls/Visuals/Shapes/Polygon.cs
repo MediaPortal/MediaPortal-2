@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      Polygon p = source as Polygon;
+      Polygon p = (Polygon) source;
       foreach (Point pt in p.Points)
         Points.Add(copyManager.GetCopy(pt));
     }
