@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Collections;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
@@ -52,21 +52,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       Attach();
+      OnItemTemplateChanged(null);
     }
 
     void OnItemTemplateChanged(Property property)
     {
-      if (ItemTemplate is HierarchicalDataTemplate)
-      {
-        HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
-        hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
-        ItemsSource = hdt.ItemsSource;
-      }
+      if (!(ItemTemplate is HierarchicalDataTemplate)) return;
+      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
+      hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
+      ItemsSource = hdt.ItemsSource;
     }
 
     void OnTemplateItemsSourceChanged(Property property)
     {
-      ItemsSource = (IEnumerable<object>) property.GetValue();
+      ItemsSource = (IEnumerable) property.GetValue();
     }
 
     protected override bool Prepare()

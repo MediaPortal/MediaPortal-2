@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Collections;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
@@ -65,7 +65,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _itemsSourceProperty = new Property(typeof(IEnumerable<object>), null);
+      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
       _itemTemplateProperty = new Property(typeof(DataTemplate), null);
       _itemTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
       _itemContainerStyleProperty = new Property(typeof(Style), null);
@@ -102,8 +102,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _prepare = false;
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
-      OnItemsSourceChanged(_itemsSourceProperty);
       Attach();
+      OnItemsSourceChanged(_itemsSourceProperty);
+      InvalidateItems();
     }
 
     #endregion
@@ -125,38 +126,28 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         coll.Changed += OnCollectionChanged;
         _attachedItemsCollection = coll;
       }
-      _prepare = true;
-      Invalidate();
-      if (Screen != null) Screen.Invalidate(this);
+      InvalidateItems();
     }
 
     void OnCollectionChanged()
     {
-      _prepare = true;
-      Invalidate();
-      if (Screen != null) Screen.Invalidate(this);
+      InvalidateItems();
     }
 
     void OnItemTemplateChanged(Property property)
     {
-      _prepare = true;
-      if (Screen != null) Screen.Invalidate(this);
-      Invalidate();
+      InvalidateItems();
     }
 
     void OnItemsPanelChanged(Property property)
     {
       _templateApplied = false;
-      _prepare = true;
-      if (Screen != null) Screen.Invalidate(this);
-      Invalidate();
+      InvalidateItems();
     }
 
     void OnItemContainerStyleChanged(Property property)
     {
-      _prepare = true;
-      if (Screen != null) Screen.Invalidate(this);
-      Invalidate();
+      InvalidateItems();
     }
 
     #endregion
@@ -185,9 +176,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets or sets a collection used to generate the content of the ItemsControl.
     /// </summary>
-    public IEnumerable<object> ItemsSource
+    public IEnumerable ItemsSource
     {
-      get { return (IEnumerable<object>) _itemsSourceProperty.GetValue(); }
+      get { return (IEnumerable) _itemsSourceProperty.GetValue(); }
       set { _itemsSourceProperty.SetValue(value); }
     }
 
@@ -274,6 +265,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Item management
 
+    protected void InvalidateItems()
+    {
+      _prepare = true;
+      Invalidate();
+      if (Screen != null) Screen.Invalidate(this);
+    }
+
     protected ItemsPresenter FindItemsPresenter()
     {
       return TemplateControl == null ? null : TemplateControl.FindElement(
@@ -287,7 +285,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (TemplateControl == null) return false;
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
-      IEnumerator<object> enumer = ItemsSource.GetEnumerator();
+      IEnumerator enumer = ItemsSource.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
 

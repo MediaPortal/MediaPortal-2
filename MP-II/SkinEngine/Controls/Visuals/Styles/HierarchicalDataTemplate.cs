@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Collections;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -45,7 +45,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 
     void Init()
     {
-      _itemsSourceProperty = new Property(typeof(IEnumerable<object>), null);
+      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -64,9 +64,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       get { return _itemsSourceProperty; }
     }
 
-    public IEnumerable<object> ItemsSource
+    public IEnumerable ItemsSource
     {
-      get { return (IEnumerable<object>) _itemsSourceProperty.GetValue(); }
+      get { return (IEnumerable) _itemsSourceProperty.GetValue(); }
       set { _itemsSourceProperty.SetValue(value); }
     }
 
