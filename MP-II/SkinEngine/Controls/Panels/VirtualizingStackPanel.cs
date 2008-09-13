@@ -620,10 +620,19 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-    #region Focus prediction
-
-    public override FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement)
+    public override FrameworkElement PredictFocus(Rectangle? currentFocusRect, MoveFocusDirection dir)
     {
+      if (!IsVisible)
+        return null;
+      // Check if this control is a possible return value
+      if (IsEnabled && Focusable)
+        if (!currentFocusRect.HasValue ||
+            (dir == MoveFocusDirection.Up && ActualPosition.Y < currentFocusRect.Value.Top) ||
+            (dir == MoveFocusDirection.Down && ActualPosition.Y + ActualHeight > currentFocusRect.Value.Bottom) ||
+            (dir == MoveFocusDirection.Left && ActualPosition.X < currentFocusRect.Value.Left) ||
+            (dir == MoveFocusDirection.Right && ActualPosition.X + ActualWidth > currentFocusRect.Value.Right))
+          return this;
+      // Check child controls
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
@@ -640,148 +649,29 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         }
         index++;
         if (index > _endIndex) break;
-        FrameworkElement match = fe.PredictFocusUp(focusedFrameworkElement);
+        FrameworkElement match = fe.PredictFocus(currentFocusRect, dir);
         if (match != null)
         {
-          if (match == focusedFrameworkElement)
+          if (!currentFocusRect.HasValue)
+            // If we don't have a comparison rect, simply return first match.
+            return match;
+          // Calculate and compare distances of all matches
+          float centerDistance = CenterDistance(match.ActualBorders, currentFocusRect.Value);
+          if (centerDistance == 0)
+            // If the control's center is exactly the center of the currently focused element,
+            // it won't be used as next focus element
             continue;
-          if (match.Focusable && match.IsVisible)
+          float distance = BorderDistance(match.ActualBorders, currentFocusRect.Value);
+          if (bestMatch == null || distance < bestDistance ||
+              distance == bestDistance && centerDistance < bestCenterDistance)
           {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
+            bestMatch = match;
+            bestDistance = distance;
+            bestCenterDistance = centerDistance;
           }
         }
       }
       return bestMatch;
     }
-
-    public override FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      int index = 0;
-      foreach (UIElement child in Children)
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement) child;
-
-        if (index < _startIndex)
-        {
-          index++;
-          continue;
-        }
-        index++;
-        if (index > _endIndex) break;
-        FrameworkElement match = fe.PredictFocusDown(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    public override FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      int index = 0;
-      foreach (UIElement child in Children)
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement) child;
-
-        if (index < _startIndex)
-        {
-          index++;
-          continue;
-        }
-        index++;
-        if (index > _endIndex) break;
-        FrameworkElement match = fe.PredictFocusLeft(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    public override FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement)
-    {
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      int index = 0;
-      foreach (UIElement child in Children)
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement) child;
-
-        if (index < _startIndex)
-        {
-          index++;
-          continue;
-        }
-        index++;
-        if (index > _endIndex) break;
-        FrameworkElement match = fe.PredictFocusRight(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    #endregion
   }
 }

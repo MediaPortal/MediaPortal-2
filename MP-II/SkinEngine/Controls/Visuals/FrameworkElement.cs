@@ -53,6 +53,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Stretch = 3,
   };
 
+  public enum MoveFocusDirection
+  {
+    Up,
+    Down,
+    Left,
+    Right
+  }
+
   public class FocusableElementFinder : IFinder
   {
     private static FocusableElementFinder _instance = null;
@@ -250,6 +258,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return (double)_actualHeightProperty.GetValue(); }
       set { _actualHeightProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// This is a derived property which is based on <see cref="ActualPosition"/>,
+    /// <see cref="ActualWidth"/> and <see cref="ActualHeight"/>.
+    /// </summary>
+    public Rectangle ActualBorders
+    {
+      get
+      {
+        return new Rectangle((int) ActualPosition.X, (int) ActualPosition.Y,
+            (int) ActualWidth, (int) ActualHeight);
+      }
+      set
+      {
+        ActualPosition = new Vector3(value.X, value.Y, ActualPosition.Z);
+        ActualHeight = value.Height;
+        ActualWidth = value.Width;
+      }
     }
 
     public Property HorizontalAlignmentProperty
@@ -473,203 +500,64 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Focus & control predicition
 
     /// <summary>
-    /// Predicts the next control which is positioned above the specified
-    /// <paramref name="focusedFrameworkElement"/>.
+    /// Predicts the next control which is positioned in the specified direction
+    /// <paramref name="dir"/> to the specified <paramref name="focusedFrameworkElement"/> and
+    /// which is able to get the focus.
+    /// This method will search the control tree starting with this element as root element.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused control.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    public virtual FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement)
+    /// <param name="currentFocusRect">The borders of the currently focused control.</param>
+    /// <param name="dir">Direction, the result control should be positioned relative to the
+    /// currently focused control.</param>
+    /// <returns>Framework element which should get the focus, or <c>null</c>, if this control
+    /// tree doesn't contain an appropriate control. The returned control will be
+    /// visible, focusable and enabled.</returns>
+    public virtual FrameworkElement PredictFocus(Rectangle? currentFocusRect, MoveFocusDirection dir)
     {
       if (!IsVisible)
         return null;
+      // Check if this control is a possible return value
       if (IsEnabled && Focusable)
-        if (focusedFrameworkElement == null || ActualPosition.Y < focusedFrameworkElement.ActualPosition.Y)
+        if (!currentFocusRect.HasValue ||
+            (dir == MoveFocusDirection.Up && ActualPosition.Y < currentFocusRect.Value.Top) ||
+            (dir == MoveFocusDirection.Down && ActualPosition.Y + ActualHeight > currentFocusRect.Value.Bottom) ||
+            (dir == MoveFocusDirection.Left && ActualPosition.X < currentFocusRect.Value.Left) ||
+            (dir == MoveFocusDirection.Right && ActualPosition.X + ActualWidth > currentFocusRect.Value.Right))
           return this;
+      // Check child controls
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement)child;
+        FrameworkElement fe = (FrameworkElement) child;
 
-        FrameworkElement match = fe.PredictFocusUp(focusedFrameworkElement);
+        FrameworkElement match = fe.PredictFocus(currentFocusRect, dir);
         if (match != null)
         {
-          if (match == focusedFrameworkElement)
+          if (!currentFocusRect.HasValue)
+            // If we don't have a comparison rect, simply return first match.
+            return match;
+          // Calculate and compare distances of all matches
+          float centerDistance = CenterDistance(match.ActualBorders, currentFocusRect.Value);
+          if (centerDistance == 0)
+            // If the control's center is exactly the center of the currently focused element,
+            // it won't be used as next focus element
             continue;
-          if (match.Focusable && match.IsVisible)
+          float distance = BorderDistance(match.ActualBorders, currentFocusRect.Value);
+          if (bestMatch == null || distance < bestDistance ||
+              distance == bestDistance && centerDistance < bestCenterDistance)
           {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
+            bestMatch = match;
+            bestDistance = distance;
+            bestCenterDistance = centerDistance;
           }
         }
       }
       return bestMatch;
     }
 
-
-    /// <summary>
-    /// Predicts the next control which is positioned below the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused control.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    public virtual FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement)
-    {
-      if (!IsVisible)
-        return null;
-      if (IsEnabled && Focusable)
-        if (focusedFrameworkElement == null || ActualPosition.Y + ActualHeight > focusedFrameworkElement.ActualPosition.Y + focusedFrameworkElement.ActualHeight)
-          return this;
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      foreach (UIElement child in GetChildren())
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement)child;
-
-        FrameworkElement match = fe.PredictFocusDown(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    /// <summary>
-    /// Predicts the next control which is positioned left of the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused control.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    public virtual FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement)
-    {
-      if (!IsVisible)
-        return null;
-      if (IsEnabled && Focusable)
-        if (focusedFrameworkElement == null || ActualPosition.X < focusedFrameworkElement.ActualPosition.X)
-          return this;
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      foreach (UIElement child in GetChildren())
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement)child;
-
-        FrameworkElement match = fe.PredictFocusLeft(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    /// <summary>
-    /// Predicts the next control which is positioned right of the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused control.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    public virtual FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement)
-    {
-      if (!IsVisible)
-        return null;
-      if (IsEnabled && Focusable)
-        if (focusedFrameworkElement == null || ActualPosition.X + ActualWidth > focusedFrameworkElement.ActualPosition.X + focusedFrameworkElement.ActualWidth)
-          return this;
-      FrameworkElement bestMatch = null;
-      float bestDistance = float.MaxValue;
-      float bestCenterDistance = float.MaxValue;
-      foreach (UIElement child in GetChildren())
-      {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement)child;
-
-        FrameworkElement match = fe.PredictFocusRight(focusedFrameworkElement);
-        if (match != null)
-        {
-          if (match == focusedFrameworkElement)
-            continue;
-          if (match.Focusable && match.IsVisible)
-          {
-            float distance = BorderDistance(match, focusedFrameworkElement);
-            float centerDistance = CenterDistance(match, focusedFrameworkElement);
-            if (bestMatch == null || distance < bestDistance ||
-                distance == bestDistance && centerDistance < bestCenterDistance)
-            {
-              bestMatch = match;
-              bestDistance = distance;
-              bestCenterDistance = centerDistance;
-            }
-          }
-        }
-      }
-      return bestMatch;
-    }
-
-    protected static float BorderDistance(FrameworkElement c1, FrameworkElement c2)
-    {
-      if (c1 == null || c2 == null)
-        return 0;
-      Rectangle r1 = GetActualBorderRectangle(c1);
-      Rectangle r2 = GetActualBorderRectangle(c2);
-      return BorderDistance(r1, r2);
-    }
-
-    protected static float CenterDistance(FrameworkElement c1, FrameworkElement c2)
-    {
-      if (c1 == null || c2 == null)
-        return 0;
-      Rectangle r1 = GetActualBorderRectangle(c1);
-      Rectangle r2 = GetActualBorderRectangle(c2);
-      return CenterDistance(r1, r2);
-    }
-
-    private static Rectangle GetActualBorderRectangle(FrameworkElement e)
-    {
-      return new Rectangle((int) e.ActualPosition.X, (int) e.ActualPosition.Y,
-          (int) e.ActualWidth, (int) e.ActualHeight);
-    }
-
-    private static float BorderDistance(Rectangle r1, Rectangle r2)
+    protected static float BorderDistance(Rectangle r1, Rectangle r2)
     {
       float distX;
       float distY;
@@ -688,7 +576,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return (float) Math.Sqrt(distX * distX + distY * distY);
     }
 
-    private static float CenterDistance(Rectangle r1, Rectangle r2)
+    protected static float CenterDistance(Rectangle r1, Rectangle r2)
     {
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -91,10 +92,7 @@ namespace MediaPortal.SkinEngine.InputManagement
       if (key == Key.None)
         return;
       FrameworkElement cntl;
-      if (FocusedElement != null)
-        cntl = PredictFocus(FocusedElement, key);
-      else
-        cntl = PredictFocus(key);
+      cntl = PredictFocus(FocusedElement == null ? new Nullable<Rectangle>() : FocusedElement.ActualBorders, key);
       if (cntl != null)
       {
         cntl.HasFocus = true;
@@ -103,97 +101,32 @@ namespace MediaPortal.SkinEngine.InputManagement
       }
     }
 
-    public static FrameworkElement FindFirstFocusableElement(FrameworkElement root)
+    public static FrameworkElement FindFirstFocusableElement(FrameworkElement searchRoot)
     {
-      return PredictFocusDown(null);
-    }
-
-    public static FrameworkElement PredictFocus(Key key)
-    {
-      if (_currentScreen == null || _currentScreen.Visual == null)
-        return null;
-      return FindFirstFocusableElement((FrameworkElement) _currentScreen.Visual);
+      return searchRoot.PredictFocus(null, MoveFocusDirection.Down);
     }
 
     /// <summary>
     /// Predicts which FrameworkElement should get the focus when the specified <paramref name="key"/>
     /// was pressed.
     /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused FrameworkElement.</param>
+    /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="key">The key to evaluate.</param>
     /// <returns>Framework element whcih gets focus when the specified <paramref name="key"/> was
-    /// pressed.</returns>
-    public static FrameworkElement PredictFocus(FrameworkElement focusedFrameworkElement, Key key)
+    /// pressed, or <c>null</c>, if no focus change should take place.</returns>
+    public static FrameworkElement PredictFocus(Rectangle? currentFocusRect, Key key)
     {
+      if (_currentScreen == null || _currentScreen.RootElement == null)
+        return null;
       if (key == Key.Up)
-      {
-        return PredictFocusUp(focusedFrameworkElement);
-      }
-      if (key == Key.Down)
-      {
-        return PredictFocusDown(focusedFrameworkElement);
-      }
-      if (key == Key.Left)
-      {
-        return PredictFocusLeft(focusedFrameworkElement);
-      }
-      if (key == Key.Right)
-      {
-        return PredictFocusRight(focusedFrameworkElement);
-      }
+        return _currentScreen.RootElement.PredictFocus(currentFocusRect, MoveFocusDirection.Up);
+      else if (key == Key.Down)
+        return _currentScreen.RootElement.PredictFocus(currentFocusRect, MoveFocusDirection.Down);
+      else if (key == Key.Left)
+        return _currentScreen.RootElement.PredictFocus(currentFocusRect, MoveFocusDirection.Left);
+      else if (key == Key.Right)
+        return _currentScreen.RootElement.PredictFocus(currentFocusRect, MoveFocusDirection.Right);
       return null;
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is positioned above the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused FrameworkElement.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    private static FrameworkElement PredictFocusUp(FrameworkElement focusedFrameworkElement)
-    {
-      if (_currentScreen == null)
-        return null;
-      return _currentScreen.RootElement.PredictFocusUp(focusedFrameworkElement);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is positioned below the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused FrameworkElement.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    private static FrameworkElement PredictFocusDown(FrameworkElement focusedFrameworkElement)
-    {
-      if (_currentScreen == null)
-        return null;
-      return _currentScreen.RootElement.PredictFocusDown(focusedFrameworkElement);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is positioned left of the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused FrameworkElement.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    private static FrameworkElement PredictFocusLeft(FrameworkElement focusedFrameworkElement)
-    {
-      if (_currentScreen == null)
-        return null;
-      return _currentScreen.RootElement.PredictFocusLeft(focusedFrameworkElement);
-    }
-
-    /// <summary>
-    /// Predicts the next FrameworkElement which is positioned right of the specified
-    /// <paramref name="focusedFrameworkElement"/>.
-    /// </summary>
-    /// <param name="focusedFrameworkElement">The currently focused FrameworkElement.</param>
-    /// <returns>Framework element which will get the focus.</returns>
-    private static FrameworkElement PredictFocusRight(FrameworkElement focusedFrameworkElement)
-    {
-      if (_currentScreen == null)
-        return null;
-      return _currentScreen.RootElement.PredictFocusRight(focusedFrameworkElement);
     }
   }
 }

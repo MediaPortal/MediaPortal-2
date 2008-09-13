@@ -332,7 +332,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         FrameworkElement focusedElement = FocusManager.FocusedElement;
         if (focusedElement == null) return false;
-        FrameworkElement nextElement = PredictFocusDown(focusedElement);
+        FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
         if (nextElement == null) return false;
         float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
         if ((posY - _physicalScrollOffsetY) < ActualHeight) return false;
@@ -350,7 +350,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         FrameworkElement focusedElement = FocusManager.FocusedElement;
         if (focusedElement == null) return false;
-        FrameworkElement prevElement = PredictFocusUp(focusedElement);
+        FrameworkElement prevElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Up);
         if (prevElement == null) return false;
         if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
         _physicalScrollOffsetY -= (focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
@@ -390,7 +390,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return false;
-            FrameworkElement nextElement = PredictFocusDown(focusedElement);
+            FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
             if (nextElement == null) return false;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
             if ((posY - _physicalScrollOffsetY) < ActualHeight)
@@ -439,7 +439,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return false;
-            FrameworkElement prevElement = PredictFocusUp(focusedElement);
+            FrameworkElement prevElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Up);
             if (prevElement == null) return false;
             if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY))
             {
@@ -498,7 +498,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             focusedElement = FocusManager.FocusedElement;
             if (focusedElement == null) return;
-            FrameworkElement nextElement = PredictFocusDown(focusedElement);
+            FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
             if (nextElement == null) return;
             float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
             if ((posY - _physicalScrollOffsetY) < ActualHeight)
