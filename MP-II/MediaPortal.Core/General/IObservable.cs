@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Controls
+namespace MediaPortal.Core.General
 {
   public delegate void ObjectChangedHandler(IObservable observable);
 

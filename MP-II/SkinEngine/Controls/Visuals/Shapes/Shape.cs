@@ -25,6 +25,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;

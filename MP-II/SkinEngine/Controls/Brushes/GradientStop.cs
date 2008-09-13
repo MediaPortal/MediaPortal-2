@@ -23,6 +23,7 @@
 #endregion
 
 using System.Drawing;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 

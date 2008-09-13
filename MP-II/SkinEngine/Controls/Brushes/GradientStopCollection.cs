@@ -24,6 +24,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
