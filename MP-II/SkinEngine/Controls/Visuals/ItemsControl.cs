@@ -24,6 +24,7 @@
 
 using System.Collections;
 using System.Drawing;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;
@@ -51,7 +52,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     bool _templateApplied;
     protected Panel _itemsHostPanel;
 
-    protected ItemsCollection _attachedItemsCollection = null;
+    protected IObservable _attachedItemsCollection = null;
 
     #endregion
 
@@ -115,21 +116,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_attachedItemsCollection != null)
       {
-        _attachedItemsCollection.Changed -= OnCollectionChanged;
+        _attachedItemsCollection.ObjectChanged -= OnCollectionChanged;
         _attachedItemsCollection = null;
       }
-      // FIXME Albert78: Don't access ItemsCollection directly, use an interface exposing
-      // the change event
-      ItemsCollection coll = ItemsSource as ItemsCollection;
+      IObservable coll = ItemsSource as IObservable;
       if (coll != null)
       {
-        coll.Changed += OnCollectionChanged;
+        coll.ObjectChanged += OnCollectionChanged;
         _attachedItemsCollection = coll;
       }
       InvalidateItems();
     }
 
-    void OnCollectionChanged()
+    void OnCollectionChanged(IObservable itemsSource)
     {
       InvalidateItems();
     }

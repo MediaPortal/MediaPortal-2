@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Commands;
 
@@ -32,11 +33,9 @@ namespace MediaPortal.Presentation.DataObjects
   /// <summary>
   /// interface to a collection of items
   /// </summary>
-  public class ItemsCollection : List<ListItem>
+  public class ItemsCollection : List<ListItem>, IObservable
   {
-    public ItemsCollection()
-    {
-    }
+    public ItemsCollection() { }
 
     public ItemsCollection(IMenu menu)
     {
@@ -72,17 +71,15 @@ namespace MediaPortal.Presentation.DataObjects
       }
     }
 
-    public delegate void ItemsChangedHandler();
-
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>
-    public event ItemsChangedHandler Changed;
+    public event ObjectChangedHandler ObjectChanged;
 
     public void FireChange()
     {
-      if (Changed != null)
-        Changed();
+      if (ObjectChanged != null)
+        ObjectChanged(this);
     }
   }
 }
