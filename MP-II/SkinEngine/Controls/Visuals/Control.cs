@@ -128,18 +128,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Change handlers
 
-    void OnBorderBrushPropertyChanged(Property property)
-    {
-      _lastEvent |= UIEvent.StrokeChange;
-      if (Screen != null) Screen.Invalidate(this);
-    }
-
-    void OnBackgroundBrushPropertyChanged(Property property)
-    {
-      _lastEvent |= UIEvent.FillChange;
-      if (Screen != null) Screen.Invalidate(this);
-    }
-
     protected void OnTemplateChanged(Property property)
     {
       if (Template != null)
@@ -348,7 +336,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           PerformLayout();
           _performLayout = false;
         }
-        SkinContext.AddOpacity(this.Opacity);
+        SkinContext.AddOpacity(Opacity);
         //ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         //SkinContext.AddTransform(m);
@@ -388,7 +376,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = TemplateControl;
       if (templateControl != null)
       {
-        SkinContext.AddOpacity(this.Opacity);
+        SkinContext.AddOpacity(Opacity);
         templateControl.Render();
         SkinContext.RemoveOpacity();
       }
@@ -413,7 +401,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -445,12 +433,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, SkinContext.GetZorder()); ;
+      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = layoutRect.Width;
       ActualHeight = layoutRect.Height;
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -542,9 +530,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       if (BorderBrush != null)
-        this.BorderBrush.Deallocate();
+        BorderBrush.Deallocate();
       if (Background != null)
-        this.Background.Deallocate();
+        Background.Deallocate();
       FrameworkElement templateControl = TemplateControl;
       if (templateControl != null)
         templateControl.Deallocate();
@@ -577,9 +565,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.Allocate();
       if (BorderBrush != null)
-        this.BorderBrush.Allocate();
+        BorderBrush.Allocate();
       if (Background != null)
-        this.Background.Allocate();
+        Background.Allocate();
       FrameworkElement templateControl = TemplateControl;
       if (templateControl != null)
         templateControl.Allocate();
@@ -595,7 +583,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -608,15 +595,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-      rect.X += (float)ActualPosition.X;
-      rect.Y += (float)ActualPosition.Y;
+      RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+      rect.X += ActualPosition.X;
+      rect.Y += ActualPosition.Y;
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
+        GraphicsPath path;
         using (path = GetRoundedRect(rect, (float)CornerRadius))
         {
+          float centerX, centerY;
           Shape.CalcCentroid(path, out centerX, out centerY);
           if (Background != null)
           {
@@ -624,7 +612,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             {
               if (_backgroundAsset == null)
               {
-                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + this.Name);
+                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
                 ContentManager.Add(_backgroundAsset);
               }
               _backgroundAsset.VertexBuffer = Shape.ConvertPathToTriangleFan(path, centerX, centerY, out verts);
@@ -661,7 +649,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Border._borderAsset:" + this.Name);
+                _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
                 ContentManager.Add(_borderAsset);
               }
               _borderAsset.VertexBuffer = Shape.ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
@@ -698,18 +686,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    private GraphicsPath GetRoundedRect(RectangleF baseRect, float CornerRadius)
+    private GraphicsPath GetRoundedRect(RectangleF baseRect, float cornerRadius)
     {
       // if corner radius is less than or equal to zero, 
 
       // return the original rectangle 
 
-      if (CornerRadius <= 0.0f && CornerRadius <= 0.0f)
+      if (cornerRadius <= 0.0f && cornerRadius <= 0.0f)
       {
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
         mPath.CloseFigure();
-        System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+        Matrix m = new Matrix();
         m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
         m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
         if (LayoutTransform != null)
@@ -730,17 +718,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       // then return a capsule instead of a lozenge 
 
-      if (CornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
+      if (cornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
         return GetCapsule(baseRect);
 
       // create the arc for the rectangle sides and declare 
 
       // a graphics path object for the drawing 
 
-      float diameter = CornerRadius * 2.0F;
+      float diameter = cornerRadius * 2.0F;
       SizeF sizeF = new SizeF(diameter, diameter);
       RectangleF arc = new RectangleF(baseRect.Location, sizeF);
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
 
       // top left arc 
 
@@ -763,7 +751,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       path.AddArc(arc, 90, 90);
 
       path.CloseFigure();
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      Matrix mtx = new Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       if (LayoutTransform != null)
@@ -784,11 +772,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     private GraphicsPath GetCapsule(RectangleF baseRect)
     {
-      float diameter;
       RectangleF arc;
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
       try
       {
+        float diameter;
         if (baseRect.Width > baseRect.Height)
         {
           // return horizontal capsule 
@@ -826,7 +814,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         path.CloseFigure();
       }
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
+      Matrix mtx = new Matrix();
       mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       if (LayoutTransform != null)

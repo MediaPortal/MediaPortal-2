@@ -50,6 +50,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Collapsed = 2,
   }
 
+  [Flags]
   public enum UIEvent : int
   {
     None = 0,
@@ -492,13 +493,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public bool IsVisible
     {
       get { return Visibility == VisibilityEnum.Visible; }
-      set
-      {
-        if (value)
-          Visibility = VisibilityEnum.Visible;
-        else
-          Visibility = VisibilityEnum.Hidden;
-      }
+      set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
     }
 
     public Property MarginProperty
