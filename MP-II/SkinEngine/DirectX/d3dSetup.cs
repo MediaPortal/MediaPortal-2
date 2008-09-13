@@ -130,7 +130,6 @@ namespace MediaPortal.SkinEngine.DirectX
     /// <returns>true if a good device was found, false otherwise</returns>
     public bool SetupDirectX(Form form, bool exclusiveMode)
     {
-      Direct3D.Initialize();
       _cancelEventHandler = CancelAutoResizeEvent;
       _window = form;
       RenderTarget = form;

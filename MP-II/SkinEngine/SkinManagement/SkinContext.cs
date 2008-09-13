@@ -43,7 +43,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
   public class SkinContext
   {
     public static bool UseBatching = false;
-    public static bool IsValid = false;
 
     #region Private fields
 

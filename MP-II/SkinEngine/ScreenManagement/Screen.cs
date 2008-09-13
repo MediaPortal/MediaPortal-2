@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 using MediaPortal.Core;
@@ -173,9 +174,19 @@ namespace MediaPortal.SkinEngine
     public void Reset()
     {
       //Trace.WriteLine("Screen Reset: " + Name);
+      if (SkinContext.UseBatching)
+        _visual.DestroyRenderTree();
       GraphicsDevice.InitializeZoom();
       _visual.Invalidate();
       _visual.Initialize();
+    }
+
+    public void Deallocate()
+    {
+      Trace.WriteLine("Screen Deallocate: " + Name);
+      if (SkinContext.UseBatching)
+        _visual.DestroyRenderTree();
+      _visual.Deallocate();
     }
 
     public void Render()
@@ -241,20 +252,19 @@ namespace MediaPortal.SkinEngine
     public void Show()
     {
       //Trace.WriteLine("Screen Show: " + Name);
-      SkinContext.IsValid = false;
+
       lock (_visual)
       {
-        _invalidControls.Clear();
         if (SkinContext.UseBatching)
           _visual.DestroyRenderTree();
+        _invalidControls.Clear();
         _visual.Deallocate();
         _visual.Allocate();
         _visual.Invalidate();
         _visual.Initialize();
-        if (SkinContext.UseBatching)
-          _visual.BuildRenderTree();
+        //if (SkinContext.UseBatching)
+        //  _visual.BuildRenderTree();
         _setFocusedElement = true;
-        SkinContext.IsValid = true;
       }
     }
 
@@ -289,8 +299,7 @@ namespace MediaPortal.SkinEngine
     {
       if (SkinContext.UseBatching == false) 
         return;
-      if (!SkinContext.IsValid)
-        return;
+
       lock (_invalidControls)
       {
         if (!_invalidControls.Contains(ctl))

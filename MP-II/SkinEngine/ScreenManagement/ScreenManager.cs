@@ -414,6 +414,16 @@ namespace MediaPortal.SkinEngine
         _currentScreen.Reset();
     }
 
+    public void Exit()
+    {
+      // Deallocate all dialogs
+      foreach (Screen dialog in _dialogStack)
+        dialog.Deallocate();
+
+      // Deallocate the screen
+      if (_currentScreen != null)
+        _currentScreen.Deallocate();
+    }
 
     public void CloseDialog()
     {

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -118,6 +119,8 @@ namespace MediaPortal.SkinEngine.GUI
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop players");
       ServiceScope.Get<IPlayerCollection>().Dispose();
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Exit screen manager");
+      _screenManager.Exit();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
@@ -138,17 +141,24 @@ namespace MediaPortal.SkinEngine.GUI
       _fpsTimer = DateTime.Now;
       _fpsCounter = 0;
       SkinContext.IsRendering = true;
+
       try
       {
+        GraphicsDevice.SetRenderState();
         while (!_renderThreadStopped)
         {
-          Render();
+          bool shouldWait = GraphicsDevice.Render(true);
+          if (shouldWait || !_hasFocus)
+          {
+            Thread.Sleep(100);
+          }
+          _fpsCounter += 1.0f;
           TimeSpan ts = DateTime.Now - _fpsTimer;
           if (ts.TotalSeconds >= 1.0f)
           {
             float secs = (float)ts.TotalSeconds;
             _fpsCounter /= secs;
-            //this.Text = "fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString();
+            //Trace.WriteLine("fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString());
             _fpsCounter = 0;
             _fpsTimer = DateTime.Now;
             if (GraphicsDevice.DeviceLost)
@@ -165,18 +175,6 @@ namespace MediaPortal.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }
 
-    /// <summary>
-    /// Renders the screen
-    /// </summary>
-    public void Render()
-    {
-      bool shouldWait = GraphicsDevice.Render(true);
-      if (shouldWait || !_hasFocus)
-      {
-        Thread.Sleep(100);
-      }
-      _fpsCounter += 1.0f;
-    }
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {

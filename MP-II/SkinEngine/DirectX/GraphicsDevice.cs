@@ -90,6 +90,7 @@ namespace MediaPortal.SkinEngine
       try
       {
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
+        Direct3D.Initialize();
         _setup.SetupDirectX(window, maximize);
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
@@ -217,6 +218,7 @@ namespace MediaPortal.SkinEngine
         _device.Dispose();
         _device = null;
       }
+      Direct3D.Terminate();
     }
     #endregion
 
@@ -256,7 +258,7 @@ namespace MediaPortal.SkinEngine
     /// <summary>
     /// Sets the directx render states and project matrices
     /// </summary>
-    private static void SetRenderState()
+    public static void SetRenderState()
     {
       Device.SetRenderState(RenderState.CullMode, Cull.None);
       Device.SetRenderState(RenderState.Lighting, false);
@@ -443,7 +445,7 @@ namespace MediaPortal.SkinEngine
             _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
           }
 
-          SetRenderState();
+
 
           //Begin the scene
           _device.BeginScene();
@@ -452,13 +454,13 @@ namespace MediaPortal.SkinEngine
           //render the window(s)
           if (!SkinContext.ScreenSaverActive)
           {
+
+            ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
+            manager.Render();
             if (SkinContext.UseBatching)
             {
               RenderPipeline.Instance.Render();
             }
-
-            ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
-            manager.Render();
           }
           //End the scene
           _device.EndScene();
