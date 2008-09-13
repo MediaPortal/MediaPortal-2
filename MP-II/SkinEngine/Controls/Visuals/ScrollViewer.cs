@@ -47,7 +47,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Content == null) 
         return;
       
-      UIElement element = (UIElement)Content;
       FrameworkElement focusedElement = FocusManager.FocusedElement;
       if (focusedElement == null)
       {
@@ -58,7 +57,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       // Always call child OnKeyPressed. It could be a textbox that needs input.
       // Child will set key to Key.None if handled.
-      Content.OnKeyPressed(ref key);
+      FrameworkElement content = Content;
+      if (content != null)
+        content.OnKeyPressed(ref key);
 
       if (key == MediaPortal.Control.InputManager.Key.PageDown)
       {
