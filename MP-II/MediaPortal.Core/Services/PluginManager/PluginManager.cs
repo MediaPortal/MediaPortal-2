@@ -279,16 +279,12 @@ namespace MediaPortal.Core.Services.PluginManager
     internal T RequestItem<T>(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker) where T : class
     {
       PluginRuntime pluginRuntime = itemRegistration.PluginRuntime;
-      if (pluginRuntime.State == PluginState.Enabled)
-        if (!TryActivate(pluginRuntime))
-          throw new PluginInvalidStateException("Cannot activate plugin, although it has registered items. Something is wrong.");
+      if (pluginRuntime.State != PluginState.Enabled && pluginRuntime.State != PluginState.Active)
+        throw new PluginInvalidStateException("Plugin '{0}' neither is enabled nor active, although it has registered items. Something is wrong.", itemRegistration.Metadata.Id);
       // TODO: As of the specification (see PluginState.EndRequest), we have to make the current
       // thread sleep until the stopping procedure is finished or cancelled. This means we have to
       // implement a notification mechanism in the stop request methods to re-awake this thread.
       // By now, we simply let the item request fail (which is not the specified behavior!)
-      if (pluginRuntime.State != PluginState.Active)
-        // Associated plugin isn't active - we are not allowed to access the item
-        return null;
       if (!itemRegistration.StateTrackers.Contains(stateTracker))
         itemRegistration.StateTrackers.Add(stateTracker);
       if (itemRegistration.Item == null)
@@ -376,6 +372,8 @@ namespace MediaPortal.Core.Services.PluginManager
     internal object BuildItem(PluginItemMetadata metadata, PluginRuntime plugin)
     {
       IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
+      if (builder.NeedsPluginActive && !TryActivate(plugin))
+        throw new PluginInvalidStateException("Plugin '{0}' cannot be activated, although it has registered items. Something is wrong.");
       return builder.BuildItem(metadata, plugin);
     }
 

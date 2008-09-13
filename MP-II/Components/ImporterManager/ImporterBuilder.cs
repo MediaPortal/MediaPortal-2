@@ -64,6 +64,12 @@ namespace Components.Services.Importers
 
       return builder;
     }
+
+    public bool NeedsPluginActive
+    {
+      get { return true; }
+    }
+
     #endregion
 
     #region IImporterBuilder

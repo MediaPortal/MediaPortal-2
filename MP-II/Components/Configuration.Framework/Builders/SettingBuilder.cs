@@ -33,6 +33,8 @@ using MediaPortal.Configuration;
 
 namespace Components.Configuration.Builders
 {
+  // FIXME: replace this class by direct access to the plugin manager's settings API.
+  [Obsolete("Will be replaced by settings access via the plugin manager's settings API.")]
   public class SettingBuilder : IPluginItemBuilder
   {
     #region IPluginBuilder methods
@@ -107,6 +109,11 @@ namespace Components.Configuration.Builders
         setting.ListenItems = new List<string>(0);
 
       return setting;
+    }
+
+    public bool NeedsPluginActive
+    {
+      get { return true; }
     }
 
     #endregion

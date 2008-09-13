@@ -85,7 +85,7 @@ namespace MediaPortal.Core.PluginManager
     }
 
     /// <summary>
-    /// Returns items attributes.
+    /// Returns the items attributes.
     /// </summary>
     public IDictionary<string, string> Attributes
     {

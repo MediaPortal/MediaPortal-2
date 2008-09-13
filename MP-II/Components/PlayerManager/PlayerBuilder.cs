@@ -79,6 +79,7 @@ namespace Components.Services.PlayerManager
     #endregion
 
     #region IPluginBuilder methods
+
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       PlayerBuilder builder = new PlayerBuilder();
@@ -97,6 +98,12 @@ namespace Components.Services.PlayerManager
 
       return builder;
     }
+
+    public bool NeedsPluginActive
+    {
+      get { return true; }
+    }
+
     #endregion
   }
 }

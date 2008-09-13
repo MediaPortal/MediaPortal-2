@@ -44,5 +44,10 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
       BuilderHelper.CheckParameter("ClassName", itemData);
       return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
     }
+
+    public bool NeedsPluginActive
+    {
+      get { return true; }
+    }
   }
 }

@@ -28,10 +28,10 @@ namespace MediaPortal.Core.PluginManager
   /// Enumeration of states which a plugin can assume during its lifetime.
   /// Resources of this plugin may only be accessed when this plugin is <see cref="Enabled"/> or
   /// <see cref="Active"/>.
-  /// The first request of a plugin item at the plugin manager will change the plugin's state to
-  /// <see cref="Active"/>.
-  /// If no plugin items are accessed and the plugin isn't auto-activated, the plugin will remain
-  /// in state <see cref="Enabled"/>.
+  /// Some requests of plugin items at the plugin manager will change the plugin's state to
+  /// <see cref="Active"/>, depending on the item's builder.
+  /// If no activating plugin items are accessed and the plugin isn't auto-activated, the plugin
+  /// will remain in state <see cref="Enabled"/>.
   /// When the plugin should be stopped, a two-phase stopping procedure will take place:
   /// First, the state will change to <see cref="EndRequest"/> and the
   /// <see cref="IPluginStateTracker">plugin state tracker instance</see>
@@ -54,8 +54,7 @@ namespace MediaPortal.Core.PluginManager
     /// The plugin is enabled.
     /// The plugin state tracker might not be instanciated yet in this state.
     /// Enabled plugins are ready to be activated at any time.
-    /// Plugin items (classes, resources) may be requested from the plugin in this state, which will
-    /// make the plugin change its state to <see cref="Active"/>.
+    /// Plugin items (classes, resources) may be requested from the plugin in this state.
     /// </summary>
     Enabled,
 

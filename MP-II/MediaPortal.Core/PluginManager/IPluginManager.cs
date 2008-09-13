@@ -56,8 +56,8 @@ namespace MediaPortal.Core.PluginManager
     PluginManagerState State { get; }
 
     /// <summary>
-    /// Returns a dictionary containing the names of all plugins available in the system, mapped to
-    /// the plugin runtime descriptors.
+    /// Returns a dictionary containing the names of all plugins known by the plugin manager,
+    /// mapped to their plugin runtime descriptors.
     /// </summary>
     IDictionary<string, PluginRuntime> AvailablePlugins { get; }
 
@@ -82,10 +82,11 @@ namespace MediaPortal.Core.PluginManager
     /// stand in conflict with already loaded plugins and if all plugins the specified plugin is dependent on
     /// can be enabled. The plugin will be activated automatically if its
     /// <see cref="IPluginMetadata.AutoActivate"/> property or the <paramref name="activate"/>
-    /// parameter is set.
+    /// parameter are set.
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to be enabled. The plugin may not be
-    /// available at the plugin manager yet.</param>
+    /// available at the plugin manager yet. In this case, it will be added to the
+    /// <see cref="AvailablePlugins"/> collection.</param>
     /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
     /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
     /// is already enabled or activated, the return value will be <c>true</c>.</returns>
@@ -93,8 +94,8 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Tries to disable the specified plugin. The plugin will be deactivated and disabled if
-    /// every item user agrees with the deactivation, and every plugin which depends on this plugin
-    /// can be stopped too.
+    /// its plugin state tracker and every item user agree with the deactivation,
+    /// and every plugin which depends on this plugin can be stopped too.
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to be stopped.</param>
     /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
@@ -102,7 +103,7 @@ namespace MediaPortal.Core.PluginManager
     bool TryStopPlugin(IPluginMetadata plugin);
 
     /// <summary>
-    /// Returns all conflicting plugins.
+    /// Returns the metadata of all plugins conflicting with the specified <paramref name="plugin"/>.
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to check.</param>
     /// <returns>Collection of plugin metadata structures of the conflicting plugins.</returns>
@@ -122,7 +123,7 @@ namespace MediaPortal.Core.PluginManager
     /// Returns the metadata of a registered item at the specified <paramref name="location"/> with
     /// the specified <paramref name="id"/>. This metadata contains all registration information of
     /// the specified item and can be evaluated before the item usage is requested. This method doesn't
-    /// need to load the item's plugin.
+    /// load the item's plugin.
     /// </summary>
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
@@ -149,7 +150,8 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>The plugin item instance, or <c>null</c>, if the item was not registered.</returns>
     /// <remarks>
-    /// This method will build the item if it was not built yet.
+    /// This method will build the item if it was not built yet. If the usage of the item needs
+    /// the plugin to be activated, the plugin activation will be triggered automatically by this method.
     /// </remarks>
     T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
 
@@ -162,7 +164,9 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
     /// <remarks>
-    /// Plugin items If no instance of the plugin items exists they will be instantiated.
+    /// This method will build the items if they were not built yet. If the usage of the items needs
+    /// their plugins to be activated, the plugin activations will be triggered automatically by this
+    /// method.
     /// </remarks>
     ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
 

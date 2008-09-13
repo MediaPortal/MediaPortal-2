@@ -49,5 +49,10 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
           (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
           new DirectoryInfo(plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"])));
     }
+
+    public bool NeedsPluginActive
+    {
+      get { return false; }
+    }
   }
 }

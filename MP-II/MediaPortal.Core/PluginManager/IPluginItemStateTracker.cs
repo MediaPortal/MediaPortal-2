@@ -24,6 +24,11 @@
 
 namespace MediaPortal.Core.PluginManager
 {
+  /// <summary>
+  /// Interface with handshake methods to query the stopping process of a plugin. Implementors
+  /// can provide the feature to release items they once requested by implementing the stopping
+  /// request methods in an appropriate way.
+  /// </summary>
   public interface IPluginItemStateTracker
   {
     /// <summary>
@@ -32,7 +37,6 @@ namespace MediaPortal.Core.PluginManager
     /// This method returns the information if the item can be removed from the system. Before this
     /// method is called, the plugin's state will be changed to <see cref="PluginState.EndRequest"/>.
     /// </summary>
-    /// <param name="item"></param>
     /// <remarks>
     /// This method is part of the first phase in the two-phase stop procedure.
     /// If the plugin state tracker returns <c>true</c> as a result of the call to its end request
@@ -44,10 +48,12 @@ namespace MediaPortal.Core.PluginManager
     /// plugin, or if the plugin state tracker returns <c>false</c> as a result of the call to its end
     /// request method, the plugin will continue to be active and the method
     /// <see cref="Continue(PluginItemMetadata)"/> will be called.
-    /// After this method returned <c>true</c>, the item must not be accessed any more in a way that
-    /// it would change the return value if this method would be called again, until one of the methods
-    /// <see cref="Stop(PluginItemMetadata)"/> or <see cref="Continue(PluginItemMetadata)"/> is called.
+    /// After this method returned <c>true</c>, the item must not be accessed any more by the client
+    /// in a way that would change the return value if this method would be called again, until
+    /// one of the methods <see cref="Stop(PluginItemMetadata)"/> or
+    /// <see cref="Continue(PluginItemMetadata)"/> is called.
     /// </remarks>
+    /// <param name="item">The item which should be removed.</param>
     /// <returns><c>true</c>, if the specified item can be removed from the system at this time,
     /// else <c>false</c>.
     /// </returns>
@@ -55,7 +61,8 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Second step of the two-phase stopping procedure. This method should stop the usage
-    /// of the specified <paramref name="item"/>.
+    /// of the specified <paramref name="item"/>, which means the client isn't allowed to access the
+    /// item any more. The item reference gets invalid when this method is called.
     /// </summary>
     void Stop(PluginItemMetadata item);
 

@@ -42,7 +42,19 @@ namespace MediaPortal.Core.PluginManager
   {
     /// <summary>
     /// Will build an item from the specified item data.
+    /// The plugin is in state <see cref="PluginState.Enabled"/> or <see cref="PluginState.Active"/>
+    /// when this method is called, depending on the return value of <see cref="NeedPluginActive"/>.
     /// </summary>
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
+
+    /// <summary>
+    /// Returns a flag indicating if this builder needs the item's plugin in an active state to build
+    /// the item.
+    /// </summary>
+    /// <remarks>
+    /// For example, if the builder will access the item's plugin's assemblies, it is necessary that
+    /// the plugin is active before the <see cref="BuildItem"/> method can be called.
+    /// </remarks>
+    bool NeedsPluginActive { get; }
 	}
 }
