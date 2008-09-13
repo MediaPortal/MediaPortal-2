@@ -119,6 +119,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
             foreach (DirectoryInfo skinDirectory in rootDirectory.GetDirectories())
             {
               string skinName = skinDirectory.Name;
+              if (skinName.StartsWith("."))
+                continue;
               Skin skin;
               if (_skins.ContainsKey(skinName))
                 skin = _skins[skinName];

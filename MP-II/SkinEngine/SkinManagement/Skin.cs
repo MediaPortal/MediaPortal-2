@@ -277,6 +277,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
         foreach (DirectoryInfo themeDirectory in themesDirectory.GetDirectories())
         { // Iterate over all themes subdirectories
           string themeName = themeDirectory.Name;
+          if (themeName.StartsWith("."))
+            continue;
           Theme theme;
           if (_themes.ContainsKey(themeName))
             theme = _themes[themeName];
