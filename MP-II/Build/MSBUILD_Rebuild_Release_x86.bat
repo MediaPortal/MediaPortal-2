@@ -1,1 +1,1 @@
-@"%WINDIR%\Microsoft.NET\Framework\v2.0.50727\MSBUILD.exe" ..\MediaPortal.sln /target:Rebuild  /property:Configuration=Release;Platform=x86 >> build.log
+@"%WINDIR%\Microsoft.NET\Framework\v3.5\MSBUILD.exe" ..\MediaPortal-VS2008.sln /target:Rebuild  /property:Configuration=Release;Platform=x86 >> build.log

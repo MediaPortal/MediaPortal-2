@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringManager", "StringManager.csproj", "{F2DE31A5-AA8B-4902-8C3B-C3478EAFCBED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
