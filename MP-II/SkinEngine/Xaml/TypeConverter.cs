@@ -151,29 +151,7 @@ namespace MediaPortal.SkinEngine.Xaml
           return true;
       }
 
-      // FIXME: typeof(Nullable<double>), typeof(Nullable<float>)
-      if (targetType == typeof(double)) // == typeof(Double)
-      {
-        double resultDouble;
-        if (double.TryParse(val.ToString(), NumberStyles.Any, NUMBERFORMATINFO, out resultDouble))
-        {
-          result = resultDouble;
-          return true;
-        }
-        else
-          return false;
-      }
-      if (targetType == typeof(float))
-      {
-        float resultFloat;
-        if (float.TryParse(val.ToString(), NumberStyles.Any, NUMBERFORMATINFO, out resultFloat))
-        {
-          result = resultFloat;
-          return true;
-        }
-        else
-          return false;
-      }
+      // TODO: typeof(Nullable<T>)
 
       // Built-in type conversions
 
@@ -223,7 +201,7 @@ namespace MediaPortal.SkinEngine.Xaml
       {
         try
         {
-          result = tc.ConvertFrom(val);
+          result = tc.ConvertFrom(null, CultureInfo.InvariantCulture, val);
           return true;
         }
         catch { }
