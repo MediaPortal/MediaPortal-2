@@ -28,6 +28,7 @@ using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
 using PointF = System.Drawing.PointF;

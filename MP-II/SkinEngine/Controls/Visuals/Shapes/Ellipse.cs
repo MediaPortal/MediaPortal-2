@@ -24,6 +24,7 @@
 
 using System.Drawing.Drawing2D;
 using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;

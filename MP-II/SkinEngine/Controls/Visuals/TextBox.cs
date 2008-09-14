@@ -24,15 +24,15 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
-using FontRender = MediaPortal.SkinEngine.Fonts.FontRender;
-using FontBufferAsset = MediaPortal.SkinEngine.Fonts.FontBufferAsset;
+using FontRender = MediaPortal.SkinEngine.ContentManagement.FontRender;
+using FontBufferAsset = MediaPortal.SkinEngine.ContentManagement.FontBufferAsset;
 using FontManager = MediaPortal.SkinEngine.Fonts.FontManager;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;

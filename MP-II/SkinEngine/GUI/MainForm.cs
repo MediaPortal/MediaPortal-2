@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -36,6 +35,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.SkinManagement;
 
 using MediaPortal.SkinEngine.Settings;

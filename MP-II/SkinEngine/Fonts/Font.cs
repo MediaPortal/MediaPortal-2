@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;

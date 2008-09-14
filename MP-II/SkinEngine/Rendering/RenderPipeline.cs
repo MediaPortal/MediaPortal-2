@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Rendering

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
 using SlimDX.Direct3D9;

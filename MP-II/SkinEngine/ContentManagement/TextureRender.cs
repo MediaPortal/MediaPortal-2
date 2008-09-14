@@ -29,7 +29,7 @@ using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public class TextureRender
   {
@@ -115,15 +115,15 @@ namespace MediaPortal.SkinEngine
     /// <param name="colorBottomRight">The color bottom right.</param>
     /// <param name="colorUpperRight">The color upper right.</param>
     private void Set(float x, float y, float z, float w, float h,
-                     float uoff, float voff, float umax, float vmax,
-                     int colorUpperLeft, int colorBottomLeft,
-                     int colorBottomRight, int colorUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        int colorUpperLeft, int colorBottomLeft,
+        int colorBottomRight, int colorUpperRight)
     {
       if (x == _previousX && y == _previousY && z == _previousZ && w == _previousWidth && h == _previousHeight)
       {
         if (colorUpperLeft == _previousColorUpperLeft && colorBottomLeft == _previousColorBottomLeft &&
             colorBottomRight == _previousColorBottomRight && colorUpperRight == _previousColorUpperRight
-          /*&& _previousGradientInUse == SkinContext.GradientInUse*/)
+            /*&& _previousGradientInUse == SkinContext.GradientInUse*/)
         {
           if (uoff == _previousUoff && voff == _previousVoff &&
               umax == _previousUmax && vmax == _previousVMax)
@@ -142,9 +142,9 @@ namespace MediaPortal.SkinEngine
       umax *= _texture.MaxU;
       vmax *= _texture.MaxV;
       UpdateVertexBuffer(x, y, z, w, h,
-                         uoff, voff, umax, vmax,
-                         colorUpperLeft, colorBottomLeft,
-                         colorBottomRight, colorUpperRight);
+          uoff, voff, umax, vmax,
+          colorUpperLeft, colorBottomLeft,
+          colorBottomRight, colorUpperRight);
       _previousX = x;
       _previousY = y;
       _previousZ = z;
@@ -169,9 +169,9 @@ namespace MediaPortal.SkinEngine
     /// <param name="umax">The umax.</param>
     /// <param name="vmax">The vmax.</param>
     private void UpdateVertexBuffer(float left, float top, float z, float width, float height,
-                                    float uoff, float voff, float umax, float vmax,
-                                    int alphaUpperLeft, int alphaBottomLeft,
-                                    int alphaBottomRight, int alphaUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        int alphaUpperLeft, int alphaBottomLeft,
+        int alphaBottomRight, int alphaUpperRight)
     {
       float right = left + width;
       float bottom = top + height;
@@ -261,9 +261,9 @@ namespace MediaPortal.SkinEngine
     /// <param name="alphaBottomRight">The alpha bottom right.</param>
     /// <param name="alphaUpperRight">The alpha upper right.</param>
     public void Draw(float x, float y, float z, float width, float height,
-                     float uoff, float voff, float umax, float vmax,
-                     float alphaUpperLeft, float alphaBottomLeft,
-                     float alphaBottomRight, float alphaUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        float alphaUpperLeft, float alphaBottomLeft,
+        float alphaBottomRight, float alphaUpperRight)
     {
       if (!_texture.IsAllocated)
       {
@@ -315,7 +315,7 @@ namespace MediaPortal.SkinEngine
       }
 
       Set(x, y, z, width, height,
-           uoff, voff, umax, vmax,
+          uoff, voff, umax, vmax,
           (int)alphaUpperLeft,
           (int)alphaBottomLeft,
           (int)alphaBottomRight,

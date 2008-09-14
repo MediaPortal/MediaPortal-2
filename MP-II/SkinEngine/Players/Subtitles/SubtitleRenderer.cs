@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using DirectShowLib;

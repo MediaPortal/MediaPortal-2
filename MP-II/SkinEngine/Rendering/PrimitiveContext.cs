@@ -21,12 +21,11 @@
 */
 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Controls.Brushes;
+
 namespace MediaPortal.SkinEngine.Rendering
 {
   public class PrimitiveContext

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;

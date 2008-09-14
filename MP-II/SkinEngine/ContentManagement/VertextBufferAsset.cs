@@ -23,13 +23,14 @@
 #endregion
 
 using System;
+using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public class VertextBufferAsset : IAsset
   {
@@ -123,9 +124,9 @@ namespace MediaPortal.SkinEngine
     /// <param name="colorBottomRight">The color bottom right.</param>
     /// <param name="colorUpperRight">The color upper right.</param>
     private void Set(float x, float y, float z, float w, float h,
-                     float uoff, float voff, float umax, float vmax,
-                     int colorUpperLeft, int colorBottomLeft,
-                     int colorBottomRight, int colorUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        int colorUpperLeft, int colorBottomLeft,
+        int colorBottomRight, int colorUpperRight)
     {
       if (!IsAllocated)
       {
@@ -154,9 +155,9 @@ namespace MediaPortal.SkinEngine
       umax *= _texture.MaxU;
       vmax *= _texture.MaxV;
       UpdateVertexBuffer(x, y, z, w, h,
-                         uoff, voff, umax, vmax,
-                         colorUpperLeft, colorBottomLeft,
-                         colorBottomRight, colorUpperRight);
+          uoff, voff, umax, vmax,
+          colorUpperLeft, colorBottomLeft,
+          colorBottomRight, colorUpperRight);
       _previousX = x;
       _previousY = y;
       _previousZ = z;
@@ -181,9 +182,9 @@ namespace MediaPortal.SkinEngine
     /// <param name="umax">The umax.</param>
     /// <param name="vmax">The vmax.</param>
     private void UpdateVertexBuffer(float left, float top, float z, float width, float height,
-                                    float uoff, float voff, float umax, float vmax,
-                                    int alphaUpperLeft, int alphaBottomLeft,
-                                    int alphaBottomRight, int alphaUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        int alphaUpperLeft, int alphaBottomLeft,
+        int alphaBottomRight, int alphaUpperRight)
     {
       float right = left + width;
       float bottom = top + height;
@@ -355,9 +356,9 @@ namespace MediaPortal.SkinEngine
     /// <param name="alphaBottomRight">The alpha bottom right.</param>
     /// <param name="alphaUpperRight">The alpha upper right.</param>
     public void Draw(float x, float y, float z, float width, float height,
-                     float uoff, float voff, float umax, float vmax,
-                     float alphaUpperLeft, float alphaBottomLeft,
-                     float alphaBottomRight, float alphaUpperRight)
+        float uoff, float voff, float umax, float vmax,
+        float alphaUpperLeft, float alphaBottomLeft,
+        float alphaBottomRight, float alphaUpperRight)
     {
       if (!_texture.IsAllocated)
       {
@@ -417,7 +418,7 @@ namespace MediaPortal.SkinEngine
       }
 
       Set(x, y, z, width, height,
-           uoff, voff, umax, vmax,
+          uoff, voff, umax, vmax,
           (int)alphaUpperLeft,
           (int)alphaBottomLeft,
           (int)alphaBottomRight,
@@ -430,9 +431,9 @@ namespace MediaPortal.SkinEngine
     }
 
     public void Draw(float x, float y, float z, float width, float height,
-                     float uoff, float voff, float umax, float vmax,
-                     float alphaUpperLeft, float alphaBottomLeft,
-                     float alphaBottomRight, float alphaUpperRight, EffectAsset effect)
+        float uoff, float voff, float umax, float vmax,
+        float alphaUpperLeft, float alphaBottomLeft,
+        float alphaBottomRight, float alphaUpperRight, EffectAsset effect)
     {
       if (!_texture.IsAllocated)
       {
@@ -492,7 +493,7 @@ namespace MediaPortal.SkinEngine
       }
 
       Set(x, y, z, width, height,
-           uoff, voff, umax, vmax,
+          uoff, voff, umax, vmax,
           (int)alphaUpperLeft,
           (int)alphaBottomLeft,
           (int)alphaBottomRight,

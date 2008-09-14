@@ -25,11 +25,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.SkinEngine.Rendering

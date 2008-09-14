@@ -30,8 +30,9 @@ using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.SkinManagement;
+using Font=MediaPortal.SkinEngine.Fonts.Font;
 
-namespace MediaPortal.SkinEngine.Fonts
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public class FontRender
   {

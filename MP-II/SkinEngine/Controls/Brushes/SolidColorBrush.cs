@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;

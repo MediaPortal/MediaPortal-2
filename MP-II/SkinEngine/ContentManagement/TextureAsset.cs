@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -33,10 +32,11 @@ using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Services.ThumbnailGenerator;
+using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public class TextureAsset : ITextureAsset
   {
@@ -159,7 +159,7 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     public void Allocate()
     {
-      if (_textureName == null || _textureName.Length == 0)
+      if (string.IsNullOrEmpty(_textureName))
       {
         _state = State.DoesNotExist;
         return;
@@ -175,7 +175,7 @@ namespace MediaPortal.SkinEngine
       if (_state == State.Unknown)
       {
         FileInfo sourceFile = SkinContext.SkinResources.GetResourceFile(
-            Skin.MEDIA_DIRECTORY + "\\" + _textureName);
+            SkinResources.MEDIA_DIRECTORY + "\\" + _textureName);
         if (sourceFile != null && sourceFile.Exists)
         {
           _sourceFileName = sourceFile.FullName;
@@ -283,7 +283,7 @@ namespace MediaPortal.SkinEngine
         {
           try
           {
-            //            ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
+            //ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
             if (UseThumbNail)
             {
               info = ImageInformation.FromStream(stream);
@@ -376,7 +376,7 @@ namespace MediaPortal.SkinEngine
         _state = State.DoesNotExist;
         return;
       }
-      Trace.WriteLine("downloaded " + _textureName);
+      //Trace.WriteLine("downloaded " + _textureName);
       _buffer = e.Result;
       _state = State.Created;
     }
@@ -491,19 +491,19 @@ namespace MediaPortal.SkinEngine
 
     ImageInformation Scale(Image imgSource, ImageInformation imgInfo)
     {
-      ImageInformation info = new ImageInformation();
+      ImageInformation info;
       Rectangle rDest = new Rectangle();
       if (imgInfo.Width >= imgInfo.Height)
       {
-        float ar = ((float)imgInfo.Height) / ((float)imgInfo.Width);
-        rDest.Width = (int)GraphicsDevice.Width;
-        rDest.Height = (int)(((float)GraphicsDevice.Width) * ar);
+        float ar = imgInfo.Height / (float)imgInfo.Width;
+        rDest.Width = GraphicsDevice.Width;
+        rDest.Height = (int)(GraphicsDevice.Width * ar);
       }
       else
       {
-        float ar = ((float)imgInfo.Width) / ((float)imgInfo.Height);
-        rDest.Height = (int)GraphicsDevice.Height;
-        rDest.Width = (int)(((float)GraphicsDevice.Height) * ar);
+        float ar = imgInfo.Width / (float)imgInfo.Height;
+        rDest.Height = GraphicsDevice.Height;
+        rDest.Width = (int)(GraphicsDevice.Height * ar);
       }
       using (Bitmap bmPhoto = new Bitmap(rDest.Width, rDest.Height, PixelFormat.Format24bppRgb))
       {

@@ -24,13 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.Fonts;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public class ContentManager
   {
@@ -226,7 +227,7 @@ namespace MediaPortal.SkinEngine
 
       Free(true, false);
       //Trace.WriteLine(String.Format("Mgr: normal:{0} high:{1} unnamed:{2} vertex:{3}",
-            //_assetsNormal.Count, _assetsHigh.Count, _unnamedAssets.Count, _vertexBuffers.Count));
+      //_assetsNormal.Count, _assetsHigh.Count, _unnamedAssets.Count, _vertexBuffers.Count));
     }
 
     protected static void Free(ICollection<IAsset> assets, bool checkIfCanBeDeleted, bool force)

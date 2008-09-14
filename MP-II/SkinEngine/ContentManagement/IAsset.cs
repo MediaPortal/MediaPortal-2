@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ContentManagement
 {
   public interface IAsset
   {
