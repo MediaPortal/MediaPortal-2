@@ -23,18 +23,14 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Database;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 
-using Intel.UPNP.AV.MediaServer.CP;
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
 using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;

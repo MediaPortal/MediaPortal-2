@@ -23,23 +23,7 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Collections;
-using System.Text;
-using System.Net;
-using System.Threading;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Drawing;
-using System.Drawing.Imaging;
-using Intel.UPNP;
-using Intel.Utilities;
-using Intel.UPNP.AV;
-using Intel.UPNP.AV.MediaServer;
-using Intel.UPNP.AV.MediaServer.DV;
-using Intel.UPNP.AV.MediaServer.CP;
-using Intel.UPNP.AV.CdsMetadata;
 //using MetadataParser;
 
 namespace Components.UPnPServer
