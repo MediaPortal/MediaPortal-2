@@ -22,13 +22,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.MenuManager;
+
 namespace MediaPortal.Services.MenuManager
 {
-  public class Menu : MenuItem,IMenu
+  public class Menu : MenuItem, IMenu
   {
     string _name;
     public Menu(string name)

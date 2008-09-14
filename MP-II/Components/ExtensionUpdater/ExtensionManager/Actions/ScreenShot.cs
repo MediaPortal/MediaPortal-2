@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
+namespace Components.ExtensionUpdater.ExtensionManager.Actions
 {
   public class ScreenShot : IExtensionFileAction
   {

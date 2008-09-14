@@ -21,10 +21,12 @@
 */
 
 #endregion
+
 using System;
 using System.ComponentModel;
 using System.Net;
 using System.IO;
+using Components.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
@@ -34,9 +36,8 @@ using MediaPortal.Core.TaskScheduler;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Threading;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater
+namespace Components.ExtensionUpdater
 {
   public class ExtensionUpdater : IPluginStateTracker
   {

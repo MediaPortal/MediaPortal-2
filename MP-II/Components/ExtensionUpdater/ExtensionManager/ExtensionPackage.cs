@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Core.ExtensionManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   /// <summary>
   /// Implementation of IMPIPackage, manage data 

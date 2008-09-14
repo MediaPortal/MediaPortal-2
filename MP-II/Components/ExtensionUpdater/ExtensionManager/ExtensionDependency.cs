@@ -25,7 +25,7 @@
 using System;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   [Serializable]
   public class ExtensionDependency

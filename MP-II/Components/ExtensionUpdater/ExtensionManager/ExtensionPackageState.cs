@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   public enum ExtensionPackageState
   {

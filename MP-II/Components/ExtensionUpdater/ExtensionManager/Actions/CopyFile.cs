@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.ExtensionManager;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
+namespace Components.ExtensionUpdater.ExtensionManager.Actions
 {
   public class CopyFile:IExtensionFileAction
   {

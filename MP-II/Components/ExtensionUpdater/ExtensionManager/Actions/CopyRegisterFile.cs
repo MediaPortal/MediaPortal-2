@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
+namespace Components.ExtensionUpdater.ExtensionManager.Actions
 {
   class CopyRegisterFile:CopyFile,IExtensionFileAction
   {

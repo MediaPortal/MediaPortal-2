@@ -141,10 +141,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _tex = null;
     }
 
-    public void Allocate()
+    public override void Allocate()
     {
-      bool thumb = true;
-      _tex = ContentManager.GetTexture(ImageSource.ToString(), thumb);
+      _tex = ContentManager.GetTexture(ImageSource, true);
       _tex.Allocate();
     }
 

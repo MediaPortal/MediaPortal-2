@@ -193,23 +193,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
           }
 
 
-          if (!uri.IsFile)
-          {
-            if (_state == State.Unknown)
-            {
-              if (_webClient == null)
-              {
-                _state = State.Creating;
-                _webClient = new WebClient();
-                //_webClient.Proxy = null;
-                _webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable);
-                _webClient.DownloadDataCompleted += _webClient_DownloadDataCompleted;
-                _webClient.DownloadDataAsync(uri);
-                return;
-              }
-            }
-          }
-          else
+          if (uri.IsFile)
           {
             _sourceFileName = uri.LocalPath;
             if (UseThumbNail)
@@ -217,7 +201,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
               bool exists = Generator.Instance.Exists(_sourceFileName);
               if (exists)
               {
-                thumbData = Generator.Instance.GetThumbNail(_sourceFileName);
+                thumbData = Generator.Instance.GetThumbnail(_sourceFileName);
                 _state = State.Created;
               }
               else if (Generator.Instance.IsCreating(_sourceFileName))
@@ -235,6 +219,22 @@ namespace MediaPortal.SkinEngine.ContentManagement
               _state = State.Created;
             }
           }
+          else
+          {
+            if (_state == State.Unknown)
+            {
+              if (_webClient == null)
+              {
+                _state = State.Creating;
+                _webClient = new WebClient();
+                //_webClient.Proxy = null;
+                _webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable);
+                _webClient.DownloadDataCompleted += _webClient_DownloadDataCompleted;
+                _webClient.DownloadDataAsync(uri);
+                return;
+              }
+            }
+          }
         }
       }
 
@@ -247,7 +247,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
             if (Generator.Instance.Exists(_sourceFileName))
             {
               _state = State.Created;
-              thumbData = Generator.Instance.GetThumbNail(_sourceFileName);
+              thumbData = Generator.Instance.GetThumbnail(_sourceFileName);
             }
             else
             {

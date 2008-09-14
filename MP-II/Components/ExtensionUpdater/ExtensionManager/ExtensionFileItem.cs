@@ -26,7 +26,7 @@ using System;
 using System.Xml.Serialization;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   /// <summary>
   /// Implement the IMPIFileItem interface, store one file dat included in package

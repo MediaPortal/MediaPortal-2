@@ -30,9 +30,6 @@ using MediaPortal.Core.UserManagement;
 using MediaPortal.Presentation.Commands;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Services.InputManager;
-using MediaPortal.Services.MenuManager;
-using MediaPortal.Services.UserManagement;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
@@ -92,10 +89,6 @@ namespace MediaPortal.SkinEngine
 
     protected void InitializeServices()
     {
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputMapper service");
-      InputMapper inputMapper = new InputMapper();
-      ServiceScope.Add<IInputMapper>(inputMapper);
-
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create ICommandBuilder service");
       CommandBuilder cmdBuilder = new CommandBuilder();
       ServiceScope.Add<ICommandBuilder>(cmdBuilder);
@@ -104,14 +97,6 @@ namespace MediaPortal.SkinEngine
       InputManager inputManager = new InputManager();
       ServiceScope.Add<IInputManager>(inputManager);
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuManager service");
-      MenuCollection menuCollection = new MenuCollection();
-      ServiceScope.Add<IMenuCollection>(menuCollection);
-
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuBuilder service");
-      MenuBuilder menuBuilder = new MenuBuilder();
-      ServiceScope.Add<IMenuBuilder>(menuBuilder);
-
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IPlayerFactory service");
       PlayerFactory playerFactory = new PlayerFactory();
       ServiceScope.Get<IPlayerFactory>().Register(playerFactory);
@@ -119,10 +104,6 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IPlayerCollection service");
       MediaPlayers players = new MediaPlayers();
       ServiceScope.Add<IPlayerCollection>(players);
-
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create UserService service");
-      UserService userservice = new UserService();
-      ServiceScope.Add<IUserService>(userservice);
     }
 
     #endregion

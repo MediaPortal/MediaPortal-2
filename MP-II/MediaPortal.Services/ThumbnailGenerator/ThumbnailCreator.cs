@@ -33,12 +33,6 @@ using System.Text;
 
 namespace MediaPortal.Services.ThumbnailGenerator
 {
-
-  #region ThumbnailCreator
-
-  /// <summary>
-  /// Summary description for ThumbnailCreator.
-  /// </summary>
   public class ThumbnailCreator : IDisposable
   {
     #region ShellFolder Enumerations
@@ -338,15 +332,15 @@ namespace MediaPortal.Services.ThumbnailGenerator
     private IMalloc alloc = null;
     private bool disposed = false;
     private Size desiredSize = new Size(320, 240);
-    private Bitmap thumbNail = null;
+    private Bitmap thumbnail = null;
 
     #endregion
 
     #region Implementation
 
-    public Bitmap ThumbNail
+    public Bitmap Thumbnail
     {
-      get { return thumbNail; }
+      get { return thumbnail; }
     }
 
 
@@ -386,10 +380,10 @@ namespace MediaPortal.Services.ThumbnailGenerator
             file);
         }
 
-        if (thumbNail != null)
+        if (thumbnail != null)
         {
-          thumbNail.Dispose();
-          thumbNail = null;
+          thumbnail.Dispose();
+          thumbnail = null;
         }
 
         IShellFolder folder = null;
@@ -460,7 +454,7 @@ namespace MediaPortal.Services.ThumbnailGenerator
             }
 
             //bool retVal = getThumbNail(file, pidlURL, item);
-            bool retVal = getThumbNail_Mine(file, pidlURL, item);
+            bool retVal = getThumbnail_Mine(file, pidlURL, item);
 
             /*
 						//MOD2
@@ -567,11 +561,11 @@ namespace MediaPortal.Services.ThumbnailGenerator
       {
         throw new Exception(ex.ToString());
       }
-      return thumbNail;
+      return thumbnail;
     }
 
     /*
-		public System.Drawing.Bitmap GetThumbNail(
+		public System.Drawing.Bitmap GetThumbnail(
 			string file
 			)
 		{
@@ -582,10 +576,10 @@ namespace MediaPortal.Services.ThumbnailGenerator
 					file);
 			}
 
-			if (thumbNail != null)
+			if (thumbnail != null)
 			{
-				thumbNail.Dispose();
-				thumbNail = null;
+				thumbnail.Dispose();
+				thumbnail = null;
 			}
 
 			IShellFolder folder = null;
@@ -696,11 +690,11 @@ namespace MediaPortal.Services.ThumbnailGenerator
 
 				Marshal.ReleaseComObject(folder);
 			}
-			return thumbNail;
+			return thumbnail;
 		}
 		*/
 
-    private bool getThumbNail_Mine(
+    private bool getThumbnail_Mine(
       string file,
       IntPtr pidl,
       IShellFolder item
@@ -752,8 +746,8 @@ namespace MediaPortal.Services.ThumbnailGenerator
             if (hBmp != IntPtr.Zero)
             {
               // create the image object:
-              thumbNail = Bitmap.FromHbitmap(hBmp);
-              // is thumbNail owned by the Bitmap?
+              thumbnail = Bitmap.FromHbitmap(hBmp);
+              // is thumbnail owned by the Bitmap?
             }
 
             Marshal.ReleaseComObject(extractImage);
@@ -847,8 +841,8 @@ namespace MediaPortal.Services.ThumbnailGenerator
 						if (hBmp != IntPtr.Zero)
 						{
 							// create the image object:
-							thumbNail = System.Drawing.Bitmap.FromHbitmap(hBmp);
-							// is thumbNail owned by the Bitmap?
+							thumbnail = System.Drawing.Bitmap.FromHbitmap(hBmp);
+							// is thumbnail owned by the Bitmap?
 						}
 
 						Marshal.ReleaseComObject(extractImage);
@@ -918,9 +912,9 @@ namespace MediaPortal.Services.ThumbnailGenerator
         }
         alloc = null;
 
-        if (thumbNail != null)
+        if (thumbnail != null)
         {
-          thumbNail.Dispose();
+          thumbnail.Dispose();
         }
 
         disposed = true;
@@ -934,6 +928,4 @@ namespace MediaPortal.Services.ThumbnailGenerator
 
     #endregion
   }
-
-  #endregion
 }

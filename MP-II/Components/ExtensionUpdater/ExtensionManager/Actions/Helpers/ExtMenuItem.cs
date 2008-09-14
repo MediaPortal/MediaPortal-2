@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Presentation.MenuManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions.Helpers
+namespace Components.ExtensionUpdater.ExtensionManager.Actions.Helpers
 {
   class ExtMenuItem:MenuItem
   {

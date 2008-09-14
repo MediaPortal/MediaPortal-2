@@ -25,7 +25,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 

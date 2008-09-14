@@ -48,16 +48,11 @@ namespace MediaPortal.Services.UserManagement
       set { _currentUser = value; }
     }
 
-    public bool AddUser(IUser user)
+    public IUser AddUser(string name)
     {
-      if (_users.Contains(user))
-      {
-        ServiceScope.Get<ILogger>().Warn(
-          "UserService: Attempted to add a user with a name that is already in the list. Adding failed.");
-        return false;
-      }
-      _users.Add(user);
-      return true;
+      User result = new User(name);
+      _users.Add(result);
+      return result;
     }
 
     public bool RemoveUser(IUser user)

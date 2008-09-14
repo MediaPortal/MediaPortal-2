@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionManagerSettings
   {

@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.Settings;
 
 namespace Components.Services.AutoPlay

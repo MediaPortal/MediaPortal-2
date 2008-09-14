@@ -28,7 +28,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using MediaPortal.Core.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
+namespace Components.ExtensionUpdater.ExtensionManager.Actions
 {
   class CopyExecuteFile : CopyFile, IExtensionFileAction
   {

@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   [Serializable]
   public class ExtensionQueueObject : IExtensionQueueObject

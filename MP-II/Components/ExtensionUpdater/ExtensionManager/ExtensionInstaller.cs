@@ -26,15 +26,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using Components.ExtensionUpdater.ExtensionManager.Actions;
 using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions;
+using Components.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionInstaller: IExtensionInstaller
   {

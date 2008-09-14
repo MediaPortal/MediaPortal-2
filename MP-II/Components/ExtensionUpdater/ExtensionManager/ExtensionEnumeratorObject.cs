@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionEnumeratorObject : ExtensionPackage
   {

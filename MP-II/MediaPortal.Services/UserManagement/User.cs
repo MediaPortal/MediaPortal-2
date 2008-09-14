@@ -33,20 +33,17 @@ namespace MediaPortal.Services.UserManagement
   /// </summary>
   public class User : IUser
   {
-    protected string _userName = "";
+    protected string _userName;
+    protected DateTime _lastLogin;
     protected string _image = "";
     protected string _password = "";
     protected bool _needsPassword = false;
-    protected DateTime _lastLogin;
-    protected List<IRole> _roles;
+    protected List<IRole> _roles = new List<IRole>();
 
-    public User(string name, bool needsPassword, DateTime lastLogin, string image)
+    public User(string name)
     {
-      UserName = name;
-      NeedsPassword = needsPassword;
-      LastLogin = lastLogin;
-      UserImage = image;
-      _roles = new List<IRole>();
+      _userName = name;
+      _lastLogin = new DateTime();
     }
 
     public string UserName

@@ -22,11 +22,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.MenuManager;
+
 namespace MediaPortal.Services.MenuManager
 {
   public class MenuCollection : IMenuCollection

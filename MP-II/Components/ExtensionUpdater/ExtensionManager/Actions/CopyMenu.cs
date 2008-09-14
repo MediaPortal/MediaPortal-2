@@ -26,12 +26,13 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
+using Components.ExtensionUpdater.ExtensionManager.Actions.Helpers;
 using MediaPortal.Core.ExtensionManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions.Helpers;
+using Components.ExtensionUpdater.ExtensionManager.Actions.Helpers;
 using MediaPortal.Presentation.MenuManager;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager.Actions
+namespace Components.ExtensionUpdater.ExtensionManager.Actions
 {
   class CopyMenu : IExtensionFileAction
   {

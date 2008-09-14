@@ -24,7 +24,13 @@
 
 using System;
 using System.Windows.Forms;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Core.UserManagement;
+using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Services.InputManager;
 using MediaPortal.Services.Logging; // Needed for Release build configuration
+using MediaPortal.Services.MenuManager;
+using MediaPortal.Services.UserManagement;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
@@ -86,6 +92,22 @@ namespace MediaPortal
         logger.LogMethodNames = logMethods;
 
         logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+
+        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputMapper service");
+        InputMapper inputMapper = new InputMapper();
+        ServiceScope.Add<IInputMapper>(inputMapper);
+
+        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuManager service");
+        MenuCollection menuCollection = new MenuCollection();
+        ServiceScope.Add<IMenuCollection>(menuCollection);
+
+        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuBuilder service");
+        MenuBuilder menuBuilder = new MenuBuilder();
+        ServiceScope.Add<IMenuBuilder>(menuBuilder);
+
+        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create UserService service");
+        UserService userservice = new UserService();
+        ServiceScope.Add<IUserService>(userservice);
 
         logger.Debug("ApplicationLauncher: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());

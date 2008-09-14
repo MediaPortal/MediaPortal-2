@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core;

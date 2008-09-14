@@ -86,7 +86,7 @@ namespace MediaPortal.Services.ThumbnailGenerator
       return isBusy;
     }
 
-    public byte[] GetThumbNail(string fileName)
+    public byte[] GetThumbnail(string fileName)
     {
       string file = Path.GetFileName(fileName);
       return GetDatabase(fileName).Get(file);

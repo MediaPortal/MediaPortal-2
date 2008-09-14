@@ -29,9 +29,9 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 
-namespace MediaPortal.Plugins.ExtensionUpdater.ExtensionManager
+namespace Components.ExtensionUpdater.ExtensionManager
 {
   public class ExtensionEnumerator
   {

@@ -28,7 +28,6 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
-using MediaPortal.Services.UserManagement;
 
 namespace Models.Login
 {
@@ -54,15 +53,16 @@ namespace Models.Login
     /// </summary>
     private void LoadUsers()
     {
+      IUserService userService = ServiceScope.Get<IUserService>();
       // add a few dummy users, later this should be more flexible and handled by a login manager / user account control
-      User u1 =
-        new User(SystemInformation.ComputerName.ToLower(), true, new DateTime(2007, 10, 25, 12, 20, 30),
-                 SystemInformation.ComputerName.ToLower() + ".jpg");
-      User u2 =
-        new User(SystemInformation.UserName.ToLower(), false, new DateTime(2007, 10, 26, 10, 30, 13),
-                 SystemInformation.UserName.ToLower() + ".jpg");
-      ServiceScope.Get<IUserService>().AddUser(u1);
-      ServiceScope.Get<IUserService>().AddUser(u2);
+      IUser u1 = userService.AddUser(SystemInformation.ComputerName.ToLower());
+      u1.NeedsPassword = true;
+      u1.LastLogin = new DateTime(2007, 10, 25, 12, 20, 30);
+      u1.UserImage = SystemInformation.ComputerName.ToLower() + ".jpg";
+      IUser u2 = userService.AddUser(SystemInformation.UserName.ToLower());
+      u2.NeedsPassword = false;
+      u2.LastLogin = new DateTime(2007, 10, 26, 10, 30, 13);
+      u2.UserImage = SystemInformation.UserName.ToLower() + ".jpg";
       RefreshUserList();
     }
 

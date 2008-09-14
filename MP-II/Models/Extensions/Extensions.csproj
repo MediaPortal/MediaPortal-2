@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{51B5C6FD-C2A2-4702-B698-21E369410E32}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -88,10 +88,6 @@
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Services\MediaPortal.Services.csproj">
-      <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
-      <Name>MediaPortal.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

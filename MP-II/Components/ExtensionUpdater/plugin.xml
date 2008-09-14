@@ -9,6 +9,6 @@
 
   <Runtime>
     <Assembly FileName = "ExtensionUpdater.dll"/>
-    <PluginStateTracker ClassName = "MediaPortal.Plugins.ExtensionUpdater.ExtensionUpdater"/>
+    <PluginStateTracker ClassName = "Components.ExtensionUpdater.ExtensionUpdater"/>
   </Runtime>
 </Plugin>

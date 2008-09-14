@@ -61,5 +61,5 @@ namespace MediaPortal.Services.ThumbnailGenerator
         Destination = String.Format(@"{0}\{1}", DestinationFolder, DestinationFile);
       }
     }
-  } ;
+  }
 }

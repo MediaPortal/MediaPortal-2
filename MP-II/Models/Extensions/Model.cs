@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;

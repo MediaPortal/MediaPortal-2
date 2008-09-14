@@ -46,9 +46,13 @@ namespace MediaPortal.Core.UserManagement
     /// <summary>
     /// Adds a user to the pool of available users.
     /// </summary>
-    /// <param name="user">The user to add.</param>
-    /// <returns><c>true</c>, if the user could successfully be added, else <c>false</c>.</returns>
-    bool AddUser(IUser user);
+    /// <remarks>
+    /// Additional properties of the new user won't be initialized by this method, they have to
+    /// be initialized on the returned user instance.
+    /// </remarks>
+    /// <param name="name">The name of the new user.</param>
+    /// <returns>New user instance.</returns>
+    IUser AddUser(string name);
 
     /// <summary>
     /// Removes a user from the pool of available users.

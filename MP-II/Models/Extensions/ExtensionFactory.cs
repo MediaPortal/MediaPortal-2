@@ -28,7 +28,7 @@ using System.Net;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Plugins.ExtensionUpdater.ExtensionManager;
+using Components.ExtensionUpdater.ExtensionManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Media.MediaManager;
