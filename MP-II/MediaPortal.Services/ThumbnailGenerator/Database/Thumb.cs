@@ -33,11 +33,6 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     public long _size;
     public byte[] _image;
 
-    public long HeaderSize
-    {
-      get { return sizeof (long)*2 + _fileName.Length + 1; }
-    }
-
     public string FileName
     {
       get { return _fileName; }

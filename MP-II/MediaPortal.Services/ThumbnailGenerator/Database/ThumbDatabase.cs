@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
@@ -33,19 +32,22 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabase
   {
-    private string _dbName;
-    private List<Thumb> _thumbs = new List<Thumb>();
-    private bool _changed;
-    private DateTime _keepAliveTimer;
-    string _folder;
+    public const string THUMB_DB_FILENAME = "Thumbs.db";
 
-    public ThumbDatabase()
+    protected DirectoryInfo _folder;
+    protected FileInfo _dbFile;
+    protected IDictionary<string, Thumb> _thumbs = new Dictionary<string, Thumb>();
+    protected bool _changed;
+    protected DateTime _keepAliveTimer;
+
+    public ThumbDatabase(DirectoryInfo folder)
     {
-      _thumbs = new List<Thumb>();
+      _folder = folder;
       _keepAliveTimer = DateTime.Now;
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
+      queue.OnMessageReceive += queue_OnMessageReceive;
+      Open();
     }
 
     void queue_OnMessageReceive(QueueMessage message)
@@ -55,41 +57,29 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
         string action = (string)message.MessageData["action"];
         if (action == "changed")
         {
-          string fileName = (string)message.MessageData["fullpath"];
-
-          for (int i = 0; i < _thumbs.Count; ++i)
-          {
-            string fname = String.Format(@"{0}\{1}", _folder, _thumbs[i].FileName);
-            if (fname == fileName)
-            {
-              _thumbs.RemoveAt(i);
+          FileInfo file = new FileInfo((string) message.MessageData["fullpath"]);
+          if (file.Directory == _folder)
+            if (_thumbs.Remove(file.Name))
               _changed = true;
-              break;
-            }
-          }
         }
       }
     }
 
-    public bool Open(string folder)
+    public bool Open()
     {
-      _folder = folder;
       _thumbs.Clear();
-      _dbName = String.Format(@"{0}\mpThumbs.db", folder);
-      if (!File.Exists(_dbName))
-      {
+      _dbFile = new FileInfo(Path.Combine(_folder.FullName, THUMB_DB_FILENAME));
+      if (!_dbFile.Exists)
         return false;
-      }
-      Trace.WriteLine("open:" + _dbName);
+      //Trace.WriteLine("ThumbDatabase: open " + _dbFile.FullName);
 
       while (true)
       {
         try
         {
-          //load the database
-          using (FileStream stream = new FileStream(_dbName, FileMode.Open, FileAccess.Read))
+          // Load the database
+          using (FileStream stream = _dbFile.Open(FileMode.Open, FileAccess.ReadWrite))
           {
-            FileInfo thumbInfo = new FileInfo(_dbName);
             if (stream.Length > 4)
             {
               using (BinaryReader reader = new BinaryReader(stream))
@@ -101,14 +91,9 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
                   thumb.FileName = reader.ReadString();
                   thumb.Offset = reader.ReadInt64();
                   thumb.Size = reader.ReadInt64();
-                  if (File.Exists(folder + @"\\" + thumb.FileName))
-                  {
-                    FileInfo info = new FileInfo(folder + @"\\" + thumb.FileName);
-                    if (info.LastWriteTime < thumbInfo.LastWriteTime)
-                    {
-                      _thumbs.Add(thumb);
-                    }
-                  }
+                  FileInfo thumbFile = new FileInfo(Path.Combine(_folder.FullName, thumb.FileName));
+                  if (thumbFile.Exists && thumbFile.LastWriteTime < _dbFile.LastWriteTime)
+                    _thumbs.Add(thumb.FileName, thumb);
                 }
               }
             }
@@ -125,116 +110,82 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     public void Close()
     {
       if (!_changed)
-      {
         return;
-      }
 
-      //ensure all images are loaded
-      foreach (Thumb thumb in _thumbs)
-      {
-        Get(thumb.FileName);
-      }
+      ICollection<Thumb> thumbs = _thumbs.Values;
 
-      //save the database
+      // Ensure all images are loaded
+      foreach (Thumb thumb in thumbs)
+        Get(new FileInfo(thumb.FileName));
 
-      Trace.WriteLine("save:" + _dbName);
-      if (File.Exists(_dbName))
-      {
-        File.Delete(_dbName);
-      }
-      using (FileStream stream = new FileStream(_dbName, FileMode.Create, FileAccess.Write))
+      // Save the database
+
+      //Trace.WriteLine("ThumbDatabase: save " + _dbFile.FullName);
+      if (_dbFile.Exists)
+        _dbFile.Delete();
+      using (FileStream stream = _dbFile.Open(FileMode.Create, FileAccess.Write))
       {
         using (BinaryWriter writer = new BinaryWriter(stream))
         {
           long offset = sizeof(Int32);
-          foreach (Thumb thumb in _thumbs)
-          {
-            offset += thumb.HeaderSize;
-          }
+          foreach (Thumb thumb in thumbs)
+            offset += sizeof(Int64) * 2 + thumb.FileName.Length + 1;
 
-          writer.Write((Int32)_thumbs.Count);
-          foreach (Thumb thumb in _thumbs)
+          writer.Write((Int32) _thumbs.Count);
+          foreach (Thumb thumb in thumbs)
           {
             writer.Write(thumb.FileName);
-            writer.Write((Int64)offset);
-            writer.Write((Int64)thumb.Size);
+            writer.Write((Int64) offset);
+            writer.Write((Int64) thumb.Size);
 
             offset += thumb.Image.Length;
           }
 
-          foreach (Thumb thumb in _thumbs)
-          {
+          foreach (Thumb thumb in thumbs)
             writer.Write(thumb.Image);
-          }
         }
       }
     }
 
-    public void Add(string fileName, Stream image)
+    public void Add(FileInfo file, Stream image)
     {
-      _keepAliveTimer = DateTime.Now;
-      if (!Contains(fileName))
-      {
-        Thumb thumb = new Thumb();
-        thumb.FileName = fileName;
-        byte[] img = new byte[image.Length];
-        image.Seek(0, SeekOrigin.Begin);
-        image.Read(img, 0, img.Length);
-        thumb.Image = img;
-        thumb.Size = image.Length;
-        _thumbs.Add(thumb);
-        _changed = true;
-      }
+      byte[] img = new byte[image.Length];
+      image.Seek(0, SeekOrigin.Begin);
+      image.Read(img, 0, img.Length);
+      Add(file, img);
     }
 
-    public void Add(string fileName, byte[] image)
+    public void Add(FileInfo file, byte[] image)
     {
       _keepAliveTimer = DateTime.Now;
-      if (!Contains(fileName))
-      {
-        Thumb thumb = new Thumb();
-        thumb.FileName = fileName;
-        thumb.Image = image;
-        thumb.Size = image.Length;
-        _thumbs.Add(thumb);
-        _changed = true;
-      }
+      if (Contains(file))
+        return;
+      Thumb thumb = new Thumb();
+      thumb.FileName = file.Name;
+      thumb.Image = image;
+      thumb.Size = image.Length;
+      _thumbs.Add(file.Name, thumb);
+      _changed = true;
     }
 
-    public byte[] Get(string fileName)
+    public byte[] Get(FileInfo file)
     {
       _keepAliveTimer = DateTime.Now;
-      foreach (Thumb thumb in _thumbs)
-      {
-        if (thumb.FileName == fileName)
-        {
-          if (thumb.Image == null)
-          {
-            if (File.Exists(_dbName))
-            {
-              using (FileStream stream = new FileStream(_dbName, FileMode.Open, FileAccess.Read))
-              {
-                thumb.Read(stream);
-              }
-            }
-          }
-          return thumb.Image;
-        }
-      }
-      return null;
+      if (!_thumbs.ContainsKey(file.Name))
+        return null;
+      Thumb thumb = _thumbs[file.Name];
+      if (thumb.Image == null && _dbFile.Exists)
+        using (FileStream stream = _dbFile.Open(FileMode.Open, FileAccess.Read))
+          thumb.Read(stream);
+      return thumb.Image;
     }
 
-    public bool Contains(string fileName)
+    public bool Contains(FileInfo file)
     {
+      if (file.Directory != _folder)
+        return false;
       _keepAliveTimer = DateTime.Now;
-      foreach (Thumb thumb in _thumbs)
-      {
-        if (thumb.FileName == fileName)
-        {
-          return true;
-        }
-      }
-      return false;
+      return _thumbs.ContainsKey(file.Name);
     }
 
     public bool CanFree
@@ -244,6 +195,11 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
         TimeSpan ts = DateTime.Now - _keepAliveTimer;
         return (ts.TotalSeconds >= 20);
       }
+    }
+
+    public DirectoryInfo Folder
+    {
+      get { return _folder; }
     }
   }
 }

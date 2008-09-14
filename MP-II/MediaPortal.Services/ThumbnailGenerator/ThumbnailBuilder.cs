@@ -23,243 +23,216 @@
 #endregion
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Services.ThumbnailGenerator.Database;
 
 namespace MediaPortal.Services.ThumbnailGenerator
 {
   public class ThumbnailBuilder
   {
-    #region subclasses
+    public static readonly ICollection<string> VALID_EXTENSIONS_MOVIES =
+        new List<string>(new string[] { ".wmv", ".avi", ".mkv", ".dvr-ms", ".ts" });
 
-    #endregion
+    public static readonly ICollection<string> VALID_EXTENSIONS_IMAGES =
+        new List<string>(new string[] { ".jpg", ".png" });
 
     /// <summary>
     /// Creates the thumbnail for a folder.
     /// </summary>
-    /// <param name="thumb">The thumb.</param>
-    /// <returns></returns>
-    public bool CreateThumbnailForFolder(WorkItem thumb)
+    /// <param name="folder">The directory to build a thumbnail for.</param>
+    /// <param name="destination">The file to write the thumbnail to.</param>
+    /// <param name="width">The width of the thumbnail to create.</param>
+    /// <param name="height">The height of the thumbnail to create.</param>
+    /// <param name="quality">The quality of the thumbnail to create
+    /// (Range: 1=lowest, ..., 100=highest).</param>
+    /// <param name="thumbDb">The thumbnail database for the <paramref name="folder"/>.</param>
+    /// <returns><c>true</c>, if the thumbnail could be successfully created, else <c>false</c>.</returns>
+    public static bool CreateThumbnailForFolder(DirectoryInfo folder, FileInfo destination,
+        int width, int height, int quality, ThumbDatabase thumbDb)
     {
-      Trace.WriteLine(String.Format("create folder thumb:{0}->{1}", thumb.Source, thumb.Destination));
+      //Trace.WriteLine(String.Format("Create folder thumb: {0}->{1}", thumb.Source, thumb.Destination));
       try
       {
-        string thumbnailFileName = thumb.Destination;
-        if (File.Exists(thumbnailFileName))
+        if (destination.Exists)
+          destination.Delete();
+
+        // Find media files within the folder
+        FileInfo[] subNails = new FileInfo[4];
+        int thumbCount = 0;
+        FileInfo[] files = folder.GetFiles();
+        foreach (FileInfo file in files)
         {
-          return true;
+          string ext = file.Extension.ToLower();
+          if (!VALID_EXTENSIONS_IMAGES.Contains(ext) && !VALID_EXTENSIONS_MOVIES.Contains(ext))
+            continue;
+          // Media file found, create a thumbnail for this media file
+          FileInfo dest = new FileInfo(Path.ChangeExtension(file.FullName, ".jpg"));
+          //Trace.WriteLine(" Create: " + dest);
+          if (CreateThumbnailForFile(file, dest, width, height, quality, thumbDb))
+            subNails[thumbCount++] = dest;
+          if (thumbCount >= 4)
+            break;
         }
 
-        //find media files within the folder
-
-        ThumbDatabase dbFolder = ThumbDatabaseCache.Instance.Get(thumb.DestinationFolder);
-        string[] subNails = new string[4];
-        int currentThumb = 0;
-        string[] files = Directory.GetFiles(thumb.SourceFolder);
-        for (int i = 0; i < files.Length; ++i)
-        {
-          string ext = Path.GetExtension(files[i]).ToLower();
-          if (ext == ".wmv" || ext == ".avi" || ext == ".mkv" || ext == ".dvr-ms" || ext == ".jpg" || ext == ".png" ||
-              ext == ".ts")
-          {
-            //media file found, create a thumbnail for this media file
-            string dest = Path.ChangeExtension(files[i], ".jpg");
-            Trace.WriteLine(" create:" + dest);
-            WorkItem sub = new WorkItem(files[i], dest, thumb.Width, thumb.Height, thumb.Quality);
-            if (CreateThumbnailForFile(dbFolder, sub))
-            {
-              subNails[currentThumb] = sub.DestinationFile;
-              currentThumb++;
-            }
-            if (currentThumb >= 4)
-            {
-              break;
-            }
-          }
-        }
-
-        //no media files found?
-        if (currentThumb <= 0)
-        {
-          Trace.WriteLine("create folder thumb done, no files");
+        // No media files found?
+        if (thumbCount <= 0)
+          // Trace.WriteLine("Create folder thumb done, no files");
           return false;
-        }
 
-        //create folder thumb 
+        // Create folder thumb 
         RenderTargetBitmap rtb =
-          new RenderTargetBitmap(thumb.Width, thumb.Height, 1/200, 1/200, PixelFormats.Pbgra32);
+          new RenderTargetBitmap(width, height, 1/200, 1/200, PixelFormats.Pbgra32);
         DrawingVisual dv = new DrawingVisual();
         DrawingContext dc = dv.RenderOpen();
-        for (int i = 0; i < currentThumb; ++i)
+        for (int i = 0; i < thumbCount; i++)
         {
-          double width = ((thumb.Width - 20)/2);
-          double height = ((thumb.Height - 20)/2);
-          if (currentThumb == 2)
+          double childWidth = ((width - 20)/2);
+          double childHeight = ((height - 20)/2);
+          if (thumbCount == 2)
           {
-            width = (thumb.Width - 20)/2;
-            height = (thumb.Height - 20);
+            childWidth = (width - 20)/2;
+            childHeight = height - 20;
           }
-          if (currentThumb == 1)
+          if (thumbCount == 1)
           {
-            height = (thumb.Height - 20);
-            width = (thumb.Width - 20);
+            childHeight = height - 20;
+            childWidth = width - 20;
           }
-          Trace.WriteLine(" load:" + subNails[i]);
-          BitmapDecoder decoder;
-          using (MemoryStream stream = new MemoryStream(dbFolder.Get(subNails[i])))
+          // Trace.WriteLine(" Load: " + subNails[i]);
+          using (MemoryStream stream = new MemoryStream(thumbDb.Get(subNails[i])))
           {
-            if (Path.GetExtension(subNails[i]) == ".jpg")
-            {
-              decoder = new JpegBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-            }
-            else
-            {
-              decoder = new PngBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-            }
+            BitmapDecoder decoder = new JpegBitmapDecoder(
+                stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
             BitmapFrame frame = decoder.Frames[0];
             Rect rect = new Rect();
-            rect.X = (i%2)*width + 10;
-            rect.Y = (i/2)*height + 10;
-            rect.Width = width;
-            rect.Height = height;
+            rect.X = (i%2)*childWidth + 10;
+            rect.Y = (i/2)*childHeight + 10;
+            rect.Width = childWidth;
+            rect.Height = childHeight;
             dc.DrawRectangle(new ImageBrush(frame), null, rect);
           }
-          //dc.DrawImage(frame, rect);
         }
 
         dc.Close();
         rtb.Render(dv);
-        Trace.WriteLine(" encode:" + thumbnailFileName);
+        // Trace.WriteLine(" Encode: " + destination.FullName);
         JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-        encoder.QualityLevel = thumb.Quality;
+        encoder.QualityLevel = quality;
         encoder.Frames.Add(BitmapFrame.Create(rtb));
         using (MemoryStream stream = new MemoryStream())
         {
           encoder.Save(stream);
-          dbFolder.Add("folder.jpg", stream);
+          thumbDb.Add(destination, stream);
         }
-        Trace.WriteLine("create folder thumb done");
+        // Trace.WriteLine("Create folder thumb done");
         return true;
       }
       catch (Exception ex)
       {
-        Trace.WriteLine("create folder thumb exception");
-        Trace.WriteLine(ex);
+        ServiceScope.Get<ILogger>().Error("Error creating thumbnail for folder '{0}'", ex, folder);
       }
-      Trace.WriteLine("create folder thumb failed");
+      // Trace.WriteLine("Create folder thumb failed");
       return false;
     }
 
     /// <summary>
-    /// Creates a thumbnail for file.
+    /// Creates a thumbnail for a file.
     /// </summary>
-    /// <param name="thumb">The thumb.</param>
-    /// <returns></returns>
-    public bool CreateThumbnailForFile(WorkItem thumb)
+    /// <param name="file">The file to create the thumbnail for.</param>
+    /// <param name="destination">The destination file to write the thumbnail to.</param>
+    /// <param name="width">The width of the thumbnail to create.</param>
+    /// <param name="height">The height of the thumbnail to create.</param>
+    /// <param name="quality">The quality of the thumbnail to create
+    /// (Range: 1=lowest, 100=highest).</param>
+    /// <param name="thumbDb">The database to store the thumbnail.</param>
+    /// <returns><c>true</c>, if the thumbnail could be successfully created, else <c>false</c>.</returns>
+    public static bool CreateThumbnailForFile(FileInfo file, FileInfo destination,
+        int width, int height, int quality, ThumbDatabase thumbDb)
     {
-      ThumbDatabase dbs = ThumbDatabaseCache.Instance.Get(thumb.SourceFolder);
-      bool result = CreateThumbnailForFile(dbs, thumb);
-      return result;
-    }
+      string ext = file.Extension.ToLower();
+      if (!file.Exists)
+        return false;
+      //Trace.WriteLine(String.Format("Create thumb: {0}->{1}", file.FullName, destination));
 
-    public bool CreateThumbnailForFile(ThumbDatabase dbs, WorkItem thumb)
-    {
-      string ext = Path.GetExtension(thumb.Source).ToLower();
       try
       {
-        if (File.Exists(thumb.Source))
+        if (VALID_EXTENSIONS_MOVIES.Contains(ext))
         {
-          if (!dbs.Contains(thumb.SourceFile))
+          // Create thumb for movie
+          MediaPlayer player = new MediaPlayer();
+          player.Open(new Uri(file.FullName, UriKind.Absolute));
+          player.ScrubbingEnabled = true;
+          player.Play();
+          player.Pause();
+          player.Position = new TimeSpan(0, 0, 1);
+          Thread.Sleep(4000);
+          RenderTargetBitmap rtb =
+              new RenderTargetBitmap(width, height, 1/200, 1/200, PixelFormats.Pbgra32);
+          DrawingVisual dv = new DrawingVisual();
+          DrawingContext dc = dv.RenderOpen();
+          dc.DrawVideo(player, new Rect(0, 0, width, height));
+          dc.Close();
+          rtb.Render(dv);
+          BitmapEncoder encoder;
+          string destExt = destination.Extension.ToLower();
+          switch (destExt)
           {
-            Trace.WriteLine(String.Format("create thumb:{0}->{1}", thumb.Source, thumb.Destination));
-
-            if (ext == ".wmv" || ext == ".avi" || ext == ".mkv" || ext == ".dvr-ms" || ext == ".ts")
-            {
-              //create thumb of movie
-              try
-              {
-                MediaPlayer player = new MediaPlayer();
-                player.Open(new Uri(thumb.Source, UriKind.Absolute));
-                player.ScrubbingEnabled = true;
-                player.Play();
-                player.Pause();
-                player.Position = new TimeSpan(0, 0, 1);
-                Thread.Sleep(4000);
-                RenderTargetBitmap rtb =
-                  new RenderTargetBitmap(thumb.Width, thumb.Height, 1/200, 1/200, PixelFormats.Pbgra32);
-                DrawingVisual dv = new DrawingVisual();
-                DrawingContext dc = dv.RenderOpen();
-                dc.DrawVideo(player, new Rect(0, 0, thumb.Width, thumb.Height));
-                dc.Close();
-                rtb.Render(dv);
-                BitmapEncoder encoder;
-                if (Path.GetExtension(thumb.Destination) == ".png")
-                {
-                  encoder = new PngBitmapEncoder();
-                }
-                else
-                {
-                  encoder = new JpegBitmapEncoder();
-                  ((JpegBitmapEncoder) encoder).QualityLevel = thumb.Quality;
-                }
-                encoder.Frames.Add(BitmapFrame.Create(rtb));
-                using (MemoryStream stream = new MemoryStream())
-                {
-                  encoder.Save(stream);
-                  dbs.Add(thumb.SourceFile, stream);
-                }
-                player.Stop();
-
-                GC.Collect();
-                GC.Collect();
-                GC.Collect();
-                return true;
-              }
-              catch (Exception ex)
-              {
-                Trace.WriteLine("create file thumb exception using mediaplayer");
-                Trace.WriteLine(ex);
-              }
-            } // of if ( ext == ".wmv" || ext == ".avi" || ext == ".mkv" || ext == ".dvr-ms")
-            else if (ext == ".png" || ext == ".jpg")
-            {
-              BitmapImage myBitmapImage = new BitmapImage();
-
-              myBitmapImage.CacheOption = BitmapCacheOption.None;
-              myBitmapImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-              // BitmapImage.UriSource must be in a BeginInit/EndInit block
-              myBitmapImage.BeginInit();
-              myBitmapImage.UriSource = new Uri(thumb.Source);
-              myBitmapImage.DecodePixelWidth = thumb.Width;
-              myBitmapImage.EndInit();
-
-              using (MemoryStream stream = new MemoryStream())
-              {
-                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                encoder.QualityLevel = thumb.Quality;
-                encoder.Frames.Add(BitmapFrame.Create(myBitmapImage));
-                encoder.Save(stream);
-                dbs.Add(thumb.SourceFile, stream);
-              }
-              return true;
-            }
-          } // of if (!dbs.Contains(thumb.SourceFile))
-          else
-          {
-            return true;
+            case ".png":
+              encoder = new PngBitmapEncoder();
+              break;
+            case ".jpg":
+              encoder = new JpegBitmapEncoder();
+              ((JpegBitmapEncoder) encoder).QualityLevel = quality;
+              break;
+            default:
+              throw new ArgumentException(string.Format("Thumbnail format '{0}' not supported", destExt));
           }
-        } // of if (System.IO.File.Exists(thumb.Source))
+          encoder.Frames.Add(BitmapFrame.Create(rtb));
+          using (MemoryStream stream = new MemoryStream())
+          {
+            encoder.Save(stream);
+            thumbDb.Add(file, stream);
+          }
+          player.Stop();
+
+          GC.Collect();
+          GC.Collect();
+          GC.Collect();
+          return true;
+        }
+        else if (VALID_EXTENSIONS_IMAGES.Contains(ext))
+        {
+          BitmapImage myBitmapImage = new BitmapImage();
+
+          myBitmapImage.CacheOption = BitmapCacheOption.None;
+          myBitmapImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+          // BitmapImage.UriSource must be in a BeginInit/EndInit block
+          myBitmapImage.BeginInit();
+          myBitmapImage.UriSource = new Uri(file.FullName);
+          myBitmapImage.DecodePixelWidth = width;
+          myBitmapImage.EndInit();
+
+          using (MemoryStream stream = new MemoryStream())
+          {
+            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+            encoder.QualityLevel = quality;
+            encoder.Frames.Add(BitmapFrame.Create(myBitmapImage));
+            encoder.Save(stream);
+            thumbDb.Add(file, stream);
+          }
+          return true;
+        }
       }
       catch (Exception ex)
       {
-        Trace.WriteLine("create file thumb exception ");
-        Trace.WriteLine(ex);
+        ServiceScope.Get<ILogger>().Error("Error creating thumbnail for file '{0}'", ex, file.FullName);
       }
       return false;
     }

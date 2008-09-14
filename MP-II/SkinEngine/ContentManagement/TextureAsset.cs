@@ -31,8 +31,8 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.Thumbnails;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -171,7 +171,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
       byte[] thumbData = null;
       ImageInformation info = new ImageInformation();
 
-
+      IAsyncThumbnailGenerator generator = ServiceScope.Get<IAsyncThumbnailGenerator>();
       if (_state == State.Unknown)
       {
         FileInfo sourceFile = SkinContext.SkinResources.GetResourceFile(
@@ -196,21 +196,22 @@ namespace MediaPortal.SkinEngine.ContentManagement
           if (uri.IsFile)
           {
             _sourceFileName = uri.LocalPath;
+            FileInfo file = new FileInfo(_sourceFileName);
             if (UseThumbNail)
             {
-              bool exists = Generator.Instance.Exists(_sourceFileName);
+              bool exists = generator.Exists(file);
               if (exists)
               {
-                thumbData = Generator.Instance.GetThumbnail(_sourceFileName);
+                thumbData = generator.GetThumbnail(file);
                 _state = State.Created;
               }
-              else if (Generator.Instance.IsCreating(_sourceFileName))
+              else if (generator.IsCreating(file))
               {
                 _state = State.Creating;
               }
               else
               {
-                Generator.Instance.CreateThumbnail(_sourceFileName);
+                generator.CreateThumbnail(file);
                 _state = State.Creating;
               }
             }
@@ -240,14 +241,15 @@ namespace MediaPortal.SkinEngine.ContentManagement
 
       if (_state == State.Creating)
       {
+        FileInfo file = new FileInfo(_sourceFileName);
         if (_webClient == null)
         {
-          if (Generator.Instance.IsCreating(_sourceFileName) == false)
+          if (generator.IsCreating(file) == false)
           {
-            if (Generator.Instance.Exists(_sourceFileName))
+            if (generator.Exists(file))
             {
               _state = State.Created;
-              thumbData = Generator.Instance.GetThumbnail(_sourceFileName);
+              thumbData = generator.GetThumbnail(file);
             }
             else
             {

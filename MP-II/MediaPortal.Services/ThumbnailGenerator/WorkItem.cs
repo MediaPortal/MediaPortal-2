@@ -22,44 +22,63 @@
 
 #endregion
 
-using System;
 using System.IO;
+using MediaPortal.Thumbnails;
 
 namespace MediaPortal.Services.ThumbnailGenerator
 {
+  /// <summary>
+  /// Holds the data of one work item for the thumbnail generator thread.
+  /// </summary>
   public class WorkItem
   {
-    public bool IsFolder;
-    public string SourceFolder;
-    public string SourceFile;
-    public string DestinationFolder;
-    public string DestinationFile;
-    public string Source;
-    public string Destination;
-    public int Quality;
-    public int Width;
-    public int Height;
+    public FileSystemInfo _source;
+    public FileInfo _destination;
+    public int _quality;
+    public int _width;
+    public int _height;
+    public CreatedDelegate _createdDelegate;
 
-    public WorkItem(string source, string dest, int width, int height, int quality)
+    public WorkItem(FileSystemInfo source, FileInfo destination, int width, int height, int quality,
+      CreatedDelegate createdDelegate)
     {
-      Width = width;
-      Height = height;
-      Quality = quality;
+      _width = width;
+      _height = height;
+      _quality = quality;
 
-      Source = source;
-      Destination = dest;
+      _source = source;
+      _destination = destination;
+      _createdDelegate = createdDelegate;
+    }
 
-      SourceFolder = Path.GetDirectoryName(source);
-      SourceFile = Path.GetFileName(source);
-      DestinationFolder = Path.GetDirectoryName(dest);
-      DestinationFile = Path.GetFileName(dest);
-      if (SourceFile.ToLower() == "folder.jpg")
-      {
-        DestinationFolder = SourceFolder;
-        DestinationFile = SourceFile;
-        IsFolder = true;
-        Destination = String.Format(@"{0}\{1}", DestinationFolder, DestinationFile);
-      }
+    public FileSystemInfo Source
+    {
+      get { return _source; }
+    }
+
+    public FileInfo Destination
+    {
+      get { return _destination; }
+    }
+
+    public int Width
+    {
+      get { return _width; }
+    }
+
+    public int Height
+    {
+      get { return _height; }
+    }
+
+    public int Quality
+    {
+      get { return _quality; }
+    }
+
+    public CreatedDelegate CreatedDelegate
+    {
+      get { return _createdDelegate; }
     }
   }
 }

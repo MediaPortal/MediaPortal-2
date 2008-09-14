@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{52E587D0-A274-44DA-8846-8EEAF5414923}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -170,6 +170,7 @@
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IStringBuilder.cs" />
     <Compile Include="Presentation\Screen\IScreenManager.cs" />
+    <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
     <Compile Include="UserManagement\IPermissionObject.cs" />
     <Compile Include="UserManagement\IRole.cs" />

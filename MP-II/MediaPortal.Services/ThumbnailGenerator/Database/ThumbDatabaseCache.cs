@@ -23,47 +23,32 @@
 #endregion
 
 using System.Collections.Generic;
+using System.IO;
 using System.Timers;
 
 namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabaseCache
   {
-    private Dictionary<string, ThumbDatabase> _databases;
-    private static ThumbDatabaseCache _instance;
-    private Timer _timer;
-
-    public static ThumbDatabaseCache Instance
-    {
-      get
-      {
-        if (_instance == null)
-        {
-          _instance = new ThumbDatabaseCache();
-        }
-        return _instance;
-      }
-    }
+    protected readonly IDictionary<DirectoryInfo, ThumbDatabase> _databases =
+        new Dictionary<DirectoryInfo, ThumbDatabase>();
+    protected Timer _timer;
 
     public ThumbDatabaseCache()
     {
-      _databases = new Dictionary<string, ThumbDatabase>();
       _timer = new Timer(1000);
-      _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
+      _timer.Elapsed += _timer_Elapsed;
       _timer.Start();
     }
 
 
-    public ThumbDatabase Get(string name)
+    public ThumbDatabase Get(DirectoryInfo folder)
     {
-      if (_databases.ContainsKey(name))
-      {
-        return _databases[name];
-      }
+      if (_databases.ContainsKey(folder))
+        return _databases[folder];
 
-      ThumbDatabase dbs = new ThumbDatabase();
-      dbs.Open(name);
-      _databases[name] = dbs;
+      ThumbDatabase dbs = new ThumbDatabase(folder);
+      _databases[folder] = dbs;
       return dbs;
     }
 
@@ -71,22 +56,18 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     {
       lock (this)
       {
-        bool disposing;
-        do
+        ICollection<ThumbDatabase> releaseDbs = new List<ThumbDatabase>();
+        foreach (KeyValuePair<DirectoryInfo, ThumbDatabase> dbEntry in _databases)
         {
-          disposing = false;
-          Dictionary<string, ThumbDatabase>.Enumerator enumer = _databases.GetEnumerator();
-          while (enumer.MoveNext())
-          {
-            if (enumer.Current.Value.CanFree)
-            {
-              enumer.Current.Value.Close();
-              _databases.Remove(enumer.Current.Key);
-              disposing = true;
-              break;
-            }
-          }
-        } while (disposing);
+          if (!dbEntry.Value.CanFree)
+            continue;
+          releaseDbs.Add(dbEntry.Value);
+        }
+        foreach (ThumbDatabase thumbDb in releaseDbs)
+        {
+          thumbDb.Close();
+          _databases.Remove(thumbDb.Folder);
+        }
       }
     }
   }

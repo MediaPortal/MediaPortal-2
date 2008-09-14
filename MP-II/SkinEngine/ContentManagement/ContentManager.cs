@@ -52,7 +52,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     {
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
+      queue.OnMessageReceive += queue_OnMessageReceive;
     }
 
     static void queue_OnMessageReceive(QueueMessage message)

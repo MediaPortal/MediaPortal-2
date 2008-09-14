@@ -30,7 +30,9 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.Logging; // Needed for Release build configuration
 using MediaPortal.Services.MenuManager;
+using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
+using MediaPortal.Thumbnails;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
@@ -109,8 +111,11 @@ namespace MediaPortal
         UserService userservice = new UserService();
         ServiceScope.Add<IUserService>(userservice);
 
-        logger.Debug("ApplicationLauncher: Registering Strings Manager");
+        logger.Debug("ApplicationLauncher: Registering strings manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
+
+        logger.Debug("ApplicationLauncher: Registering thumbnail generator");
+        ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
 
         logger.Debug("ApplicationLauncher: Registering BurnManager");
         ServiceScope.Add<IBurnManager>(new BurnManager());
