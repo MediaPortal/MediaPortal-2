@@ -596,9 +596,26 @@ namespace MediaPortal.Core.Services.PluginManager
         plugin.State = PluginState.Active;
         if (plugin.Metadata.StateTrackerClassName != null)
         {
-          plugin.StateTracker =
-              plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName) as IPluginStateTracker;
-          plugin.StateTracker.Activated();
+          try
+          {
+            object obj = plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName);
+            if (obj == null)
+              logger.Warn("PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
+                  plugin.Metadata.StateTrackerClassName, plugin.Metadata.Name);
+            else if (obj is IPluginStateTracker)
+            {
+              plugin.StateTracker = obj as IPluginStateTracker;
+              plugin.StateTracker.Activated();
+            }
+            else
+              logger.Warn("PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {2}",
+                  plugin.Metadata.StateTrackerClassName, plugin.Metadata.Name, typeof(IPluginStateTracker).Name);
+          }
+          catch (Exception e)
+          {
+            logger.Error("PluginManager: Error instantiating plugin state tracker class '{0}' for plugin '{1}'",
+                e, plugin.Metadata.StateTrackerClassName, plugin.Metadata.Name);
+          }
         }
         logger.Info("PluginManager: Plugin '{0}' activated.", pluginName);
         return true;
