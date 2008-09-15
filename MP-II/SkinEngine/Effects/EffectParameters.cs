@@ -14,8 +14,8 @@ namespace MediaPortal.SkinEngine.Effects
     class ParamContextColor : ParamContext
     {
       protected EffectHandleAsset _handle;
-      protected ColorValue _color;
-      public ParamContextColor(EffectHandleAsset handle, ColorValue color)
+      protected Color4 _color;
+      public ParamContextColor(EffectHandleAsset handle, Color4 color)
       {
         _handle = handle;
         _color = color;
@@ -120,7 +120,7 @@ namespace MediaPortal.SkinEngine.Effects
     List<ParamContext> _params = new List<ParamContext>();
 
 
-    public void Add(EffectHandleAsset handle, ColorValue color)
+    public void Add(EffectHandleAsset handle, Color4 color)
     {
       _params.Add(new ParamContextColor(handle, color));
     }

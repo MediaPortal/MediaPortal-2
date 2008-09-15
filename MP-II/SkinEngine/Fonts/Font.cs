@@ -30,7 +30,6 @@ using System.Drawing;
 using System.IO;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
@@ -76,13 +75,13 @@ namespace MediaPortal.SkinEngine.Fonts
   /// <summary>
   /// Represents a font family.
   /// </summary>
-  public class FontFamily
+  public class FontFamily :IDisposable
   {
     string _name;
     private IntPtr _library;
     private IntPtr _face;
 
-    public List<Font> FontList = new List<Font>();
+    public List<Font> _fontList = new List<Font>();
 
     public FontFamily(string name, string filePathName)
     {
@@ -93,12 +92,6 @@ namespace MediaPortal.SkinEngine.Fonts
       // Load the requested font.
       if (FT.FT_New_Face(_library, filePathName, 0, out _face) != 0)
         throw new ArgumentException("Failed to load face.");
-    }
-
-    ~FontFamily()
-    {
-      if(FT.FT_Done_Face(_face) != 0)
-        throw new ArgumentException("Failed to unload face.");
     }
 
     /// <summary>
@@ -112,11 +105,31 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <summary>
     /// Adds a font set to the font family.
     /// </summary>
-    public Font Addfont(int size, uint resolution)
+    public Font Addfont(int fontSize, uint resolution)
     {
-      Font font = new Font(_library, _face, size, resolution);
-      FontList.Add(font);
-      return font;
+      // Do we already have this font?
+      foreach (Font font in _fontList)
+      {
+        if (font.Size == fontSize)
+        {
+          return font;
+        }
+      }
+      Font newFont = new Font(_library, _face, fontSize, resolution);
+      _fontList.Add(newFont);
+      return newFont;
+    }
+
+    public void Dispose()
+    {
+      if (_face != null)
+      {
+        FT.FT_Done_Face(_face);
+      }
+      foreach (Font font in _fontList)
+      {
+        font.Free(true);
+      }
     }
   }
 
@@ -291,7 +304,7 @@ namespace MediaPortal.SkinEngine.Fonts
                                          pwidth,
                                          pheight);
 
-      LockedRect rect = _texture.LockRectangle(0, charArea, LockFlags.None);
+      DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
 
       // Copy FreeType glyph bitmap into our font texture.
       Byte[] FontPixels = new Byte[pwidth];
@@ -397,7 +410,7 @@ namespace MediaPortal.SkinEngine.Fonts
       set { _quads = value; }
     }
 
-    FontQuad createQuad(BitmapCharacter c, ColorValue Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
+    FontQuad createQuad(BitmapCharacter c, Color4 Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
     {
         //float u2, v2;
         //u2 = v2 = 1;
@@ -486,7 +499,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="scroll"></param>
     /// <param name="textFits"></param>
     public int AddString(string text, RectangleF textBox, float zOrder, Align alignment, float size,
-                         ColorValue color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
+                         Color4 color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
     {
       StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
       _strings.Add(b);
@@ -1037,6 +1050,12 @@ namespace MediaPortal.SkinEngine.Fonts
 
     public bool Free(bool force)
     {
+      if (_texture != null)
+      {
+        _texture.Dispose();
+        _texture = null;
+      }
+      _effect.Free(true);
       return false;
     }
 
@@ -1149,7 +1168,7 @@ namespace MediaPortal.SkinEngine.Fonts
     public Font.Align Alignment;
     public float Size;
     public float ZOrder;
-    public ColorValue Color;
+    public Color4 Color;
     public bool Kerning;
 
     /// <summary>Creates a new StringBlock</summary>
@@ -1160,7 +1179,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="color">Color</param>
     /// <param name="kerning">true to use kerning, false otherwise.</param>
     public StringBlock(string text, RectangleF textBox, float zOrder, Font.Align alignment,
-                       float size, ColorValue color, bool kerning)
+                       float size, Color4 color, bool kerning)
     {
       Text = text;
       TextBox = textBox;

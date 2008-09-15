@@ -227,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         if (v > 1) v = 1;
         unchecked
         {
-          ColorValue color = ColorConverter.FromColor(System.Drawing.Color.White);
+          Color4 color = ColorConverter.FromColor(System.Drawing.Color.White);
           color.Alpha *= (float)Opacity;
           verts[i].Color = color.ToArgb();
         }

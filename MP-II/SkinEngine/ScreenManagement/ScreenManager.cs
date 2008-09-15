@@ -424,6 +424,7 @@ namespace MediaPortal.SkinEngine
       // Deallocate the screen
       if (_currentScreen != null)
         _currentScreen.Deallocate();
+      Fonts.FontManager.Unload();
     }
 
     public void CloseDialog()

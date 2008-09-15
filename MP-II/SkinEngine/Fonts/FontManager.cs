@@ -34,7 +34,7 @@ namespace MediaPortal.SkinEngine.Fonts
 {
 
 
-  public class FontManager
+  public class FontManager 
   {
     public const string FONT_META_FILE = "fonts.xml";
     private static Dictionary<string, FontFamily> _families;
@@ -112,15 +112,6 @@ namespace MediaPortal.SkinEngine.Fonts
       if (family == null)
         return null;
 
-      // Do we already have this font?
-      foreach (Font font in family.FontList)
-      {
-        if (font.Size == fontSize)
-        {
-          return font;
-        }
-      }
-      // No - create it.
       return family.Addfont(fontSize, 96);
     }
 
@@ -152,6 +143,14 @@ namespace MediaPortal.SkinEngine.Fonts
               SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
         FontFamily family = new FontFamily(familyName, fontFile.FullName);
         _families[familyName] = family;
+      }
+    }
+
+    public static void Unload()
+    {
+      foreach (KeyValuePair<string, FontFamily> fontFamily in _families)
+      {
+        fontFamily.Value.Dispose();
       }
     }
   }

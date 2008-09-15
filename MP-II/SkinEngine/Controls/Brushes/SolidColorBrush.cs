@@ -116,7 +116,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       {
         UpdateBounds(element, ref verts);
         base.SetupBrush(element, ref verts);
-        ColorValue color = ColorConverter.FromColor(this.Color);
+        Color4 color = ColorConverter.FromColor(this.Color);
         color.Alpha *= (float)Opacity;
         for (int i = 0; i < verts.Length; ++i)
         {
@@ -136,7 +136,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       //if (_texture == null) return;
 
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      ColorValue v = ColorConverter.FromColor(this.Color);
+      Color4 v = ColorConverter.FromColor(this.Color);
       v.Alpha *= (float)SkinContext.Opacity;
       _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
@@ -147,7 +147,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override  void SetupPrimitive(PrimitiveContext context)
     {
-      ColorValue v = ColorConverter.FromColor(this.Color);
+      Color4 v = ColorConverter.FromColor(this.Color);
       v.Alpha *= (float)SkinContext.Opacity;
       context.Effect = _effect;
       context.Parameters = new EffectParameters();

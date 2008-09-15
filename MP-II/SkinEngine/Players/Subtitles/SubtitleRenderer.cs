@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.SkinEngine.ContentManagement;
-using SlimDX.Direct3D;
+using SlimDX;
 using SlimDX.Direct3D9;
 using DirectShowLib;
 using System.Drawing.Imaging;
@@ -546,7 +546,7 @@ namespace MediaPortal.SkinEngine.Players.Subtitles
           // allocate new texture
           texture = new Texture(GraphicsDevice.Device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
 
-          LockedRect rect = texture.LockRectangle(0, LockFlags.None);
+          DataRectangle rect = texture.LockRectangle(0, LockFlags.None);
 
           System.Drawing.Imaging.BitmapData bd = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 

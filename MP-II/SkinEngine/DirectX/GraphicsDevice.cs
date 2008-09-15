@@ -33,7 +33,6 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
@@ -41,6 +40,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine
 {
+
   public class GraphicsDevice : IDisposable
   {
     #region variables
@@ -91,11 +91,11 @@ namespace MediaPortal.SkinEngine
       try
       {
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
-        Direct3D.Initialize();
+        MPDirect3D.Load();
         _setup.SetupDirectX(window, maximize);
         _backBuffer = _device.GetRenderTarget(0);
-        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-        AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} format: {2} {3} Hz", Width,
                                           Height, adapterInfo.CurrentDisplayMode.Format,
                                           adapterInfo.CurrentDisplayMode.RefreshRate);
@@ -117,24 +117,24 @@ namespace MediaPortal.SkinEngine
 
     private static void GetCapabilities()
     {
-      _anisotropy = _device.GetDeviceCaps().MaxAnisotropy;
-      _supportsFiltering = Direct3D.CheckDeviceFormat(
-        _device.GetDeviceCaps().AdapterOrdinal,
-        _device.GetDeviceCaps().DeviceType,
+      _anisotropy = _device.Capabilities.MaxAnisotropy;
+      _supportsFiltering = MPDirect3D.Direct3D.CheckDeviceFormat(
+        _device.Capabilities.AdapterOrdinal,
+        _device.Capabilities.DeviceType,
         _device.GetDisplayMode(0).Format,
         Usage.RenderTarget | Usage.QueryFilter, ResourceType.Texture,
         Format.A8R8G8B8);
 
-      _supportsAlphaBlend = Direct3D.CheckDeviceFormat(_device.GetDeviceCaps().AdapterOrdinal,
-                                                      _device.GetDeviceCaps().DeviceType,
+      _supportsAlphaBlend = MPDirect3D.Direct3D.CheckDeviceFormat(_device.Capabilities.AdapterOrdinal,
+                                                      _device.Capabilities.DeviceType,
                                                       _device.GetDisplayMode(0).Format,
                                                       Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
                                                       ResourceType.Surface,
                                                       Format.A8R8G8B8);
-      int vertexShaderVersion = Device.GetDeviceCaps().VertexShaderVersion.Major;
-      int pixelShaderVersion = Device.GetDeviceCaps().PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.GetDeviceCaps().PixelShaderVersion.Major, Device.GetDeviceCaps().PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.GetDeviceCaps().VertexShaderVersion.Major, Device.GetDeviceCaps().VertexShaderVersion.Minor);
+      int vertexShaderVersion = Device.Capabilities.VertexShaderVersion.Major;
+      int pixelShaderVersion = Device.Capabilities.PixelShaderVersion.Major;
+      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.Capabilities.PixelShaderVersion.Major, Device.Capabilities.PixelShaderVersion.Minor);
+      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.Capabilities.VertexShaderVersion.Major, Device.Capabilities.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
       {
         _supportsShaders = true;
@@ -163,8 +163,7 @@ namespace MediaPortal.SkinEngine
     /// <param name="mode">Mode to set on the DirectX device.</param>
     public static bool Reset(bool exclusiveMode, string displaySetting)
     {
-      try
-      {
+
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
         if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
         {
@@ -174,8 +173,8 @@ namespace MediaPortal.SkinEngine
           }
           _backBuffer = null;
           _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
-          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
+          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
@@ -187,12 +186,9 @@ namespace MediaPortal.SkinEngine
           ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
         }
         return true;
-      }
-      catch (DirectXException)
-      {
         ServiceScope.Get<ILogger>().Error("GraphicsDevice: Failed to reset DirectX");
         // ServiceScope.Get<ILogger>().Error(ex);
-      }
+
       return false;
     }
 
@@ -214,12 +210,12 @@ namespace MediaPortal.SkinEngine
       }
       _backBuffer = null;
 
-      if (_device == null)
+      if (_device != null)
       {
         _device.Dispose();
-        _device = null;
       }
-      Direct3D.Terminate();
+      _device = null;
+      MPDirect3D.Unload();
     }
     #endregion
 
@@ -232,6 +228,9 @@ namespace MediaPortal.SkinEngine
       get { return _device; }
       set { _device = value; }
     }
+
+
+
 
     /// <summary>
     /// Gets the directx back-buffer width.
@@ -278,7 +277,7 @@ namespace MediaPortal.SkinEngine
       Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       Device.SetRenderState(RenderState.AlphaBlendEnable, true);
       Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
-      Device.SetRenderState(RenderState.DestBlend, Blend.InvSourceAlpha);
+      Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
       Device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
       Device.SetTextureStageState(0, TextureStage.ColorArg0, TextureArgument.Texture);
       Device.SetTextureStageState(0, TextureStage.ColorArg1, TextureArgument.Diffuse);
@@ -433,7 +432,7 @@ namespace MediaPortal.SkinEngine
         _lastRender = time;
         try
         {
-          _device.SetRenderTarget(0, _backBuffer);
+          //_device.SetRenderTarget(0, _backBuffer);
 
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
 
@@ -456,7 +455,7 @@ namespace MediaPortal.SkinEngine
           if (!SkinContext.ScreenSaverActive)
           {
 
-            ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
+            ScreenManager manager = (ScreenManager)ServiceScope.Get<IScreenManager>();
             manager.Render();
             if (SkinContext.UseBatching)
             {
@@ -471,23 +470,9 @@ namespace MediaPortal.SkinEngine
           //  _device.Present();
           //}
         }
-        catch (DeviceLostException)
+        catch (SlimDX.Direct3D9.Direct3D9Exception ex)
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device");
-          _deviceLost = true;
-          return true;
-        }
-        catch (SlimDX.Direct3D9.InvalidCallException ex)
-        {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: InvalidCallException");
-          ServiceScope.Get<ILogger>().Error(ex);
-          _deviceLost = true;
-          return true;
-        }
-        catch (GraphicsException ex)
-        {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Graphics exception");
-          ServiceScope.Get<ILogger>().Error(ex);
           _deviceLost = true;
           return true;
         }
@@ -506,19 +491,18 @@ namespace MediaPortal.SkinEngine
         ServiceScope.Get<IPlayerCollection>().Dispose();
         ContentManager.Free();
       }
-      try
-      {
-        _device.TestCooperativeLevel();
-      }
-      catch (DeviceNotResetException)
+
+      Result result = _device.TestCooperativeLevel();
+
+      if (result == ResultCode.DeviceNotReset)
       {
         ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired DirectX device");
         try
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Device reset");
           _setup.Reset();
-          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
+          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
@@ -531,12 +515,6 @@ namespace MediaPortal.SkinEngine
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Reset failed");
           ServiceScope.Get<ILogger>().Error(ex);
         }
-      }
-      catch (DeviceLostException) { }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Warn("GraphicsDevice: TestCooperativeLevel failed");
-        ServiceScope.Get<ILogger>().Error(ex);
       }
       return false;
     }

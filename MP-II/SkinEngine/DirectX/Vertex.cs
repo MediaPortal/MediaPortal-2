@@ -53,7 +53,6 @@ applications, and to alter it and redistribute it freely, subject to the followi
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 using System.Runtime.InteropServices;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.SkinEngine.DirectX

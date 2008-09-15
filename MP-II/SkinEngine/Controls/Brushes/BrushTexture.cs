@@ -27,7 +27,6 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -99,8 +98,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     void CreateGradient()
     {
       ///@optimize: use brush-cache
-      LockedRect rect = _texture.LockRectangle(0, LockFlags.None);
-      //int[,] buffer = (int[,])_texture.LockRectangle(typeof(int), 0, LockFlags.None, new int[] { (int)2, (int)256 });
+      DataRectangle rect = _texture.LockRectangle(0, LockFlags.None);
       float width = 256.0f;
       byte[] data = new byte[4 * 512];
       int offY = 256 * 4;
@@ -108,8 +106,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       {
         GradientStop stopbegin = _stops[i];
         GradientStop stopend = _stops[i + 1];
-        ColorValue colorStart = ColorConverter.FromColor(stopbegin.Color);
-        ColorValue colorEnd = ColorConverter.FromColor(stopend.Color);
+        Color4 colorStart = ColorConverter.FromColor(stopbegin.Color);
+        Color4 colorEnd = ColorConverter.FromColor(stopend.Color);
         int offsetStart = (int)(stopbegin.Offset * width);
         int offsetEnd = (int)(stopend.Offset * width);
 

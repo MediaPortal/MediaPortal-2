@@ -122,7 +122,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
             float cy = 1.0f;//((float)desc.Height) / ((float)GraphicsDevice.Height);
 
             //copy the correct rectangle from the backbuffer in the opacitytexture
-            GraphicsDevice.Device.StretchRect(backBuffer,
+            GraphicsDevice.Device.StretchRectangle(backBuffer,
                                                    new System.Drawing.Rectangle((int)(_orginalPosition.X * cx), (int)(_orginalPosition.Y * cy), (int)(_bounds.Width * cx), (int)(_bounds.Height * cy)),
                                                    textureOpacitySurface,
                                                    new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
@@ -132,7 +132,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           }
           else
           {
-            GraphicsDevice.Device.StretchRect(backBuffer,
+            GraphicsDevice.Device.StretchRectangle(backBuffer,
                                                    new System.Drawing.Rectangle(0, 0, desc.Width, desc.Height),
                                                    textureOpacitySurface,
                                                    new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),

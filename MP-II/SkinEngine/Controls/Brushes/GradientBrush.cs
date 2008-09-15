@@ -170,7 +170,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     protected void SetColor(VertexBuffer vertexbuffer)
     {
-      ColorValue color = ColorConverter.FromColor(GradientStops[0].Color);
+      Color4 color = ColorConverter.FromColor(GradientStops[0].Color);
       color.Alpha *= (float)Opacity;
       for (int i = 0; i < _verts.Length; ++i)
       {

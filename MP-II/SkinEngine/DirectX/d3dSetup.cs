@@ -35,10 +35,38 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.SkinEngine.DirectX
 {
+  public class MPDirect3D 
+  {
+
+    private static Direct3D _d3d;
+
+    public static Direct3D Direct3D
+    {
+      get { return _d3d; }
+    }
+
+    public static void Load()
+    {
+ 
+      if(_d3d == null)
+        _d3d = new Direct3D();
+    }
+
+    public static void Unload()
+    {
+      if (_d3d != null)
+      {
+        _d3d.Dispose();
+      }
+      _d3d = null;
+    }
+  }
+
   internal class d3dSetup
   {
     /// <summary>
@@ -209,16 +237,16 @@ namespace MediaPortal.SkinEngine.DirectX
       // Get display mode of primary adapter (which is assumed to be where the window 
       // will appear)
 
-      DisplayMode primaryDesktopDisplayMode = Direct3D.Adapters[0].CurrentDisplayMode;
+      DisplayMode primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[0].CurrentDisplayMode;
       bool perfHudFound = false;
-      for (int i = 0; i < Direct3D.Adapters.Count; ++i)
+      for (int i = 0; i < MPDirect3D.Direct3D.Adapters.Count; ++i)
       {
-        string name = Direct3D.Adapters[i].Details.Description;
+        string name = MPDirect3D.Direct3D.Adapters[i].Details.Description;
         if (String.Compare(name, "NVIDIA PerfHUD", true) == 0)
         {
           ServiceScope.Get<ILogger>().Info("DirectX: found perfhud adapter:{0} {1} ",
-                  i, Direct3D.Adapters[i].Details.Description);
-          primaryDesktopDisplayMode = Direct3D.Adapters[i].CurrentDisplayMode;
+                  i, MPDirect3D.Direct3D.Adapters[i].Details.Description);
+          primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[i].CurrentDisplayMode;
           perfHudFound = true;
           _usingPerfHud = true;
           doesRequireReference = true;
@@ -353,7 +381,7 @@ namespace MediaPortal.SkinEngine.DirectX
           adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
         }*/
 
-        adapterDesktopDisplayMode = Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
+        adapterDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
@@ -516,16 +544,16 @@ namespace MediaPortal.SkinEngine.DirectX
 
       ServiceScope.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
               _graphicsSettings.AdapterOrdinal,
-              Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
+              MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
               _graphicsSettings.DevType);
       try
       {
         // Create the device
         //Device.IsUsingEventHandlers = false;
 
-        GraphicsDevice.Device = new Device(_graphicsSettings.AdapterOrdinal,
+        GraphicsDevice.Device = new Device(MPDirect3D.Direct3D,
+                                           _graphicsSettings.AdapterOrdinal,
                                            _graphicsSettings.DevType,
-          //windowed ? ourRenderTarget : this,
                                            _ourRenderTarget.Handle,
                                            createFlags | CreateFlags.Multithreaded,
                                            _presentParams);
@@ -1339,22 +1367,20 @@ namespace MediaPortal.SkinEngine.DirectX
       Trace.WriteLine("----switch----");
       BuildPresentParamsFromSettings();
       //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
-      try
+
+      Result result = GraphicsDevice.Device.Reset(_presentParams);
+
+      if (result == ResultCode.DeviceLost)
       {
-        GraphicsDevice.Device.Reset(_presentParams);
-      }
-      catch (DeviceLostException)
-      {
-        CooperativeLevel result = CooperativeLevel.DriverInternalError;
+        result = GraphicsDevice.Device.TestCooperativeLevel();
         // Loop until it's ok to reset
-        while (result != (CooperativeLevel.DeviceNotReset))
+        while (result == ResultCode.DeviceLost)
         {
           Thread.Sleep(10);
-          result = GraphicsDevice.Device.CheckCooperativeLevel();
+          result = GraphicsDevice.Device.TestCooperativeLevel();
         }
         GraphicsDevice.Device.Reset(_presentParams);
       }
-      //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
     }
 
     public void Reset()

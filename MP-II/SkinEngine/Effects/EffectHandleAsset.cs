@@ -52,7 +52,7 @@ namespace MediaPortal.SkinEngine.Effects
       }
     }
 
-    public void SetParameter(ColorValue color)
+    public void SetParameter(Color4 color)
     {
       if (_asset.Effect == null)
       {
@@ -113,7 +113,7 @@ namespace MediaPortal.SkinEngine.Effects
       {
         _handle = _asset.Effect.GetParameter(null, _name);
       }
-      _asset.Effect.SetValue(_handle, tex);
+      _asset.Effect.SetTexture(_handle, tex);
     }
   }
 }

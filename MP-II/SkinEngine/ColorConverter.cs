@@ -29,9 +29,9 @@ namespace MediaPortal.SkinEngine
 {
   public class ColorConverter
   {
-    public static ColorValue FromColor(Color color)
+    public static Color4 FromColor(Color color)
     {
-      ColorValue v = new ColorValue(color.A, color.R, color.G, color.B);
+      Color4 v = new Color4(color.A, color.R, color.G, color.B);
       v.Alpha /= 255.0f;
       v.Red /= 255.0f;
       v.Green /= 255.0f;

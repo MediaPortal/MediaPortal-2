@@ -23,7 +23,6 @@
 #endregion
 
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.SkinEngine.DirectX

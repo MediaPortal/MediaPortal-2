@@ -305,7 +305,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (!IsVisible) return;
       if (_asset == null) return;
       AllocFont();
-      ColorValue color = ColorConverter.FromColor(this.Color);
+      Color4 color = ColorConverter.FromColor(this.Color);
 
       base.DoRender();
       float totalWidth;
@@ -355,7 +355,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
         return;
-      ColorValue color = ColorConverter.FromColor(this.Color);
+      Color4 color = ColorConverter.FromColor(this.Color);
 
       base.DoRender();
       float totalWidth;

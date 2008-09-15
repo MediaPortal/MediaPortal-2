@@ -69,28 +69,30 @@ namespace MediaPortal.SkinEngine.Effects
         string effectShader;
         using (StreamReader reader = new StreamReader(effectFile.FullName))
           effectShader = reader.ReadToEnd();
-        Version vertexShaderVersion = GraphicsDevice.Device.GetDeviceCaps().VertexShaderVersion;
-        Version pixelShaderVersion = GraphicsDevice.Device.GetDeviceCaps().PixelShaderVersion;
+        Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
+        Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
 
-        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3;//| ShaderFlags.NoPreshader;
+        ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
         //ShaderFlags shaderFlags =  ShaderFlags.NoPreshader;
         effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
         effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
 
         string errors = "";
-        _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
-        if (_effect == null)
+        try
         {
+          _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
+        }
+        catch
+        { 
           ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
           ServiceScope.Get<ILogger>().Error("errors:{0}", errors);
-          _lastUsed = SkinContext.Now;
         }
-        else
-        {
-          _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
-          _handleTexture = _effect.GetParameter(null, "g_texture");
-          _handleTechnique = _effect.GetTechnique(0);
-        }
+
+        _lastUsed = SkinContext.Now;
+        _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
+        _handleTexture = _effect.GetParameter(null, "g_texture");
+        _handleTechnique = _effect.GetTechnique(0);
+
       }
     }
 
@@ -185,9 +187,8 @@ namespace MediaPortal.SkinEngine.Effects
           return;
         }
       }
-
       _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue(_handleTexture, tex.Texture);
+      _effect.SetTexture(_handleTexture, tex.Texture);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
@@ -211,7 +212,7 @@ namespace MediaPortal.SkinEngine.Effects
         return;
       }
       _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue(_handleTexture, tex);
+      _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
@@ -228,7 +229,6 @@ namespace MediaPortal.SkinEngine.Effects
         _effect.End();
         _lastUsed = SkinContext.Now;
       }
-      //GraphicsDevice.Device.SetTexture(0, null);
     }
 
     public void StartRender(Texture tex, int stream)
@@ -244,7 +244,7 @@ namespace MediaPortal.SkinEngine.Effects
         return;
       }
       _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetValue(_handleTexture, tex);
+      _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
@@ -278,12 +278,12 @@ namespace MediaPortal.SkinEngine.Effects
         object v = enumer.Current.Value;
         Type type = v.GetType();
         if (type == typeof(Texture))
-          _effect.SetValue(enumer.Current.Key, (Texture)v);
-        if (type == typeof(ColorValue))
-          _effect.SetValue(enumer.Current.Key, (ColorValue)v);
+          _effect.SetTexture(enumer.Current.Key, (Texture)v);
+        if (type == typeof(Color4))
+          _effect.SetValue(enumer.Current.Key, (Color4)v);
 
-        else if (type == typeof(ColorValue[]))
-          _effect.SetValue(enumer.Current.Key, (ColorValue[])v);
+        else if (type == typeof(Color4[]))
+          _effect.SetValue(enumer.Current.Key, (Color4[])v);
 
         else if (type == typeof(float))
           _effect.SetValue(enumer.Current.Key, (float)v);

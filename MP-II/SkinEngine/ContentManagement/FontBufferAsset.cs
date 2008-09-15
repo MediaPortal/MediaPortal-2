@@ -41,7 +41,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     private RectangleF _previousTextBox;
     private Font.Align _previousAlignment;
     private float _previousSize;
-    private ColorValue _previousColor;
+    private Color4 _previousColor;
     private bool _previousGradientUsed = false;
     private Font _font;
     private VertexBuffer _vertexBuffer;
@@ -90,7 +90,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
       _previousText = "";
       _previousTextBox = new RectangleF();
       _previousSize = 0;
-      _previousColor = new ColorValue();
+      _previousColor = new Color4();
       _previousGradientUsed = false;
     }
 
@@ -105,7 +105,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     /// <returns>
     /// 	<c>true</c> if the specified text is changed; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsChanged(string text, RectangleF textBox, Font.Align alignment, float size, ColorValue color)
+    private bool IsChanged(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color)
     {
       if (text != _previousText)
       {
@@ -147,7 +147,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     /// <param name="size">The size.</param>
     /// <param name="color">The color.</param>
     /// <param name="scroll">if set to <c>true</c> then scrolling is allowed.</param>
-    public void Draw(string text, RectangleF textBox, Font.Align alignment, float size, ColorValue color, bool scroll, out float totalWidth)
+    public void Draw(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color, bool scroll, out float totalWidth)
     {
       totalWidth = 0;
       if (_font == null || String.IsNullOrEmpty(text))

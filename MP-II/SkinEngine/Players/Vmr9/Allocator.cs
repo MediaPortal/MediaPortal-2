@@ -37,6 +37,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Effects;
+using MediaPortal.SkinEngine.DirectX;
 
 namespace MediaPortal.SkinEngine.Players.Vmr9
 {
@@ -250,8 +251,8 @@ namespace MediaPortal.SkinEngine.Players.Vmr9
         _aspectRatio = new Size(arx, ary);
         if (_texture == null)
         {
-          int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-          AdapterInformation adapterInfo = Direct3D.Adapters[ordinal];
+          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           _texture = new Texture(GraphicsDevice.Device, cx, cy, 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
           ContentManager.TextureReferences++;
           _surface = _texture.GetSurfaceLevel(0);
@@ -263,9 +264,9 @@ namespace MediaPortal.SkinEngine.Players.Vmr9
         //Marshal.AddRef(ptr);
         unsafe
         {
-          using (Surface surf = new Surface(ptr))
+          using (Surface surf = Surface.FromPointer(ptr))
           {
-            GraphicsDevice.Device.StretchRect(surf,
+            GraphicsDevice.Device.StretchRectangle(surf,
                                                    new Rectangle(Point.Empty, _videoSize),
                                                    _surface,
                                                    new Rectangle(Point.Empty, _videoSize),

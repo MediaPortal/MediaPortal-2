@@ -50,6 +50,7 @@ namespace MediaPortal.SkinEngine
 
     protected void Initialize()
     {
+      SlimDX.Configuration.EnableObjectTracking = true;
       InitializeServices();
 
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();

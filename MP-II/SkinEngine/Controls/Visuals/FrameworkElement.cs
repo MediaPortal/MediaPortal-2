@@ -646,7 +646,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             {
 
               //copy the correct rectangle from the backbuffer in the opacitytexture
-              GraphicsDevice.Device.StretchRect(backBuffer,
+              GraphicsDevice.Device.StretchRectangle(backBuffer,
                   new Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
                   textureOpacitySurface,
                   new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
@@ -654,7 +654,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              GraphicsDevice.Device.StretchRect(backBuffer,
+              GraphicsDevice.Device.StretchRectangle(backBuffer,
                   new Rectangle(0, 0, desc.Width, desc.Height),
                   textureOpacitySurface,
                   new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
@@ -782,7 +782,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
-      ColorValue col = ColorConverter.FromColor(Color.White);
+      Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float)Opacity;
       int color = col.ToArgb();
       SurfaceDescription desc = _opacityMaskContext.Texture.GetLevelDescription(0);

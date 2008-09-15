@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     Property _startPointProperty;
     Property _endPointProperty;
     float[] _offsets = new float[6];
-    ColorValue[] _colors = new ColorValue[6];
+    Color4[] _colors = new Color4[6];
     bool _refresh = false;
     bool _singleColor = true;
     EffectHandleAsset _handleRelativeTransform;
@@ -270,7 +270,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
                 if (copy)
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
-                  GraphicsDevice.Device.StretchRect(backBuffer,
+                  GraphicsDevice.Device.StretchRectangle(backBuffer,
                       new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
                       cacheSurface,
                       new System.Drawing.Rectangle(0, 0, (int) w, (int) h),
@@ -334,7 +334,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       }
       else
       {
-        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
         _handleSolidColor.SetParameter(v);
         _effect.StartRender(null);
         _lastTimeUsed = SkinContext.Now;
@@ -520,7 +520,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
       if (_singleColor)
       {
-        ColorValue v = ColorConverter.FromColor(GradientStops[0].Color);
+        Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
         v.Alpha *= (float)SkinContext.Opacity;
         context.Effect = ContentManager.GetEffect("solidbrush");
         context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);

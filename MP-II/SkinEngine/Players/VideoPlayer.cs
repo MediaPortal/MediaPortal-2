@@ -485,9 +485,9 @@ namespace MediaPortal.SkinEngine.Players
         hr = config.SetNumberOfStreams(_streamCount);
 
         IntPtr hMonitor;
-        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-        AdapterInformation ai = Direct3D.Adapters[ordinal];
-        hMonitor = Direct3D.GetAdapterMonitor(ai.Adapter);
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
+        hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
         IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
         _allocatorKey = EvrInit(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
         if (_allocatorKey >= 0)
@@ -525,9 +525,9 @@ namespace MediaPortal.SkinEngine.Players
         _allocator = new Allocator(this, _useEvr);
 
         IntPtr hMonitor;
-        int ordinal = GraphicsDevice.Device.GetDeviceCaps().AdapterOrdinal;
-        AdapterInformation ai = Direct3D.Adapters[ordinal];
-        hMonitor = Direct3D.GetAdapterMonitor(ai.Adapter);
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
+        hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
         IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
         _allocatorKey = Vmr9Init(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
 

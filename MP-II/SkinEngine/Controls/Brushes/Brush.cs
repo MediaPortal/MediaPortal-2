@@ -179,7 +179,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     /// <param name="u">The u.</param>
     /// <param name="v">The v.</param>
     /// <param name="color">The color.</param>
-    public virtual void Scale(ref float u, ref float v, ref ColorValue color)
+    public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
     public virtual void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
@@ -213,7 +213,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         if (v > 1) v = 1;
         unchecked
         {
-          ColorValue color = ColorConverter.FromColor(System.Drawing.Color.White);
+          Color4 color = ColorConverter.FromColor(System.Drawing.Color.White);
           color.Alpha *= (float)Opacity;
           verts[i].Color = color.ToArgb();
         }

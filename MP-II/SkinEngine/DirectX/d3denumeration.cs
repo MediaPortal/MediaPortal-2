@@ -27,7 +27,6 @@ using System.Collections;
 using System.Diagnostics;
 
 using SlimDX;
-using SlimDX.Direct3D;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.SkinEngine.DirectX
@@ -194,7 +193,7 @@ namespace MediaPortal.SkinEngine.DirectX
     /// </summary>
     public void Enumerate()
     {
-      foreach (AdapterInformation ai in Direct3D.Adapters)
+      foreach (AdapterInformation ai in MPDirect3D.Direct3D.Adapters)
       {
         ArrayList adapterFormatList = new ArrayList();
         GraphicsAdapterInfo adapterInfo = new GraphicsAdapterInfo();
@@ -255,11 +254,12 @@ namespace MediaPortal.SkinEngine.DirectX
         GraphicsDeviceInfo deviceInfo = new GraphicsDeviceInfo();
         deviceInfo.AdapterOrdinal = adapterInfo.AdapterOrdinal;
         deviceInfo.DevType = devType;
+
         try
         {
-          deviceInfo.Caps = Direct3D.GetDeviceCaps(adapterInfo.AdapterOrdinal, devType);
+          deviceInfo.Caps = MPDirect3D.Direct3D.GetDeviceCaps(adapterInfo.AdapterOrdinal, devType);
         }
-        catch (DirectXException)
+        catch
         {
           continue;
         }
@@ -301,12 +301,15 @@ namespace MediaPortal.SkinEngine.DirectX
           }
           foreach (bool isWindowed in isWindowedArray)
           {
-            if (
-              !Direct3D.CheckDeviceType(deviceInfo.AdapterOrdinal, deviceInfo.DevType, adapterFormat, backBufferFormat,
-                                       isWindowed))
-            {
+
+            if (!MPDirect3D.Direct3D.CheckDeviceType(deviceInfo.AdapterOrdinal,
+                                                     deviceInfo.DevType,
+                                                     adapterFormat,
+                                                     backBufferFormat,
+                                                     isWindowed))
               continue;
-            }
+
+
 
             // At this point, we have an adapter/device/adapterformat/backbufferformat/iswindowed
             // DeviceCombo that is supported by the system.  We still need to confirm that it's 
@@ -376,10 +379,10 @@ namespace MediaPortal.SkinEngine.DirectX
         {
           continue;
         }
-        if (Direct3D.CheckDeviceFormat(deviceCombo.AdapterOrdinal, deviceCombo.DevType, deviceCombo.AdapterFormat,
+        if (MPDirect3D.Direct3D.CheckDeviceFormat(deviceCombo.AdapterOrdinal, deviceCombo.DevType, deviceCombo.AdapterFormat,
                                       Usage.DepthStencil, ResourceType.Surface, depthStencilFmt))
         {
-          if (Direct3D.CheckDepthStencilMatch(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
+          if (MPDirect3D.Direct3D.CheckDepthStencilMatch(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
                                              deviceCombo.AdapterFormat, deviceCombo.BackBufferFormat, depthStencilFmt))
           {
             deviceCombo.DepthStencilFormatList.Add(depthStencilFmt);
@@ -417,11 +420,11 @@ namespace MediaPortal.SkinEngine.DirectX
 
       foreach (MultisampleType msType in msTypeArray)
       {
-        int result;
+        Result result;
         int qualityLevels = 0;
-        if (Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
+        if (MPDirect3D.Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal, deviceCombo.DevType,
                                                deviceCombo.BackBufferFormat, deviceCombo.IsWindowed, msType,
-                                               out result, out qualityLevels))
+                                               out qualityLevels, out result))
         {
           deviceCombo.MultisampleTypeList.Add(msType);
           deviceCombo.MultiSampleQualityList.Add(qualityLevels);
@@ -442,8 +445,11 @@ namespace MediaPortal.SkinEngine.DirectX
       {
         foreach (MultisampleType msType in deviceCombo.MultisampleTypeList)
         {
-          if (!Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal,
-                                                  deviceCombo.DevType, (Format)dsFmt, deviceCombo.IsWindowed, msType))
+          if (!MPDirect3D.Direct3D.CheckDeviceMultisampleType(deviceCombo.AdapterOrdinal,
+                                                              deviceCombo.DevType, 
+                                                              (Format)dsFmt, 
+                                                              deviceCombo.IsWindowed, 
+                                                              msType))
           {
             DSMSConflict = new DepthStencilMultiSampleConflict();
             DSMSConflict.DepthStencilFormat = dsFmt;
@@ -525,7 +531,7 @@ namespace MediaPortal.SkinEngine.DirectX
         // can't do a caps check for it -- it is always available.
 
         if (pi == PresentInterval.Default ||
-            (deviceInfo.Caps.PresentInterval & pi) != (PresentInterval)0)
+            (deviceInfo.Caps.PresentationIntervals & pi) != (PresentInterval)0)
         {
           deviceCombo.PresentIntervalList.Add(pi);
         }
