@@ -155,7 +155,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
       Add(file, img);
     }
 
-    public void Add(FileInfo file, byte[] image)
+    private void Add(FileInfo file, byte[] image)
     {
       _keepAliveTimer = DateTime.Now;
       if (Contains(file))
@@ -182,7 +182,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
 
     public bool Contains(FileInfo file)
     {
-      if (file.Directory != _folder)
+      if (file.Directory.ToString() != _folder.ToString())
         return false;
       _keepAliveTimer = DateTime.Now;
       return _thumbs.ContainsKey(file.Name);
