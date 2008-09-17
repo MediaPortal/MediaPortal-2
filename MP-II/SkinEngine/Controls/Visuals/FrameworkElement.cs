@@ -87,6 +87,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
   public class FrameworkElement: UIElement
   {
+    public const string GOTFOCUS_EVENT = "FrameworkElement.GotFocus";
+    public const string LOSTFOCUS_EVENT = "FrameworkElement.LostFocus";
+    public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
+    public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseEnter";
+
     #region Private fields
 
     Property _widthProperty;
@@ -195,12 +200,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (HasFocus)
       {
         FocusManager.FrameworkElementGotFocus(this);
-        FireEvent("OnGotFocus");
+        FireEvent(GOTFOCUS_EVENT);
       }
       else
       {
         FocusManager.FrameworkElementLostFocus(this);
-        FireEvent("OnLostFocus");
+        FireEvent(LOSTFOCUS_EVENT);
       }
     }
 
@@ -262,7 +267,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// This is a derived property which is based on <see cref="ActualPosition"/>,
+    /// This is a derived property which is based on <see cref="UIElement.ActualPosition"/>,
     /// <see cref="ActualWidth"/> and <see cref="ActualHeight"/>.
     /// </summary>
     public Rectangle ActualBorders
@@ -481,7 +486,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           if (!_mouseOver)
           {
             _mouseOver = true;
-            FireEvent("OnMouseEnter");
+            FireEvent(MOUSEENTER_EVENT);
           }
           if (!HasFocus)
             TrySetFocus();
@@ -491,7 +496,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_mouseOver)
       {
         _mouseOver = false;
-        FireEvent("OnMouseLeave");
+        FireEvent(MOUSELEAVE_EVENT);
       }
       if (HasFocus)
         HasFocus = false;
@@ -502,7 +507,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Predicts the next control which is positioned in the specified direction
-    /// <paramref name="dir"/> to the specified <paramref name="focusedFrameworkElement"/> and
+    /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
     /// which is able to get the focus.
     /// This method will search the control tree starting with this element as root element.
     /// </summary>

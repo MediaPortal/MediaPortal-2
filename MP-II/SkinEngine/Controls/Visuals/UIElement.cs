@@ -216,33 +216,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
   }
 
+  public delegate void UIEventDelegate(string eventName);
+
   public class UIElement : Visual, IContentEnabled
   {
     protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
+    protected const string LOADED_EVENT = "UIElement.Loaded";
 
-    #region Private/protected fields
+    #region Protected fields
 
-    Property _nameProperty;
-    Property _acutalPositionProperty;
-    Property _marginProperty;
-    Property _triggerProperty;
-    Property _renderTransformProperty;
-    Property _renderTransformOriginProperty;
-    Property _layoutTransformProperty;
-    Property _visibilityProperty;
-    Property _isEnabledProperty;
-    Property _opacityMaskProperty;
-    Property _opacityProperty;
-    Property _freezableProperty;
-    Property _templateNameScopeProperty;
+    protected Property _nameProperty;
+    protected Property _acutalPositionProperty;
+    protected Property _marginProperty;
+    protected Property _triggerProperty;
+    protected Property _renderTransformProperty;
+    protected Property _renderTransformOriginProperty;
+    protected Property _layoutTransformProperty;
+    protected Property _visibilityProperty;
+    protected Property _isEnabledProperty;
+    protected Property _opacityMaskProperty;
+    protected Property _opacityProperty;
+    protected Property _freezableProperty;
+    protected Property _templateNameScopeProperty;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
-    ResourceDictionary _resources;
+    protected ResourceDictionary _resources;
     protected bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
-    IExecutableCommand _loaded;
-    bool _triggersInitialized;
-    bool _fireLoaded = true;
+    protected IExecutableCommand _loaded;
+    protected bool _triggersInitialized;
+    protected bool _fireLoaded = true;
 
     #endregion
 
@@ -369,6 +372,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #region Public properties
+
+    /// <summary>
+    /// Event handler called for all events defined by their event string
+    /// like <see cref="LOADED_EVENT"/>.
+    /// </summary>
+    public event UIEventDelegate EventOccured;
 
     public IExecutableCommand Loaded
     {
@@ -702,9 +711,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             foreach (TriggerAction ta in eventTrig.Actions)
               ta.Execute(this);
       }
-      if (eventName == "FrameworkElement.Loaded")
-        if (Loaded != null)
+      if (eventName == LOADED_EVENT)
+      {
+        if (_loaded != null)
           _loaded.Execute();
+      }
+      if (EventOccured != null)
+        EventOccured(eventName);
     }
 
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
@@ -864,7 +877,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_fireLoaded)
       {
-        FireEvent("FrameworkElement.Loaded");
+        FireEvent(LOADED_EVENT);
         _fireLoaded = false;
       }
     }
