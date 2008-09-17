@@ -572,7 +572,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool FindDataContext(out IDataDescriptor result)
     {
       result = null;
-      DependencyObject current = _contextObject as DependencyObject;
+      DependencyObject current = _contextObject;
       if (current == null)
         return false;
       if (UsedAsDataContext)
@@ -603,7 +603,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool FindNameScope(out INameScope result)
     {
       result = null;
-      DependencyObject current = _contextObject as DependencyObject;
+      DependencyObject current = _contextObject;
       if (current == null)
         return false;
       while (current != null)
@@ -653,7 +653,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
             result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
             return true;
           case SourceType.RelativeSource:
-            DependencyObject current = _contextObject as DependencyObject;
+            DependencyObject current = _contextObject;
             if (current == null)
               return false;
             switch (RelativeSource.Mode)
@@ -802,10 +802,12 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         }
         if (_bindingDependency != null)
           _bindingDependency.Detach();
-        _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor,
-            attachToSource,
-            attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.PropertyChanged,
-            _negate);
+        DependencyObject parent = null;
+        if (UpdateSourceTrigger == MarkupExtensions.UpdateSourceTrigger.LostFocus)
+          FindParent(_contextObject, out parent, FindParentMode.HybridPreferVisualTree);
+        _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
+            attachToTarget ? UpdateSourceTrigger : MarkupExtensions.UpdateSourceTrigger.Explicit,
+            parent as UIElement, _negate);
         if (attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.LostFocus)
         {
           // FIXME: attach to LostFocus event of the next visual in the tree, create
