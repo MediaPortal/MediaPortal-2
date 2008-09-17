@@ -7,7 +7,7 @@
   <Canvas.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="AnalogClock.xaml"/>
+        <ResourceDictionary Source="styles\AnalogClock.xaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Canvas.Resources>
