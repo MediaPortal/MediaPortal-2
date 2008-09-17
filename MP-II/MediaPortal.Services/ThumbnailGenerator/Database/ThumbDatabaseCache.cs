@@ -25,13 +25,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Timers;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabaseCache
   {
     protected readonly IDictionary<DirectoryInfo, ThumbDatabase> _databases =
-        new Dictionary<DirectoryInfo, ThumbDatabase>();
+        new Dictionary<DirectoryInfo, ThumbDatabase>(new FileSystemInfoComparer<DirectoryInfo>());
     protected Timer _timer;
 
     public ThumbDatabaseCache()

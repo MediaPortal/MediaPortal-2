@@ -28,10 +28,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
-using MediaPortal.Utilities;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.SkinEngine.Xaml.XamlNamespace;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.SkinEngine.Xaml
 {

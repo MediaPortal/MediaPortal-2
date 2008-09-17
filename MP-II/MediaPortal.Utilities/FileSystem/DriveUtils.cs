@@ -28,7 +28,7 @@ using System.Text;
 
 using MediaPortal.Utilities.Win32;
 
-namespace MediaPortal.Utilities.Drives
+namespace MediaPortal.Utilities.FileSystem
 {
   /// <summary>
   /// Contains Methods for all kinds of Drive handling
@@ -211,17 +211,17 @@ namespace MediaPortal.Utilities.Drives
       string driveName = string.Empty;
 
       if (drive.StartsWith(@"\\"))
-        // We've got unc notation
+          // We've got unc notation
         driveName = drive;
       else
-        // We've got a drive letter only
+          // We've got a drive letter only
         driveName = drive[0] + @":\";
 
       Win32API.GetDiskFreeSpaceEx(
-         driveName,
-         out freeBytesAvailable,
-         out totalNumberOfBytes,
-         out totalNumberOfFreeBytes);
+          driveName,
+          out freeBytesAvailable,
+          out totalNumberOfBytes,
+          out totalNumberOfFreeBytes);
       return freeBytesAvailable;
     }
   }

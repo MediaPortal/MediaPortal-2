@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -81,8 +81,9 @@
     <Compile Include="DeepCopy\CopyManager.cs" />
     <Compile Include="DeepCopy\ICopyManager.cs" />
     <Compile Include="DeepCopy\IDeepCopyable.cs" />
-    <Compile Include="Drives\DriveUtils.cs" />
-    <Compile Include="FileUtils.cs" />
+    <Compile Include="FileSystem\DriveUtils.cs" />
+    <Compile Include="FileSystem\FileSystemInfoComparer.cs" />
+    <Compile Include="FileSystem\FileUtils.cs" />
     <Compile Include="Localisation\StringsFile\StringFile.cs" />
     <Compile Include="Localisation\StringsFile\StringLocalised.cs" />
     <Compile Include="Localisation\StringsFile\StringSection.cs" />

@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace MediaPortal.Utilities
+namespace MediaPortal.Utilities.FileSystem
 {
   /// <summary>
   /// Contains file and directory related utility methods.
@@ -105,7 +105,7 @@ namespace MediaPortal.Utilities
     public static bool HasPathDelimiter(string path)
     {
       return path.Length > 0 &&
-             (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
+          (path[path.Length - 1] == Path.DirectorySeparatorChar || path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
 
     /// <summary>
@@ -123,6 +123,23 @@ namespace MediaPortal.Utilities
         foreach (FileInfo file in GetAllFilesRecursively(subDir))
           result.Add(file);
       return result;
+    }
+
+    /// <summary>
+    /// Returns <c>true</c>, if the given complete paths <paramref name="path1"/> and <paramref name="path2"/>
+    /// describe the same position in the file system, else <c>false</c>.
+    /// </summary>
+    /// <param name="path1">Path one.</param>
+    /// <param name="path2">Path two.</param>
+    /// <returns><c>true</c>, if the given paths are the same, else <c>false</c>.</returns>
+    public static bool PathEquals(string path1, string path2)
+    {
+      return path1.ToLowerInvariant() == path2.ToLowerInvariant();
+    }
+
+    public static bool PathEquals(FileSystemInfo fsi1, FileSystemInfo fsi2)
+    {
+      return PathEquals(fsi1.FullName, fsi2.FullName);
     }
   }
 }

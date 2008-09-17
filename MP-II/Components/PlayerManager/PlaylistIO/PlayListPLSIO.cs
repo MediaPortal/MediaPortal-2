@@ -31,7 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Utilities;
+using MediaPortal.Utilities.FileSystem;
 
 namespace Components.Services.PlayerManager.PlayListIO
 {

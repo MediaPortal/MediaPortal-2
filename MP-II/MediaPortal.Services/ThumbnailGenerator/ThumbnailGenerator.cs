@@ -29,6 +29,7 @@ using System.Threading;
 
 using MediaPortal.Services.ThumbnailGenerator.Database;
 using MediaPortal.Thumbnails;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Services.ThumbnailGenerator
 {
@@ -67,7 +68,7 @@ namespace MediaPortal.Services.ThumbnailGenerator
     {
       lock (_workToDo)
         foreach (WorkItem item in _workToDo)
-          if (item.Source == fileOrFolder)
+          if (FileUtils.PathEquals(item.Source.FullName, fileOrFolder.FullName))
             return true;
       return false;
     }
@@ -147,7 +148,7 @@ namespace MediaPortal.Services.ThumbnailGenerator
     public bool IsCreating(FileSystemInfo fileOrFolder)
     {
       bool isBusy = Contains(fileOrFolder);
-      if (_currentWorkItem != null && _currentWorkItem.Source == fileOrFolder)
+      if (_currentWorkItem != null && FileUtils.PathEquals(_currentWorkItem.Source.FullName, fileOrFolder.FullName))
         isBusy = true;
       return isBusy;
     }

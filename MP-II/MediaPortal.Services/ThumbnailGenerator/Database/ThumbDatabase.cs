@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
@@ -58,7 +59,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
         if (action == "changed")
         {
           FileInfo file = new FileInfo((string) message.MessageData["fullpath"]);
-          if (file.Directory == _folder)
+          if (FileUtils.PathEquals(file.Directory, _folder))
             if (_thumbs.Remove(file.Name))
               _changed = true;
         }
@@ -155,7 +156,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
       Add(file, img);
     }
 
-    private void Add(FileInfo file, byte[] image)
+    public void Add(FileInfo file, byte[] image)
     {
       _keepAliveTimer = DateTime.Now;
       if (Contains(file))
@@ -182,7 +183,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
 
     public bool Contains(FileInfo file)
     {
-      if (file.Directory.ToString() != _folder.ToString())
+      if (!FileUtils.PathEquals(file.Directory, _folder))
         return false;
       _keepAliveTimer = DateTime.Now;
       return _thumbs.ContainsKey(file.Name);
