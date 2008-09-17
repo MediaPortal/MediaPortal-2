@@ -22,8 +22,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.MpfElements.Resources;
@@ -147,7 +150,14 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       IList<object> paramsList = LateBoundValue.ConvertLateBoundValues(parameters);
       object[] convertedParameters;
       if (ParserHelper.ConsumeParameters(paramsList, parameterInfos, true, out convertedParameters))
-        mi.Invoke(obj, convertedParameters);
+        try
+        {
+          mi.Invoke(obj, convertedParameters);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Error("Error executing command '{0}'", e, this);
+        }
     }
 
     #region Base overrides
