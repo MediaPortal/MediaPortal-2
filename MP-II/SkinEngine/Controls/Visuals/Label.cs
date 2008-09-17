@@ -223,12 +223,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      Trace.WriteLine(String.Format("Label.measure :{0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("Label.measure :{0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2} W {3}xH {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Label.Arrange :{0} X {1},Y {2} W {3}xH {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
