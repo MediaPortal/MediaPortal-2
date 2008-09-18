@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using SlimDX;
@@ -174,7 +173,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -185,7 +184,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         SkinContext.RemoveLayoutTransform();
       }
-
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
@@ -208,7 +206,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -231,19 +229,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 totalHeight = 0;
                 offset++;
               }
-              PointF location = new PointF((float)(this.ActualPosition.X + offsetX), (float)(this.ActualPosition.Y + offsetY));
+              PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += (float)((_sizeCol[offset] - child.DesiredSize.Height) / 2);
+                location.Y += (_sizeCol[offset] - child.DesiredSize.Height) / 2;
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += (float)(_sizeCol[offset] - child.DesiredSize.Height);
+                location.Y += _sizeCol[offset] - child.DesiredSize.Height;
               }
-
 
               child.Arrange(new RectangleF(location, size));
               offsetX += child.DesiredSize.Width;
@@ -269,13 +266,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 totalWidth = 0;
                 offset++;
               }
-              PointF location = new PointF((float)(this.ActualPosition.X + offsetX), (float)(this.ActualPosition.Y + offsetY));
+              PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
               SizeF size = new SizeF(child.DesiredSize.Width, child.DesiredSize.Height);
 
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += (float)((_sizeCol[offset] - size.Width) / 2);
+                location.X += (_sizeCol[offset] - size.Width) / 2;
               }
               else if (AlignmentX == AlignmentX.Right)
               {
@@ -300,7 +297,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
       base.Arrange(finalRect);
     }
