@@ -1125,7 +1125,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel IsItemsHost="True" VerticalAlignment="Top"/>
+          <StackPanel IsItemsHost="True" VerticalAlignment="Top"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
