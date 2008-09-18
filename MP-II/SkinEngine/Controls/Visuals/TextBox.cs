@@ -243,7 +243,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         childSize = new SizeF(_asset.Font.Width(Text.ToString(), FontSize) * SkinContext.Zoom.Width,
                  _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
-
       }
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
@@ -268,12 +267,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("textbox.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("TextBox.Measure: {0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Textbox.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("TextBox.Arrange: {0} X {1} Y {2} W {3} H {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       ComputeInnerRectangle(ref finalRect);
 
@@ -341,7 +340,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       _renderer.Draw(Text, rect, ActualPosition.Z, align, FontSize * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
-
     }
 
     public override void DestroyRenderTree()
