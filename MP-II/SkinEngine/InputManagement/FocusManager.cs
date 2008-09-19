@@ -92,7 +92,7 @@ namespace MediaPortal.SkinEngine.InputManagement
       if (key == Key.None)
         return;
       FrameworkElement cntl;
-      cntl = PredictFocus(FocusedElement == null ? new Nullable<Rectangle>() : FocusedElement.ActualBorders, key);
+      cntl = PredictFocus(FocusedElement == null ? new RectangleF?() : FocusedElement.ActualBorders, key);
       if (cntl != null)
       {
         cntl.HasFocus = true;
@@ -114,7 +114,7 @@ namespace MediaPortal.SkinEngine.InputManagement
     /// <param name="key">The key to evaluate.</param>
     /// <returns>Framework element whcih gets focus when the specified <paramref name="key"/> was
     /// pressed, or <c>null</c>, if no focus change should take place.</returns>
-    public static FrameworkElement PredictFocus(Rectangle? currentFocusRect, Key key)
+    public static FrameworkElement PredictFocus(RectangleF? currentFocusRect, Key key)
     {
       if (_currentScreen == null || _currentScreen.RootElement == null)
         return null;

@@ -270,12 +270,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// This is a derived property which is based on <see cref="UIElement.ActualPosition"/>,
     /// <see cref="ActualWidth"/> and <see cref="ActualHeight"/>.
     /// </summary>
-    public Rectangle ActualBorders
+    public RectangleF ActualBorders
     {
       get
       {
-        return new Rectangle((int) ActualPosition.X, (int) ActualPosition.Y,
-            (int) ActualWidth, (int) ActualHeight);
+        return new RectangleF(ActualPosition.X, ActualPosition.Y,
+            (float) ActualWidth, (float) ActualHeight);
       }
       set
       {
@@ -517,7 +517,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <returns>Framework element which should get the focus, or <c>null</c>, if this control
     /// tree doesn't contain an appropriate control. The returned control will be
     /// visible, focusable and enabled.</returns>
-    public virtual FrameworkElement PredictFocus(Rectangle? currentFocusRect, MoveFocusDirection dir)
+    public virtual FrameworkElement PredictFocus(RectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       if (!IsVisible)
         return null;
@@ -563,7 +563,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return bestMatch;
     }
 
-    protected static float BorderDistance(Rectangle r1, Rectangle r2)
+    protected static float BorderDistance(RectangleF r1, RectangleF r2)
     {
       float distX;
       float distY;
@@ -582,7 +582,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return (float) Math.Sqrt(distX * distX + distY * distY);
     }
 
-    protected static float CenterDistance(Rectangle r1, Rectangle r2)
+    protected static float CenterDistance(RectangleF r1, RectangleF r2)
     {
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);

@@ -620,7 +620,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-    public override FrameworkElement PredictFocus(Rectangle? currentFocusRect, MoveFocusDirection dir)
+    public override FrameworkElement PredictFocus(RectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       if (!IsVisible)
         return null;
