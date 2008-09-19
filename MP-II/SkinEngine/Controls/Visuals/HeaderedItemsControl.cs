@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.MpfElements;
 
@@ -79,10 +80,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       container.Style = ItemContainerStyle;
       container.ItemContainerStyle = ItemContainerStyle; // TreeItems also have to build containers, so we re-use the container style for our children
       container.ItemsPanel = ItemsPanel; // Re-use the panel for our children
+
+      // We need to copy the item data template for the child containers, because the
+      // data template contains specific data for each container. We need to "personalize" the
+      // data template copy by assigning its LogicalParent.
       DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       childItemTemplate.LogicalParent = container;
       container.ItemTemplate = childItemTemplate;
-      // We have to assign the LP to the container for the binding in the ItemTemplate which assigns the ItemsSource
 
       FrameworkElement containerTemplateControl = container.TemplateControl; // TemplateControl was set by the change handler of container.Style
       containerTemplateControl.Context = dataItem;

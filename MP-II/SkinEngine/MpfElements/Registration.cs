@@ -31,6 +31,7 @@ using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Transforms;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = MediaPortal.SkinEngine.Xaml.TypeConverter;
@@ -58,7 +59,6 @@ namespace MediaPortal.SkinEngine.MpfElements
       // Panels
       objectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));
       objectClassRegistrations.Add("StackPanel", typeof(SkinEngine.Controls.Panels.StackPanel));
-      objectClassRegistrations.Add("VirtualizingStackPanel", typeof(SkinEngine.Controls.Panels.VirtualizingStackPanel));
       objectClassRegistrations.Add("Canvas", typeof(SkinEngine.Controls.Panels.Canvas));
       objectClassRegistrations.Add("Grid", typeof(SkinEngine.Controls.Panels.Grid));
       objectClassRegistrations.Add("RowDefinition", typeof(SkinEngine.Controls.Panels.RowDefinition));
@@ -84,7 +84,6 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("TreeViewItem", typeof(SkinEngine.Controls.Visuals.TreeViewItem));
       objectClassRegistrations.Add("ItemsPresenter", typeof(SkinEngine.Controls.Visuals.ItemsPresenter));
       objectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
-      objectClassRegistrations.Add("DataTemplateSelector", typeof(SkinEngine.Controls.Visuals.DataTemplateSelector));
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
 
@@ -136,9 +135,9 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
       objectClassRegistrations.Add("Setter", typeof(SkinEngine.Controls.Visuals.Styles.Setter));
       objectClassRegistrations.Add("BindingSetter", typeof(SkinEngine.Controls.Visuals.Styles.BindingSetter));
-      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.DataTemplate));
-      objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Styles.HierarchicalDataTemplate));
-      objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Styles.ControlTemplate));
+      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
+      objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
+      objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ControlTemplate));
       objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
 
       // Resources/wrapper classes
@@ -351,12 +350,7 @@ namespace MediaPortal.SkinEngine.MpfElements
         target = source;
         return true;
       }
-      else if (source is DataTemplate && !(source is HierarchicalDataTemplate))
-      {
-        // DataTemplate objects are unmodifyable, except HierarchicalDataTemplate
-        target = source;
-        return true;
-      }
+      // DataTemplates are modifiable, don't exclude them here from copying
       else if (source is ResourceWrapper && ((ResourceWrapper) source).Freezable)
       {
         target = source;

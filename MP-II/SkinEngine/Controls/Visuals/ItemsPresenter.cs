@@ -22,7 +22,11 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.Control.InputManager;
+using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.SkinEngine.InputManagement;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
@@ -31,19 +35,204 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   /// where the ItemsPanel defined by the ItemsControl is to be added.
   /// http://msdn2.microsoft.com/en-us/library/system.windows.controls.itemspresenter.aspx
   /// </summary>
-  public class ItemsPresenter : Control
+  public class ItemsPresenter : Control, IScrollViewerFocusSupport, IScrollInfo
   {
+    #region Protected fields
+
+    protected char _startsWith = ' ';
+    protected int _startsWithIndex = 0;
+    protected Panel _itemsHostPanel = null;
+
+    #endregion
+
+    #region Ctor
+
     public ItemsPresenter()
     { }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      ItemsPresenter ip = (ItemsPresenter) source;
+      _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
+    }
+
+    #endregion
 
     public void ApplyTemplate(FrameworkTemplate template)
     {
       ControlTemplate ct = new ControlTemplate();
       ct.AddChild(template.LoadContent());
-      this.Template = ct;
+      Template = ct;
+      _itemsHostPanel = TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
     }
 
-    public void SetControlTemplate(ControlTemplate template)
-    { }
+    public Panel ItemsHostPanel
+    {
+      get { return _itemsHostPanel; }
+    }
+
+    public override void OnMouseMove(float x, float y)
+    {
+      base.OnMouseMove(x, y);
+      _startsWithIndex = -1;
+    }
+
+    public override void OnKeyPressed(ref Key key)
+    {
+      int updatedStartsWithIndex = -1;
+      try
+      {
+        base.OnKeyPressed(ref key);
+
+        if (key == Key.None)
+          // Key event was handeled by child
+          return;
+
+        if (!CheckFocusInScope())
+          return;
+
+        if (char.IsLetterOrDigit(key.RawCode))
+        {
+          if (_startsWithIndex == -1 || _startsWith != key.RawCode)
+          {
+            _startsWith = key.RawCode;
+            updatedStartsWithIndex = 0;
+          }
+          else
+            updatedStartsWithIndex = _startsWithIndex + 1;
+          key = Key.None;
+          if (!FocusItemWhichStartsWith(_startsWith, updatedStartsWithIndex))
+            updatedStartsWithIndex = -1;
+        }
+      }
+      finally
+      {
+        // Will reset the startsWith function if no char was pressed
+        _startsWithIndex = updatedStartsWithIndex;
+      }
+    }
+
+    /// <summary>
+    /// Checks if the currently focused control is contained in this scrollviewer and
+    /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
+    /// handle the focus scrolling keys in this scope.
+    /// </summary>
+    bool CheckFocusInScope()
+    {
+      Visual focusPath = FocusManager.FocusedElement;
+      while (focusPath != null)
+      {
+        if (focusPath == this)
+          // Focused control is located in our focus scope
+          return true;
+        if (focusPath is ItemsPresenter)
+          // Focused control is located in another itemspresenter's focus scope
+          return false;
+        focusPath = focusPath.VisualParent;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Moves the focus to the first child item whose content starts with the specified
+    /// <paramref name="startsWith"/> character.
+    /// </summary>
+    /// <param name="startsWith">Character to search in the content.</param>
+    /// <param name="index">Search the <paramref name="index"/>th occurence of
+    /// <paramref name="startsWith"/>.</param>
+    public bool FocusItemWhichStartsWith(char startsWith, int index)
+    {
+      startsWith = char.ToLower(startsWith);
+      foreach (UIElement element in _itemsHostPanel.Children)
+      {
+        ISearchableItem searchItem = element as ISearchableItem;
+        if (searchItem == null)
+          continue;
+        string dataString = searchItem.DataString.ToLower();
+        if (!string.IsNullOrEmpty(dataString) && dataString.StartsWith(startsWith.ToString()))
+        {
+          if (index == 0)
+          {
+            FrameworkElement focusable = FocusManager.FindFirstFocusableElement(searchItem as FrameworkElement);
+            if (focusable != null)
+              focusable.HasFocus = true;
+            return true;
+          }
+          index--;
+        }
+      }
+      return false;
+    }
+
+    #region IScrollViewerFocusSupport implementation
+
+    public bool FocusDown()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusDown();
+    }
+
+    public bool FocusLeft()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusLeft();
+    }
+
+    public bool FocusRight()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusRight();
+    }
+
+    public bool FocusUp()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusUp();
+    }
+
+    public bool FocusPageDown()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageDown();
+    }
+
+    public bool FocusPageUp()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageUp();
+    }
+
+    public bool FocusPageLeft()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageLeft();
+    }
+
+    public bool FocusPageRight()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageRight();
+    }
+
+    public bool FocusHome()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusHome();
+    }
+
+    public bool FocusEnd()
+    {
+      IScrollViewerFocusSupport svfs = _itemsHostPanel as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusEnd();
+    }
+
+    #endregion
+
+    #region IScrollInfo implementation
+
+    // TODO
+
+    #endregion
   }
 }

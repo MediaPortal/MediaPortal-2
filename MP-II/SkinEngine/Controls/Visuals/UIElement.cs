@@ -578,10 +578,33 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public virtual void GetSizeForBrush(out double width, out double height)
+    #region Layouting
+
+    /// <summary>
+    /// Will make this element scroll the specified <paramref name="childRect"/> in a visible
+    /// position inside this element's borders. If this element cannot scroll, it will delegate
+    /// the call to its visual parent.
+    /// </summary>
+    /// <remarks>
+    /// This method will be overridden by classes which can scroll their content. Such a class
+    /// will take two actions here:
+    /// <list type="bullet">
+    /// <item>Scroll the specified <paramref name="childRect"/> to a visible region inside its borders,
+    /// while undoing layout transformations which will be applied to children.</item>
+    /// <item>Call this inherited method, which delegates the call to the visual parent.</item>
+    /// </list>
+    /// </remarks>
+    public virtual void MakeVisible(RectangleF childRect)
     {
-      width = 0.0;
-      height = 0.0;
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        m.TransformRect(ref childRect);
+      }
+      UIElement parent = VisualParent as UIElement;
+      if (parent != null)
+        parent.MakeVisible(childRect);
     }
 
     /// <summary>
@@ -618,7 +641,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void UpdateLayout()
     {
-      if (IsInvalidLayout == false) 
+      if (!IsInvalidLayout) 
         return;
       SizeF childSize = new SizeF(0, 0);
     
@@ -668,6 +691,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    #endregion
+
     /// <summary>
     /// Finds the resource with the given resource key.
     /// </summary>
@@ -697,10 +722,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    /// <summary>
-    /// Fires an event.
-    /// </summary>
-    /// <param name="eventName">Name of the event.</param>
     public virtual void FireEvent(string eventName)
     {
       foreach (TriggerBase trigger in Triggers)
@@ -730,11 +751,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Screen.Animator.StopStoryboard(board, this);
     }
 
-    /// <summary>
-    /// Will be called when the mouse moves.
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
     public virtual void OnMouseMove(float x, float y)
     { }
 

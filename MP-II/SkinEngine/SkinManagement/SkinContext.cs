@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screen;
@@ -52,9 +53,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     private static int _skinWidth = 0;
     private static int _skinHeight = 0;
     private static int _idleTime = 30;
+    // FIXME Albert78: Those should be Stack, not List
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
-    private static List<double> _opacity = new List<double>();
+    private static Stack<Rectangle> _scissorRects = new Stack<Rectangle>();
+    private static Stack<double> _opacity = new Stack<double>();
     private static double _finalOpacity = 1.0;
     private static ExtendedMatrix _finalTransform = new ExtendedMatrix();
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
@@ -98,23 +101,36 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static void AddOpacity(double opacity)
     {
       _finalOpacity *= opacity;
-      _opacity.Add(_finalOpacity);
+      _opacity.Push(_finalOpacity);
     }
 
     public static void RemoveOpacity()
     {
-      _opacity.RemoveAt(_opacity.Count - 1);
-      if (_opacity.Count > 0)
-      {
-        _finalOpacity = _opacity[_opacity.Count - 1];
-      }
-      else
-        _finalOpacity = 1.0;
+      _opacity.Pop();
+      _finalOpacity = _opacity.Count > 0 ? _opacity.Peek() : 1.0;
     }
 
     public static double Opacity
     {
       get { return _finalOpacity; }
+    }
+
+    public static void AddScissorRect(Rectangle scissorRect)
+    {
+      Rectangle? finalScissorRect = FinalScissorRect;
+      if (finalScissorRect.HasValue)
+        scissorRect.Intersect(finalScissorRect.Value);
+      _scissorRects.Push(scissorRect);
+    }
+
+    public static void RemoveScissorRect()
+    {
+      _scissorRects.Pop();
+    }
+
+    public static Rectangle? FinalScissorRect
+    {
+      get { return _scissorRects.Count > 0 ? new Rectangle?(_scissorRects.Peek()) : null; }
     }
 
     /// <summary>
@@ -190,9 +206,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
       get { return _zoomProperty; }
     }
 
-    public static System.Drawing.SizeF Zoom
+    public static SizeF Zoom
     {
-      get { return (System.Drawing.SizeF) _zoomProperty.GetValue(); }
+      get { return (SizeF) _zoomProperty.GetValue(); }
       set { _zoomProperty.SetValue(value); }
     }
 

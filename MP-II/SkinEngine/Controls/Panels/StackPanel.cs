@@ -35,16 +35,22 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
-  public class StackPanel : Panel, IScrollInfo
+  public class StackPanel : Panel, IScrollViewerFocusSupport, IScrollInfo
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _orientationProperty;
-    bool _isScrolling;
-    float _totalHeight;
-    float _totalWidth;
-    float _physicalScrollOffsetY = 0;
-    float _physicalScrollOffsetX = 0;
+    protected Property _orientationProperty;
+    protected float _totalHeight;
+    protected float _totalWidth;
+
+    protected bool _isScrolling = false;
+    // Desired scroll offsets - when modified by method SetScrollOffset, they are applied the next time 
+    // Arrange is called
+    protected float _scrollOffsetY = 0;
+    protected float _scrollOffsetX = 0;
+    // Actual scroll offsets - may differ from the desired scroll offsets
+    protected float _actualScrollOffsetY = 0;
+    protected float _actualScrollOffsetX = 0;
 
     #endregion
 
@@ -97,11 +103,20 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region Measure and arrange
+    #region Layouting
+
+    public void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
+    {
+      if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
+        return;
+      _scrollOffsetX = scrollOffsetX;
+      _scrollOffsetY = scrollOffsetY;
+      _isScrolling = true;
+      Invalidate();
+    }
 
     public override void Measure(ref SizeF totalSize)
     {
-
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -149,42 +164,25 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("StackPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("StackPanel.Measure: {0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("StackPanel.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("StackPanel.Arrange: {0} X {1}, Y {2} W {3} H {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
-      // Check if content is large than size, then we need to set scrolling to true.
-      if (IsItemsHost)
+      if (_totalHeight > finalRect.Height || _totalWidth > finalRect.Width)
+        _isScrolling = true;
+      else
       {
-        switch (Orientation)
-        {
-          case Orientation.Vertical:
-            if (_totalHeight > finalRect.Height)
-              _isScrolling = true;
-            else
-            {
-              _isScrolling = false;
-              _physicalScrollOffsetY = 0;
-            }
-            break;
-          case Orientation.Horizontal:
-            if (_totalWidth > finalRect.Width)
-              _isScrolling = true;
-            else
-            {
-              _isScrolling = false;
-              _physicalScrollOffsetX = 0;
-            }
-            break;
-        }
+        _isScrolling = false;
+        _scrollOffsetX = 0;
+        _scrollOffsetY = 0;
       }
 
       if (LayoutTransform != null)
@@ -197,72 +195,78 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         case Orientation.Vertical:
           {
-            float totalHeight = 0;
-            SizeF Size = new SizeF(0, 0);
+            float startPositionX = _scrollOffsetX;
+            float startPositionY = _scrollOffsetY;
+            SizeF size = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
                 continue;
 
-              PointF location = new PointF(ActualPosition.X, ActualPosition.Y + totalHeight);
-              
-              child.TotalDesiredSize(ref Size);
+              PointF location = new PointF(ActualPosition.X + startPositionX,
+                  ActualPosition.Y + startPositionY);
+
+              child.TotalDesiredSize(ref size);
 
               // Default behavior is to fill the content if the child has no size
               if (Double.IsNaN(child.Width))
               {
-                Size.Width = (float)ActualWidth;
+                size.Width = (float) ActualWidth;
               }
 
               //align horizontally 
               if (AlignmentX == AlignmentX.Center)
               {
-                location.X += ((float)ActualWidth - Size.Width) / 2;
+                location.X += ((float) ActualWidth - size.Width) / 2;
               }
               else if (AlignmentX == AlignmentX.Right)
               {
-                location.X = ((float)ActualWidth - Size.Width);
+                location.X = ((float) ActualWidth - size.Width);
               }
 
-              child.Arrange(new RectangleF(location, Size));
-              totalHeight += Size.Height;
+              child.Arrange(new RectangleF(location, size));
+              startPositionY += size.Height;
             }
           }
           break;
 
         case Orientation.Horizontal:
           {
-            float totalWidth = 0;
-            SizeF Size = new SizeF(0, 0);
+            float startPositionX = _scrollOffsetX;
+            float startPositionY = _scrollOffsetY;
+            SizeF size = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
                 continue;
-              PointF location = new PointF(ActualPosition.X + totalWidth, ActualPosition.Y);
-              child.TotalDesiredSize(ref Size);
+              PointF location = new PointF(ActualPosition.X + startPositionX,
+                  ActualPosition.Y + startPositionY);
+              child.TotalDesiredSize(ref size);
               
               // Default behavior is to fill the content if the child has no size
               if (Double.IsNaN(child.Height))
               {
-                Size.Height = (float)ActualHeight;
+                size.Height = (float) ActualHeight;
               }
 
               //align vertically 
               if (AlignmentY == AlignmentY.Center)
               {
-                location.Y += ((float)ActualHeight - Size.Height) / 2;
+                location.Y += ((float) ActualHeight - size.Height) / 2;
               }
               else if (AlignmentY == AlignmentY.Bottom)
               {
-                location.Y += ((float)ActualHeight - Size.Height);
+                location.Y += ((float) ActualHeight - size.Height);
               }
 
-              child.Arrange(new RectangleF(location, Size));
-              totalWidth += Size.Width;
+              child.Arrange(new RectangleF(location, size));
+              startPositionX += size.Width;
             }
           }
           break;
       }
+      _actualScrollOffsetX = _scrollOffsetX;
+      _actualScrollOffsetY = _scrollOffsetY;
       if (LayoutTransform != null)
       {
         SkinContext.RemoveLayoutTransform();
@@ -278,6 +282,26 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
       base.Arrange(finalRect);
     }
+
+    public override void MakeVisible(RectangleF childRect)
+    {
+      float differenceX = 0;
+      float differenceY = 0;
+      if (childRect.X + childRect.Width > ActualPosition.X + ActualWidth)
+        differenceX = - (float) (childRect.X + childRect.Width - ActualPosition.X - ActualWidth);
+      if (childRect.X < ActualPosition.X)
+        differenceX = ActualPosition.X - childRect.X;
+      if (childRect.Y + childRect.Height > ActualPosition.Y + ActualHeight)
+        differenceY = - (float) (childRect.Y + childRect.Height - ActualPosition.Y - ActualHeight);
+      if (childRect.Y < ActualPosition.Y)
+        differenceY = ActualPosition.Y - childRect.Y;
+      // Change rect as if children were already re-arranged
+      childRect.X += differenceX;
+      childRect.Y += differenceY;
+      base.MakeVisible(childRect);
+      SetScrollOffset(_actualScrollOffsetX + differenceX, _actualScrollOffsetY + differenceY);
+    }
+
     #endregion
 
     #region Rendering
@@ -286,243 +310,191 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       lock (_orientationProperty)
       {
-        if (_isScrolling)
+        bool scrolling = _isScrolling; // FIXME Albert78: we need to synchronize the threads changing layout
+        if (scrolling)
         {
-          GraphicsDevice.Device.ScissorRect = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, (int)ActualWidth, (int)ActualHeight);
+          SkinContext.AddScissorRect(new Rectangle(
+              (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
+          GraphicsDevice.Device.ScissorRect = SkinContext.FinalScissorRect.Value;
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-          ExtendedMatrix m = new ExtendedMatrix();
-          m.Matrix = Matrix.Translation(new Vector3(0, -_physicalScrollOffsetY, 0));
-          SkinContext.AddTransform(m);
         }
+        
         foreach (FrameworkElement element in _renderOrder)
         {
           if (!element.IsVisible) 
             continue;
-          float posY = element.ActualPosition.Y - ActualPosition.Y;
+          RectangleF elementBounds = element.ActualBounds;
+          if (scrolling)
+          { // Don't render elements which are not visible
+            if (elementBounds.X + elementBounds.Width < ActualPosition.X) continue;
+            if (elementBounds.Y + elementBounds.Height < ActualPosition.Y) continue;
+            if (elementBounds.X > ActualPosition.X + ActualWidth) continue;
+            if (elementBounds.Y > ActualPosition.Y + ActualHeight) continue;
+          }
+          element.Render();
+        }
 
-          // FIXME Albert78: Fix code for logical scrolling here
-          if (_isScrolling)
+        if (scrolling)
+        {
+          SkinContext.RemoveScissorRect();
+          Rectangle? origScissorRect = SkinContext.FinalScissorRect;
+          if (origScissorRect.HasValue)
           {
-            // if (posY < _physicalScrollOffsetY) continue;
-            // posY -= _physicalScrollOffsetY;
-            element.Render();
-            // posY += (float)(element.ActualHeight);
-            // if (posY > ActualHeight) break;
+            GraphicsDevice.Device.ScissorRect = SkinContext.FinalScissorRect.Value;
+            GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
           }
           else
-          {
-            element.Render();
-          }
-        }
-
-        if (_isScrolling)
-        {
-          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
-          SkinContext.RemoveTransform();
+            GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
         }
       }
     }
+
     #endregion
 
-    #region IScrollInfo Members
+    #region Focus movement
 
-    public bool LineDown(PointF point)
+    protected FrameworkElement GetFocusedElementOrChild()
     {
-      if (Orientation == Orientation.Vertical)
-      {
-        FrameworkElement focusedElement = FocusManager.FocusedElement;
-        if (focusedElement == null) return false;
-        FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
-        if (nextElement == null) return false;
-        float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
-        if ((posY - _physicalScrollOffsetY) < ActualHeight) return false;
-        _physicalScrollOffsetY += (nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y);
-        nextElement.TrySetFocus();
-        return true;
-      }
-      return false;
-    }
-
-    public bool LineUp(PointF point)
-    {
-      if (_physicalScrollOffsetY <= 0) return false;
-      if (Orientation == Orientation.Vertical)
-      {
-        FrameworkElement focusedElement = FocusManager.FocusedElement;
-        if (focusedElement == null) return false;
-        FrameworkElement prevElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Up);
-        if (prevElement == null) return false;
-        if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY)) return false;
-        _physicalScrollOffsetY -= (focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y);
-        prevElement.TrySetFocus();
-        return true;
-      }
-      return false;
-    }
-
-    public bool LineLeft(PointF point)
-    {
-      return false;
-    }
-
-    public bool LineRight(PointF point)
-    {
-      return false;
-    }
-
-    public bool MakeVisible()
-    {
-      return false;
-    }
-
-    public bool PageDown(PointF point)
-    {
-      FrameworkElement focusedElement = FocusManager.FocusedElement;
-      if (focusedElement == null) return false;
-      float offsetEnd = (float)(_physicalScrollOffsetY + ActualHeight);
-      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
-      if (Orientation == Orientation.Vertical)
-      {
-        while (true)
+      FrameworkElement result = FocusManager.FocusedElement;
+      if (result == null)
+        foreach (UIElement child in Children)
         {
-
-          if (Orientation == Orientation.Vertical)
-          {
-            focusedElement = FocusManager.FocusedElement;
-            if (focusedElement == null) return false;
-            FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
-            if (nextElement == null) return false;
-            float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
-            if ((posY - _physicalScrollOffsetY) < ActualHeight)
-            {
-              nextElement.TrySetFocus();
-            }
-            else
-            {
-              float diff = nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y;
-              if (_physicalScrollOffsetY + diff > offsetEnd) break;
-              _physicalScrollOffsetY += diff;
-              nextElement.TrySetFocus();
-            }
-          }
+          result = child as FrameworkElement;
+          if (result != null)
+            break;
         }
-        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
-      }
+      return result;
+    }
 
+    protected bool MoveFocus1(MoveFocusDirection direction)
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      FrameworkElement prevElement = PredictFocus(currentElement.ActualBounds, direction);
+      if (prevElement == null) return false;
+      prevElement.TrySetFocus();
       return true;
     }
 
-    public bool PageLeft(PointF point)
+    protected bool MoveFocusN(MoveFocusDirection direction)
     {
-      return false;
-    }
-
-    public bool PageRight(PointF point)
-    {
-      return false;
-    }
-
-    public bool PageUp(PointF point)
-    {
-      FrameworkElement focusedElement = FocusManager.FocusedElement;
-      if (focusedElement == null) return false;
-      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
-
-      float offsetEnd = (float)(_physicalScrollOffsetY - ActualHeight);
-      if (offsetEnd <= 0) offsetEnd = 0;
-      if (Orientation == Orientation.Vertical)
-      {
-        while (true)
-        {
-
-          if (Orientation == Orientation.Vertical)
-          {
-            focusedElement = FocusManager.FocusedElement;
-            if (focusedElement == null) return false;
-            FrameworkElement prevElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Up);
-            if (prevElement == null) return false;
-            if ((prevElement.ActualPosition.Y - ActualPosition.Y) > (_physicalScrollOffsetY))
-            {
-              prevElement.TrySetFocus();
-            }
-            else
-            {
-              float diff = focusedElement.ActualPosition.Y - prevElement.ActualPosition.Y;
-              if ((_physicalScrollOffsetY - diff) < offsetEnd) break;
-              _physicalScrollOffsetY -= diff;
-              prevElement.TrySetFocus();
-            }
-          }
-        }
-        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
-      }
-
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      FrameworkElement nextElement;
+      while ((nextElement = PredictFocus(currentElement.ActualBounds, direction)) != null)
+        currentElement = nextElement;
+      currentElement.TrySetFocus();
       return true;
     }
 
-    public double LineHeight
-    {
-      get { return 1000; }
-    }
+    #endregion
 
-    public double LineWidth
-    {
-      get { return 0; }
-    }
+    #region IScrollViewerFocusSupport implementation
 
-    public bool ScrollToItemWhichStartsWith(string text, int offset)
+    public bool FocusUp()
     {
+      if (Orientation == Orientation.Vertical)
+        return MoveFocus1(MoveFocusDirection.Up);
       return false;
     }
 
-    public void Home(PointF point)
+    public bool FocusDown()
     {
-      FrameworkElement focusedElement = FocusManager.FocusedElement;
-      if (focusedElement == null) return;
-      _physicalScrollOffsetY = 0;
-      TrySetFocus();
+      if (Orientation == Orientation.Vertical)
+        return MoveFocus1(MoveFocusDirection.Down);
+      return false;
     }
 
-    public void End(PointF point)
+    public bool FocusLeft()
     {
-      FrameworkElement focusedElement = FocusManager.FocusedElement;
-      if (focusedElement == null) return;
-      float offsetEnd = (float)(_totalHeight - ActualHeight);
-      float y = focusedElement.ActualPosition.Y - (ActualPosition.Y + _physicalScrollOffsetY);
+      if (Orientation == Orientation.Horizontal)
+        return MoveFocus1(MoveFocusDirection.Left);
+      return false;
+    }
+
+    public bool FocusRight()
+    {
+      if (Orientation == Orientation.Horizontal)
+        return MoveFocus1(MoveFocusDirection.Right);
+      return false;
+    }
+
+    public bool FocusPageUp()
+    {
       if (Orientation == Orientation.Vertical)
       {
-        while (true)
-        {
-
-          if (Orientation == Orientation.Vertical)
-          {
-            focusedElement = FocusManager.FocusedElement;
-            if (focusedElement == null) return;
-            FrameworkElement nextElement = PredictFocus(focusedElement.ActualBorders, MoveFocusDirection.Down);
-            if (nextElement == null) return;
-            float posY = (float)((nextElement.ActualPosition.Y + nextElement.ActualHeight) - ActualPosition.Y);
-            if ((posY - _physicalScrollOffsetY) < ActualHeight)
-            {
-              nextElement.TrySetFocus();
-            }
-            else
-            {
-              float diff = nextElement.ActualPosition.Y - focusedElement.ActualPosition.Y;
-              if (_physicalScrollOffsetY + diff > offsetEnd) break;
-              _physicalScrollOffsetY += diff;
-              nextElement.TrySetFocus();
-            }
-          }
-        }
-        //OnMouseMove((float)point.X, (float)(ActualPosition.Y + y));
+        FrameworkElement currentElement = GetFocusedElementOrChild();
+        if (currentElement == null)
+          return false;
+        FrameworkElement nextElement;
+        while (currentElement.ActualPosition.Y > ActualPosition.Y &&
+            (nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up)) != null)
+          currentElement = nextElement;
+        currentElement.TrySetFocus();
       }
-
-      return;
+      return false;
     }
 
-    public void ResetScroll()
+    public bool FocusPageDown()
     {
-      _physicalScrollOffsetY = 0;
+      if (Orientation == Orientation.Vertical)
+      {
+        FrameworkElement currentElement = GetFocusedElementOrChild();
+        if (currentElement == null)
+          return false;
+        FrameworkElement nextElement;
+        while (currentElement.ActualPosition.Y + currentElement.ActualHeight <
+            ActualPosition.Y + ActualHeight &&
+            (nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down)) != null)
+          currentElement = nextElement;
+        currentElement.TrySetFocus();
+      }
+      return false;
+    }
+
+    public bool FocusPageLeft()
+    {
+      if (Orientation == Orientation.Horizontal)
+      {
+        FrameworkElement currentElement = GetFocusedElementOrChild();
+        if (currentElement == null)
+          return false;
+        FrameworkElement nextElement;
+        while (currentElement.ActualPosition.X > ActualPosition.X &&
+            (nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left)) != null)
+          currentElement = nextElement;
+        currentElement.TrySetFocus();
+      }
+      return false;
+    }
+
+    public bool FocusPageRight()
+    {
+      if (Orientation == Orientation.Horizontal)
+      {
+        FrameworkElement currentElement = GetFocusedElementOrChild();
+        if (currentElement == null)
+          return false;
+        FrameworkElement nextElement;
+        while (currentElement.ActualPosition.X + currentElement.ActualWidth <
+            ActualPosition.X + ActualWidth &&
+            (nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right)) != null)
+          currentElement = nextElement;
+        currentElement.TrySetFocus();
+      }
+      return false;
+    }
+
+    public bool FocusHome()
+    {
+      return MoveFocusN(Orientation == Visuals.Orientation.Horizontal ? MoveFocusDirection.Left : MoveFocusDirection.Up);
+    }
+
+    public bool FocusEnd()
+    {
+      return MoveFocusN(Orientation == Visuals.Orientation.Horizontal ? MoveFocusDirection.Right : MoveFocusDirection.Down);
     }
 
     #endregion
@@ -546,7 +518,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       foreach (UIElement element in Children)
       {
         if (false == element.IsVisible) continue;
-        element.OnMouseMove(x, y + _physicalScrollOffsetY);
+        element.OnMouseMove(x, y);
       }
     }
 

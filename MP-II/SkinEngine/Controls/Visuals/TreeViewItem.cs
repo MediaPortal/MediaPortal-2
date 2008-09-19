@@ -25,13 +25,21 @@
 using System.Collections;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class TreeViewItem : HeaderedItemsControl
+  public class TreeViewItem : HeaderedItemsControl, ISearchableItem
   {
+    #region Protected fields
+
+    protected Property _dataStringProperty = new Property(typeof(string), "");
+
+    #endregion
+
+    #region Ctor
+
     public TreeViewItem()
     {
       Attach();
@@ -51,9 +59,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
+      DataString = copyManager.GetCopy(DataString);
       Attach();
       OnItemTemplateChanged(null);
     }
+
+    #endregion
 
     void OnItemTemplateChanged(Property property)
     {
@@ -61,12 +72,42 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
       hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
       ItemsSource = hdt.ItemsSource;
+      hdt.DataStringProperty.Attach(OnTemplateDataStringChanged);
+      DataString = hdt.DataString;
     }
 
     void OnTemplateItemsSourceChanged(Property property)
     {
       ItemsSource = (IEnumerable) property.GetValue();
     }
+
+    void OnTemplateDataStringChanged(Property property)
+    {
+      DataString = (string) property.GetValue();
+    }
+
+    #region Public properties
+
+    public Property DataStringProperty
+    {
+      get { return _dataStringProperty; }
+    }
+
+    /// <summary>
+    /// Returns a string representation for the current <see cref="TreeViewItem"/>. This is used
+    /// by the scrolling engine to find the appropriate element when the user starts to type the first
+    /// letters to move the focus to a child entry.
+    /// </summary>
+    /// <remarks>
+    /// This value be automatically bound to the <see cref="HierarchicalDataTemplate.DataString"/> property.
+    /// </remarks>
+    public string DataString
+    {
+      get { return (string) _dataStringProperty.GetValue(); }
+      set { _dataStringProperty.SetValue(value); }
+    }
+
+    #endregion
 
     protected override bool Prepare()
     {

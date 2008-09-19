@@ -22,64 +22,68 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals.Templates
 {
-  public class ListViewItem : ContentControl, ISearchableItem
+  public class DataTemplate : FrameworkTemplate, IImplicitKey
   {
     #region Protected fields
 
+    protected Property _triggerProperty;
+    protected Property _dataTypeProperty;
     protected Property _dataStringProperty;
 
     #endregion
 
     #region Ctor
 
-    public ListViewItem()
+    public DataTemplate()
     {
       Init();
-      Attach();
     }
 
     void Init()
     {
+      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _dataTypeProperty = new Property(typeof(Type), null);
       _dataStringProperty = new Property(typeof(string), "");
-    }
-
-    void Attach()
-    {
-      ContentTemplateProperty.Attach(OnContentTemplateChanged);
-    }
-
-    void Detach()
-    {
-      ContentTemplateProperty.Detach(OnContentTemplateChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DataString = copyManager.GetCopy(DataString);
+      DataTemplate dt = (DataTemplate) source;
+      foreach (TriggerBase t in dt.Triggers)
+        Triggers.Add(copyManager.GetCopy(t));
+      DataType = copyManager.GetCopy(dt.DataType);
+      DataString = copyManager.GetCopy(dt.DataString);
     }
 
     #endregion
 
-    void OnContentTemplateChanged(Property property)
-    {
-      DataTemplate dt = ContentTemplate;
-      dt.DataStringProperty.Attach(OnTemplateDataStringChanged);
-      DataString = dt.DataString;
-    }
-
-    void OnTemplateDataStringChanged(Property property)
-    {
-      DataString = (string) property.GetValue();
-    }
-
     #region Public properties
+
+    public Type DataType
+    {
+      get { return (Type) _dataTypeProperty.GetValue(); }
+      set { _dataTypeProperty.SetValue(value); }
+    }
+
+    public Property TriggersProperty
+    {
+      get { return _triggerProperty; }
+    }
+
+    public IList<TriggerBase> Triggers
+    {
+      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
+    }
 
     public Property DataStringProperty
     {
@@ -87,8 +91,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns a string representation for the current <see cref="TreeViewItem"/>. This is used
-    /// by the scrolling engine to find the appropriate element when the user starts to type the first
+    /// Returns a string representation for the data formatted by this template. This is used by
+    /// the scrolling engine to find the appropriate element when the user starts to type the first
     /// letters to move the focus to a child entry.
     /// </summary>
     public string DataString
@@ -99,5 +103,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region IImplicitKey implementation
+
+    public object GetImplicitKey()
+    {
+      return DataType;
+    }
+
+    #endregion
   }
 }

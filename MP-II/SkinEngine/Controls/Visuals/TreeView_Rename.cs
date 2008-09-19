@@ -22,9 +22,10 @@
 
 #endregion
 
+
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class DataTemplateSelector
+  public class TreeView : HeaderedItemsControl
   {
   }
 }

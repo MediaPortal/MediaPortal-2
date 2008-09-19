@@ -403,9 +403,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void OnMouseMove(float x, float y)
     {
+      if (!ActualBounds.Contains(x, y))
+        return;
       foreach (UIElement element in Children)
       {
-        if (false == element.IsVisible) continue;
+        if (!element.IsVisible) continue;
         element.OnMouseMove(x, y);
       }
     }

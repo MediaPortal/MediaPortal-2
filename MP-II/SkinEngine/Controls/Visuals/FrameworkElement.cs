@@ -199,6 +199,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (HasFocus)
       {
+        MakeVisible(ActualBounds);
         FocusManager.FrameworkElementGotFocus(this);
         FireEvent(GOTFOCUS_EVENT);
       }
@@ -270,7 +271,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// This is a derived property which is based on <see cref="UIElement.ActualPosition"/>,
     /// <see cref="ActualWidth"/> and <see cref="ActualHeight"/>.
     /// </summary>
-    public RectangleF ActualBorders
+    public RectangleF ActualBounds
     {
       get
       {
@@ -509,7 +510,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Predicts the next control which is positioned in the specified direction
     /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
     /// which is able to get the focus.
-    /// This method will search the control tree starting with this element as root element.
+    /// This method will search the control tree down starting with this element as root element.
     /// </summary>
     /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="dir">Direction, the result control should be positioned relative to the
@@ -545,12 +546,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             // If we don't have a comparison rect, simply return first match.
             return match;
           // Calculate and compare distances of all matches
-          float centerDistance = CenterDistance(match.ActualBorders, currentFocusRect.Value);
+          float centerDistance = CenterDistance(match.ActualBounds, currentFocusRect.Value);
           if (centerDistance == 0)
             // If the control's center is exactly the center of the currently focused element,
             // it won't be used as next focus element
             continue;
-          float distance = BorderDistance(match.ActualBorders, currentFocusRect.Value);
+          float distance = BorderDistance(match.ActualBounds, currentFocusRect.Value);
           if (bestMatch == null || distance < bestDistance ||
               distance == bestDistance && centerDistance < bestCenterDistance)
           {

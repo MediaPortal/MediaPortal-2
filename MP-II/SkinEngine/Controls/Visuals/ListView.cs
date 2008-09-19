@@ -22,87 +22,16 @@
 
 #endregion
 
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.InputManagement;
-using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.SkinEngine.MpfElements;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ListView : ItemsControl
   {
-    #region Protected fields
-
-    protected Property _selectionChangedProperty;
-
-    #endregion
-
     #region Ctor
 
-    public ListView()
-    {
-      Init();
-    }
-
-    void Init()
-    {
-      _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
-    }
-
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      base.DeepCopy(source, copyManager);
-      ListView lv = (ListView) source;
-      SelectionChanged = copyManager.GetCopy(lv.SelectionChanged);
-    }
-
-    #endregion
-
-    #region Events
-
-    public Property SelectionChangedProperty
-    {
-      get { return _selectionChangedProperty; }
-    }
-
-    public ICommandStencil SelectionChanged
-    {
-      get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
-      set { _selectionChangedProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Input handling
-
-    public override void OnMouseMove(float x, float y)
-    {
-      base.OnMouseMove(x, y);
-      UpdateCurrentItem();
-    }
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      UpdateCurrentItem();
-      base.OnKeyPressed(ref key);
-    }
-
-    void UpdateCurrentItem()
-    {
-      FrameworkElement element = FocusManager.FocusedElement;
-      if (element == null)
-        CurrentItem = null;
-      else
-      {
-        // FIXME Albert78: This does not necessarily find the right ListViewItem
-        while (!(element is ListViewItem) && element.VisualParent != null)
-          element = element.VisualParent as FrameworkElement;
-        CurrentItem = element.Context;
-      }
-      if (SelectionChanged != null)
-        SelectionChanged.Execute(new object[] { CurrentItem });
-    }
+    public ListView() { }
 
     #endregion
 
@@ -111,9 +40,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ListViewItem container = new ListViewItem();
       container.Style = ItemContainerStyle;
       container.Context = dataItem;
-      container.ContentTemplate = ItemTemplate;
-      container.ContentTemplateSelector = ItemTemplateSelector;
-      container.Content = (FrameworkElement)ItemTemplate.LoadContent();
+      // We need to copy the item data template for the child containers, because the
+      // data template contains specific data for each container. We need to "personalize" the
+      // data template copy by assigning its LogicalParent.
+      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      childItemTemplate.LogicalParent = container;
+      container.ContentTemplate = childItemTemplate;
+      container.Content = (FrameworkElement) ItemTemplate.LoadContent();
       container.VisualParent = _itemsHostPanel;
       return container;
     }

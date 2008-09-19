@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -35,7 +36,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     private Property _contentProperty;
     private Property _contentTemplateProperty;
-    private Property _contentTemplateSelectorProperty;
 
     #endregion
 
@@ -51,20 +51,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _contentProperty = new Property(typeof(FrameworkElement), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
-      _contentTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
     }
 
     void Attach()
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
-      _contentTemplateSelectorProperty.Attach(OnContentTemplateSelectorChanged);
       _contentProperty.Attach(OnContentChanged);
     }
 
     void Detach()
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
-      _contentTemplateSelectorProperty.Detach(OnContentTemplateSelectorChanged);
       _contentProperty.Detach(OnContentChanged);
     }
 
@@ -74,12 +71,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ContentControl c = (ContentControl) source;
       Content = copyManager.GetCopy(c.Content);
-      ContentTemplateSelector = copyManager.GetCopy(c.ContentTemplateSelector);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
       Attach();
       OnContentChanged(ContentProperty);
       OnContentTemplateChanged(ContentTemplateProperty);
-      OnContentTemplateSelectorChanged(ContentTemplateSelectorProperty);
     }
 
     #endregion
@@ -98,13 +93,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
         presenter.ContentTemplate = ContentTemplate;
-    }
-
-    void OnContentTemplateSelectorChanged(Property property)
-    {
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter != null)
-        presenter.ContentTemplateSelector = ContentTemplateSelector;
     }
 
     #endregion
@@ -131,17 +119,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return _contentTemplateProperty.GetValue() as DataTemplate; }
       set { _contentTemplateProperty.SetValue(value); }
-    }
-
-    public Property ContentTemplateSelectorProperty
-    {
-      get { return _contentTemplateSelectorProperty; }
-    }
-
-    public DataTemplateSelector ContentTemplateSelector
-    {
-      get { return _contentTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
-      set { _contentTemplateSelectorProperty.SetValue(value); }
     }
 
     #endregion

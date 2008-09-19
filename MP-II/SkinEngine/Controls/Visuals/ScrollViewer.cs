@@ -22,246 +22,117 @@
 
 #endregion
 
-using System;
-using System.Drawing;
 using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.InputManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {
-    #region Private fields
-
-    string _startsWith = "";
-    int _searchOffset = 0;
-
-    #endregion
-
     public ScrollViewer()
     { }
 
     public override void OnKeyPressed(ref Key key)
     {
-      if (Content == null) 
-        return;
-      
-      FrameworkElement focusedElement = FocusManager.FocusedElement;
-      if (focusedElement == null)
-      {
-        _startsWith = "";
-        _searchOffset = 0;
-        return;
-      }
-
-      // Always call child OnKeyPressed. It could be a textbox that needs input.
-      // Child will set key to Key.None if handled.
       FrameworkElement content = Content;
-      if (content != null)
-        content.OnKeyPressed(ref key);
+      if (content == null)
+        return;
 
-      if (key == MediaPortal.Control.InputManager.Key.PageDown)
-      {
-        if (OnPageDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.PageUp)
-      {
-        if (OnPageUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Down)
-      {
-        if (OnDown(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Up)
-      {
-        if (OnUp(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Left)
-      {
-        if (OnLeft(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Right)
-      {
-        if (OnRight(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y))
-        {
-          key = MediaPortal.Control.InputManager.Key.None;
-          _startsWith = "";
-          _searchOffset = 0;
-        }
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.Home)
-      {
-        OnHome(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
-        key = MediaPortal.Control.InputManager.Key.None;
-        _startsWith = "";
-        _searchOffset = 0;
-      }
-      else if (key == MediaPortal.Control.InputManager.Key.End)
-      {
-        OnEnd(focusedElement.ActualPosition.X, focusedElement.ActualPosition.Y);
-        key = MediaPortal.Control.InputManager.Key.None;
-        _startsWith = "";
-        _searchOffset = 0;
-      }
-      else if (Char.IsLetterOrDigit(key.RawCode))
-      {
-        if (_startsWith.Length == 1 && key.RawCode == _startsWith[0])
-        {
-          _searchOffset++;
-          ScrollToItemWhichStartsWith();
-        }
-        else
-        {
-          _searchOffset=0;
-          _startsWith += key.RawCode;
-          ScrollToItemWhichStartsWith();
-        }
-        key = MediaPortal.Control.InputManager.Key.None;
-      }
+      // Let the children handle the key event first.
+      content.OnKeyPressed(ref key);
+
+      if (key == Key.None)
+        // Key event was handeled by child
+        return;
+
+      if (!CheckFocusInScope())
+        return;
+
+      if (key == Key.Down && OnDown())
+        key = Key.None;
+      else if (key == Key.Up && OnUp())
+        key = Key.None;
+      else if (key == Key.Left && OnLeft())
+        key = Key.None;
+      else if (key == Key.Right && OnRight())
+        key = Key.None;
+      else if (key == Key.Home && OnHome())
+        key = Key.None;
+      else if (key == Key.End && OnEnd())
+        key = Key.None;
+      else if (key == Key.PageDown && OnPageDown())
+        key = Key.None;
+      else if (key == Key.PageUp && OnPageUp())
+        key = Key.None;
     }
 
-    void ScrollToItemWhichStartsWith()
+    /// <summary>
+    /// Checks if the currently focused control is contained in this scrollviewer and
+    /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
+    /// handle the focus scrolling keys in this scope.
+    /// </summary>
+    bool CheckFocusInScope()
     {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return;
-      bool found = info.ScrollToItemWhichStartsWith(_startsWith, _searchOffset);
-      if (!found)
+      Visual focusPath = FocusManager.FocusedElement;
+      while (focusPath != null)
       {
-        _startsWith = "";
-        _searchOffset = 0;
-      }
-    }
-
-    void OnHome(float x, float y)
-    {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return;
-      Panel element = (Panel)info;
-      info.Home(new PointF(0, 0));
-    }
-
-    void OnEnd(float x, float y)
-    {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return;
-      info.End(new PointF(0, 0));
-    }
-
-    bool OnPageDown(float x, float y)
-    {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      if (info.PageDown(new PointF(x, y)))
-      {
-        return true;
-      }
-      return false;
-    }
-
-    bool OnPageUp(float x, float y)
-    {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      if (info.PageUp(new PointF(x, y)))
-      {
-        return true;
-      }
-      return false;
-    }
-
-    bool OnLeft(float x, float y)
-    {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      FrameworkElement element = (FrameworkElement)info;
-      if (x - info.LineWidth < element.ActualPosition.X)
-      {
-        if (info.LineLeft(new PointF(x, y)))
-        {
+        if (focusPath == this)
+          // Focused control is located in our focus scope
           return true;
-        }
+        if (focusPath is ScrollViewer)
+          // Focused control is located in another scrollviewer's focus scope
+          return false;
+        focusPath = focusPath.VisualParent;
       }
       return false;
     }
 
-    bool OnRight(float x, float y)
+    bool OnHome()
     {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      FrameworkElement element = (FrameworkElement)info;
-      if (x + (info.LineWidth * 2) >= element.ActualPosition.X + element.ActualWidth)
-      {
-        if (info.LineDown(new PointF(x, y)))
-        {
-          return true;
-        }
-      }
-      return false;
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusHome();
     }
 
-    bool OnDown(float x, float y)
+    bool OnEnd()
     {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      FrameworkElement element = (FrameworkElement)info;
-      if (y + (info.LineHeight) >= element.ActualPosition.Y + element.ActualHeight)
-      {
-        if (info.LineDown(new PointF(x, y)))
-        {
-          return true;
-        }
-      }
-      return false;
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusEnd();
     }
 
-    bool OnUp(float x, float y)
+    bool OnPageDown()
     {
-      IScrollInfo info = GetScrollInfo();
-      if (info == null) return false;
-      FrameworkElement element = (FrameworkElement)info;
-      if (y <= element.ActualPosition.Y + info.LineHeight - 1)
-      {
-        if (info.LineUp(new PointF(x, y)))
-        {
-          return true;
-        }
-      }
-      return false;
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageDown();
     }
 
-    IScrollInfo GetScrollInfo()
+    bool OnPageUp()
     {
-      IScrollInfo info = Content as IScrollInfo;
-      if (info != null) return info;
-      UIElement element = Content.FindElement(ItemsHostFinder.Instance);
-      info = element as IScrollInfo;
-      return info;
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusPageUp();
+    }
+
+    bool OnLeft()
+    {
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusLeft();
+    }
+
+    bool OnRight()
+    {
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusRight();
+    }
+
+    bool OnDown()
+    {
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusDown();
+    }
+
+    bool OnUp()
+    {
+      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      return svfs != null && svfs.FocusUp();
     }
   }
 }

@@ -124,11 +124,13 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
+    <Compile Include="Controls\Visuals\ISearchableItem.cs" />
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
-    <Compile Include="Controls\Visuals\Styles\HierarchicalDataTemplate.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
+    <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
+    <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
+    <Compile Include="Controls\Visuals\TreeView_Rename.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
@@ -160,9 +162,7 @@
     <Compile Include="Xaml\TypeConverter.cs" />
     <Compile Include="Fonts\FreeType.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
-    <Compile Include="Controls\IScrollInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Controls\Visuals\IScrollInfo.cs" />
     <Compile Include="Controls\Panels\Canvas.cs" />
     <Compile Include="Controls\Panels\ColumnDefinition.cs" />
     <Compile Include="Controls\Panels\ColumnDefinitionsCollection.cs" />
@@ -174,7 +174,6 @@
     <Compile Include="Controls\Panels\RowDefinition.cs" />
     <Compile Include="Controls\Panels\RowDefinitionsCollection.cs" />
     <Compile Include="Controls\Panels\StackPanel.cs" />
-    <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
     <Compile Include="Controls\Panels\WrapPanel.cs" />
     <Compile Include="Controls\Transforms\RotateTransform.cs" />
     <Compile Include="Controls\Transforms\ScaleTransform.cs" />
@@ -184,6 +183,7 @@
     <Compile Include="Controls\Transforms\TransformCollection.cs" />
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
+    <Compile Include="Controls\Visuals\Templates\ControlTemplate.cs" />
     <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
     <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\TextBox.cs" />
@@ -195,8 +195,6 @@
     <Compile Include="Controls\Visuals\ContentControl.cs" />
     <Compile Include="Controls\Visuals\ContentPresenter.cs" />
     <Compile Include="Controls\Visuals\Control.cs" />
-    <Compile Include="Controls\Visuals\DataTemplate.cs" />
-    <Compile Include="Controls\Visuals\DataTemplateSelector.cs" />
     <Compile Include="Controls\Visuals\FrameworkElement.cs" />
     <Compile Include="Controls\Visuals\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\HeaderedItemsControl.cs" />
@@ -224,10 +222,8 @@
     <Compile Include="Controls\Visuals\Shapes\Triangulate\CPolygonShape.cs" />
     <Compile Include="Controls\Visuals\Shapes\Triangulate\Definition.cs" />
     <Compile Include="Controls\Visuals\StyleSelector.cs" />
-    <Compile Include="Controls\Visuals\Styles\ControlTemplate.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
     <Compile Include="Controls\Visuals\Styles\Style.cs" />
-    <Compile Include="Controls\Visuals\TreeView.cs" />
     <Compile Include="Controls\Visuals\TreeViewItem.cs" />
     <Compile Include="Controls\Visuals\Triggers\BeginStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\EventTrigger.cs" />

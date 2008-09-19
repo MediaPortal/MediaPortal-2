@@ -22,73 +22,52 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using System.Collections;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.SkinEngine.Controls.Visuals.Templates
 {
-  public class DataTemplate : FrameworkTemplate, IImplicitKey
+  public class HierarchicalDataTemplate : DataTemplate
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _triggerProperty;
-    Property _dataTypeProperty;
+    protected Property _itemsSourceProperty;
 
     #endregion
 
     #region Ctor
 
-    public DataTemplate()
+    public HierarchicalDataTemplate()
     {
       Init();
     }
 
     void Init()
     {
-      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
-      _dataTypeProperty = new Property(typeof(Type), null);
+      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DataTemplate dt = (DataTemplate) source;
-      foreach (TriggerBase t in dt.Triggers)
-        Triggers.Add(copyManager.GetCopy(t));
-      DataType = copyManager.GetCopy(dt.DataType);
+      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) source;
+      ItemsSource = copyManager.GetCopy(hdt.ItemsSource);
     }
 
     #endregion
 
     #region Public properties
 
-    public Type DataType
+    public Property ItemsSourceProperty
     {
-      get { return (Type) _dataTypeProperty.GetValue(); }
-      set { _dataTypeProperty.SetValue(value); }
+      get { return _itemsSourceProperty; }
     }
 
-    public Property TriggersProperty
+    public IEnumerable ItemsSource
     {
-      get { return _triggerProperty; }
-    }
-
-    public IList<TriggerBase> Triggers
-    {
-      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
-    }
-
-    #endregion
-
-    #region IImplicitKey implementation
-
-    public object GetImplicitKey()
-    {
-      return DataType;
+      get { return (IEnumerable) _itemsSourceProperty.GetValue(); }
+      set { _itemsSourceProperty.SetValue(value); }
     }
 
     #endregion

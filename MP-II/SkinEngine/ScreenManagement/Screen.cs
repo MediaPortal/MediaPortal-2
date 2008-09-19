@@ -286,6 +286,8 @@ namespace MediaPortal.SkinEngine
       if (!HasFocus || !_attachedInput)
         return;
       _visual.OnKeyPressed(ref key);
+      if (key != Key.None)
+        FocusManager.OnKeyPressed(ref key);
     }
 
     private void OnMouseMove(float x, float y)

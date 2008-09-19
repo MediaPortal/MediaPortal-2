@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Drawing;
-using MediaPortal.Core;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Control.InputManager;
 
@@ -75,16 +73,12 @@ namespace MediaPortal.SkinEngine.InputManagement
     {
       _focusedElement = null;
       _currentScreen = screen;
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.KeyPressed += OnKeyPressed;
     }
 
     public static void DetachInput(Screen screen)
     {
       _focusedElement = null;
       _currentScreen = null;
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.KeyPressed -= OnKeyPressed;
     }
 
     public static void OnKeyPressed(ref Key key)
@@ -92,7 +86,7 @@ namespace MediaPortal.SkinEngine.InputManagement
       if (key == Key.None)
         return;
       FrameworkElement cntl;
-      cntl = PredictFocus(FocusedElement == null ? new RectangleF?() : FocusedElement.ActualBorders, key);
+      cntl = PredictFocus(FocusedElement == null ? new RectangleF?() : FocusedElement.ActualBounds, key);
       if (cntl != null)
       {
         cntl.HasFocus = true;

@@ -24,10 +24,13 @@
 
 using System.Collections;
 using System.Drawing;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -39,19 +42,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   /// </summary>
   public abstract class ItemsControl : Control
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _itemsSourceProperty;
-    Property _itemTemplateProperty;
-    Property _itemTemplateSelectorProperty;
-    Property _itemContainerStyleProperty;
-    Property _itemContainerStyleSelectorProperty;
-    Property _itemsPanelProperty;
-    Property _currentItem;
-    bool _prepare;
-    bool _templateApplied;
-    protected Panel _itemsHostPanel;
+    protected Property _selectionChangedProperty;
+    protected Property _itemsSourceProperty;
+    protected Property _itemTemplateProperty;
+    protected Property _itemContainerStyleProperty;
+    protected Property _itemsPanelProperty;
+    protected Property _currentItemProperty;
 
+    protected bool _prepare = false;
+    protected bool _templateApplied = false;
+    protected Panel _itemsHostPanel = null;
     protected IObservable _attachedItemsCollection = null;
 
     #endregion
@@ -68,11 +70,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _itemsSourceProperty = new Property(typeof(IEnumerable), null);
       _itemTemplateProperty = new Property(typeof(DataTemplate), null);
-      _itemTemplateSelectorProperty = new Property(typeof(DataTemplateSelector), null);
       _itemContainerStyleProperty = new Property(typeof(Style), null);
-      _itemContainerStyleSelectorProperty = new Property(typeof(StyleSelector), null);
       _itemsPanelProperty = new Property(typeof(ItemsPanelTemplate), null);
-      _currentItem = new Property(typeof(object), null);
+      _currentItemProperty = new Property(typeof(object), null);
+      _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
     }
 
     void Attach()
@@ -97,9 +98,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsControl c = (ItemsControl) source;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
-      ItemTemplateSelector = copyManager.GetCopy(c.ItemTemplateSelector);
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
-      ItemContainerStyleSelector = copyManager.GetCopy(c.ItemContainerStyleSelector);
+      SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
       _prepare = false;
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
@@ -151,6 +151,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region Events
+
+    public Property SelectionChangedProperty
+    {
+      get { return _selectionChangedProperty; }
+    }
+
+    public ICommandStencil SelectionChanged
+    {
+      get { return (ICommandStencil)_selectionChangedProperty.GetValue(); }
+      set { _selectionChangedProperty.SetValue(value); }
+    }
+
+    #endregion
+
     #region Public properties
 
     public Property ItemsPanelProperty
@@ -195,20 +210,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _itemContainerStyleProperty.SetValue(value); }
     }
 
-    public Property ItemContainerStyleSelectorProperty
-    {
-      get { return _itemContainerStyleSelectorProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets custom style-selection logic for a style that can be applied to each generated container element.
-    /// </summary>
-    public StyleSelector ItemContainerStyleSelector
-    {
-      get { return _itemContainerStyleSelectorProperty.GetValue() as StyleSelector; }
-      set { _itemContainerStyleSelectorProperty.SetValue(value); }
-    }
-
     public Property ItemTemplateProperty
     {
       get { return _itemTemplateProperty; }
@@ -224,29 +225,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _itemTemplateProperty.SetValue(value); }
     }
 
-    public Property ItemTemplateSelectorProperty
-    {
-      get { return _itemTemplateSelectorProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the custom logic for choosing a template used to display each item.
-    /// </summary>
-    public DataTemplateSelector ItemTemplateSelector
-    {
-      get { return _itemTemplateSelectorProperty.GetValue() as DataTemplateSelector; }
-      set { _itemTemplateSelectorProperty.SetValue(value); }
-    }
-
     public Property CurrentItemProperty
     {
-      get { return _currentItem; }
+      get { return _currentItemProperty; }
     }
 
     public object CurrentItem
     {
-      get { return _currentItem.GetValue(); }
-      set { _currentItem.SetValue(value); }
+      get { return _currentItemProperty.GetValue(); }
+      internal set { _currentItemProperty.SetValue(value); }
     }
 
     #endregion
@@ -263,6 +250,37 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #endregion
 
     #region Item management
+
+    public override void OnMouseMove(float x, float y)
+    {
+      base.OnMouseMove(x, y);
+      UpdateCurrentItem();
+    }
+
+    public override void OnKeyPressed(ref Key key)
+    {
+      base.OnKeyPressed(ref key);
+      UpdateCurrentItem();
+    }
+
+    /// <summary>
+    /// Will update the <see cref="CurrentItem"/> property. This method will be called when the
+    /// current item might have changed.
+    /// </summary>
+    protected void UpdateCurrentItem()
+    {
+      Visual element = FocusManager.FocusedElement;
+      if (_itemsHostPanel == null)
+        CurrentItem = null;
+      else
+      {
+        while (element != null && element.VisualParent != _itemsHostPanel)
+          element = element.VisualParent;
+        CurrentItem = element == null ? null : element.Context;
+      }
+      if (SelectionChanged != null)
+        SelectionChanged.Execute(new object[] { CurrentItem });
+    }
 
     protected void InvalidateItems()
     {
@@ -296,7 +314,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       if (_itemsHostPanel == null)
-        _itemsHostPanel = presenter.TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
+        _itemsHostPanel = presenter.ItemsHostPanel;
       if (_itemsHostPanel == null) return false;
 
       _itemsHostPanel.Children.Clear();
@@ -328,26 +346,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected abstract UIElement PrepareItemContainer(object dataItem);
 
 
-    public bool DoUpdateItems()
+    public void DoUpdateItems()
     {
       if (_prepare)
         if (Prepare())
           _prepare = false;
-      return false;
     }
 
     public void SetFocusOnFirstItem()
     {
-      ItemsPresenter presenter = FindItemsPresenter();
-      if (presenter != null)
+      if (_itemsHostPanel != null)
       {
-        Panel panel = presenter.FindElement(ItemsHostFinder.Instance) as Panel;
-        if (panel != null)
-        {
-          FrameworkElement focusable = FocusManager.FindFirstFocusableElement(panel);
-          if (focusable != null)
-            focusable.HasFocus = true;
-        }
+        FrameworkElement focusable = FocusManager.FindFirstFocusableElement(_itemsHostPanel);
+        if (focusable != null)
+          focusable.HasFocus = true;
+      }
+    }
+
+    public void SetFocusOnItem(object dataItem)
+    {
+      if (_itemsHostPanel != null)
+      {
+        FrameworkElement item = null;
+        foreach (UIElement child in _itemsHostPanel.Children)
+          if (child.DataContext == dataItem)
+            item = child as FrameworkElement;
+        if (item == null)
+          return;
+        FrameworkElement focusable = FocusManager.FindFirstFocusableElement(item);
+        if (focusable != null)
+          focusable.HasFocus = true;
       }
     }
 
