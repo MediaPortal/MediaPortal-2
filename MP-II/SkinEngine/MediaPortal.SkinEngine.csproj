@@ -130,7 +130,7 @@
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
     <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
-    <Compile Include="Controls\Visuals\TreeView_Rename.cs" />
+    <Compile Include="Controls\Visuals\TreeView.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
