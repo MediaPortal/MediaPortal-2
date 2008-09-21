@@ -194,7 +194,7 @@ namespace Media.Players.BassPlayer
       if (currentStream == null)
         return null;
 
-      if (currentStream.ID != 0 || Bass.BASS_ChannelIsActive(currentStream.ID) != (int)BASSActive.BASS_ACTIVE_STOPPED)
+      if (currentStream.ID != 0 || Bass.BASS_ChannelIsActive(currentStream.ID) != BASSActive.BASS_ACTIVE_STOPPED)
       {
         CurrentStreamIndex++;
 
@@ -256,7 +256,7 @@ namespace Media.Players.BassPlayer
     {
       Stream nextstream = GetNextStream();
       if (nextstream != null)
-        if (Bass.BASS_ChannelIsActive(nextstream.ID) == (int)BASSActive.BASS_ACTIVE_PLAYING)
+        if (Bass.BASS_ChannelIsActive(nextstream.ID) == BASSActive.BASS_ACTIVE_PLAYING)
           FreeStream(nextstream);
 
       Streams[CurrentStreamIndex] = stream;
@@ -264,25 +264,21 @@ namespace Media.Players.BassPlayer
       if (streamID != 0)
       {
         // Plugin the stream into the mixer and set the mixing matrix
-        BassMix.BASS_Mixer_ChannelSetMatrix(streamID, ref _MixingMatrix[0, 0]);
-        BassMix.BASS_Mixer_StreamAddChannel(_mixer, streamID, BASSStream.BASS_MIXER_MATRIX | BASSStream.BASS_MIXER_NORAMPIN | BASSStream.BASS_STREAM_AUTOFREE);
+        BassMix.BASS_Mixer_ChannelSetMatrix(streamID, _MixingMatrix);
+        BassMix.BASS_Mixer_StreamAddChannel(_mixer, streamID, BASSFlag.BASS_MIXER_MATRIX | BASSFlag.BASS_MIXER_NORAMPIN | BASSFlag.BASS_STREAM_AUTOFREE);
         
         // Do we need to Fade In
         if (!_settings.GaplessPlayback && _settings.Crossfade > 0)
         {
-          // Reduce the stream volume to zero so we can fade it in...
-          Bass.BASS_ChannelSetAttributes(streamID, -1, 0, -101);
 
-          // Fade in from 0 to 100 over the Crossfade duration 
-          Bass.BASS_ChannelSlideAttributes(streamID, -1, 100, -101, _settings.Crossfade);
         }
 
 
-        if (Bass.BASS_ChannelIsActive(_mixer) != (int)BASSActive.BASS_ACTIVE_PLAYING)
+        if (Bass.BASS_ChannelIsActive(_mixer) != BASSActive.BASS_ACTIVE_PLAYING)
         {
           Bass.BASS_Start();
           if (!Bass.BASS_ChannelPlay(_mixer, false))
-            ServiceScope.Get<ILogger>().Error("BASS: Failed starting playback. Reason: {0}", Enum.GetName(typeof(BASSErrorCode), Bass.BASS_ErrorGetCode()));
+            ServiceScope.Get<ILogger>().Error("BASS: Failed starting playback. Reason: {0}", Enum.GetName(typeof(BASSError), Bass.BASS_ErrorGetCode()));
         }
 
         _state = PlaybackState.Playing;
@@ -410,10 +406,10 @@ namespace Media.Players.BassPlayer
 
       if (_settings.SoftStop)
       {
-        Bass.BASS_ChannelSlideAttributes(stream.ID, -1, 0, -101, 500);
+        Bass.BASS_ChannelSlideAttribute(stream.ID, BASSAttribute.BASS_ATTRIB_VOL, 0, 500);
 
         // Wait until the slide is done
-        while ((Bass.BASS_ChannelIsSliding(stream.ID) & (int)BASSSlide.BASS_SLIDE_VOL) != 0)
+        while (Bass.BASS_ChannelIsSliding(stream.ID, BASSAttribute.BASS_ATTRIB_VOL))
           System.Threading.Thread.Sleep(20);
       }
 
@@ -487,7 +483,7 @@ namespace Media.Players.BassPlayer
       if (stream != null)
       {
         long pos = Bass.BASS_ChannelGetPosition(stream.ID);           // position in bytes
-        float curPosition = Bass.BASS_ChannelBytes2Seconds(stream.ID, pos); // the elapsed time length
+        double curPosition = Bass.BASS_ChannelBytes2Seconds(stream.ID, pos); // the elapsed time length
         _currentTime = new TimeSpan(0, 0, (int)curPosition);
       }
     }
@@ -519,7 +515,7 @@ namespace Media.Players.BassPlayer
         {
           Stream stream = GetCurrentStream();
           long len = Bass.BASS_ChannelGetLength(stream.ID);                 // length in bytes
-          float totaltime = Bass.BASS_ChannelBytes2Seconds(stream.ID, len); // the total time length
+          double totaltime = Bass.BASS_ChannelBytes2Seconds(stream.ID, len); // the total time length
           long pos = BassMix.BASS_Mixer_ChannelGetPosition(stream.ID);
 
           float offsetSecs = (float)value.TotalSeconds;
@@ -547,7 +543,7 @@ namespace Media.Players.BassPlayer
           // length in bytes
           long len = Bass.BASS_ChannelGetLength(stream.ID);
           // the total time length
-          float totaltime = Bass.BASS_ChannelBytes2Seconds(stream.ID, len);
+          double totaltime = Bass.BASS_ChannelBytes2Seconds(stream.ID, len);
           return new TimeSpan(0, 0, (int)totaltime);
         }
         return new TimeSpan(0, 0, 0);
@@ -604,10 +600,6 @@ namespace Media.Players.BassPlayer
       set
       {
         _IsMuted = value;
-        if (_IsMuted)
-          Bass.BASS_ChannelSetAttributes(_mixer, -1, 0, -101);
-        else
-          Bass.BASS_ChannelSetAttributes(_mixer, -1, _volume, -101);
       }
     }
     #endregion
@@ -639,11 +631,14 @@ namespace Media.Players.BassPlayer
       _zones = new List<Zone>();
 
       // Retrieve available Sound Devices and assign them to Zones
-      string[] availableDevices = Bass.BASS_GetDeviceDescriptions();
-      for (int i = 0; i < availableDevices.Length; i++)
+      for (int i = 0; i < Bass.BASS_GetDeviceCount(); i++)
       {
-        Zone zone = new Zone(i, availableDevices[i]);
-        _zones.Add(zone);
+        BASS_DEVICEINFO info = Bass.BASS_GetDeviceInfo(i);
+        if (info != null)
+        {
+          Zone zone = new Zone(i, info.name);
+          _zones.Add(zone);
+        }
       }
 
       bool initOK = InitBass();
@@ -663,22 +658,22 @@ namespace Media.Players.BassPlayer
       ServiceScope.Get<ILogger>().Info("BASS: Initialise BASS environment.");
       // Todo: ASIO Handling
       bool initOK = false;
-      initOK = (Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_LATENCY, 0, null));
+      initOK = (Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_LATENCY, IntPtr.Zero, null));
       if (initOK)
       {
         // Todo: ASIO support
         Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, 500);
         Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, _volume);
 
-        _mixer = BassMix.BASS_Mixer_StreamCreate(44100, 8, BASSStream.BASS_MIXER_NONSTOP | BASSStream.BASS_STREAM_AUTOFREE);
+        _mixer = BassMix.BASS_Mixer_StreamCreate(44100, 8, BASSFlag.BASS_MIXER_NONSTOP | BASSFlag.BASS_STREAM_AUTOFREE);
         ServiceScope.Get<ILogger>().Info("BASS: Initialisation done.");
         _initialised = true;
       }
       else
       {
         _initialised = false;
-        int error = Bass.BASS_ErrorGetCode();
-        ServiceScope.Get<ILogger>().Error("BASS: Error initializing BASS audio engine {0}", Enum.GetName(typeof(BASSErrorCode), error));
+        int error = (int)Bass.BASS_ErrorGetCode();
+        ServiceScope.Get<ILogger>().Error("BASS: Error initializing BASS audio engine {0}", Enum.GetName(typeof(BASSError), error));
       }
       return initOK;
     }

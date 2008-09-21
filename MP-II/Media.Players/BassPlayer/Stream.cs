@@ -98,7 +98,7 @@ namespace Media.Players.BassPlayer
     #region Private Methods
     private void CreateStream()
     {
-      BASSStream streamFlags = BASSStream.BASS_STREAM_DECODE | BASSStream.BASS_SAMPLE_FLOAT;
+      BASSFlag streamFlags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
       _filetype = GetFileType();
       ServiceScope.Get<ILogger>().Info("BASS: Creating stream for {0}. FileType: {1}", _mediaItem.ContentUri.AbsoluteUri, Enum.GetName(typeof(FileType), _filetype));
       switch (_filetype)
@@ -107,14 +107,14 @@ namespace Media.Players.BassPlayer
           _stream = Bass.BASS_StreamCreateFile(_mediaItem.ContentUri.LocalPath, 0, 0, streamFlags);
           break;
         case FileType.Mod:
-          _stream = Bass.BASS_MusicLoad(_mediaItem.ContentUri.LocalPath, 0, 0, BASSMusic.BASS_SAMPLE_SOFTWARE | BASSMusic.BASS_SAMPLE_FLOAT | BASSMusic.BASS_MUSIC_AUTOFREE | BASSMusic.BASS_MUSIC_PRESCAN, 0);
+          _stream = Bass.BASS_MusicLoad(_mediaItem.ContentUri.LocalPath, 0, 0, BASSFlag.BASS_SAMPLE_SOFTWARE | BASSFlag.BASS_SAMPLE_FLOAT | BASSFlag.BASS_MUSIC_AUTOFREE | BASSFlag.BASS_MUSIC_PRESCAN, 0);
           break;
         case FileType.CD:
           _stream = BassCd.BASS_CD_StreamCreateFile(_mediaItem.ContentUri.LocalPath, streamFlags);
           break;
         case FileType.LastFM:
         case FileType.Url:
-          _stream = Bass.BASS_StreamCreateURL(_mediaItem.ContentUri.ToString(), 0, streamFlags, null, 0);
+          _stream = Bass.BASS_StreamCreateURL(_mediaItem.ContentUri.ToString(), 0, streamFlags, null, IntPtr.Zero);
           break;
       }
 
@@ -149,8 +149,8 @@ namespace Media.Players.BassPlayer
       }
       else
       {
-        int error = Bass.BASS_ErrorGetCode();
-        ServiceScope.Get<ILogger>().Error("BASS: Error creating stream for {0}. Error: {1}", _mediaItem.ContentUri.AbsoluteUri, Enum.GetName(typeof(BASSErrorCode), error));
+        int error = (int)Bass.BASS_ErrorGetCode();
+        ServiceScope.Get<ILogger>().Error("BASS: Error creating stream for {0}. Error: {1}", _mediaItem.ContentUri.AbsoluteUri, Enum.GetName(typeof(BASSError), error));
       }
     }
 
@@ -265,11 +265,11 @@ namespace Media.Players.BassPlayer
     {
       int syncHandle = 0;
       long len = Bass.BASS_ChannelGetLength(_stream); // length in bytes
-      float totaltime = Bass.BASS_ChannelBytes2Seconds(_stream, len); // the total time length
+      double totaltime = Bass.BASS_ChannelBytes2Seconds(_stream, len); // the total time length
 
       // Did we get a Resume & Duration (Cue File)
       if (_resumeAt > 0 && _duration > 0)
-        totaltime = (float)_resumeAt / 1000f + (float)_duration;
+        totaltime = (double)_resumeAt / 1000f + (double)_duration;
 
       float fadeOutSeconds = 0;
 
@@ -284,11 +284,11 @@ namespace Media.Players.BassPlayer
       syncHandle = Bass.BASS_ChannelSetSync(_stream,
           BASSSync.BASS_SYNC_POS,
           bytePos, PlaybackFadeOutProcDelegate,
-          0);
+          IntPtr.Zero);
 
       if (syncHandle == 0)
       {
-        int error = Bass.BASS_ErrorGetCode();
+        int error = (int)Bass.BASS_ErrorGetCode();
         ServiceScope.Get<ILogger>().Debug("BASS: RegisterPlaybackFadeOutEvent of stream {0} failed with error {1}", _stream, error);
       }
 
@@ -298,13 +298,12 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Fade Out  Procedure
     /// </summary>
-    private void PlaybackFadeOutProc(int handle, int stream, int data, int userData)
+    private void PlaybackFadeOutProc(int handle, int stream, int data, IntPtr userData)
     {
       ServiceScope.Get<ILogger>().Debug("BASS: Fade out of stream {0}", stream);
 
       if (!_settings.GaplessPlayback)
-        Bass.BASS_ChannelSlideAttributes(stream, -1, -2, -101, _settings.Crossfade);
-
+        Bass.BASS_ChannelSlideAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, 0, _settings.Crossfade);
       SendInternalMessage("xfading");
     }
 
@@ -328,18 +327,18 @@ namespace Media.Players.BassPlayer
         syncHandle = Bass.BASS_ChannelSetSync(_stream,
             BASSSync.BASS_SYNC_POS,
             bytePos, PlaybackEndProcDelegate,
-            0);
+            IntPtr.Zero);
       }
       else
       {
         syncHandle = Bass.BASS_ChannelSetSync(_stream,
             BASSSync.BASS_SYNC_END,
             0, PlaybackEndProcDelegate,
-            0);
+            IntPtr.Zero);
       }
       if (syncHandle == 0)
       {
-        int error = Bass.BASS_ErrorGetCode();
+        int error = (int)Bass.BASS_ErrorGetCode();
         ServiceScope.Get<ILogger>().Debug("BASS: RegisterPlaybackEndEvent of stream {0} failed with error {1}", _stream, error);
       }
 
@@ -349,7 +348,7 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Playback end Procedure
     /// </summary>
-    private void PlaybackEndProc(int handle, int stream, int data, int userData)
+    private void PlaybackEndProc(int handle, int stream, int data, IntPtr userData)
     {
       ServiceScope.Get<ILogger>().Debug("BASS: End of stream {0}", stream);
       _stream = 0;
