@@ -183,8 +183,9 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     public bool Remove(string key)
     {
-      return _resources.Remove(key);
+      bool result = _resources.Remove(key);
       FireChanged();
+      return result;
     }
 
     public bool TryGetValue(string key, out object value)
