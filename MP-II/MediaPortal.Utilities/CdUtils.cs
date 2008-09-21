@@ -61,10 +61,14 @@ namespace MediaPortal.Utilities
     /// <returns></returns>
     public static int Drive2BassID(char driveLetter)
     {
+      BASS_CD_INFO cdinfo = new BASS_CD_INFO();
       for (int i = 0; i < 25; i++)
       {
-        if (BassCd.BASS_CD_GetDriveLetterChar(i) == driveLetter)
-          return i;
+        if (BassCd.BASS_CD_GetInfo(i, cdinfo))
+        {
+          if (cdinfo.DriveLetter == driveLetter)
+            return i;
+        }
       }
       return -1;
     }
