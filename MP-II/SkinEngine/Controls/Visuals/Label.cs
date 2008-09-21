@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -209,7 +208,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -269,8 +268,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
-      float x = (float)ActualPosition.X;
-      float y = (float)ActualPosition.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
+      float x = ActualPosition.X;
+      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -281,21 +280,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
       RectangleF rect = new RectangleF(x, y, w, h);
-      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      Font.Align align = Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-        align = SkinEngine.Fonts.Font.Align.Right;
+        align = Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-        align = SkinEngine.Fonts.Font.Align.Center;
+        align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
 
-      Color4 color = ColorConverter.FromColor(this.Color);
-      color.Alpha *= (float)SkinContext.Opacity;
-      color.Alpha *= (float)this.Opacity;
+      Color4 color = ColorConverter.FromColor(Color);
+      color.Alpha *= (float) SkinContext.Opacity;
+      color.Alpha *= (float) Opacity;
       
       if (_label != null)
         _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize * 0.9f, color, Scroll, out totalWidth);
@@ -314,17 +313,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
         return;
-      Color4 color = ColorConverter.FromColor(this.Color);
+      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
-      float totalWidth;
 
 
       // The characters fits the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
-      float y = _finalRect.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
+      float y = _finalRect.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
       float x = _finalRect.X;
       float w = _finalRect.Width;
       float h = _finalRect.Height;
@@ -336,23 +334,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(x, y, w, h);
-      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      RectangleF rect = new RectangleF(x, y, w, h);
+      Font.Align align = Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-        align = SkinEngine.Fonts.Font.Align.Right;
+        align = Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-        align = SkinEngine.Fonts.Font.Align.Center;
+        align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
       m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
-      color.Alpha *= (float)SkinContext.Opacity;
-      color.Alpha *= (float)this.Opacity;
+      color.Alpha *= (float) SkinContext.Opacity;
+      color.Alpha *= (float) Opacity;
 
       if (_label != null)
       {
+        float totalWidth;
         _asset.Draw(_label.ToString(), rect, align, FontSize*0.9f, color, Scroll, out totalWidth);
       }
       SkinContext.RemoveTransform();
