@@ -642,7 +642,7 @@ namespace Media.Importers.MovieImporter
     private void SendMessage(QueueMessage msg)
     {
        // asynchronously send message through queue
-      ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));
+      ServiceScope.Get<IThreadPool>().Add(new DoWorkHandler(delegate { _queue.Send(msg); }));
     }
 
     #endregion
