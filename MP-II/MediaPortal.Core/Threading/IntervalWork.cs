@@ -23,17 +23,14 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.Threading;
-
-#endregion
 
 namespace MediaPortal.Core.Threading
 {
+  /// <summary>
+  /// Default implementation of an <see cref="IWorkInterval"/>.
+  /// </summary>
   public class IntervalWork : Work, IWorkInterval
   {
     #region Variables
@@ -46,7 +43,7 @@ namespace MediaPortal.Core.Threading
 
     #region Contructor
 
-    public IntervalWork(DoWorkHandler work, TimeSpan interval) : base()
+    public IntervalWork(DoWorkHandler work, TimeSpan interval)
     {
       WorkLoad = work;
       _interval = interval;
@@ -58,7 +55,7 @@ namespace MediaPortal.Core.Threading
 
     public IWork Work
     {
-      get { return this as IWork; }
+      get { return this; }
     }
 
     public TimeSpan WorkInterval

@@ -23,40 +23,15 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Text;
 using System.Threading;
-using System.Collections.Generic;
 using MediaPortal.Core.Threading;
-
-#endregion
 
 namespace MediaPortal.Core.Threading
 {
-
-  #region WorkState enum
-
-  public enum WorkState
-  {
-    INIT,
-    INQUEUE,
-    CANCELED,
-    INPROGRESS,
-    FINISHED,
-    ERROR
-  }
-
-  #endregion
-
-  #region Work delegates
-
-  public delegate void DoWorkHandler();
-  public delegate void WorkEventHandler(WorkEventArgs args);
-
-  #endregion
-
+  /// <summary>
+  /// Default implementation of an <see cref="IWork"/>.
+  /// </summary>
   public class Work : IWork
   {
     #region Variables
@@ -80,19 +55,19 @@ namespace MediaPortal.Core.Threading
     }
 
     public Work(DoWorkHandler work)
-      : this(work, string.Empty, ThreadPriority.Normal, null) { }
+        : this(work, string.Empty, ThreadPriority.Normal, null) { }
 
     public Work(DoWorkHandler work, ThreadPriority threadPriority)
-      : this(work, string.Empty, threadPriority, null) { }
+        : this(work, string.Empty, threadPriority, null) { }
 
     public Work(DoWorkHandler work, WorkEventHandler workCompletedHandler)
-      : this(work, string.Empty, ThreadPriority.Normal, workCompletedHandler) { }
+        : this(work, string.Empty, ThreadPriority.Normal, workCompletedHandler) { }
 
     public Work(DoWorkHandler work, string description, ThreadPriority threadPriority)
-      : this(work, description, threadPriority, null) { }
+        : this(work, description, threadPriority, null) { }
 
     public Work(DoWorkHandler work, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler)
-      : this(work, string.Empty, threadPriority, workCompletedHandler) { }
+        : this(work, string.Empty, threadPriority, workCompletedHandler) { }
 
     public Work(DoWorkHandler work, string description, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler)
     {
@@ -187,7 +162,5 @@ namespace MediaPortal.Core.Threading
     }
 
     #endregion
-
   }
-
 }

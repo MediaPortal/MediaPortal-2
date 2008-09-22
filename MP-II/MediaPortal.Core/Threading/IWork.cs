@@ -23,17 +23,24 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-
-#endregion
 
 namespace MediaPortal.Core.Threading
 {
+  public enum WorkState
+  {
+    INIT,
+    INQUEUE,
+    CANCELED,
+    INPROGRESS,
+    FINISHED,
+    ERROR
+  }
+
+  public delegate void DoWorkHandler();
+  public delegate void WorkEventHandler(WorkEventArgs args);
+
   public interface IWork
   {
     /// <summary>

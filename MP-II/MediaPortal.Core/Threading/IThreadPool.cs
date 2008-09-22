@@ -52,13 +52,11 @@ namespace MediaPortal.Core.Threading
     IWork Add(DoWorkHandler work);
     IWork Add(DoWorkHandler work, QueuePriority queuePriority);
     IWork Add(DoWorkHandler work, string description);
-    IWork Add(DoWorkHandler work, System.Threading.ThreadPriority threadPriority);
+    IWork Add(DoWorkHandler work, ThreadPriority threadPriority);
     IWork Add(DoWorkHandler work, WorkEventHandler workCompletedHandler);
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority);
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority);
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler);
-    void Add(Work work);
-    void Add(Work work, QueuePriority queuePriority);
     void Add(IWork work);
     void Add(IWork work, QueuePriority queuePriority);
     #endregion
