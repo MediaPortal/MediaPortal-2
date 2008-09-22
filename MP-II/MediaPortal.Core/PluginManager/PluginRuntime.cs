@@ -40,7 +40,7 @@ namespace MediaPortal.Core.PluginManager
   /// <list type="bullet">
   /// <item>Storing plugin runtime data like the <see cref="State"/>, the <see cref="StateTracker"/>,
   /// the <see cref="LoadedAssemblies"/> and the <see cref="DependentPlugins"/></item>
-  /// <item>Registration of items in the plugin tree/registry</item>
+  /// <item>Registration of items in the plugin tree/registry and managing item location change listeners</item>
   /// <item>Instantiation of classes stored in assemblies of this plugin</item>
   /// </list>
   /// </para>
@@ -60,6 +60,8 @@ namespace MediaPortal.Core.PluginManager
   public class PluginRuntime
   {
     #region Protected fields
+
+    protected const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
 
     protected IPluginMetadata _pluginMetadata;
     protected PluginState _state;
@@ -195,24 +197,68 @@ namespace MediaPortal.Core.PluginManager
     }
 
     /// <summary>
-    /// Registers all items of this plugin in the plugin tree. This should be done when the plugin gets
+    /// Registers all items of this plugin in the plugin tree and notifies the change listeners
+    /// for all changed locations. This method should be called when the plugin gets
     /// enabled.
     /// </summary>
     internal void RegisterItems()
     {
+      IDictionary<string, ICollection<PluginItemMetadata>> changedLocations =
+          new Dictionary<string, ICollection<PluginItemMetadata>>();
       foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
+      {
         _itemRegistrations.Add(itemMetadata, RegisterItem(itemMetadata));
+        // Prepare data for change listener calls
+        ICollection<PluginItemMetadata> changedMetadataInLocation;
+        if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
+          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
+        else
+          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
+        changedMetadataInLocation.Add(itemMetadata);
+      }
+      // Call change listeners
+      foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
+      {
+        ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(changedLocation.Key, false);
+        if (listeners == null)
+          continue;
+        foreach (IItemRegistrationChangeListener listener in listeners)
+          listener.ItemsWereAdded(changedLocation.Key, changedLocation.Value);
+      }
     }
 
     /// <summary>
-    /// Unregisters all items of this plugin from the plugin tree.
+    /// Unregisters all items of this plugin from the plugin tree and notifies the change listeners for
+    /// all changed locations.
     /// </summary>
     internal void UnregisterItems()
     {
+      // Collect data for listener calls
+      IDictionary<string, ICollection<PluginItemMetadata>> changedLocations =
+          new Dictionary<string, ICollection<PluginItemMetadata>>();
+      foreach (PluginItemMetadata itemMetadata in _itemRegistrations.Keys)
+      {
+        ICollection<PluginItemMetadata> changedMetadataInLocation;
+        if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
+          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
+        else
+          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
+        changedMetadataInLocation.Add(itemMetadata);
+      }
+      // Unregistration of items
       foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
       {
         UnregisterItem(itemMetadata);
         _itemRegistrations.Remove(itemMetadata);
+      }
+      // Call change listeners
+      foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
+      {
+        ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(changedLocation.Key, false);
+        if (listeners == null)
+          continue;
+        foreach (IItemRegistrationChangeListener listener in listeners)
+          listener.ItemsWereRemoved(changedLocation.Key, changedLocation.Value);
       }
     }
 
@@ -228,8 +274,7 @@ namespace MediaPortal.Core.PluginManager
       IRegistryNode node = GetRegistryNode(location, false);
       if (node != null && node.Items.ContainsKey(id))
         return (PluginItemRegistration) node.Items[id];
-      else
-        return null;
+      return null;
     }
 
     /// <summary>
@@ -247,9 +292,48 @@ namespace MediaPortal.Core.PluginManager
       return result;
     }
 
+    /// <summary>
+    /// Adds the specified item registration change <paramref name="listener"/> which will be notified
+    /// when items are registered at the specified <paramref name="location"/>.
+    /// </summary>
+    /// <param name="location">Location to add the listener to. The added <paramref name="listener"/> will
+    /// be called when items are added to or removed from this location in the plugin tree.</param>
+    /// <param name="listener">The listener to add.</param>
+    internal static void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(location, true);
+      listeners.Add(listener);
+    }
+
+    /// <summary>
+    /// Removes the specified change <paramref name="listener"/> instance from the specified
+    /// <paramref name="location"/>.
+    /// </summary>
+    /// <param name="location">Location to remove the listener from.</param>
+    /// <param name="listener">The listener to remove.</param>
+    internal static void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+      ICollection<IItemRegistrationChangeListener> listeners = GetListenersForLocation(location, false);
+      if (listeners == null)
+        return;
+      listeners.Remove(listener);
+    }
+
     #endregion
 
     #region Protected/private/internal methods to be called only from this class
+
+    protected static ICollection<IItemRegistrationChangeListener> GetListenersForLocation(string location, bool createOnNotExist)
+    {
+      IRegistryNode node = GetRegistryNode(location, createOnNotExist);
+      if (node == null)
+        return null;
+      if (node.Items.ContainsKey(ITEMCHANGELISTENER_ID))
+        return (ICollection<IItemRegistrationChangeListener>) node.Items[ITEMCHANGELISTENER_ID];
+      if (createOnNotExist)
+        return (ICollection<IItemRegistrationChangeListener>) (node.Items[ITEMCHANGELISTENER_ID] = new List<IItemRegistrationChangeListener>());
+      return null;
+    }
 
     protected static IRegistryNode GetRegistryNode(string path, bool createOnNotExist)
     {

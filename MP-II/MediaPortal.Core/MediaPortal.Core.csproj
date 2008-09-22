@@ -86,6 +86,7 @@
     <Compile Include="Messaging\IMessageQueue.cs" />
     <Compile Include="Messaging\QueueMessage.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
+    <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />
     <Compile Include="PluginManager\Settings\Group.cs" />
     <Compile Include="PluginManager\Settings\Section.cs" />
     <Compile Include="PluginManager\Settings\Setting.cs" />

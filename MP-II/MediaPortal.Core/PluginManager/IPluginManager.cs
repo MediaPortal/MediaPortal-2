@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -190,5 +190,17 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="stateTracker">State tracker instance which was registered by the call to
     /// <see cref="RequestAllPluginItems{T}"/> before.</param>
     void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker);
+
+    /// <summary>
+    /// Adds the specified change <paramref name="listener"/> instance which will be notified when items
+    /// are registered or unregistered at the specified <paramref name="location"/>.
+    /// </summary>
+    void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener);
+
+    /// <summary>
+    /// Removes the specified change <paramref name="listener"/> instance from the specified
+    /// <paramref name="location"/>.
+    /// </summary>
+    void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener);
   }
 }

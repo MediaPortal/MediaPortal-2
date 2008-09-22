@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
  *  Copyright (C) 2007-2008 Team MediaPortal
@@ -40,7 +40,7 @@ namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
   /// An <see cref="IPluginManager"/> implementation that reads plugins from plugin directories, with
-  /// .plugin descriptor files.
+  /// plugin.xml descriptor files.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -140,11 +140,7 @@ namespace MediaPortal.Core.Services.PluginManager
       PluginRuntime pr;
       if (!_availablePlugins.TryGetValue(plugin.Name, out pr))
         pr = AddPlugin(plugin);
-      bool result;
-      if (activate)
-        result = TryActivate(pr);
-      else
-        result = TryEnable(pr, true);
+      bool result = activate ? TryActivate(pr) : TryEnable(pr, true);
       if (result)
       {
         PluginManagerSettings settings = new PluginManagerSettings();
@@ -165,8 +161,7 @@ namespace MediaPortal.Core.Services.PluginManager
       PluginRuntime pr;
       if (_availablePlugins.TryGetValue(plugin.Name, out pr))
         return TryDisable(pr);
-      else
-        return true;
+      return true;
     }
 
     public ICollection<IPluginMetadata> FindConflicts(IPluginMetadata plugin)
@@ -270,6 +265,16 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
         RevokeItemUsage(itemRegistration, stateTracker);
+    }
+
+    public void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+      PluginRuntime.AddItemRegistrationChangeListener(location, listener);
+    }
+
+    public void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
+    {
+      PluginRuntime.RemoveItemRegistrationChangeListener(location, listener);
     }
 
     #endregion
