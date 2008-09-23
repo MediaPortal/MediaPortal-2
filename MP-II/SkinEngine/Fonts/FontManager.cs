@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -33,60 +32,15 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Fonts
 {
-
-
   public class FontManager 
   {
     public const string DEFAULT_FONT_FILE = "default-font.xml";
-    private static IDictionary<string, FontFamily> _families;
+    private static readonly IDictionary<string, FontFamily> _families = new Dictionary<string, FontFamily>();
     private static string _defaultFontFamily;
     private static int _defaultFontSize;
 
     /// <summary>
-    /// Parses the font file name for a font family
-    /// </summary>
-    private static string ParseTtfFile(XmlNode node)
-    {
-      try
-      {
-        XmlNode nodeName = node.Attributes.GetNamedItem("ttf");
-        if (nodeName == null || nodeName.Value == null)
-        {
-          return String.Empty;
-        }
-        return nodeName.Value;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse ttf name.");
-        ServiceScope.Get<ILogger>().Error(ex);
-        return String.Empty;
-      }
-    }
-    /// <summary>
-    /// Parses a family name for a font family
-    /// </summary>
-    /// 
-    private static string ParseFamilyName(XmlNode node)
-    {
-      try
-      {
-        XmlNode nodeFamilyName = node.Attributes.GetNamedItem("name");
-        if (nodeFamilyName == null || nodeFamilyName.Value == null)
-        {
-          return String.Empty;
-        }
-        return nodeFamilyName.Value;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("FontManager failed to Parse family name.");
-        ServiceScope.Get<ILogger>().Error(ex);
-        return String.Empty;
-      }
-    }
-    /// <summary>
-    /// Returns the default font family
+    /// Returns the default font family.
     /// </summary>
     public static string DefaultFontFamily
     {
@@ -94,7 +48,7 @@ namespace MediaPortal.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Returns the default font size
+    /// Returns the default font size.
     /// </summary>
     public static int DefaultFontSize
     {
@@ -102,9 +56,9 @@ namespace MediaPortal.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Returns the Font object
+    /// Returns the Font object for the specified <paramref name="fontFamily"/> and
+    /// <paramref name="fontSize"/>.
     /// </summary>
-    /// 
     public static Font GetScript(string fontFamily, int fontSize)
     {
       FontFamily family = _families[fontFamily];
@@ -133,16 +87,22 @@ namespace MediaPortal.SkinEngine.Fonts
       string defaultFontSize = doc.DocumentElement.GetAttribute("FontSize");
       _defaultFontSize = int.Parse(defaultFontSize);
 
-      _families = new Dictionary<string, FontFamily>();
+      _families.Clear();
       // Iterate over font family descriptors
-      foreach (FileInfo descriptorFile in resourcesCollection.GetResourceFiles(SkinResources.FONTS_DIRECTORY + "\\\\.*.desc").Values)
+      foreach (FileInfo descriptorFile in resourcesCollection.GetResourceFiles(
+          "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*.desc$").Values)
       {
         using (FileStream stream = descriptorFile.OpenRead())
           doc.Load(stream);
-        string familyName = ParseFamilyName(doc.DocumentElement);
-        string ttfFile = ParseTtfFile(doc.DocumentElement);
+        string familyName = doc.DocumentElement.GetAttribute("Name");
+        if (string.IsNullOrEmpty(familyName))
+          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFile.FullName);
+        string ttfFile = doc.DocumentElement.GetAttribute("Ttf");
+        if (string.IsNullOrEmpty(ttfFile))
+          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFile.FullName);
+
         FileInfo fontFile = resourcesCollection.GetResourceFile(
-                SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+            SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
         FontFamily family = new FontFamily(familyName, fontFile.FullName);
         _families[familyName] = family;
       }
@@ -151,9 +111,8 @@ namespace MediaPortal.SkinEngine.Fonts
     public static void Unload()
     {
       foreach (KeyValuePair<string, FontFamily> fontFamily in _families)
-      {
         fontFamily.Value.Dispose();
-      }
+      _families.Clear();
     }
   }
 }
