@@ -23,12 +23,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
 using MediaPortal.Configuration.Settings;
 
 namespace MediaPortal.SkinEngine.Settings
