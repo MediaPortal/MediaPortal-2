@@ -76,7 +76,7 @@ namespace Models.Settings
       _themes.Clear();
       IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       IResourceAccessor ra = mgr.SkinResourceContext;
-      foreach (FileInfo file in ra.GetResourceFiles("themes\\\\[\\w]*\\\\theme.xml").Values)
+      foreach (FileInfo file in ra.GetResourceFiles("^themes\\\\[\\w]*\\\\theme.xml$").Values)
       {
         Regex re = new Regex(".*\\\\themes\\\\([\\w]*)\\\\theme.xml");
         string themeName = re.Matches(file.FullName)[0].Groups[1].ToString();
