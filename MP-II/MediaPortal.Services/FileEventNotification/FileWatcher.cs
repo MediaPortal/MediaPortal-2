@@ -41,21 +41,19 @@ namespace MediaPortal.Services.FileEventNotification
 {
 
   /// <summary>
-  /// This class wraps a FileSystemWatcher object. The class is not derived
-  /// from FileSystemWatcher because most of the FileSystemWatcher methods 
-  /// are not virtual. The class was designed to resemble FileSystemWatcher class
-  /// as much as possible so that you can use DelayedFileSystemWatcher instead 
-  /// of FileSystemWatcher objects. 
-  /// DelayedFileSystemWatcher will capture all events from the FileSystemWatcher object.
-  /// The captured events will be delayed by at least ConsolidationInterval milliseconds in order
-  /// to be able to eliminate duplicate events. When duplicate events are found, the last event
-  /// is droped and the first event is fired (the reverse is not recomended because it could
-  /// cause some events not be fired at all since the last event will become the first event and
-  /// it won't fire a if a new similar event arrives imediately afterwards).
+  /// This class wraps a FileSystemWatcher object.
   /// </summary>
-  /// <remarks>
-  ///  Based on code published by Adrian Hamza on
-  ///  http://blogs.gotdotnet.com/ahamza/archive/2006/02/04/FileSystemWatcher_Duplicate_Events.aspx
+  /// <remarks> 
+  /// FileWatcher is not derived from FileSystemWatcher because most of
+  /// the FileSystemWatcher methods are not virtual.
+  /// FileWatcher will capture all events from the FileSystemWatcher object.
+  /// The captured events will be delayed by at least 1000 milliseconds in order
+  /// to be able to eliminate duplicate events. When duplicate events are found,
+  /// the last event is droped and the first event is fired.
+  /// FileWatcher can be used to watch a path which isn't always available, the watch
+  /// will be initialized as soon as the path becomes available. When the path is lost
+  /// (ie the USB drive gets detached), FileWatcher will wait for the path to become
+  /// available again and will restore the watch.
   /// </remarks>
   internal class FileWatcher : IDisposable
   {
@@ -348,7 +346,6 @@ namespace MediaPortal.Services.FileEventNotification
     /// </summary>
     private void EnableWatch()
     {
-      // ToDo: CHECK IF THIS IS AN APPROPRIATE PLACE!! FORGOT WHERE TO PLACE IT...
       InitializePollTimer();
       if (_watcher == null)
       {
@@ -405,6 +402,10 @@ namespace MediaPortal.Services.FileEventNotification
       {
         return false;
       }
+      catch (IOException)
+      {
+        return false;
+      }
     }
 
     /// <summary>
@@ -428,14 +429,14 @@ namespace MediaPortal.Services.FileEventNotification
             int index = host.IndexOf(@"\");  // Find the next "\" to extract the hostname.
             if (index != -1)
               host = host.Substring(0, index);
-            // Tesolve the UNC path by DNS.
+            // Try solve the UNC path by DNS.
             IPHostEntry hostEntry = Dns.GetHostEntry(host);
             bool pingAble = false;
             foreach (IPAddress address in hostEntry.AddressList)
             {
               if (Ping(address))
               {
-                _serverAddress = address; // Save the address, the DNS entry might get lost.
+                _serverAddress = address; // Save the address for faster lookup later.
                 pingAble = true;
                 break;
               }
@@ -458,25 +459,14 @@ namespace MediaPortal.Services.FileEventNotification
         return exists;
       }
       // Else: it's no UNC path, using DirectoryInfo.Exist should be save and fast.
-      // We need a workaround for Directory.Exists(), because its result can't be trusted!
-      DirectoryInfo nfo = new DirectoryInfo(path);
-      nfo.Refresh();
-      if (!nfo.Exists)
-        return false;
-      try
-      {
-        nfo.GetFileSystemInfos();
-      }
-      catch (UnauthorizedAccessException)
-      {
-        return false;
-      }
-      return true;
+      return Directory.Exists(path);
     }
 
     /// <summary>
     /// Returns whether a ping to the given IPAddress succeeded.
     /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="NullReferenceException"></exception>
     /// <param name="ipAddress"></param>
     /// <returns></returns>
     private bool Ping(IPAddress ipAddress)
@@ -695,10 +685,8 @@ namespace MediaPortal.Services.FileEventNotification
       if (Monitor.TryEnter(_syncPoll))
       {
         // IsPathAvailable might take some time,
-        // we'll do this inside the lock to make sure we don't have dozens of checks at the same time.
+        // we do this inside of the lock to make sure we don't have dozens of checks at the same time.
         bool pathAvailable = IsPathAvailable(_path.FullName);
-        //ServiceScope.Get<ILogger>().Debug("[FileEventNotifier] Path available: " + pathAvailable);
-        //ServiceScope.Get<ILogger>().Debug("[FileEventNotifier] Watching: " + _watching);
         try
         {
           if (!_watching && pathAvailable)
