@@ -28,6 +28,7 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Fonts
@@ -36,8 +37,8 @@ namespace MediaPortal.SkinEngine.Fonts
 
   public class FontManager 
   {
-    public const string FONT_META_FILE = "fonts.xml";
-    private static Dictionary<string, FontFamily> _families;
+    public const string DEFAULT_FONT_FILE = "default-font.xml";
+    private static IDictionary<string, FontFamily> _families;
     private static string _defaultFontFamily;
     private static int _defaultFontSize;
 
@@ -106,7 +107,6 @@ namespace MediaPortal.SkinEngine.Fonts
     /// 
     public static Font GetScript(string fontFamily, int fontSize)
     {
-
       FontFamily family = _families[fontFamily];
 
       if (family == null)
@@ -116,31 +116,33 @@ namespace MediaPortal.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Parses the fonts.xml file and loads the font familys it contains.
+    /// Sets the font manager up with the specified <paramref name="resourcesCollection"/>.
+    /// This method will load the font defaults (family and size) and the font files from the
+    /// resource collection.
     /// </summary>
-    /// 
-    public static void Load()
+    public static void Load(IResourceAccessor resourcesCollection)
     {
-      _families = new Dictionary<string, FontFamily>();
-
-      FileInfo descrFile = SkinContext.SkinResources.GetResourceFile(  
-      SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + FONT_META_FILE);
+      FileInfo defaultFontFile = resourcesCollection.GetResourceFile(  
+          SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
 
       XmlDocument doc = new XmlDocument();
-      doc.Load(descrFile.FullName);
+      using (FileStream stream = defaultFontFile.OpenRead())
+        doc.Load(stream);
 
-      _defaultFontFamily = doc.DocumentElement.GetAttribute("defaultFamily");
-      string defaultFontSize = doc.DocumentElement.GetAttribute("defaultSize");
+      _defaultFontFamily = doc.DocumentElement.GetAttribute("FontFamily");
+      string defaultFontSize = doc.DocumentElement.GetAttribute("FontSize");
       _defaultFontSize = int.Parse(defaultFontSize);
 
-      XmlNodeList nodesItems = doc.SelectNodes("/Skin/family");
-      foreach (XmlNode nodeItem in nodesItems)
+      _families = new Dictionary<string, FontFamily>();
+      // Iterate over font family descriptors
+      foreach (FileInfo descriptorFile in resourcesCollection.GetResourceFiles(SkinResources.FONTS_DIRECTORY + "\\\\.*.desc").Values)
       {
-        string familyName = ParseFamilyName(nodeItem);
-        string ttfFile = ParseTtfFile(nodeItem);
-        FileInfo fontFile =
-          SkinContext.SkinResources.GetResourceFile(
-              SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
+        using (FileStream stream = descriptorFile.OpenRead())
+          doc.Load(stream);
+        string familyName = ParseFamilyName(doc.DocumentElement);
+        string ttfFile = ParseTtfFile(doc.DocumentElement);
+        FileInfo fontFile = resourcesCollection.GetResourceFile(
+                SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
         FontFamily family = new FontFamily(familyName, fontFile.FullName);
         _families[familyName] = family;
       }

@@ -84,7 +84,6 @@ namespace MediaPortal.SkinEngine
         screenSettings.Theme = _theme == null ? null : _theme.Name;
         ServiceScope.Get<ISettingsManager>().Save(screenSettings);
       }
-      Fonts.FontManager.Load();
     }
 
     /// <summary>
@@ -117,8 +116,12 @@ namespace MediaPortal.SkinEngine
       if (theme != null)
         if (!theme.IsValid)
           throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
+
+      SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
+      Fonts.FontManager.Load(skinResources);
+
       // Initialize SkinContext with new values
-      SkinContext.SkinResources = theme == null ? skin : (SkinResources) theme;
+      SkinContext.SkinResources = skinResources;
       SkinContext.SkinName = skin.Name;
       SkinContext.ThemeName = theme == null ? null : theme.Name;
       SkinContext.SkinHeight = skin.NativeHeight;
@@ -279,7 +282,6 @@ namespace MediaPortal.SkinEngine
           // Continue with old skin
           // TODO: Show error dialog
         }
-        Fonts.FontManager.Load();
 
         // We will clear the history because we cannot guarantee that the screens in the
         // history will be compatible with the new skin.
