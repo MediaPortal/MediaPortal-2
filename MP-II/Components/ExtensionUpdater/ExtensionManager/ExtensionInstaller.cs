@@ -31,7 +31,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.ExtensionManager;
 using MediaPortal.Core.PathManager;
 using Components.ExtensionUpdater.ExtensionManager;
-using Components.ExtensionUpdater.ExtensionManager.Actions;
 using MediaPortal.Utilities.Screens;
 using ICSharpCode.SharpZipLib.Zip;
 

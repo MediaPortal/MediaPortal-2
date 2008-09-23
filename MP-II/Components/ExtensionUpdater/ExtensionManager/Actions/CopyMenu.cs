@@ -28,7 +28,6 @@ using System.Xml;
 using System.Collections.Generic;
 using Components.ExtensionUpdater.ExtensionManager.Actions.Helpers;
 using MediaPortal.Core.ExtensionManager;
-using Components.ExtensionUpdater.ExtensionManager.Actions.Helpers;
 using MediaPortal.Presentation.MenuManager;
 using ICSharpCode.SharpZipLib.Zip;
 
