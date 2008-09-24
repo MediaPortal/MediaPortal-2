@@ -35,30 +35,14 @@ namespace MediaPortal
   /// </remarks>
   public class Template_Class
   {
-    #region Imports
+    #region Private/protected fields
     #endregion
 
-    #region Enums
-    #endregion
-
-    #region Delegates
-    #endregion
-
-    #region Events
-    #endregion
-
-    #region Variables
-    // Private Variables
-    // Protected Variables
-    // Public Variables
-    #endregion
-
-    #region Constructors/Destructors
+    #region Ctor/Dtor
 
     #endregion
 
-    #region Properties
-    // Public Properties
+    #region Public properties
     #endregion
 
     #region Public Methods
@@ -67,10 +51,10 @@ namespace MediaPortal
     #region Private Methods
     #endregion
 
-    #region <Base class> Overloads
+    #region Base overrides
     #endregion
 
-    #region <Interface> Implementations
+    #region <Interface> implementations
     // region for each interface
     #endregion
   }
