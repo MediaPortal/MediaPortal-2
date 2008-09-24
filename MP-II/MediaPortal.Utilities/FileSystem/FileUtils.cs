@@ -141,5 +141,26 @@ namespace MediaPortal.Utilities.FileSystem
     {
       return PathEquals(fsi1.FullName, fsi2.FullName);
     }
+
+    /// <summary>
+    /// Returns the information if the specified filesystem <paramref name="info"/> is contained
+    /// in the specified <paramref name="folder"/>. The evaluation is based on the file and folder names,
+    /// the filesystem is not accessed for this check.
+    /// </summary>
+    /// <param name="info">The filesystem info, a <see cref="FileInfo"/> or <see cref="DirectoryInfo"/>
+    /// instance, to be checked.</param>
+    /// <param name="folder">The folder to check.</param>
+    /// <returns><c>true</c>, if the filesystem <paramref name="info"/> is located in the
+    /// specified <paramref name="folder"/>, else <c>false</c>.</returns>
+    public static bool IsContainedIn(FileSystemInfo info, DirectoryInfo folder)
+    {
+      while (info != null)
+        if (PathEquals(folder, info))
+          return true;
+        else
+          // Why doesn't the FileSystemInfo class a property "Directory"??
+          info = Directory.GetParent(info.FullName);
+      return false;
+    }
   }
 }
