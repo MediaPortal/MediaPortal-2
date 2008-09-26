@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MediaPortal.Utilities.FileSystem
 {
@@ -135,32 +135,29 @@ namespace MediaPortal.Utilities.FileSystem
     /// <returns><c>true</c>, if the given paths are the same, else <c>false</c>.</returns>
     public static bool PathEquals(string path1, string path2)
     {
+      if (path1 == null && path2 == null)
+        return true;
+      if (path1 == null || path2 == null)
+        return false;
       return path1.ToLower() == path2.ToLower();
     }
 
-    public static bool PathEquals(FileSystemInfo fsi1, FileSystemInfo fsi2)
-    {
-      return PathEquals(fsi1.FullName, fsi2.FullName);
-    }
-
     /// <summary>
-    /// Returns the information if the specified filesystem <paramref name="info"/> is contained
-    /// in the specified <paramref name="folder"/>. The evaluation is based on the file and folder names,
-    /// the filesystem is not accessed for this check.
+    /// Returns the information if the specified <paramref name="fileOrFolderPath"/> is contained
+    /// in the specified <paramref name="folderPath"/>. The evaluation is based on the file and
+    /// folder names, the filesystem is not accessed for this check.
     /// </summary>
-    /// <param name="info">The filesystem info, a <see cref="FileInfo"/> or <see cref="DirectoryInfo"/>
-    /// instance, to be checked.</param>
-    /// <param name="folder">The folder to check.</param>
-    /// <returns><c>true</c>, if the filesystem <paramref name="info"/> is located in the
-    /// specified <paramref name="folder"/>, else <c>false</c>.</returns>
-    public static bool IsContainedIn(FileSystemInfo info, DirectoryInfo folder)
+    /// <param name="fileOrFolderPath">The file or folder path to be checked.</param>
+    /// <param name="folderPath">The folder to check.</param>
+    /// <returns><c>true</c>, if the <paramref name="fileOrFolderPath"/> is located in the
+    /// specified <paramref name="folderPath"/>, else <c>false</c>.</returns>
+    public static bool IsContainedIn(string fileOrFolderPath, string folderPath)
     {
-      while (info != null)
-        if (PathEquals(folder, info))
+      while (fileOrFolderPath != null)
+        if (PathEquals(folderPath, fileOrFolderPath))
           return true;
         else
-          // Why doesn't the FileSystemInfo class a property "Directory"??
-          info = Directory.GetParent(info.FullName);
+          fileOrFolderPath = Path.GetDirectoryName(fileOrFolderPath);
       return false;
     }
   }
