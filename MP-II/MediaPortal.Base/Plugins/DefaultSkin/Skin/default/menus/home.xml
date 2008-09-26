@@ -23,11 +23,5 @@
     <item text="[pictures.3]" image="hover_my pictures.png" command="ScreenManager.ShowScreen" parameter="Pictures"/>
     <item text="[settings.0]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsGeneral"/>
     <item text="[hello.menu]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="helloworld"/>
-    <item text="[extensions.myextensions]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="extensions">
-      <items>
-        <item text="[extensions.updateall]" image="hover_playlist.png" command="ScreenManager.ShowScreen" parameter="playlist"/>
-        <item text="[extensions.settings]" image="hover_settings.png" command="ScreenManager.ShowScreen" parameter="settingsMusic"/>
-      </items>
-	</item>
   </items>
 </menu>

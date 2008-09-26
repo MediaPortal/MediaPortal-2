@@ -1,7 +1,0 @@
-<menu>
-  <items>
-    <item text="[extensions.sort]" image="" command="ScreenManager.ShowDialog" parameter="dialogExtensionsSortMenu"/>
-    <item text="[extensions.views]" image="" command="ScreenManager.ShowDialog" parameter="dialogExtensionsViewMenu"/>
-    <item text="[extensions.downloadlist]" image="" command="MyExtensions:Model.DownloadList" parameter=""/>
-  </items>
-</menu>

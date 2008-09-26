@@ -148,12 +148,6 @@
     <Compile Include="Media\MetaData\IMetaDataMappingCollection.cs" />
     <Compile Include="Media\MetaData\IMetadataMappingItem.cs" />
     <Compile Include="Media\MetaData\IMetadataMappingProvider.cs" />
-    <Compile Include="ExtensionManager\IExtensionFileAction.cs" />
-    <Compile Include="ExtensionManager\IExtensionFileItem.cs" />
-    <Compile Include="ExtensionManager\IExtensionInstaller.cs" />
-    <Compile Include="ExtensionManager\IExtensionPackage.cs" />
-    <Compile Include="ExtensionManager\IExtensionQueue.cs" />
-    <Compile Include="ExtensionManager\IExtensionQueueObject.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
     <Compile Include="Presentation\Players\IPlayerCollection.cs" />

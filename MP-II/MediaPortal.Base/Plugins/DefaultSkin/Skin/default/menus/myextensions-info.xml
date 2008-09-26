@@ -1,7 +1,0 @@
-<menu>
-  <items>
-    <item text="[extensions.view]" image="" command="list.SwitchStyle" parameter=""/>
-    <item text="[extensions.sort]" image="" command="ScreenManager.ShowDialog" parameter="dialogExtensionsSortMenu"/>
-    <item text="[extensions.views]" image="" command="ScreenManager.ShowDialog" parameter="dialogExtensionsViewMenu"/>
-  </items>
-</menu>
