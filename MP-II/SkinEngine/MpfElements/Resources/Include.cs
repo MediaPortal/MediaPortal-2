@@ -91,10 +91,10 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     public virtual void Initialize(IParserContext context)
     {
-      FileInfo includeFile = SkinContext.SkinResources.GetResourceFile(_includeName);
-      if (includeFile == null)
-        throw new XamlLoadException("Could not open include file '{0}'", _includeName);
-      _content = context.LoadXaml(includeFile.FullName);
+      string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
+      if (includeFilePath == null)
+        throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
+      _content = context.LoadXaml(includeFilePath);
       if (_content is UIElement)
       {
         UIElement target = (UIElement) _content;
@@ -107,7 +107,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
             targetNs.RegisterName(kvp.Key, kvp.Value);
       }
       else if (_content is ResourceDictionary)
-        MergeResourceDictionaries(Resources, (ResourceDictionary)_content);
+        MergeResourceDictionaries(Resources, (ResourceDictionary) _content);
     }
 
     public void MergeResourceDictionaries(ResourceDictionary source, ResourceDictionary target)

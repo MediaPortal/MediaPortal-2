@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -48,11 +48,10 @@ namespace MediaPortal.Services.MenuManager
       //i dont know yet how the pluginmanager could do this.
 
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      FileInfo file = screenManager.SkinResourceContext.GetResourceFile(string.Format("menus\\{0}.xml", menuName));
+      string filePath = screenManager.SkinResourceContext.GetResourceFilePath(string.Format("menus\\{0}.xml", menuName));
 
       XmlDocument doc = new XmlDocument();
-      using (FileStream fs = file.OpenRead())
-        doc.Load(fs);
+      doc.Load(filePath);
       XmlNodeList nodesItems = doc.SelectNodes("/menu/items/item");
       foreach (XmlNode nodeItem in nodesItems)
       {

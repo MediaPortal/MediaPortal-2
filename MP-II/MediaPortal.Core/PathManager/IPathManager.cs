@@ -89,13 +89,5 @@ namespace MediaPortal.Core.PathManager
     /// </summary>
     /// <param name="label">The label of the path registration to be removed.</param>
     void RemovePath(string label);
-
-    /// <summary>
-    /// Gets a path as DirectoryInfo.
-    /// </summary>
-    /// <param name="pathPattern">The path pattern to be resolved.</param>
-    /// <returns>The resolved path as DirectoryInfo.</returns>
-    /// <seealso cref="GetPath(string)"/>
-    DirectoryInfo GetDirectoryInfo(string pathPattern);
   }
 }

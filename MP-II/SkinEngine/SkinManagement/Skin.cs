@@ -170,17 +170,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       if (_metadataInitialized)
         return;
-      FileInfo metaFile = GetResourceFile(SKIN_META_FILE);
-      _metadataInitialized = LoadMetadata(metaFile);
+      string metaFilePath = GetResourceFilePath(SKIN_META_FILE);
+      _metadataInitialized = LoadMetadata(metaFilePath);
     }
 
-    protected bool LoadMetadata(FileInfo metaFile)
+    protected bool LoadMetadata(string metaFilePath)
     {
       try
       {
         XmlDocument doc = new XmlDocument();
-        using (FileStream fs = metaFile.OpenRead())
-          doc.Load(fs);
+        doc.Load(metaFilePath);
         XmlElement skinElement = doc.DocumentElement;
         if (skinElement.Name != "Skin")
           throw new ArgumentException("File is no skin descriptor (needs to contain a 'Skin' element)");
@@ -246,7 +245,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor '" + metaFile.FullName + "'", e);
+        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor '" + metaFilePath + "'", e);
         return false;
       }
       return true;
@@ -265,18 +264,18 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <summary>
     /// Adds the resources and themes in the specified directory.
     /// </summary>
-    /// <param name="skinDirectory">Directory whose contents should be added
+    /// <param name="skinDirectoryPath">Path to a directory whose contents should be added
     /// to the file cache.</param>
-    protected override void LoadDirectory(DirectoryInfo skinDirectory)
+    protected override void LoadDirectory(string skinDirectoryPath)
     {
-      base.LoadDirectory(skinDirectory);
+      base.LoadDirectory(skinDirectoryPath);
       ILogger logger = ServiceScope.Get<ILogger>();
       // Add themes
-      foreach (DirectoryInfo themesDirectory in skinDirectory.GetDirectories(THEMES_DIRECTORY))
-        // Iterate over 0 or 1 "themes" directories
-        foreach (DirectoryInfo themeDirectory in themesDirectory.GetDirectories())
+      string themesDirectoryPath = Path.Combine(skinDirectoryPath, THEMES_DIRECTORY);
+      if (Directory.Exists(themesDirectoryPath))
+        foreach (string themeDirectoryPath in Directory.GetDirectories(themesDirectoryPath))
         { // Iterate over all themes subdirectories
-          string themeName = themeDirectory.Name;
+          string themeName = Path.GetFileName(themeDirectoryPath);
           if (themeName.StartsWith("."))
             continue;
           Theme theme;
@@ -284,7 +283,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
             theme = _themes[themeName];
           else
             theme = _themes[themeName] = new Theme(themeName, this);
-          theme.AddRootDirectory(themeDirectory);
+          theme.AddRootDirectory(themeDirectoryPath);
         }
     }
   }

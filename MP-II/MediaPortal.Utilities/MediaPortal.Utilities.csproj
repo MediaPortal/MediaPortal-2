@@ -82,8 +82,9 @@
     <Compile Include="DeepCopy\ICopyManager.cs" />
     <Compile Include="DeepCopy\IDeepCopyable.cs" />
     <Compile Include="FileSystem\DriveUtils.cs" />
-    <Compile Include="FileSystem\FileSystemInfoComparer.cs" />
     <Compile Include="FileSystem\FileUtils.cs" />
+    <Compile Include="FileSystem\WindowsFilesystemPathComparer.cs" />
+    <Compile Include="FileSystem\WindowsFilesystemPathEqualityComparer.cs" />
     <Compile Include="Localisation\StringsFile\StringFile.cs" />
     <Compile Include="Localisation\StringsFile\StringLocalised.cs" />
     <Compile Include="Localisation\StringsFile\StringSection.cs" />

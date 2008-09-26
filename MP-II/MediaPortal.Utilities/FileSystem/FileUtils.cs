@@ -112,16 +112,17 @@ namespace MediaPortal.Utilities.FileSystem
     /// Returns all files in the specified directory. The method traverses recursively
     /// through the directory tree.
     /// </summary>
-    /// <param name="dir">Root directory to start the search from.</param>
-    /// <returns>List of all files under the specified root directory.</returns>
-    public static IList<FileInfo> GetAllFilesRecursively(DirectoryInfo dir)
+    /// <param name="directoryPath">Directory path to start the search from.</param>
+    /// <returns>List of paths of all file which exist under the specified directory
+    /// in the local file system.</returns>
+    public static IList<string> GetAllFilesRecursively(string directoryPath)
     {
-      IList<FileInfo> result = new List<FileInfo>();
-      foreach (FileInfo file in dir.GetFiles())
-        result.Add(file);
-      foreach (DirectoryInfo subDir in dir.GetDirectories())
-        foreach (FileInfo file in GetAllFilesRecursively(subDir))
-          result.Add(file);
+      IList<string> result = new List<string>();
+      foreach (string filePath in Directory.GetFiles(directoryPath))
+        result.Add(filePath);
+      foreach (string subDirPath in Directory.GetDirectories(directoryPath))
+        foreach (string filePath in GetAllFilesRecursively(subDirPath))
+          result.Add(filePath);
       return result;
     }
 
@@ -134,7 +135,7 @@ namespace MediaPortal.Utilities.FileSystem
     /// <returns><c>true</c>, if the given paths are the same, else <c>false</c>.</returns>
     public static bool PathEquals(string path1, string path2)
     {
-      return path1.ToLowerInvariant() == path2.ToLowerInvariant();
+      return path1.ToLower() == path2.ToLower();
     }
 
     public static bool PathEquals(FileSystemInfo fsi1, FileSystemInfo fsi2)

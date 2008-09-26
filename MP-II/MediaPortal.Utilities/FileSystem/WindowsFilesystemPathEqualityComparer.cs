@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,36 +22,31 @@
 
 #endregion
 
-namespace MediaPortal.Core.Services.PluginManager
+using System.Collections.Generic;
+
+namespace MediaPortal.Utilities.FileSystem
 {
-  public enum PluginResourceType
-  {
-    Language,
-    Skin
-  }
-
   /// <summary>
-  /// Provides the file access location of a plugin resource.
+  /// Class which can be used as a comparator for filesystem path strings on windows
+  /// platforms. This comparator compares file paths case-insensitive.
   /// </summary>
-  public class PluginResource
+  public class WindowsFilesystemPathEqualityComparer : IEqualityComparer<string>
   {
-    protected string _path;
-    protected PluginResourceType _type;
+    private static WindowsFilesystemPathEqualityComparer instance = null;
 
-    public PluginResource(PluginResourceType type, string path)
+    public static WindowsFilesystemPathEqualityComparer Instance
     {
-      _type = type;
-      _path = path;
+      get { return instance ?? (instance = new WindowsFilesystemPathEqualityComparer()); }
     }
 
-    public PluginResourceType Type
+    public bool Equals(string path1, string path2)
     {
-      get { return _type; }
+      return string.Equals(path1 == null ? null : path1.ToLower(), path2 == null ? path2 : path2.ToLower());
     }
 
-    public string Path
+    public int GetHashCode(string path)
     {
-      get { return _path; }
+      return path == null ? 0 : path.ToLower().GetHashCode();
     }
   }
 }

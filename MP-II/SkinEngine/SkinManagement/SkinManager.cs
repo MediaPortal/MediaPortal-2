@@ -111,30 +111,29 @@ namespace MediaPortal.SkinEngine.SkinManagement
       foreach (Skin skin in _skins.Values)
         skin.Release();
 
-      ICollection<DirectoryInfo> skinDirectories = GetSkinRootDirectories();
-      foreach (DirectoryInfo rootDirectory in skinDirectories)
-        if (rootDirectory.Exists)
+      foreach (string rootDirectoryPath in GetSkinRootDirectoryPaths())
+        if (Directory.Exists(rootDirectoryPath))
           try
           {
-            foreach (DirectoryInfo skinDirectory in rootDirectory.GetDirectories())
+            foreach (string skinDirectoryPath in Directory.GetDirectories(rootDirectoryPath))
             {
-              string skinName = skinDirectory.Name;
+              string skinName = Path.GetFileName(skinDirectoryPath);
               if (skinName.StartsWith("."))
                 continue;
               Skin skin;
               if (_skins.ContainsKey(skinName))
                 skin = _skins[skinName];
               else
-                skin = _skins[skinName] = new Skin(skinDirectory.Name);
-              skin.AddRootDirectory(skinDirectory);
+                skin = _skins[skinName] = new Skin(skinName);
+              skin.AddRootDirectory(skinDirectoryPath);
             }
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error loading skins from directory '{0}'", e, rootDirectory.FullName);
+            ServiceScope.Get<ILogger>().Warn("Error loading skins from directory '{0}'", e, rootDirectoryPath);
           }
         else
-          ServiceScope.Get<ILogger>().Warn("Skin resource directory '{0}' doesn't exist", rootDirectory.FullName);
+          ServiceScope.Get<ILogger>().Warn("Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
       // Setup the resource chain: Inherit the default theme resources for all
       // skins other than the default skin
       Skin defaultSkin = DefaultSkin;
@@ -164,13 +163,13 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// Returns all relevant skin root directories available in the system.
     /// </summary>
     /// <returns></returns>
-    protected ICollection<DirectoryInfo> GetSkinRootDirectories()
+    protected ICollection<string> GetSkinRootDirectoryPaths()
     {
-      ICollection<DirectoryInfo> result = new List<DirectoryInfo>();
+      ICollection<string> result = new List<string>();
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
           "/Resources/Skin", _skinResourcesPluginItemStateTracker))
-        result.Add(skinDirectoryResource.Location);
+        result.Add(skinDirectoryResource.Path);
       return result;
     }
   }

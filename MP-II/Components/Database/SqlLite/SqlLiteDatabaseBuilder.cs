@@ -54,7 +54,7 @@ namespace Components.Database.SqlLite
       {
         _connectionString = value;
 
-        // Create Database directory if it Doesn't exist
+        // Create Database directory if it doesn't exist
         FileInfo databaseFile = new FileInfo(DatabaseName);
         if (!databaseFile.Directory.Exists)
           databaseFile.Directory.Create();

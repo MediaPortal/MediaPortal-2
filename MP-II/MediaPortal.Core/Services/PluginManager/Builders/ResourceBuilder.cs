@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -47,7 +47,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
       BuilderHelper.CheckParameter("Directory", itemData);
       return new PluginResource(
           (PluginResourceType) Enum.Parse(typeof (PluginResourceType), itemData.Attributes["Type"]),
-          new DirectoryInfo(plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"])));
+          plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"]));
     }
 
     public bool NeedsPluginActive

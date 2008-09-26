@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.IO;
 using MediaPortal.Thumbnails;
 
 namespace MediaPortal.Services.ThumbnailGenerator
@@ -32,33 +31,26 @@ namespace MediaPortal.Services.ThumbnailGenerator
   /// </summary>
   public class WorkItem
   {
-    public FileSystemInfo _source;
-    public FileInfo _destination;
+    public string _sourcePath;
     public int _quality;
     public int _width;
     public int _height;
     public CreatedDelegate _createdDelegate;
 
-    public WorkItem(FileSystemInfo source, FileInfo destination, int width, int height, int quality,
+    public WorkItem(string sourcePath, int width, int height, int quality,
       CreatedDelegate createdDelegate)
     {
       _width = width;
       _height = height;
       _quality = quality;
 
-      _source = source;
-      _destination = destination;
+      _sourcePath = sourcePath;
       _createdDelegate = createdDelegate;
     }
 
-    public FileSystemInfo Source
+    public string SourcePath
     {
-      get { return _source; }
-    }
-
-    public FileInfo Destination
-    {
-      get { return _destination; }
+      get { return _sourcePath; }
     }
 
     public int Width

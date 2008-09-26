@@ -373,12 +373,12 @@ namespace Components.Services.AutoPlay
 
       try
       {
-        string[] files = System.IO.Directory.GetFiles(strFolder);
+        string[] files = Directory.GetFiles(strFolder);
         if (files != null && files.Length > 0)
         {
           for (int i = 0; i < files.Length; ++i) allfiles.Add(files[i]);
         }
-        string[] folders = System.IO.Directory.GetDirectories(strFolder);
+        string[] folders = Directory.GetDirectories(strFolder);
         if (folders != null && folders.Length > 0)
         {
           for (int i = 0; i < folders.Length; ++i) GetAllFiles(folders[i], ref allfiles);

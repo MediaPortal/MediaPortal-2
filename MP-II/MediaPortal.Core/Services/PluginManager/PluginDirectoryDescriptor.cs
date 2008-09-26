@@ -47,7 +47,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     #region Protected fields
 
-    protected FileInfo _pluginFile = null;
+    protected string _pluginFilePath = null;
     protected string _name = null;
     protected string _copyright = null;
     protected string _author = null;
@@ -57,7 +57,7 @@ namespace MediaPortal.Core.Services.PluginManager
     protected ICollection<string> _dependsOn = new List<string>();
     protected ICollection<string> _conflictsWith = new List<string>();
     protected string _stateTrackerClassName = null;
-    protected ICollection<FileInfo> _assemblyFiles = new List<FileInfo>();
+    protected ICollection<string> _assemblyFilePaths = new List<string>();
     protected IDictionary<string, string> _builders = new Dictionary<string, string>();
     protected ICollection<PluginItemMetadata> _itemsMetadata = new List<PluginItemMetadata>();
     protected ICollection<SettingRegistrationBase> _settingsMetadata = new List<SettingRegistrationBase>();
@@ -66,10 +66,10 @@ namespace MediaPortal.Core.Services.PluginManager
 
     #region Ctor
 
-    public PluginDirectoryDescriptor(DirectoryInfo pluginDirectory)
+    public PluginDirectoryDescriptor(string pluginDirectoryPath)
     {
-      if (!Load(pluginDirectory))
-        throw new ArgumentException("Directory '" + pluginDirectory.FullName + "' doesn't contain a valid plugin descriptor file");
+      if (!Load(pluginDirectoryPath))
+        throw new ArgumentException("Directory '" + pluginDirectoryPath + "' doesn't contain a valid plugin descriptor file");
     }
 
     #endregion
@@ -77,20 +77,19 @@ namespace MediaPortal.Core.Services.PluginManager
     /// <summary>
     /// Loads the plugin descriptor file (plugin.xml) from a plugin directory.
     /// </summary>
-    /// <param name="pluginDirectory">Root directory of the plugin to load the metadata.</param>
+    /// <param name="pluginDirectoryPath">Root directory path of the plugin to load the metadata.</param>
     /// <returns><c>true</c>, if the plugin descriptor could successfully be loaded, else <c>false</c>.
     /// </returns>
-    protected bool Load(DirectoryInfo pluginDirectory)
+    protected bool Load(string pluginDirectoryPath)
     {
-      FileInfo[] res = pluginDirectory.GetFiles(PLUGIN_META_FILE);
-      if (res.Length != 1)
+      string path = Path.Combine(pluginDirectoryPath, PLUGIN_META_FILE);
+      if (!File.Exists(path))
         return false;
-      _pluginFile = res[0];
+      _pluginFilePath = path;
       try
       {
         XmlDocument doc = new XmlDocument();
-        using (FileStream fs = _pluginFile.OpenRead())
-          doc.Load(fs);
+        doc.Load(_pluginFilePath);
         XmlElement descriptorElement = doc.DocumentElement;
         if (descriptorElement.Name != "Plugin")
           throw new ArgumentException("File is no plugin descriptor (needs to contain a 'Plugin' element)");
@@ -138,7 +137,7 @@ namespace MediaPortal.Core.Services.PluginManager
           switch (childElement.Name)
           {
             case "Runtime":
-              ParseRuntimeElement(childElement, pluginDirectory);
+              ParseRuntimeElement(childElement, pluginDirectoryPath);
               break;
             case "Builder":
               _builders.Add(ParseBuilderElement(childElement));
@@ -162,7 +161,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing plugin descriptor file '" + _pluginFile.FullName + "'", e);
+        ServiceScope.Get<ILogger>().Error("Error parsing plugin descriptor file '" + _pluginFilePath + "'", e);
         return false;
       }
       return true;
@@ -174,8 +173,8 @@ namespace MediaPortal.Core.Services.PluginManager
     /// Processes the <i>Runtime</i> sub element of the <i>Plugin</i> element.
     /// </summary>
     /// <param name="runtimeElement">Runtime element.</param>
-    /// <param name="pluginDirectory">Root directory of the plugin whose metadata is to be parsed.</param>
-    protected void ParseRuntimeElement(XmlElement runtimeElement, DirectoryInfo pluginDirectory)
+    /// <param name="pluginDirectory">Root directory path of the plugin whose metadata is to be parsed.</param>
+    protected void ParseRuntimeElement(XmlElement runtimeElement, string pluginDirectory)
     {
       if (runtimeElement.HasAttributes)
         throw new ArgumentException("'Runtime' element mustn't contain any attributes");
@@ -190,10 +189,10 @@ namespace MediaPortal.Core.Services.PluginManager
             string fileName = childElement.GetAttribute("FileName");
             if (fileName.Length == 0)
               throw new ArgumentException("'Assembly' element needs an attribute 'FileName'");
-            FileInfo fi = new FileInfo(string.Format(@"{0}\{1}", pluginDirectory.FullName, fileName));
-            if (!fi.Exists)
-              throw new ArgumentException(string.Format("Plugin '{0}': Assembly DLL file '{1}' does not exist", _name, fi.FullName));
-            _assemblyFiles.Add(fi);
+            string assemblyFilePath = Path.IsPathRooted(fileName) ? fileName : Path.Combine(pluginDirectory, fileName);
+            if (!File.Exists(assemblyFilePath))
+              throw new ArgumentException(string.Format("Plugin '{0}': Assembly DLL file '{1}' does not exist", _name, assemblyFilePath));
+            _assemblyFilePaths.Add(assemblyFilePath);
             break;
           case "PluginStateTracker":
             _stateTrackerClassName = childElement.GetAttribute("ClassName");
@@ -589,9 +588,9 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _conflictsWith; }
     }
 
-    public ICollection<FileInfo> AssemblyFiles
+    public ICollection<string> AssemblyFilePaths
     {
-      get { return _assemblyFiles; }
+      get { return _assemblyFilePaths; }
     }
 
     public string StateTrackerClassName
@@ -624,7 +623,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public string GetAbsolutePath(string relativePath)
     {
-      return Path.Combine(_pluginFile.Directory.FullName, relativePath);
+      return Path.Combine(Path.GetDirectoryName(_pluginFilePath), relativePath);
     }
 
     #endregion

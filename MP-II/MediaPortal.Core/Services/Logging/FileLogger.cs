@@ -37,7 +37,7 @@ namespace MediaPortal.Core.Services.Logging
     /// Creates a new <see cref="FileLogger"/> instance and initializes it with the given filename and
     /// <see cref="LogLevel"/>.
     /// </summary>
-    /// <param name="fileName">The full path of the file to write the messages to.</param>
+    /// <param name="filePath">The file path to write the messages to.</param>
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
     /// <param name="logMethodNames">Indicates whether to log the calling method's name.</param>
     /// <remarks>
@@ -45,21 +45,22 @@ namespace MediaPortal.Core.Services.Logging
     /// <para>Turning on logging of method names causes a severe performance degradation. Each call to the
     /// logger will add an extra 10 to 40 milliseconds, depending on the length of the stack trace.</para>
     /// </remarks>
-    private FileLogger(string fileName, LogLevel level, bool logMethodNames):
-        base(new StreamWriter(fileName, true), level, logMethodNames)
+    private FileLogger(string filePath, LogLevel level, bool logMethodNames):
+        base(new StreamWriter(filePath, true), level, logMethodNames)
     {
     }
 
-    public static FileLogger CreateFileLogger(string fileName, LogLevel level, bool logMethodNames)
+    public static FileLogger CreateFileLogger(string filePath, LogLevel level, bool logMethodNames)
     {
-      FileInfo logFile = new FileInfo(fileName);
-      if (!logFile.Directory.Exists)
-        logFile.Directory.Create();
+      string dir = Path.GetDirectoryName(filePath);
+      if (!Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
       if (level > LogLevel.None)
       {
-        using (new StreamWriter(fileName, false)) { }
+        if (File.Exists(filePath))
+          File.Delete(filePath);
       }
-      return new FileLogger(fileName, level, logMethodNames);
+      return new FileLogger(filePath, level, logMethodNames);
     }
   }
 }

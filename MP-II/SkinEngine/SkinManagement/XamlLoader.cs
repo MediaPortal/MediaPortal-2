@@ -49,17 +49,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <summary>
     /// Loads the specified skin file and returns the root UIElement.
     /// </summary>
-    /// <param name="skinFile">The XAML skin file.</param>
+    /// <param name="skinFilePath">The XAML skin file.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(FileInfo skinFile)
+    public static object Load(string skinFilePath)
     {
-      Parser parser = new Parser(skinFile, parser_ImportNamespace, parser_GetEventHandler);
+      Parser parser = new Parser(skinFilePath, parser_ImportNamespace, parser_GetEventHandler);
       parser.SetCustomTypeConverter(Registration.ConvertType);
       DateTime dt = DateTime.Now;
       object obj = parser.Parse();
       TimeSpan ts = DateTime.Now - dt;
-      ServiceScope.Get<ILogger>().Info("XAML file {0} loaded in {1} msec", skinFile, ts.TotalMilliseconds);
+      ServiceScope.Get<ILogger>().Debug("XAML file {0} loaded in {1} msec", skinFilePath, ts.TotalMilliseconds);
       return obj;
     }
 

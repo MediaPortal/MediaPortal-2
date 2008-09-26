@@ -38,9 +38,9 @@ namespace MediaPortal.Presentation.Screen
     /// <param name="resourceName">Name of the resource. This is the
     /// path of the resource relative to the root directory level of this resource
     /// collection directory.</param>
-    /// <returns>System filename of the specified resource or <c>null</c> if
+    /// <returns>Absolute file path of the specified resource or <c>null</c> if
     /// the resource is not defined.</returns>
-    FileInfo GetResourceFile(string resourceName);
+    string GetResourceFilePath(string resourceName);
 
     /// <summary>
     /// Returns all resource files in this resource collection, where their relative directory
@@ -48,8 +48,8 @@ namespace MediaPortal.Presentation.Screen
     /// </summary>
     /// <param name="regExPattern">Regular expression pattern which will be applied on the
     /// unified resource name.</param>
-    /// <returns>Dictionary with a mapping of unified resource names to file infos of those
+    /// <returns>Dictionary with a mapping of unified resource names to full qualified file paths of those
     /// resource files which match the search criterion.</returns>
-    IDictionary<string, FileInfo> GetResourceFiles(string regExPattern);
+    IDictionary<string, string> GetResourceFilePaths(string regExPattern);
   }
 }

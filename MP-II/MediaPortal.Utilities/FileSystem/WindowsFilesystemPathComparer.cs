@@ -23,31 +23,25 @@
 #endregion
 
 using System.Collections.Generic;
-using System.IO;
 
 namespace MediaPortal.Utilities.FileSystem
 {
   /// <summary>
-  /// Unfortunately doen't classes <see cref="FileInfo"/> and <see cref="DirectoryInfo"/> implement
-  /// the methods <see cref="object.Equals(object)"/> and <see cref="object.GetHashCode()"/> in a
-  /// sensible way. This class is a comparer for <see cref="FileSystemInfo"/> descendants to be used
-  /// in lists, dictionaries and for static comparisons of <see cref="FileSystemInfo"/> instances.
-  /// It compares those instances by their path in lower case, so it is Windows specific!
+  /// Class which can be used as a comparator for filesystem path strings on windows
+  /// platforms. This comparator compares file paths case-insensitive.
   /// </summary>
-  public class FileSystemInfoComparer<T> : IEqualityComparer<T> where T : FileSystemInfo
+  public class WindowsFilesystemPathComparer : IComparer<string>
   {
-    public bool Equals(T x, T y)
+    private static WindowsFilesystemPathComparer instance = null;
+
+    public int Compare(string path1, string path2)
     {
-      return FileUtils.PathEquals(x.FullName, y.FullName);
+      return string.Compare(path1 == null ? null : path1.ToLower(), path2 == null ? null : path2.ToLower());
     }
 
-    public int GetHashCode(T obj)
+    public static WindowsFilesystemPathComparer Instance
     {
-      return obj.FullName.GetHashCode();
+      get { return instance ?? (instance = new WindowsFilesystemPathComparer()); }
     }
   }
-
-  public class DirectoryInfoComparer : FileSystemInfoComparer<DirectoryInfo> { }
-
-  public class FileInfoComparer : FileSystemInfoComparer<FileInfo> { }
 }

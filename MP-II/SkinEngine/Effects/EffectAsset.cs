@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -62,12 +62,12 @@ namespace MediaPortal.SkinEngine.Effects
     /// </summary>
     public void Allocate()
     {
-      FileInfo effectFile = SkinContext.SkinResources.GetResourceFile(
+      string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(
           string.Format(@"{0}\{1}.fx", Skin.SHADERS_DIRECTORY ,_effectName));
-      if (effectFile != null && effectFile.Exists)
+      if (effectFilePath != null && File.Exists(effectFilePath))
       {
         string effectShader;
-        using (StreamReader reader = new StreamReader(effectFile.FullName))
+        using (StreamReader reader = new StreamReader(effectFilePath))
           effectShader = reader.ReadToEnd();
         Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
         Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
@@ -84,8 +84,8 @@ namespace MediaPortal.SkinEngine.Effects
         }
         catch
         { 
-          ServiceScope.Get<ILogger>().Error("Unable to load {0}", effectFile);
-          ServiceScope.Get<ILogger>().Error("errors:{0}", errors);
+          ServiceScope.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
+          ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         }
 
         _lastUsed = SkinContext.Now;

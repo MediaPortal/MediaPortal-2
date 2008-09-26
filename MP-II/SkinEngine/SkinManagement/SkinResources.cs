@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     #region Protected fields
 
-    protected IList<DirectoryInfo> _rootDirectories = new List<DirectoryInfo>();
+    protected IList<string> _rootDirectoryPaths = new List<string>();
 
     /// <summary>
     /// Lazy initialized resource file dictionary.
@@ -68,9 +68,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// Holds all known resource files from our resource directories, stored in
     /// a dictionary: The key is the unified resource file name
     /// (relative path name starting at the beginning of the skinfile directory),
-    /// the value is the <see cref="FileInfo"/> instance of the resource file.
+    /// the value is the absolute file path of the resource file.
     /// </remarks>
-    protected IDictionary<string, FileInfo> _localResourceFiles = null;
+    protected IDictionary<string, string> _localResourceFilePaths = null;
 
     /// <summary>
     /// Lazy initialized style resources.
@@ -127,27 +127,27 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return null;
     }
 
-    public FileInfo GetResourceFile(string resourceName)
+    public string GetResourceFilePath(string resourceName)
     {
       CheckResourcesInitialized();
       string key = resourceName.ToLower();
-      if (_localResourceFiles.ContainsKey(key))
-        return _localResourceFiles[key];
+      if (_localResourceFilePaths.ContainsKey(key))
+        return _localResourceFilePaths[key];
       else if (_inheritedSkinResources != null)
-        return _inheritedSkinResources.GetResourceFile(resourceName);
+        return _inheritedSkinResources.GetResourceFilePath(resourceName);
       return null;
     }
 
-    public IDictionary<string, FileInfo> GetResourceFiles(string regExPattern)
+    public IDictionary<string, string> GetResourceFilePaths(string regExPattern)
     {
       CheckResourcesInitialized();
-      Dictionary<string, FileInfo> result = new Dictionary<string, FileInfo>();
+      Dictionary<string, string> result = new Dictionary<string, string>();
       Regex regex = new Regex(regExPattern);
-      foreach (KeyValuePair<string, FileInfo> kvp in _localResourceFiles)
+      foreach (KeyValuePair<string, string> kvp in _localResourceFilePaths)
         if (regex.IsMatch(kvp.Key))
           result.Add(kvp.Key, kvp.Value);
       if (_inheritedSkinResources != null)
-        foreach (KeyValuePair<string, FileInfo> kvp in _inheritedSkinResources.GetResourceFiles(regExPattern))
+        foreach (KeyValuePair<string, string> kvp in _inheritedSkinResources.GetResourceFilePaths(regExPattern))
           if (!result.ContainsKey(kvp.Key))
             result.Add(kvp.Key, kvp.Value);
       return result;
@@ -157,11 +157,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// Returns the skin file for the specified screen name.
     /// </summary>
     /// <param name="screenName">Logical name of the screen.</param>
-    /// <returns></returns>
-    public FileInfo GetSkinFile(string screenName)
+    /// <returns>Absolute file path of the requested skin file.</returns>
+    public string GetSkinFilePath(string screenName)
     {
       string key = SCREENFILES_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
-      return GetResourceFile(key);
+      return GetResourceFilePath(key);
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// is not defined in this skin.</returns>
     public object LoadSkinFile(string screenName)
     {
-      FileInfo skinFile = GetSkinFile(screenName);
+      string skinFile = GetSkinFilePath(screenName);
       if (skinFile == null)
         return null;
       return XamlLoader.Load(skinFile);
@@ -181,18 +181,18 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public void ClearRootDirectories()
     {
       Release();
-      _rootDirectories.Clear();
+      _rootDirectoryPaths.Clear();
     }
 
     /// <summary>
     /// Adds a root directory with resource files to this resource collection.
     /// </summary>
-    /// <param name="rootDirectory">Directory containing files and subdirectories
+    /// <param name="rootDirectoryPath">Directory containing files and subdirectories
     /// with resource files.</param>
-    public void AddRootDirectory(DirectoryInfo rootDirectory)
+    public void AddRootDirectory(string rootDirectoryPath)
     {
       Release();
-      _rootDirectories.Add(rootDirectory);
+      _rootDirectoryPaths.Add(rootDirectoryPath);
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     public virtual void Release()
     {
-      _localResourceFiles = null;
+      _localResourceFilePaths = null;
       _localStyleResources = null;
     }
 
@@ -211,11 +211,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     protected virtual void CheckResourcesInitialized()
     {
-      if (_localResourceFiles == null)
+      if (_localResourceFilePaths == null)
       {
-        _localResourceFiles = new Dictionary<string, FileInfo>();
-        foreach (DirectoryInfo rootDirectory in _rootDirectories)
-          LoadDirectory(rootDirectory);
+        _localResourceFilePaths = new Dictionary<string, string>();
+        foreach (string rootDirectoryPath in _rootDirectoryPaths)
+          LoadDirectory(rootDirectoryPath);
       }
     }
 
@@ -232,7 +232,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         // style resources from lower priority skin resource styles.
         // Setting _localStyleResources to an empty ResourceDictionary here will avoid the repeated call of this method.
         _localStyleResources = new ResourceDictionary();
-        foreach (KeyValuePair<string, FileInfo> resource in _localResourceFiles)
+        foreach (KeyValuePair<string, string> resource in _localResourceFilePaths)
         {
           string resourceKey = resource.Key;
           if (resourceKey.StartsWith(STYLES_DIRECTORY) &&
@@ -248,18 +248,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
     }
 
-    protected virtual void LoadDirectory(DirectoryInfo rootDirectory)
+    protected virtual void LoadDirectory(string rootDirectoryPath)
     {
       // Add resource files for this directory
-      int directoryNameLength = rootDirectory.FullName.Length;
-      foreach (FileInfo resourceFile in FileUtils.GetAllFilesRecursively(rootDirectory))
+      int directoryNameLength = rootDirectoryPath.Length;
+      foreach (string resourceFilePath in FileUtils.GetAllFilesRecursively(rootDirectoryPath))
       {
-        string resourceName = resourceFile.FullName;
-        resourceName = resourceName.Substring(directoryNameLength).ToLower();
+        string resourceName = resourceFilePath.Substring(directoryNameLength).ToLower();
         if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
           resourceName = resourceName.Substring(1);
-        if (!_localResourceFiles.ContainsKey(resourceName))
-          _localResourceFiles[resourceName] = resourceFile;
+        if (!_localResourceFilePaths.ContainsKey(resourceName))
+          _localResourceFilePaths[resourceName] = resourceFilePath;
       }
     }
   }

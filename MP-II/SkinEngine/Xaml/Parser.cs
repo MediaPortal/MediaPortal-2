@@ -166,9 +166,9 @@ namespace MediaPortal.SkinEngine.Xaml
     protected ConvertTypeDlgt _customTypeConverter = null;
 
     /// <summary>
-    /// The XAML file to process.
+    /// The path of the XAML file to process.
     /// </summary>
-    protected FileInfo _xamlFile;
+    protected string _xamlFilePath;
 
     /// <summary>
     /// The document being processed.
@@ -201,12 +201,12 @@ namespace MediaPortal.SkinEngine.Xaml
     /// register all necessary namespace handlers. To start the parsing operation, call
     /// method <see cref="Parse()"/>.
     /// </remarks>
-    /// <param name="xamlFile">The XAML file to parse in this parser.</param>
+    /// <param name="xamlFilePath">The path of the XAML file to parse in this parser.</param>
     /// <param name="importNamespace">Delegate to be called when importing
     /// a new XML/XAML namespace.</param>
     /// <param name="getEventHandler">Delegate to be called when an event handler method
     /// should be assigned.</param>
-    public Parser(FileInfo xamlFile, ImportNamespaceDlgt importNamespace,
+    public Parser(string xamlFilePath, ImportNamespaceDlgt importNamespace,
         GetEventHandlerDlgt getEventHandler)
     {
       try
@@ -217,21 +217,12 @@ namespace MediaPortal.SkinEngine.Xaml
         if (getEventHandler == null)
           throw new ArgumentNullException("The GetEventHandler delegate must not be null");
         _getEventHandler = getEventHandler;
-        XmlDocument doc = new XmlDocument();
-        if (xamlFile.Exists)
-        {
-          _xamlFile = xamlFile;
-          using (FileStream fs = _xamlFile.OpenRead())
-            doc.Load(fs);
-          _xmlDocument = doc;
-        }
-        else
-        {
-          throw new IOException(string.Format("XAML file '{0}' does not exist", xamlFile.FullName));
-        }
+        _xmlDocument = new XmlDocument();
+        _xamlFilePath = xamlFilePath;
+        _xmlDocument.Load(_xamlFilePath);
       } catch (Exception e)
       {
-        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, xamlFile.FullName);
+        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, xamlFilePath);
       }
     }
 
@@ -240,11 +231,11 @@ namespace MediaPortal.SkinEngine.Xaml
     #region Public properties
 
     /// <summary>
-    /// Returns the name of the file to parse.
+    /// Returns the path of the file to parse.
     /// </summary>
-    public FileInfo XAMLFileName
+    public string XAMLFilePath
     {
-      get { return _xamlFile; }
+      get { return _xamlFilePath; }
     }
 
     /// <summary>
@@ -284,7 +275,7 @@ namespace MediaPortal.SkinEngine.Xaml
         return _rootObject;
       }
       else
-        throw new XamlParserException("XAML Parser parsing file '{0}': Parse() method was invoked multiple times", _xamlFile);
+        throw new XamlParserException("XAML Parser parsing file '{0}': Parse() method was invoked multiple times", _xamlFilePath);
     }
 
     #endregion
@@ -900,7 +891,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// <see cref="IParserContext.LoadXaml(string)"/>
     public object LoadXaml(string fileName)
     {
-      Parser subParser = new Parser(new FileInfo(FileUtils.CombinePaths(_xamlFile.DirectoryName, fileName)),
+      Parser subParser = new Parser(FileUtils.CombinePaths(Path.GetDirectoryName(_xamlFilePath), fileName),
           _importCustomNamespace, _getEventHandler);
       return subParser.Parse();
     }

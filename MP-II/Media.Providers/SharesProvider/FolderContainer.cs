@@ -193,11 +193,10 @@ namespace Media.Providers.SharesProvider
     {
       try
       {
-        string[] files = Directory.GetFiles(_folder);
         List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
-        for (int i = 0; i < files.Length; ++i)
+        foreach (string filePath in Directory.GetFiles(_folder))
         {
-          FileContainer cont = new FileContainer(files[i], this);
+          FileContainer cont = new FileContainer(filePath, this);
           fileItems.Add(cont);
         }
 

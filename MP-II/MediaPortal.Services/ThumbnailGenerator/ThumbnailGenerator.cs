@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,7 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Services.ThumbnailGenerator.Database;
 using MediaPortal.Thumbnails;
 using MediaPortal.Utilities.FileSystem;
@@ -41,34 +42,26 @@ namespace MediaPortal.Services.ThumbnailGenerator
   public class ThumbnailGenerator : IAsyncThumbnailGenerator
   {
     public const string FOLDER_THUMB_NAME = "folder.jpg";
+    public const int DEFAULT_THUMB_WIDTH = 192;
+    public const int DEFAULT_THUMB_HEIGHT = 192;
+    public const int DEFAULT_THUMB_QUALITY = 50;
+    public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
     protected readonly Queue<WorkItem> _workToDo = new Queue<WorkItem>();
     protected Thread _workerThread = null;
     protected WorkItem _currentWorkItem = null;
     protected ThumbDatabaseCache _thumbDatabaseCache;
 
-
     public ThumbnailGenerator()
     {
       _thumbDatabaseCache = new ThumbDatabaseCache();
     }
 
-    /// <summary>
-    /// Returns the thumbnail database for the specified directory.
-    /// </summary>
-    /// <param name="directory">The directory to search the thumbnail database.</param>
-    /// <returns>Thumbnail database for the specified <paramref name="directory"/>. If no thumbnail
-    /// database exists for the specified directory, it will be created.</returns>
-    private ThumbDatabase GetDatabase(DirectoryInfo directory)
+    private bool IsInQueue(string fileOrFolderPath)
     {
-      return _thumbDatabaseCache.Get(directory);
-    }
-
-    private bool Contains(FileSystemInfo fileOrFolder)
-    {
-      lock (_workToDo)
+      lock (this)
         foreach (WorkItem item in _workToDo)
-          if (FileUtils.PathEquals(item.Source.FullName, fileOrFolder.FullName))
+          if (FileUtils.PathEquals(item.SourcePath, fileOrFolderPath))
             return true;
       return false;
     }
@@ -78,7 +71,7 @@ namespace MediaPortal.Services.ThumbnailGenerator
       while (true)
       {
         WorkItem item;
-        lock (_workToDo)
+        lock (this)
         {
           int count = _workToDo.Count;
           if (count == 0)
@@ -92,97 +85,139 @@ namespace MediaPortal.Services.ThumbnailGenerator
         _currentWorkItem = item;
 
         bool success = false;
+        ThumbDatabase database = null;
+        string databaseFolderPath = null;
         try
         {
-          if (item.Source is DirectoryInfo)
+          string sourcePath = item.SourcePath;
+          try
           {
-            DirectoryInfo soure = (DirectoryInfo) item.Source;
-            success = ThumbnailBuilder.CreateThumbnailForFolder(soure, item.Destination,
-                item.Width, item.Height, item.Quality,
-                _thumbDatabaseCache.Get(soure));
+            if (Directory.Exists(sourcePath))
+            {
+              databaseFolderPath = sourcePath;
+              database = _thumbDatabaseCache.Acquire(databaseFolderPath);
+              success = ThumbnailBuilder.CreateThumbnailForFolder(sourcePath, FOLDER_THUMB_NAME,
+                  item.Width, item.Height, item.Quality, DEFAULT_THUMB_IMAGE_TYPE, database);
+            }
+            else if (File.Exists(sourcePath))
+            {
+              databaseFolderPath = Path.GetDirectoryName(sourcePath);
+              database = _thumbDatabaseCache.Acquire(databaseFolderPath);
+              success = ThumbnailBuilder.CreateThumbnailForFile(sourcePath,
+                  item.Width, item.Height, item.Quality, DEFAULT_THUMB_IMAGE_TYPE, database);
+            }
           }
-          else
+          catch (Exception ex)
           {
-            FileInfo source = (FileInfo) item.Source;
-            success = ThumbnailBuilder.CreateThumbnailForFile(source, item.Destination,
-                item.Width, item.Height, item.Quality, _thumbDatabaseCache.Get(source.Directory));
+            ServiceScope.Get<ILogger>().Warn("ThumbnailGenerator: Error creating thumbnails", ex);
           }
-
-          /*
-          BitmapImage myBitmapImage = new BitmapImage();
-
-          myBitmapImage.CacheOption = BitmapCacheOption.None;
-          myBitmapImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-          // BitmapImage.UriSource must be in a BeginInit/EndInit block
-          myBitmapImage.BeginInit();
-          myBitmapImage.UriSource = new Uri(item.Source);
-          myBitmapImage.DecodePixelWidth = item.Width;
-          myBitmapImage.EndInit();
-
-          using (FileStream stream = new FileStream(item.Destination, FileMode.Create))
+          if (item.CreatedDelegate != null)
           {
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.QualityLevel = item.Quality;
-            encoder.Frames.Add(BitmapFrame.Create(myBitmapImage));
-            encoder.Save(stream);
-          }*/
+            byte[] imageData = null;
+            ImageType imageType = ImageType.Unknown;
+            if (success)
+              success = database.Get(sourcePath, out imageData, out imageType);
+            item.CreatedDelegate(item.SourcePath, success, imageData, imageType);
+          }
         }
-        catch (Exception) {}
-        if (item.CreatedDelegate != null)
-          item.CreatedDelegate(item.Source, item.Destination, success);
+        finally
+        {
+          if (databaseFolderPath != null)
+            _thumbDatabaseCache.Release(databaseFolderPath);
+        }
       }
+    }
+
+    protected static bool GetDatabaseFolderAndFileName(string fileOrFolderPath,
+        out string folderPath, out string fileName)
+    {
+      folderPath = null;
+      fileName = null;
+      if (File.Exists(fileOrFolderPath))
+      {
+        folderPath = Path.GetDirectoryName(fileOrFolderPath);
+        fileName = Path.GetFileName(fileOrFolderPath);
+        return true;
+      }
+      else if (Directory.Exists(fileOrFolderPath))
+      {
+        folderPath = fileOrFolderPath;
+        fileName = FOLDER_THUMB_NAME;
+        return true;
+      }
+      return false;
     }
 
     #region IAsyncThumbnailGenerator implementation
 
-    public bool Exists(FileSystemInfo fileOrFolder)
+    public bool Exists(string fileOrFolderPath)
     {
-      if (IsCreating(fileOrFolder))
+      if (IsCreating(fileOrFolderPath))
         return false;
-      return fileOrFolder is FileInfo ?
-          GetDatabase(((FileInfo)fileOrFolder).Directory).Contains((FileInfo)fileOrFolder) :
-          GetDatabase((DirectoryInfo)fileOrFolder).Contains(new FileInfo(Path.Combine(fileOrFolder.FullName, FOLDER_THUMB_NAME)));
-
+      string folderPath;
+      string fileName;
+      if (!GetDatabaseFolderAndFileName(fileOrFolderPath, out folderPath, out fileName))
+        return false;
+      try
+      {
+        return _thumbDatabaseCache.Acquire(folderPath).Contains(fileName);
+      }
+      finally
+      {
+        _thumbDatabaseCache.Release(folderPath);
+      }
     }
 
-    public bool IsCreating(FileSystemInfo fileOrFolder)
+    public bool IsCreating(string fileOrFolderPath)
     {
-      bool isBusy = Contains(fileOrFolder);
-      if (_currentWorkItem != null && FileUtils.PathEquals(_currentWorkItem.Source.FullName, fileOrFolder.FullName))
-        isBusy = true;
-      return isBusy;
+      lock (this)
+      {
+        if (IsInQueue(fileOrFolderPath))
+          return true;
+        if (_currentWorkItem != null && FileUtils.PathEquals(_currentWorkItem.SourcePath, fileOrFolderPath))
+          return true;
+      }
+      return false;
     }
 
-    public byte[] GetThumbnail(FileSystemInfo fileOrFolder)
+    public bool GetThumbnail(string fileOrFolderPath, out byte[] imageData, out ImageType imageType)
     {
-      return fileOrFolder is FileInfo ?
-          GetDatabase(((FileInfo)fileOrFolder).Directory).Get((FileInfo)fileOrFolder) :
-          GetDatabase((DirectoryInfo)fileOrFolder).Get(new FileInfo(Path.Combine(fileOrFolder.FullName, FOLDER_THUMB_NAME)));
+      imageData = null;
+      imageType = ImageType.Unknown;
+      string folderPath;
+      string fileName;
+      if (!GetDatabaseFolderAndFileName(fileOrFolderPath, out folderPath, out fileName))
+        return false;
+      try
+      {
+        return _thumbDatabaseCache.Acquire(folderPath).Get(fileName, out imageData, out imageType);
+      }
+      finally
+      {
+        _thumbDatabaseCache.Release(folderPath);
+      }
     }
 
-    public void CreateThumbnail(FileSystemInfo fileOrFolder)
+    public void CreateThumbnail(string fileOrFolderPath)
     {
-      Create(fileOrFolder, 192, 192, 50, null);
+      Create(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, DEFAULT_THUMB_QUALITY, null);
     }
 
-    public void Create(FileSystemInfo fileOrFolder, int width, int height, int quality, CreatedDelegate createdDelegate)
+    public void Create(string fileOrFolderPath, int width, int height, int quality, CreatedDelegate createdDelegate)
     {
-      if (Contains(fileOrFolder))
+      if (IsCreating(fileOrFolderPath))
         return;
-      FileInfo destination;
-      if (fileOrFolder is FileInfo)
-        destination = new FileInfo(Path.ChangeExtension(fileOrFolder.FullName, ".jpg"));
-      else
-        destination = new FileInfo(Path.Combine(fileOrFolder.FullName, FOLDER_THUMB_NAME));
-      WorkItem newItem = new WorkItem(fileOrFolder, destination, width, height, quality, createdDelegate);
-      lock (_workToDo)
+      WorkItem newItem = new WorkItem(fileOrFolderPath, width, height, quality, createdDelegate);
+      lock (this)
+      {
         _workToDo.Enqueue(newItem);
-      if (_workerThread != null)
-        return;
-      _workerThread = new Thread(WorkerThreadMethod);
-      _workerThread.IsBackground = true;
-      _workerThread.Name = "Thumbnail Generator Thread";
-      _workerThread.Start();
+        if (_workerThread != null)
+          return;
+        _workerThread = new Thread(WorkerThreadMethod);
+        _workerThread.IsBackground = true;
+        _workerThread.Name = "Thumbnail Generator Thread";
+        _workerThread.Start();
+      }
     }
 
     #endregion

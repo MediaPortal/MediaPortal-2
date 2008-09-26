@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -196,23 +196,15 @@ namespace Components.Services.Importers
       ServiceScope.Get<ILogger>().Info("Importer '{0}': Importing '{1}'", _name, folder);
       try
       {
-        string[] subFolders = Directory.GetDirectories(folder);
-        for (int i = 0; i < subFolders.Length; ++i)
-        {
-          Import(subFolders[i], ref availableFiles, since);
-        }
+        foreach (string subFolderPath in Directory.GetDirectories(folder))
+          Import(subFolderPath, ref availableFiles, since);
 
-        string[] files = Directory.GetFiles(folder);
-        for (int i = 0; i < files.Length; ++i)
+        foreach (string filePath in Directory.GetFiles(folder))
         {
-          string ext = Path.GetExtension(files[i]).ToLower();
+          string ext = Path.GetExtension(filePath).ToLower();
           if (_extensions.Contains(ext))
-          {
-            if (CheckFile(files[i], since))
-            {
-              availableFiles.Add(files[i]);
-            }
-          }
+            if (CheckFile(filePath, since))
+              availableFiles.Add(filePath);
         }
       }
       catch (Exception ex)
@@ -223,16 +215,13 @@ namespace Components.Services.Importers
       //_lastImport = DateTime.Now;
     }
 
-    static bool CheckFile(string fileName, DateTime lastImport)
+    static bool CheckFile(string filePath, DateTime lastImport)
     {
-      if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
-      {
+      FileInfo fi = new FileInfo(filePath);
+      if ((fi.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
         return false;
-      }
-      if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
-      {
+      if (fi.CreationTime > lastImport || fi.LastWriteTime > lastImport)
         return true;
-      }
       return false;
     }
     #endregion

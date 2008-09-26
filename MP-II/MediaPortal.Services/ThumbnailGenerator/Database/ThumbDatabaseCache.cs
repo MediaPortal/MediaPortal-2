@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,8 +22,8 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Timers;
 using MediaPortal.Utilities.FileSystem;
 
@@ -31,8 +31,15 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
   public class ThumbDatabaseCache
   {
-    protected readonly IDictionary<DirectoryInfo, ThumbDatabase> _databases =
-        new Dictionary<DirectoryInfo, ThumbDatabase>(new FileSystemInfoComparer<DirectoryInfo>());
+    /// <summary>
+    /// Timespan in seconds after that an unused thumb db gets released.
+    /// </summary>
+    public const int THUMB_DB_RELEASE_TIME = 20;
+
+    protected readonly IDictionary<string, ThumbDatabase> _databases =
+        new Dictionary<string, ThumbDatabase>(WindowsFilesystemPathEqualityComparer.Instance);
+    protected readonly IDictionary<string, int> _usages =
+        new Dictionary<string, int>(WindowsFilesystemPathEqualityComparer.Instance);
     protected Timer _timer;
 
     public ThumbDatabaseCache()
@@ -42,33 +49,72 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
       _timer.Start();
     }
 
-
-    public ThumbDatabase Get(DirectoryInfo folder)
+    /// <summary>
+    /// Returns the thumbnail database for the specified folder path and increments
+    /// its usage counter. Make sure to call <see cref="Release"/> after the usage
+    /// of the returned database instance.
+    /// </summary>
+    public ThumbDatabase Acquire(string folderPath)
     {
-      if (_databases.ContainsKey(folder))
-        return _databases[folder];
+      lock (this)
+      {
+        try
+        {
+          if (_databases.ContainsKey(folderPath))
+            return _databases[folderPath];
 
-      ThumbDatabase dbs = new ThumbDatabase(folder);
-      _databases[folder] = dbs;
-      return dbs;
+          return _databases[folderPath] = new ThumbDatabase(folderPath);
+        }
+        finally
+        {
+          IncrementUsageCounter(folderPath);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Releases the usage of the specified thumb database. This method MUST be called when the
+    /// the <see cref="Acquire"/> method was called.
+    /// </summary>
+    public void Release(string folderPath)
+    {
+      lock (this)
+        DecrementUsageCounter(folderPath);
+    }
+
+    private void IncrementUsageCounter(string folderPath)
+    {
+      if (_usages.ContainsKey(folderPath))
+        _usages[folderPath]++;
+      else
+        _usages[folderPath] = 1;
+    }
+
+    private void DecrementUsageCounter(string folderPath)
+    {
+      if (!_usages.ContainsKey(folderPath))
+        throw new ArgumentException(string.Format("ThumbDatabaseCache: Thumb database for folder '{0}' isn't locked", folderPath));
+      if (_usages[folderPath] == 1)
+        _usages.Remove(folderPath);
+      else
+        _usages[folderPath]--;
     }
 
     private void _timer_Elapsed(object sender, ElapsedEventArgs e)
     {
       lock (this)
       {
-        ICollection<ThumbDatabase> releaseDbs = new List<ThumbDatabase>();
-        foreach (KeyValuePair<DirectoryInfo, ThumbDatabase> dbEntry in _databases)
+        ICollection<string> releaseDbs = new List<string>();
+        foreach (KeyValuePair<string, ThumbDatabase> dbEntry in _databases)
         {
-          if (!dbEntry.Value.CanFree)
+          TimeSpan ts = DateTime.Now - dbEntry.Value.LastUsed;
+          if (ts.TotalSeconds < THUMB_DB_RELEASE_TIME)
             continue;
-          releaseDbs.Add(dbEntry.Value);
+          dbEntry.Value.Close();
+          releaseDbs.Add(dbEntry.Key);
         }
-        foreach (ThumbDatabase thumbDb in releaseDbs)
-        {
-          thumbDb.Close();
-          _databases.Remove(thumbDb.Folder);
-        }
+        foreach (string dbPath in releaseDbs)
+          _databases.Remove(dbPath);
       }
     }
   }

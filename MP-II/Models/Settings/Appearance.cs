@@ -55,11 +55,11 @@ namespace Models.Settings
       IPluginItemStateTracker stateTracker = new FixedItemStateTracker();
       foreach (PluginResource rootDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
           "/Resources/Skin", stateTracker))
-        foreach (DirectoryInfo skinDirectory in rootDirectoryResource.Location.GetDirectories())
+        foreach (string skinDirectoryPath in Directory.GetDirectories(rootDirectoryResource.Path))
         {
-          string skinName = skinDirectory.Name;
+          string skinName = Path.GetFileName(skinDirectoryPath);
           ListItem item = new ListItem("Name", skinName);
-          string previewImagePath = String.Format("{0}\\themes\\default\\media\\preview.png", skinDirectory.FullName);
+          string previewImagePath = String.Format("{0}\\themes\\default\\media\\preview.png", skinDirectoryPath);
           item.Add("CoverArt", previewImagePath);
           item.Add("defaulticon", previewImagePath);
           _skins.Add(item);
@@ -76,15 +76,15 @@ namespace Models.Settings
       _themes.Clear();
       IScreenManager mgr = ServiceScope.Get<IScreenManager>();
       IResourceAccessor ra = mgr.SkinResourceContext;
-      foreach (FileInfo file in ra.GetResourceFiles("^themes\\\\[\\w]*\\\\theme.xml$").Values)
+      foreach (string filePath in ra.GetResourceFilePaths("^themes\\\\[\\w]*\\\\theme.xml$").Values)
       {
         Regex re = new Regex(".*\\\\themes\\\\([\\w]*)\\\\theme.xml");
-        string themeName = re.Matches(file.FullName)[0].Groups[1].ToString();
+        string themeName = re.Matches(filePath)[0].Groups[1].ToString();
 
         ListItem item = new ListItem("Name", themeName);
-        FileInfo previewImage = ra.GetResourceFile("themes\\" + themeName + "\\media\\preview.png");
-        if (previewImage != null)
-          item.Add("CoverArt", previewImage.FullName);
+        string previewImagePath = ra.GetResourceFilePath("themes\\" + themeName + "\\media\\preview.png");
+        if (previewImagePath != null)
+          item.Add("CoverArt", previewImagePath);
         _themes.Add(item);
       }
     }

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -169,16 +169,17 @@ namespace MediaPortal.SkinEngine.ContentManagement
         return;
       }
       byte[] thumbData = null;
+      ImageType imageType = ImageType.Unknown;
       ImageInformation info = new ImageInformation();
 
       IAsyncThumbnailGenerator generator = ServiceScope.Get<IAsyncThumbnailGenerator>();
       if (_state == State.Unknown)
       {
-        FileInfo sourceFile = SkinContext.SkinResources.GetResourceFile(
+        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
             SkinResources.MEDIA_DIRECTORY + "\\" + _textureName);
-        if (sourceFile != null && sourceFile.Exists)
+        if (sourceFilePath != null && File.Exists(sourceFilePath))
         {
-          _sourceFileName = sourceFile.FullName;
+          _sourceFileName = sourceFilePath;
           _state = State.Created;
         }
 
@@ -196,22 +197,15 @@ namespace MediaPortal.SkinEngine.ContentManagement
           if (uri.IsFile)
           {
             _sourceFileName = uri.LocalPath;
-            FileInfo file = new FileInfo(_sourceFileName);
             if (UseThumbNail)
             {
-              bool exists = generator.Exists(file);
-              if (exists)
-              {
-                thumbData = generator.GetThumbnail(file);
+              if (generator.GetThumbnail(_sourceFileName, out thumbData, out imageType))
                 _state = State.Created;
-              }
-              else if (generator.IsCreating(file))
-              {
+              else if (generator.IsCreating(_sourceFileName))
                 _state = State.Creating;
-              }
               else
               {
-                generator.CreateThumbnail(file);
+                generator.CreateThumbnail(_sourceFileName);
                 _state = State.Creating;
               }
             }
@@ -241,20 +235,14 @@ namespace MediaPortal.SkinEngine.ContentManagement
 
       if (_state == State.Creating)
       {
-        FileInfo file = new FileInfo(_sourceFileName);
         if (_webClient == null)
         {
-          if (generator.IsCreating(file) == false)
+          if (generator.IsCreating(_sourceFileName) == false)
           {
-            if (generator.Exists(file))
-            {
+            if (generator.GetThumbnail(_sourceFileName, out thumbData, out imageType))
               _state = State.Created;
-              thumbData = generator.GetThumbnail(file);
-            }
             else
-            {
               _state = State.DoesNotExist;
-            }
           }
         }
       }

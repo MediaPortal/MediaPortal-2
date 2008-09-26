@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,46 +22,66 @@
 
 #endregion
 
-using System.IO;
+using MediaPortal.Thumbnails;
 
 namespace MediaPortal.Services.ThumbnailGenerator.Database
 {
+  /// <summary>
+  /// Encapsulates the data of a thumbnail image in a thumb database file.
+  /// </summary>
   public class Thumb
   {
-    public string _fileName;
+    public string _name;
+    public ImageType _imageType = ImageType.Unknown;
     public long _offset;
     public long _size;
     public byte[] _image;
 
-    public string FileName
+    /// <summary>
+    /// Gets or sets the name of this thumbnail. The name is the unique id of a
+    /// thumb entry in a thumbnail db.
+    /// </summary>
+    public string Name
     {
-      get { return _fileName; }
-      set { _fileName = value; }
+      get { return _name; }
+      set { _name = value; }
     }
 
+    /// <summary>
+    /// Gets or sets the offset of the image data in the thumbnail db file.
+    /// </summary>
     public long Offset
     {
       get { return _offset; }
       set { _offset = value; }
     }
 
+    /// <summary>
+    /// Gets or sets the size of the image data in the thumbnail db file.
+    /// </summary>
     public long Size
     {
       get { return _size; }
       set { _size = value; }
     }
 
+    /// <summary>
+    /// Gets or sets the type of the image data.
+    /// </summary>
+    public ImageType @ImageType
+    {
+      get { return _imageType; }
+      set { _imageType = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the data array containing the image data in the format returned by
+    /// <see cref="ImageType"/>, or <c>null</c>, if the image data weren't read yet.
+    /// </summary>
     public byte[] Image
     {
       get { return _image; }
       set { _image = value; }
-    }
-
-    public void Read(Stream stream)
-    {
-      _image = new byte[Size];
-      stream.Seek(Offset, SeekOrigin.Begin);
-      stream.Read(_image, 0, (int) Size);
     }
   }
 }

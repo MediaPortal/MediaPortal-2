@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -115,7 +115,7 @@ namespace Models.Shares
       ICollection<string> shares = new List<string>();
       foreach (string share in mgr.Shares)
       {
-        FolderItem item = new FolderItem(new FileInfo(share).Name, share, null);
+        FolderItem item = new FolderItem(Path.GetFileName(share), share, null);
         _shares.Add(item);
         shares.Add(share);
       }
@@ -275,17 +275,10 @@ namespace Models.Shares
           childrenCollection.Add(new FolderItem("..", folder.ParentFolder.Folder, folder.ParentFolder));
         try
         {
-          string[] folderList = Directory.GetDirectories(folder.Folder);
-          for (int i = 0; i < folderList.Length; ++i)
+          foreach (string folderPath in Directory.GetDirectories(folder.Folder))
           {
-            string folderName;
-            int pos = folderList[i].LastIndexOf(@"\");
-            if (pos > 0)
-              folderName = folderList[i].Substring(pos + 1);
-            else
-              folderName = folderList[i];
-
-            childrenCollection.Add(new FolderItem(folderName, folderList[i], folder));
+            string folderName = Path.GetFileName(folderPath);
+            childrenCollection.Add(new FolderItem(folderName, folderPath, folder));
           }
         }
         catch (IOException) { }

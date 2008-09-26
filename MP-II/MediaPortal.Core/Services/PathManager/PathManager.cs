@@ -114,11 +114,6 @@ namespace MediaPortal.Core.Services.PathManager
         _paths.Remove(label);
     }
 
-    public DirectoryInfo GetDirectoryInfo(string path)
-    {
-      return new DirectoryInfo(GetPath(path));
-    }
-
     #endregion
 
 		#region IStatus implementation

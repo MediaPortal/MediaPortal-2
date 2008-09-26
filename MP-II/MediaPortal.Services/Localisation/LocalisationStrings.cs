@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -250,11 +250,10 @@ namespace MediaPortal.Services.Localisation
 
     private void GetAvailableLangauges()
     {
-      DirectoryInfo dir = new DirectoryInfo(_systemDirectory);
-      foreach (FileInfo file in dir.GetFiles("strings_*.xml"))
+      foreach (string filePath in Directory.GetFiles(_systemDirectory, "strings_*.xml"))
       {
-        int pos = file.Name.IndexOf('_') + 1;
-        string cultName = file.Name.Substring(pos, file.Name.Length - file.Extension.Length - pos);
+        int pos = filePath.IndexOf('_') + 1;
+        string cultName = filePath.Substring(pos, filePath.Length - Path.GetExtension(filePath).Length - pos);
 
         try
         {
@@ -265,7 +264,6 @@ namespace MediaPortal.Services.Localisation
         {
           // Log file error?
         }
-
       }
     }
 

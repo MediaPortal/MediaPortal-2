@@ -69,7 +69,7 @@ namespace MediaPortal.SkinEngine.Xaml
         }
       }
 
-      string fullpath = new FileInfo(typeof(string).Assembly.Location).DirectoryName + "\\" + name + ".dll"; // Find core assembly
+      string fullpath = Path.GetDirectoryName(typeof(string).Assembly.Location) + Path.DirectorySeparatorChar + name + ".dll"; // Find core assembly
       if (File.Exists(fullpath))
       {
         Assembly ass = Assembly.LoadFile(fullpath);

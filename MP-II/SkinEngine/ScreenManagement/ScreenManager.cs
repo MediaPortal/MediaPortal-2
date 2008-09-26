@@ -287,10 +287,10 @@ namespace MediaPortal.SkinEngine
         // history will be compatible with the new skin.
         _history.Clear();
         _history.Push(STARTUP_SCREEN);
-        if (currentScreenInHistory && _skin.GetSkinFile(currentScreenName) != null)
+        if (currentScreenInHistory && _skin.GetSkinFilePath(currentScreenName) != null)
           _history.Push(currentScreenName);
 
-        if (_skin.GetSkinFile(currentScreenName) != null)
+        if (_skin.GetSkinFilePath(currentScreenName) != null)
           _currentScreen = GetScreen(currentScreenName);
         if (_currentScreen == null)
           _currentScreen = GetScreen(_history.Peek());

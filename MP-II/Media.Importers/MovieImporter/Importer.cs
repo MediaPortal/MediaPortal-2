@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -532,50 +532,6 @@ namespace Media.Importers.MovieImporter
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
-
-    //void Import(string folder, ref List<string> availableFiles, DateTime since)
-    //{
-
-    //  ServiceScope.Get<ILogger>().Info("movieimporter   {0}", folder);
-    //  try
-    //  {
-    //    string[] subFolders = Directory.GetDirectories(folder);
-    //    for (int i = 0; i < subFolders.Length; ++i)
-    //    {
-    //      Import(subFolders[i], ref availableFiles, since);
-    //    }
-    //    string[] files = Directory.GetFiles(folder);
-    //    for (int i = 0; i < files.Length; ++i)
-    //    {
-    //      string ext = Path.GetExtension(files[i]).ToLower();
-    //      if (Extensions.Contains(ext))
-    //      {
-    //        if (CheckFile(files[i], since))
-    //        {
-    //          availableFiles.Add(files[i]);
-    //        }
-    //      }
-    //    }
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("movieimporter:error importing folder:{0}", folder);
-    //    ServiceScope.Get<ILogger>().Error(ex);
-    //  }
-    //}
-
-    //bool CheckFile(string fileName, DateTime lastImport)
-    //{
-    //  if ((File.GetAttributes(fileName) & FileAttributes.Hidden) == FileAttributes.Hidden)
-    //  {
-    //    return false;
-    //  }
-    //  if (File.GetCreationTime(fileName) > lastImport || File.GetLastWriteTime(fileName) > lastImport)
-    //  {
-    //    return true;
-    //  }
-    //  return false;
-    //}
 
     /// <summary>
     /// Creates the movie database.

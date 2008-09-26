@@ -189,9 +189,9 @@ namespace MediaPortal.Core.PluginManager
       if (_loadedAssemblies != null)
         return;
       _loadedAssemblies = new List<Assembly>();
-      foreach (FileInfo assemblyFile in _pluginMetadata.AssemblyFiles)
+      foreach (string assemblyFilePath in _pluginMetadata.AssemblyFilePaths)
       {
-        Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
+        Assembly assembly = Assembly.LoadFrom(assemblyFilePath);
         _loadedAssemblies.Add(assembly);
       }
     }

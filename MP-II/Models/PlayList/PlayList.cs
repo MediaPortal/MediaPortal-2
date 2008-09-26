@@ -245,6 +245,7 @@ namespace Models.PlayList
       get
       {
         ItemsCollection items = new ItemsCollection();
+        // FIXME Albert78: No constants in the code! Move it to PathManager.
         string playlistfolder = @"C:\My Playlists";
         foreach (string file in Directory.GetFiles(playlistfolder, "*.*"))
         {

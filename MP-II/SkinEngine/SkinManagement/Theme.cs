@@ -89,17 +89,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       if (_metadataInitialized)
         return;
-      FileInfo metaFile = GetResourceFile(THEME_META_FILE);
-      _metadataInitialized = LoadMetadata(metaFile);
+      string metaFilePath = GetResourceFilePath(THEME_META_FILE);
+      _metadataInitialized = LoadMetadata(metaFilePath);
     }
 
-    protected bool LoadMetadata(FileInfo metaFile)
+    protected bool LoadMetadata(string metaFilePath)
     {
       try
       {
         XmlDocument doc = new XmlDocument();
-        using (FileStream fs = metaFile.OpenRead())
-          doc.Load(fs);
+        doc.Load(metaFilePath);
         XmlElement themeElement = doc.DocumentElement;
         if (themeElement.Name != "Theme")
           throw new ArgumentException("File is no theme descriptor (needs to contain a 'Theme' element)");
@@ -156,7 +155,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing theme descriptor '" + metaFile.FullName + "'", e);
+        ServiceScope.Get<ILogger>().Error("Error parsing theme descriptor '" + metaFilePath + "'", e);
         return false;
       }
       return true;

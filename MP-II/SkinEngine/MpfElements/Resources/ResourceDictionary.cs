@@ -121,10 +121,10 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       if (!string.IsNullOrEmpty(_source))
       {
-        FileInfo includeFile = SkinContext.SkinResources.GetResourceFile(_source);
-        if (includeFile == null)
-          throw new XamlLoadException("Could not open include file '{0}'", _source);
-        ResourceDictionary mergeDict = context.LoadXaml(includeFile.FullName) as ResourceDictionary;
+        string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
+        if (includeFilePath == null)
+          throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
+        ResourceDictionary mergeDict = context.LoadXaml(includeFilePath) as ResourceDictionary;
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -55,14 +55,14 @@ namespace MediaPortal.Services.Logging
     {
       _crashTime = DateTime.Now;
 
-      DirectoryInfo logPath = new DirectoryInfo(Path.Combine(logFilesPath, "Crash_" + _crashTime.ToString("dd.MM.yyyy_HHmm")));
-      if (!logPath.Exists)
-        logPath.Create();
+      string crashLogPath = Path.Combine(logFilesPath, "Crash_" + _crashTime.ToString("dd.MM.yyyy_HHmm"));
+      if (!Directory.Exists(crashLogPath))
+        Directory.CreateDirectory(crashLogPath);
 
-      CopyLogFiles(logFilesPath, logPath.FullName);
+      CopyLogFiles(logFilesPath, crashLogPath);
       //CreateDxDiagLog(logPath.FullName); -- Too slow
 
-      _filename = Path.Combine(logPath.FullName, "Crash.log");
+      _filename = Path.Combine(crashLogPath, "Crash.log");
     }
 
     public void CreateLog(Exception ex)
@@ -251,12 +251,8 @@ namespace MediaPortal.Services.Logging
 
     private static void CopyLogFiles(string logPath, string crashLogPath)
     {
-      DirectoryInfo path = new DirectoryInfo(logPath);
-
-      foreach (FileInfo logFile in path.GetFiles("*.log"))
-      {
-        logFile.CopyTo(Path.Combine(crashLogPath,logFile.Name));
-      }
+      foreach (string logFilePath in Directory.GetFiles(logPath, "*.log"))
+        File.Copy(logFilePath, Path.Combine(crashLogPath, Path.GetFileName(logFilePath)));
     }
 
     private static void CreateDxDiagLog(string destinationFolder)

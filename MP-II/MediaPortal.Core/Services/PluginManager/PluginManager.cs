@@ -699,17 +699,19 @@ namespace MediaPortal.Core.Services.PluginManager
     public IDictionary<string, IPluginMetadata> LoadPluginsData()
     {
       IDictionary<string, IPluginMetadata> result = new Dictionary<string, IPluginMetadata>();
-      DirectoryInfo parent = ServiceScope.Get<IPathManager>().GetDirectoryInfo("<PLUGINS>");
-      foreach (DirectoryInfo pluginDirectory in parent.GetDirectories())
+      String pluginsDirectoryPath = ServiceScope.Get<IPathManager>().GetPath("<PLUGINS>");
+      foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
+      {
         try
         {
-          IPluginMetadata pm = new PluginDirectoryDescriptor(pluginDirectory);
+          IPluginMetadata pm = new PluginDirectoryDescriptor(pluginDirectoryPath);
           result.Add(pm.Name, pm);
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error loading plugin in directory '{0}'", e, pluginDirectory.FullName);
+          ServiceScope.Get<ILogger>().Error("Error loading plugin in directory '{0}'", e, pluginDirectoryPath);
         }
+      }
       return result;
     }
 
@@ -719,7 +721,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public IList<string> GetStatus()
     {
-      List<string> result = new List<string>();
+      IList<string> result = new List<string>();
       result.Add("=== PlugInManager");
       foreach (PluginRuntime plugin in _availablePlugins.Values)
         result.Add(string.Format("  Plugin '{0}': {1}", plugin.Metadata.Name, plugin.State));

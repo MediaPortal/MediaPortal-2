@@ -75,9 +75,9 @@ namespace MediaPortal.Core.PluginManager
     ICollection<string> ConflictsWith { get; }
 
     /// <summary>
-    /// Returns the file names of all assemblies to be loaded for this plugin.
+    /// Returns the file paths of all assemblies to be loaded for this plugin.
     /// </summary>
-    ICollection<FileInfo> AssemblyFiles { get; }
+    ICollection<string> AssemblyFilePaths { get; }
 
     /// <summary>
     /// Gets the name of the state tracker class for this plugin. If no state tracker should be used,

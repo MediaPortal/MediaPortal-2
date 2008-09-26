@@ -25,6 +25,7 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
+using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.Localisation;
@@ -90,10 +91,10 @@ namespace MediaPortal.Services.Localisation
 
         foreach (PluginResource resource in languageResources)
         {
-          if (resource.Location.Exists)
-            AddDirectory(resource.Location.FullName);
+          if (File.Exists(resource.Path))
+            AddDirectory(resource.Path);
           else
-            ServiceScope.Get<ILogger>().Error("StringManager: Language directory doesn't exist: {0}", resource.Location);
+            ServiceScope.Get<ILogger>().Error("StringManager: Language directory doesn't exist: {0}", resource.Path);
         }
       }
       catch (Exception)

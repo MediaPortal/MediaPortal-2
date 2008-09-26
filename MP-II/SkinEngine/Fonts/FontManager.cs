@@ -76,12 +76,11 @@ namespace MediaPortal.SkinEngine.Fonts
     /// </summary>
     public static void Load(IResourceAccessor resourcesCollection)
     {
-      FileInfo defaultFontFile = resourcesCollection.GetResourceFile(  
+      string defaultFontFilePath = resourcesCollection.GetResourceFilePath(
           SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
 
       XmlDocument doc = new XmlDocument();
-      using (FileStream stream = defaultFontFile.OpenRead())
-        doc.Load(stream);
+      doc.Load(defaultFontFilePath);
 
       _defaultFontFamily = doc.DocumentElement.GetAttribute("FontFamily");
       string defaultFontSize = doc.DocumentElement.GetAttribute("FontSize");
@@ -89,21 +88,20 @@ namespace MediaPortal.SkinEngine.Fonts
 
       _families.Clear();
       // Iterate over font family descriptors
-      foreach (FileInfo descriptorFile in resourcesCollection.GetResourceFiles(
+      foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(
           "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*.desc$").Values)
       {
-        using (FileStream stream = descriptorFile.OpenRead())
-          doc.Load(stream);
+        doc.Load(descriptorFilePath);
         string familyName = doc.DocumentElement.GetAttribute("Name");
         if (string.IsNullOrEmpty(familyName))
-          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFile.FullName);
+          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFilePath);
         string ttfFile = doc.DocumentElement.GetAttribute("Ttf");
         if (string.IsNullOrEmpty(ttfFile))
-          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFile.FullName);
+          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFilePath);
 
-        FileInfo fontFile = resourcesCollection.GetResourceFile(
+        string fontFilePath = resourcesCollection.GetResourceFilePath(
             SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
-        FontFamily family = new FontFamily(familyName, fontFile.FullName);
+        FontFamily family = new FontFamily(familyName, fontFilePath);
         _families[familyName] = family;
       }
     }
