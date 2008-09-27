@@ -43,6 +43,9 @@ namespace Models.Music
   /// </summary>
   public class Model
   {
+    public const string IMPORTERSQUEUE_NAME = "Importers";
+    public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
+
     #region variables
 
     private ItemsCollection _sortMenu;
@@ -113,10 +116,10 @@ namespace Models.Music
       //register for messages from players and mediamanager
 
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = broker.GetOrCreate("mediamanager");
+      IMessageQueue queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnMediaManagerMessageReceived);
 
-      queue = broker.GetOrCreate("importers");
+      queue = broker.GetOrCreate(IMPORTERSQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
       //create our dynamic context menu items

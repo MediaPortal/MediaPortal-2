@@ -32,7 +32,7 @@ namespace MediaPortal.Database
     /// Gets the attributes for this item
     /// </summary>
     /// <value>The attributes.</value>
-    Dictionary<string, IDbAttribute> Attributes { get; }
+    IDictionary<string, IDbAttribute> Attributes { get; }
 
     /// <summary>
     /// Gets the database.

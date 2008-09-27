@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using Intel.UPNP.AV.CdsMetadata;
 using Intel.UPNP.AV.MediaServer.CP;
 using MediaPortal.Core;
@@ -40,6 +38,8 @@ namespace Media.Providers.UpNpProvider
 {
   public class UpNpMediaContainer : IRootContainer, IDisposable
   {
+    public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
+
     #region IRootContainer Members
 
     private readonly IRootContainer _root;
@@ -224,7 +224,7 @@ namespace Media.Providers.UpNpProvider
       if (sender.MatchedContainers.Count != 0 || sender.MatchedItems.Count != 0)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        IMessageQueue queue = broker.GetOrCreate("mediamanager");
+        IMessageQueue queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
         QueueMessage msg = new QueueMessage();
         msg.MessageData["action"] = "changed";
         msg.MessageData["fullpath"] = FullPath;

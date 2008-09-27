@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
@@ -47,7 +45,7 @@ namespace Components.Services.PlayerManager
     {
       PlayList playlist = new PlayList();
       IPlaylistIO playlistio = null;
-      List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
+      IList<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
       string extension = System.IO.Path.GetExtension(fileName).ToLower();
 
       switch (extension)

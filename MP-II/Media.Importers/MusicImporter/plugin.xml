@@ -16,6 +16,9 @@
   </Runtime>
 
   <Register Location = "/Media/Importers">
-    <Importer Id = "MusicImporter" ClassName = "Media.Importers.MusicImporter.MusicImporter" Extensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc"/>
+    <Importer
+        Id = "MusicImporter"
+        ClassName = "Media.Importers.MusicImporter.MusicImporter"
+        Extensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc"/>
   </Register>
 </Plugin>

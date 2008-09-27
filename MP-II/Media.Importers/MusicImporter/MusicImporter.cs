@@ -42,6 +42,7 @@ namespace Media.Importers.MusicImporter
   public class MusicImporter : IPluginStateTracker, IImporter
   {
     #region Variables
+
     private IDatabase _musicDatabase = null;
     private readonly string[] ArtistNamePrefixes = new string[]
       {
@@ -52,10 +53,12 @@ namespace Media.Importers.MusicImporter
 
     DateTime _startTime;
     private int _processedFiles = 0;
-    private List<IDbItem> _tracks;
+    private IList<IDbItem> _tracks;
+
     #endregion
 
     #region Enums
+
     public enum Errors
     {
       ERROR_OK = 317,
@@ -70,6 +73,7 @@ namespace Media.Importers.MusicImporter
       ERROR_WRITING_CHANGES = 329,
       ERROR_COMPRESSING = 332
     }
+
     #endregion
 
     public MusicImporter() { }
@@ -94,36 +98,18 @@ namespace Media.Importers.MusicImporter
 
     #endregion
 
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-      //ServiceScope.Get<IImporterManager>().UnRegister(this);
-    }
-
-    #endregion
-
-
     #region IImporter Members
-    /// <summary>
-    /// Do any housekeeping before the first file gets imported
-    /// </summary>
-    /// <returns></returns>
+
     public void BeforeImport(int avAilableFiles)
     {
       _startTime = DateTime.Now;
       _processedFiles = 0;
       _tracks = new List<IDbItem>();
 
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Processing {0} Songs", avAilableFiles);
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Processing {0} songs", avAilableFiles);
       DeleteNonExistingSongs();
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Get files in Share");
     }
 
-    /// <summary>
-    /// Do Cleanup after all files have been imported
-    /// </summary>
-    /// <returns></returns>
     public void AfterImport()
     {
       DateTime stopTime = DateTime.Now;
@@ -133,27 +119,21 @@ namespace Media.Importers.MusicImporter
       _musicDatabase.Save(_tracks);
 
       if (_processedFiles > 0)
-      {
         trackPerSecSummary = string.Format(" ({0} seconds per track)", fSecsPerTrack);
-      }
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Music database reorganization done.  Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", _processedFiles, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Music database reorganization done. Processed {0} tracks in: {1:d2}:{2:d2}:{3:d2}{4}", _processedFiles, ts.Hours, ts.Minutes, ts.Seconds, trackPerSecSummary);
     }
 
-    /// <summary>
-    /// Imports the file.
-    /// </summary>
-    /// <param name="folder">The file.</param>
-    public bool FileImport(string file)
+    public bool FileImport(string filePath)
     {
       IDbItem track;
-      if (!SongExists(file))
+      if (!SongExists(filePath))
       {
         //The song does not exist, we will add it.
-        track = AddSong(file);
+        track = AddSong(filePath);
       }
       else
       {
-        track = UpdateSong(file);
+        track = UpdateSong(filePath);
       }
 
       if (track != null)
@@ -162,7 +142,7 @@ namespace Media.Importers.MusicImporter
         _processedFiles++;
         if (_processedFiles % 1000 == 0)
         {
-          ServiceScope.Get<ILogger>().Info("MusicImporter: Songs Processed so far: {0}", _processedFiles);
+          ServiceScope.Get<ILogger>().Info("MusicImporter: {0} songs processed so far", _processedFiles);
           _musicDatabase.Save(_tracks);
           _tracks.Clear();
         }
@@ -171,34 +151,24 @@ namespace Media.Importers.MusicImporter
       return false;
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the file deleted.</param>
-    public void FileDeleted(string file)
+    public void FileDeleted(string filePath)
     {
-      ServiceScope.Get<ILogger>().Info("MusicImporter: Song Deleted {0}", file);
+      ServiceScope.Get<ILogger>().Info("MusicImporter: Song deleted {0}", filePath);
 
-      DeleteSong(file);
+      DeleteSong(filePath);
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was created
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the new file.</param>
-    public void FileCreated(string file)
+    public void FileCreated(string filePath)
     {
       try
       {
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Created {0}", file);
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Created {0}", filePath);
         //string ext = Path.GetExtension(file).ToLower();
         //if (Extensions.Contains(ext))
         //{
         // Has the song already be added? 
         // This happens when a full directory is copied into the share.
-        if (SongExists(file))
+        if (SongExists(filePath))
           return;
         // For some reason the Create is fired already by windows while the file is still copied.
         // This happens especially on large songs copied via WLAN.
@@ -206,7 +176,7 @@ namespace Media.Importers.MusicImporter
         // I'm trying to open the file here. In case of an exception the file is processed by the Change Event.
         try
         {
-          FileInfo fileInfo = new FileInfo(file);
+          FileInfo fileInfo = new FileInfo(filePath);
           Stream s = null;
           s = fileInfo.OpenRead();
           s.Close();
@@ -216,74 +186,63 @@ namespace Media.Importers.MusicImporter
           // The file is not closed yet. Ignore the event, it will be processed by the Change event
           return;
         }
-        IDbItem track = AddSong(file);
+        IDbItem track = AddSong(filePath);
         if (track != null) track.Save();
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error FileCreated:{0}", file);
+        ServiceScope.Get<ILogger>().Info("musicimporter:error FileCreated:{0}", filePath);
         ServiceScope.Get<ILogger>().Error(ex);
       }
 
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was changed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the updated file.</param>
-    public void FileChanged(string file)
+    public void FileChanged(string filePath)
     {
       try
       {
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Changed {0}", file);
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song Changed {0}", filePath);
         //string ext = Path.GetExtension(file).ToLower();
         //if (Extensions.Contains(ext))
         //{
-        if (SongExists(file))
+        if (SongExists(filePath))
         {
-          IDbItem track = UpdateSong(file);
+          IDbItem track = UpdateSong(filePath);
           if (track != null) track.Save();
         }
         else
         {
-          IDbItem track = AddSong(file);
+          IDbItem track = AddSong(filePath);
           if (track != null) track.Save();
         }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("musicimporter:error FileChanged:{0}", file);
+        ServiceScope.Get<ILogger>().Info("musicimporter:error FileChanged:{0}", filePath);
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file or folder was renamed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the renamed file / folder.</param>
-    /// <param name="oldfFile">The previous filename of the renamed file / folder.</param>
-    public void FileRenamed(string file, string oldFile)
+    public void FileRenamed(string filePath, string oldFilePath)
     {
       try
       {
-        ServiceScope.Get<ILogger>().Info("MusicImporter: Song / Directory Renamed {0} to {1}", file, oldFile);
+        ServiceScope.Get<ILogger>().Info("MusicImporter: Song / Directory Renamed {0} to {1}", filePath, oldFilePath);
 
         // The rename may have been on a directory or a file
-        FileInfo fi = new FileInfo(file);
+        FileInfo fi = new FileInfo(filePath);
         if (fi.Exists)
         {
-          List<IDbItem> result;
+          IList<IDbItem> result;
           try
           {
-            Query trackByFilename = new Query("contenturi", Operator.Same, oldFile);
+            Query trackByFilename = new Query("contenturi", Operator.Same, oldFilePath);
             result = _musicDatabase.Query(trackByFilename);
             if (result.Count > 0)
             {
 
               IDbItem track = result[0];
-              track["contenturi"] = file;
+              track["contenturi"] = filePath;
               track.Save();
             }
           }
@@ -296,13 +255,13 @@ namespace Media.Importers.MusicImporter
         {
           // Must be a directory, so let's change the path entries, containing the old
           // name with the new name
-          DirectoryInfo di = new DirectoryInfo(file);
+          DirectoryInfo di = new DirectoryInfo(filePath);
           if (di.Exists)
           {
-            List<IDbItem> result;
+            IList<IDbItem> result;
             try
             {
-              Query trackByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+              Query trackByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFilePath));
               result = _musicDatabase.Query(trackByFilename);
               if (result.Count > 0)
               {
@@ -310,7 +269,7 @@ namespace Media.Importers.MusicImporter
                 for (int i = 0; i < result.Count; i++)
                 {
                   IDbItem track = result[i];
-                  string strPath = track["contenturi"].ToString().Replace(oldFile, file);
+                  string strPath = track["contenturi"].ToString().Replace(oldFilePath, filePath);
                   track["contenturi"] = strPath;
                   track.Save();
                 }
@@ -325,23 +284,18 @@ namespace Media.Importers.MusicImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("Musicimporter: Error FileRenamed: {0}", file);
+        ServiceScope.Get<ILogger>().Info("Musicimporter: Error FileRenamed: {0}", filePath);
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a directory was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="directory">The name of the deleted folder.</param>
     public void DirectoryDeleted(string directory)
     {
       ServiceScope.Get<ILogger>().Info("MusicImporter: Song Folder deleted {0}", directory);
       try
       {
         Query songByFilename = new Query("contentURI", Operator.Like, String.Format("{0}%", directory));
-        List<IDbItem> result = _musicDatabase.Query(songByFilename);
+        IList<IDbItem> result = _musicDatabase.Query(songByFilename);
         if (result.Count > 0)
         {
           foreach (IDbItem item in result)
@@ -356,12 +310,7 @@ namespace Media.Importers.MusicImporter
       }
     }
 
-    /// <summary>
-    /// Gets the meta data for.
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    /// <param name="items">The items.</param>
-    public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
+    public void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items)
     {
       try
       {
@@ -370,7 +319,7 @@ namespace Media.Importers.MusicImporter
         {
           if (CdUtils.isARedBookCD(folder))
           {
-            QueryFreeDB(folder, ref items);
+            QueryFreeDB(folder, items);
             return;
           }
         }
@@ -380,7 +329,7 @@ namespace Media.Importers.MusicImporter
         List<string> cueFiles = new List<string>();
 
         Query songsByPath = new Query("path", Operator.Same, folder);
-        List<IDbItem> results = _musicDatabase.Query(songsByPath);
+        IList<IDbItem> results = _musicDatabase.Query(songsByPath);
         foreach (IAbstractMediaItem item in items)
         {
           if (item.ContentUri == null) continue;
@@ -412,7 +361,7 @@ namespace Media.Importers.MusicImporter
               if (mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
               {
                 found = true;
-                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
                 {
                   mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -427,7 +376,7 @@ namespace Media.Importers.MusicImporter
               if (dbItem != null)
               {
                 dbItem.Save();
-                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
                 {
                   mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -457,23 +406,24 @@ namespace Media.Importers.MusicImporter
 
         // Add the Content of Cue File Items to the List
         if (cueFileItems.Count > 0)
-          items.AddRange(cueFileItems);
+          CollectionUtils.AddAll(items, cueFileItems);
       }
       catch (Exception ex)
       {
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
+
     #endregion
 
-    #region private methods
+    #region Private methods
+
     bool SongExists(string fileName)
     {
-      List<IDbItem> result;
       try
       {
         Query trackByFilename = new Query("contenturi", Operator.Same, fileName);
-        result = _musicDatabase.Query(trackByFilename);
+        IList<IDbItem> result = _musicDatabase.Query(trackByFilename);
         return (result != null && result.Count > 0);
       }
       catch (Exception ex)
@@ -537,7 +487,7 @@ namespace Media.Importers.MusicImporter
     /// </summary>
     /// <param name="folder"></param>
     /// <param name="items"></param>
-    private void QueryFreeDB(string folder, ref List<IAbstractMediaItem> items)
+    private void QueryFreeDB(string folder, IList<IAbstractMediaItem> items)
     {
       string discId = string.Empty;
       CDInfoDetail MusicCD = new CDInfoDetail();
@@ -656,7 +606,7 @@ namespace Media.Importers.MusicImporter
     {
       try
       {
-        List<IDbItem> result;
+        IList<IDbItem> result;
         try
         {
           Query tracks = new Query();
@@ -698,7 +648,7 @@ namespace Media.Importers.MusicImporter
     {
       try
       {
-        List<IDbItem> result = new List<IDbItem>();
+        IList<IDbItem> result = new List<IDbItem>();
         try
         {
           Query tracks = new Query("contenturi", Operator.Same, strFileName);
@@ -825,17 +775,17 @@ namespace Media.Importers.MusicImporter
         MusicTag tag = GetTag(strFileName);
         if (tag != null)
         {
-          List<IDbItem> result;
+          IList<IDbItem> result;
 
           try
           {
             Query trackByFilename = new Query("contenturi", Operator.Same, strFileName);
             result = _musicDatabase.Query(trackByFilename);
           }
-          catch (Exception)
+          catch (Exception ex)
           {
             ServiceScope.Get<ILogger>().Error(
-              "MusicImporter: Error in Update finished with error (exception for select)");
+              "MusicImporter: Update finished with error (exception in db select query)", ex);
             return null;
           }
 

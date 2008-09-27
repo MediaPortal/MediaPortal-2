@@ -71,7 +71,7 @@ namespace MediaPortal.Database.Provider
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    Dictionary<string, Type> GetColumns(string tableName);
+    IDictionary<string, Type> GetColumns(string tableName);
 
     /// <summary>
     /// Adds a new column to a table.
@@ -91,7 +91,7 @@ namespace MediaPortal.Database.Provider
     /// Gets all tables in the database.
     /// </summary>
     /// <returns></returns>
-    List<string> GetTables();
+    IList<string> GetTables();
 
     /// <summary>
     /// Saves the specified item.
@@ -111,7 +111,7 @@ namespace MediaPortal.Database.Provider
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    List<IDbItem> Query(IDatabase db, IQuery query);
+    IList<IDbItem> Query(IDatabase db, IQuery query);
 
     /// <summary>
     /// returns if the database exists or not
@@ -138,12 +138,12 @@ namespace MediaPortal.Database.Provider
     /// </summary>
     /// <param name="tableName">Name of the attribute-type.</param>
     /// <returns></returns>
-    List<IDbAttribute> GetAttributes(string tableName);
+    IList<IDbAttribute> GetAttributes(string tableName);
 
     /// <summary>
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    void Save(List<IDbItem> items);
+    void Save(IList<IDbItem> items);
   }
 }

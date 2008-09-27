@@ -46,6 +46,6 @@ namespace MediaPortal.Database
     /// Returns a list of all databases.
     /// </summary>
     /// <value>The databases.</value>
-    List<IDatabase> Databases { get; }
+    ICollection<IDatabase> Databases { get; }
   }
 }

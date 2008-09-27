@@ -46,7 +46,7 @@ namespace MediaPortal.Database
     /// Gets the attributes for this database
     /// </summary>
     /// <value>The attributes.</value>
-    List<IDbAttribute> Attributes { get; }
+    IList<IDbAttribute> Attributes { get; }
 
     /// <summary>
     /// Adds the specified attribute to the database
@@ -94,7 +94,7 @@ namespace MediaPortal.Database
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    List<IDbItem> Query(IQuery query);
+    IList<IDbItem> Query(IQuery query);
 
     /// <summary>
     /// checks if the database can execute this query
@@ -107,6 +107,6 @@ namespace MediaPortal.Database
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    void Save(List<IDbItem> items);
+    void Save(IList<IDbItem> items);
   }
 }

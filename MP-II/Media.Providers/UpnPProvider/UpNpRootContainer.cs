@@ -39,6 +39,8 @@ namespace Media.Providers.UpNpProvider
 {
   public class UpNpRootContainer : IRootContainer, IDisposable
   {
+    public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
+
     #region variables
     private readonly CpRootContainer _root;
     private CdsSpider _spider;
@@ -197,7 +199,7 @@ namespace Media.Providers.UpNpProvider
       if (_root.Containers.Count > 0)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        IMessageQueue queue = broker.GetOrCreate("mediamanager");
+        IMessageQueue queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
         QueueMessage msg = new QueueMessage();
         msg.MessageData["action"] = "changed";
         msg.MessageData["fullpath"] = FullPath;

@@ -8,12 +8,12 @@
 
   <Runtime>
     <Assembly FileName = "Services.ImporterManager.dll"/>
-    <PluginStateTracker ClassName= "Components.Services.Importers.ImporterManager"/>
+    <PluginStateTracker ClassName= "Components.Services.ImporterManager.ImporterManager"/>
   </Runtime>
 
-  <Builder Name = "Importer" ClassName = "Components.Services.Importers.ImporterBuilder"/>
+  <Builder Name = "Importer" ClassName = "Components.Services.ImporterManager.ImporterBuilder"/>
 
   <Register Location = "/Services">
-    <Instance Id = "IImporterManager" ClassName = "Components.Services.Importers.ImporterManager"/>
+    <Instance Id = "IImporterManager" ClassName = "Components.Services.ImporterManager.ImporterManager"/>
   </Register>
 </Plugin>

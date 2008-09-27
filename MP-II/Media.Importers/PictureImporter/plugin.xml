@@ -16,6 +16,9 @@
   </Runtime>
 
   <Register Location = "/Media/Importers">
-    <Importer Id = "PictureImporter" ClassName = "Media.Importers.PictureImporter.Importer" Extensions = ".jpg,.png,.gif,.tga"/>
+    <Importer
+        Id = "PictureImporter"
+        ClassName = "Media.Importers.PictureImporter.PictureImporter"
+        Extensions = ".jpg,.jpeg,.png,.gif,.tga"/>
   </Register>
 </Plugin>

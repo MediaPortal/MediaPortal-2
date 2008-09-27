@@ -80,7 +80,7 @@ namespace Media.Providers.DatabaseProvider
       {
         return new List<IAbstractMediaItem>();
       }
-      List<IDbItem> items = _database.Query(view.Query);
+      IList<IDbItem> items = _database.Query(view.Query);
 
       foreach (IDbItem item in items)
       {

@@ -59,7 +59,7 @@ namespace MediaPortal.Database
     /// if IsList is true, then this property can be used to get/set the values
     /// </summary>
     /// <value>The values.</value>
-    List<string> Values { get; set; }
+    IList<string> Values { get; set; }
 
     /// <summary>
     /// Gets the size of the field.

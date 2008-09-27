@@ -48,12 +48,15 @@ namespace Models.Movies
   /// </summary>
   public class Model
   {
-    #region imports
+    public const string IMDBIMPORTERSQUEUE_NAME = "IMDBImporters";
+    public const string IMPORTERSQUEUE_NAME = "Importers";
+    public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
+
+    #region Imports
 
     [DllImport("winmm.dll", EntryPoint = "mciSendStringA", CharSet = CharSet.Ansi)]
     protected static extern int mciSendString(string lpstrCommand, StringBuilder lpstrReturnString, int uReturnLength,
                                               IntPtr hwndCallback);
-
     #endregion
 
     #region variables
@@ -126,13 +129,13 @@ namespace Models.Movies
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = broker.GetOrCreate("players");
       queue.OnMessageReceive += new MessageReceivedHandler(OnPlayerMessageReceived);
-      queue = broker.GetOrCreate("mediamanager");
+      queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnMediaManagerMessageReceived);
 
-      queue = broker.GetOrCreate("importers");
+      queue = broker.GetOrCreate(IMPORTERSQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
-      queue = broker.GetOrCreate("imdbimporters");
+      queue = broker.GetOrCreate(IMDBIMPORTERSQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnImdbImporterMessageReceived);
 
       //create our dynamic context menu items

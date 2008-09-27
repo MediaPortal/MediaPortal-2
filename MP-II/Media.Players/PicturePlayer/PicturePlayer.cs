@@ -35,6 +35,8 @@ namespace Media.Players.PicturePlayer
 {
   public class PicturePlayer : IPlayer
   {
+    public const string PICTUREVIEWERQUEUE_NAME = "PictureViewer";
+
     IMediaItem _mediaItem;
     PlaybackState _state;
 
@@ -53,7 +55,7 @@ namespace Media.Players.PicturePlayer
       _mediaItem = item;
       ServiceScope.Get<IScreenManager>().PrepareScreen("pictureviewer");
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate("pictureviewer");
+      IMessageQueue queue = msgBroker.GetOrCreate(PICTUREVIEWERQUEUE_NAME);
       QueueMessage msg = new QueueMessage();
       msg.MessageData["action"] = "show";
       msg.MessageData["mediaitem"] = item;

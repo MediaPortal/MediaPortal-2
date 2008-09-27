@@ -46,6 +46,9 @@ namespace Models.Pictures
   /// </summary>
   public class PictureModel
   {
+    public const string IMPORTERSQUEUE_NAME = "Importers";
+    public const string PICTUREVIEWERQUEUE_NAME = "PictureViewer";
+
     #region imports
 
     [DllImport("winmm.dll", EntryPoint = "mciSendStringA", CharSet = CharSet.Ansi)]
@@ -133,10 +136,10 @@ namespace Models.Pictures
 
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate("pictureviewer");
+      IMessageQueue queue = msgBroker.GetOrCreate(PICTUREVIEWERQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
 
-      queue = msgBroker.GetOrCreate("importers");
+      queue = msgBroker.GetOrCreate(IMPORTERSQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
 
     }
@@ -494,29 +497,29 @@ namespace Models.Pictures
         menu.Items.Remove(menuItem);
       }
 
-      if (SelectedItem != null)
-      {
-        if ((SelectedItem as FolderItem) != null)
-        {
-          FolderItem folder = (FolderItem)SelectedItem;
-          if (folder.MediaContainer != null && folder.MediaContainer.ContentUri != null)
-          {
-            if (Directory.Exists(folder.MediaContainer.ContentUri.LocalPath))
-            {
-              IImporterManager mgr = ServiceScope.Get<IImporterManager>();
-              if (mgr.Shares.Contains(folder.MediaContainer.ContentUri.LocalPath))
-              {
-                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.ForceImport]);
-                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.RemoveShare]);
-              }
-              else
-              {
-                //menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.AddShare]);
-              }
-            }
-          }
-        }
-      }
+      //if (SelectedItem != null)
+      //{
+      //  if ((SelectedItem as FolderItem) != null)
+      //  {
+      //    FolderItem folder = (FolderItem)SelectedItem;
+      //    if (folder.MediaContainer != null && folder.MediaContainer.ContentUri != null)
+      //    {
+      //      if (Directory.Exists(folder.MediaContainer.ContentUri.LocalPath))
+      //      {
+      //        IImporterManager mgr = ServiceScope.Get<IImporterManager>();
+      //        if (mgr.Shares.Contains(folder.MediaContainer.ContentUri.LocalPath))
+      //        {
+      //          menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.ForceImport]);
+      //          menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.RemoveShare]);
+      //        }
+      //        else
+      //        {
+      //          menu.Items.Add(_dynamicContextMenuItems[(int)ContextMenuItem.AddShare]);
+      //        }
+      //      }
+      //    }
+      //  }
+      //}
     }
 
 

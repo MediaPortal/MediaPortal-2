@@ -28,7 +28,7 @@ using System.Timers;
 using System.Collections;
 using System.ComponentModel;
 
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
   /// <summary>
   /// The standard FileSystemWatcher raises numerous change events for a single change.

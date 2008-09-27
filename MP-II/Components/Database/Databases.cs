@@ -23,16 +23,15 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.Database;
 
 namespace Components.Database
 {
   public class Databases : IDatabases
   {
-    List<IDatabase> _databases = new List<IDatabase>();
+    IList<IDatabase> _databases = new List<IDatabase>();
 
-    public List<IDatabase> DatabasesRegistered 
+    public IList<IDatabase> DatabasesRegistered 
     {
       get
       {

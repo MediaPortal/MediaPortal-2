@@ -140,7 +140,7 @@ namespace Media.Providers.DatabaseProvider
     private void LoadMetaData()
     {
       _metaData = new Dictionary<string, object>();
-      Dictionary<string, IDbAttribute>.Enumerator enumer = _item.Attributes.GetEnumerator();
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = _item.Attributes.GetEnumerator();
       while (enumer.MoveNext())
       {
         _metaData[enumer.Current.Key] = enumer.Current.Value.Value;

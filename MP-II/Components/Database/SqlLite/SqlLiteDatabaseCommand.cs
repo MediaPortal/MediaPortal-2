@@ -156,7 +156,7 @@ namespace Components.Database.SqlLite
     /// Gets all tables in the database.
     /// </summary>
     /// <returns></returns>
-    public List<string> GetTables()
+    public IList<string> GetTables()
     {
       List<string> list = new List<string>();
       using (SQLiteCommand cmd = new SQLiteCommand())
@@ -184,7 +184,7 @@ namespace Components.Database.SqlLite
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    public Dictionary<string, Type> GetColumns(string tableName)
+    public IDictionary<string, Type> GetColumns(string tableName)
     {
       Dictionary<string, Type> columns = new Dictionary<string, Type>();
       using (SQLiteCommand cmd = new SQLiteCommand())
@@ -289,7 +289,7 @@ namespace Components.Database.SqlLite
         return;
 
       // Check if this is a valid column
-      Dictionary<string, Type> columns = new Dictionary<string, Type>();
+      IDictionary<string, Type> columns = new Dictionary<string, Type>();
       columns = GetColumns(_tableName);
 
       if (columns == null)
@@ -331,7 +331,7 @@ namespace Components.Database.SqlLite
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    public void Save(List<IDbItem> items)
+    public void Save(IList<IDbItem> items)
     {
       SQLiteConnection connect = (SQLiteConnection)_connection.UnderlyingConnection;
       List<IDbItem> itemsAdded = new List<IDbItem>();
@@ -399,7 +399,7 @@ namespace Components.Database.SqlLite
     private bool AddUpdateItem(IDbItem item, SQLiteConnection connect)
     {
       SqlCache cache = new SqlCache();
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer;
       bool added = false;
 
       using (SQLiteCommand cmd = new SQLiteCommand())
@@ -528,7 +528,7 @@ namespace Components.Database.SqlLite
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    public List<IDbItem> Query(IDatabase db, IQuery query)
+    public IList<IDbItem> Query(IDatabase db, IQuery query)
     {
       List<IDbItem> results = new List<IDbItem>();
 
@@ -630,8 +630,7 @@ namespace Components.Database.SqlLite
 
     private void DeleteMultiFields(IDbItem newItem)
     {
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
-      enumer = newItem.Attributes.GetEnumerator();
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = newItem.Attributes.GetEnumerator();
       while (enumer.MoveNext())
       {
         //does the attribute has a value
@@ -724,7 +723,7 @@ namespace Components.Database.SqlLite
     /// <param name="item">The item.</param>
     private void UpdateMultiFields(IDbItem item, SqlCache cache)
     {
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer;
       using (SQLiteCommand cmd = new SQLiteCommand())
       {
         cmd.Connection = (SQLiteConnection)_connection.UnderlyingConnection;
@@ -746,7 +745,7 @@ namespace Components.Database.SqlLite
           if (att.IsList)
           {
             //yes, is it a multi-field attribute
-            List<string> attrValues = att.Values;
+            IList<string> attrValues = att.Values;
             //yes, does the seperate table exists?
             string tableName = String.Format("{0}{1}", item.Database.Name, att.Name);
             string columnName = att.Name;
@@ -821,7 +820,7 @@ namespace Components.Database.SqlLite
     /// </summary>
     /// <param name="tableName">Name of the attribute-type.</param>
     /// <returns></returns>
-    public List<IDbAttribute> GetAttributes(string tableName)
+    public IList<IDbAttribute> GetAttributes(string tableName)
     {
       List<IDbAttribute> list = new List<IDbAttribute>();
       list.Add(new DbAttribute("id", typeof(int)));

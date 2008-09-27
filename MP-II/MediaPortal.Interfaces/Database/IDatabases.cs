@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Database
 {
@@ -37,7 +35,7 @@ namespace MediaPortal.Database
     /// Gets a list of all databases registered.
     /// </summary>
     /// <value>The databases registered.</value>
-    List<IDatabase> DatabasesRegistered { get;}
+    IList<IDatabase> DatabasesRegistered { get;}
 
     /// <summary>
     /// Determines whether the specified database has been registered

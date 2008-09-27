@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.Settings;
+using MediaPortal.Utilities.FileSystem;
 
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
   [Serializable]
   public class Share
@@ -46,6 +46,24 @@ namespace Components.Services.Importers
     {
       get { return _shares; }
       set { _shares = value; }
+    }
+
+    public void AddShare(string folder)
+    {
+      Share share = new Share();
+      share.Folder = folder;
+      share.LastImport = new DateTime(1500, 1, 1);
+      _shares.Add(share);
+    }
+
+    public void RemoveShare(string folder)
+    {
+      for (int i = 0; i < _shares.Count; i++)
+        if (FileUtils.PathEquals(_shares[i].Folder, folder))
+        {
+          _shares.RemoveAt(i);
+          break;
+        }
     }
   }
 }

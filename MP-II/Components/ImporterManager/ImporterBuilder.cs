@@ -22,47 +22,26 @@
 
 #endregion
 
-using System;
-using System.IO;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Utilities;
 
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
   class ImporterBuilder : IPluginItemBuilder
   {
-    #region variables
-    string _type;
-    string _extensions;
-    string _name;
-    IImporter _importerInstance;
-    #endregion
-
     #region IPluginItemBuilder methods
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      ImporterBuilder builder = new ImporterBuilder();
-
+      string name = itemData.Id; // The importer's name is its id
+      string className = itemData.Attributes["ClassName"]; // The class of the importer
+      IList<string> extensions = new List<string>(); // All extensions this importer can import
+      
       if (itemData.Attributes.ContainsKey("Extensions"))
-      {
-        builder._extensions = itemData.Attributes["Extensions"];
-      }
+        CollectionUtils.AddAll(extensions, itemData.Attributes["Extensions"].Split(new char[] {',', ' ', ';'}));
 
-      if (itemData.Attributes.ContainsKey("Type"))
-      {
-        builder._type = itemData.Attributes["Type"];
-      }
-
-      builder._importerInstance = (IImporter) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
-
-      builder._name = itemData.Id;
-
-      return builder;
+      return new LazyImporterWrapper(name, extensions, className, plugin);
     }
 
     public bool NeedsPluginActive
@@ -70,160 +49,6 @@ namespace Components.Services.Importers
       get { return true; }
     }
 
-    #endregion
-
-    #region IImporterBuilder
-
-    /// <summary>
-    /// Gets the importer name.
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    /// <summary>
-    /// Gets the file-extensions the importer supports.
-    /// </summary>
-    public string Extensions
-    {
-      get { return _extensions; }
-    }
-
-    /// <summary>
-    /// Gets the instance of the importer.
-    /// </summary>
-    public IImporter Importer
-    {
-      get { return _importerInstance; }
-    }
-
-    /// <summary>
-    /// Called by the importer manager when a full-import needs to be done from the folder
-    /// </summary>
-    /// <param name="folder">The folder to import.</param>
-    /// <param name="since">Only import files older than this value.</param>
-    public void ImportFolder(string folder, DateTime since)
-    {
-      List<string> availableFiles = new List<string>();
-      Import(folder, ref availableFiles, since);
-
-      if (availableFiles.Count > 0)
-      {
-        _importerInstance.BeforeImport(availableFiles.Count);
-        foreach (string filename in availableFiles)
-        {
-          _importerInstance.FileImport(filename);
-        }
-        _importerInstance.AfterImport();
-      }
-    }
-
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="filename">The filename of the deleted file.</param>
-    public void FileDeleted(string filename)
-    {
-      if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileDeleted(filename);
-      }
-    }
-
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was created
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="filename">The filename of the new file.</param>
-    public void FileCreated(string filename)
-    {
-      if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileCreated(filename);
-      }
-    }
-
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was changed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="filename">The filename of the changed file.</param>
-    public void FileChanged(string filename)
-    {
-      if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileChanged(filename);
-      }
-    }
-
-    /// <summary>
-    /// Called by the importer manager after it detected that a file or directory was renamed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="filename">The new filename of the changed file.</param>
-    /// <param name="oldFileName">The old filename of the changed file.</param>
-    public void FileRenamed(string filename, string oldFileName)
-    {
-      if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileRenamed(filename, oldFileName);
-      }
-    }
-
-    /// <summary>
-    /// Called by the importer manager after it detected that a directory was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="directoryname">The directory name of the deleted directory.</param>
-    public void DirectoryDeleted(string directoryname)
-    {
-      _importerInstance.DirectoryDeleted(directoryname);
-    }
-
-    public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
-    {
-      _importerInstance.GetMetaDataFor(folder, ref items);
-    }
-    #endregion
-
-    #region Private
-
-    void Import(string folder, ref List<string> availableFiles, DateTime since)
-    {
-      //since = _lastImport;
-      ServiceScope.Get<ILogger>().Info("Importer '{0}': Importing '{1}'", _name, folder);
-      try
-      {
-        foreach (string subFolderPath in Directory.GetDirectories(folder))
-          Import(subFolderPath, ref availableFiles, since);
-
-        foreach (string filePath in Directory.GetFiles(folder))
-        {
-          string ext = Path.GetExtension(filePath).ToLower();
-          if (_extensions.Contains(ext))
-            if (CheckFile(filePath, since))
-              availableFiles.Add(filePath);
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Info("Importer '{0}': Error importing '{1}'", _name, folder);
-        ServiceScope.Get<ILogger>().Error(ex);
-      }
-      //_lastImport = DateTime.Now;
-    }
-
-    static bool CheckFile(string filePath, DateTime lastImport)
-    {
-      FileInfo fi = new FileInfo(filePath);
-      if ((fi.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
-        return false;
-      if (fi.CreationTime > lastImport || fi.LastWriteTime > lastImport)
-        return true;
-      return false;
-    }
     #endregion
   }
 }

@@ -38,7 +38,7 @@ namespace Components.Database
     private int _size;
     private object _value;
     private bool _isList;
-    private List<string> _values;
+    private IList<string> _values;
 
     #endregion
 
@@ -212,7 +212,7 @@ namespace Components.Database
     /// if IsList is true, then this property can be used to get/set the values
     /// </summary>
     /// <value>The values.</value>
-    public List<string> Values
+    public IList<string> Values
     {
       get { return _values; }
       set { _values = value; }

@@ -120,7 +120,7 @@ namespace Components.Database.Sql
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    public Dictionary<string, Type> GetColumns(string tableName)
+    public IDictionary<string, Type> GetColumns(string tableName)
     {
       Dictionary<string, Type> columns = new Dictionary<string, Type>();
       using (SqlCommand cmd = new SqlCommand())
@@ -191,7 +191,7 @@ namespace Components.Database.Sql
         return;
 
       // Check if this is a valid column
-      Dictionary<string, Type> columns = new Dictionary<string, Type>();
+      IDictionary<string, Type> columns = new Dictionary<string, Type>();
       columns = GetColumns(_tableName);
 
       if (columns == null)
@@ -282,7 +282,7 @@ namespace Components.Database.Sql
     /// Gets all tables in the database.
     /// </summary>
     /// <returns></returns>
-    public List<string> GetTables()
+    public IList<string> GetTables()
     {
       List<string> list = new List<string>();
       using (SqlCommand cmd = new SqlCommand())
@@ -307,7 +307,7 @@ namespace Components.Database.Sql
     /// <param name="item">The item.</param>
     public void Save(IDbItem item)
     {
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer;
       using (SqlCommand cmd = new SqlCommand())
       {
         cmd.Connection = (SqlConnection) _connection.UnderlyingConnection;
@@ -416,7 +416,7 @@ namespace Components.Database.Sql
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    public List<IDbItem> Query(IDatabase db, IQuery query)
+    public IList<IDbItem> Query(IDatabase db, IQuery query)
     {
       List<IDbItem> results = new List<IDbItem>();
 
@@ -467,7 +467,7 @@ namespace Components.Database.Sql
 
     public void InsertAttribute(string tableName, IDbAttribute attribute) {}
 
-    public List<IDbAttribute> GetAttributes(string tableName)
+    public IList<IDbAttribute> GetAttributes(string tableName)
     {
       return null;
     }
@@ -476,6 +476,6 @@ namespace Components.Database.Sql
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    public void Save(List<IDbItem> items) {}
+    public void Save(IList<IDbItem> items) {}
   }
 }

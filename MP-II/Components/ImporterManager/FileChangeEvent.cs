@@ -22,15 +22,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
   public class FileChangeEvent
   {
     #region Enum
+
     public enum FileChangeType
     {
       Deleted,
@@ -39,40 +36,46 @@ namespace Components.Services.Importers
       Changed,
       DirectoryDeleted
     }
+
     #endregion
 
     #region Variables
+
     private FileChangeType _type;
-    private string _strFilename;
-    private string _strOldFilename;
+    private string _fullPath;
+    private string _oldFullPath;
     #endregion
 
     #region Constructors/Destructors
+
     public FileChangeEvent()
     {
-      _strFilename = null;
-      _strOldFilename = null;
+      _fullPath = null;
+      _oldFullPath = null;
     }
+
     #endregion
 
     #region Properties
+
     public FileChangeType Type
     {
       get { return _type; }
       set { _type = value; }
     }
 
-    public string FileName
+    public string FullPath
     {
-      get { return _strFilename; }
-      set { _strFilename = value; }
+      get { return _fullPath; }
+      set { _fullPath = value; }
     }
 
-    public string OldFileName
+    public string OldFullPath
     {
-      get { return _strOldFilename; }
-      set { _strOldFilename = value; }
+      get { return _oldFullPath; }
+      set { _oldFullPath = value; }
     }
+
     #endregion
   }
 }

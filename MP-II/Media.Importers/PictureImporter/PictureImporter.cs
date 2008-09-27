@@ -37,15 +37,16 @@ using MediaPortal.Media.MediaManager.Views;
 
 namespace Media.Importers.PictureImporter
 {
-  public class Importer : IPluginStateTracker, IImporter
+  public class PictureImporter : IPluginStateTracker, IImporter
   {
-    List<string> _extensions;
+    IList<string> _extensions;
     IDatabase _pictureDatabase;
 
-    public Importer()
+    public PictureImporter()
     {
       _extensions = new List<string>();
       _extensions.Add(".jpg");
+      _extensions.Add(".jpeg");
       _extensions.Add(".png");
       _extensions.Add(".gif");
       _extensions.Add(".tga");
@@ -81,47 +82,32 @@ namespace Media.Importers.PictureImporter
     #endregion
 
     #region IImporter Members
-    /// <summary>
-    /// Do any housekeeping before the first file gets imported
-    /// </summary>
-    /// <returns></returns>
-    public void BeforeImport(int avAilableFiles)
-    {
-    }
 
-    /// <summary>
-    /// Do Cleanup after all files have been imported
-    /// </summary>
-    /// <returns></returns>
-    public void AfterImport()
-    {
-    }
+    public void BeforeImport(int avAilableFiles) { }
 
-    /// <summary>
-    /// Imports the file.
-    /// </summary>
-    /// <param name="folder">The file.</param>
-    public bool FileImport(string file)
+    public void AfterImport() { }
+
+    public bool FileImport(string filePath)
     {
       try
       {
-        if (String.IsNullOrEmpty(file)) return false;
-        if (file.ToLower().IndexOf("folder.jpg") >= 0) return false;
-        string fName = System.IO.Path.GetFileName(file);
+        if (String.IsNullOrEmpty(filePath)) return false;
+        if (filePath.ToLower().IndexOf("folder.jpg") >= 0) return false;
+        string fName = System.IO.Path.GetFileName(filePath);
         if (fName.ToLower().StartsWith("albumart")) return false;
-        string ext = System.IO.Path.GetExtension(file).ToLower();
+        string ext = System.IO.Path.GetExtension(filePath).ToLower();
         if (!_extensions.Contains(ext)) return false;
         try
         {
-          Query imageByFilename = new Query("contentURI", Operator.Same, file);
-          List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+          Query imageByFilename = new Query("contentURI", Operator.Same, filePath);
+          IList<IDbItem> result = _pictureDatabase.Query(imageByFilename);
           if (result.Count > 0) return false;
         }
         catch (Exception)
         {
           return false;
         }
-        IDbItem picture = GetExifFor(file);
+        IDbItem picture = GetExifFor(filePath);
         if (picture == null)
           return false;
 
@@ -130,23 +116,18 @@ namespace Media.Importers.PictureImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFile:{0}", file);
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFile:{0}", filePath);
         ServiceScope.Get<ILogger>().Error(ex);
         return false;
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the deleted file.</param>
-    public void FileDeleted(string file)
+    public void FileDeleted(string filePath)
     {
       try
       {
-        Query imageByFilename = new Query("contentURI", Operator.Same, file);
-        List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+        Query imageByFilename = new Query("contentURI", Operator.Same, filePath);
+        IList<IDbItem> result = _pictureDatabase.Query(imageByFilename);
         if (result.Count > 0)
         {
           foreach (IDbItem item in result)
@@ -161,52 +142,36 @@ namespace Media.Importers.PictureImporter
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was created
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the new file.</param>
-    public void FileCreated(string file)
+    public void FileCreated(string filePath)
     {
-      FileImport(file);
+      FileImport(filePath);
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was changed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
-    public void FileChanged(string file)
+    public void FileChanged(string filePath)
     {
-      FileDeleted(file);
+      FileDeleted(filePath);
 
-      FileImport(file);
+      FileImport(filePath);
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file / directory was renamed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the renamed file / folder.</param>
-    /// <param name="olfdFile">The previous filename of the renamed file / folder.</param>
-    public void FileRenamed(string file, string oldFile)
+    public void FileRenamed(string filePath, string oldFilePath)
     {
       try
       {
         // The rename may have been on a directory or a file
-        FileInfo fi = new FileInfo(file);
+        FileInfo fi = new FileInfo(filePath);
         if (fi.Exists)
         {
-          List<IDbItem> result;
+          IList<IDbItem> result;
           try
           {
-            Query imageByFilename = new Query("contenturi", Operator.Same, oldFile);
+            Query imageByFilename = new Query("contenturi", Operator.Same, oldFilePath);
             result = _pictureDatabase.Query(imageByFilename);
             if (result.Count > 0)
             {
 
               IDbItem picture = result[0];
-              picture["contenturi"] = file;
+              picture["contenturi"] = filePath;
               picture.Save();
             }
           }
@@ -219,13 +184,13 @@ namespace Media.Importers.PictureImporter
         {
           // Must be a directory, so let's change the path entries, containing the old
           // name with the new name
-          DirectoryInfo di = new DirectoryInfo(file);
+          DirectoryInfo di = new DirectoryInfo(filePath);
           if (di.Exists)
           {
-            List<IDbItem> result;
+            IList<IDbItem> result;
             try
             {
-              Query imageByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+              Query imageByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFilePath));
               result = _pictureDatabase.Query(imageByFilename);
               if (result.Count > 0)
               {
@@ -233,7 +198,7 @@ namespace Media.Importers.PictureImporter
                 for (int i = 0; i < result.Count; i++)
                 {
                   IDbItem picture = result[i];
-                  string strPath = picture["contenturi"].ToString().Replace(oldFile, file);
+                  string strPath = picture["contenturi"].ToString().Replace(oldFilePath, filePath);
                   picture["contenturi"] = strPath;
                   picture.Save();
                 }
@@ -248,22 +213,17 @@ namespace Media.Importers.PictureImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("pictureimporter:error FileRenamed:{0}", file);
+        ServiceScope.Get<ILogger>().Info("pictureimporter:error FileRenamed:{0}", filePath);
         ServiceScope.Get<ILogger>().Error(ex);
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a directory was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="directory">The name of the deleted folder.</param>
     public void DirectoryDeleted(string directory)
     {
       try
       {
         Query imageByFilename = new Query("contentURI", Operator.Like, String.Format("{0}%", directory));
-        List<IDbItem> result = _pictureDatabase.Query(imageByFilename);
+        IList<IDbItem> result = _pictureDatabase.Query(imageByFilename);
         if (result.Count > 0)
         {
           foreach (IDbItem item in result)
@@ -278,50 +238,18 @@ namespace Media.Importers.PictureImporter
       }
     }
 
-    ///// <summary>
-    ///// Called by the importer manager when a full-import needs to be done from the folder
-    ///// </summary>
-    ///// <param name="folder">The folder.</param>
-    ///// <param name="since"></param>
-    //public void ImportFolder(string folder, DateTime since)
-    //{
-    //  try
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("picture importer:import {0} since {1}", folder, since.ToShortDateString());
-    //    DeleteNonExistingPictures();
-    //    List<string> availableFiles = new List<string>();
-    //    Import(folder, ref availableFiles, since);
-    //    ServiceScope.Get<ILogger>().Info("pictureimporter:found {0} new/changed pictures", availableFiles.Count);
-    //    foreach (string fileName in availableFiles)
-    //    {
-    //      ImportFile(fileName);
-    //    }
-    //    ServiceScope.Get<ILogger>().Info("pictureimporter:imported {0} pictures", availableFiles.Count);
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("pictureimporter:error ImportFolder:{0}", folder);
-    //    ServiceScope.Get<ILogger>().Error(ex);
-    //  }
-    //}
-
-    /// <summary>
-    /// Gets the meta data for.
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    /// <param name="items">The items.</param>
-    public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
+    public void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items)
     {
       try
       {
         Query imagesByPath = new Query("path", Operator.Same, folder);
-        List<IDbItem> results = _pictureDatabase.Query(imagesByPath);
+        IList<IDbItem> results = _pictureDatabase.Query(imagesByPath);
         foreach (IAbstractMediaItem item in items)
         {
           if (item.ContentUri == null) continue;
           if (item.ContentUri.IsFile == false) continue;
           if (item.ContentUri.LocalPath.ToLower().IndexOf("folder.jpg") >= 0) continue;
-          string fName = System.IO.Path.GetFileName(item.ContentUri.LocalPath);
+          string fName = Path.GetFileName(item.ContentUri.LocalPath);
           if (fName.ToLower().StartsWith("albumart")) continue;
           //string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
           //if (Extensions.Contains(ext))
@@ -337,7 +265,7 @@ namespace Media.Importers.PictureImporter
                 if (mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
                 {
                   found = true;
-                  Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                  IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                   while (enumer.MoveNext())
                   {
                     mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -352,8 +280,7 @@ namespace Media.Importers.PictureImporter
                 IDbItem dbItem = GetExifFor(mediaItem.ContentUri.LocalPath);
                 if (dbItem != null)
                 {
-                  found = true;
-                  Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                  IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                   while (enumer.MoveNext())
                   {
                     mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -370,6 +297,7 @@ namespace Media.Importers.PictureImporter
       {
       }
     }
+
     #endregion
 
     #region importer private methods
@@ -381,7 +309,7 @@ namespace Media.Importers.PictureImporter
     {
       try
       {
-        List<IDbItem> result;
+        IList<IDbItem> result;
         try
         {
           Query pictures = new Query();

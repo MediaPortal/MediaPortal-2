@@ -40,17 +40,19 @@ using MediaPortal.Utilities.Scraper;
 
 namespace Media.Importers.MovieImporter
 {
-  public class Importer : IPluginStateTracker, IImporter
+  public class MovieImporter : IPluginStateTracker, IImporter
   {
+    public const string IMDBIMPORTERSQUEUE_NAME = "IMDBImporters";
+
     //List<string> _extensions;
     IDatabase _movieDatabase;
     DateTime _lastImport = DateTime.MinValue;
     Scraper scraper;
     private IMessageQueue _queue;
 
-    public Importer()
+    public MovieImporter()
     {
-      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("imdbimporters");
+      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(IMDBIMPORTERSQUEUE_NAME);
       //_extensions = new List<string>();
       //_extensions.Add(".wmv");
       //_extensions.Add(".mpg");
@@ -91,68 +93,42 @@ namespace Media.Importers.MovieImporter
 
     #endregion
 
-    //#region IAutoStart Members
-
-    //public void Startup()
-    //{
-
-    //  ServiceScope.Get<IImporterManager>().Register(this);
-    //}
-
-    //#endregion
-
     #region IImporter Members
 
-    /// <summary>
-    /// Do any housekeeping before the first file gets imported
-    /// </summary>
-    /// <returns></returns>
-    public void BeforeImport(int avAilableFiles)
-    {
-    }
+    public void BeforeImport(int avAilableFiles) { }
 
-    /// <summary>
-    /// Do Cleanup after all files have been imported
-    /// </summary>
-    /// <returns></returns>
-    public void AfterImport()
-    {
-    }
+    public void AfterImport() { }
 
-    /// <summary>
-    /// Imports the file.
-    /// </summary>
-    /// <param name="folder">The file.</param>
-    public bool FileImport(string file)
+    public bool FileImport(string filePath)
     {
       try
       {
-        string ext = System.IO.Path.GetExtension(file).ToLower();
+        string ext = Path.GetExtension(filePath).ToLower();
         bool isDvd = (ext == ".ifo");
-        DirectoryInfo dvdFolder = null;
-        string fileOrg = file;
-        if (isDvd && file.ToLower().IndexOf("video_ts.ifo") < 0) return false;
+        string dvdFolder = null;
+        string fileOrg = filePath;
+        if (isDvd && filePath.ToLower().IndexOf("video_ts.ifo") < 0) return false;
         if (isDvd)
         {
-          string folder = System.IO.Path.GetDirectoryName(file);
-          dvdFolder = System.IO.Directory.GetParent(folder);//video_ts
-          fileOrg = dvdFolder.FullName;
+          string folder = Path.GetDirectoryName(filePath);
+          dvdFolder = Path.GetDirectoryName(folder);//video_ts
+          fileOrg = dvdFolder;
         }
         try
         {
           Query movieByFilename = new Query("contentURI", Operator.Same, fileOrg);
-          List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+          IList<IDbItem> result = _movieDatabase.Query(movieByFilename);
           if (result.Count > 0) return false;
         }
         catch (Exception)
         {
           return false;
         }
-        FileInfo info = new FileInfo(file);
+        FileInfo info = new FileInfo(filePath);
         MediaInfo mediaInfo = new MediaInfo();
         try
         {
-          mediaInfo.Open(file);
+          mediaInfo.Open(filePath);
         }
         catch (Exception)
         {
@@ -162,17 +138,17 @@ namespace Media.Importers.MovieImporter
         movie["size"] = info.Length;
         if (!isDvd)
         {
-          movie["contentURI"] = file;
-          movie["title"] = Path.GetFileNameWithoutExtension(file);
-          movie["path"] = Path.GetDirectoryName(file);
-          movie["CoverArt"] = file;
+          movie["contentURI"] = filePath;
+          movie["title"] = Path.GetFileNameWithoutExtension(filePath);
+          movie["path"] = Path.GetDirectoryName(filePath);
+          movie["CoverArt"] = filePath;
         }
         else
         {
-          movie["title"] = dvdFolder.Name;
-          movie["contentURI"] = dvdFolder.FullName;
-          DirectoryInfo parent = System.IO.Directory.GetParent(dvdFolder.FullName);//video_ts
-          movie["path"] = parent.FullName;
+          movie["title"] = Path.GetFileName(dvdFolder);
+          movie["contentURI"] = dvdFolder;
+          string parentDirectory = Path.GetDirectoryName(dvdFolder);//video_ts
+          movie["path"] = parentDirectory;
           movie["CoverArt"] = "";
         }
         movie["date"] = info.CreationTime;
@@ -200,15 +176,15 @@ namespace Media.Importers.MovieImporter
         if (scraper.IsLoaded)
         {
           scraper.CreateSearchUrl((string)movie["title"]);
-          ServiceScope.Get<ILogger>().Info("movieimporter: getting online info from: {0} ", scraper.SearchUrl);
+          ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
           scraper.GetSearchResults();
-          ServiceScope.Get<ILogger>().Info("movieimporter: result found {0} ", scraper.SearchResults.Count);
+          ServiceScope.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
           if (scraper.SearchResults.Count > 0)
           {
 
             QueueMessage msgc = new QueueMessage();
             msgc.MessageData["action"] = "imdbchoiceneeded";
-            msgc.MessageData["file"] = file;
+            msgc.MessageData["file"] = filePath;
             msgc.MessageData["title"] = (string)movie["title"];
             List<string> urlList = new List<string>();
             List<string> idList = new List<string>();
@@ -224,7 +200,7 @@ namespace Media.Importers.MovieImporter
             msgc.MessageData["titles"] = titleList;
             SendMessage(msgc);
 
-            ServiceScope.Get<ILogger>().Info("movieimporter: getting online info for: {0} ", scraper.SearchResults[0].Title);
+            ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
             scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
             if (scraper.Metadata.ContainsKey("genre"))
             {
@@ -242,7 +218,7 @@ namespace Media.Importers.MovieImporter
         }
         else
         {
-          ServiceScope.Get<ILogger>().Info("movieimporter: no online scraper are loaded ");
+          ServiceScope.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
         }
 
         #endregion
@@ -252,30 +228,24 @@ namespace Media.Importers.MovieImporter
         // create & send message
         QueueMessage msg = new QueueMessage();
         msg.MessageData["action"] = "fileinfoupdated";
-        msg.MessageData["file"] = file;
+        msg.MessageData["file"] = filePath;
         SendMessage(msg);
 
         return true;
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error importing file:{0}", file);
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Info("MovieImporter: Error importing file '{0}'", ex, filePath);
       }
       return false;
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the deleted file.</param>
-    public void FileDeleted(string file)
+    public void FileDeleted(string filePath)
     {
       try
       {
-        Query movieByFilename = new Query("contentURI", Operator.Same, file);
-        List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+        Query movieByFilename = new Query("contentURI", Operator.Same, filePath);
+        IList<IDbItem> result = _movieDatabase.Query(movieByFilename);
         if (result.Count > 0)
         {
           foreach (IDbItem item in result)
@@ -290,50 +260,34 @@ namespace Media.Importers.MovieImporter
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was created
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the new file.</param>
-    public void FileCreated(string file)
+    public void FileCreated(string filePath)
     {
-      FileImport(file);
+      FileImport(filePath);
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file was changed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
-    public void FileChanged(string file)
+    public void FileChanged(string filePath)
     {
-      FileDeleted(file);
+      FileDeleted(filePath);
 
-      FileImport(file);
+      FileImport(filePath);
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a file / directory was renamed
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="file">The filename of the renamed file / folder.</param>
-    /// <param name="olfdFile">The previous filename of the renamed file / folder.</param>
-    public void FileRenamed(string file, string oldFile)
+    public void FileRenamed(string filePath, string oldFilePath)
     {
       // The rename may have been on a directory or a file
-      FileInfo fi = new FileInfo(file);
+      FileInfo fi = new FileInfo(filePath);
       if (fi.Exists)
       {
-        List<IDbItem> result;
+        IList<IDbItem> result;
         try
         {
-          Query movieByFilename = new Query("contenturi", Operator.Same, oldFile);
+          Query movieByFilename = new Query("contenturi", Operator.Same, oldFilePath);
           result = _movieDatabase.Query(movieByFilename);
           if (result.Count > 0)
           {
 
             IDbItem movie = result[0];
-            movie["contenturi"] = file;
+            movie["contenturi"] = filePath;
             movie.Save();
           }
         }
@@ -346,13 +300,13 @@ namespace Media.Importers.MovieImporter
       {
         // Must be a directory, so let's change the path entries, containing the old
         // name with the new name
-        DirectoryInfo di = new DirectoryInfo(file);
+        DirectoryInfo di = new DirectoryInfo(filePath);
         if (di.Exists)
         {
-          List<IDbItem> result;
+          IList<IDbItem> result;
           try
           {
-            Query movieByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFile));
+            Query movieByFilename = new Query("contenturi", Operator.Like, String.Format("{0}%", oldFilePath));
             result = _movieDatabase.Query(movieByFilename);
             if (result.Count > 0)
             {
@@ -360,7 +314,7 @@ namespace Media.Importers.MovieImporter
               for (int i = 0; i < result.Count; i++)
               {
                 IDbItem movie = result[i];
-                string strPath = movie["contenturi"].ToString().Replace(oldFile, file);
+                string strPath = movie["contenturi"].ToString().Replace(oldFilePath, filePath);
                 movie["contenturi"] = strPath;
                 movie.Save();
               }
@@ -374,17 +328,12 @@ namespace Media.Importers.MovieImporter
       }
     }
 
-    /// <summary>
-    /// Called by the importer manager after it detected that a directory was deleted
-    /// This gives the importer a change to update the database
-    /// </summary>
-    /// <param name="directory">The name of the deleted folder.</param>
     public void DirectoryDeleted(string directory)
     {
       try
       {
         Query movieByFilename = new Query("contentURI", Operator.Like, String.Format("{0}%", directory));
-        List<IDbItem> result = _movieDatabase.Query(movieByFilename);
+        IList<IDbItem> result = _movieDatabase.Query(movieByFilename);
         if (result.Count > 0)
         {
           foreach (IDbItem item in result)
@@ -398,47 +347,13 @@ namespace Media.Importers.MovieImporter
         return;
       }
     }
-    ///// <summary>
-    ///// Called by the importer manager when a full-import needs to be done from the folder
-    ///// </summary>
-    ///// <param name="folder">The folder.</param>
-    ///// <param name="since"></param>
-    //public void ImportFolder(string folder, DateTime since)
-    //{
-    //  since = _lastImport;
 
-    //  try
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("movie importer:import {0} since {1}", folder, since.ToShortDateString());
-    //    DeleteNonExistingMovies();
-    //    List<string> availableFiles = new List<string>();
-    //    Import(folder, ref availableFiles, since);
-    //    ServiceScope.Get<ILogger>().Info("movieimporter:found {0} new/changed movies", availableFiles.Count);
-    //    foreach (string fileName in availableFiles)
-    //    {
-    //      ImportFile(fileName);
-    //    }
-    //    ServiceScope.Get<ILogger>().Info("movieimporter:imported {0} movies", availableFiles.Count);
-    //    _lastImport = DateTime.Now;
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    ServiceScope.Get<ILogger>().Info("movieimporter:error importing {0} ", folder);
-    //    ServiceScope.Get<ILogger>().Error(ex);
-    //  }
-    //}
-
-    /// <summary>
-    /// Gets the meta data for.
-    /// </summary>
-    /// <param name="folder">The folder.</param>
-    /// <param name="items">The items.</param>
-    public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
+    public void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items)
     {
       try
       {
         Query moviesByPath = new Query("path", Operator.Same, folder);
-        List<IDbItem> results = _movieDatabase.Query(moviesByPath);
+        IList<IDbItem> results = _movieDatabase.Query(moviesByPath);
         foreach (IDbItem dbItem in results)
         {
           string contentUri = dbItem.Attributes["contentURI"].Value.ToString();
@@ -451,7 +366,7 @@ namespace Media.Importers.MovieImporter
             {
               if (mediaItem != null && mediaItem.ContentUri != null && mediaItem.ContentUri.IsFile && mediaItem.ContentUri.LocalPath == contentUri)
               {
-                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
                 {
                   mediaItem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -470,7 +385,7 @@ namespace Media.Importers.MovieImporter
               {
                 DvdMediaItem dvditem = new DvdMediaItem(dvdPath, (string)dbItem.Attributes["title"].Value, container.Parent);
 
-                Dictionary<string, IDbAttribute>.Enumerator enumer = dbItem.Attributes.GetEnumerator();
+                IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = dbItem.Attributes.GetEnumerator();
                 while (enumer.MoveNext())
                 {
                   dvditem.MetaData[enumer.Current.Key] = enumer.Current.Value.Value;
@@ -490,16 +405,18 @@ namespace Media.Importers.MovieImporter
       {
       }
     }
+
     #endregion
 
-    #region importer private methods
+    #region Private methods
+
     /// <summary>
     /// Remove songs, which are not existing anymore, because they have been moved, deleted.
     /// </summary>
     /// <returns></returns>
     private void DeleteNonExistingMovies()
     {
-      List<IDbItem> result;
+      IList<IDbItem> result;
       try
       {
         Query movies = new Query();
@@ -507,13 +424,13 @@ namespace Media.Importers.MovieImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("movieimporter: Unable to retrieve movies from database in DeleteNonExistingMovies()", ex);
+        ServiceScope.Get<ILogger>().Error("MovieImporter: Unable to retrieve movies from database in DeleteNonExistingMovies()", ex);
         return;
       }
       try
       {
         int removed = 0;
-        ServiceScope.Get<ILogger>().Info("movieimporter: starting cleanup for {0} movies", result.Count);
+        ServiceScope.Get<ILogger>().Info("MovieImporter: Starting cleanup for {0} movies", result.Count);
         for (int i = 0; i < result.Count; ++i)
         {
           string strFileName = (string)result[i].Attributes["contentURI"].Value;
@@ -524,12 +441,11 @@ namespace Media.Importers.MovieImporter
             FileDeleted(strFileName);
           }
         } //for (int i=0; i < results.Rows.Count;++i)
-        ServiceScope.Get<ILogger>().Info("movieimporter: DeleteNonExistingMovies completed. Removed {0} non-existing movies", removed);
+        ServiceScope.Get<ILogger>().Info("MovieImporter: DeleteNonExistingMovies completed. Removed {0} non-existing movies", removed);
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error cleanup non existing movies");
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Info("MovieImporter: Error cleanup non existing movies", ex);
       }
     }
 
@@ -578,7 +494,7 @@ namespace Media.Importers.MovieImporter
         lastDateQuery.Sort = SortOrder.Descending;
         lastDateQuery.SortFields.Add("dateAdded");
         lastDateQuery.Limit = 1;
-        List<IDbItem> lastItems = _movieDatabase.Query(lastDateQuery);
+        IList<IDbItem> lastItems = _movieDatabase.Query(lastDateQuery);
         if (lastItems.Count == 0)
           _lastImport = DateTime.MinValue;
         else
@@ -587,8 +503,7 @@ namespace Media.Importers.MovieImporter
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Info("movieimporter:error creating database");
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Info("MovieImporter: Error creating database", ex);
       }
     }
     #endregion

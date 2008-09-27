@@ -6,9 +6,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaPortal.Base", "MediaPortal.Base", "{4CFAD5A6-7ACB-4DFC-80F2-00ED88E11E95}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language", "Language", "{7C41647C-2E5D-43AE-B07A-10691BC1297B}"
-	ProjectSection(SolutionItems) = preProject
-		MediaPortal.Base\Language\strings_en.xml = MediaPortal.Base\Language\strings_en.xml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Media.Players", "Media.Players", "{F86095EE-7FA9-43A0-9628-66B66370F418}"
 EndProject
@@ -92,6 +89,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Main", "MediaPortal.Main\MediaPortal.Main.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{D13049C2-A104-4CD7-BC96-509CDED27AB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -462,6 +461,18 @@ Global
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|x86.ActiveCfg = Debug|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Debug|x86.Build.0 = Debug|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|x86.ActiveCfg = Release|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Release|x86.Build.0 = Release|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
+		{D13049C2-A104-4CD7-BC96-509CDED27AB8}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -160,7 +160,7 @@ namespace Components.Database.FireBird
     /// Gets all tables in the database.
     /// </summary>
     /// <returns></returns>
-    public List<string> GetTables()
+    public IList<string> GetTables()
     {
       List<string> list = new List<string>();
       using (FbCommand cmd = new FbCommand())
@@ -186,7 +186,7 @@ namespace Components.Database.FireBird
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    public Dictionary<string, Type> GetColumns(string tableName)
+    public IDictionary<string, Type> GetColumns(string tableName)
     {
       Dictionary<string, Type> columns = new Dictionary<string, Type>();
       using (FbCommand cmd = new FbCommand())
@@ -294,7 +294,7 @@ namespace Components.Database.FireBird
         return;
 
       // Check if this is a valid column
-      Dictionary<string, Type> columns = new Dictionary<string, Type>();
+      IDictionary<string, Type> columns = new Dictionary<string, Type>();
       columns = GetColumns(_tableName);
 
       if (columns == null)
@@ -344,7 +344,7 @@ namespace Components.Database.FireBird
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    public void Save(List<IDbItem> items)
+    public void Save(IList<IDbItem> items)
     {
       FbConnection connect = (FbConnection)_connection.UnderlyingConnection;
       List<IDbItem> itemsAdded = new List<IDbItem>();
@@ -415,7 +415,7 @@ namespace Components.Database.FireBird
     private bool AddUpdateItem(IDbItem item, FbConnection connect, FbTransaction transaction)
     {
       SqlCache cache = new SqlCache();
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer;
       bool added = false;
 
       using (FbCommand cmd = new FbCommand())
@@ -535,7 +535,7 @@ namespace Components.Database.FireBird
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    public List<IDbItem> Query(IDatabase db, IQuery query)
+    public IList<IDbItem> Query(IDatabase db, IQuery query)
     {
       List<IDbItem> results = new List<IDbItem>();
 
@@ -643,8 +643,7 @@ namespace Components.Database.FireBird
     /// <param name="newItem"></param>
     private void DeleteMultiFields(IDbItem newItem)
     {
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
-      enumer = newItem.Attributes.GetEnumerator();
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = newItem.Attributes.GetEnumerator();
       while (enumer.MoveNext())
       {
         //does the attribute have a value
@@ -717,7 +716,7 @@ namespace Components.Database.FireBird
     /// <param name="item">The item.</param>
     private void UpdateMultiFields(IDbItem item, SqlCache cache, FbTransaction transaction)
     {
-      Dictionary<string, IDbAttribute>.Enumerator enumer;
+      IEnumerator<KeyValuePair<string, IDbAttribute>> enumer;
       using (FbCommand cmd = new FbCommand())
       {
         cmd.Connection = (FbConnection)_connection.UnderlyingConnection;
@@ -734,7 +733,7 @@ namespace Components.Database.FireBird
           if (att.IsList)
           {
             //yes, is it a multi-field attribute
-            List<string> attrValues = att.Values;
+            IList<string> attrValues = att.Values;
             string tableName = String.Format("{0}{1}", item.Database.Name, att.Name);
             string columnName = att.Name;
 
@@ -807,9 +806,9 @@ namespace Components.Database.FireBird
     /// </summary>
     /// <param name="tableName">Name of the attribute-type.</param>
     /// <returns></returns>
-    public List<IDbAttribute> GetAttributes(string tableName)
+    public IList<IDbAttribute> GetAttributes(string tableName)
     {
-      List<IDbAttribute> list = new List<IDbAttribute>();
+      IList<IDbAttribute> list = new List<IDbAttribute>();
       // Attenntion: "ID" needs to be uppercase, since firebird creates the field in this way
       list.Add(new DbAttribute("ID", typeof(int)));
       using (FbCommand cmd = new FbCommand())

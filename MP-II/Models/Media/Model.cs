@@ -40,6 +40,8 @@ namespace Models.Media
   /// </summary>
   public class Model
   {
+    public const string IMPORTERSQUEUE_NAME = "Importers";
+
     #region variables
     private ItemsCollection _sortMenu;
     private readonly ItemsCollection _items; //Only one items list allowed as the UI databinds to it.
@@ -66,7 +68,7 @@ namespace Models.Media
 
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate("importers");
+      IMessageQueue queue = msgBroker.GetOrCreate(IMPORTERSQUEUE_NAME);
       queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
     }
 

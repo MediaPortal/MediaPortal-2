@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
@@ -193,7 +192,7 @@ namespace Media.Providers.SharesProvider
     {
       try
       {
-        List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
+        IList<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
         foreach (string filePath in Directory.GetFiles(_folder))
         {
           FileContainer cont = new FileContainer(filePath, this);
@@ -220,7 +219,7 @@ namespace Media.Providers.SharesProvider
     {
       try
       {
-        List<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
+        IList<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
         string[] folders = Directory.GetDirectories(_folder);
         for (int i = 0; i < folders.Length; ++i)
         {

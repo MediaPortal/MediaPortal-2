@@ -37,7 +37,7 @@ namespace Components.Database
 
     private IDatabaseBuilder _builder;
     private string _tableName;
-    private List<IDbAttribute> _attributes;
+    private IList<IDbAttribute> _attributes;
     private string _attributeTable;
 
     #endregion
@@ -118,7 +118,7 @@ namespace Components.Database
     /// Gets the attributes for this database
     /// </summary>
     /// <value>The attributes.</value>
-    public List<IDbAttribute> Attributes
+    public IList<IDbAttribute> Attributes
     {
       get { return _attributes; }
     }
@@ -244,7 +244,7 @@ namespace Components.Database
     /// </summary>
     /// <param name="query">The query.</param>
     /// <returns></returns>
-    public List<IDbItem> Query(IQuery query)
+    public IList<IDbItem> Query(IQuery query)
     {
       using (IDatabaseConnection connect = _builder.CreateConnection())
       {
@@ -289,7 +289,7 @@ namespace Components.Database
     /// Saves the a list of items to the database
     /// </summary>
     /// <param name="items">The items.</param>
-    public void Save(List<IDbItem> items)
+    public void Save(IList<IDbItem> items)
     {
       using (IDatabaseConnection connect = _builder.CreateConnection())
       {

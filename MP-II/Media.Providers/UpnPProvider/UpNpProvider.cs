@@ -34,6 +34,8 @@ namespace Media.Providers.UpNpProvider
 {
   public class UpNpProvider : IProvider
   {
+    public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
+
     #region variables
 
     private ContainerDiscovery _discovery;
@@ -110,7 +112,7 @@ namespace Media.Providers.UpNpProvider
       if (sendMsg)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        IMessageQueue queue = broker.GetOrCreate("mediamanager");
+        IMessageQueue queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
         QueueMessage msg = new QueueMessage();
         msg.MessageData["action"] = "changed";
         msg.MessageData["fullpath"] = "/";

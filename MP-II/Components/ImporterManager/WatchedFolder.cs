@@ -25,72 +25,57 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
   public class WatchedFolder : IDisposable
   {
-    #region variables
+    #region Private fields
+
     string _folder;
     DelayedFileSystemWatcher _watcher;     // Watching the files
     DelayedFileSystemWatcher _watcherDir;  // Watching the directory
     DateTime _lastWatchedEvent;
     List<FileChangeEvent> _changesDetected;
+
     #endregion
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WatchedFolder"/> class.
     /// </summary>
-    /// <param name="folder">The folder.</param>
+    /// <param name="folder">The path of the folder to watch.</param>
     public WatchedFolder(string folder)
     {
       _folder = folder;
       _lastWatchedEvent = DateTime.MinValue;
       _changesDetected = new List<FileChangeEvent>();
-      try
-      {
-        string[] drives = Directory.GetLogicalDrives();
-        for (int i = 0; i < drives.Length; ++i)
-        {
-          if (String.Compare(folder, drives[i], true) == 0)
-          {
-            return;//its a drive
-          }
-        }
+      // Create the watchers. 
+      // We need 2 type of watchers, for files and for directories
+      // Reason is that we don't know if the event occured on a file or directory.
+      // For a Create / Change / Rename we could figure that out using FileInfo or DirectoryInfo,
+      // but when something gets deleted, we don't know if it is a File or directory
+      _watcher = new DelayedFileSystemWatcher(_folder);
+      _watcher.Created += _watcher_Created;
+      _watcher.Changed += _watcher_Changed;
+      _watcher.Deleted += _watcher_Deleted;
+      _watcher.Renamed += _watcher_Renamed;
+      _watcher.IncludeSubdirectories = true;
+      _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Attributes;
+      _watcher.EnableRaisingEvents = true;
 
-        // Create the watchers. 
-        // We need 2 type of watchers, for files and for directories
-        // Reason is that we don't know if the event occured on a file or directory.
-        // For a Create / Change / Rename we could figure that out using FileInfo or DirectoryInfo,
-        // but when something gets deleted, we don't know if it is a File or directory
-        _watcher = new DelayedFileSystemWatcher(_folder);
-        _watcher.Created += new FileSystemEventHandler(_watcher_Created);
-        _watcher.Changed += new FileSystemEventHandler(_watcher_Changed);
-        _watcher.Deleted += new FileSystemEventHandler(_watcher_Deleted);
-        _watcher.Renamed += new RenamedEventHandler(_watcher_Renamed);
-        _watcher.IncludeSubdirectories = true;
-        _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Attributes;
-        _watcher.EnableRaisingEvents = true;
-
-        // Directory Watcher
-        _watcherDir = new DelayedFileSystemWatcher(_folder);
-        // For directories, we're only interested in Delete, Create and Rename.
-        _watcherDir.Created += new FileSystemEventHandler(_watcher_Created);
-        _watcherDir.Deleted += new FileSystemEventHandler(_watcher_DirectoryDeleted);
-        _watcherDir.Renamed += new RenamedEventHandler(_watcher_Renamed);
-        _watcherDir.IncludeSubdirectories = true;
-        _watcherDir.NotifyFilter = NotifyFilters.DirectoryName;
-        _watcherDir.EnableRaisingEvents = true;
-      }
-      catch (Exception)
-      {
-      }
-
+      // Directory Watcher
+      _watcherDir = new DelayedFileSystemWatcher(_folder);
+      // For directories, we're only interested in Delete, Create and Rename.
+      _watcherDir.Created += _watcher_Created;
+      _watcherDir.Deleted += _watcher_DirectoryDeleted;
+      _watcherDir.Renamed += _watcher_Renamed;
+      _watcherDir.IncludeSubdirectories = true;
+      _watcherDir.NotifyFilter = NotifyFilters.DirectoryName;
+      _watcherDir.EnableRaisingEvents = true;
     }
 
 
-    public List<FileChangeEvent> Changes
+    public IList<FileChangeEvent> Changes
     {
       get
       {
@@ -160,16 +145,13 @@ namespace Components.Services.Importers
     {
       Add(FileChangeEvent.FileChangeType.Renamed, e.FullPath, e.OldFullPath);
     }
+
     /// <summary>
-    /// Gets the folder.
+    /// Gets the folder which is watched by this instance.
     /// </summary>
-    /// <value>The folder.</value>
     public string Folder
     {
-      get
-      {
-        return _folder;
-      }
+      get { return _folder; }
     }
 
     void Add(FileChangeEvent.FileChangeType type, string fileName)
@@ -181,8 +163,8 @@ namespace Components.Services.Importers
     {
       FileChangeEvent change = new FileChangeEvent();
       change.Type = type;
-      change.FileName = fileName;
-      change.OldFileName = oldFileName;
+      change.FullPath = fileName;
+      change.OldFullPath = oldFileName;
       _changesDetected.Add(change);
       _lastWatchedEvent = DateTime.Now;
     }
@@ -194,12 +176,11 @@ namespace Components.Services.Importers
     /// </summary>
     public void Dispose()
     {
-      if (_watcher != null)
-      {
-        _watcher.EnableRaisingEvents = false;
-        _watcher.Dispose();
-        _watcher = null;
-      }
+      if (_watcher == null)
+        return;
+      _watcher.EnableRaisingEvents = false;
+      _watcher.Dispose();
+      _watcher = null;
     }
 
     #endregion

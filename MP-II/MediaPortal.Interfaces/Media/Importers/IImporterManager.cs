@@ -31,73 +31,69 @@ namespace MediaPortal.Media.Importers
   public interface IImporterManager
   {
     /// <summary>
-    /// Registers a new importer with the importer manager
+    /// Gets a collection of all registered importers.
     /// </summary>
-    /// <param name="importer">The importer.</param>
-    [Obsolete("Importers should be registered via the Plugin space /Media/Importers")]
-    void Register(IImporter importer);
+    ICollection<IImporter> Importers { get;}
 
     /// <summary>
-    /// Unregisters an importer with the importer manager
+    /// Gets the importer for the specific name.
     /// </summary>
-    /// <param name="importer">The importer.</param>
-    [Obsolete("Importers should be registered via the Plugin space /Media/Importers")]
-    void UnRegister(IImporter importer);
-
-    /// <summary>
-    /// Gets a list of all registered importers.
-    /// </summary>
-    /// <value>The registered importers.</value>
-    List<IImporter> Importers { get;}
-
-    /// <summary>
-    /// Gets the importer for the specific name
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <param name="name">The name of the importer to retrieve.</param>
+    /// <returns>Importer with the specified name, if present. If no importer with the name is
+    /// registered, the method returns <c>null</c>.</returns>
     IImporter GetImporterByName(string name);
 
     /// <summary>
-    /// Returns a list of importers supporting the extension
+    /// Returns a collection of importers supporting the specified file <paramref name="extension"/>.
     /// </summary>
-    /// <param name="extension">The extension.</param>
-    /// <returns></returns>
-    List<IImporter> GetImporterByExtension(string extension);
+    /// <param name="extension">The extension to examine.</param>
+    /// <returns>Collection of importers supporting the extension.</returns>
+    ICollection<IImporter> GetImporterByExtension(string extension);
 
     /// <summary>
-    /// Adds a new share which should be imported & watched.
+    /// Adds a new local share which should be imported & watched.
     /// </summary>
-    /// <param name="folder">The folder.</param>
-    void AddShare(string folder);
+    /// <param name="folderPath">The path of the folder to import.</param>
+    void AddShare(string folderPath);
 
     /// <summary>
-    /// Removes a share 
+    /// Removes a share from the collection of monitored shares.
     /// </summary>
-    /// <param name="folder">The folder.</param>
-    void RemoveShare(string folder);
+    /// <param name="folderPath">The path of the folder to remove.</param>
+    void RemoveShare(string folderPath);
 
     /// <summary>
-    /// Returns a list of all share being watched.
+    /// Returns the information if the importer manager watches the specified share
+    /// <paramref name="folderPath"/>.
     /// </summary>
-    /// <value>List containing all shares.</value>
-    List<string> Shares { get;}
+    /// <param name="folderPath">The path of the folder to check.</param>
+    /// <returns><c>true</c>, if the importer manager watches the specified
+    /// <paramref name="folderPath"/>, else <c>false</c>.</returns>
+    bool ContainsShare(string folderPath);
 
     /// <summary>
-    /// Forces a complete import to be done on the folder
+    /// Returns a collection of the folder paths of all shares being watched.
+    /// </summary>
+    ICollection<string> Shares { get;}
+
+    /// <summary>
+    /// Forces a complete import to be done on specified folder.
     /// </summary>
     /// <remarks>
-    /// the folder should already be added via AddShare()
+    /// The folder must already be added via <see cref="AddShare"/>.
     /// </remarks>
-    /// <param name="folder">The folder.</param>
-    /// <param name="refresh">If set to <c>true</c>, the importer will also refresh existing items.</param>
-    void ForceImport(string folder, bool refresh);
+    /// <param name="folderPath">The path of the folder to be imported.</param>
+    /// <param name="refresh">If set to <c>true</c>, the importer will also refresh
+    /// existing objects. Else, it only adds new objects.</param>
+    /// <exception cref="ArgumentException">If the folder was not added as a share.</exception>
+    void ForceImport(string folderPath, bool refresh);
 
     /// <summary>
-    /// Gets the meta data for a folder
+    /// Gets the meta data for a folder.
     /// </summary>
     /// <param name="folder">The folder.</param>
     /// <param name="items">The items.</param>
-    void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items);
+    void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items);
 
   }
 }

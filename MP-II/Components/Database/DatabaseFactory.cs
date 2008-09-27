@@ -101,7 +101,7 @@ namespace Components.Database
     /// <returns></returns>
     public bool Exists(string name)
     {
-      List<IDatabase> databases = this.Databases;
+      ICollection<IDatabase> databases = this.Databases;
       foreach (IDatabase db in databases)
       {
         if (String.Compare(db.Name, name, true) == 0) return true;
@@ -113,7 +113,7 @@ namespace Components.Database
     /// Returns a list of all databases.
     /// </summary>
     /// <value>The databases.</value>
-    public List<IDatabase> Databases
+    public ICollection<IDatabase> Databases
     {
       get
       {
@@ -123,7 +123,7 @@ namespace Components.Database
           using (IDatabaseCommand cmd = _builder.CreateCommand())
           {
             cmd.Connection = connect;
-            List<string> tables = cmd.GetTables();
+            IList<string> tables = cmd.GetTables();
             foreach (string tableName in tables)
             {
               list.Add(new Database(tableName, _builder));

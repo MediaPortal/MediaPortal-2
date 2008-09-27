@@ -23,25 +23,16 @@
 #endregion
 
 using System.Collections.Generic;
-
 using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Media.Importers
 {
+  /// <summary>
+  /// Worker interface a media importer has to implement.
+  /// The metadata for an importer are given in the plugin descriptor file for the importer.
+  /// </summary>
   public interface IImporter
   {
-    ///// <summary>
-    ///// Gets the importer name.
-    ///// </summary>
-    ///// <value>The importer name.</value>
-    //string Name { get;}
-
-    ///// <summary>
-    ///// Gets the file-extensions the importer supports
-    ///// </summary>
-    ///// <value>The file-extensions.</value>
-    //string Extensions { get;}
-
     /// <summary>
     /// Called by the importer manager before the import process starts
     /// Allows the importer to do housekeeping before importing the first file
@@ -57,46 +48,47 @@ namespace MediaPortal.Media.Importers
     void AfterImport();
 
     /// <summary>
-    /// Called by the importer manager when a full-import needs to be done
+    /// Called by the importer manager when a full-import needs to be done for each file.
     /// </summary>
-    /// <param name="folder">the file.</param>
-    bool FileImport(string filename);
+    /// <param name="filePath">The path of the file to import.</param>
+    bool FileImport(string filePath);
 
     /// <summary>
     /// Called by the importer manager after it detected that a file was deleted
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the deleted file.</param>
-    void FileDeleted(string filename);
+    /// <param name="filePath">The path of the deleted file.</param>
+    void FileDeleted(string filePath);
 
     /// <summary>
     /// Called by the importer manager after it detected that a file was created
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the new file.</param>
-    void FileCreated(string filename);
+    /// <param name="filePath">The path of the new file.</param>
+    void FileCreated(string filePath);
 
     /// <summary>
     /// Called by the importer manager after it detected that a file was changed
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
-    void FileChanged(string filename);
+    /// <param name="filePath">The path of the changed file.</param>
+    void FileChanged(string filePath);
 
     /// <summary>
     /// Called by the importer manager after it detected that a file or dikrectory was renamed
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
-    void FileRenamed(string filename, string oldFileName);
+    /// <param name="filePath">The new path of the changed file.</param>
+    /// <param name="oldFilePath">The old path of the changed file.</param>
+    void FileRenamed(string filePath, string oldFilePath);
 
     /// <summary>
     /// Called by the importer manager after it detected that a directory was deleted
     /// This gives the importer a change to update the database
     /// </summary>
-    /// <param name="file">The filename of the changed file.</param>
-    void DirectoryDeleted(string directoryname);
+    /// <param name="path">The path of the deleted folder.</param>
+    void DirectoryDeleted(string path);
 
-    void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items);
+    void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items);
   }
 }

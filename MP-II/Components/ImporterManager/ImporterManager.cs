@@ -36,13 +36,14 @@ using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Utilities.FileSystem;
 
-namespace Components.Services.Importers
+namespace Components.Services.ImporterManager
 {
-  // FIXME Albert78: Manage list of importer plugin items instead list of ImporterBuilder instances,
-  // create/revoke usage of importer items lazily and on-demand
   public class ImporterManager : IImporterManager, IPluginStateTracker
   {
+    public const string IMPORTERSQUEUE_NAME = "Importers";
+
     class ImporterContext
     {
       public WatchedFolder Folder;
@@ -59,32 +60,33 @@ namespace Components.Services.Importers
       }
     }
 
-    #region variables
-    ICollection<ImporterBuilder> _importers;
-    IList<WatchedFolder> _folders;
+    #region Variables
+
+    ICollection<LazyImporterWrapper> _importers;
+    protected readonly IDictionary<string, WatchedFolder> _folders =
+        new Dictionary<string, WatchedFolder>();
     System.Timers.Timer _timer;
-    bool _reentrant;
+    bool _isProcessing;
     ImporterManagerSettings _settings;
+
     #endregion
 
     public ImporterManager()
     {
-      _folders = new List<WatchedFolder>();
-
-      //setup a timer 
+      // Setup the timer to periodically check our watch folders
       _timer = new System.Timers.Timer(500);
-      _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
+      _timer.Elapsed += _timer_Elapsed;
       _timer.Enabled = true;
 
-      //load shares from our settings...
-      ServiceScope.Get<ILogger>().Info("importer: loading settings");
+      // Load the shares from our settings...
+      ServiceScope.Get<ILogger>().Info("ImporterManager: Loading settings");
       _settings = new ImporterManagerSettings();
       ServiceScope.Get<ISettingsManager>().Load(_settings);
       foreach (Share share in _settings.Shares)
       {
         WatchedFolder newWatch = new WatchedFolder(share.Folder);
-        _folders.Add(newWatch);
-        ServiceScope.Get<ILogger>().Info("importer: add share {0}", share.Folder);
+        _folders.Add(newWatch.Folder, newWatch);
+        ServiceScope.Get<ILogger>().Info("ImporterManager: Adding share '{0}'", newWatch.Folder);
       }
     }
 
@@ -93,8 +95,9 @@ namespace Components.Services.Importers
     public void Activated()
     {
       // Get all Importer plugins
-      _importers = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<ImporterBuilder>(
+      _importers = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<LazyImporterWrapper>(
           "/Media/Importers", new FixedItemStateTracker()); // FIXME: make importers able to be disabled again
+      // TODO: Add a change listener to this plugin item path
     }
 
     public bool RequestEnd()
@@ -112,211 +115,146 @@ namespace Components.Services.Importers
 
     #region IImporterManager Members
 
-    public void Register(IImporter importer)
-    {
-      // Use plugin space
-      //if (!_importers.Contains(importer))
-      //{
-      //  _importers.Add(importer);
-      //}
-    }
-
-    public void UnRegister(IImporter importer)
-    {
-      //if (_importers.Contains(importer))
-      //{
-      //  _importers.Remove(importer);
-      //}
-    }
-
-    public List<IImporter> Importers
+    public ICollection<IImporter> Importers
     {
       get
       {
-        List<IImporter> importers = new List<IImporter>();
-        foreach (ImporterBuilder importerBuilder in _importers)
-        {
-          importers.Add(importerBuilder.Importer);
-        }
-        return importers;
+        ICollection<IImporter> result = new List<IImporter>();
+        foreach (LazyImporterWrapper importerBuilder in _importers)
+          result.Add(importerBuilder.Importer);
+        return result;
       }
     }
 
     public IImporter GetImporterByName(string name)
     {
-      foreach (ImporterBuilder importerBuilder in _importers)
-      {
+      foreach (LazyImporterWrapper importerBuilder in _importers)
         if (String.Compare(importerBuilder.Name, name, true) == 0)
           return importerBuilder.Importer;
-      }
       return null;
     }
 
-    public List<IImporter> GetImporterByExtension(string extension)
+    public ICollection<IImporter> GetImporterByExtension(string extension)
     {
-      List<IImporter> returnList = new List<IImporter>();
-      foreach (ImporterBuilder importerBuilder in _importers)
-      {
-        if (importerBuilder.Extensions.Contains(extension.ToLower()))
+      extension = extension.ToLower();
+      IList<IImporter> returnList = new List<IImporter>();
+      foreach (LazyImporterWrapper importerBuilder in _importers)
+        if (importerBuilder.Extensions.Contains(extension))
           returnList.Add(importerBuilder.Importer);
-      }
       return returnList;
     }
 
-    public void AddShare(string folder)
+    public void AddShare(string folderPath)
     {
-      //sanity checks
-      if (folder == null) return;
-      if (folder.Length == 0) return;
+      // Sanity checks
+      if (folderPath == null) return;
 
-      string[] drives = Directory.GetLogicalDrives();
-      bool isDrive = false;
-      for (int i = 0; i < drives.Length; ++i)
-      {
-        if (String.Compare(folder, drives[i], true) == 0)
-        {
-          isDrive = true;
-          break;
-        }
-      }
-      if (!Directory.Exists(folder) && !isDrive)
-      {
-        //we cannot import a folder which does not exist
-        return;
-      }
-
-      //check if folder is already monitored.
-      foreach (WatchedFolder watchedFolder in _folders)
-      {
-        if (String.Compare(folder, watchedFolder.Folder, true) == 0)
-        {
-          //we are already watching this folder..
+      // Check if the folder is already monitored.
+      foreach (WatchedFolder watchedFolder in _folders.Values)
+        if (FileUtils.IsContainedIn(folderPath, watchedFolder.Folder))
+          // We are already watching this folder...
           return;
-        }
-      }
 
-      ServiceScope.Get<ILogger>().Info("importer: add new share {0}", folder);
-      WatchedFolder newWatch = new WatchedFolder(folder);
-      _folders.Add(newWatch);
+      ServiceScope.Get<ILogger>().Info("ImporterManager: Adding new share '{0}'", folderPath);
+      WatchedFolder newWatch = new WatchedFolder(folderPath);
+      _folders.Add(folderPath, newWatch);
 
       //add new shared-folder to our settings..
-      Share share = new Share();
-      share.Folder = folder;
-      share.LastImport = new DateTime(1500, 1, 1);
-      _settings.Shares.Add(share);
+      _settings.AddShare(folderPath);
       ServiceScope.Get<ISettingsManager>().Save(_settings);
 
-      ForceImport(folder, false);
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("importers");
+      ForceImport(folderPath, false);
+      SendImporterQueueMessage("shareadded", folderPath);
+    }
+
+    public void RemoveShare(string folderPath)
+    {
+      // Sanity checks
+      if (folderPath == null) return;
+
+      // Check if folder is monitored
+      if (_folders.ContainsKey(folderPath))
+      {
+        WatchedFolder toRemove = _folders[folderPath];
+        toRemove.Dispose();
+        _folders.Remove(folderPath);
+
+        SendImporterQueueMessage("shareremoved", folderPath);
+      }
+      // Save settings...
+      _settings.RemoveShare(folderPath);
+      ServiceScope.Get<ISettingsManager>().Save(_settings);
+      return;
+    }
+
+    public bool ContainsShare(string folderPath)
+    {
+      return _folders.ContainsKey(folderPath);
+    }
+
+    public ICollection<string> Shares
+    {
+      get { return _folders.Keys; }
+    }
+
+    public void ForceImport(string folderPath, bool refresh)
+    {
+      if (!_folders.ContainsKey(folderPath))
+        throw new ArgumentException(string.Format("Share '{0}' is not watched by the importer manager", folderPath));
+      WatchedFolder watchedFolder = _folders[folderPath];
+      ServiceScope.Get<ILogger>().Info("ImporterManager: Force import of '{0}'", folderPath);
+      ImporterContext context = new ImporterContext(watchedFolder, refresh);
+      Thread t = new Thread(DoImportFolder);
+      t.IsBackground = true;
+      t.Priority = ThreadPriority.BelowNormal;
+      t.Start(context);
+    }
+
+    #endregion
+
+    protected static void SendImporterQueueMessage(string action, string folder)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(IMPORTERSQUEUE_NAME);
       QueueMessage msg = new QueueMessage();
-      msg.MessageData["action"] = "shareadded";
+      msg.MessageData["action"] = action;
       msg.MessageData["folder"] = folder;
       queue.Send(msg);
     }
 
-    public void RemoveShare(string folder)
-    {
-      //sanity checks
-      if (folder == null) return;
-      if (folder.Length == 0) return;
-      //check if folder is already monitored.
-      for (int i = 0; i < _folders.Count; ++i)
-      {
-        if (String.Compare(folder, _folders[i].Folder, true) == 0)
-        {
-          ServiceScope.Get<ILogger>().Info("importer: remove share {0}", folder);
-          //we are already watching this folder..
-          _folders[i].Dispose();
-          _folders.RemoveAt(i);
-        }
-      }
-      //save settings..
-      for (int i = 0; i < _settings.Shares.Count; ++i)
-      {
-        if (_settings.Shares[i].Folder == folder)
-        {
-          _settings.Shares.RemoveAt(i);
-
-          ServiceScope.Get<ISettingsManager>().Save(_settings);
-          IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("importers");
-          QueueMessage msg = new QueueMessage();
-          msg.MessageData["action"] = "shareremoved";
-          msg.MessageData["folder"] = folder;
-          queue.Send(msg);
-          break;
-        }
-      }
-      return;
-    }
-
-    public List<string> Shares
-    {
-      get
-      {
-        List<string> shares = new List<string>();
-        foreach (WatchedFolder watch in _folders)
-        {
-          shares.Add(watch.Folder);
-        }
-        return shares;
-      }
-    }
-
-    public void ForceImport(string folder, bool refresh)
-    {
-      //check if folder is already monitored.
-      for (int i = 0; i < _folders.Count; ++i)
-      {
-        WatchedFolder watchedFolder = _folders[i];
-        if (String.Compare(folder, watchedFolder.Folder, true) == 0)
-        {
-          ServiceScope.Get<ILogger>().Info("importer: force import from {0}", folder);
-          ImporterContext context = new ImporterContext(watchedFolder, refresh);
-          //do a complete fresh import of the new folder
-          Thread t = new Thread(new ParameterizedThreadStart(DoImportFolder));
-          t.IsBackground = true;
-          t.Priority = ThreadPriority.BelowNormal;
-          t.Start(context);
-          return;
-        }
-      }
-    }
-    #endregion
-
     /// <summary>
     /// Handles the Elapsed event of the _timer control.
     /// The timer will check if any of the watched folders detected changes
-    /// and ifso process these changes..
+    /// and if so process these changes.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.Timers.ElapsedEventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="System.Timers.ElapsedEventArgs"/> instance containing the
+    /// event data.</param>
     void _timer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      //check for re-entrancy. 
-      if (_reentrant) return;
+      if (_isProcessing) return;
+      _isProcessing = true;
       try
       {
-        _reentrant = true;
-        //check all watched-folders
-        foreach (WatchedFolder watchedFolder in _folders)
+        // Check all watched-folders
+        foreach (WatchedFolder watchedFolder in _folders.Values)
         {
-          //did it detect any changes to the file system
-          List<FileChangeEvent> changes = watchedFolder.Changes;
+          // Did it detect any changes to the file system?
+          IList<FileChangeEvent> changes = watchedFolder.Changes;
           if (changes != null)
           {
-            //yep then we process those
-            ServiceScope.Get<ILogger>().Info("importer: detected changes in {0}", watchedFolder.Folder);
+            // Yep, then we process those
+            ServiceScope.Get<ILogger>().Info("ImporterManager: Detected changes in folder '{0}'", watchedFolder.Folder);
             DoProcessChanges(changes);
           }
         }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Error("ImporterManager: Error processing changed folders", ex);
       }
       finally
       {
-        _reentrant = false;
+        _isProcessing = false;
       }
     }
 
@@ -331,25 +269,15 @@ namespace Components.Services.Importers
         foreach (IImporter importer in _importers)
         {
           if (change.Type == FileChangeEvent.FileChangeType.Created)
-          {
-            importer.FileCreated(change.FileName);
-          }
+            importer.FileCreated(change.FullPath);
           if (change.Type == FileChangeEvent.FileChangeType.Deleted)
-          {
-            importer.FileDeleted(change.FileName);
-          }
+            importer.FileDeleted(change.FullPath);
           if (change.Type == FileChangeEvent.FileChangeType.Changed)
-          {
-            importer.FileChanged(change.FileName);
-          }
+            importer.FileChanged(change.FullPath);
           if (change.Type == FileChangeEvent.FileChangeType.Renamed)
-          {
-            importer.FileRenamed(change.FileName, change.OldFileName);
-          }
+            importer.FileRenamed(change.FullPath, change.OldFullPath);
           if (change.Type == FileChangeEvent.FileChangeType.DirectoryDeleted)
-          {
-            importer.DirectoryDeleted(change.FileName);
-          }
+            importer.DirectoryDeleted(change.FullPath);
         }
       }
     }
@@ -357,28 +285,27 @@ namespace Components.Services.Importers
     /// <summary>
     /// Imports a complete folder & any subfolders.
     /// </summary>
-    /// <param name="obj">The obj.</param>
-    void DoImportFolder(object obj)
+    /// <param name="importerContext">The current importer context. This object can be casted to
+    /// <c>ImporterContext</c>.</param>
+    void DoImportFolder(object importerContext)
     {
-      // this is not recommended - the better solution would be to use mutexes for parallel imports
+      // This is not good - A better solution would be to use mutexes for parallel imports
       lock (this)
       {
         try
         {
-          ImporterContext context = (ImporterContext)obj;
-          ServiceScope.Get<ILogger>().Info("importer:import {0}", context.Folder.Folder);
+          ImporterContext context = (ImporterContext) importerContext;
+          ServiceScope.Get<ILogger>().Info("ImporterManager: Import '{0}'", context.Folder.Folder);
           for (int i = 0; i < _settings.Shares.Count; ++i)
           {
             Share share = _settings.Shares[i];
-            if (share.Folder == context.Folder.Folder)
+            if (FileUtils.PathEquals(share.Folder, context.Folder.Folder))
             {
               DateTime dt = share.LastImport;
               if (context.Refresh)
                 dt = DateTime.MinValue;
-              foreach (ImporterBuilder importer in _importers)
-              {
+              foreach (LazyImporterWrapper importer in _importers)
                 importer.ImportFolder(context.Folder.Folder, dt);
-              }
               share.LastImport = DateTime.Now;
               ServiceScope.Get<ISettingsManager>().Save(_settings);
             }
@@ -386,42 +313,35 @@ namespace Components.Services.Importers
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Info("importers:import failed");
-          ServiceScope.Get<ILogger>().Error(ex);
+          ServiceScope.Get<ILogger>().Error("ImporterManager: Import failed", ex);
         }
       }
     }
 
-    public void GetMetaDataFor(string folder, ref List<IAbstractMediaItem> items)
+    public void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items)
     {
       try
       {
-        List<string> extensions = new List<string>();
+        ICollection<string> extensions = new List<string>();
         foreach (IAbstractMediaItem item in items)
-        {
           if (item.ContentUri.IsFile)
           {
             string ext = Path.GetExtension(item.ContentUri.LocalPath).ToLower();
             if (!extensions.Contains(ext))
               extensions.Add(ext);
           }
-        }
 
-        foreach (ImporterBuilder importer in _importers)
-        {
+        foreach (LazyImporterWrapper importer in _importers)
           foreach (string ext in extensions)
-          {
             if (importer.Extensions.Contains(ext))
             {
               importer.GetMetaDataFor(folder, ref items);
               break;
             }
-          }
-        }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error(ex);
+        ServiceScope.Get<ILogger>().Error("ImporterManager: Error getting metadata for media items", ex);
       }
     }
   }

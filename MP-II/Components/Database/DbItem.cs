@@ -92,7 +92,7 @@ namespace Components.Database
     private void GetDefaultAttributes()
     {
       _attributes = new Dictionary<string, IDbAttribute>();
-      List<IDbAttribute> list = _database.Attributes;
+      IList<IDbAttribute> list = _database.Attributes;
       foreach (IDbAttribute attr in list)
       {
         _attributes[attr.Name] = (IDbAttribute) attr.Clone();
@@ -103,7 +103,7 @@ namespace Components.Database
     /// Gets the attributes for this item
     /// </summary>
     /// <value>The attributes.</value>
-    public Dictionary<string, IDbAttribute> Attributes
+    public IDictionary<string, IDbAttribute> Attributes
     {
       get { return _attributes; }
     }
@@ -152,14 +152,10 @@ namespace Components.Database
     {
       get
       {
-        Dictionary<string, IDbAttribute>.Enumerator enumer = Attributes.GetEnumerator();
+        IEnumerator<KeyValuePair<string, IDbAttribute>> enumer = Attributes.GetEnumerator();
         while (enumer.MoveNext())
-        {
           if (enumer.Current.Value.IsChanged)
-          {
             return true;
-          }
-        }
         return false;
       }
     }

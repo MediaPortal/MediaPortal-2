@@ -12,10 +12,13 @@
 
   <Runtime>
     <Assembly FileName = "MovieImporter.dll"/>
-    <PluginStateTracker ClassName = "Media.Importers.MovieImporter.Importer"/>
+    <PluginStateTracker ClassName = "Media.Importers.MovieImporter.MovieImporter"/>
   </Runtime>
 
   <Register Location = "/Media/Importers">
-    <Importer Id = "MovieImporter" ClassName = "Media.Importers.MovieImporter.Importer" Extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
+    <Importer
+        Id = "MovieImporter"
+        ClassName = "Media.Importers.MovieImporter.MovieImporter"
+        Extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
   </Register>
 </Plugin>
