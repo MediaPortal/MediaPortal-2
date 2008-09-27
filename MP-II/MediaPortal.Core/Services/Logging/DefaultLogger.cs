@@ -233,7 +233,7 @@ namespace MediaPortal.Core.Services.Logging
       Write(exception.Message);
       if (exception.InnerException != null)
       {
-        WriteInnerException(exception);
+        WriteInnerException(exception.InnerException);
       }
     }
 
