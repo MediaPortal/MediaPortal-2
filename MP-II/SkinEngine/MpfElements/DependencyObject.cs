@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.MarkupExtensions;
@@ -64,10 +65,10 @@ namespace MediaPortal.SkinEngine.Controls
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      DependencyObject d = source as DependencyObject;
+      DependencyObject d = (DependencyObject) source;
       if (d._attachedProperties != null)
         foreach (KeyValuePair<string, Property> kvp in d._attachedProperties)
-          SetAttachedPropertyValue(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()));
+          AddAttachedProperty(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()), kvp.Value.PropertyType);
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
       if (d._bindings != null)
@@ -143,9 +144,7 @@ namespace MediaPortal.SkinEngine.Controls
 
     public Property GetAttachedProperty(string name)
     {
-      if (_attachedProperties == null)
-        _attachedProperties = new Dictionary<string, Property>();
-      if (_attachedProperties.ContainsKey(name))
+      if (_attachedProperties != null && _attachedProperties.ContainsKey(name))
         return _attachedProperties[name];
       else
         return null;
@@ -155,11 +154,17 @@ namespace MediaPortal.SkinEngine.Controls
     {
       Property result = GetAttachedProperty(name);
       if (result == null)
-      {
-        result = new Property(typeof(T));
-        result.SetValue(defaultValue);
-        _attachedProperties[name] = result;
-      }
+        result = AddAttachedProperty(name, defaultValue, typeof(T));
+      return result;
+    }
+
+    private Property AddAttachedProperty(string name, object defaultValue, Type t)
+    {
+      if (_attachedProperties == null)
+        _attachedProperties = new Dictionary<string, Property>();
+      Property result = new Property(t);
+      result.SetValue(defaultValue);
+      _attachedProperties[name] = result;
       return result;
     }
 
