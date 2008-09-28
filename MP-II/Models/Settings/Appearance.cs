@@ -23,11 +23,9 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.DataObjects;
@@ -58,6 +56,8 @@ namespace Models.Settings
         foreach (string skinDirectoryPath in Directory.GetDirectories(rootDirectoryResource.Path))
         {
           string skinName = Path.GetFileName(skinDirectoryPath);
+          if (skinName.StartsWith("."))
+            continue;
           ListItem item = new ListItem("Name", skinName);
           string previewImagePath = String.Format("{0}\\themes\\default\\media\\preview.png", skinDirectoryPath);
           item.Add("CoverArt", previewImagePath);
@@ -80,7 +80,8 @@ namespace Models.Settings
       {
         Regex re = new Regex(".*\\\\themes\\\\([\\w]*)\\\\theme.xml");
         string themeName = re.Matches(filePath)[0].Groups[1].ToString();
-
+        if (themeName.StartsWith("."))
+          continue;
         ListItem item = new ListItem("Name", themeName);
         string previewImagePath = ra.GetResourceFilePath("themes\\" + themeName + "\\media\\preview.png");
         if (previewImagePath != null)
@@ -105,7 +106,6 @@ namespace Models.Settings
     /// <summary>
     /// Exposes all skins available to the skinengine.
     /// </summary>
-    /// <value>The skins.</value>
     public ItemsCollection Skins
     {
       get
@@ -114,6 +114,7 @@ namespace Models.Settings
         return _skins;
       }
     }
+
     /// <summary>
     /// Method for the skin to set the skin.
     /// </summary>
