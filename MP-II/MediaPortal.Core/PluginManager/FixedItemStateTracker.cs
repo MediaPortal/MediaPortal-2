@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Core.Services.PluginManager
+namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
   /// Default implementation of a plugin item state tracker which will prevent to reject the item

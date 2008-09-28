@@ -29,7 +29,6 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Configuration

@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
 
 namespace MediaPortal.SkinEngine.Models
 {

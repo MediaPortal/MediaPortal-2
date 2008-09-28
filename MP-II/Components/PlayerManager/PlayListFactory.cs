@@ -45,7 +45,6 @@ namespace Components.Services.PlayerManager
     {
       PlayList playlist = new PlayList();
       IPlaylistIO playlistio = null;
-      IList<IAbstractMediaItem> fileItems = new List<IAbstractMediaItem>();
       string extension = System.IO.Path.GetExtension(fileName).ToLower();
 
       switch (extension)
@@ -67,6 +66,7 @@ namespace Components.Services.PlayerManager
 
       if (playlistio != null)
       {
+        IList<IAbstractMediaItem> fileItems;
         if ((fileItems = playlistio.Load(fileName)) != null)
         {
           // Now let's get the tags of all the files found

@@ -28,28 +28,12 @@ using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Media.Importers
 {
+  /// <summary>
+  /// Interface for accessing the shares/importer engine. This interface provides methods to
+  /// access/add/remove shares and to start and configure the import.
+  /// </summary>
   public interface IImporterManager
   {
-    /// <summary>
-    /// Gets a collection of all registered importers.
-    /// </summary>
-    ICollection<IImporter> Importers { get;}
-
-    /// <summary>
-    /// Gets the importer for the specific name.
-    /// </summary>
-    /// <param name="name">The name of the importer to retrieve.</param>
-    /// <returns>Importer with the specified name, if present. If no importer with the name is
-    /// registered, the method returns <c>null</c>.</returns>
-    IImporter GetImporterByName(string name);
-
-    /// <summary>
-    /// Returns a collection of importers supporting the specified file <paramref name="extension"/>.
-    /// </summary>
-    /// <param name="extension">The extension to examine.</param>
-    /// <returns>Collection of importers supporting the extension.</returns>
-    ICollection<IImporter> GetImporterByExtension(string extension);
-
     /// <summary>
     /// Adds a new local share which should be imported & watched.
     /// </summary>
@@ -89,11 +73,17 @@ namespace MediaPortal.Media.Importers
     void ForceImport(string folderPath, bool refresh);
 
     /// <summary>
+    /// Forces a complete (re-)import of all shares.
+    /// </summary>
+    /// <param name="refresh">If set to <c>true</c>, the importer will also refresh
+    /// existing objects. Else, it only adds new objects.</param>
+    void ForceImport(bool refresh);
+
+    /// <summary>
     /// Gets the meta data for a folder.
     /// </summary>
     /// <param name="folder">The folder.</param>
     /// <param name="items">The items.</param>
     void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items);
-
   }
 }

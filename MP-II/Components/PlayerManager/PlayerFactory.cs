@@ -22,11 +22,9 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.MediaManager;
 

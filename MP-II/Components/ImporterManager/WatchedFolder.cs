@@ -75,20 +75,17 @@ namespace Components.Services.ImporterManager
     }
 
 
-    public IList<FileChangeEvent> Changes
+    public IList<FileChangeEvent> GatherChanges()
     {
-      get
+      if (_changesDetected.Count == 0) return null;
+      TimeSpan ts = DateTime.Now - _lastWatchedEvent;
+      if (ts.TotalSeconds >= 1)
       {
-        if (_changesDetected.Count == 0) return null;
-        TimeSpan ts = DateTime.Now - _lastWatchedEvent;
-        if (ts.TotalSeconds >= 1)
-        {
-          List<FileChangeEvent> changes = _changesDetected;
-          _changesDetected = new List<FileChangeEvent>();
-          return changes;
-        }
-        return null;
+        List<FileChangeEvent> changes = _changesDetected;
+        _changesDetected = new List<FileChangeEvent>();
+        return changes;
       }
+      return null;
     }
 
     /// <summary>

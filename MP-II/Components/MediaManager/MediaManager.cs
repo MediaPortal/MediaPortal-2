@@ -28,7 +28,6 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Media.MediaManager;
 using Components.Services.MediaManager.Views;
 

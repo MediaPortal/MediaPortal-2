@@ -96,7 +96,7 @@
     <Compile Include="Services\Logging\FileLogger.cs" />
     <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
     <Compile Include="PluginManager\Exceptions\Exceptions.cs" />
-    <Compile Include="Services\PluginManager\FixedItemStateTracker.cs" />
+    <Compile Include="PluginManager\FixedItemStateTracker.cs" />
     <Compile Include="PluginManager\IPluginMetadata.cs" />
     <Compile Include="PluginManager\IPluginStateTracker.cs" />
     <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
