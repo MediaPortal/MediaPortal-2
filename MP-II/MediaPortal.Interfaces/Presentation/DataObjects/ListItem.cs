@@ -48,7 +48,6 @@ namespace MediaPortal.Presentation.DataObjects
   /// <item>A command to be executed when this item is choosen</item>
   /// </list>
   /// </remarks>
-  /// FIXME: split into Item and (derived) TreeItem
   public class ListItem
   {
     #region Protected fields
@@ -56,7 +55,6 @@ namespace MediaPortal.Presentation.DataObjects
     protected Property _commandProperty = new Property(typeof(ICommand), null);
     protected Property _commandParameterProperty = new Property(typeof(ICommandParameter), null);
     protected IDictionary<string, IStringBuilder> _labels = new Dictionary<string, IStringBuilder>();
-    protected ItemsCollection _subItems = new ItemsCollection();
     protected Property _selectedProperty = new Property(typeof(bool), false);
 
     public event ListItemChangedHandler OnChanged;
@@ -119,7 +117,6 @@ namespace MediaPortal.Presentation.DataObjects
     {
       return _labels.ContainsKey(name) ? _labels[name] : CreateLabelProperty(defValue);
     }
-
 
     /// <summary>
     /// Adds a named label property to this item. The specified <paramref name="value"/>
@@ -195,14 +192,6 @@ namespace MediaPortal.Presentation.DataObjects
       set { _selectedProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Returns the collection of sub items of this item.
-    /// </summary>
-    public ItemsCollection SubItems
-    {
-      get { return _subItems; }
-    }
-
     public void FireChange()
     {
       if (OnChanged != null)
@@ -223,8 +212,6 @@ namespace MediaPortal.Presentation.DataObjects
       List<string> l = new List<string>();
       foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
-      if (_subItems.Count > 0)
-        l.Add(_subItems.Count + " sub items");
       string[] sl = new string[l.Count];
       l.CopyTo(sl);
       return typeof(ListItem).Name + ": " + string.Join(", ", sl);

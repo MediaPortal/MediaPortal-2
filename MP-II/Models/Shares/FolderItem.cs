@@ -26,7 +26,7 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace Models.Shares
 {
-  public class FolderItem : ListItem
+  public class FolderItem : TreeItem
   {
     string _folder;
     string _name;

@@ -26,7 +26,7 @@ using MediaPortal.Media.MediaManager;
 
 namespace MediaPortal.Presentation.DataObjects
 {
-  public class FolderItem : ListItem
+  public class FolderItem : TreeItem
   {
     private readonly IRootContainer _folder;
     private readonly IMediaItem _mediaItem;

@@ -111,6 +111,7 @@
     <Compile Include="Presentation\DataObjects\FolderItem.cs" />
     <Compile Include="Presentation\DataObjects\ItemsCollection.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
+    <Compile Include="Presentation\DataObjects\TreeItem.cs" />
     <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
     <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />

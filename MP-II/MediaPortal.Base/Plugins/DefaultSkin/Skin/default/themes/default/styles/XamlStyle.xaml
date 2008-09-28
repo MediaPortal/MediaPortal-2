@@ -1159,7 +1159,7 @@
   <!-- *************************** TreeView Item data templates ****************************** -->
 
   <!-- A data template for a ListItem in tree mode -->
-  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:ListItem}"
+  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
       ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
     <Grid>
       <Label x:Name="ItemLabel" Height="32" Content="{Binding [Name]}" FontSize="28"/>

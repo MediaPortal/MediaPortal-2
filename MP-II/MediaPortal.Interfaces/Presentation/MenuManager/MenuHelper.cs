@@ -46,15 +46,15 @@ namespace MediaPortal.Presentation.MenuManager
       ICommandBuilder builder = ServiceScope.Get<ICommandBuilder>();
       foreach (IMenuItem item in menu.Items)
       {
-        ListItem listItem = new ListItem("Name", item.Text);
-        listItem.Add("CoverArt", item.ImagePath);
+        TreeItem treeItem = new TreeItem("Name", item.Text);
+        treeItem.Add("CoverArt", item.ImagePath);
         if (item.Command != "")
         {
-          listItem.Command = builder.BuildCommand(item.Command);
+          treeItem.Command = builder.BuildCommand(item.Command);
           if (item.CommandParameter != "")
-            listItem.CommandParameter = builder.BuildParameter(item.CommandParameter);
+            treeItem.CommandParameter = builder.BuildParameter(item.CommandParameter);
         }
-        listItem.SubItems.Add(listItem);
+        treeItem.SubItems.Add(treeItem);
         if (item.Items != null)
         {
           foreach (IMenuItem subitem in item.Items)
@@ -68,10 +68,10 @@ namespace MediaPortal.Presentation.MenuManager
                 sublistItem.CommandParameter = builder.BuildParameter(subitem.CommandParameter);
             }
 
-            listItem.SubItems.Add(sublistItem);
+            treeItem.SubItems.Add(sublistItem);
           }
         }
-        result.Add(listItem);
+        result.Add(treeItem);
       }
       return result;
     }
