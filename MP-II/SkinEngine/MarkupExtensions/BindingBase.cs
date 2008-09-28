@@ -157,7 +157,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       _targetDataDescriptor = dd;
       DependencyObject depObj = dd.TargetObject as DependencyObject;
       if (depObj == null)
-        throw new ArgumentException("Can only bind to instances of class DependencyObject");
+        throw new ArgumentException(string.Format("Can only bind to instances of class DependencyObject (tried to bind to {0}", dd.TargetObject.GetType().Name));
       AttachToTargetObject(depObj);
     }
 
