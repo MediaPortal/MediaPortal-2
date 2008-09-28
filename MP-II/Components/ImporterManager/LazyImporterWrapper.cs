@@ -109,13 +109,12 @@ namespace Components.Services.ImporterManager
       IList<string> availableFiles = new List<string>();
       CollectChangedFilesForImport(folder, availableFiles, since);
 
-      if (availableFiles.Count > 0)
-      {
-        _importerInstance.BeforeImport(availableFiles.Count);
-        foreach (string filePath in availableFiles)
-          _importerInstance.FileImport(filePath);
-        _importerInstance.AfterImport();
-      }
+      if (availableFiles.Count <= 0) return;
+      IImporter importer = Importer;
+      importer.BeforeImport(availableFiles.Count);
+      foreach (string filePath in availableFiles)
+        importer.FileImport(filePath);
+      importer.AfterImport();
     }
 
     /// <summary>
@@ -126,9 +125,7 @@ namespace Components.Services.ImporterManager
     public void FileDeleted(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileDeleted(filename);
-      }
+        Importer.FileDeleted(filename);
     }
 
     /// <summary>
@@ -139,9 +136,7 @@ namespace Components.Services.ImporterManager
     public void FileCreated(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileCreated(filename);
-      }
+        Importer.FileCreated(filename);
     }
 
     /// <summary>
@@ -152,9 +147,7 @@ namespace Components.Services.ImporterManager
     public void FileChanged(string filename)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileChanged(filename);
-      }
+        Importer.FileChanged(filename);
     }
 
     /// <summary>
@@ -166,9 +159,7 @@ namespace Components.Services.ImporterManager
     public void FileRenamed(string filename, string oldFileName)
     {
       if (_extensions.Contains(Path.GetExtension(filename).ToLower()))
-      {
-        _importerInstance.FileRenamed(filename, oldFileName);
-      }
+        Importer.FileRenamed(filename, oldFileName);
     }
 
     /// <summary>
@@ -178,13 +169,14 @@ namespace Components.Services.ImporterManager
     /// <param name="directoryname">The directory name of the deleted directory.</param>
     public void DirectoryDeleted(string directoryname)
     {
-      _importerInstance.DirectoryDeleted(directoryname);
+      Importer.DirectoryDeleted(directoryname);
     }
 
     public void GetMetaDataFor(string folder, ref IList<IAbstractMediaItem> items)
     {
-      _importerInstance.GetMetaDataFor(folder, ref items);
+      Importer.GetMetaDataFor(folder, ref items);
     }
+
     #endregion
 
     #region Protected methods
