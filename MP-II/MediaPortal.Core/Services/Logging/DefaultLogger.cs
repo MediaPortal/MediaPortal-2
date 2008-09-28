@@ -127,6 +127,9 @@ namespace MediaPortal.Core.Services.Logging
     public void Critical(Exception ex)
     {
       WriteException(ex);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Write("", true);
     }
 
     #endregion
