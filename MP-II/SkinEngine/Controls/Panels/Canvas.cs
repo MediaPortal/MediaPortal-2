@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -44,11 +43,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public Canvas() { }
     
-    /// <summary>
-    /// Measures the size in layout required for child elements and determines
-    /// the <see cref="UIElement.DesiredSize"/>.
-    /// </summary>
-    /// <param name="availableSize">The maximum available size that is available.</param>
     public override void Measure(ref SizeF totalSize)
     {
       SizeF childSize = new SizeF(0,0);
@@ -88,11 +82,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       //Trace.WriteLine(String.Format("canvas.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
-    /// <summary>
-    /// Arranges the UI element
-    /// and positions it in the finalrect
-    /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element</param>
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("canvas.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));

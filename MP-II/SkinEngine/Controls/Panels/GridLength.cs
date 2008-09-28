@@ -64,7 +64,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      GridLength gl = source as GridLength;
+      GridLength gl = (GridLength) source;
       _unitType = copyManager.GetCopy(gl._unitType);
       _value = copyManager.GetCopy(gl._value);
       _finalValue = copyManager.GetCopy(gl._finalValue);

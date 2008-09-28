@@ -111,7 +111,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("Rectangle.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
@@ -138,7 +138,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     {
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       //Trace.WriteLine(String.Format("Rectangle.PerformLayout")); 
@@ -153,17 +152,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
-      rect.X += (float)ActualPosition.X;
-      rect.Y += (float)ActualPosition.Y;
+      RectangleF rect = new RectangleF(0, 0, rectSize.Width, rectSize.Height);
+      rect.X += ActualPosition.X;
+      rect.Y += ActualPosition.Y;
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
+        GraphicsPath path;
         using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
         {
-          centerX = rect.Width / 2 + rect.Left;
-          centerY = rect.Height / 2 + rect.Top;
+          float centerX = rect.Width / 2 + rect.Left;
+          float centerY = rect.Height / 2 + rect.Top;
           //CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
@@ -171,7 +170,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_fillAsset == null)
               {
-                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + this.Name);
+                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name);
                 ContentManager.Add(_fillAsset);
               }
               _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
@@ -185,7 +184,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              PathToTriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Fill.SetupBrush(this, ref verts);
               if (_fillContext == null)
@@ -207,7 +206,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + this.Name);
+                _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + Name);
                 ContentManager.Add(_borderAsset);
               }
               using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
@@ -225,7 +224,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              Shape.StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)
@@ -290,7 +289,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       float diameter = radiusX * 2.0F;
       SizeF sizeF = new SizeF(diameter, diameter);
       RectangleF arc = new RectangleF(baseRect.Location, sizeF);
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
 
       // top left arc 
 
@@ -329,11 +328,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     /// </summary>
     private GraphicsPath GetCapsule(RectangleF baseRect)
     {
-      float diameter;
       RectangleF arc;
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
       try
       {
+        float diameter;
         if (baseRect.Width > baseRect.Height)
         {
           // return horizontal capsule 

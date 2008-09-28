@@ -35,7 +35,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      NameScope ns = source as NameScope;
+      NameScope ns = (NameScope) source;
       _parent = copyManager.GetCopy(ns._parent);
       foreach (KeyValuePair<string, object> kvp in ns._names)
         if (_names.ContainsKey(kvp.Key))

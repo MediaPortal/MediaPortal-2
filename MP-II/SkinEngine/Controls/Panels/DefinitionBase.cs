@@ -43,7 +43,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      DefinitionBase d = source as DefinitionBase;
+      DefinitionBase d = (DefinitionBase) source;
       Name = copyManager.GetCopy(d.Name);
     }
 

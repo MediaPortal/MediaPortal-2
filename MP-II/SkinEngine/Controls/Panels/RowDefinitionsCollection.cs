@@ -34,7 +34,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      RowDefinitionsCollection r = source as RowDefinitionsCollection;
+      RowDefinitionsCollection r = (RowDefinitionsCollection) source;
       foreach (RowDefinition rd in r)
         Add(copyManager.GetCopy(rd));
     }

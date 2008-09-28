@@ -33,7 +33,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
   {
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      ColumnDefinitionsCollection c = source as ColumnDefinitionsCollection;
+      ColumnDefinitionsCollection c = (ColumnDefinitionsCollection) source;
       foreach (ColumnDefinition cd in c)
         Add(copyManager.GetCopy(cd));
     }
