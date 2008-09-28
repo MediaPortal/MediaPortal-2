@@ -35,7 +35,7 @@ namespace Models.Settings
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("settings-audio-setup"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("settings-audio-setup"));
       }
     }
 

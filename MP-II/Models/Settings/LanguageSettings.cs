@@ -112,7 +112,7 @@ namespace Models.Settings
         if (_mainMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-language"));
+          _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("settings-language"));
         }
         return _mainMenu;
       }

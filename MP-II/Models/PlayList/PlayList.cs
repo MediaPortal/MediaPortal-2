@@ -58,7 +58,7 @@ namespace Models.PlayList
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("playlist-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("playlist-main"));
 
       }
     }

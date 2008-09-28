@@ -139,6 +139,7 @@
     <Compile Include="Presentation\MenuManager\IMenuBuilder.cs" />
     <Compile Include="Presentation\MenuManager\IMenuCollection.cs" />
     <Compile Include="Presentation\MenuManager\IMenuItem.cs" />
+    <Compile Include="Presentation\MenuManager\MenuHelper.cs" />
     <Compile Include="Presentation\MenuManager\MenuItem.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -170,9 +171,6 @@
     <Compile Include="UserManagement\IRole.cs" />
     <Compile Include="UserManagement\IUser.cs" />
     <Compile Include="UserManagement\IUserService.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Media\MediaManager\MediaManager class diagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

@@ -41,7 +41,7 @@ namespace Models.HomeMenu
         if (_pluginMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _pluginMenu = new ItemsCollection(menuCollect.GetMenu("home"));
+          _pluginMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("home"));
         }
         return _pluginMenu;
       }

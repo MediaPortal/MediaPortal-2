@@ -67,7 +67,7 @@ namespace Models.Weather
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        _mainMenu = new ItemsCollection(menuCollect.GetMenu("weather-main"));
+        _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("weather-main"));
 
         return _mainMenu;
       }

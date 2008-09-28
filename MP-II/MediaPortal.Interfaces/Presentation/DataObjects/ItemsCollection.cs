@@ -23,54 +23,15 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Commands;
 
 namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// interface to a collection of items
+  /// interface to a collection of UI items.
   /// </summary>
   public class ItemsCollection : List<ListItem>, IObservable
   {
-    public ItemsCollection() { }
-
-    public ItemsCollection(IMenu menu)
-    {
-      ICommandBuilder builder = ServiceScope.Get<ICommandBuilder>();
-      foreach (IMenuItem item in menu.Items)
-      {
-        ListItem listItem = new ListItem("Name", item.Text);
-        listItem.Add("CoverArt", item.ImagePath);
-        if (item.Command != "")
-        {
-          listItem.Command = builder.BuildCommand(item.Command);
-          if (item.CommandParameter != "")
-            listItem.CommandParameter = builder.BuildParameter(item.CommandParameter);
-        }
-        listItem.SubItems.Add(listItem);
-        if (item.Items != null)
-        {
-          foreach (IMenuItem subitem in item.Items)
-          {
-            ListItem sublistItem = new ListItem("Name", subitem.Text);
-            sublistItem.Add("CoverArt", subitem.ImagePath);
-            if (subitem.Command != "")
-            {
-              sublistItem.Command = builder.BuildCommand(subitem.Command);
-              if (subitem.CommandParameter != "")
-                sublistItem.CommandParameter = builder.BuildParameter(subitem.CommandParameter);
-            }
-
-            listItem.SubItems.Add(sublistItem);
-          }
-        }
-        Add(listItem);
-      }
-    }
-
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>

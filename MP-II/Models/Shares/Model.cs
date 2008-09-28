@@ -63,7 +63,7 @@ namespace Models.Shares
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("shares-notdefined-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("shares-notdefined-main"));
       }
     }
 
@@ -72,7 +72,7 @@ namespace Models.Shares
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("shares-remove-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("shares-remove-main"));
       }
     }
 
@@ -81,7 +81,7 @@ namespace Models.Shares
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("shares-add-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("shares-add-main"));
       }
     }
 
@@ -90,7 +90,7 @@ namespace Models.Shares
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("shares-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("shares-main"));
       }
     }
     

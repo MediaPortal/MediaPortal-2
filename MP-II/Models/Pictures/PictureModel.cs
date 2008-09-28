@@ -185,7 +185,7 @@ namespace Models.Pictures
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mypictures-editting"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mypictures-editting"));
       }
     }
 
@@ -194,7 +194,7 @@ namespace Models.Pictures
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        _mainMenu = new ItemsCollection(menuCollect.GetMenu("mypictures-main"));
+        _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("mypictures-main"));
 
         return _mainMenu;
       }
@@ -532,7 +532,7 @@ namespace Models.Pictures
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mypictures-context"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mypictures-context"));
       }
     }
 

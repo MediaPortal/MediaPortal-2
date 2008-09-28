@@ -85,7 +85,7 @@ namespace Models.Media
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymedia-main"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mymedia-main"));
       }
     }
 
@@ -203,7 +203,7 @@ namespace Models.Media
         if (_sortMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _sortMenu = new ItemsCollection(menuCollect.GetMenu("music-sort"));
+          _sortMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("music-sort"));
         }
 
         SetSelectedSortMode();

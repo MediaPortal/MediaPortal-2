@@ -153,7 +153,7 @@ namespace Models.Music
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        _mainMenu = new ItemsCollection(menuCollect.GetMenu("music-main"));
+        _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("music-main"));
 
         return _mainMenu;
       }
@@ -168,7 +168,7 @@ namespace Models.Music
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("music-contextmenu"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("music-contextmenu"));
 
       }
     }

@@ -345,7 +345,7 @@ namespace MediaPortal.SkinEngine.Players
         if (_contextMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _contextMenu = new ItemsCollection(menuCollect.GetMenu("fullscreenVideocontext"));
+          _contextMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("fullscreenVideocontext"));
         }
         return _contextMenu;
       }

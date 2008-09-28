@@ -59,7 +59,7 @@ namespace Models.Settings
         if (_mainMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-screen"));
+          _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("settings-screen"));
         }
         return _mainMenu;
       }

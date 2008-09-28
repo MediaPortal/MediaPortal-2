@@ -140,7 +140,7 @@ namespace Models.Settings
         if (_mainMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-appearance"));
+          _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("settings-appearance"));
         }
         return _mainMenu;
       }

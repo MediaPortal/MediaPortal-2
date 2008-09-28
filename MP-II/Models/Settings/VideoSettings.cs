@@ -47,7 +47,7 @@ namespace Models.Settings
         if (_mainMenu == null)
         {
           IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _mainMenu = new ItemsCollection(menuCollect.GetMenu("settings-video-main"));
+          _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("settings-video-main"));
         }
         return _mainMenu;
       }

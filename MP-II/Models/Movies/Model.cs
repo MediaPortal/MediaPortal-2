@@ -198,7 +198,7 @@ namespace Models.Movies
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymovies-playback-ended"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mymovies-playback-ended"));
       }
     }
 
@@ -211,7 +211,7 @@ namespace Models.Movies
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymovies-playback-stopped"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mymovies-playback-stopped"));
       }
     }
 
@@ -224,7 +224,7 @@ namespace Models.Movies
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymovies-playback-resume"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mymovies-playback-resume"));
       }
     }
     /// <summary>
@@ -236,7 +236,7 @@ namespace Models.Movies
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        _mainMenu = new ItemsCollection(menuCollect.GetMenu("mymovies-main"));
+        _mainMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("mymovies-main"));
 
         return _mainMenu;
       }
@@ -251,7 +251,7 @@ namespace Models.Movies
       get
       {
         IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-        return new ItemsCollection(menuCollect.GetMenu("mymovies-contextmenu"));
+        return MenuHelper.WrapMenu(menuCollect.GetMenu("mymovies-contextmenu"));
       }
     }
 
