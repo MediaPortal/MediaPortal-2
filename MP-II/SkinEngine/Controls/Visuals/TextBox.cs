@@ -153,14 +153,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         IInputManager manager = ServiceScope.Get<IInputManager>();
         
         // We now have focus, so set that we need raw data
-        if (value)
-        {
-          manager.NeedRawKeyData = true;
-        }
-        else
-        {
-          manager.NeedRawKeyData = false;
-        }
+        manager.NeedRawKeyData = value;
       }
     }
 
@@ -241,10 +234,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (_asset != null)
       {
-        childSize = new SizeF(_asset.Font.Width(Text.ToString(), FontSize) * SkinContext.Zoom.Width,
+        childSize = new SizeF(_asset.Font.Width(Text, FontSize) * SkinContext.Zoom.Width,
                  _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
       }
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
@@ -254,7 +247,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -284,7 +277,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -304,7 +297,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (!IsVisible) return;
       if (_asset == null) return;
       AllocFont();
-      Color4 color = ColorConverter.FromColor(this.Color);
+      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
       float totalWidth;
@@ -312,8 +305,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // The characters fits the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
-      float x = (float)ActualPosition.X;
-      float y = (float)ActualPosition.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
+      float x = ActualPosition.X;
+      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -323,20 +316,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
-      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
+      Font.Align align = Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-        align = SkinEngine.Fonts.Font.Align.Right;
+        align = Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-        align = SkinEngine.Fonts.Font.Align.Center;
+        align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
-      color.Alpha *= (float)SkinContext.Opacity;
-      color.Alpha *= (float)this.Opacity;
+      color.Alpha *= (float) SkinContext.Opacity;
+      color.Alpha *= (float) Opacity;
 
       _renderer.Draw(Text, rect, ActualPosition.Z, align, FontSize * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
@@ -353,7 +346,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
         return;
-      Color4 color = ColorConverter.FromColor(this.Color);
+      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
       float totalWidth;
@@ -362,8 +355,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
  
-      float y = (float)ActualPosition.Y + 0.1f * (float)FontSize * SkinContext.Zoom.Height;
-      float x = (float)ActualPosition.X;
+      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
+      float x = ActualPosition.X;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -373,20 +366,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, (int)w, (int)h);
-      SkinEngine.Fonts.Font.Align align = SkinEngine.Fonts.Font.Align.Left;
+      Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
+      Font.Align align = Font.Align.Left;
       if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
-        align = SkinEngine.Fonts.Font.Align.Right;
+        align = Font.Align.Right;
       else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
-        align = SkinEngine.Fonts.Font.Align.Center;
+        align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation((float)-rect.X, (float)-rect.Y, 0);
+      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation((float)rect.X, (float)rect.Y, 0);
+      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
-      color.Alpha *= (float)SkinContext.Opacity;
-      color.Alpha *= (float)this.Opacity;
+      color.Alpha *= (float) SkinContext.Opacity;
+      color.Alpha *= (float) Opacity;
       _asset.Draw(Text, rect, align, FontSize * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
@@ -424,10 +417,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void Update()
     {
       base.Update();
-      if (_hidden == false)
-      {
+      if (!_hidden)
         DoBuildRenderTree();
-      }
     }
 
     public override void OnKeyPressed(ref Key key)

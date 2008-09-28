@@ -393,18 +393,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       //Trace.WriteLine("Label.Update");
       base.Update();
-      if (_hidden == false)
-      {
+      if (!_hidden)
         DoBuildRenderTree();
-      }
 
       // If the text is scrolling, then we must keep on building the render tree
-      // Otherwise it wont scroll.
-      if (Scroll)
-      {
-        if (Screen != null)
+      // Otherwise it won't scroll.
+      if (Scroll && Screen != null)
           Screen.Invalidate(this);
-      }
     }
   }
 }
