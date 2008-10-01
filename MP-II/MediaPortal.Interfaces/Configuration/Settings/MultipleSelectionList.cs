@@ -23,16 +23,13 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-
 using MediaPortal.Presentation.Localisation;
 
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class MultipleSelectionList : ItemList
+  public class MultipleSelectionList : ConfigItemList
   {
     
     #region Variables

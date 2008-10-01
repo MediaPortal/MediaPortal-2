@@ -35,20 +35,17 @@ namespace MediaPortal.Core.PluginManager.Settings
   /// </summary>
   public class SettingRegistrationBase
   {
+
+    #region Variables
+
     protected string _location;
     protected string _text;
+    protected bool _hidden;
+    protected bool _disabled;
 
-    /// <summary>
-    /// Creates a new <see cref="SettingRegistrationBase"/> instance.
-    /// </summary>
-    /// <param name="location">The location of the new instance. This must contain the parent location
-    /// if there is a parent, and the Id of this setting registration as last location path element.</param>
-    /// <param name="text">The text to be displayed for this setting registration.</param>
-    public SettingRegistrationBase(string location, string text)
-    {
-      _location = location;
-      _text = text;
-    }
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// Returns the location path of this setting registration. The location contains
@@ -90,6 +87,34 @@ namespace MediaPortal.Core.PluginManager.Settings
     {
       get { return _text; }
     }
+
+    public bool Hidden
+    {
+      get { return _hidden; }
+    }
+
+    public bool Disabled
+    {
+      get { return _disabled; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Creates a new <see cref="SettingRegistrationBase"/> instance.
+    /// </summary>
+    /// <param name="location">The location of the new instance. This must contain the parent location
+    /// if there is a parent, and the Id of this setting registration as last location path element.</param>
+    /// <param name="text">The text to be displayed for this setting registration.</param>
+    public SettingRegistrationBase(string location, string text)
+    {
+      _location = location;
+      _text = text;
+    }
+
+    #endregion
 
     #region Static helper methods
 

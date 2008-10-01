@@ -268,7 +268,7 @@ namespace MediaPortal.Manager
         return panel; // Return empty panel
       panel.Name = node.ToString() + "_" + node.Setting.ToString();
       // Add heading
-      if (node.Setting.Type == SettingType.Group)
+      if (node.Setting is ConfigGroup)
       {
         panel.Controls.Add(CreateHeading(position, node.Setting.Text.ToString()));
         position.LinePosition += position.LineHeight;
@@ -278,155 +278,138 @@ namespace MediaPortal.Manager
       {
         if (subNode.Setting.Hidden) continue;
         subNode.Setting.RedrawSettingEvent += _configChangedHandler;
-        switch (subNode.Setting.Type)
+        if (subNode.Setting is ConfigGroup)
         {
-          case SettingType.Group:                 // Panel
-            if (true) // add a scope here: variables aren't visible in the rest of the switch statement
+          Position pos = (Position) position.Clone();
+          pos.StartColumnOne += pos.Indent; // indent the first column
+          pos.WidthColumnOne -= pos.Indent; // shorten the width, so it doesn't overlap with column two
+          pos.LinePosition = 0; // reset linePosition, this is relative to the new control
+          // Make a recursive call to process the group to a Panel
+          Panel subPanel = BuildToPanel(subNode, pos);
+          subPanel.Anchor = (((AnchorStyles.Top | AnchorStyles.Left) | AnchorStyles.Right));
+          subPanel.Location = new Point(0, position.LinePosition);
+          subPanel.Enabled = !subNode.Setting.Disabled;
+          panel.Controls.Add(subPanel);
+          position.LinePosition += pos.LinePosition;
+        }
+        else if (subNode.Setting is ConfigItem)
+        {
+          ConfigItem setting = (ConfigItem) subNode.Setting;
+          if (setting is Entry)
+          {
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString()));
+            TextBox txt = CreateTextBox(position, setting.Columns);
+            txt.Text = ((Entry) setting).Value;
+            txt.Tag = setting;
+            SetHelp(txt, setting.Help.ToString());
+            txt.Enabled = !setting.Disabled;
+            panel.Controls.Add(txt);
+            position.LinePosition += position.LineHeight + position.Margin;
+          }
+          else if (setting is LimitedNumberSelect)
+          {
+            int height;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateLimitedNumberSelect(position, (LimitedNumberSelect) setting));
+            position.LinePosition += height + position.Margin;
+          }
+          else if (setting is MultipleEntryList)
+          {
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString()));
+            position.LinePosition += position.LineHeight;
+            TextBox txt = CreateMultiLineTextBox(position, setting.Rows);
+            txt.Tag = setting;
+            MultipleEntryList entryList = (MultipleEntryList) setting;
+            txt.Lines = new string[entryList.Lines.Count];
+            for (int i = 0; i < txt.Lines.Length; i++)
+              txt.Lines[i] = entryList.Lines[i];
+            SetHelp(txt, setting.Help.ToString());
+            txt.Enabled = !setting.Disabled;
+            panel.Controls.Add(txt);
+            position.LinePosition += txt.Height + position.Margin;
+          }
+          else if (setting is MultipleSelectionList)
+          {
+            int lblHeight;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne,
+                                           out lblHeight));
+            position.LinePosition += lblHeight + position.Margin;
+            CheckedListBox chk = CreateCheckedListBox(position);
+            MultipleSelectionList list = ((MultipleSelectionList) setting);
+            for (int i = 0; i < list.Items.Count; i++)
+              chk.Items.Add(list.Items[i], list.SelectedIndices.Contains(i));
+            chk.Enabled = !setting.Disabled;
+            panel.Controls.Add(chk);
+            position.LinePosition += chk.Height + position.Margin;
+          }
+          else if (setting is NumberSelect)
+          {
+            int height;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateNumberSelect(position, (NumberSelect) setting));
+            position.LinePosition += height + position.Margin;
+          }
+          else if (setting is Path)
+          {
+            int height;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            position.LinePosition += height + position.Margin;
+            Panel browse = CreateBrowseEntry(position, (Path) setting);
+            panel.Controls.Add(browse);
+            position.LinePosition += browse.Height + position.Margin;
+          }
+          else if (setting is PreferenceList)
+          {
+            int height;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            position.LinePosition += height + position.Margin;
+            Panel list = CreatePreferenceList(position, (PreferenceList) setting);
+            panel.Controls.Add(list);
+            position.LinePosition += list.Height + position.Margin;
+          }
+          else if (setting is SingleSelectionList)
+          {
+            int lblHeight;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne,
+                                           out lblHeight));
+            lblHeight += position.Margin;
+            if (((SingleSelectionList) setting).Items.Count > 3) // ComboBox
             {
-              Position pos = (Position)position.Clone();
-              pos.StartColumnOne += pos.Indent; // indent the first column
-              pos.WidthColumnOne -= pos.Indent; // shorten the width, so it doesn't overlap with column two
-              pos.LinePosition = 0;             // reset linePosition, this is relative to the new control
-              // Make a recursive call to process the group to a Panel
-              Panel subPanel = BuildToPanel(subNode, pos);
-              subPanel.Anchor = (AnchorStyles)(((AnchorStyles.Top | AnchorStyles.Left) | AnchorStyles.Right));
-              subPanel.Location = new Point(0, position.LinePosition);
-              subPanel.Enabled = subNode.Setting.Enabled;
-              panel.Controls.Add(subPanel);
-              position.LinePosition += pos.LinePosition;
-            }
-            break;
-          case SettingType.YesNo:                 // CheckBox
-            if (subNode.Setting is YesNo)
-            {
-              int lblHeight;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
-              lblHeight += position.Margin;
-              CheckBox chk = CreateCheckBox(position);
-              chk.Checked = ((YesNo)subNode.Setting).Yes;
-              chk.Tag = subNode.Setting;
-              SetHelp(chk, subNode.Setting.Help.ToString());
-              chk.Enabled = subNode.Setting.Enabled;
-              panel.Controls.Add(chk);
+              ComboBox cmb = CreateComboBox(position);
+              foreach (StringId item in ((SingleSelectionList) setting).Items)
+                cmb.Items.Add(item.ToString());
+              cmb.SelectedIndex = ((SingleSelectionList) setting).Selected;
+              cmb.Tag = setting;
+              SetHelp(cmb, setting.Help.ToString());
+              cmb.Enabled = !setting.Disabled;
+              panel.Controls.Add(cmb);
               if (lblHeight > position.LineHeight)
-                position.LinePosition += (int)(position.ItemHeight * (lblHeight / (position.ItemHeight * 2)));
+                position.LinePosition += (position.ItemHeight*(lblHeight/(position.ItemHeight*2)));
               position.LinePosition += position.LineHeight;
             }
-            break;
-          case SettingType.MultipleSelectionList: // CheckedListBox
-            if (subNode.Setting is MultipleSelectionList && ((MultipleSelectionList)subNode.Setting).Items != null)
+            else // 3 or less items:            Radiobuttons
             {
-              int lblHeight;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
-              position.LinePosition += lblHeight + position.Margin;
-              CheckedListBox chk = CreateCheckedListBox(position);
-              MultipleSelectionList list = ((MultipleSelectionList)subNode.Setting);
-              for (int i = 0; i < list.Items.Count; i++)
-                chk.Items.Add(list.Items[i], list.SelectedIndices.Contains(i));
-              chk.Enabled = subNode.Setting.Enabled;
-              panel.Controls.Add(chk);
-              position.LinePosition += chk.Height + position.Margin;
+              Panel radioPanel = CreateRadioPanel(position, (SingleSelectionList) setting);
+              panel.Enabled = !setting.Disabled;
+              panel.Controls.Add(radioPanel);
+              position.LinePosition += radioPanel.Height + position.Margin;
             }
-            break;
-          case SettingType.SingleSelectionList:   // ComboBox or RadioButton
-            if (subNode.Setting is SingleSelectionList && ((SingleSelectionList)subNode.Setting).Items != null)
-            {
-              int lblHeight = 0;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
-              lblHeight += position.Margin;
-              if (((SingleSelectionList)subNode.Setting).Items.Count > 3)  // ComboBox
-              {
-                ComboBox cmb = CreateComboBox(position);
-                foreach (StringId item in ((SingleSelectionList)subNode.Setting).Items)
-                  cmb.Items.Add(item.ToString());
-                cmb.SelectedIndex = ((SingleSelectionList)subNode.Setting).Selected;
-                cmb.Tag = subNode.Setting;
-                SetHelp(cmb, subNode.Setting.Help.ToString());
-                cmb.Enabled = subNode.Setting.Enabled;
-                panel.Controls.Add(cmb);
-                if (lblHeight > position.LineHeight)
-                  position.LinePosition += (int)(position.ItemHeight * (lblHeight / (position.ItemHeight * 2)));
-                position.LinePosition += position.LineHeight;
-              }
-              else                        // 3 or less items:            Radiobuttons
-              {
-                Panel radioPanel = CreateRadioPanel(position, (SingleSelectionList)subNode.Setting);
-                panel.Enabled = subNode.Setting.Enabled;
-                panel.Controls.Add(radioPanel);
-                position.LinePosition += radioPanel.Height + position.Margin;
-              }
-            }
-            break;
-          case SettingType.Entry:               // TextBox
-            if (subNode.Setting is Entry)
-            {
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString()));
-              TextBox txt = CreateTextBox(position, subNode.Setting.Width);
-              txt.Text = ((Entry)subNode.Setting).Value;
-              txt.Tag = subNode.Setting;
-              SetHelp(txt, subNode.Setting.Help.ToString());
-              txt.Enabled = subNode.Setting.Enabled;
-              panel.Controls.Add(txt);
-              position.LinePosition += position.LineHeight + position.Margin;
-            }
-            break;
-          case SettingType.MultipleEntryList:   // MultiLine TextBox
-            if (subNode.Setting is MultipleEntryList)
-            {
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString()));
-              position.LinePosition += position.LineHeight;
-              TextBox txt = CreateMultiLineTextBox(position, subNode.Setting.Height);
-              txt.Tag = subNode.Setting;
-              MultipleEntryList entryList = (MultipleEntryList)subNode.Setting;
-              txt.Lines = new string[entryList.Lines.Count];
-              for (int i = 0; i < txt.Lines.Length; i++)
-                txt.Lines[i] = entryList.Lines[i];
-              SetHelp(txt, subNode.Setting.Help.ToString());
-              txt.Enabled = subNode.Setting.Enabled;
-              panel.Controls.Add(txt);
-              position.LinePosition += txt.Height + position.Margin;
-            }
-            break;
-          case SettingType.PreferenceList:     // Sortable list
-            if (subNode.Setting is PreferenceList)
-            {
-              int height;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
-              position.LinePosition += height + position.Margin;
-              Panel list = CreatePreferenceList(position, (PreferenceList)subNode.Setting);
-              panel.Controls.Add(list);
-              position.LinePosition += list.Height + position.Margin;
-            }
-            break;
-          case SettingType.Path:              // Browsable Entry
-            if (subNode.Setting is Path)
-            {
-              int height;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
-              position.LinePosition += height + position.Margin;
-              Panel browse = CreateBrowseEntry(position, (Path)subNode.Setting);
-              panel.Controls.Add(browse);
-              position.LinePosition += browse.Height + position.Margin;
-            }
-            break;
-          case SettingType.NumberSelect:
-            if (subNode.Setting is NumberSelect)
-            {
-              int height;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
-              panel.Controls.Add(CreateNumberSelect(position, (NumberSelect)subNode.Setting));
-              position.LinePosition += height + position.Margin;
-            }
-            break;
-          case SettingType.LimitedNumberSelect:
-            if (subNode.Setting is LimitedNumberSelect)
-            {
-              int height;
-              panel.Controls.Add(CreateLabel(position, subNode.Setting.Text.ToString(), position.Width, out height));
-              panel.Controls.Add(CreateLimitedNumberSelect(position, (LimitedNumberSelect)subNode.Setting));
-              position.LinePosition += height + position.Margin;
-            }
-            break;
+          }
+          else if (setting is YesNo)
+          {
+            int lblHeight;
+            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
+            lblHeight += position.Margin;
+            CheckBox chk = CreateCheckBox(position);
+            chk.Checked = ((YesNo) setting).Yes;
+            chk.Tag = setting;
+            SetHelp(chk, setting.Help.ToString());
+            chk.Enabled = !setting.Disabled;
+            panel.Controls.Add(chk);
+            if (lblHeight > position.LineHeight)
+              position.LinePosition += (position.ItemHeight*(lblHeight/(position.ItemHeight*2)));
+            position.LinePosition += position.LineHeight;
+          }
         }
       }
       panel.Height = position.LinePosition;
@@ -458,7 +441,7 @@ namespace MediaPortal.Manager
       Label heading = new Label();
       heading.Margin = new Padding(position.Margin, 3, position.Margin, 3);
       heading.AutoSize = false;
-      heading.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
+      heading.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
       heading.Location = new Point(position.StartColumnOne - position.Indent * 2, position.LinePosition);
       heading.Size = new Size(position.Width, position.ItemHeight);
       heading.TabIndex = position.NextTabIndex;
@@ -521,7 +504,7 @@ namespace MediaPortal.Manager
       Label label = CreateLabel(position, text);
       // We'll have to guess the height...
       SizeF size = label.CreateGraphics().MeasureString(label.Text, label.Font);
-      height = (int)((double)size.Height * (double)size.Width / maxWidth);
+      height = (int)(size.Height * (double)size.Width / maxWidth);
       label.AutoSize = true;
       label.MaximumSize = new Size(maxWidth, height + position.Margin);
       label.MinimumSize = new Size(maxWidth, height);
@@ -679,16 +662,14 @@ namespace MediaPortal.Manager
       // => second loop is needed
       Position nPos = (Position)position.Clone();
       nPos.LinePosition = 0;
-      int width, start; // values depend on the new line, we can't use Position
+      int width; // values depend on the new line, we can't use Position
       if (takeNewLine)
       {
         width = position.Width - position.Margin;
-        start = position.StartColumnOne + position.Margin;
       }
       else
       {
         width = position.WidthColumnTwo;
-        start = position.StartColumnTwo;
       }
       foreach (RadioButton btn in items)
       {

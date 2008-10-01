@@ -96,7 +96,7 @@ namespace MediaPortal.Manager
 #endif
         IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
         pluginManager.Initialize();
-        pluginManager.Startup();
+        //pluginManager.Startup();
         Application.Run(new MainWindow());
         pluginManager.Shutdown();
 #if !DEBUG

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace MediaPortal.Configuration
 {
 
@@ -132,7 +133,7 @@ namespace MediaPortal.Configuration
       _nodes = new ConfigurationNodeCollection(this);
       if (parent != null)
       {
-        if (parent._setting.Type == SettingType.Section)
+        if (parent._setting is ConfigSection)
           _section = _parent;
         else
           _section = _parent._section;
@@ -183,7 +184,7 @@ namespace MediaPortal.Configuration
         _parent = (ConfigurationNode)value;
         if (_parent != null)
         {
-          if (_parent.Setting.Type == SettingType.Section)
+          if (_parent.Setting is ConfigSection)
             _section = _parent;
           else
             _section = _parent._section;
@@ -212,7 +213,7 @@ namespace MediaPortal.Configuration
     /// </summary>
     public bool IsEnabled
     {
-      get { return (_setting != null ? _setting.Enabled : false); }
+      get { return _setting.Disabled; }
     }
 
     /// <summary>
@@ -220,7 +221,7 @@ namespace MediaPortal.Configuration
     /// </summary>
     public bool IsVisible
     {
-      get { return (_setting != null ? _setting.Hidden : false); }
+      get { return _setting.Hidden; }
     }
 
     /// <summary>

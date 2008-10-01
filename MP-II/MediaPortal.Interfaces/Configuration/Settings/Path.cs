@@ -23,13 +23,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class Path : ConfigBase
+  public class Path : ConfigItem
   {
 
     #region Enums

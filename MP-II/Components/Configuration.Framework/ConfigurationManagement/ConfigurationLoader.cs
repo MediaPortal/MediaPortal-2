@@ -45,7 +45,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Location to start searching for configuration items, in the plugintree.
     /// </summary>
-    private const string PLUGINSTART = "/Configuration/Settings/";
+    //private const string PLUGINSTART = "/Configuration/Settings/";
 
     #endregion
 
@@ -78,12 +78,14 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Settings which are waiting to be registered to another setting.
     /// </summary>
-    private IDictionary<string, ICollection<ConfigBase>> _waiting;
+    private IDictionary<string, ICollection<ConfigItem>> _waiting;
     /// <summary>
     /// Collection of items which have been loaded to the tree already,
     /// used for fast verification of existing items.
     /// </summary>
     private ICollection<string> _passedItems;
+
+    private LoaderHelper _loaderTree;
 
     #endregion
 
@@ -157,7 +159,7 @@ namespace MediaPortal.Configuration
     {
       _tree = tree;
       _files = new List<SettingFile>();
-      _waiting = new Dictionary<string, ICollection<ConfigBase>>();
+      _waiting = new Dictionary<string, ICollection<ConfigItem>>();
       _passedItems = new List<string>();
     }
 
@@ -183,17 +185,17 @@ namespace MediaPortal.Configuration
         throw new NodeNotFoundException(String.Format("Invalid path: \"{0}\"", sectionPath));
       // Make sure that the sections have been loaded already
       if (!_sectionsLoaded)
-        LoadSections(ServiceScope.Get<IPluginManager>(), PLUGINSTART, _tree.Nodes);
+        LoadSections(ServiceScope.Get<IPluginManager>(), "", _tree.Nodes);
       // Find the requested node
       IConfigurationNode node;
       if (!FindNode(path, out node))
         throw new NodeNotFoundException(String.Format("Invalid path: \"{0}\"", sectionPath));
       // Make sure to return a section
-      if (node.Setting.Type != SettingType.Section)
+      if (!(node.Setting is ConfigSection))
         node = node.Section;
       // Load the node if not loaded yet
       if (!((ConfigurationNodeCollection)node.Nodes).IsSet)
-        LoadItem(ServiceScope.Get<IPluginManager>(), PLUGINSTART + node.ToString() + "/", (ConfigurationNodeCollection)node.Nodes);
+        LoadItem(node.ToString() + "/", (ConfigurationNodeCollection)node.Nodes);
       return node;
     }
 
@@ -202,7 +204,7 @@ namespace MediaPortal.Configuration
     /// </summary>
     public void LoadSections()
     {
-      LoadSections(ServiceScope.Get<IPluginManager>(), PLUGINSTART, _tree.Nodes);
+      LoadSections(ServiceScope.Get<IPluginManager>(), "", _tree.Nodes);
     }
 
     /// <summary>
@@ -216,12 +218,14 @@ namespace MediaPortal.Configuration
       _files.Clear();
       IPluginManager manager = ServiceScope.Get<IPluginManager>();
       if (!_sectionsLoaded)
-        LoadSections(manager, PLUGINSTART, _tree.Nodes);
+        LoadSections(manager, "", _tree.Nodes);
       _sectionIndex = 0;
       if (_tree.Nodes.Count == 0) return;
-      Thread t = new Thread(new ThreadStart(LoadAllItems));
-      t.IsBackground = true;
-      t.Name = "MPII - Configuration Framework Loader";
+      Thread t = new Thread(LoadAllItems)
+                   {
+                     IsBackground = true,
+                     Name = "MPII - Configuration Framework Loader"
+                   };
       t.Start();
     }
 
@@ -241,35 +245,46 @@ namespace MediaPortal.Configuration
 
     #region Private Methods
 
+    private void LoadLoaderTree(IPluginManager manager)
+    {
+      _loaderTree = new LoaderHelper();
+      foreach (KeyValuePair<string, PluginRuntime> pair in manager.AvailablePlugins)
+        _loaderTree.Add(pair.Value);
+    }
+
     /// <summary>
     /// Loads all sections from the specified location to the specified destination collection,
     /// using the specified IPluginManager.
     /// </summary>
+    /// <remarks>
+    /// This method will allways be the first one to be called after initialization.
+    /// </remarks>
     /// <param name="manager">IPluginManager to load sections with.</param>
     /// <param name="pluginLocation">Location to load sections from.</param>
     /// <param name="destCollection">Collection to load sections to.</param>
     private void LoadSections(IPluginManager manager, string pluginLocation, IList<IConfigurationNode> destCollection)
     {
-      ICollection<ConfigBase> settings = manager.RequestAllPluginItems<ConfigBase>(pluginLocation, new FixedItemStateTracker());
+      if (_loaderTree == null)
+        LoadLoaderTree(manager);
+      ICollection<ConfigBase> settings = _loaderTree.InitializeItems(pluginLocation);
       lock (destCollection)
       {
         foreach (ConfigBase setting in settings)
         {
-          if (setting.Type == SettingType.Section)
+          if (setting is ConfigItem)
+            continue;
+          int index = IndexOfNode(destCollection, setting.Id);
+          IConfigurationNode node;
+          if (index == -1)
           {
-            int index = IndexOfNode(destCollection, setting.Id);
-            IConfigurationNode node;
-            if (index == -1)
-            {
-              node = new ConfigurationNode(setting, _tree);
-              destCollection.Add(node);
-            }
-            else
-            {
-              node = destCollection[index];
-            }
-            LoadSections(manager, pluginLocation + setting.Id + "/", node.Nodes);
+            node = new ConfigurationNode(setting, _tree);
+            destCollection.Add(node);
           }
+          else
+          {
+            node = destCollection[index];
+          }
+          LoadSections(manager, pluginLocation + setting.Id + "/", node.Nodes);
         }
       }
       _sectionsLoaded = true;
@@ -278,15 +293,14 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Loads all items from the specified location.
     /// </summary>
-    /// <param name="manager"></param>
     /// <param name="pluginLocation"></param>
     /// <param name="destCollection"></param>
-    private void LoadItem(IPluginManager manager, string pluginLocation, ConfigurationNodeCollection destCollection)
+    private void LoadItem(string pluginLocation, ConfigurationNodeCollection destCollection)
     {
       lock (destCollection)
       {
         if (destCollection.IsSet) return;
-        ICollection<ConfigBase> settings = manager.RequestAllPluginItems<ConfigBase>(pluginLocation, new FixedItemStateTracker());
+        ICollection<ConfigBase> settings = _loaderTree.InitializeItems(pluginLocation);
         foreach (ConfigBase setting in settings)
         {
           int index = IndexOfNode(destCollection, setting.Id);
@@ -295,18 +309,15 @@ namespace MediaPortal.Configuration
           {
             node = new ConfigurationNode(setting, _tree);
             destCollection.Add(node);
-            node.Setting.SetRegistrationLocation(node.ToString());
-            if (node.Setting.Type != SettingType.Unknown
-              && node.Setting.Type != SettingType.Section
-              && node.Setting.Type != SettingType.Group)
+            if (node.Setting is ConfigItem)
             {
-              SettingFile file = GetSettingFile(node.Setting.SettingsObject);
+              SettingFile file = GetSettingFile(((ConfigItem) node.Setting).SettingsObject);
               lock (file)
               {
                 int indx = file.LinkedNodes.IndexOf(node);
                 if (indx == -1)
                 {
-                  node.Setting.Load(file.SettingObject);
+                  ((ConfigItem)node.Setting).Load(file.SettingObject);
                   file.LinkedNodes.Add(node);
                 }
                 else
@@ -315,24 +326,28 @@ namespace MediaPortal.Configuration
                 }
               }
             }
+            else
+            {
+              node = destCollection[index];
+            }
+            LoadItem(pluginLocation + setting.Id + "/", (ConfigurationNodeCollection) node.Nodes);
+            RegisterNode(node);
           }
-          else
+          else if (!((ConfigurationNodeCollection)destCollection[index].Nodes).IsSet)
           {
-            node = destCollection[index];
+            LoadItem(pluginLocation + setting.Id + "/", (ConfigurationNodeCollection)destCollection[index].Nodes);
           }
-          LoadItem(manager, pluginLocation + setting.Id + "/", (ConfigurationNodeCollection)node.Nodes);
-          RegisterNode(node);
         }
         destCollection.IsSet = true;
       }
     }
 
     /// <summary>
-    /// Finds the index of the node containing the specified ConfigBase.Id
+    /// Finds the index of the node containing the specified SettingRegistrationBase.Id
     /// in the given list of nodes.
     /// </summary>
     /// <param name="collection">List to search through.</param>
-    /// <param name="configId">ConfigBase.Id to find.</param>
+    /// <param name="configId">SettingRegistrationBase.Id to find.</param>
     /// <returns></returns>
     private int IndexOfNode(IEnumerable<IConfigurationNode> collection, string configId)
     {
@@ -361,7 +376,7 @@ namespace MediaPortal.Configuration
         IConfigurationNode root = _tree.Nodes[currentIndex];
         // Load the nodes?
         if (!((ConfigurationNodeCollection)root.Nodes).IsSet)
-          LoadItem(ServiceScope.Get<IPluginManager>(), PLUGINSTART + root.Setting.Id.ToString() + "/", (ConfigurationNodeCollection)root.Nodes);
+          LoadItem(root.Setting.Id.ToString() + "/", (ConfigurationNodeCollection)root.Nodes);
       }
       _tree.Nodes.IsSet = true;
       _isLoaded = true;
@@ -398,7 +413,7 @@ namespace MediaPortal.Configuration
     }
 
     /// <summary>
-    /// Registeres the node to other nodes as required by the underlying ConfigBase,
+    /// Registeres the node to other nodes as required by the underlying SettingRegistrationBase,
     /// and registers other waiting nodes to this node if necessairy.
     /// </summary>
     /// <param name="node"></param>
@@ -407,33 +422,36 @@ namespace MediaPortal.Configuration
       string nodeLocation = node.ToString();
       lock (_passedItems)
         _passedItems.Add(nodeLocation);
+      // A setting which isn't a ConfigItem can't be registered.
+      if (!(node.Setting is ConfigItem))
+        return;
       // Register waiting settings to the current setting.
       lock (_waiting)
       {
         if (_waiting.ContainsKey(nodeLocation))
         {
-          IEnumerable<ConfigBase> waiters = _waiting[nodeLocation];
+          IEnumerable<ConfigItem> waiters = _waiting[nodeLocation];
           _waiting.Remove(nodeLocation);
-          foreach (ConfigBase waiter in waiters)
-            node.Setting.Register(waiter);
+          foreach (ConfigItem waiter in waiters)
+            ((ConfigItem) node.Setting).Register(waiter);
         }
       }
       // Register current setting to other settings,
       // or if not found add it to the waiters 'till the setting is loaded too.
-      foreach (string location in node.Setting.ListenItems)
+      foreach (string location in ((ConfigItem)node.Setting).ListenTo)
       {
         // Convert the plugintree path to a configurationtree path.
         // Always use english as the culture, all .plugin files should be provided with english characters only.
-        string loc = location.Substring(PLUGINSTART.Length).ToLower(new System.Globalization.CultureInfo("en"));
+        string loc = location.ToLower(new System.Globalization.CultureInfo("en"));
         bool exists;
         lock (_passedItems)
           exists = _passedItems.Contains(loc);
         if (exists)
         {
           IConfigurationNode rNode;
-          if (FindNode(loc.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries), out rNode))
+          if (FindNode(loc.Split(new char[] {'/'}, StringSplitOptions.RemoveEmptyEntries), out rNode))
           {
-            rNode.Setting.Register(node.Setting);
+            ((ConfigItem) rNode.Setting).Register(((ConfigItem) node.Setting));
             continue;
           }
         }
@@ -441,8 +459,8 @@ namespace MediaPortal.Configuration
         lock (_waiting)
         {
           if (!_waiting.ContainsKey(loc))
-            _waiting.Add(loc, new List<ConfigBase>());
-          _waiting[loc].Add(node.Setting);
+            _waiting.Add(loc, new List<ConfigItem>());
+          _waiting[loc].Add((ConfigItem) node.Setting);
         }
       }
     }

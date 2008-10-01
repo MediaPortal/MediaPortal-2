@@ -23,40 +23,34 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.Presentation.Localisation;
 
-namespace MediaPortal.Configuration.Settings
+
+namespace MediaPortal.Configuration
 {
-  public class SingleSelectionList : ConfigItemList
+
+  /// <summary>
+  /// ConfigItemList has no actual functionality implemented,
+  /// it's only used to define that the ConfigBase has a list of items.
+  /// </summary>
+  public class ConfigItemList : ConfigItem
   {
 
     #region Variables
 
-    // Private because we want to make sure NotifyChange() is called on a change.
-    private int _selected;
+    protected List<StringId> _items = new List<StringId>();
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the index of the selected item.
+    /// Gets all items in the list.
     /// </summary>
-    public int Selected
+    public IList<StringId> Items
     {
-      get
-      {
-        if (this._selected == -1 && base._items.Count > 0)
-          this._selected = 0;
-        return this._selected;
-      }
-      set
-      {
-        if (this._selected != value)
-        {
-          this._selected = value;
-          base.NotifyChange();
-        }
-      }
+      get { return _items; }
     }
 
     #endregion

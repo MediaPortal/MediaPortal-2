@@ -226,8 +226,8 @@ namespace MediaPortal.Manager
     private void LoadSections()
     {
       IConfigurationManager manager = ServiceScope.Get<IConfigurationManager>();
-      IEnumerable<ConfigBase> sections = manager.GetSections();
-      foreach (ConfigBase section in sections)
+      IEnumerable<ConfigSection> sections = manager.GetSections();
+      foreach (ConfigSection section in sections)
       {
         TreeNode node = CreateTreeNode(section);
         LoadSections(manager, section.Id, node.Nodes);
@@ -238,12 +238,13 @@ namespace MediaPortal.Manager
     /// <summary>
     /// Loads configuration data from a specified path for the ConfigurationTree to a TreeNodeCollection.
     /// </summary>
+    /// <param name="manager"></param>
     /// <param name="parentPath">Path for the ConfigurationTree.</param>
     /// <param name="destination">Collection to add nodes to.</param>
     private void LoadSections(IConfigurationManager manager, string parentPath, TreeNodeCollection destination)
     {
-      IEnumerable<ConfigBase> sections = manager.GetSections(parentPath);
-      foreach (ConfigBase section in sections)
+      IEnumerable<ConfigSection> sections = manager.GetSections(parentPath);
+      foreach (ConfigSection section in sections)
       {
         TreeNode node = CreateTreeNode(section);
         LoadSections(manager, parentPath + "/" + section.Id, node.Nodes);
@@ -255,14 +256,15 @@ namespace MediaPortal.Manager
     /// Loads an enumeration of ConfigurationNodes to a TreeNodeCollection.
     /// </summary>
     /// <param name="nodes">Collection to get nodes from.</param>
+    /// <param name="selectedNode"></param>
     /// <param name="destination">Collection to add nodes to.</param>
     private void LoadSections(IEnumerable<IConfigurationNode> nodes, IConfigurationNode selectedNode, TreeNodeCollection destination)
     {
       foreach (IConfigurationNode node in nodes)
       {
-        if (node.Setting.Type == SettingType.Section)
+        if (node.Setting is ConfigSection)
         {
-          TreeNode treeNode = CreateTreeNode(node.Setting);
+          TreeNode treeNode = CreateTreeNode((ConfigSection)node.Setting);
           LoadSections(node.Nodes, selectedNode, treeNode.Nodes);
           destination.Add(treeNode);
           if (treeNode.Parent != null)
@@ -274,9 +276,9 @@ namespace MediaPortal.Manager
     /// <summary>
     /// Returns a TreeNode created from a SettingBase.
     /// </summary>
-    /// <param name="setting">Setting to create TreeNode from.</param>
+    /// <param name="section">Setting to create TreeNode from.</param>
     /// <returns></returns>
-    private TreeNode CreateTreeNode(ConfigBase section)
+    private TreeNode CreateTreeNode(ConfigSection section)
     {
       TreeNode node = new TreeNode();
       SectionDetails sectionTag = new SectionDetails();
@@ -298,7 +300,7 @@ namespace MediaPortal.Manager
     /// <returns>The expanded TreeNode.</returns>
     private TreeNode ExpandNodeSection(IConfigurationNode configNode, bool maySelect)
     {
-      configNode = (configNode.Setting.Type == SettingType.Section ? configNode : configNode.Section);
+      configNode = (configNode.Setting is ConfigSection ? configNode : configNode.Section);
       TreeNodeCollection collection;  // Collection which will contain the node to select
       if (configNode.Section != null) // Find the parentnode and use its childnodes
         collection = ExpandNodeSection(configNode.Section, false).Nodes;

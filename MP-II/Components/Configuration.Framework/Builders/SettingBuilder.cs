@@ -41,74 +41,75 @@ namespace Components.Configuration.Builders
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      ConfigBase setting;
-      if (itemData.Attributes.ContainsKey("ClassName"))
-      {
-        string className = itemData.Attributes["ClassName"];
-        try
-        {
-          setting = (ConfigBase) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error("Can't create instance for class '{0}'", e, className);
-          setting = new ConfigBase();
-        }
-      }
-      else
-        setting = new ConfigBase();
-      // All .plugin files should only contain english characters.
-      setting.Id = itemData.Id;
+      //ConfigBase setting;
+      //if (itemData.Attributes.ContainsKey("ClassName"))
+      //{
+      //  string className = itemData.Attributes["ClassName"];
+      //  try
+      //  {
+      //    setting = (ConfigBase) plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+      //  }
+      //  catch (Exception e)
+      //  {
+      //    ServiceScope.Get<ILogger>().Error("Can't create instance for class '{0}'", e, className);
+      //    setting = new ConfigBase();
+      //  }
+      //}
+      //else
+      //  setting = new ConfigBase();
+      //// All .plugin files should only contain english characters.
+      //setting.Id = itemData.Id;
 
-      if (itemData.Attributes.ContainsKey("Text"))
-        setting.Text = new StringId(itemData.Attributes["Text"]);
-      else
-        setting.Text = new StringId();
+      //if (itemData.Attributes.ContainsKey("Text"))
+      //  setting.Text = new StringId(itemData.Attributes["Text"]);
+      //else
+      //  setting.Text = new StringId();
 
-      if (itemData.Attributes.ContainsKey("Help"))
-        setting.Help = new StringId(itemData.Attributes["Help"]);
-      else
-        setting.Help = new StringId();
+      //if (itemData.Attributes.ContainsKey("Help"))
+      //  setting.Help = new StringId(itemData.Attributes["Help"]);
+      //else
+      //  setting.Help = new StringId();
 
-      if (itemData.Attributes.ContainsKey("IconSmall"))
-        setting.IconSmall = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconSmall"]);
+      //if (itemData.Attributes.ContainsKey("IconSmall"))
+      //  setting.IconSmall = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconSmall"]);
 
-      if (itemData.Attributes.ContainsKey("IconLarge"))
-        setting.IconLarge = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconLarge"]);
+      //if (itemData.Attributes.ContainsKey("IconLarge"))
+      //  setting.IconLarge = plugin.Metadata.GetAbsolutePath(itemData.Attributes["IconLarge"]);
 
-      int width = -1;
-      if (itemData.Attributes.ContainsKey("Width"))
-        Int32.TryParse(itemData.Attributes["Width"], out width);
-      setting.Width = width;
+      //int width = -1;
+      //if (itemData.Attributes.ContainsKey("Width"))
+      //  Int32.TryParse(itemData.Attributes["Width"], out width);
+      //setting.Width = width;
 
-      int height = -1;
-      if (itemData.Attributes.ContainsKey("Height"))
-        Int32.TryParse(itemData.Attributes["Height"], out height);
-      setting.Height = height;
+      //int height = -1;
+      //if (itemData.Attributes.ContainsKey("Height"))
+      //  Int32.TryParse(itemData.Attributes["Height"], out height);
+      //setting.Height = height;
 
-      if (itemData.Attributes.ContainsKey("Type"))
-      {
-        try
-        {
-          setting.Type = (SettingType) Enum.Parse(typeof(SettingType), itemData.Attributes["Type"], true);
-        }
-        catch (Exception)
-        {
-          setting.Type = SettingType.Unknown;
-        }
-      }
-      else
-      {
-        setting.Type = SettingType.Unknown;
-      }
+      //if (itemData.Attributes.ContainsKey("Type"))
+      //{
+      //  try
+      //  {
+      //    setting.Type = (SettingType) Enum.Parse(typeof(SettingType), itemData.Attributes["Type"], true);
+      //  }
+      //  catch (Exception)
+      //  {
+      //    setting.Type = SettingType.Unknown;
+      //  }
+      //}
+      //else
+      //{
+      //  setting.Type = SettingType.Unknown;
+      //}
 
-      if (itemData.Attributes.ContainsKey("ListenTo"))
-        // Very easy parser for a list of items of this kind: [Item1] [Item2] [Item3] ...
-        setting.ListenItems = new List<string>(itemData.Attributes["ListenTo"].Replace(" ", "").Split(new char[] { '[', ']', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
-      else
-        setting.ListenItems = new List<string>(0);
+      //if (itemData.Attributes.ContainsKey("ListenTo"))
+      //  // Very easy parser for a list of items of this kind: [Item1] [Item2] [Item3] ...
+      //  setting.ListenItems = new List<string>(itemData.Attributes["ListenTo"].Replace(" ", "").Split(new char[] { '[', ']', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+      //else
+      //  setting.ListenItems = new List<string>(0);
 
-      return setting;
+      //return setting;
+      return new object();
     }
 
     public bool NeedsPluginActive

@@ -16,20 +16,15 @@
     <PluginStateTracker ClassName= "MediaPortal.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
-  <Register Location = "/Configuration/Settings/Appearance">
+  <Configuration>
+    <Group
+    Location = "/Appearance/System"
+    Text = "[configuration.system]"/>
     <Setting
-        Id= "System"
-        Type = "Group"
-        Text = "[configuration.system]" />
-  </Register>
-
-  <Register Location = "/Configuration/Settings/Appearance/System">
-    <Setting
-        Id= "Fullscreen"
-        Type = "YesNo"
-        Text = "[configuration.system.fullscreen]"
-        Help = "[configuration.system.fullscreen.help]"
-        ClassName = "MediaPortal.SkinEngine.Settings.Fullscreen"/>
-  </Register>
+    Location = "/Appearance/System/Fullscreen"
+    Text = "[configuration.system.fullscreen]"
+    HelpText = "[configuration.system.fullscreen.help]"
+    ClassName = "MediaPortal.SkinEngine.Settings.Fullscreen"/>
+  </Configuration>
   
 </Plugin>

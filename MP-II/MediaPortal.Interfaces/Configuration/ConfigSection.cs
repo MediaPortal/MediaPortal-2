@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2008 Team MediaPortal
+﻿#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
  *  Copyright (C) 2007-2008 Team MediaPortal
@@ -23,40 +23,47 @@
 
 #endregion
 
+using MediaPortal.Presentation.Localisation;
 
-namespace MediaPortal.Configuration.Settings
+
+namespace MediaPortal.Configuration
 {
-  public class SingleSelectionList : ConfigItemList
+  public sealed class ConfigSection : ConfigBase
   {
 
     #region Variables
 
-    // Private because we want to make sure NotifyChange() is called on a change.
-    private int _selected;
+    private string _iconsmall;
+    private string _iconlarge;
 
     #endregion
 
     #region Properties
 
-    /// <summary>
-    /// Gets or sets the index of the selected item.
-    /// </summary>
-    public int Selected
+    public string IconSmall
     {
-      get
-      {
-        if (this._selected == -1 && base._items.Count > 0)
-          this._selected = 0;
-        return this._selected;
-      }
-      set
-      {
-        if (this._selected != value)
-        {
-          this._selected = value;
-          base.NotifyChange();
-        }
-      }
+      get { return _iconsmall; }
+    }
+
+    public string IconLarge
+    {
+      get { return _iconlarge; }
+    }
+
+    #endregion
+
+    #region Constructors 
+
+    public ConfigSection() : base()
+    {
+      
+    }
+
+    public ConfigSection(string location, StringId text, string iconsmall, string iconlarge)
+      : base (location, text)
+    {
+      _iconsmall = iconsmall;
+      _iconlarge = iconlarge;
     }
 
     #endregion

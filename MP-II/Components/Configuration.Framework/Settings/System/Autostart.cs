@@ -73,10 +73,19 @@ namespace Components.Configuration.Settings
       {
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"software\microsoft\windows\currentversion\run"))
         {
-          if (base._yes)
-            key.SetValue("MediaPortal II", ServiceScope.Get<IPathManager>().GetPath("APPLICATION_ROOT") + @"\MediaPortal.exe", RegistryValueKind.ExpandString);
+          if (key != null)
+          {
+            if (base._yes)
+              key.SetValue("MediaPortal II",
+                           ServiceScope.Get<IPathManager>().GetPath("APPLICATION_ROOT") + @"\MediaPortal.exe",
+                           RegistryValueKind.ExpandString);
+            else
+              key.DeleteValue("MediaPortal II", false);
+          }
           else
-            key.DeleteValue("MediaPortal II", false);
+          {
+            ServiceScope.Get<ILogger>().Error(@"Can't store Autostart value, can't create registry key for: CURRENTUSER \software\microsoft\windows\currentversion\run\");
+          }
         }
       }
       catch (System.Security.SecurityException ex)

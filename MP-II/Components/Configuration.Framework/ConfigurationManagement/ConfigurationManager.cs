@@ -66,7 +66,7 @@ namespace MediaPortal.Configuration
     {
       _tree = new ConfigurationTree();
       _loader = new ConfigurationLoader(_tree);
-      _loader.OnTreeLoaded += new EventHandler(_loader_OnTreeLoaded);
+      _loader.OnTreeLoaded += _loader_OnTreeLoaded;
     }
 
     #endregion
@@ -81,7 +81,7 @@ namespace MediaPortal.Configuration
     /// <param name="bestMatch">Best match to the value.</param>
     /// <param name="bestMatchScore">Score of the best match.</param>
     /// <returns></returns>
-    private IEnumerable<IConfigurationNode> Search(IList<IConfigurationNode> collection, string searchValue, out IConfigurationNode bestMatch, out float bestMatchScore)
+    private IEnumerable<IConfigurationNode> Search(IEnumerable<IConfigurationNode> collection, string searchValue, out IConfigurationNode bestMatch, out float bestMatchScore)
     {
       List<IConfigurationNode> nodes = new List<IConfigurationNode>();
       bestMatch = null;
@@ -136,7 +136,10 @@ namespace MediaPortal.Configuration
         foreach (SettingFile file in _files)
         {
           foreach (IConfigurationNode node in file.LinkedNodes)
-            node.Setting.Apply();
+          {
+            if (node.Setting is ConfigItem)
+              ((ConfigItem)node.Setting).Apply();
+          }
         }
       }
     }
@@ -169,15 +172,15 @@ namespace MediaPortal.Configuration
     /// Gets all sections.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<ConfigBase> GetSections()
+    public IEnumerable<ConfigSection> GetSections()
     {
       if (!_loader.SectionsLoaded)
         _loader.LoadSections();
-      List<ConfigBase> settings = new List<ConfigBase>();
+      List<ConfigSection> settings = new List<ConfigSection>();
       foreach (ConfigurationNode node in _tree.Nodes)
       {
-        if (node.Setting.Type == SettingType.Section)
-          settings.Add(node.Setting);
+        if (node.Setting is ConfigSection)
+          settings.Add((ConfigSection)node.Setting);
       }
       return settings;
     }
@@ -187,11 +190,11 @@ namespace MediaPortal.Configuration
     /// </summary>
     /// <param name="parentLocation"></param>
     /// <returns></returns>
-    public IEnumerable<ConfigBase> GetSections(string parentLocation)
+    public IEnumerable<ConfigSection> GetSections(string parentLocation)
     {
       if (!_loader.SectionsLoaded)
         _loader.LoadSections();
-      List<ConfigBase> sections = new List<ConfigBase>(); // This will be returned
+      List<ConfigSection> sections = new List<ConfigSection>(); // This will be returned
       // Get the collection containing the nodes
       string[] location = parentLocation.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
       ConfigurationNodeCollection coll = _tree.Nodes;
@@ -204,8 +207,8 @@ namespace MediaPortal.Configuration
       // Section found, get subsections
       foreach (ConfigurationNode node in coll)
       {
-        if (node.Setting.Type == SettingType.Section)
-          sections.Add(node.Setting);
+        if (node.Setting is ConfigSection)
+          sections.Add((ConfigSection)node.Setting);
       }
       return sections;
     }

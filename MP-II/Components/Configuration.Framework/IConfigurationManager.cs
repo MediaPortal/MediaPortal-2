@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 
+
 namespace MediaPortal.Configuration
 {
   public interface IConfigurationManager
@@ -49,19 +50,19 @@ namespace MediaPortal.Configuration
     /// Returns all rootsections.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<ConfigBase> GetSections();
+    IEnumerable<ConfigSection> GetSections();
 
     /// <summary>
     /// Returns all sections which are direct members of the setting with the specified ID.
     /// </summary>
     /// <param name="parentLocation"></param>
     /// <returns></returns>
-    IEnumerable<ConfigBase> GetSections(string parentLocation);
+    IEnumerable<ConfigSection> GetSections(string parentLocation);
 
     /// <summary>
     /// Gets an item with all its subitems.
     /// </summary>
-    /// <param name="sectionLocation"></param>
+    /// <param name="itemLocation"></param>
     /// <returns></returns>
     IConfigurationNode GetItem(string itemLocation);
 

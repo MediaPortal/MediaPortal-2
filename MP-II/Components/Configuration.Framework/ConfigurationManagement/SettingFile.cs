@@ -112,7 +112,10 @@ namespace MediaPortal.Configuration
       lock (_linkedNodes)
       {
         foreach (IConfigurationNode node in _linkedNodes)
-          node.Setting.Save(_settingObject);
+        {
+          if (node.Setting is ConfigItem)
+            ((ConfigItem)node.Setting).Save(_settingObject);
+        }
       }
       if (_settingObject != null)
         ServiceScope.Get<ISettingsManager>().Save(_settingObject);

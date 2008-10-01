@@ -106,21 +106,22 @@ namespace MediaPortal.Configuration
         // Add setting information to the keys
         if (_setting.Text.Label != "[system.invalid]")
           _keys.Add(_setting.Text.ToString().ToLower(_culture));
-        if (_setting.Help.Label != "[system.invalid]")
-          _keys.Add(_setting.Help.ToString().ToLower(_culture));
+        if (_setting is ConfigItem
+          && ((ConfigItem)_setting).Help.Label != "[system.invalid]")
+          _keys.Add(((ConfigItem)_setting).Help.ToString().ToLower(_culture));
         // If the setting is a list, add its items
-        if (_setting is ItemList)
-        {
-          foreach (object o in ((ItemList)_setting).Items)
-          {
-            if (o != null)
-            {
-              string value = o.ToString();
-              if (value != "" && value != "[system.invalid]")
-                _keys.Add(value.ToLower(_culture));
-            }
-          }
-        }
+        //if (_setting is ItemList)
+        //{
+        //  foreach (object o in ((ItemList)_setting).Items)
+        //  {
+        //    if (o != null)
+        //    {
+        //      string value = o.ToString();
+        //      if (value != "" && value != "[system.invalid]")
+        //        _keys.Add(value.ToLower(_culture));
+        //    }
+        //  }
+        //}
       }
     }
 

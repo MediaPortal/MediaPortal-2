@@ -36,7 +36,7 @@ namespace MediaPortal.Manager
 
     #region Variables
 
-    private ConfigBase _section;
+    private ConfigSection _section;
     private FormControl _control;
     private bool _designed;
     private bool _rightToLeft;
@@ -49,7 +49,7 @@ namespace MediaPortal.Manager
     /// <summary>
     /// Gets or sets the specifications for the section.
     /// </summary>
-    public ConfigBase Section
+    public ConfigSection Section
     {
       get { return _section; }
       set { _section = value; }
@@ -95,7 +95,7 @@ namespace MediaPortal.Manager
 
     public SectionDetails()
     {
-      _section = new ConfigBase();
+      _section = new ConfigSection();
       _control = new FormControl();
       _designed = false;
       _rightToLeft = false;

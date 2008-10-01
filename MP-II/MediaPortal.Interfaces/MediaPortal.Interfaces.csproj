@@ -64,15 +64,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ConfigItem.cs" />
+    <Compile Include="Configuration\ConfigBase.cs" />
+    <Compile Include="Configuration\ConfigGroup.cs" />
     <Compile Include="Configuration\ConfigChangedEventHandler.cs" />
+    <Compile Include="Configuration\ConfigItemList.cs" />
+    <Compile Include="Configuration\ConfigSection.cs" />
     <Compile Include="Configuration\Settings\Entry.cs" />
     <Compile Include="Configuration\Settings\LimitedNumberSelect.cs" />
     <Compile Include="Configuration\Settings\MultipleEntryList.cs" />
     <Compile Include="Configuration\Settings\MultipleSelectionList.cs" />
     <Compile Include="Configuration\Settings\NumberSelect.cs" />
-    <Compile Include="Configuration\ItemList.cs" />
     <Compile Include="Configuration\Settings\Path.cs" />
     <Compile Include="Configuration\Settings\PreferenceList.cs" />
+    <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
+    <Compile Include="Configuration\Settings\YesNo.cs" />
     <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
     <Compile Include="FileEventNotification\FileEventHandler.cs" />
     <Compile Include="FileEventNotification\FileWatchInfo.cs" />
@@ -85,10 +91,6 @@
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
     <Compile Include="Presentation\Commands\ICommandResult.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
-    <Compile Include="Configuration\Settings\YesNo.cs" />
-    <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
-    <Compile Include="Configuration\ConfigBase.cs" />
-    <Compile Include="Configuration\SettingType.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseConnection.cs" />
