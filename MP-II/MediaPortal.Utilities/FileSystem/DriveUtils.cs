@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Management;
 using System.Text;
 
@@ -45,7 +46,7 @@ namespace MediaPortal.Utilities.FileSystem
       if (strPath == null) return false;
       if (strPath.Length < 2) return false;
       string strDrive = strPath.Substring(0, 2);
-      if (GetDriveType(strDrive) == 4) return true;
+      if (GetDriveType(strDrive) == DriveType.Network) return true;
       return false;
     }
 
@@ -59,7 +60,7 @@ namespace MediaPortal.Utilities.FileSystem
       if (strPath == null) return false;
       if (strPath.Length < 2) return false;
       string strDrive = strPath.Substring(0, 2);
-      if (GetDriveType(strDrive) == 3) return true;
+      if (GetDriveType(strDrive) == DriveType.Fixed) return true;
       return false;
     }
 
@@ -87,7 +88,7 @@ namespace MediaPortal.Utilities.FileSystem
       if (strFile == null) return false;
       if (strFile.Length < 2) return false;
       string strDrive = strFile.Substring(0, 2);
-      if (GetDriveType(strDrive) == 5) return true;
+      if (GetDriveType(strDrive) == DriveType.CDRom) return true;
       return false;
     }
 
@@ -101,7 +102,7 @@ namespace MediaPortal.Utilities.FileSystem
       if (strFile == null) return false;
       if (strFile.Length < 2) return false;
       string strDrive = strFile.Substring(0, 2);
-      if (GetDriveType(strDrive) == 2) return true;
+      if (GetDriveType(strDrive) == DriveType.Removable) return true;
       return false;
     }
 
@@ -132,46 +133,36 @@ namespace MediaPortal.Utilities.FileSystem
     }
 
     /// <summary>
-    /// Gets the Drive Name
+    /// Gets the Drive Name.
     /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     /// <param name="drive"></param>
     /// <returns>The Name of the Drive</returns>
     public static string GetDriveName(string drive)
     {
       if (drive == null) return string.Empty;
-      //receives volume name of drive
-      StringBuilder volname = new StringBuilder(256);
-      //receives serial number of drive,not in case of network drive(win95/98)
-      uint sn;
-      uint maxcomplen;//receives maximum component length
-      uint sysflags;//receives file system flags
-      StringBuilder sysname = new StringBuilder(256);//receives the file system name
-      bool retval;//return value
-
-      retval = Win32API.GetVolumeInformation(drive, volname, 256, out sn, out maxcomplen, out sysflags, sysname, 256);
-
-      if (retval)
-      {
-        return volname.ToString();
-      }
-      else return "";
+      return new DriveInfo(drive).Name;
     }
 
-
     /// <summary>
-    /// Gets the Drive Type
+    /// Gets the Drive Type.
     /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     /// <param name="drive"></param>
     /// <returns></returns>
-    public static int GetDriveType(string drive)
+    public static DriveType GetDriveType(string drive)
     {
-      if (drive == null) return 2;
-      if ((Win32API.GetDriveType(drive) & 5) == 5) return 5;//cd
-      if ((Win32API.GetDriveType(drive) & 3) == 3) return 3;//fixed
-      if ((Win32API.GetDriveType(drive) & 2) == 2) return 2;//removable
-      if ((Win32API.GetDriveType(drive) & 4) == 4) return 4;//remote disk
-      if ((Win32API.GetDriveType(drive) & 6) == 6) return 6;//ram disk
-      return 0;
+      try
+      {
+        DriveInfo nfo = new DriveInfo(drive);
+        return nfo.DriveType;
+      }
+      catch (IOException)
+      {
+        return DriveType.Unknown;
+      }
     }
 
     /// <summary>
@@ -201,28 +192,38 @@ namespace MediaPortal.Utilities.FileSystem
     /// <summary>
     /// Returns the Free disk space of a drive
     /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     /// <param name="drive"></param>
     /// <returns></returns>
-    public static ulong GetFreeDiskSpace(string drive)
+    public static long GetFreeDiskSpace(string drive)
     {
-      ulong freeBytesAvailable = 0;
-      ulong totalNumberOfBytes = 0;
-      ulong totalNumberOfFreeBytes = 0;
-      string driveName = string.Empty;
-
-      if (drive.StartsWith(@"\\"))
-          // We've got unc notation
-        driveName = drive;
+      if (!drive.StartsWith(@"\\"))
+      {
+        // This is not a UNC path.
+        try
+        {
+          DriveInfo nfo = new DriveInfo(drive[0] + @":\");
+          return nfo.AvailableFreeSpace;
+        }
+        catch (IOException)
+        {
+          return 0;
+        }
+      }
       else
-          // We've got a drive letter only
-        driveName = drive[0] + @":\";
-
-      Win32API.GetDiskFreeSpaceEx(
-          driveName,
-          out freeBytesAvailable,
-          out totalNumberOfBytes,
-          out totalNumberOfFreeBytes);
-      return freeBytesAvailable;
+      {
+        // UNC path.
+        ulong freeBytesAvailable = 0;
+        ulong totalNumberOfBytes = 0;
+        ulong totalNumberOfFreeBytes = 0;
+        Win32API.GetDiskFreeSpaceEx(
+            drive,
+            out freeBytesAvailable,
+            out totalNumberOfBytes,
+            out totalNumberOfFreeBytes);
+        return (long)freeBytesAvailable;
+      }
     }
   }
 }
