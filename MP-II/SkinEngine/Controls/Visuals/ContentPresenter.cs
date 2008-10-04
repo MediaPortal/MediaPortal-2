@@ -181,6 +181,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       Initialize();
       InitializeTriggers();
+      IsInvalidLayout = false;
     }
 
     protected void ArrangeChild(FrameworkElement child, ref PointF p, double widthPerCell, double heightPerCell)
