@@ -623,7 +623,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Initialize();
       InitializeTriggers();
-      IsInvalidLayout = false;
     }
 
     /// <summary>
@@ -643,10 +642,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (!IsInvalidLayout) 
         return;
+      IsInvalidLayout = false;
       SizeF childSize = new SizeF(0, 0);
     
       //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
-      IsInvalidLayout = false;
       ExtendedMatrix m = _finalLayoutTransform;
 
       if (VisualParent is UIElement)

@@ -458,7 +458,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       Initialize();
       InitializeTriggers();
-      IsInvalidLayout = false;
       if (!finalRect.IsEmpty)
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)

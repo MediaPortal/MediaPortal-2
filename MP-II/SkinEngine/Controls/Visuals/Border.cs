@@ -223,7 +223,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       Initialize();
       InitializeTriggers();
-      IsInvalidLayout = false;
 
       if (!finalRect.IsEmpty)
       {

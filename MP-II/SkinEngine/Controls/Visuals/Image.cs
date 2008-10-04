@@ -303,7 +303,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         PerformLayout(_fallbackImage);
       }
 
-      IsInvalidLayout = false;
       if (Screen != null)
         Screen.Invalidate(this);
     }
