@@ -36,7 +36,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Context="{DynamicResource DataContext}"
     Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
     LastChildFill="True">
-  <Grid x:Name="Grid1" DockPanel.Dock="Top" HorizontalAlignment="Left">
+  <Grid x:Name="Grid1" DockPanel.Dock="Top">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
