@@ -1146,7 +1146,7 @@
       <Grid.RowDefinitions>
         <RowDefinition/>
       </Grid.RowDefinitions>
-      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28"/>
       <Label Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Content="{Binding [Size]}" FontSize="20"/>
     </Grid>

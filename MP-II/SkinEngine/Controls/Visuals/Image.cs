@@ -38,18 +38,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
   public enum Stretch
   {
-    //The content preserves its original size.
+    // The content preserves its original size.
     None,
 
-    //The content is resized to fill the destination dimensions. The aspect ratio is not preserved.
+    // The content is resized to fill the destination dimensions. The aspect ratio is not preserved.
     Fill,
 
-    //The content is resized to fit in the destination dimensions while it preserves its native aspect ratio.
+    // The content is resized to fit in the destination dimensions while it preserves its
+    // native aspect ratio. If the aspect ratio of the destination rectangle differs from
+    // the source, the content won't fill the whole destionation area.
     Uniform,
 
-    //The content is resized to fill the destination dimensions while it preserves its native aspect ratio. 
-    //If the aspect ratio of the destination rectangle differs from the source, the source content is 
-    //clipped to fit in the destination dimensions (zoom-in)
+    // The content is resized to fill the destination dimensions while it preserves its
+    // native aspect ratio. 
+    // If the aspect ratio of the destination rectangle differs from the source, the source content is 
+    // clipped to fit in the destination dimensions completely.
     UniformToFill
   };
 
@@ -110,6 +113,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Source = copyManager.GetCopy(i.Source);
       FallbackSource = copyManager.GetCopy(i.FallbackSource);
       StretchDirection = copyManager.GetCopy(i.StretchDirection);
+      Stretch = copyManager.GetCopy(i.Stretch);
       Thumbnail = copyManager.GetCopy(i.Thumbnail);
       Attach();
     }
@@ -254,7 +258,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -283,7 +287,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -403,117 +407,68 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           }
         }
 
-        Vector2 pos = new Vector2(0, 0);
-        float height = (float)ActualHeight;
-        float width = (float)ActualWidth;
-        float pixelRatio = 1.0f;
-        float fSourceFrameRatio = asset.Texture.Width / (float)asset.Texture.Height;
-        float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
+        float scaleX = 1;
+        float scaleY = 1;
+        float sourceImageHeight = asset.Texture.Height;
+        float sourceImageWidth = asset.Texture.Width;
+        float fSourceFrameRatio = sourceImageWidth / sourceImageHeight;
+        float fOutputFrameRatio = (float) ActualWidth / (float) ActualHeight;
+        // Calculate scaling factor for both dimensions
         if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
         {
-
-          if (Stretch == Stretch.Uniform)
-          {
-            float fNewWidth = width;
-            float fNewHeight = fNewWidth / fOutputFrameRatio;
-
-            // make sure the height is not larger than the maximum
-            if (fNewHeight > ActualHeight)
-            {
-              fNewHeight = height;
-              fNewWidth = fNewHeight * fOutputFrameRatio;
-            }
-
-            // this shouldnt happen, but just make sure that everything still fits onscreen
-            if (fNewWidth > ActualWidth || fNewHeight > ActualHeight)
-            {
-              fNewWidth = (float)ActualWidth;
-              fNewHeight = (float)ActualHeight;
-            }
-
-            width = fNewWidth;
-            height = fNewHeight;
-
+          // Uniform and UniformToFill both use the same scaling factors for X and Y dimensions,
+          // they only differ in the choice of master dimension
+          if ((Stretch == Stretch.Uniform) == (fSourceFrameRatio > fOutputFrameRatio))
+          { // Source width/height is bigger than target width/height, so fill width and adapt height
+            scaleX = (float) ActualWidth/sourceImageWidth;
+            scaleY = scaleX;
+          }
+          else
+          { // Else fill height and adapt width
+            scaleY = (float) ActualHeight/sourceImageHeight;
+            scaleX = scaleY;
           }
         }
-
-        //center image
-        pos.X += ((((float)ActualWidth) - width) / 2.0f);
-        pos.Y += ((((float)ActualHeight) - height) / 2.0f);
-
-        float iSourceX = 0;
-        float iSourceY = 0;
-        float iSourceWidth = asset.Texture.Width;
-        float iSourceHeight = asset.Texture.Height;
-        if (Stretch == Stretch.UniformToFill)
+        else if (Stretch == Stretch.Fill)
         {
-          float imageWidth = asset.Texture.Width;
-          float imageHeight = asset.Texture.Height;
-          // suggested by ziphnor
-          //float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-          float fSourcePixelRatio = fSourceFrameRatio / (imageWidth / imageHeight);
-          float fCroppedOutputFrameRatio = fSourcePixelRatio * (imageWidth / imageHeight) / pixelRatio;
-
-          // calculate AR compensation (see http://www.iki.fi/znark/video/conversion)
-          // assume that the movie is widescreen first, so use full height
-          float fVertBorder = 0;
-          float fNewHeight = height;
-          float fNewWidth = fNewHeight * fOutputFrameRatio;
-          float fHorzBorder = (fNewWidth - width) / 2.0f;
-          float fFactor = fNewWidth / imageWidth;
-          fFactor *= pixelRatio;
-          fHorzBorder = fHorzBorder / fFactor;
-
-          if ((int)fNewWidth < width)
-          {
-            fHorzBorder = 0;
-            fNewWidth = width;
-            fNewHeight = fNewWidth / fOutputFrameRatio;
-            fVertBorder = (fNewHeight - height) / 2.0f;
-            fFactor = fNewWidth / imageWidth;
-            fFactor *= pixelRatio;
-            fVertBorder = fVertBorder / fFactor;
-          }
-          iSourceX = fHorzBorder;
-          iSourceY = fVertBorder;
-          iSourceWidth = (imageWidth - 2.0f * fHorzBorder);
-          iSourceHeight = (imageHeight - 2.0f * fVertBorder);
-        }
-        // x-offset in texture
-        float uoffs = iSourceX / asset.Texture.Width;
-
-        // y-offset in texture
-        float voffs = iSourceY / asset.Texture.Height;
-
-        // width copied from texture
-        float u = iSourceWidth / asset.Texture.Width;
-
-        // height copied from texture
-        float v = iSourceHeight / asset.Texture.Height;
-
-
-        if (uoffs < 0 || uoffs > 1)
-          uoffs = 0;
-        if (u < 0 || u > 1)
-          u = 1;
-        if (v < 0 || v > 1)
-          v = 1;
-        if (u + uoffs > 1)
-        {
-          uoffs = 0;
-          u = 1;
+          scaleX = (float) ActualWidth/sourceImageWidth;
+          scaleY = (float) ActualHeight/sourceImageHeight;
         }
 
-        _u = u;
-        _v = v;
-        _uoff = uoffs;
-        _voff = voffs;
-        _w = width;
-        _h = height;
-        _pos = pos;
+        float scaledImageWidth = sourceImageWidth*scaleX;
+        float scaledImageHeight = sourceImageHeight*scaleY;
+
+        _pos = new Vector2(0, 0);
+        // Calculate offsets
+        if (scaledImageWidth > ActualWidth)
+        { // The drawn image is bigger than the destination rectangle -> clip
+          _w = (float) ActualWidth;
+          _uoff = (float) (scaledImageWidth - ActualWidth)/(2*sourceImageWidth*scaleX);
+          _u = 1 - _uoff;
+        }
+        else
+        { // The drawn image fits into destination rectangle -> center
+          _pos.X += ((float) ActualWidth - scaledImageWidth) / 2.0f;
+          _w = scaledImageWidth;
+          _uoff = 0;
+          _u = 1;
+        }
+        if (scaledImageHeight > ActualHeight)
+        { // The drawn image is bigger than the destination rectangle -> clip
+          _h = (float) ActualHeight;
+          _voff = (float) (scaledImageHeight - ActualHeight)/(2*sourceImageHeight*scaleY);
+          _v = 1 - _voff;
+        }
+        else
+        { // The drawn image fits into destination rectangle -> center
+          _pos.Y += ((float) ActualHeight - scaledImageHeight) / 2.0f;
+          _h = scaledImageHeight;
+          _voff = 0;
+          _v = 1;
+        }
       }
       else
-        Trace.WriteLine("Not Allocated");
+        Trace.WriteLine("Image: Texture not allocated");
     }
 
     public override void Deallocate()
