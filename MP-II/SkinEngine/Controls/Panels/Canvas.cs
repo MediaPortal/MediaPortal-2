@@ -41,15 +41,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
     protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
 
-    public Canvas() { }
-    
     public override void Measure(ref SizeF totalSize)
     {
       SizeF childSize = new SizeF(0,0);
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -95,7 +93,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }

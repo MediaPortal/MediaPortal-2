@@ -124,6 +124,8 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
+    <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
     <Compile Include="Controls\Visuals\ISearchableItem.cs" />
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
@@ -170,7 +172,6 @@
     <Compile Include="Controls\Panels\DockPanel.cs" />
     <Compile Include="Controls\Panels\Grid.cs" />
     <Compile Include="Controls\Panels\GridLength.cs" />
-    <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\RowDefinition.cs" />
     <Compile Include="Controls\Panels\RowDefinitionsCollection.cs" />
     <Compile Include="Controls\Panels\StackPanel.cs" />

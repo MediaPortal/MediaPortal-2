@@ -60,6 +60,20 @@
   <!-- Middle blue, a bit transparent -->
   <ResourceWrapper x:Key="DisabledButtonColor" Resource="#6F2A5EB4"/>
 
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Black with background shining through -->
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10000000"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Light blue -->
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20000000"/>
+
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
   <!-- ***************************** Brushes ******************************** -->
 
   <!-- default brush used to paint the background of a page/window -->
@@ -505,7 +519,7 @@
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Width="48" Height="48">
-            <Ellipse x:Name="ButtonBackground" Stroke="{x:Null}" StrokeThickness="4" HorizontalAlignment="Stretch" Margin="0.022,-0.026,-0.022,0.026" Width="48" Height="48">
+            <Ellipse x:Name="ButtonBackground" Stroke="{x:Null}" StrokeThickness="4" Margin="0.022,-0.026,-0.022,0.026" Width="48" Height="48">
               <Ellipse.Fill>
                 <RadialGradientBrush>
                   <GradientStop Color="#FF051E3C" Offset="0"/>
@@ -515,7 +529,7 @@
                 </RadialGradientBrush>
               </Ellipse.Fill>
             </Ellipse>
-            <Ellipse x:Name="ButtonShape" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41" RenderTransformOrigin="0.5,0.5">
+            <Ellipse x:Name="ButtonShape" Stroke="{x:Null}" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41" RenderTransformOrigin="0.5,0.5">
               <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.499,0.915">
                   <RadialGradientBrush.RelativeTransform>
@@ -561,7 +575,7 @@
                 </TransformGroup>
               </Path.RenderTransform>
             </Path>
-            <Path Stretch="Fill" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Left" Margin="3.513,3.53,0,19.47" x:Name="Highlight" VerticalAlignment="Stretch" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
+            <Path Stretch="Fill" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Left" Margin="3.513,3.53,0,19.47" x:Name="Highlight" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
               <Path.Fill>
                 <RadialGradientBrush GradientOrigin="0.502,1.296">
                   <RadialGradientBrush.RelativeTransform>
@@ -985,7 +999,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid HorizontalAlignment="Stretch">
+          <Grid>
             <Rectangle x:Name="PART_Track" Margin="2,0,2,0" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
             <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
           </Grid>
@@ -1000,8 +1014,72 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <ScrollContentPresenter Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
-          <!-- TODO: Add scrollbar here -->
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="2"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="2"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
+            <!-- ScrollBar X -->
+            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="2" Grid.Column="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                <Rectangle.Fill>
+                  <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
+                </Rectangle.Fill>
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4">
+                  <Rectangle.Fill>
+                    <SolidColorBrush Color="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <!-- ScrollBar Y -->
+            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                <Rectangle.Fill>
+                  <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
+                </Rectangle.Fill>
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4">
+                  <Rectangle.Fill>
+                    <SolidColorBrush Color="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1100,10 +1178,10 @@
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid x:Name="Grd1" >
+    <Grid x:Name="Grd1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [CoverArt]}" FallbackSource="{Binding [defaulticon]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>

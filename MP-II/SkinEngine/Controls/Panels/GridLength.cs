@@ -33,7 +33,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     Star = 2,
   }
 
-  public class GridLength: IDeepCopyable
+  public class GridLength : IDeepCopyable
   {
     #region Private fields
 
@@ -81,7 +81,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     }
 
     /// <summary>
-    /// Gets a value indicating whether length is determined by control size.
+    /// Gets a value indicating whether length is determined by the child control size.
     /// </summary>
     public bool IsAuto
     {
@@ -89,13 +89,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     }
 
     /// <summary>
-    /// Gets a value indicating whether length is a percentage of the control size
+    /// Returns the information indicating whether <see cref="Length"/> is a percentage
+    /// of the parent control size.
     /// </summary>
     public bool IsStar
     {
       get { return _unitType == GridUnitType.Star; }
     }
 
+    /// <summary>
+    /// Gets the raw value given by the user.
+    /// </summary>
     public double Value
     {
       get { return _value; }
@@ -104,33 +108,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// <summary>
     /// Gets the type of the grid unit.
     /// </summary>
-    /// <value>The type of the grid unit.</value>
     public GridUnitType GridUnitType
     {
       get { return _unitType; }
-    }
-
-    public double GetLength(double totalLength,  ColumnDefinitionsCollection collection, float scale)
-    {
-      if (IsAbsolute) return _value * scale;
-      if (IsStar) return ((_value / 100.0) * totalLength);
-      double lenLeft=totalLength;
-      int countLeft=0;
-      for (int i = 0; i < collection.Count; ++i)
-      {
-        ColumnDefinition def = (ColumnDefinition)collection[i];
-        if (def.Width.IsAbsolute)
-        {
-          lenLeft -= (def.Width.Value * scale);
-        }
-        else if (def.Width.IsStar)
-        {
-          lenLeft -=  ((_value / 100.0) * totalLength);
-        }
-        else countLeft++;
-      }
-      if (lenLeft <= 0) return 0.0;
-      return (lenLeft/ ((double)countLeft));
     }
 
     public double Length

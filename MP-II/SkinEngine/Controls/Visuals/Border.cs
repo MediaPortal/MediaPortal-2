@@ -207,9 +207,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Measure&arrange
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    public override void Arrange(RectangleF finalRect)
     {
-      System.Drawing.RectangleF layoutRect = new System.Drawing.RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
       ComputeInnerRectangle(ref finalRect);
 
@@ -229,7 +229,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
       if (_content != null)
       {
@@ -239,7 +239,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    protected virtual void ArrangeContent(FrameworkElement child, ref System.Drawing.PointF p, SizeF s)
+    protected virtual void ArrangeContent(FrameworkElement child, ref PointF p, SizeF s)
     {
       if (VisualParent == null) return;
 
@@ -284,8 +284,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("border.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
-
+      //Trace.WriteLine(String.Format("Border.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     #endregion
@@ -391,7 +390,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (_content != null)
       {
-        SkinContext.AddOpacity(this.Opacity);
+        SkinContext.AddOpacity(Opacity);
         _content.Render();
         SkinContext.RemoveOpacity();
       }

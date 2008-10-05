@@ -43,11 +43,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected float _totalHeight;
     protected float _totalWidth;
 
-    protected bool _isScrolling = false;
+    protected bool _isClipping = false; // Set to true if the contents need more space than available
+    protected bool _canScroll = false; // Set to true if we are located in a scrollable container (ScrollViewer for example)
+
     // Desired scroll offsets - when modified by method SetScrollOffset, they are applied the next time 
     // Arrange is called
     protected float _scrollOffsetY = 0;
     protected float _scrollOffsetX = 0;
+
     // Actual scroll offsets - may differ from the desired scroll offsets
     protected float _actualScrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
@@ -83,6 +86,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       StackPanel p = (StackPanel) source;
       Orientation = copyManager.GetCopy(p.Orientation);
+      CanScroll = copyManager.GetCopy(p.CanScroll);
       Attach();
     }
 
@@ -111,7 +115,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         return;
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
-      _isScrolling = true;
       Invalidate();
     }
 
@@ -126,28 +129,33 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
-      SizeF childSize = new SizeF(0, 0);
+      SizeF childSize;
+      SizeF minSize = new SizeF(0, 0);
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible) 
           continue;
+        childSize = new SizeF(0, 0);
+        child.Measure(ref childSize);
         if (Orientation == Orientation.Vertical)
         {
-          child.Measure(ref childSize);
           totalDesiredHeight += childSize.Height;
           if (childSize.Width > totalDesiredWidth)
             totalDesiredWidth = childSize.Width;
         }
         else
         {
-          child.Measure(ref childSize);
           totalDesiredWidth += childSize.Width;
           if (childSize.Height > totalDesiredHeight)
             totalDesiredHeight = childSize.Height;
         }
+        if (childSize.Width > minSize.Width)
+          minSize.Width = childSize.Width;
+        if (childSize.Height > minSize.Height)
+          minSize.Height = childSize.Height;
       }
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
         _desiredSize.Width = totalDesiredWidth;
@@ -159,6 +167,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         SkinContext.RemoveLayoutTransform();
       }
+      if (_canScroll)
+        // If we are able to scroll, we only need the biggest child control dimensions
+        _desiredSize = minSize;
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
@@ -190,7 +201,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             float startPositionX = _scrollOffsetX;
             float startPositionY = _scrollOffsetY;
-            SizeF size = new SizeF(0, 0);
+            SizeF childSize = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
@@ -199,29 +210,16 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               PointF location = new PointF(ActualPosition.X + startPositionX,
                   ActualPosition.Y + startPositionY);
 
-              child.TotalDesiredSize(ref size);
+              child.TotalDesiredSize(ref childSize);
+              childSize.Width = (float) ActualWidth;
 
-              // Default behavior is to fill the content if the child has no size
-              if (Double.IsNaN(child.Width))
-              {
-                size.Width = (float) ActualWidth;
-              }
+              ArrangeChildHorizontal(child, ref location, ref childSize);
 
-              //align horizontally 
-              if (AlignmentX == AlignmentX.Center)
-              {
-                location.X += ((float) ActualWidth - size.Width) / 2;
-              }
-              else if (AlignmentX == AlignmentX.Right)
-              {
-                location.X = ((float) ActualWidth - size.Width);
-              }
-
-              child.Arrange(new RectangleF(location, size));
+              child.Arrange(new RectangleF(location, childSize));
               _totalWidth = Math.Max(_totalWidth, (float) child.ActualWidth);
               _totalHeight += (float) child.ActualHeight;
 
-              startPositionY += size.Height;
+              startPositionY += childSize.Height;
             }
           }
           break;
@@ -230,46 +228,33 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             float startPositionX = _scrollOffsetX;
             float startPositionY = _scrollOffsetY;
-            SizeF size = new SizeF(0, 0);
+            SizeF childSize = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
                 continue;
               PointF location = new PointF(ActualPosition.X + startPositionX,
                   ActualPosition.Y + startPositionY);
-              child.TotalDesiredSize(ref size);
-              
-              // Default behavior is to fill the content if the child has no size
-              if (Double.IsNaN(child.Height))
-              {
-                size.Height = (float) ActualHeight;
-              }
+              child.TotalDesiredSize(ref childSize);
+              childSize.Height = (float) ActualHeight;
 
-              //align vertically 
-              if (AlignmentY == AlignmentY.Center)
-              {
-                location.Y += ((float) ActualHeight - size.Height) / 2;
-              }
-              else if (AlignmentY == AlignmentY.Bottom)
-              {
-                location.Y += ((float) ActualHeight - size.Height);
-              }
+              ArrangeChildVertical(child, ref location, ref childSize);
 
-              child.Arrange(new RectangleF(location, size));
+              child.Arrange(new RectangleF(location, childSize));
               _totalWidth += (float) child.ActualWidth;
               _totalHeight = Math.Max(_totalHeight, (float) child.ActualHeight);
 
-              startPositionX += size.Width;
+              startPositionX += childSize.Width;
             }
           }
           break;
       }
 
       if (_totalHeight > finalRect.Height || _totalWidth > finalRect.Width)
-        _isScrolling = true;
+        _isClipping = true;
       else
       {
-        _isScrolling = false;
+        _isClipping = false;
         _scrollOffsetX = 0;
         _scrollOffsetY = 0;
       }
@@ -319,8 +304,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       lock (_orientationProperty)
       {
-        bool scrolling = _isScrolling; // FIXME Albert78: we need to synchronize the threads changing layout
-        if (scrolling)
+        bool clipping = _isClipping; // FIXME Albert78: we need to synchronize the threads changing layout
+        if (clipping)
         {
           SkinContext.AddScissorRect(new Rectangle(
               (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
@@ -333,7 +318,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           if (!element.IsVisible) 
             continue;
           RectangleF elementBounds = element.ActualBounds;
-          if (scrolling)
+          if (clipping)
           { // Don't render elements which are not visible
             if (elementBounds.X + elementBounds.Width < ActualPosition.X) continue;
             if (elementBounds.Y + elementBounds.Height < ActualPosition.Y) continue;
@@ -343,7 +328,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           element.Render();
         }
 
-        if (scrolling)
+        if (clipping)
         {
           SkinContext.RemoveScissorRect();
           Rectangle? origScissorRect = SkinContext.FinalScissorRect;
@@ -529,6 +514,46 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (false == element.IsVisible) continue;
         element.OnMouseMove(x, y);
       }
+    }
+
+    #endregion
+
+    #region IScrollInfo implementation
+
+    public bool CanScroll
+    {
+      get { return _canScroll; }
+      set { _canScroll = value; }
+    }
+
+    public float TotalWidth
+    {
+      get { return _totalWidth; }
+    }
+
+    public float TotalHeight
+    {
+      get { return _totalHeight; }
+    }
+
+    public float ViewPortWidth
+    {
+      get { return (float) ActualWidth; }
+    }
+
+    public float ViewPortStartX
+    {
+      get { return -_actualScrollOffsetX; }
+    }
+
+    public float ViewPortHeight
+    {
+      get { return (float) ActualHeight; }
+    }
+
+    public float ViewPortStartY
+    {
+      get { return -_actualScrollOffsetY; }
     }
 
     #endregion

@@ -231,7 +231,74 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region IScrollInfo implementation
 
-    // TODO
+    public bool CanScroll
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? false : si.CanScroll;
+      }
+      set
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        if (si != null)
+          si.CanScroll = value;
+      }
+    }
+
+    public float TotalWidth
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? (float) ActualWidth : si.TotalWidth;
+      }
+    }
+
+    public float TotalHeight
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? (float) ActualHeight : si.TotalHeight;
+      }
+    }
+
+    public float ViewPortWidth
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? 0 : si.ViewPortWidth;
+      }
+    }
+
+    public float ViewPortStartX
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? 0 : si.ViewPortStartX;
+      }
+    }
+
+    public float ViewPortHeight
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? 0 : si.ViewPortHeight;
+      }
+    }
+
+    public float ViewPortStartY
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? 0 : si.ViewPortStartY;
+      }
+    }
 
     #endregion
   }

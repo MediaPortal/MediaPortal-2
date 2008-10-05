@@ -29,7 +29,7 @@
             <Label FontSize="30" Content="[system.done]" Height="32" />
           </Button>
         </StackPanel>
-        <TreeView x:Name="FoldersTree" Width="480" Height="320" ItemsSource="{Binding Folders}"
+        <TreeView x:Name="FoldersTree" Width="480" Height="320" Margin="0,0,0,10" ItemsSource="{Binding Folders}"
             Style="{StaticResource DefaultSelectableTreeViewStyle}">
           <TreeView.Resources>
             <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data directly. We use a dummy. -->

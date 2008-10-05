@@ -30,6 +30,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
   public class DefinitionBase : IDeepCopyable
   {
     Property _nameProperty;
+    Property _lengthProperty;
 
     public DefinitionBase()
     {
@@ -39,12 +40,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     void Init()
     {
       _nameProperty = new Property(typeof(string), "");
+      _lengthProperty = new Property(typeof(GridLength), new GridLength());
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      DefinitionBase d = (DefinitionBase) source;
-      Name = copyManager.GetCopy(d.Name);
+      DefinitionBase db = (DefinitionBase) source;
+      Name = copyManager.GetCopy(db.Name);
+      Length = copyManager.GetCopy(db.Length);
     }
 
     public Property NameProperty
@@ -56,6 +59,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       get { return _nameProperty.GetValue() as string; }
       set { _nameProperty.SetValue(value); }
+    }
+
+    public Property LengthProperty
+    {
+      get { return _lengthProperty; }
+    }
+
+    public GridLength Length
+    {
+      get { return (GridLength) _lengthProperty.GetValue(); }
+      set { _lengthProperty.SetValue(value); }
     }
   }
 }

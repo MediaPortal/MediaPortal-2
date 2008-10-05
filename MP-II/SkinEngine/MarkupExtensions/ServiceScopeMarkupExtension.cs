@@ -22,19 +22,18 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using MediaPortal.Control.InputManager;
+using MediaPortal.Core;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Reflection;
-  using MediaPortal.Control.InputManager;
-  using MediaPortal.Core;
-  using MediaPortal.Presentation.Players;
-
   public class ServiceScopeMarkupExtension: IEvaluableMarkupExtension
   {
 

@@ -645,7 +645,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return;
       SizeF childSize = new SizeF(0, 0);
     
-      //Trace.WriteLine("UpdateLayout :" + this.Name + "  " + this.GetType());
+      //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
       IsInvalidLayout = false;
       ExtendedMatrix m = _finalLayoutTransform;
 

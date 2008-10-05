@@ -267,12 +267,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("Image.Measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("Image.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Image.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Image.Arrange: {0} X {1} Y {2} W {3} H {4}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
@@ -318,10 +318,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (!IsEnabled && Opacity == 0.0) 
         return;
 
-      SkinContext.AddOpacity(this.Opacity);
+      SkinContext.AddOpacity(Opacity);
       float opacity = (float)SkinContext.Opacity;
-      float posx = _pos.X + (float)ActualPosition.X;
-      float posy = _pos.Y + (float)ActualPosition.Y;
+      float posx = _pos.X + ActualPosition.X;
+      float posy = _pos.Y + ActualPosition.Y;
       if (_renderImage != null)
       {
         _renderImage.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
@@ -358,9 +358,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return;
 
       base.DoRender();
-      SkinContext.AddOpacity(this.Opacity);
+      SkinContext.AddOpacity(Opacity);
       ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
+      m.Matrix = Matrix.Translation(new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z));
       SkinContext.AddTransform(m);
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float opacity = (float)SkinContext.Opacity;
@@ -392,14 +392,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           if (asset.Texture.Width > 0)
           {
-            imgScale.X = (float)(ActualWidth / (float)asset.Texture.Width * SkinContext.Zoom.Width);
+            imgScale.X = (float)(ActualWidth / asset.Texture.Width * SkinContext.Zoom.Width);
           }
         }
         if (Height > 0.0f)
         {
           if (asset.Texture.Height > 0)
           {
-            imgScale.Y = (float)(ActualHeight / (float)asset.Texture.Height * SkinContext.Zoom.Height);
+            imgScale.Y = (float)(ActualHeight / asset.Texture.Height * SkinContext.Zoom.Height);
           }
         }
 
@@ -409,10 +409,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float pixelRatio = 1.0f;
         float fSourceFrameRatio = asset.Texture.Width / (float)asset.Texture.Height;
         float fOutputFrameRatio = fSourceFrameRatio / pixelRatio;
-        if (this.Stretch == Stretch.Uniform || this.Stretch == Stretch.UniformToFill)
+        if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
         {
 
-          if (this.Stretch == Stretch.Uniform)
+          if (Stretch == Stretch.Uniform)
           {
             float fNewWidth = width;
             float fNewHeight = fNewWidth / fOutputFrameRatio;
@@ -480,16 +480,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           iSourceHeight = (imageHeight - 2.0f * fVertBorder);
         }
         // x-offset in texture
-        float uoffs = iSourceX / (float)asset.Texture.Width;
+        float uoffs = iSourceX / asset.Texture.Width;
 
         // y-offset in texture
-        float voffs = iSourceY / (float)asset.Texture.Height;
+        float voffs = iSourceY / asset.Texture.Height;
 
         // width copied from texture
-        float u = iSourceWidth / (float)asset.Texture.Width;
+        float u = iSourceWidth / asset.Texture.Width;
 
         // height copied from texture
-        float v = iSourceHeight / (float)asset.Texture.Height;
+        float v = iSourceHeight / asset.Texture.Height;
 
 
         if (uoffs < 0 || uoffs > 1)

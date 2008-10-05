@@ -72,8 +72,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
 
-    protected Property _alignmentXProperty;
-    protected Property _alignmentYProperty;
     protected Property _childrenProperty;
     protected Property _backgroundProperty;
     protected bool _isItemsHost = false;
@@ -97,22 +95,16 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     void Init()
     {
       _childrenProperty = new Property(typeof(UIElementCollection), new UIElementCollection(this));
-      _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
-      _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Top);
       _backgroundProperty = new Property(typeof(Brush), null);
       _renderOrder = new List<UIElement>();
     }
 
     void Attach()
     {
-      _alignmentXProperty.Attach(OnPropertyInvalidate);
-      _alignmentYProperty.Attach(OnPropertyInvalidate);
     }
 
     void Detach()
     {
-      _alignmentXProperty.Detach(OnPropertyInvalidate);
-      _alignmentYProperty.Detach(OnPropertyInvalidate);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -120,8 +112,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       Detach();
       base.DeepCopy(source, copyManager);
       Panel p = (Panel) source;
-      AlignmentX = copyManager.GetCopy(p.AlignmentX);
-      AlignmentY = copyManager.GetCopy(p.AlignmentY);
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = copyManager.GetCopy(p.IsItemsHost);
       foreach (UIElement el in p.Children)
@@ -199,36 +189,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SetScreen(Screen);
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
-    }
-
-    public Property AlignmentXProperty
-    {
-      get { return _alignmentXProperty; }
-    }
-
-    public AlignmentX AlignmentX
-    {
-      get
-      {
-        return _alignmentXProperty == null ? AlignmentX.Center :
-          (AlignmentX) _alignmentXProperty.GetValue();
-      }
-      set { _alignmentXProperty.SetValue(value); }
-    }
-
-    public Property AlignmentYProperty
-    {
-      get { return _alignmentYProperty; }
-    }
-
-    public AlignmentY AlignmentY
-    {
-      get
-      {
-        return _alignmentYProperty == null ? AlignmentY.Top :
-          (AlignmentY) _alignmentYProperty.GetValue();
-      }
-      set { _alignmentYProperty.SetValue(value); }
     }
 
     public bool IsItemsHost

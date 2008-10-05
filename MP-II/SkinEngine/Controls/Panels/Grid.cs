@@ -102,7 +102,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -113,8 +113,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         RowDefinitions.Add(new RowDefinition());
 
       // Reset values before we start measure the children.
-      ColumnDefinitions.ResetWidth();
-      RowDefinitions.ResetHeight();
+      ColumnDefinitions.ResetAllCellLengths();
+      RowDefinitions.ResetAllCellLengths();
 
       // Set the Width/Hight of the Columns/Rows according to the sizes of the children.
       foreach (FrameworkElement child in Children)
@@ -130,17 +130,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         child.Measure(ref childSize);
 
-        ColumnDefinitions.SetWidth(col, GetColumnSpan(child), childSize.Width);
-        RowDefinitions.SetHeight(row, GetRowSpan(child), childSize.Height);
+        ColumnDefinitions.SetDesiredLength(col, GetColumnSpan(child), childSize.Width);
+        RowDefinitions.SetDesiredLength(row, GetRowSpan(child), childSize.Height);
       }
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
-        _desiredSize.Width = (float)ColumnDefinitions.TotalWidth;
+        _desiredSize.Width = (float) ColumnDefinitions.TotalDesiredLength;
 
       if (Double.IsNaN(Height))
-        _desiredSize.Height = (float)RowDefinitions.TotalHeight;
+        _desiredSize.Height = (float) RowDefinitions.TotalDesiredLength;
       
 
       if (LayoutTransform != null)
@@ -152,12 +152,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("Grid.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("Grid.measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Grid.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Grid.Arrange: {0} X {1},Y {2} W {3} H {4}", Name, (int) finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       ComputeInnerRectangle(ref finalRect);
       ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
@@ -165,7 +165,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       if (LayoutTransform != null)
       {
-        ExtendedMatrix m = new ExtendedMatrix();
+        ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
@@ -184,15 +184,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
-        PointF position = new PointF((float)ColumnDefinitions.GetOffset(col) + finalRect.Location.X, 
-                              (float)RowDefinitions.GetOffset(row) + finalRect.Location.Y);
+        PointF position = new PointF(
+            (float) ColumnDefinitions.GetOffset(col) + finalRect.Location.X, 
+            (float) RowDefinitions.GetOffset(row) + finalRect.Location.Y);
 
-        SizeF availableSize = new SizeF((float)ColumnDefinitions.GetWidth(col, GetColumnSpan(child)),
-                                        (float)RowDefinitions.GetHeight(row, GetRowSpan(child)));
+        SizeF childSize = new SizeF(
+            (float) ColumnDefinitions.GetLength(col, GetColumnSpan(child)),
+            (float) RowDefinitions.GetLength(row, GetRowSpan(child)));
 
-        ArrangeChild(child, ref position, ref availableSize);
+        ArrangeChild(child, ref position, ref childSize);
 
-        child.Arrange(new RectangleF(position, availableSize));
+        child.Arrange(new RectangleF(position, childSize));
       }
       if (LayoutTransform != null)
       {
@@ -204,7 +206,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
           _performLayout = true;
-        _finalRect = new System.Drawing.RectangleF(finalRect.Location, finalRect.Size);
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
         if (Screen != null) Screen.Invalidate(this);
       }
       base.Arrange(finalRect);

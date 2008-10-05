@@ -22,144 +22,19 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
-  public class ColumnDefinitionsCollection : List<ColumnDefinition>, IAddChild<ColumnDefinition>, IDeepCopyable
+  public class ColumnDefinitionsCollection : DefinitionsCollectionBase, IAddChild<ColumnDefinition>
   {
-    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      ColumnDefinitionsCollection c = (ColumnDefinitionsCollection) source;
-      foreach (ColumnDefinition cd in c)
-        Add(copyManager.GetCopy(cd));
-    }
-
     #region IAddChild Members
 
-    public void AddChild(ColumnDefinition o)
+    public void AddChild(ColumnDefinition cd)
     {
-      Add(o);
+      Add(cd);
     }
 
     #endregion
-
-    public float GetWidth(int column, int columnSpan)
-    {
-      float width = 0.0f;
-      for (int i = 0; i < columnSpan; ++i)
-      {
-        width += (float)this[column + i].Width.Length;
-      }
-      return width;
-    }
-
-    public float GetOffset(int column)
-    {
-      float width = 0.0f;
-      for (int i = 0; i < column; ++i)
-      {
-        width += (float)this[i].Width.Length;
-      }
-      return width;
-    }
-
-    public void ResetWidth()
-    {
-      foreach (ColumnDefinition colDef in this)
-      {
-        if (colDef.Width.IsAbsolute) // Fixed size can never change.
-          colDef.Width.Length = colDef.Width.Value * SkinContext.Zoom.Width;
-        else
-          colDef.Width.Length = 0.0;
-      }
-    }
-
-    public double TotalWidth
-    {
-      get
-      {
-        double width = 0.0;
-        foreach (ColumnDefinition colDef in this)
-        {
-          width += colDef.Width.Length;
-        }
-        return width;
-      }
-    }
-
-    public void SetWidth(int column, int columnSpan, float width)
-    {
-      // Not set, don't bother.
-      if (double.IsNaN(width))
-        return;
-
-      int relativeCount = 0;
-      for (int i = 0; i < columnSpan; ++i)
-      {
-        ColumnDefinition colDef = this[i + column];
-        if (colDef.Width.IsAbsolute)
-        {
-          width -= (float)colDef.Width.Length;
-        }
-        else 
-          relativeCount++;
-      }
-      for (int i = 0; i < columnSpan; ++i)
-      {
-        ColumnDefinition colDef = this[i + column];
-        if (colDef.Width.IsAuto || colDef.Width.IsStar)
-        {
-          if (colDef.Width.Length < width / relativeCount)
-          {
-            colDef.Width.Length = width / relativeCount;
-          }
-        }
-      }
-    }
-
-    public void SetAvailableSize(double width)
-    {
-      double fixedWidth = 0.0f;
-      int relativeCount = 0;
-      double totalStar = 0;
-      foreach (ColumnDefinition column in this)
-      {
-        if (column.Width.IsAbsolute) // Fixed size controls get size from Width property
-        {
-          fixedWidth += column.Width.Length;
-        }
-        else if (column.Width.IsAuto) // Auto sized control should follow the child
-        {
-          fixedWidth += column.Width.Length;
-        }
-        else
-        {
-          column.Width.Length = 0;
-          totalStar += column.Width.Value;
-          relativeCount++;
-        }
-
-        // Too much allocated
-        if (fixedWidth > width)
-        {
-          column.Width.Length -= fixedWidth - width;
-          fixedWidth = width;
-        }
-      }
-      if (width == 0.0) 
-        return;
-      width -= fixedWidth;
-      foreach (ColumnDefinition column in this)
-      {
-        if (column.Width.IsStar)
-        {
-          column.Width.Length = width * (column.Width.Value / totalStar);
-        }
-      }
-    }
   }
 }

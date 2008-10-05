@@ -23,40 +23,20 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class RowDefinition : DefinitionBase
   {
-    Property _heightProperty;
-
-    public RowDefinition()
-    {
-      Init();
-    }
-
-    void Init()
-    {
-      _heightProperty = new Property(typeof(GridLength), new GridLength());
-    }
-
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      base.DeepCopy(source, copyManager);
-      RowDefinition rd = (RowDefinition) source;
-      Height = copyManager.GetCopy(rd.Height);
-    }
-
     public Property HeightProperty
     {
-      get { return _heightProperty; }
+      get { return LengthProperty; }
     }
 
     public GridLength Height
     {
-      get { return _heightProperty.GetValue() as GridLength; }
-      set { _heightProperty.SetValue(value); }
+      get { return Length; }
+      set { Length = value; }
     }
   }
 }
