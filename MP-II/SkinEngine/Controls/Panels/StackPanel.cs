@@ -124,8 +124,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
-      _totalHeight = 0.0f;
-      _totalWidth = 0.0f;
+      float totalDesiredHeight = 0;
+      float totalDesiredWidth = 0;
       SizeF childSize = new SizeF(0, 0);
       foreach (UIElement child in Children)
       {
@@ -134,26 +134,26 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Orientation == Orientation.Vertical)
         {
           child.Measure(ref childSize);
-          _totalHeight += childSize.Height;
-          if (childSize.Width > _totalWidth)
-            _totalWidth = childSize.Width;
+          totalDesiredHeight += childSize.Height;
+          if (childSize.Width > totalDesiredWidth)
+            totalDesiredWidth = childSize.Width;
         }
         else
         {
           child.Measure(ref childSize);
-          _totalWidth += childSize.Width;
-          if (childSize.Height > _totalHeight)
-            _totalHeight = childSize.Height;
+          totalDesiredWidth += childSize.Width;
+          if (childSize.Height > totalDesiredHeight)
+            totalDesiredHeight = childSize.Height;
         }
       }
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
-        _desiredSize.Width = _totalWidth;
+        _desiredSize.Width = totalDesiredWidth;
 
       if (Double.IsNaN(Height))
-        _desiredSize.Height = _totalHeight;
+        _desiredSize.Height = totalDesiredHeight;
 
       if (LayoutTransform != null)
       {
@@ -176,21 +176,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
-      if (_totalHeight > finalRect.Height || _totalWidth > finalRect.Width)
-        _isScrolling = true;
-      else
-      {
-        _isScrolling = false;
-        _scrollOffsetX = 0;
-        _scrollOffsetY = 0;
-      }
-
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
+      _totalHeight = 0;
+      _totalWidth = 0;
       switch (Orientation)
       {
         case Orientation.Vertical:
@@ -225,6 +218,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
 
               child.Arrange(new RectangleF(location, size));
+              _totalWidth = Math.Max(_totalWidth, (float) child.ActualWidth);
+              _totalHeight += (float) child.ActualHeight;
+
               startPositionY += size.Height;
             }
           }
@@ -260,11 +256,24 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
 
               child.Arrange(new RectangleF(location, size));
+              _totalWidth += (float) child.ActualWidth;
+              _totalHeight = Math.Max(_totalHeight, (float) child.ActualHeight);
+
               startPositionX += size.Width;
             }
           }
           break;
       }
+
+      if (_totalHeight > finalRect.Height || _totalWidth > finalRect.Width)
+        _isScrolling = true;
+      else
+      {
+        _isScrolling = false;
+        _scrollOffsetX = 0;
+        _scrollOffsetY = 0;
+      }
+
       _actualScrollOffsetX = _scrollOffsetX;
       _actualScrollOffsetY = _scrollOffsetY;
       if (LayoutTransform != null)
