@@ -391,22 +391,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (asset != null && asset.Texture.IsAllocated)
       {
-        Vector3 imgScale = new Vector3(1, 1, 1);
-        if (Width > 0.0f)
-        {
-          if (asset.Texture.Width > 0)
-          {
-            imgScale.X = (float)(ActualWidth / asset.Texture.Width * SkinContext.Zoom.Width);
-          }
-        }
-        if (Height > 0.0f)
-        {
-          if (asset.Texture.Height > 0)
-          {
-            imgScale.Y = (float)(ActualHeight / asset.Texture.Height * SkinContext.Zoom.Height);
-          }
-        }
-
         float scaleX = 1;
         float scaleY = 1;
         float sourceImageHeight = asset.Texture.Height;
