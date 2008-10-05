@@ -212,7 +212,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Content != null)
       {
         SkinContext.AddOpacity(Opacity);
-        Content.DoRender();
+        Content.Render();
         SkinContext.RemoveOpacity();
       }
     }
