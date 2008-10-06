@@ -45,6 +45,9 @@ namespace MediaPortal.Core.Services.PluginManager
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_HIGH = 1;
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_LOW = 0;
 
+    protected static IDictionary<string, string> EMPTY_BUILDERS_DICTIONARY =
+        new Dictionary<string, string>();
+
     #region Protected fields
 
     protected string _pluginFilePath = null;
@@ -53,12 +56,12 @@ namespace MediaPortal.Core.Services.PluginManager
     protected string _author = null;
     protected string _description = null;
     protected string _version = null;
-    protected bool _autoActivate;
+    protected bool _autoActivate = false;
     protected ICollection<string> _dependsOn = new List<string>();
     protected ICollection<string> _conflictsWith = new List<string>();
     protected string _stateTrackerClassName = null;
     protected ICollection<string> _assemblyFilePaths = new List<string>();
-    protected IDictionary<string, string> _builders = new Dictionary<string, string>();
+    protected IDictionary<string, string> _builders = null;
     protected ICollection<PluginItemMetadata> _itemsMetadata = new List<PluginItemMetadata>();
     protected ICollection<SettingRegistrationBase> _settingsMetadata = new List<SettingRegistrationBase>();
 
@@ -91,7 +94,7 @@ namespace MediaPortal.Core.Services.PluginManager
         XmlDocument doc = new XmlDocument();
         doc.Load(_pluginFilePath);
         XmlElement descriptorElement = doc.DocumentElement;
-        if (descriptorElement.Name != "Plugin")
+        if (descriptorElement == null || descriptorElement.Name != "Plugin")
           throw new ArgumentException("File is no plugin descriptor (needs to contain a 'Plugin' element)");
 
         bool versionOk = false;
@@ -140,6 +143,8 @@ namespace MediaPortal.Core.Services.PluginManager
               ParseRuntimeElement(childElement, pluginDirectoryPath);
               break;
             case "Builder":
+              if (_builders == null)
+                _builders = new Dictionary<string, string>();
               _builders.Add(ParseBuilderElement(childElement));
               break;
             case "Register":
@@ -600,7 +605,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public IDictionary<string, string> Builders
     {
-      get { return _builders; }
+      get { return _builders ?? EMPTY_BUILDERS_DICTIONARY; }
     }
 
     public ICollection<PluginItemMetadata> PluginItemsMetadata

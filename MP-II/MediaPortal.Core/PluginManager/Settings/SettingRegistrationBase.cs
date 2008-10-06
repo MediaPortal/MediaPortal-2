@@ -126,9 +126,9 @@ namespace MediaPortal.Core.PluginManager.Settings
     /// <returns>Concatenated location string.</returns>
     public static string ConcatLocations(string parent, string child)
     {
-      if (parent == null || parent == string.Empty)
+      if (string.IsNullOrEmpty(parent))
         return child;
-      else if (child == null || child == string.Empty)
+      if (string.IsNullOrEmpty(child))
         return parent;
       while (true)
       {
@@ -165,8 +165,7 @@ namespace MediaPortal.Core.PluginManager.Settings
       {
         if (throwOnNotPresent)
           throw new ArgumentException("Location expression '" + location + "': Cannot ascent to parent location");
-        else
-          return null;
+        return null;
       }
       return location.Substring(0, i);
     }
