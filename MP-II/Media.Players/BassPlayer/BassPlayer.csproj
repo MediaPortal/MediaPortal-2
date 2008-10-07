@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1A980621-B711-4235-B98C-C4276D6FA9FD}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -72,12 +72,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BassLibrary.cs" />
+    <Compile Include="BassLibraryException.cs" />
     <Compile Include="BassPlayer.cs" />
-    <Compile Include="BassPlayerSettings.cs" />
+    <Compile Include="BassPlayerException.cs" />
     <Compile Include="BassPlugin.cs" />
+    <Compile Include="BassStream.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="BassStreamNestedTypes.cs" />
+    <Compile Include="DeviceInfo.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="InputSources\BassAudioFileInputSource.cs" />
+    <Compile Include="InputSources\BassCDTrackInputSource.cs" />
+    <Compile Include="InputSources\BassMODFileInputSource.cs" />
+    <Compile Include="InputSources\BassWebStreamInputSource.cs" />
+    <Compile Include="Interfaces\IInputSource.cs" />
+    <Compile Include="Interfaces\IOutputDevice.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="OutputDevices\ASIOOutputDevice.cs" />
+    <Compile Include="OutputDevices\DirectXOutputDevice.cs" />
+    <Compile Include="PlayerComponents\Controller.cs" />
+    <Compile Include="PlayerComponents\ControllerRequest.cs" />
+    <Compile Include="PlayerComponents\InputSourceFactory.cs" />
+    <Compile Include="PlayerComponents\InputSourceQueue.cs" />
+    <Compile Include="PlayerComponents\InputSourceSwitcher.cs" />
+    <Compile Include="PlayerComponents\Monitor.cs" />
+    <Compile Include="PlayerComponents\OutputDeviceFactory.cs" />
+    <Compile Include="PlayerComponents\OutputDeviceManager.cs" />
+    <Compile Include="PlayerComponents\PlaybackBuffer.cs" />
+    <Compile Include="PlayerComponents\PlaybackSession.cs" />
+    <Compile Include="PlayerComponents\UpDownMixer.cs" />
+    <Compile Include="PlayerComponents\VSTProcessor.cs" />
+    <Compile Include="PlayerComponents\WinAmpDSPProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Stream.cs" />
-    <Compile Include="Zone.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Utils\AudioRingBuffer.cs" />
+    <Compile Include="Utils\BassStreamFader.cs" />
+    <Compile Include="Utils\Silence.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">

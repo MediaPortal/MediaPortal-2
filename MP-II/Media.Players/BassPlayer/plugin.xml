@@ -1,7 +1,7 @@
 <Plugin
     Version = "1.0"
     Name = "BassPlayer"
-    Author = "hwahrmann"
+    Author = "hwahrmann/symphy"
     Copyright = "GPL"
     Description = "Bass Music Player"
     PluginVersion = "1.0">

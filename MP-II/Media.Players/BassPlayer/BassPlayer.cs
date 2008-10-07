@@ -23,340 +23,210 @@
 #endregion
 
 using System;
-using System.Drawing;
-
-using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Media.MediaManager;
+using Un4seen.Bass;
 
 namespace Media.Players.BassPlayer
 {
-  public class BassPlayer : IPlayer
+  /// <summary>
+  /// Music player based on the Un4seen Bass library.
+  /// </summary>
+  public partial class BassPlayer : IPlayer, IDisposable
   {
-    #region IPlayer Members
-    IPlayer _playerInstance;
-
-    public BassPlayer(IPlayer instance)
-    {
-      _playerInstance = instance;
-    }
-
-    public string Name
-    {
-      get
-      {
-        return _playerInstance.Name;
-      }
-    }
+    #region Static members
 
     /// <summary>
-    /// Gets a value indicating whether this player is a video player.
+    /// Creates and initializes an new instance.
     /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a video player; otherwise, <c>false</c>.
-    /// </value>
+    /// <returns>The new instance.</returns>
+    public static BassPlayer Create()
+    {
+      BassPlayer player = new BassPlayer();
+      player.Initialize();
+      return player;
+    }
+
+    #endregion
+
+    #region Fields
+
+    private BassLibrary _BassLibrary;
+    private Settings _Settings;
+    private Controller _Controller;
+    private Monitor _Monitor;
+    private InputSourceFactory _InputSourceFactory;
+    private InputSourceQueue _InputSourceQueue;
+    private InputSourceSwitcher _InputSourceSwitcher;
+    private UpDownMixer _UpDownMixer;
+    private VSTProcessor _VSTProcessor;
+    private WinAmpDSPProcessor _WinAmpDSPProcessor;
+    private PlaybackBuffer _PlaybackBuffer;
+    private OutputDeviceManager _OutputDeviceManager;
+    private PlaybackSession _PlaybackSession;
+
+    #endregion
+
+    #region Public members
+
+    public Settings Settings
+    {
+      get { return _Settings; }
+    }
+
+    #endregion
+
+    #region IPlayer Members
+
     public bool IsVideo
     {
-      get
-      {
-        return false;
-      }
+      get { return false; }
     }
-    /// <summary>
-    /// Gets a value indicating whether this player is a picture player.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a picture player; otherwise, <c>false</c>.
-    /// </value>
+
     public bool IsImage
     {
-      get
-      {
-        return false;
-      }
+      get { return false; }
     }
-    /// <summary>
-    /// Gets a value indicating whether this player is a audio player.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a audio player; otherwise, <c>false</c>.
-    /// </value>
+
     public bool IsAudio
     {
-      get
-      {
-        return true;
-      }
-    }
-    public void BeginRender(object effect)
-    {
-    }
-    public void EndRender(object effect)
-    {
-    }
-
-    public void ReleaseResources()
-    {
-    }
-
-    public void ReallocResources()
-    {
-    }
-
-    public PlaybackState State
-    {
-      get
-      {
-        return _playerInstance.State;
-      }
-    }
-
-    public Size Size
-    {
-      get
-      {
-        return _playerInstance.Size;
-      }
-      set
-      {
-        _playerInstance.Size = value;
-      }
-    }
-
-    public Point Position
-    {
-      get
-      {
-        return _playerInstance.Position;
-      }
-      set
-      {
-        _playerInstance.Position = value;
-      }
-    }
-
-    public Rectangle MovieRectangle
-    {
-      get
-      {
-        return _playerInstance.MovieRectangle;
-      }
-      set
-      {
-        _playerInstance.MovieRectangle = value;
-      }
-    }
-
-    public Rectangle AlphaMask
-    {
-      get
-      {
-        return _playerInstance.AlphaMask;
-      }
-      set
-      {
-        _playerInstance.AlphaMask = value;
-      }
-    }
-
-    public void Play(IMediaItem item)
-    {
-      _playerInstance.Play(item);
-    }
-
-    public void Stop()
-    {
-      _playerInstance.Stop();
-      ServiceScope.Get<IPlayerCollection>().Remove(this);
-    }
-
-    public void Render()
-    {
-      _playerInstance.Render();
+      get { return true; }
     }
 
     public bool Paused
     {
       get
       {
-        return _playerInstance.Paused;
+        return (_Controller.ExternalState == PlaybackState.Paused);
       }
       set
       {
-        _playerInstance.Paused = value;
+        if (value)
+          _Controller.Pause();
+        else
+          _Controller.Resume();
       }
     }
 
-    public void OnMessage(object m)
+    public PlaybackState State
     {
-      _playerInstance.OnMessage(m);
-    }
-
-    public void OnIdle()
-    {
-      _playerInstance.OnIdle();
+      get { return _Controller.ExternalState; }
     }
 
     public TimeSpan CurrentTime
     {
       get
       {
-        return _playerInstance.CurrentTime;
+        return _Monitor.CurrentPosition;
       }
       set
       {
-        _playerInstance.CurrentTime = value;
-      }
-    }
-
-    public TimeSpan StreamPosition
-    {
-      get
-      {
-        return _playerInstance.StreamPosition;
+        throw new NotImplementedException();
       }
     }
 
     public TimeSpan Duration
     {
+      get { return _Monitor.Duration; }
+    }
+
+    public void Play(MediaPortal.Media.MediaManager.IMediaItem item)
+    {
+      Log.Debug("Play()");
+      _Controller.Play(item);
+    }
+
+    public void Stop()
+    {
+      Log.Debug("Stop()");
+      _Controller.Stop();
+    }
+
+    #endregion
+
+    #region Unused IPlayer Members
+
+    public System.Drawing.Rectangle AlphaMask
+    {
       get
       {
-        return _playerInstance.Duration;
+        return new System.Drawing.Rectangle();
+      }
+      set
+      {
       }
     }
 
     public string[] AudioStreams
     {
-      get
-      {
-        return _playerInstance.AudioStreams;
-      }
+      get { return new string[0]; }
     }
 
-    public string[] Subtitles
+    public void BeginRender(object effect)
     {
-      get
-      {
-        return _playerInstance.Subtitles;
-      }
-    }
-
-    public void SetSubtitle(string subtitle)
-    {
-      _playerInstance.SetSubtitle(subtitle);
-    }
-
-    public string CurrentSubtitle
-    {
-      get
-      {
-        return _playerInstance.CurrentSubtitle;
-      }
-    }
-
-    public void SetAudioStream(string audioStream)
-    {
-      _playerInstance.SetAudioStream(audioStream);
-    }
-
-    public string CurrentAudioStream
-    {
-      get
-      {
-        return _playerInstance.CurrentAudioStream;
-      }
-    }
-
-    public string[] DvdTitles
-    {
-      get
-      {
-        return _playerInstance.DvdTitles;
-      }
-    }
-
-    public void SetDvdTitle(string title)
-    {
-      _playerInstance.SetDvdTitle(title);
-    }
-
-    public string CurrentDvdTitle
-    {
-      get
-      {
-        return _playerInstance.CurrentDvdTitle;
-      }
-    }
-
-    public string[] DvdChapters
-    {
-      get
-      {
-        return _playerInstance.DvdChapters;
-      }
-    }
-
-    public void SetDvdChapter(string title)
-    {
-      _playerInstance.SetDvdChapter(title);
-    }
-
-    public string CurrentDvdChapter
-    {
-      get
-      {
-        return _playerInstance.CurrentDvdChapter;
-      }
-    }
-
-    public bool InDvdMenu
-    {
-      get
-      {
-        return _playerInstance.InDvdMenu;
-      }
-    }
-
-    public Uri FileName
-    {
-      get
-      {
-        return _playerInstance.FileName;
-      }
-    }
-
-    public IMediaItem MediaItem
-    {
-      get
-      {
-        return _playerInstance.MediaItem;
-      }
-    }
-
-    public void Restart()
-    {
-      _playerInstance.Restart();
-    }
-
-    public void ResumeSession()
-    {
-      _playerInstance.ResumeSession();
     }
 
     public bool CanResumeSession(Uri fileName)
     {
-      return _playerInstance.CanResumeSession(fileName);
+      return false;
     }
 
-    public int Volume
+    public string CurrentAudioStream
+    {
+      get { return null; }
+    }
+
+    public string CurrentDvdChapter
+    {
+      get { return null; }
+    }
+
+    public string CurrentDvdTitle
+    {
+      get { return null; }
+    }
+
+    public string CurrentSubtitle
+    {
+      get { return null; }
+    }
+
+    public string[] DvdChapters
+    {
+      get { return new string[0]; }
+    }
+
+    public string[] DvdTitles
+    {
+      get { return new string[0]; }
+    }
+
+    public void EndRender(object effect)
+    {
+    }
+
+    public Uri FileName
+    {
+      get { return null; }
+    }
+
+    public bool InDvdMenu
+    {
+      get { return false; }
+    }
+
+    public MediaPortal.Media.MediaManager.IMediaItem MediaItem
+    {
+      get { return null; }
+    }
+
+    public System.Drawing.Rectangle MovieRectangle
     {
       get
       {
-        return _playerInstance.Volume;
+        return new System.Drawing.Rectangle();
       }
       set
       {
-        _playerInstance.Volume = value;
       }
     }
 
@@ -364,16 +234,167 @@ namespace Media.Players.BassPlayer
     {
       get
       {
-        return _playerInstance.Mute;
+        return false;
       }
       set
       {
-        _playerInstance.Mute = value;
       }
     }
 
-    public Size VideoSize { get { return new Size(0, 0); } }
-    public Size VideoAspectRatio { get { return new Size(0, 0); } }
+    public string Name
+    {
+      get { return null; }
+    }
+
+    public void OnIdle()
+    {
+    }
+
+    public void OnMessage(object m)
+    {
+    }
+
+
+    public System.Drawing.Point Position
+    {
+      get
+      {
+        return new System.Drawing.Point();
+      }
+      set
+      {
+      }
+    }
+
+    public void ReallocResources()
+    {
+    }
+
+    public void ReleaseResources()
+    {
+    }
+
+    public void Render()
+    {
+    }
+
+    public void Restart()
+    {
+    }
+
+    public void ResumeSession()
+    {
+    }
+
+    public void SetAudioStream(string audioStream)
+    {
+    }
+
+    public void SetDvdChapter(string title)
+    {
+    }
+
+    public void SetDvdTitle(string title)
+    {
+    }
+
+    public void SetSubtitle(string subtitle)
+    {
+    }
+
+    public System.Drawing.Size Size
+    {
+      get
+      {
+        return new System.Drawing.Size();
+      }
+      set
+      {
+      }
+    }
+
+    public string[] Subtitles
+    {
+      get { return new string[0]; }
+    }
+
+    public TimeSpan StreamPosition
+    {
+      get { return TimeSpan.Zero; }
+    }
+
+    public System.Drawing.Size VideoAspectRatio
+    {
+      get { return new System.Drawing.Size(); }
+    }
+
+    public System.Drawing.Size VideoSize
+    {
+      get { return new System.Drawing.Size(); }
+    }
+
+    public int Volume
+    {
+      get
+      {
+        return 0;
+      }
+      set
+      {
+      }
+    }
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      Log.Debug("Disposing BassPlayer");
+
+      _OutputDeviceManager.Dispose();
+      _PlaybackBuffer.Dispose();
+      _WinAmpDSPProcessor.Dispose();
+      _VSTProcessor.Dispose();
+      _UpDownMixer.Dispose();
+      _InputSourceSwitcher.Dispose();
+      _InputSourceQueue.Dispose();
+      _InputSourceFactory.Dispose();
+      _Monitor.Dispose();
+      _Controller.Dispose();
+
+      _BassLibrary.Dispose();
+    }
+
+    #endregion
+
+    #region Private members
+
+    private BassPlayer()
+    {
+    }
+
+    private void Initialize()
+    {
+      Log.Debug("Initializing BassPlayer");
+      
+      _BassLibrary = BassLibrary.Create();
+      
+      _Settings = new Settings();
+      _InputSourceFactory = new InputSourceFactory(this);
+
+      _Controller = Controller.Create(this);
+      _Monitor = Monitor.Create(this);
+
+      _InputSourceQueue = new InputSourceQueue();
+      _InputSourceSwitcher = InputSourceSwitcher.Create(this);
+      _UpDownMixer = UpDownMixer.Create(this);
+      _VSTProcessor = VSTProcessor.Create(this);
+      _WinAmpDSPProcessor = WinAmpDSPProcessor.Create(this);
+      _PlaybackBuffer = PlaybackBuffer.Create(this);
+      _OutputDeviceManager = OutputDeviceManager.Create(this);
+    }
+
     #endregion
   }
 }

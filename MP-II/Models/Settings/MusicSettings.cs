@@ -22,70 +22,72 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
+// Todo: do we still need this with new bassplayer?
 
-using Media.Players.BassPlayer;
+//using MediaPortal.Core;
+//using MediaPortal.Core.Messaging;
+//using MediaPortal.Core.Settings;
 
-namespace Models.Settings
-{
-  public class MusicSettings 
-  {
-    BassPlayerSettings _settings;
+//using Media.Players.BassPlayer;
+
+//namespace Models.Settings
+//{
+//  public class MusicSettings 
+//  {
+//    BassPlayerSettings _settings;
     
-    public MusicSettings()
-    {
-      // Load the Settings
-      _settings = new BassPlayerSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
-    }
+//    public MusicSettings()
+//    {
+//      // Load the Settings
+//      _settings = new BassPlayerSettings();
+//      ServiceScope.Get<ISettingsManager>().Load(_settings);
+//    }
 
-    /// <summary>
-    /// Sends a Notification that the setting has changed
-    /// </summary>
-    private void NotifySettingsChanged()
-    {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData["action"] = "settingschanged";
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
-      queue.Send(msg);
-    }
+//    /// <summary>
+//    /// Sends a Notification that the setting has changed
+//    /// </summary>
+//    private void NotifySettingsChanged()
+//    {
+//      QueueMessage msg = new QueueMessage();
+//      msg.MessageData["action"] = "settingschanged";
+//      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
+//      queue.Send(msg);
+//    }
 
-    public bool IsEnabledFadeOut
-    {
-      get { return _settings.SoftStop; }
-    }
+//    public bool IsEnabledFadeOut
+//    {
+//      get { return _settings.SoftStop; }
+//    }
 
-    public void EnableFadeOut()
-    {
-      _settings.SoftStop = true;
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
-      NotifySettingsChanged();
-    }
-    public void DisableFadeOut()
-    {
-      _settings.SoftStop = false;
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
-      NotifySettingsChanged();
-    }
+//    public void EnableFadeOut()
+//    {
+//      _settings.SoftStop = true;
+//      ServiceScope.Get<ISettingsManager>().Save(_settings);
+//      NotifySettingsChanged();
+//    }
+//    public void DisableFadeOut()
+//    {
+//      _settings.SoftStop = false;
+//      ServiceScope.Get<ISettingsManager>().Save(_settings);
+//      NotifySettingsChanged();
+//    }
 
-    public bool IsGaplessPlayback
-    {
-      get { return _settings.GaplessPlayback; }
-    }
+//    public bool IsGaplessPlayback
+//    {
+//      get { return _settings.GaplessPlayback; }
+//    }
 
-    public void DisableGapless()
-    {
-      _settings.GaplessPlayback = false;
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
-      NotifySettingsChanged();
-    }
-    public void EnableGapless()
-    {
-      _settings.GaplessPlayback = true;
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
-      NotifySettingsChanged();
-    }
-  }
-}
+//    public void DisableGapless()
+//    {
+//      _settings.GaplessPlayback = false;
+//      ServiceScope.Get<ISettingsManager>().Save(_settings);
+//      NotifySettingsChanged();
+//    }
+//    public void EnableGapless()
+//    {
+//      _settings.GaplessPlayback = true;
+//      ServiceScope.Get<ISettingsManager>().Save(_settings);
+//      NotifySettingsChanged();
+//    }
+//  }
+//}
