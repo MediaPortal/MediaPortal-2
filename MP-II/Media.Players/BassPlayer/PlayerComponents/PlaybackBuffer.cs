@@ -63,9 +63,9 @@ namespace Media.Players.BassPlayer
       private AutoResetEvent _NotifyBufferUpdateThread;
       private AutoResetEvent _BufferUpdated;
       private bool _BufferUpdateThreadAbortFlag = false;
-      private int _BufferSizeMS;
+      private TimeSpan _BufferSize;
       private int _BufferUpdateIntervalMS;
-      private int _ReadOffsetMS;
+      private TimeSpan _ReadOffset;
       private int _ReadOffsetBytes;
       private float[] _ReadData = new float[1];
       private bool _Initialized;
@@ -108,9 +108,9 @@ namespace Media.Players.BassPlayer
         ResetInputStream();
 
         _InputStream = stream;
-        _Buffer = new AudioRingBuffer(stream.SamplingRate, stream.Channels, _BufferSizeMS + _ReadOffsetMS);
+        _Buffer = new AudioRingBuffer(stream.SamplingRate, stream.Channels, _BufferSize + _ReadOffset);
         
-        _ReadOffsetBytes = AudioRingBuffer.CalculateLength(stream.SamplingRate, stream.Channels, _ReadOffsetMS);
+        _ReadOffsetBytes = AudioRingBuffer.CalculateLength(stream.SamplingRate, stream.Channels, _ReadOffset);
         _Buffer.ResetPointers(_ReadOffsetBytes);
 
         BASSFlag flags =
@@ -184,10 +184,10 @@ namespace Media.Players.BassPlayer
       /// </summary>
       private void Initialize()
       {
-        _BufferSizeMS = (int)_Player.Settings.PlaybackBufferSize.TotalMilliseconds;
-        _BufferUpdateIntervalMS = _BufferSizeMS / 5;
+        _BufferSize = _Player.Settings.PlaybackBufferSize;
+        _BufferUpdateIntervalMS = (int)_BufferSize.TotalMilliseconds / 5;
 
-        _ReadOffsetMS = Constants.VizLatencyCorrectionRangeMS;
+        _ReadOffset = StaticSettings.VizLatencyCorrectionRange;
 
         _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
         _NotifyBufferUpdateThread = new AutoResetEvent(false);

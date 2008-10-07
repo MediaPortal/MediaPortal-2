@@ -49,11 +49,11 @@ namespace Media.Players.BassPlayer
       /// <summary>
       /// Returns the current delay in milliseconds (delay for the actual filled part of the buffer).
       /// </summary>
-      public int Delay
+      public TimeSpan Delay
       {
         get
         {
-          return _delay - ((_space / _bufferLength) * _delay);
+          return TimeSpan.FromMilliseconds( _delay - ((_space / _bufferLength) * _delay));
         }
       }
 
@@ -69,7 +69,7 @@ namespace Media.Players.BassPlayer
       }
       
       /// <summary>
-      /// Returns the number of buytes per milisecond.
+      /// Returns the number of bytes per milisecond.
       /// </summary>
       public int BytesPerMilliSec
       {
@@ -101,12 +101,12 @@ namespace Media.Players.BassPlayer
         }
       }
 
-      public AudioRingBuffer(int samplingRate, int channels, int delay)
+      public AudioRingBuffer(int samplingRate, int channels, TimeSpan delay)
       {
         _Is32bit = (IntPtr.Size == 4);
-        _delay = delay;
+        _delay = (int)delay.TotalMilliseconds;
         _bufferLength = AudioRingBuffer.CalculateLength(samplingRate, channels, delay);
-        _bytesPerMilliSec = AudioRingBuffer.CalculateLength(samplingRate, channels, 1);
+        _bytesPerMilliSec = AudioRingBuffer.CalculateLength(samplingRate, channels, TimeSpan.FromMilliseconds(1));
         _buffer = new float[_bufferLength];
 
         ResetPointers(0);
@@ -119,12 +119,12 @@ namespace Media.Players.BassPlayer
       /// <param name="channels"></param>
       /// <param name="delay"></param>
       /// <returns></returns>
-      public static int CalculateLength(int samplingRate, int channels, int delay)
+      public static int CalculateLength(int samplingRate, int channels, TimeSpan delay)
       {
         int sampleSize = channels;
 
         // Use the (long) cast to avoid arithmetic overflow 
-        int length = (int)((long)samplingRate * sampleSize * delay / 1000);
+        int length = (int)((long)samplingRate * sampleSize * delay.TotalMilliseconds / 1000);
 
         // round to whole samples
         length = length / sampleSize;

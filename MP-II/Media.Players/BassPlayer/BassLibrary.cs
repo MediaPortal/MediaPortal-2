@@ -96,13 +96,13 @@ namespace Media.Players.BassPlayer
         // Bass_ofr 2.4.0.0 gives BASS_ERROR_FILEOPEN error.
         
         string appPath = System.Windows.Forms.Application.StartupPath;
-        string decoderFolderPath = Path.Combine(appPath, Paths.AudioDecoderPath);
+        string decoderFolderPath = Path.Combine(appPath, StaticSettings.AudioDecoderPath);
 
         Log.Info("Loading audio decoder add-ins from {0}", decoderFolderPath);
 
         if (!Directory.Exists(decoderFolderPath))
         {
-          Log.Error("Unable to find \"{0}\" folder in MediaPortal.exe path.", Paths.AudioDecoderPath);
+          Log.Error("Unable to find \"{0}\" folder in MediaPortal.exe path.", StaticSettings.AudioDecoderPath);
           return;
         }
 

@@ -45,15 +45,9 @@ namespace Media.Players.BassPlayer
     public const string Ended = "ended";
   }
 
-  static class Paths
+  static class Constants
   {
-    public const string AudioDecoderPath = @"MusicPlayer\Plugins\Audio Decoders";
-  }
-
-  static class ASIOChannels
-  {
-    public const int ASIOFirstChanAuto = -1;
-    public const int ASIOLastChanAuto = -1;
+    public const int Auto = -1;
   }
 
   public partial class BassStream
@@ -73,7 +67,12 @@ namespace Media.Players.BassPlayer
       public const int BassDefaultDevice = -1;
       public const int BassNoSoundDevice = 0;
       public const int BassInvalidHandle = 0;
-      public const int VizLatencyCorrectionRangeMS = 500;
+    }
+    
+    static class StaticSettings
+    {
+      public static TimeSpan VizLatencyCorrectionRange = TimeSpan.FromMilliseconds(500);
+      public const string AudioDecoderPath = @"MusicPlayer\Plugins\Audio Decoders";
     }
   }
 }

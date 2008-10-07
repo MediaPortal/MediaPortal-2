@@ -36,7 +36,6 @@ namespace Media.Players.BassPlayer
     #region Fields
 
     private const string _Prefix = "BassPlayer: ";
-    private static ILogger _ExternalLogger;
 
     #endregion
 
@@ -49,20 +48,8 @@ namespace Media.Players.BassPlayer
     {
       get
       {
-        if (_ExternalLogger == null)
-          return ServiceScope.Get<ILogger>();
-        else
-          return _ExternalLogger;
+        return ServiceScope.Get<ILogger>();
       }
-    }
-
-    /// <summary>
-    /// Sets an alternate logger, for development purposes.
-    /// </summary>
-    /// <param name="logger"></param>
-    public static void SetLogger(ILogger logger)
-    {
-      _ExternalLogger = logger;
     }
 
     /// <summary>

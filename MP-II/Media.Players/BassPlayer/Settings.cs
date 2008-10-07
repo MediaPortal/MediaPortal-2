@@ -37,8 +37,8 @@ namespace Media.Players.BassPlayer
       public const string DirectSoundDevice = "";
       public static TimeSpan DirectSoundBufferSize = TimeSpan.FromMilliseconds(200);
       public const string ASIODevice = "";
-      public const int ASIOFirstChan = ASIOChannels.ASIOFirstChanAuto;
-      public const int ASIOLastChan = ASIOChannels.ASIOLastChanAuto;
+      public const int ASIOFirstChan = Constants.Auto;
+      public const int ASIOLastChan = Constants.Auto;
       public static TimeSpan PlaybackBufferSize = TimeSpan.FromMilliseconds(500);
       public static TimeSpan SeekIncrement = TimeSpan.FromSeconds(20);
       public const PlaybackMode DefaultPlaybackMode = PlaybackMode.Normal;
