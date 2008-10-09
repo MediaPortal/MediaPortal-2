@@ -47,7 +47,7 @@ namespace MediaPortal.Core.Settings
 
     public void Save<SettingsType>(SettingsType settingsObject) where SettingsType : class { }
 
-    public void RemoveAllConfigurationData(bool user, bool global) { }
+    public void RemoveAllSettingsData(bool user, bool global) { }
 
     #endregion
   }

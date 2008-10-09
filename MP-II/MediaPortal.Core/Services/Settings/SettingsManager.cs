@@ -61,7 +61,7 @@ namespace MediaPortal.Core.Services.Settings
       parser.Serialize(settingsObject);
     }
 
-    public void RemoveAllConfigurationData(bool user, bool global)
+    public void RemoveAllSettingsData(bool user, bool global)
     {
       if (user)
       {

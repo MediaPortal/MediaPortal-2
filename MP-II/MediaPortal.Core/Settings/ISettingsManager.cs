@@ -75,6 +75,6 @@ namespace MediaPortal.Core.Settings
     /// </summary>
     /// <param name="user">If set to <c>true</c>, all user data will be removed.</param>
     /// <param name="global">If set to <c>true</c>, all global data will be removed.</param>
-    void RemoveAllConfigurationData(bool user, bool global);
+    void RemoveAllSettingsData(bool user, bool global);
   }
 }
