@@ -92,8 +92,7 @@ namespace Models.Movies
       _factory = new MovieFactory();
 
       //get settings
-      _settings = new MovieSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<MovieSettings>();
 
       // get movie-views
       SetView("Movies");
@@ -418,7 +417,7 @@ namespace Models.Movies
       {
         // yes then load the folder and return its items
         _folder = (FolderItem)item;
-        ServiceScope.Get<ISettingsManager>().Load(_settings);
+        _settings = ServiceScope.Get<ISettingsManager>().Load<MovieSettings>();
         if (_folder.MediaContainer != null)
           _settings.Folder = _folder.MediaContainer.FullPath;
         else

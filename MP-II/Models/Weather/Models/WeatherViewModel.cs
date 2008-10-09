@@ -82,8 +82,7 @@ namespace Models.Weather
       _locationsCollection.Clear();
       _locations.Clear();
       // add citys from settings to the locations list
-      WeatherSettings settings = new WeatherSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
       ListItem buffItem;
       foreach (CitySetupInfo loc in settings.LocationsList)
       {
@@ -187,8 +186,7 @@ namespace Models.Weather
         RefreshData(found);
         CurrentLocation.Copy(found);
         // also save the last selected city to settings
-        WeatherSettings settings = new WeatherSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
         settings.LocationCode = found.Id;
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }

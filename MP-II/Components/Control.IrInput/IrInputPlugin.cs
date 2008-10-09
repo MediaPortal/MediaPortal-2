@@ -106,8 +106,7 @@ namespace Components.Control.IrInput
 
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>(true);
       
-      _settings = new IrInputSettings();
-      settingsManager.Load(_settings);
+      _settings = settingsManager.Load<IrInputSettings>();
 
       if (_settings.RemoteMap == null)
         _settings.RemoteMap = LoadRemoteMap("Plugins\\Control.IrInput\\DefaultRemoteMap.xml");

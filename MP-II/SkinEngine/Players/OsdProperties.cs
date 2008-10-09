@@ -78,8 +78,7 @@ namespace MediaPortal.SkinEngine.Players
       _croppingBottomRight = new Property(typeof(string), "");
       _isVideo = new Property(typeof(bool), false);
       _isAudio = new Property(typeof(bool), false);
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       if (settings.Geometry == "")
       {
         settings.Geometry = SkinContext.Geometry.Geometries[0].Name;
@@ -538,8 +537,7 @@ namespace MediaPortal.SkinEngine.Players
           SkinContext.Geometry.Index = i;
           break;
         }
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.Geometry = SkinContext.Geometry.Geometries[SkinContext.Geometry.Index].Name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
       _timer = SkinContext.Now;
@@ -558,8 +556,7 @@ namespace MediaPortal.SkinEngine.Players
       }
       SkinContext.Geometry.Index = index;
 
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.Geometry = SkinContext.Geometry.Geometries[SkinContext.Geometry.Index].Name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
@@ -622,8 +619,7 @@ namespace MediaPortal.SkinEngine.Players
         SkinContext.CropSettings.Bottom = 0;
       }
 
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.Crop = SkinContext.CropSettings;
       SkinContext.CropSettings = settings.Crop;
       ServiceScope.Get<ISettingsManager>().Save(settings);

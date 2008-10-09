@@ -276,8 +276,7 @@ namespace Components.Services.AutoPlay
 
     private void LoadSettings()
     {
-      _settings = new AutoPlaySettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<AutoPlaySettings>();
     }
 
     /// <summary>

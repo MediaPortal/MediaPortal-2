@@ -61,8 +61,7 @@ namespace MediaPortal.SkinEngine
 
     public ScreenManager()
     {
-      ScreenSettings screenSettings = new ScreenSettings();
-      ServiceScope.Get<ISettingsManager>().Load(screenSettings);
+      ScreenSettings screenSettings = ServiceScope.Get<ISettingsManager>().Load<ScreenSettings>();
       _skinManager = new SkinManager();
 
       string skinName = screenSettings.Skin;
@@ -306,8 +305,7 @@ namespace MediaPortal.SkinEngine
 
         InternalShowScreen(_currentScreen);
       }
-      ScreenSettings settings = new ScreenSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      ScreenSettings settings = ServiceScope.Get<ISettingsManager>().Load<ScreenSettings>();
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
       ServiceScope.Get<ISettingsManager>().Save(settings);

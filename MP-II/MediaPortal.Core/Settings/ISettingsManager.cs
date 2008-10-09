@@ -22,24 +22,52 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Core.Settings
 {
+  /// <summary>
+  /// Global service interface for loading and saving settings for application modules.
+  /// The settings manager provides methods to load and save module specific settings objects,
+  /// which should have a special structure.
+  /// The implementation of this interface defines where the setting object will be stored and
+  /// how it will be serialized/deserialized.
+  /// </summary>
+  /// <remarks>
+  /// Every application part, which needs a setting, will define its own settings class to
+  /// contain the settings values. Those classes will use the <see cref="SettingScope"/> meta
+  /// attribute to define if a settings entry will be stored as global or user setting.
+  /// There must be at most one instance of every settings class for holding application settings;
+  /// a settings class must not be reused for different application settings of a similar
+  /// type. The settings system will use the class name to find a settings object in the settings
+  /// store.
+  /// TODO: Document settings structure: [SettingScope] meta attribute, supported types, etc.
+  /// </remarks>
   public interface ISettingsManager
   {
     /// <summary>
-    /// Retrieves an object's public properties from a given Xml file 
+    /// Retrieves an object's public properties from the application's settings store.
+    /// This is a convenience method for <see cref="Load(Type)"/>.
     /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="settingsObject">Object's instance</param>
-    /// <param name="filename">Xml file wich contains stored datas</param>
-    void Load(object settingsObject);
+    /// <typeparam name="SettingsType">Type of the settings object to load.</typeparam>
+    /// <returns>Application settings of the specified <typeparamref name="SettingsType"/>, if
+    /// present. Else, returns an empty instance of that type.</returns>
+    SettingsType Load<SettingsType>() where SettingsType: class;
 
     /// <summary>
-    /// Stores an object's public properties to a given Xml file 
+    /// Retrieves an object's public properties from the application's settings store.
     /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="settingsObject">Object's instance</param>
-    /// <param name="filename">Xml file where we wanna store datas</param>
-    void Save(object settingsObject);
+    /// <param name="settingsType">Type of settings to load.</param>
+    /// <returns>Application settings of the specified <paramref name="settingsType"/>, if
+    /// present. Else, returns an empty instance of that type.</returns>
+    object Load(Type settingsType);
+
+    /// <summary>
+    /// Stores an object's public properties in the application's settings store.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">If the specified <paramref name="settingsObject"/>
+    /// is null.</exception>
+    /// <param name="settingsObject">Settings object's instance to be saved.</param>
+    void Save<SettingsType>(SettingsType settingsObject) where SettingsType: class;
   }
 }

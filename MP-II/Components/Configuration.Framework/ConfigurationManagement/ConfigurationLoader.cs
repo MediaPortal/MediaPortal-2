@@ -406,7 +406,7 @@ namespace MediaPortal.Configuration
             return file;
         }
         if (settingsClass != null)
-          ServiceScope.Get<ISettingsManager>().Load(settingsClass);
+          settingsClass = ServiceScope.Get<ISettingsManager>().Load(settingsClass.GetType());
         _files.Add(new SettingFile(settingsClass));
         return _files[_files.Count - 1];
       }

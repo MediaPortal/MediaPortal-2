@@ -63,8 +63,8 @@ namespace Models.Pictures
     private ItemsCollection _sortMenu;
     private ItemsCollection _viewsMenu;
     private ItemsCollection _pictures;
+    private PictureSettings _settings;
     private readonly PictureFactory _factory;
-    private readonly PictureSettings _settings;
 
     private FolderItem _folder;
     private readonly List<IAbstractMediaItem> _pictureViews;
@@ -98,11 +98,10 @@ namespace Models.Pictures
       _pictureViews = mediaManager.GetView("/Pictures");
       _currentMap = _pictureViews[0].Mapping;
 
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<PictureSettings>();
 
       //get settings
-      _settings = new PictureSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<PictureSettings>();
       if (_settings.Folder == "")
       {
         SelectView(Views[0]);
@@ -291,7 +290,7 @@ namespace Models.Pictures
       {
         // yes then load the folder and return its items
         _folder = (FolderItem)item;
-        ServiceScope.Get<ISettingsManager>().Load(_settings);
+        _settings = ServiceScope.Get<ISettingsManager>().Load<PictureSettings>();
         if (_folder.MediaContainer != null)
           _settings.Folder = _folder.MediaContainer.FullPath;
         else

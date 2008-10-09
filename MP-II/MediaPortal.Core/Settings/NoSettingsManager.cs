@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Core.Settings
 {
   /// <summary>
@@ -33,17 +35,17 @@ namespace MediaPortal.Core.Settings
   {
     #region ISettingsManager Members
 
-    /// <summary>
-    /// Retrieves an object's public properties from a given Xml file 
-    /// </summary>
-    /// <param name="settingsObject">Object's instance</param>
-    public void Load(object settingsObject) {}
+    public SettingsType Load<SettingsType>() where SettingsType : class
+    {
+      return (SettingsType) Load(typeof(SettingsType));
+    }
 
-    /// <summary>
-    /// Stores an object's public properties to a given Xml file 
-    /// </summary>
-    /// <param name="settingsObject">Object's instance</param>
-    public void Save(object settingsObject) {}
+    public object Load(Type settingsType)
+    {
+      return Activator.CreateInstance(settingsType);
+    }
+
+    public void Save<SettingsType>(SettingsType settingsObject) where SettingsType : class { }
 
     #endregion
   }

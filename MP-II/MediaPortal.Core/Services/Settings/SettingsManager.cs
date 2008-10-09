@@ -38,32 +38,26 @@ namespace MediaPortal.Core.Services.Settings
 
     #region Public Methods
 
-    /// <summary>
-    /// Retrieves an object's public properties from an Xml file 
-	  /// </summary>
-	  /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="settingsObject">Object's instance</param>
-    public void Load(object settingsObject)
+    public SettingsType Load<SettingsType>() where SettingsType : class
     {
-      if (settingsObject == null)
-        throw new ArgumentNullException();
-      string fileName = GetFilename(settingsObject);
-      SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
-      parser.Deserialize();
+      return (SettingsType) Load(typeof(SettingsType));
     }
 
-    /// <summary>
-    /// Stores an object's public properties to an Xml file 
-	  /// </summary>
-	  /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="settingsObject">Object's instance</param>
-    public void Save(object settingsObject)
+    public object Load(Type settingsType)
+    {
+      // TODO: Caching of settings objects
+      SettingParser parser = new SettingParser(GetGlobalFilePath(settingsType), GetUserFilePath(settingsType));
+      return parser.Deserialize(settingsType);
+    }
+
+    public void Save<SettingsType>(SettingsType settingsObject) where SettingsType: class
     {
       if (settingsObject == null)
-        throw new ArgumentNullException();
-      string fileName = GetFilename(settingsObject);
-      SettingParser parser = new SettingParser(settingsObject, GetGlobalFilename(fileName), GetUserFilename(fileName));
-      parser.Serialize();
+        throw new ArgumentNullException("settingsObject");
+      SettingParser parser = new SettingParser(
+          GetGlobalFilePath(settingsObject.GetType()),
+          GetUserFilePath(settingsObject.GetType()));
+      parser.Serialize(settingsObject);
     }
 
     #endregion
@@ -71,47 +65,28 @@ namespace MediaPortal.Core.Services.Settings
     #region Private Methods
 
     /// <summary>
-    /// Returns a filename based on an setting class name
-    /// additionnaly appends an extension to the filename
-    /// if the settings class implements INamesSettings interface
-    /// see doc for more infos on INamedSettings
+    /// Returns the full file path for a user setting object of the specified
+    /// <paramref name="settingType"/>.
     /// </summary>
-    /// <param name="obj">settings instance to name</param>
-    /// <returns></returns>
-    private string GetFilename(object obj)
+    /// <param name="settingType">Type of the settings class to map to a filename.</param>
+    /// <returns>File name without path of a file which will store the setting instance of the
+    /// specified <paramref name="settingType"/>.</returns>
+    private static string GetUserFilePath(Type settingType)
     {
-      string fileName;
-      INamedSettings namedSettings = obj as INamedSettings;
-      if (namedSettings != null)
-      {
-        fileName = obj + "." + namedSettings.Name + ".xml";
-      }
-      else
-      {
-        fileName = obj + ".xml";
-      }
-      return fileName;
-    }
-
-    /// <summary>
-    /// Returns full filename including config path and user subdir.
-    /// </summary>
-    /// <param name="fileName">Filename, can be retrieved with GetFileName(object).</param>
-    /// <returns></returns>
-    private string GetUserFilename(string filename)
-    {
-      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, filename);
+      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingType.FullName + ".xml");
       return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
     }
 
     /// <summary>
-    /// Returns full filename including config path.
+    /// Returns the full file path for a global setting object of the specified
+    /// <paramref name="settingType"/>.
     /// </summary>
-    /// <param name="fileName">Filename, can be retrieved with GetFileName(object).</param>
-    /// <returns></returns>
-    private string GetGlobalFilename(string filename)
+    /// <param name="settingType">Type of the settings class to map to a filename.</param>
+    /// <returns>File name without path of a file which will store the setting instance of the
+    /// specified <paramref name="settingType"/>.</returns>
+    private static string GetGlobalFilePath(Type settingType)
     {
-      string fullFileName = String.Format(@"<CONFIG>\{0}", filename);
+      string fullFileName = String.Format(@"<CONFIG>\{0}", settingType.FullName + ".xml");
       return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
     }
 

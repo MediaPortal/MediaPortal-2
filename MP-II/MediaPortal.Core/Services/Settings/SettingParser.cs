@@ -70,22 +70,8 @@ namespace MediaPortal.Core.Services.Settings
 
     #endregion
 
-    #region Constants
-
-    /// <summary>
-    /// Message to log on error.
-    /// Format the string as String.Format(ERRORMESSAGE, strPropertyName, strObjectType);
-    /// </summary>
-    private const string ERRORMESSAGE = "Error deserializing settings for property {0} object {1}";
-
-    #endregion
-
     #region Variables
 
-    /// <summary>
-    /// The object to parse.
-    /// </summary>
-    private object _obj;
     /// <summary>
     /// Location of the global xml file.
     /// </summary>
@@ -105,27 +91,15 @@ namespace MediaPortal.Core.Services.Settings
 
     #endregion
 
-    #region Properties
-
-    public Object Object
-    {
-      get { return _obj; }
-      set { _obj = value; }
-    }
-
-    #endregion
-
     #region Constructors
 
     /// <summary>
     /// Initializes a new instance of ObjectParser.
     /// </summary>
-    /// <param name="obj">The object to parse.</param>
     /// <param name="pathGlobalXml">Path to the xml file containing all global settings.</param>
     /// <param name="pathUserXml">Path to the xml file containing all user settings.</param>
-    public SettingParser(object obj, string pathGlobalXml, string pathUserXml)
+    public SettingParser(string pathGlobalXml, string pathUserXml)
     {
-      _obj = obj;
       _pathGlobalXml = pathGlobalXml;
       _pathUserXml = pathUserXml;
       // _userXml and _globalXml are set by Serialize() and Deserialize()
@@ -136,9 +110,10 @@ namespace MediaPortal.Core.Services.Settings
     #region Public Methods
 
     /// <summary>
-    /// Serializes the public properties marked with SettingAttribute of the given object.
+    /// Serializes the public properties marked with <see cref="SettingAttribute"/> of the given
+    /// <paramref name="settingsObject"/>.
     /// </summary>
-    public void Serialize()
+    public void Serialize(object settingsObject)
     {
       ILogger log = ServiceScope.Get<ILogger>();
       // Make sure the xml is updated
@@ -148,7 +123,7 @@ namespace MediaPortal.Core.Services.Settings
       Dictionary<string, string> globalSettingsList = new Dictionary<string, string>();
       Dictionary<string, string> userSettingsList = new Dictionary<string, string>();
       // Enumerate through the properties, get their value, and assign them to the correct dictionary
-      foreach (PropertyInfo property in _obj.GetType().GetProperties())
+      foreach (PropertyInfo property in settingsObject.GetType().GetProperties())
       {
         SettingAttribute att = GetSettingAttribute(property);   // Get the attribute so we know the SettingScope and the default value
         if (att == null) continue;
@@ -156,7 +131,7 @@ namespace MediaPortal.Core.Services.Settings
         switch (GetObjectType(property.PropertyType)) // Get the type-category of the current property
         {
           case ObjectType.CLR:
-            value = GetPropertyValueAsString(_obj, att.SettingScope, property, att.DefaultValue);
+            value = GetPropertyValueAsString(settingsObject, att.SettingScope, property, att.DefaultValue);
             break;
           default:              // Try to serialize
             try
@@ -166,7 +141,7 @@ namespace MediaPortal.Core.Services.Settings
               using (TextWriter strWriter = new StringWriter(sb))
               {
                 using (XmlWriter writer = new XmlNoNamespaceWriter(strWriter))
-                  xmlSerial.Serialize(writer, property.GetValue(_obj, null));
+                  xmlSerial.Serialize(writer, property.GetValue(settingsObject, null));
               }
               // Remove <?xml version="1.0" encoding="utf-8"?>
               int index = sb.ToString().IndexOf("?>");
@@ -188,32 +163,33 @@ namespace MediaPortal.Core.Services.Settings
       }
       // Write the data, don't create empty files
       if (globalSettingsList.Count != 0)
-        SaveSettings(_obj, globalSettingsList, new XmlFileHandler(_pathGlobalXml));
+        SaveSettings(settingsObject, globalSettingsList, new XmlFileHandler(_pathGlobalXml));
       if (userSettingsList.Count != 0)
-        SaveSettings(_obj, userSettingsList, new XmlFileHandler(_pathUserXml));
+        SaveSettings(settingsObject, userSettingsList, new XmlFileHandler(_pathUserXml));
     }
 
     /// <summary>
-    /// Deserializes public properties of a Settings object from a given xml file.
+    /// Deserializes public properties of the settings object specified by its <paramref name="settingsType"/>
+    /// from either the global or the user setting file, if present.
     /// During deserialization the xml file will be created if it doesn't exist already,
-    /// and will also be updated with possible new settings.
+    /// and will also possibly be updated with new settings.
     /// </summary>
-    public void Deserialize()
+    public object Deserialize(Type settingsType)
     {
+      object result = Activator.CreateInstance(settingsType);
       ILogger log = ServiceScope.Get<ILogger>();
-      INamedSettings namedSettings = _obj as INamedSettings; // Needed for detailed logs
       // Make sure the xml is updated
       _userXml = ReadFileToString(_pathUserXml);
       _globalXml = ReadFileToString(_pathGlobalXml);
       XmlFileHandler xmlGlobalReader = new XmlFileHandler(_pathGlobalXml);
       XmlFileHandler xmlUserReader = new XmlFileHandler(_pathUserXml);
-      foreach (PropertyInfo property in _obj.GetType().GetProperties())
+      foreach (PropertyInfo property in result.GetType().GetProperties())
       {
         SettingAttribute att = GetSettingAttribute(property);
         if (att == null) continue;
         XmlFileHandler reader = (att.SettingScope == SettingScope.Global ? xmlGlobalReader : xmlUserReader);
         object value;
-        string strValue = reader.GetValue(_obj.ToString(), property.Name);  // holds the properties-value
+        string strValue = reader.GetValue(result.ToString(), property.Name);  // holds the properties-value
         switch (GetObjectType(property.PropertyType))
         {
           case ObjectType.CLR:
@@ -229,30 +205,31 @@ namespace MediaPortal.Core.Services.Settings
                 if (value == null || conv.CanConvertFrom(value.GetType()))
                   value = conv.ConvertFrom(value);
               }
-              property.SetValue(_obj, value, null);
+              property.SetValue(result, value, null);
             }
             catch (Exception ex)
             {
-              log.Error(ERRORMESSAGE, ex, property.Name, namedSettings == null ? "?" : namedSettings.Name);
+              log.Error("Error deserializing settings for property '{0}', settings type '{1}'", ex, property.Name, settingsType.FullName);
             }
             break;
           default:
             XmlSerializer xmlSerial = new XmlSerializer(property.PropertyType);
-            if (strValue != null && strValue != "")
+            if (!string.IsNullOrEmpty(strValue))
             {
               TextReader strReader = new StringReader(strValue);
               try
               {
-                property.SetValue(_obj, xmlSerial.Deserialize(strReader), null);
+                property.SetValue(result, xmlSerial.Deserialize(strReader), null);
               }
               catch (Exception ex)
               {
-                log.Error(ERRORMESSAGE, ex, property.Name, namedSettings == null ? "?" : namedSettings.Name);
+                log.Error("Error deserializing settings for property '{0}', settings type '{1}'", ex, property.Name, settingsType.FullName);
               }
             }
             break;
         }
       }
+      return result;
     }
 
     #endregion

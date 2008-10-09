@@ -56,9 +56,7 @@ namespace Models.Media
     public Model()
     {
       //load our settings
-      _settings = new MediaSettings();
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      settingsManager.Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<MediaSettings>();
       _items = new ItemsCollection();
       //if (_settings.Folder != null)
         //{
@@ -69,7 +67,7 @@ namespace Models.Media
 
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate(IMPORTERSQUEUE_NAME);
-      queue.OnMessageReceive += new MessageReceivedHandler(OnImporterMessageReceived);
+      queue.OnMessageReceive += OnImporterMessageReceived;
     }
 
     void OnImporterMessageReceived(QueueMessage message)

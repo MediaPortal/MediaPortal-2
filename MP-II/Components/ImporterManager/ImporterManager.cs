@@ -153,8 +153,7 @@ namespace Components.Services.ImporterManager
     {
       // Load the shares from our settings...
       ServiceScope.Get<ILogger>().Info("ImporterManager: Loading settings");
-      _settings = new ImporterManagerSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<ImporterManagerSettings>();
       foreach (Share share in _settings.Shares)
       {
         WatchedFolder newWatch = new WatchedFolder(share.Folder);

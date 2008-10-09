@@ -118,7 +118,6 @@
     <Compile Include="Services\Settings\SettingsManager.cs" />
     <Compile Include="Services\Settings\xml\XmlFileHandler.cs" />
     <Compile Include="Services\Settings\xml\XmlNoNamespaceWriter.cs" />
-    <Compile Include="Settings\INamedSettings.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\NoSettingsManager.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />

@@ -584,8 +584,7 @@ namespace MediaPortal.SkinEngine.Players
     /// </summary>
     protected virtual void AddPreferredCodecs()
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string ext = _fileName.AbsoluteUri.ToLower();
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
       {

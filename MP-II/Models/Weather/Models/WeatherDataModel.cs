@@ -76,8 +76,7 @@ namespace Models.Weather
       // look in the settings what locations are configured
       // and create a new list full of data by downloading and setting
       // it...
-      WeatherSettings settings = new WeatherSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
       // check if loading went well, if not return null
       if (settings.LocationsList == null)
       {

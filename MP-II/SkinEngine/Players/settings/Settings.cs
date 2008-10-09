@@ -59,8 +59,7 @@ namespace MediaPortal.SkinEngine.Players
       _propertyIs71 = new Property(typeof(bool), false);
 
 
-      _audioSettings = new AudioSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_audioSettings);
+      _audioSettings = ServiceScope.Get<ISettingsManager>().Load<AudioSettings>();
       switch (_audioSettings.ConnectionType)
       {
         case SpeakerConnectionType.Analog:
@@ -132,8 +131,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         if (_defaultAudioLanguages.Count == 0)
         {
           CultureInfo[] culturesInfos = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
@@ -156,8 +154,7 @@ namespace MediaPortal.SkinEngine.Players
     }
     public void SetDefaultAudioLanguage(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string name = item.Label("Name", "").Evaluate();
       settings.AudioLanguage = name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
@@ -169,8 +166,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         if (_defaultSubtitleLanguages.Count == 0)
         {
           CultureInfo[] culturesInfos = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
@@ -193,8 +189,7 @@ namespace MediaPortal.SkinEngine.Players
     }
     public void SetDefaultSubtitleLanguage(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string name = item.Label("Name", "").Evaluate();
       settings.SubtitleLanguage = name;
       ServiceScope.Get<ISettingsManager>().Save(settings);
@@ -206,8 +201,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _mpeg2Codecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -223,8 +217,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _h264Codecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -240,8 +233,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _divxCodecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -257,8 +249,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       get
       {
-        VideoSettings settings = new VideoSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _audioCodecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -272,29 +263,25 @@ namespace MediaPortal.SkinEngine.Players
     }
     public void SetMpeg2Codec(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.Mpeg2Codec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetH264Codec(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.H264Codec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetDivXCodec(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.DivXCodec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
     public void SetAudioCodec(ListItem item)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       settings.AudioCodec = item.Label("Name", "").Evaluate();
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }

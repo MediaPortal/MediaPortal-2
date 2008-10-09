@@ -96,8 +96,7 @@ namespace Models.Weather
     /// </summary>
     private void GetLocationsFromSettings()
     {
-      WeatherSettings settings = new WeatherSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
       Locations = settings.LocationsList;
     }
 
@@ -117,9 +116,7 @@ namespace Models.Weather
     public void SaveSettings()
     {
       //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
-      WeatherSettings settings = new WeatherSettings();
-      // Load Settings
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
       // apply new locations list
       settings.LocationsList = Locations;
       // save

@@ -52,8 +52,8 @@ namespace Models.Music
     private ItemsCollection _mainMenu;
     private ItemsCollection _viewsMenu;
     private ItemsCollection _songs;
+    private MusicSettings _settings;
     private readonly MusicFactory _factory;
-    private readonly MusicSettings _settings;
     private FolderItem _folder;
     private readonly List<IAbstractMediaItem> _musicViews;
     private ListItem _selectedItem;
@@ -85,7 +85,7 @@ namespace Models.Music
       _currentMap = _musicViews[0].Mapping;
 
       //get settings
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load<MusicSettings>();
       if (_settings.Folder == "")
       {
         SelectView(Views[0]);
@@ -261,7 +261,7 @@ namespace Models.Music
       {
         // yes then load the folder and return its items
         _folder = (FolderItem)item;
-        ServiceScope.Get<ISettingsManager>().Load(_settings);
+        _settings = ServiceScope.Get<ISettingsManager>().Load<MusicSettings>();
         if (_folder.MediaContainer != null)
           _settings.Folder = _folder.MediaContainer.FullPath;
         else

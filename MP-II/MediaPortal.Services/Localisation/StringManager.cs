@@ -50,8 +50,7 @@ namespace MediaPortal.Services.Localisation
     public StringManager()
     {
       ServiceScope.Get<ILogger>().Debug("StringsManager: Loading Settings");
-      RegionSettings settings = new RegionSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      RegionSettings settings = ServiceScope.Get<ISettingsManager>().Load<RegionSettings>();
 
       if (settings.Culture == string.Empty)
       {
@@ -122,8 +121,7 @@ namespace MediaPortal.Services.Localisation
     public void ChangeLanguage(string cultureName)
     {
       _strings.ChangeLanguage(cultureName);
-      RegionSettings settings = new RegionSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      RegionSettings settings = ServiceScope.Get<ISettingsManager>().Load<RegionSettings>();
       settings.Culture = cultureName;
       ServiceScope.Get<ISettingsManager>().Save(settings);
 

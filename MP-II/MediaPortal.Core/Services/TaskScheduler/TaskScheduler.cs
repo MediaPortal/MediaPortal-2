@@ -67,8 +67,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public TaskScheduler()
     {
       _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("taskscheduler");
-      _settings = new TaskSchedulerSettings();
-      ServiceScope.Get<ISettingsManager>().Load(_settings);
+      _settings = ServiceScope.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
       SaveChanges(false);
 
       DoStartup();

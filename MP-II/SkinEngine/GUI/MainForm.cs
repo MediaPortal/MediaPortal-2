@@ -73,8 +73,7 @@ namespace MediaPortal.SkinEngine.GUI
       CheckForIllegalCrossThreadCalls = false;
 
       SkinContext.Form = this;
-      AppSettings appSettings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(appSettings);
+      AppSettings appSettings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
       ClientSize = new Size(SkinContext.SkinWidth, SkinContext.SkinHeight);
@@ -397,8 +396,7 @@ namespace MediaPortal.SkinEngine.GUI
       bool oldFullscreen = IsFullScreen;
       bool newFullscreen = (mode == ScreenMode.ExclusiveMode) || (mode == ScreenMode.FullScreenWindowed);
       string displaySetting;
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       // Get the display setting
       switch (fps)
@@ -488,15 +486,13 @@ namespace MediaPortal.SkinEngine.GUI
     {
       get
       {
-        AppSettings settings = new AppSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
         return settings.RefreshRateControl;
       }
       set
       {
-        AppSettings settings = new AppSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
         settings.RefreshRateControl = value;
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }
@@ -520,8 +516,7 @@ namespace MediaPortal.SkinEngine.GUI
 
     public void SetDisplayMode(FPS fps, string displaymode)
     {
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       switch (fps)
       {
@@ -543,8 +538,7 @@ namespace MediaPortal.SkinEngine.GUI
 
     public string GetDisplayMode(FPS fps)
     {
-      AppSettings settings = new AppSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       switch (fps)
       {

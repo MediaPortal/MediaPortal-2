@@ -107,9 +107,8 @@ namespace MediaPortal.Core.Services.PluginManager
       ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
       _state = PluginManagerState.Starting;
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
-      PluginManagerSettings settings = new PluginManagerSettings();
+      PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
       ICollection<string> disabledPlugins = settings.UserDisabledPlugins;
-      ServiceScope.Get<ISettingsManager>().Load(settings);
       ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
       foreach (PluginRuntime plugin in _availablePlugins.Values)
       {
@@ -143,8 +142,7 @@ namespace MediaPortal.Core.Services.PluginManager
       bool result = activate ? TryActivate(pr) : TryEnable(pr, true);
       if (result)
       {
-        PluginManagerSettings settings = new PluginManagerSettings();
-        ServiceScope.Get<ISettingsManager>().Load(settings);
+        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
         settings.RemoveUserDisabledPlugin(plugin.Name);
         ServiceScope.Get<ISettingsManager>().Save(settings);
       }
@@ -153,8 +151,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public bool TryStopPlugin(IPluginMetadata plugin)
     {
-      PluginManagerSettings settings = new PluginManagerSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
       settings.AddUserDisabledPlugin(plugin.Name);
       ServiceScope.Get<ISettingsManager>().Save(settings);
 

@@ -170,17 +170,16 @@ namespace MediaPortal.SkinEngine.Players
     /// </summary>
     protected override void AddPreferredCodecs()
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
 
-      if (settings.Mpeg2Codec != null && settings.Mpeg2Codec.Length > 0)
+      if (!string.IsNullOrEmpty(settings.Mpeg2Codec))
       {
         _videoCodec =
           FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
                                            settings.Mpeg2Codec);
       }
 
-      if (settings.AudioCodec != null && settings.AudioCodec.Length > 0)
+      if (!string.IsNullOrEmpty(settings.AudioCodec))
       {
         _audioCodec =
           FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -1141,9 +1140,7 @@ namespace MediaPortal.SkinEngine.Players
     /// <param name="subtitle">subtitle</param>
     public override void SetSubtitle(string subtitle)
     {
-
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string[] subtitles = Subtitles;
       for (int i = 0; i < subtitles.Length; ++i)
       {
@@ -1204,8 +1201,7 @@ namespace MediaPortal.SkinEngine.Players
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string[] audioStreams = AudioStreams;
       for (int i = 0; i < audioStreams.Length; ++i)
       {
@@ -1502,8 +1498,7 @@ namespace MediaPortal.SkinEngine.Players
     /// </summary>
     private void SetDefaultLanguages()
     {
-      VideoSettings settings = new VideoSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       ServiceScope.Get<ILogger>().Info("SetDefaultLanguages");
       int lCID;
       if (settings.AudioLanguage != null && settings.AudioLanguage != "")

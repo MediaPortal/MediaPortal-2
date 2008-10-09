@@ -187,8 +187,7 @@ namespace Models.Weather.Grabbers
     /// </summary>
     private void LoadSettings()
     {
-      WeatherSettings settings = new WeatherSettings();
-      ServiceScope.Get<ISettingsManager>().Load(settings);
+      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
       _temperatureFarenheit = settings.TemperatureFahrenheit;
       _windSpeed = settings.WindSpeed;
       _skipConnectionTest = settings.SkipConnectionTest;
