@@ -69,5 +69,12 @@ namespace MediaPortal.Core.Settings
     /// is null.</exception>
     /// <param name="settingsObject">Settings object's instance to be saved.</param>
     void Save<SettingsType>(SettingsType settingsObject) where SettingsType: class;
+
+    /// <summary>
+    /// Removes all application configuration data from the system.
+    /// </summary>
+    /// <param name="user">If set to <c>true</c>, all user data will be removed.</param>
+    /// <param name="global">If set to <c>true</c>, all global data will be removed.</param>
+    void RemoveAllConfigurationData(bool user, bool global);
   }
 }

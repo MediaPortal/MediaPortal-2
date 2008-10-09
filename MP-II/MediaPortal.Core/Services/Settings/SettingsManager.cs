@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
@@ -60,6 +61,22 @@ namespace MediaPortal.Core.Services.Settings
       parser.Serialize(settingsObject);
     }
 
+    public void RemoveAllConfigurationData(bool user, bool global)
+    {
+      if (user)
+      {
+        string userPath = ServiceScope.Get<IPathManager>().GetPath(string.Format(@"<CONFIG>\{0}", Environment.UserName));
+        DirectoryInfo userConfigDirectory = new DirectoryInfo(userPath);
+        userConfigDirectory.Delete(true);
+      }
+      if (global)
+      {
+        string globalPath = ServiceScope.Get<IPathManager>().GetPath("<CONFIG>");
+        DirectoryInfo globalConfigDirectory = new DirectoryInfo(globalPath);
+        globalConfigDirectory.Delete(true);
+      }
+    }
+
     #endregion
 
     #region Private Methods
@@ -71,7 +88,7 @@ namespace MediaPortal.Core.Services.Settings
     /// <param name="settingType">Type of the settings class to map to a filename.</param>
     /// <returns>File name without path of a file which will store the setting instance of the
     /// specified <paramref name="settingType"/>.</returns>
-    private static string GetUserFilePath(Type settingType)
+    protected static string GetUserFilePath(Type settingType)
     {
       string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingType.FullName + ".xml");
       return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
@@ -84,7 +101,7 @@ namespace MediaPortal.Core.Services.Settings
     /// <param name="settingType">Type of the settings class to map to a filename.</param>
     /// <returns>File name without path of a file which will store the setting instance of the
     /// specified <paramref name="settingType"/>.</returns>
-    private static string GetGlobalFilePath(Type settingType)
+    protected static string GetGlobalFilePath(Type settingType)
     {
       string fullFileName = String.Format(@"<CONFIG>\{0}", settingType.FullName + ".xml");
       return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
