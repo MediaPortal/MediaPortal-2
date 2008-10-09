@@ -348,7 +348,8 @@ namespace MediaPortal.Core.PluginManager
     internal PluginItemRegistration RegisterItem(PluginItemMetadata itemMetadata)
     {
       IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
-      PluginItemRegistration result = new PluginItemRegistration(itemMetadata, this);
+      itemMetadata.PluginRuntime = this;
+      PluginItemRegistration result = new PluginItemRegistration(itemMetadata);
       node.AddItem(itemMetadata.Id, result);
       return result;
     }

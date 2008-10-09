@@ -35,7 +35,6 @@ namespace MediaPortal.Core.PluginManager
     #region Protected fields
 
     protected PluginItemMetadata _pluginItemMetadata;
-    protected PluginRuntime _pluginRuntime;
 
     protected object _itemInstance = null;
     protected ICollection<IPluginItemStateTracker> _stateTrackers = new List<IPluginItemStateTracker>();
@@ -52,10 +51,9 @@ namespace MediaPortal.Core.PluginManager
     /// structure for.</param>
     /// <param name="pluginRuntime">The runtime instance of the plugin the registered item
     /// belongs to.</param>
-    internal PluginItemRegistration(PluginItemMetadata metaData, PluginRuntime pluginRuntime)
+    internal PluginItemRegistration(PluginItemMetadata metaData)
     {
       _pluginItemMetadata = metaData;
-      _pluginRuntime = pluginRuntime;
     }
 
     #endregion
@@ -83,14 +81,6 @@ namespace MediaPortal.Core.PluginManager
     {
       get { return _itemInstance; }
       internal set { _itemInstance = value; }
-    }
-
-    /// <summary>
-    /// Gets the runtime class of the plugin which registered this item.
-    /// </summary>
-    public PluginRuntime PluginRuntime
-    {
-      get { return _pluginRuntime; }
     }
 
     /// <summary>

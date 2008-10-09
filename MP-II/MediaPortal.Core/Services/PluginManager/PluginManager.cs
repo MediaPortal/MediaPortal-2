@@ -280,7 +280,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     internal T RequestItem<T>(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker) where T : class
     {
-      PluginRuntime pluginRuntime = itemRegistration.PluginRuntime;
+      PluginRuntime pluginRuntime = itemRegistration.Metadata.PluginRuntime;
       if (pluginRuntime.State != PluginState.Enabled && pluginRuntime.State != PluginState.Active)
         throw new PluginInvalidStateException("Plugin '{0}' neither is enabled nor active, although it has registered items. Something is wrong.", itemRegistration.Metadata.Id);
       // TODO: As of the specification (see PluginState.EndRequest), we have to make the current
@@ -290,7 +290,7 @@ namespace MediaPortal.Core.Services.PluginManager
       if (!itemRegistration.StateTrackers.Contains(stateTracker))
         itemRegistration.StateTrackers.Add(stateTracker);
       if (itemRegistration.Item == null)
-        itemRegistration.Item = BuildItem(itemRegistration.Metadata, itemRegistration.PluginRuntime);
+        itemRegistration.Item = BuildItem(itemRegistration.Metadata, pluginRuntime);
       if (itemRegistration.Item is T)
         return (T) itemRegistration.Item;
       // Requested item isn't of type T - revoke usage again

@@ -44,6 +44,7 @@ namespace MediaPortal.Core.PluginManager
     protected string _builderName;
     protected string _id;
     protected IDictionary<string, string> _attributes;
+    protected PluginRuntime _pluginRuntime;
 
     #endregion
 
@@ -90,6 +91,15 @@ namespace MediaPortal.Core.PluginManager
     public IDictionary<string, string> Attributes
     {
       get { return _attributes; }
+    }
+
+    /// <summary>
+    /// Gets the runtime class of the plugin which registered this item.
+    /// </summary>
+    public PluginRuntime PluginRuntime
+    {
+      get { return _pluginRuntime; }
+      set { _pluginRuntime = value; }
     }
 
     #region Base overrides
