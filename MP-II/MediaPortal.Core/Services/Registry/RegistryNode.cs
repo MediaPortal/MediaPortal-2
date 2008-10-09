@@ -49,6 +49,8 @@ namespace MediaPortal.Core.Services.Registry
 
     #endregion
 
+    #region Protected methods
+
     protected void CheckSubNodeCollectionPresent()
     {
       if (_subNodes == null)
@@ -60,6 +62,8 @@ namespace MediaPortal.Core.Services.Registry
       if (_items == null)
         _items = new Dictionary<string, object>();
     }
+
+    #endregion
 
     #region IRegistryNode implementation
 

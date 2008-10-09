@@ -90,7 +90,7 @@ namespace MediaPortal.Core.Services.Registry
 
     public IList<string> GetStatus()
     {
-      List<string> result = new List<string>();
+      IList<string> result = new List<string>();
       result.Add("=== Registry");
       foreach (string line in _rootNode.GetStatus())
         result.Add("  " + line);
