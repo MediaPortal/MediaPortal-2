@@ -142,13 +142,14 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Returns a single plugin item registered at the given <paramref name="location"/> with the
-    /// given <paramref name="id"/>.
+    /// given <paramref name="id"/> and the specified type <typeparamref name="T"/> or a subtype.
     /// </summary>
     /// <typeparam name="T">Type of the requested item.</typeparam>
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
-    /// <returns>The plugin item instance, or <c>null</c>, if the item was not registered.</returns>
+    /// <returns>The plugin item instance, or <c>null</c>, if an item with the specified
+    /// criteria was not registered.</returns>
     /// <remarks>
     /// This method will build the item if it was not built yet. If the usage of the item needs
     /// the plugin to be activated, the plugin activation will be triggered automatically by this method.
@@ -157,9 +158,9 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Returns all plugin items registered at the given location, which have the specified type
-    /// <see cref="T"/>.
+    /// <see cref="T"/> or a subtype.
     /// </summary>
-    /// <typeparam name="T">Type of the requested items.</typeparam>
+    /// <typeparam name="T">Class of the requested items.</typeparam>
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
