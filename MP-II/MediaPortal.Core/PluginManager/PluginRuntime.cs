@@ -292,6 +292,20 @@ namespace MediaPortal.Core.PluginManager
     }
 
     /// <summary>
+    /// Returns a collection of available child locations of the given <paramref name="location"/>.
+    /// </summary>
+    /// <param name="location">Location for that the child locations should be returned.</param>
+    /// <returns>Collection of child locations of the given parent <paramref name="location"/>.</returns>
+    internal static ICollection<string> GetAvailableChildLocations(string location)
+    {
+      IRegistryNode node = GetRegistryNode(location, false);
+      ICollection<string> result = new List<string>();
+      foreach (string childName in node.SubNodes.Keys)
+        result.Add(RegistryHelper.ConcatenatePaths(location, childName));
+      return result;
+    }
+
+    /// <summary>
     /// Adds the specified item registration change <paramref name="listener"/> which will be notified
     /// when items are registered at the specified <paramref name="location"/>.
     /// </summary>

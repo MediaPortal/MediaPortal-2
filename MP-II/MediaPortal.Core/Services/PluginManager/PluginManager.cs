@@ -217,6 +217,11 @@ namespace MediaPortal.Core.Services.PluginManager
       return result;
     }
 
+    public ICollection<string> GetAvailableChildLocations(string location)
+    {
+      return PluginRuntime.GetAvailableChildLocations(location);
+    }
+
     /// <summary>
     /// Returns the item registered at the specified <paramref name="location"/> with the specified
     /// <paramref name="id"/> and the specified type.

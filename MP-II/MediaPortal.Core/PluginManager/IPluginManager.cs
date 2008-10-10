@@ -107,7 +107,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to check.</param>
     /// <returns>Collection of plugin metadata structures of the conflicting plugins.</returns>
-    /// <exception cref="PluginMissingDependencyException">If the specified plugin depends from
+    /// <exception cref="PluginMissingDependencyException">If the specified plugin depends on
     /// a missing plugin.</exception>
     ICollection<IPluginMetadata> FindConflicts(IPluginMetadata plugin);
 
@@ -139,6 +139,13 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
     /// <returns>Collection of item metadata structures at the specified registration location.</returns>
     ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location);
+
+    /// <summary>
+    /// Returns a collection of available child locations of the given <paramref name="location"/>.
+    /// </summary>
+    /// <param name="location">Location for that the child locations should be returned.</param>
+    /// <returns>Collection of child locations of the given parent <paramref name="location"/>.</returns>
+    ICollection<string> GetAvailableChildLocations(string location);
 
     /// <summary>
     /// Returns a single plugin item registered at the given <paramref name="location"/> with the
