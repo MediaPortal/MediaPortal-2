@@ -90,7 +90,7 @@ namespace MediaPortal.Services.Localisation
 
         foreach (PluginResource resource in languageResources)
         {
-          if (File.Exists(resource.Path))
+          if (Directory.Exists(resource.Path))
             AddDirectory(resource.Path);
           else
             ServiceScope.Get<ILogger>().Error("StringManager: Language directory doesn't exist: {0}", resource.Path);
