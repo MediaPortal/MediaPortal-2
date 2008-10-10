@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
@@ -858,9 +859,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         l.Add("ElementName="+ElementName);
       if (!string.IsNullOrEmpty(Path))
         l.Add("Path="+Path);
-      string[] sl = new string[l.Count];
-      l.CopyTo(sl, 0);
-      return "{"+BindingTypeName + " " + string.Join(",", sl)+"}";
+      return "{"+BindingTypeName + " " + StringUtils.Join(",", l)+"}";
     }
 
     #endregion

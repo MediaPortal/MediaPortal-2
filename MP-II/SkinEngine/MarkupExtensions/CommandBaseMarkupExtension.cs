@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.MpfElements.Resources;
@@ -173,9 +174,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         l.Add("ElementName=" + ElementName);
       if (!string.IsNullOrEmpty(Path))
         l.Add("Path=" + Path);
-      string[] sl = new string[l.Count];
-      l.CopyTo(sl, 0);
-      return "{" + CommandTypeName + " " + string.Join(",", sl) + "}";
+      return "{" + CommandTypeName + " " + StringUtils.Join(",", l) + "}";
     }
 
     #endregion

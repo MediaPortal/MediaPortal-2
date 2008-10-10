@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {
@@ -105,9 +106,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           l.Add("AncestorType=" + AncestorType.Name);
         if (AncestorLevel != 1)
           l.Add(String.Format("AncestorLevel={0}", AncestorLevel));
-        string[] sl = new string[l.Count];
-        l.CopyTo(sl, 0);
-        return "{RelativeSource " + string.Join(",", sl)+"}";
+        return "{RelativeSource " + StringUtils.Join(",", l)+"}";
       }
       else
         return "RelativeSource: " + _mode.ToString();

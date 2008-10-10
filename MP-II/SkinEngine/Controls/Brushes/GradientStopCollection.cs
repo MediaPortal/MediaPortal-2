@@ -25,6 +25,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
@@ -176,11 +177,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override string ToString()
     {
-      string[] stops = new string[_elements.Count];
-      int i = 0;
-      foreach (GradientStop stop in _elements)
-        stops[i++] = stop.ToString();
-      return string.Join(", ", stops);
+      return StringUtils.Join(", ", _elements);
     }
   }
 }

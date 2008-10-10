@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MediaPortal.Utilities
@@ -107,6 +109,32 @@ namespace MediaPortal.Utilities
         return;
       throw new ArgumentException("Version number '" + versionStr +
                                   "' is too low, at least '" + expectedHigh + "." + expectedLow + "' is needed");
+    }
+
+    /// <summary>
+    /// Joins the string representations of the given <paramref name="values"/> together with the
+    /// specified <paramref name="separator"/>. The method works like <see cref="string.Join(string,string[])"/>,
+    /// but takes an enumeration instead of a string array.
+    /// </summary>
+    /// <param name="separator">Separator to be placed between every two consecutive values.</param>
+    /// <param name="values">Enumeration of values to be joined.</param>
+    /// <returns>Joined values or <c>string.Empty</c>, if the enumeration is empty.</returns>
+    public static string Join(string separator, IEnumerable values)
+    {
+      if (values == null)
+        return string.Empty;
+      IEnumerator enumer = values.GetEnumerator();
+      if (!enumer.MoveNext())
+        return string.Empty;
+      StringBuilder result = new StringBuilder();
+      while (true)
+      {
+        result.Append(enumer.Current.ToString());
+        if (enumer.MoveNext())
+          result.Append(separator);
+        else
+          return result.ToString();
+      }
     }
   }
 }

@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.Localisation;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Presentation.DataObjects
 {
@@ -67,14 +68,12 @@ namespace MediaPortal.Presentation.DataObjects
 
     public override string ToString()
     {
-      List<string> l = new List<string>();
+      IList<string> l = new List<string>();
       foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
       if (_subItems.Count > 0)
         l.Add(_subItems.Count + " sub items");
-      string[] sl = new string[l.Count];
-      l.CopyTo(sl);
-      return typeof(ListItem).Name + ": " + string.Join(", ", sl);
+      return typeof(ListItem).Name + ": " + StringUtils.Join(", ", l);
     }
   }
 }
