@@ -82,5 +82,17 @@ namespace MediaPortal.Core.Registry
         i++;
       return path.Substring(i);
     }
+
+    public static string GetLastPathSegment(string path)
+    {
+      int i = path.LastIndexOf('/');
+      return i == -1 ? path : path.Substring(i + 1);
+    }
+
+    public static string GetParentPath(string path)
+    {
+      int i = path.LastIndexOf('/');
+      return i > 0 ? path.Substring(0, i - 1) : string.Empty;
+    }
   }
 }
