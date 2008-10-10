@@ -37,4 +37,15 @@ namespace MediaPortal.Core.Exceptions
     public FatalException(string msg, Exception ex, params object[] args):
         base(string.Format(msg, args), ex) { }
   }
+
+  /// <summary>
+  /// Thrown if a module or instance is in an invalid state for the current operation.
+  /// </summary>
+  public class InvalidStateException : ApplicationException
+  {
+    public InvalidStateException(string msg, params object[] args):
+        base(string.Format(msg, args)) { }
+    public InvalidStateException(string msg, Exception ex, params object[] args):
+        base(string.Format(msg, args), ex) { }
+  }
 }
