@@ -32,12 +32,37 @@ using MediaPortal.Core.Settings;
 namespace MediaPortal.Core.Services.Settings
 {
   /// <summary>
-  /// Main Config Service.
+  /// Settings service.
   /// </summary>
-  public class SettingsManager : ISettingsManager
+  public class SettingsManager : ISettingsManager, IDisposable
   {
+    #region Protected fields
 
-    #region Public Methods
+    protected bool _batchUpdate = false;
+    protected SettingsCache _cache;
+
+    #endregion
+
+    #region Ctor
+
+    public SettingsManager()
+    {
+      _cache = new SettingsCache();
+    }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      _cache.Dispose();
+      _cache = null;
+    }
+
+    #endregion
+
+    #region Public methods
 
     public SettingsType Load<SettingsType>() where SettingsType : class
     {
@@ -46,19 +71,41 @@ namespace MediaPortal.Core.Services.Settings
 
     public object Load(Type settingsType)
     {
-      // TODO: Caching of settings objects
+      object result;
+      if ((result = _cache.Get(settingsType)) != null)
+        return result;
       SettingParser parser = new SettingParser(GetGlobalFilePath(settingsType), GetUserFilePath(settingsType));
-      return parser.Deserialize(settingsType);
+      result = parser.Deserialize(settingsType);
+      _cache.Set(result);
+      return result;
     }
 
-    public void Save<SettingsType>(SettingsType settingsObject) where SettingsType: class
+    public void Save(object settingsObject)
     {
       if (settingsObject == null)
         throw new ArgumentNullException("settingsObject");
+      _cache.Set(settingsObject);
+      if (_batchUpdate)
+        return;
       SettingParser parser = new SettingParser(
           GetGlobalFilePath(settingsObject.GetType()),
           GetUserFilePath(settingsObject.GetType()));
       parser.Serialize(settingsObject);
+    }
+
+    public void StartBatchUpdate()
+    {
+      _cache.KeepAll();
+      _batchUpdate = true;
+    }
+
+    public void EndBatchUpdate()
+    {
+      if (!_batchUpdate)
+        return;
+      foreach (SettingsObjectWrapper objectWrapper in _cache)
+        Save(objectWrapper.SettingsObject);
+      _cache.StopKeep();
     }
 
     public void RemoveAllSettingsData(bool user, bool global)

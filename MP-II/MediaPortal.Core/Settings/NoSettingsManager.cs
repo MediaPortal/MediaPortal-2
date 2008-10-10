@@ -45,7 +45,11 @@ namespace MediaPortal.Core.Settings
       return Activator.CreateInstance(settingsType);
     }
 
-    public void Save<SettingsType>(SettingsType settingsObject) where SettingsType : class { }
+    public void Save(object settingsObject) { }
+
+    public void StartBatchUpdate() { }
+
+    public void EndBatchUpdate() { }
 
     public void RemoveAllSettingsData(bool user, bool global) { }
 

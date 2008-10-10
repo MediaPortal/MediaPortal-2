@@ -68,7 +68,20 @@ namespace MediaPortal.Core.Settings
     /// <exception cref="ArgumentNullException">If the specified <paramref name="settingsObject"/>
     /// is null.</exception>
     /// <param name="settingsObject">Settings object's instance to be saved.</param>
-    void Save<SettingsType>(SettingsType settingsObject) where SettingsType: class;
+    void Save(object settingsObject);
+
+    /// <summary>
+    /// Switches on the batch update mode. In batch update mode, the settings manager neither won't dispose
+    /// loaded settings objects in its cache, nor will it write settings objects to disk.
+    /// To stop the batch update mode, call <see cref="EndBatchUpdate"/>.
+    /// </summary>
+    void StartBatchUpdate();
+
+    /// <summary>
+    /// Leaves the batch update mode. Any settings for which method <see cref="Save"/> was called will be
+    /// saved on disk.
+    /// </summary>
+    void EndBatchUpdate();
 
     /// <summary>
     /// Removes all application configuration data from the system.

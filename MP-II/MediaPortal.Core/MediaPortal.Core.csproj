@@ -116,6 +116,7 @@
     <Compile Include="ServiceNotFoundException.cs" />
     <Compile Include="ServiceScope.cs" />
     <Compile Include="Services\Settings\SettingParser.cs" />
+    <Compile Include="Services\Settings\SettingsCache.cs" />
     <Compile Include="Services\Settings\SettingsManager.cs" />
     <Compile Include="Services\Settings\xml\XmlFileHandler.cs" />
     <Compile Include="Services\Settings\xml\XmlNoNamespaceWriter.cs" />
