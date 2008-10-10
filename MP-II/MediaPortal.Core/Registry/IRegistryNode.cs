@@ -38,11 +38,13 @@ namespace MediaPortal.Core.Registry
   {
     /// <summary>
     /// Returns the names of all sub nodes of this node mapped to the node instances.
+    /// This might be lazily initialized, hence it might be <c>null</c>.
     /// </summary>
     IDictionary<string, IRegistryNode> SubNodes { get; }
 
     /// <summary>
     /// Returns the names of all items registered in this node mapped to the item objects.
+    /// This might be lazily initialized, hence it might be <c>null</c>.
     /// </summary>
     IDictionary<string, object> Items { get; }
 
