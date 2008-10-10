@@ -91,6 +91,7 @@
     <Compile Include="PluginManager\Settings\Section.cs" />
     <Compile Include="PluginManager\Settings\Setting.cs" />
     <Compile Include="PluginManager\Settings\SettingRegistrationBase.cs" />
+    <Compile Include="Registry\RegistryHelper.cs" />
     <Compile Include="Services\Logging\ConsoleLogger.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />

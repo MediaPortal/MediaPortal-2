@@ -85,12 +85,8 @@ namespace MediaPortal.Core.Services.Registry
         throw new ArgumentException("Registry path expression has to be a relative path (no '/' character at the beginning)");
       if (path.EndsWith("/"))
         path = path.Substring(0, path.Length - 1);
-      string nodeName;
       int i = path.IndexOf('/');
-      if (i == -1)
-        nodeName = path;
-      else
-        nodeName = path.Substring(0, i);
+      string nodeName = i == -1 ? path : path.Substring(0, i);
       CheckSubNodeCollectionPresent();
       IRegistryNode node = _subNodes.ContainsKey(nodeName) ? _subNodes[nodeName] : null;
       if (node == null)
@@ -101,7 +97,7 @@ namespace MediaPortal.Core.Services.Registry
         }
         else
           return null;
-      return i == -1 ? node : node.GetSubNodeByPath(path.Substring(i + 1), createOnNotExist);
+      return i == -1 ? node : node.GetSubNodeByPath(RegistryHelper.RemoveRootFromAbsolutePath(path.Substring(i)), createOnNotExist);
     }
 
     public IRegistryNode GetSubNodeByPath(string path)

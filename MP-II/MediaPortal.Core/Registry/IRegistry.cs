@@ -55,7 +55,8 @@ namespace MediaPortal.Core.Registry
     /// <param name="path">Absolute path expression specifying the node location in the tree.</param>
     /// <param name="createOnNotExist">If set to <c>true</c> and the node with the specified path
     /// doesn't exist, it will be created.</param>
-    /// <returns>Registry tree node specified by <paramref name="path"/>.</returns>
+    /// <returns>Registry tree node specified by <paramref name="path"/>, if it exists or if
+    /// it was created, else <c>false</c>.</returns>
     IRegistryNode GetRegistryNode(string path, bool createOnNotExist);
 
     /// <summary>
@@ -63,7 +64,8 @@ namespace MediaPortal.Core.Registry
     /// be an absolute path.
     /// </summary>
     /// <param name="path">Absolute path expression specifying the node location in the tree.</param>
-    /// <returns>Registry tree node specified by <paramref name="path"/>.</returns>
+    /// <returns>Registry tree node specified by <paramref name="path"/>, if it exists, else
+    /// <c>false</c>.</returns>
     IRegistryNode GetRegistryNode(string path);
 
     /// <summary>

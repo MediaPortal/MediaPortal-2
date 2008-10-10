@@ -57,34 +57,23 @@ namespace MediaPortal.Core.Services.Registry
 
     public IRegistryNode GetRegistryNode(string path, bool createOnNotExist)
     {
-      CheckAbsolute(path);
-      return _rootNode.GetSubNodeByPath(path.Substring(1), createOnNotExist);
+      RegistryHelper.CheckAbsolute(path);
+      return _rootNode.GetSubNodeByPath(RegistryHelper.RemoveRootFromAbsolutePath(path), createOnNotExist);
     }
 
     public IRegistryNode GetRegistryNode(string path)
     {
-      CheckAbsolute(path);
+      RegistryHelper.CheckAbsolute(path);
       return _rootNode.GetSubNodeByPath(path.Substring(1));
     }
 
     public bool RegistryNodeExists(string path)
     {
-      CheckAbsolute(path);
+      RegistryHelper.CheckAbsolute(path);
       return _rootNode.SubNodeExists(path.Substring(1));
     }
 
     #endregion
-
-    public static bool IsAbsolutePath(string path)
-    {
-      return path.StartsWith("/");
-    }
-
-    protected static void CheckAbsolute(string path)
-    {
-      if (!IsAbsolutePath(path))
-        throw new ArgumentException("Registry path expression has to be an absolute path (should start with a '/' character)");
-    }
 
     #region IStatus implementation
 
