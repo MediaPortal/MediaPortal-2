@@ -271,7 +271,7 @@ namespace MediaPortal.Core.PluginManager
     internal static PluginItemRegistration GetItemRegistration(string location, string id)
     {
       IRegistryNode node = GetRegistryNode(location, false);
-      if (node != null && node.Items.ContainsKey(id))
+      if (node != null && node.Items != null && node.Items.ContainsKey(id))
         return (PluginItemRegistration) node.Items[id];
       return null;
     }
@@ -285,7 +285,7 @@ namespace MediaPortal.Core.PluginManager
     {
       IRegistryNode node = GetRegistryNode(location, false);
       ICollection<PluginItemRegistration> result = new List<PluginItemRegistration>();
-      if (node != null)
+      if (node != null && node.Items != null)
         foreach (PluginItemRegistration itemRegistration in node.Items.Values)
           result.Add(itemRegistration);
       return result;
@@ -300,8 +300,9 @@ namespace MediaPortal.Core.PluginManager
     {
       IRegistryNode node = GetRegistryNode(location, false);
       ICollection<string> result = new List<string>();
-      foreach (string childName in node.SubNodes.Keys)
-        result.Add(RegistryHelper.ConcatenatePaths(location, childName));
+      if (node != null && node.SubNodes != null)
+        foreach (string childName in node.SubNodes.Keys)
+          result.Add(RegistryHelper.ConcatenatePaths(location, childName));
       return result;
     }
 
@@ -341,10 +342,14 @@ namespace MediaPortal.Core.PluginManager
       IRegistryNode node = GetRegistryNode(location, createOnNotExist);
       if (node == null)
         return null;
-      if (node.Items.ContainsKey(ITEMCHANGELISTENER_ID))
+      if (node.Items != null && node.Items.ContainsKey(ITEMCHANGELISTENER_ID))
         return (ICollection<IItemRegistrationChangeListener>) node.Items[ITEMCHANGELISTENER_ID];
       if (createOnNotExist)
-        return (ICollection<IItemRegistrationChangeListener>) (node.Items[ITEMCHANGELISTENER_ID] = new List<IItemRegistrationChangeListener>());
+      {
+        ICollection<IItemRegistrationChangeListener> result = new List<IItemRegistrationChangeListener>();
+        node.AddItem(ITEMCHANGELISTENER_ID, result);
+        return result;
+      }
       return null;
     }
 
@@ -376,7 +381,7 @@ namespace MediaPortal.Core.PluginManager
     internal void UnregisterItem(PluginItemMetadata itemMetadata)
     {
       IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, false);
-      if (node == null)
+      if (node == null || node.Items == null)
         return;
       if (node.Items.ContainsKey(itemMetadata.Id))
         node.Items.Remove(itemMetadata.Id);
