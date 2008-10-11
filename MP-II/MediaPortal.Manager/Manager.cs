@@ -94,11 +94,15 @@ namespace MediaPortal.Manager
       try
       {
 #endif
+        // Start the system
+        logger.Debug("ApplicationLauncher: Starting MediaPortal manager");
+
         IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
         pluginManager.Initialize();
-        //pluginManager.Startup();
+        pluginManager.Startup(true);
         Application.Run(new MainWindow());
         pluginManager.Shutdown();
+
 #if !DEBUG
         }
         catch (Exception ex)

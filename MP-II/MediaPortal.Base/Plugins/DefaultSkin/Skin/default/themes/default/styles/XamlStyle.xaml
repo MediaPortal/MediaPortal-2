@@ -575,7 +575,7 @@
                 </TransformGroup>
               </Path.RenderTransform>
             </Path>
-            <Path Stretch="Fill" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Left" Margin="3.513,3.53,0,19.47" x:Name="Highlight" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
+            <Path Stretch="Fill" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3.513,3.53,0,19.47" x:Name="Highlight" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
               <Path.Fill>
                 <RadialGradientBrush GradientOrigin="0.502,1.296">
                   <RadialGradientBrush.RelativeTransform>

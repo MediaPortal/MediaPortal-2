@@ -23,14 +23,15 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-
+using MediaPortal.Configuration.Settings.Regional;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration.Settings;
 
-namespace Components.Configuration.Settings
+namespace Components.Configuration.Settings.Regional
 {
   public class MainLanguage : SingleSelectionList
   {
@@ -46,6 +47,15 @@ namespace Components.Configuration.Settings
     public MainLanguage()
     {
       // Nothing to register
+    }
+
+    #endregion
+
+    #region Public properties
+
+    public override Type SettingsObjectType
+    {
+      get { return typeof(LocalizationSettings); }
     }
 
     #endregion

@@ -61,18 +61,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Builders\SettingBuilder.cs" />
-    <Compile Include="ConfigurationManagement\ConfigurationLoader.cs" />
+    <Compile Include="Builders\ConfigBuilder.cs" />
     <Compile Include="ConfigurationManagement\ConfigurationManager.cs" />
     <Compile Include="ConfigurationManagement\ConfigurationNode.cs" />
-    <Compile Include="ConfigurationManagement\ConfigurationNodeCollection.cs" />
-    <Compile Include="ConfigurationManagement\LoaderHelper.cs" />
-    <Compile Include="ConfigurationManagement\NodeMatcher.cs" />
-    <Compile Include="ConfigurationManagement\SettingFile.cs" />
+    <Compile Include="ConfigurationManagement\ConfigObjectSearchMatcher.cs" />
     <Compile Include="ConfigurationManagement\ConfigurationTree.cs" />
-    <Compile Include="IConfigurationNode.cs" />
-    <Compile Include="IConfigurationManager.cs" />
-    <Compile Include="NodeNotFoundException.cs" />
     <Compile Include="Settings\Regional\LocalizationSettings.cs" />
     <Compile Include="Settings\System\Balloontips.cs" />
     <Compile Include="Settings\Regional\City.cs" />
@@ -94,6 +87,10 @@
     <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class YesNo : ConfigItem
+  public abstract class YesNo : ConfigSetting
   {
-
     #region Variables
 
     protected bool _yes = false;
@@ -42,18 +40,17 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public bool Yes
     {
-      get { return this._yes; }
+      get { return _yes; }
       set
       {
-        if (this._yes != value)
+        if (_yes != value)
         {
-          this._yes = value;
-          base.NotifyChange();
+          _yes = value;
+          NotifyChange();
         }
       }
     }
 
     #endregion
-
   }
 }

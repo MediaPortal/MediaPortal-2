@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.PluginManager.Settings
+namespace MediaPortal.Configuration
 {
   /// <summary>
   /// Base class for all setting registrations which require a location and
@@ -33,15 +33,12 @@ namespace MediaPortal.Core.PluginManager.Settings
   /// location property contains the parent location with the Id of this setting registration as last
   /// path element.
   /// </summary>
-  public class SettingRegistrationBase
+  public class ConfigBaseMetadata
   {
-
     #region Variables
 
     protected string _location;
     protected string _text;
-    protected bool _hidden;
-    protected bool _disabled;
 
     #endregion
 
@@ -88,27 +85,17 @@ namespace MediaPortal.Core.PluginManager.Settings
       get { return _text; }
     }
 
-    public bool Hidden
-    {
-      get { return _hidden; }
-    }
-
-    public bool Disabled
-    {
-      get { return _disabled; }
-    }
-
     #endregion
 
     #region Constructors
 
     /// <summary>
-    /// Creates a new <see cref="SettingRegistrationBase"/> instance.
+    /// Creates a new <see cref="ConfigBaseMetadata"/> instance.
     /// </summary>
     /// <param name="location">The location of the new instance. This must contain the parent location
     /// if there is a parent, and the Id of this setting registration as last location path element.</param>
     /// <param name="text">The text to be displayed for this setting registration.</param>
-    public SettingRegistrationBase(string location, string text)
+    public ConfigBaseMetadata(string location, string text)
     {
       _location = location;
       _text = text;

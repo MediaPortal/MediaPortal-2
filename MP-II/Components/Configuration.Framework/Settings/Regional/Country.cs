@@ -23,29 +23,29 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-
+using MediaPortal.Configuration.Settings.Regional;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration.Settings;
 
-namespace Components.Configuration.Settings
+namespace Components.Configuration.Settings.Regional
 {
   public class Country : SingleSelectionList
   {
-
     #region Variables
 
     private RegionInfo[] _regionNames;
 
     #endregion
 
-    #region Constructors
+    #region Public properties
 
-    public Country()
+    public override Type SettingsObjectType
     {
-      base.SetSettingsObject(new LocalizationSettings());
+      get { return typeof(LocalizationSettings); }
     }
 
     #endregion
@@ -68,7 +68,7 @@ namespace Components.Configuration.Settings
       }
       base._items.Sort();
       // Find the item to select
-      if (current == null || current == "") // Use the systemsetting as default fallback
+      if (string.IsNullOrEmpty(current)) // Use the systemsetting as default fallback
         current = RegionInfo.CurrentRegion.NativeName;
       for (int i = 0; i < base._items.Count; i++)
       {
@@ -214,6 +214,5 @@ namespace Components.Configuration.Settings
     }
 
     #endregion
-
   }
 }

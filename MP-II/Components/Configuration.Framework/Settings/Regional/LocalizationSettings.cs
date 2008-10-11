@@ -27,15 +27,13 @@ using System.Globalization;
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.Settings.Regional
 {
-
   /// <summary>
   /// Holds all settings related to localization.
   /// </summary>
   public class LocalizationSettings
   {
-
     #region Variables
 
     private string _language;
@@ -89,6 +87,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

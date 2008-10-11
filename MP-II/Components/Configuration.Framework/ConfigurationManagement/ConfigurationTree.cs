@@ -22,30 +22,20 @@
 
 #endregion
 
+using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Settings;
+
 namespace MediaPortal.Configuration
 {
-
   /// <summary>
-  /// A hierarchical collection of items, each represented by a ConfigurationNode
+  /// Configuration tree containing <see cref="ConfigurationNode"/> instances.
   /// </summary>
-  internal class ConfigurationTree
+  public class ConfigurationTree : IDisposable
   {
+    #region Protected fields
 
-    #region Variables
-
-    private ConfigurationNodeCollection _nodes;
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// Gets the collection of tree nodes that are assigned to the ConfigurationTree.
-    /// </summary>
-    public ConfigurationNodeCollection Nodes
-    {
-      get { return _nodes; }
-    }
+    protected ConfigurationNode _root;
 
     #endregion
 
@@ -56,10 +46,93 @@ namespace MediaPortal.Configuration
     /// </summary>
     public ConfigurationTree()
     {
-      _nodes = new ConfigurationNodeCollection();
+      _root = new ConfigurationNode();
     }
 
     #endregion
 
+    #region Protected methods
+
+    protected static void DisposeNodeAction(IConfigurationNode node)
+    {
+      if (node is IDisposable)
+        ((IDisposable) node).Dispose();
+    }
+
+    protected static void ApplyNodeAction(IConfigurationNode node)
+    {
+      if (node.ConfigObj is ConfigSetting)
+        ((ConfigSetting) node.ConfigObj).Apply();
+    }
+
+    protected static void SaveNodeAction(IConfigurationNode node)
+    {
+      ISettingsManager manager = ServiceScope.Get<ISettingsManager>();
+      ConfigSetting configSetting = node.ConfigObj as ConfigSetting;
+      if (configSetting != null)
+        configSetting.Save(manager.Load(configSetting.SettingsObjectType));
+    }
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets the collection of tree nodes that are assigned to the ConfigurationTree.
+    /// </summary>
+    public IConfigurationNode RootNode
+    {
+      get { return _root; }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void Apply()
+    {
+      _root.ForEach(ApplyNodeAction, true);
+    }
+
+    public void SaveSettings()
+    {
+      _root.ForEach(SaveNodeAction, true);
+    }
+
+    /// <summary>
+    /// Returns if the specified location can be found in the tree.
+    /// If found, it <paramref name="node"/> will be returned.
+    /// </summary>
+    /// <param name="location">Location to search for.</param>
+    /// <param name="node">Node to be returned. If this method returns <c>false</c>, this parameter
+    /// is undefined.</param>
+    /// <returns><c>true</c>, if the node at the specified <paramref name="location"/> exists,
+    /// else <c>false</c>.</returns>
+    public bool FindNode(string location, out IConfigurationNode node)
+    {
+      if (location == null)
+        throw new ArgumentNullException("location");
+      string[] locEntries = location.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+      node = _root;
+      foreach (string locEntry in locEntries)
+      {
+        node = node.GetSubNodeById(locEntry);
+        if (node == null)
+          return false;
+      }
+      return true;
+    }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      _root.ForEach(DisposeNodeAction, true);
+    }
+
+    #endregion
   }
 }

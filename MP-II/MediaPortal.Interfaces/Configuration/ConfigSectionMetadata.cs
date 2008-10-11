@@ -22,31 +22,31 @@
 
 #endregion
 
-namespace MediaPortal.Core.PluginManager.Settings
+namespace MediaPortal.Configuration
 {
   /// <summary>
   /// Section metadata structure. Holds all values to describe a plugin's settings section.
   /// </summary>
-  public class Section : SettingRegistrationBase
+  public class ConfigSectionMetadata : ConfigBaseMetadata
   {
-    protected string _iconSmall;
-    protected string _iconLarge;
+    protected string _iconSmallFilePath;
+    protected string _iconLargeFilePath;
 
-    public Section(string location, string text, string iconSmall, string iconLarge)
+    public ConfigSectionMetadata(string location, string text, string iconSmall, string iconLarge)
       : base(location, text)
     {
-      _iconSmall = iconSmall;
-      _iconLarge = iconLarge;
+      _iconSmallFilePath = iconSmall;
+      _iconLargeFilePath = iconLarge;
     }
 
-    public string IconSmall
+    public string IconSmallFilePath
     {
-      get { return _iconSmall; }
+      get { return _iconSmallFilePath; }
     }
 
-    public string IconLarge
+    public string IconLargeFilePath
     {
-      get { return _iconLarge; }
+      get { return _iconLargeFilePath; }
     }
   }
 }

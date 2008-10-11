@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class Path : ConfigItem
+  public abstract class Path : ConfigSetting
   {
-
     #region Enums
 
     public enum PathType
@@ -80,6 +78,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

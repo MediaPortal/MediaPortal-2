@@ -22,73 +22,47 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
 
 namespace MediaPortal.Configuration
 {
-
   /// <summary>
-  /// Represents an element of the <see cref="IConfigurationManager"/>.
+  /// Represents a node in the configuration tree of the <see cref="IConfigurationManager"/>.
   /// </summary>
-  public interface IConfigurationNode : IEquatable<IConfigurationNode>
+  public interface IConfigurationNode
   {
+    /// <summary>
+    /// Returns the id of this node.
+    /// </summary>
+    string Id { get; }
+
+    /// <summary>
+    /// Returns a string representing the location of the node in the tree. The location is the
+    /// concatenation of the ids of all parents on the path from root to this node.
+    /// </summary>
+    string Location { get; }
 
     /// <summary>
     /// Gets the setting related to the node.
     /// </summary>
-    ConfigBase Setting
-    {
-      get;
-    }
+    ConfigBase ConfigObj { get; }
 
     /// <summary>
-    /// Gets the parent.
+    /// Gets the parent node.
     /// </summary>
-    IConfigurationNode Parent
-    {
-      get;
-    }
+    IConfigurationNode Parent { get; }
 
     /// <summary>
-    /// Gets the section containing the current node.
+    /// Gets the ordered list of ConfigurationNode objects which are the children of this node.
     /// </summary>
-    IConfigurationNode Section
-    {
-      get;
-    }
+    IList<IConfigurationNode> ChildNodes { get; }
 
     /// <summary>
-    /// Gets the collection of ConfigurationNode objects assigned to the current tree node.
+    /// Returns the subnode under this node with the specified id.
     /// </summary>
-    IList<IConfigurationNode> Nodes
-    {
-      get;
-    }
-
-    /// <summary>
-    /// Gets if the related setting is enabled.
-    /// </summary>
-    bool IsEnabled
-    {
-      get;
-    }
-
-    /// <summary>
-    /// Gets if the related setting is visible.
-    /// </summary>
-    bool IsVisible
-    {
-      get;
-    }
-
-    /// <summary>
-    /// Returns a string representing the location of the node in the tree.
-    /// </summary>
-    /// <returns></returns>
-    string ToString();
-
+    /// <param name="id">Id of the node to return.</param>
+    /// <returns>Configuration node or <c>null</c>, if the specified node doesn't exist.</returns>
+    IConfigurationNode GetSubNodeById(string id);
   }
-
 }

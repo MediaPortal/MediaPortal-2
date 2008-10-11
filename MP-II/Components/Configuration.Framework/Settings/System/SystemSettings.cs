@@ -25,9 +25,8 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.Settings.System
 {
-
   /// <summary>
   /// Class to save all systemsettings (registry, start menu, ...),
   /// so the user can migrate his configuration files to another system.
@@ -77,5 +76,4 @@ namespace MediaPortal.Configuration.Settings
     #endregion
 
   }
-
 }

@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Configuration.Settings;
 
 namespace MediaPortal.SkinEngine.Settings
@@ -30,11 +31,11 @@ namespace MediaPortal.SkinEngine.Settings
   public class Fullscreen : YesNo
   {
 
-    #region Constructors
+    #region Public properties
 
-    public Fullscreen()
+    public override Type SettingsObjectType
     {
-      base.SetSettingsObject(new AppSettings());
+      get { return typeof(AppSettings); }
     }
 
     #endregion

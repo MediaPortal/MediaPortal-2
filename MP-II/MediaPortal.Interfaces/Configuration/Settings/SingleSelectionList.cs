@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class SingleSelectionList : ConfigItemList
+  public abstract class SingleSelectionList : ConfigItemList
   {
-
     #region Variables
 
     // Private because we want to make sure NotifyChange() is called on a change.
@@ -45,21 +43,20 @@ namespace MediaPortal.Configuration.Settings
     {
       get
       {
-        if (this._selected == -1 && base._items.Count > 0)
-          this._selected = 0;
-        return this._selected;
+        if (_selected == -1 && _items.Count > 0)
+          _selected = 0;
+        return _selected;
       }
       set
       {
-        if (this._selected != value)
+        if (_selected != value)
         {
-          this._selected = value;
-          base.NotifyChange();
+          _selected = value;
+          NotifyChange();
         }
       }
     }
 
     #endregion
-
   }
 }

@@ -27,12 +27,19 @@ using System;
 namespace MediaPortal.Core.Settings
 {
   /// <summary>
-  /// Enumerator for a setting's scope
+  /// Enumerator for a setting's scope (User/Global).
   /// </summary>
   public enum SettingScope
   {
-    Global = 1, // global setting, doesn't allow per user/per plugin override
-    User = 2 // per user setting : allows per user storage
+    /// <summary>
+    /// Global setting, doesn't allow per user/per plugin override.
+    /// </summary>
+    Global = 1,
+
+    /// <summary>
+    /// Per user setting: allows a different setting value per user.
+    /// </summary>
+    User = 2
   }
 
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
@@ -42,19 +49,20 @@ namespace MediaPortal.Core.Settings
     private object _DefaultValue;
 
     /// <summary>
-    /// Constructor
+    /// Constructor which configures the scope of the annotated setting.
     /// </summary>
-    /// <param name="settingScope">Setting's scope</param>
+    /// <param name="settingScope">The scope the annotated setting should be contained in.</param>
     public SettingAttribute(SettingScope settingScope)
     {
       _settingScope = settingScope;
     }
 
     /// <summary>
-    /// Constructor
+    /// Constructor which configures the scope and the default value of the annotated setting.
     /// </summary>
-    /// <param name="settingScope">Setting's scope</param>
-    /// <param name="defaultValue">Default value</param>
+    /// <param name="settingScope">The scope the annotated setting should be contained in.</param>
+    /// <param name="defaultValue">Default value this setting will get if the value can not be
+    /// loaded.</param>
     public SettingAttribute(SettingScope settingScope, object defaultValue)
     {
       _settingScope = settingScope;
@@ -62,7 +70,7 @@ namespace MediaPortal.Core.Settings
     }
 
     /// <summary>
-    /// Get/Set setting's scope (User/Global)
+    /// Get/Set the setting's scope (User/Global).
     /// </summary>
     public SettingScope SettingScope
     {
@@ -71,7 +79,7 @@ namespace MediaPortal.Core.Settings
     }
 
     /// <summary>
-    /// Get/Set the default value
+    /// Get/Set the setting's default value.
     /// </summary>
     public object DefaultValue
     {

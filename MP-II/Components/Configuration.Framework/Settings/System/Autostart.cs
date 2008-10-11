@@ -25,7 +25,8 @@
 
 using System;
 using System.IO;
-
+using System.Security;
+using MediaPortal.Configuration.Settings.System;
 using Microsoft.Win32;
 
 using MediaPortal.Core;
@@ -33,16 +34,15 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Configuration.Settings;
 
-namespace Components.Configuration.Settings
+namespace Components.Configuration.Settings.System
 {
   public class Autostart : YesNo
   {
+    #region Public properties
 
-    #region Constructor
-
-    public Autostart()
+    public override Type SettingsObjectType
     {
-      base.SetSettingsObject(new SystemSettings());
+      get { return typeof(SystemSettings); }
     }
 
     #endregion
@@ -77,8 +77,8 @@ namespace Components.Configuration.Settings
           {
             if (base._yes)
               key.SetValue("MediaPortal II",
-                           ServiceScope.Get<IPathManager>().GetPath("APPLICATION_ROOT") + @"\MediaPortal.exe",
-                           RegistryValueKind.ExpandString);
+                  ServiceScope.Get<IPathManager>().GetPath("APPLICATION_ROOT") + @"\MediaPortal.exe",
+                  RegistryValueKind.ExpandString);
             else
               key.DeleteValue("MediaPortal II", false);
           }
@@ -88,7 +88,7 @@ namespace Components.Configuration.Settings
           }
         }
       }
-      catch (System.Security.SecurityException ex)
+      catch (SecurityException ex)
       {
         ServiceScope.Get<ILogger>().Error("SecurityException: {0} -> Can't write autostart-value \"{1}\" to registry.", ex.Message, base._yes);
       }

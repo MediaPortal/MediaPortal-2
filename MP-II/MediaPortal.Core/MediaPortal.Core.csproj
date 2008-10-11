@@ -87,10 +87,6 @@
     <Compile Include="Messaging\QueueMessage.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />
-    <Compile Include="PluginManager\Settings\Group.cs" />
-    <Compile Include="PluginManager\Settings\Section.cs" />
-    <Compile Include="PluginManager\Settings\Setting.cs" />
-    <Compile Include="PluginManager\Settings\SettingRegistrationBase.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
     <Compile Include="Services\Logging\ConsoleLogger.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />

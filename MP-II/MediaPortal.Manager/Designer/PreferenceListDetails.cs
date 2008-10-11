@@ -23,19 +23,15 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
 using MediaPortal.Configuration.Settings;
 
-
 namespace MediaPortal.Manager
 {
-
   public class PreferenceListDetails
   {
-
     #region Variables
 
     private PreferenceList _preferenceList;
@@ -87,15 +83,7 @@ namespace MediaPortal.Manager
 
     #region Constructors
 
-    public PreferenceListDetails()
-    {
-      _preferenceList = new PreferenceList();
-      _list = new ListBox();
-      _up = new Button();
-      _down = new Button();
-    }
-
-    public PreferenceListDetails(MediaPortal.Configuration.Settings.PreferenceList preferenceList, ListBox listBox, Button buttonUp, Button buttonDown)
+    public PreferenceListDetails(PreferenceList preferenceList, ListBox listBox, Button buttonUp, Button buttonDown)
     {
       _preferenceList = preferenceList;
       _list = listBox;
@@ -126,7 +114,6 @@ namespace MediaPortal.Manager
     }
 
     #endregion
-
   }
 
 }

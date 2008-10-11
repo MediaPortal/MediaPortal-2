@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class Entry : ConfigItem
+  public abstract class Entry : ConfigSetting
   {
-
     #region Variables
 
     /// <summary>
@@ -57,6 +55,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

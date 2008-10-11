@@ -68,6 +68,8 @@ namespace MediaPortal.Core.Services.PluginManager
 
     protected PluginManagerState _state = PluginManagerState.Uninitialized;
 
+    protected bool _maintenanceMode = false;
+
     #endregion
 
     #region Ctor
@@ -91,6 +93,11 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _availablePlugins; }
     }
 
+    public bool MaintenanceMode
+    {
+      get { return _maintenanceMode; }
+    }
+
     public void Initialize()
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Initialize");
@@ -102,9 +109,13 @@ namespace MediaPortal.Core.Services.PluginManager
       ServiceScope.Get<ILogger>().Debug("PluginManager: Initialized");
     }
 
-    public void Startup()
+    public void Startup(bool maintenanceMode)
     {
-      ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
+      if (maintenanceMode)
+        ServiceScope.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
+      else
+        ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
+      _maintenanceMode = maintenanceMode;
       _state = PluginManagerState.Starting;
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
       PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
@@ -115,11 +126,14 @@ namespace MediaPortal.Core.Services.PluginManager
         if (disabledPlugins.Contains(plugin.Metadata.Name))
           plugin.State = PluginState.Disabled;
         else
-          TryEnable(plugin, true);
+          TryEnable(plugin, !_maintenanceMode);
       }
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
       _state = PluginManagerState.Running;
-      ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
+      if (maintenanceMode)
+        ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
+      else
+        ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
     }
 
     public void Shutdown()
@@ -601,7 +615,7 @@ namespace MediaPortal.Core.Services.PluginManager
         // Activate plugin
         plugin.LoadAssemblies();
         plugin.State = PluginState.Active;
-        if (plugin.Metadata.StateTrackerClassName != null)
+        if (plugin.Metadata.StateTrackerClassName != null && !_maintenanceMode)
         {
           try
           {

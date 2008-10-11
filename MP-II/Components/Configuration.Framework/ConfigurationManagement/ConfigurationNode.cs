@@ -24,57 +24,51 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Registry;
+using MediaPortal.Core.Settings;
+using MediaPortal.Utilities;
 
 
 namespace MediaPortal.Configuration
 {
+  public delegate void ConfigurationNodeActionDelegate(ConfigurationNode node);
 
   /// <summary>
-  /// Represents a node of a <see cref="ConfigurationTree"/>.
-  /// This is the default implementation of IConfigurationNode.
+  /// Default implementation for a node in the configuration tree. This class supports lazy loading
+  /// of child nodes.
   /// </summary>
-  internal class ConfigurationNode : IConfigurationNode
+  public class ConfigurationNode : IConfigurationNode, IDisposable
   {
+    #region Constants
 
-    #region Variables
+    /// <summary>
+    /// Location to start searching for configuration items, in the plugintree.
+    /// </summary>
+    protected const string PLUGINTREEBASELOCATION = "/Configuration/Settings";
 
     /// <summary>
-    /// ConfigBase linked to the current node.
+    /// Section <see cref="ConfigBaseMetadata.Text"/> which will be used when child config objects are
+    /// located under a section which was not explicitly defined.
     /// </summary>
-    private ConfigBase _setting;
-    /// <summary>
-    /// Tree containing the current node.
-    /// </summary>
-    private ConfigurationTree _tree;
-    /// <summary>
-    /// Node containing the current node.
-    /// </summary>
-    private ConfigurationNode _parent;
-    /// <summary>
-    /// Section containing the current node.
-    /// </summary>
-    private ConfigurationNode _section;
-    /// <summary>
-    /// Childnodes.
-    /// </summary>
-    private ConfigurationNodeCollection _nodes;
-    /// <summary>
-    /// Matches the current ConfigBase with a specified value.
-    /// </summary>
-    private NodeMatcher _matcher;
+    protected const string INVALID_SECTION_TEXT = "[system.invalid]";
 
     #endregion
 
-    #region Properties
+    #region Protected fields
+
+    protected bool _childrenLoaded = false;
+    protected IPluginItemStateTracker _childPluginItemStateTracker = null;
 
     /// <summary>
-    /// Gets the parent tree that the tree node is assigned to.
+    /// Configuration object linked to this node.
     /// </summary>
-    public ConfigurationTree Tree
-    {
-      get { return _tree; }
-      internal set { _tree = value; }
-    }
+    protected ConfigBase _configObj;
+
+    protected ConfigurationNode _parent;
+    protected IList<ConfigurationNode> _childNodes;
 
     #endregion
 
@@ -83,171 +77,226 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Initializes a new instance of ConfigurationNode.
     /// </summary>
-    public ConfigurationNode()
-    {
-      _setting = null;
-      _tree = null;
-      _parent = null;
-      _section = null;
-      _nodes = new ConfigurationNodeCollection(this);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the ConfigurationNode class.
-    /// </summary>
-    /// <param name="setting">Setting to link to the node.</param>
-    public ConfigurationNode(ConfigBase setting)
-    {
-      _setting = setting;
-      _tree = null;
-      _parent = null;
-      _section = null;
-      _nodes = new ConfigurationNodeCollection(this);
-    }
+    public ConfigurationNode() : this(null, null) { }
 
     /// <summary>
     /// [Internal Constructor] Initializes a new instance of the ConfigurationNode class.
     /// </summary>
-    /// <param name="setting">Setting to link to the node.</param>
-    /// <param name="tree">Parent tree of the node.</param>
-    internal ConfigurationNode(ConfigBase setting, ConfigurationTree tree)
-    {
-      _setting = setting;
-      _tree = tree;
-      _parent = null;
-      _section = null;
-      _nodes = new ConfigurationNodeCollection(this);
-    }
-
-    /// <summary>
-    /// [Internal Constructor] Initializes a new instance of the ConfigurationNode class.
-    /// </summary>
-    /// <param name="setting">Setting to link to the node.</param>
+    /// <param name="configObj">Setting to link to the node.</param>
     /// <param name="parent">Parent node of the node.</param>
-    internal ConfigurationNode(ConfigBase setting, ConfigurationNode parent)
+    public ConfigurationNode(ConfigBase configObj, ConfigurationNode parent)
     {
-      _setting = setting;
-      if (parent != null)
-        _tree = parent._tree;
+      _configObj = configObj;
       _parent = parent;
-      _nodes = new ConfigurationNodeCollection(this);
-      if (parent != null)
+      _childNodes = new List<ConfigurationNode>();
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected void CheckChildrenLoaded()
+    {
+      if (!IsChildrenLoaded)
+        LoadChildren();
+    }
+
+    protected void LoadChildren()
+    {
+      if (_childrenLoaded)
+        return;
+      ILogger logger = ServiceScope.Get<ILogger>();
+      _childPluginItemStateTracker = new FixedItemStateTracker();
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      string location = PLUGINTREEBASELOCATION + Location;
+      // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
+      // after usage. The alternative would be to use a plugin item state tracker which is able to
+      // remove a config element usage. But this would mean to also expose a listener registration
+      // to the outside. I think this is not worth the labor.
+      ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(location);
+      IDictionary<string, object> childSet = new Dictionary<string, object>();
+      foreach (PluginItemMetadata item in items)
       {
-        if (parent._setting is ConfigSection)
-          _section = _parent;
+        ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(
+            item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
+        ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
+        AddChildNode(childObj);
+        childSet.Add(metadata.Id, null);
+      }
+      ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(location);
+      foreach (string childLocation in childLocations)
+      {
+        string childId = RegistryHelper.GetLastPathSegment(childLocation);
+        if (childSet.ContainsKey(childId))
+          continue;
+        logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
+            childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
+        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, INVALID_SECTION_TEXT, null, null);
+        ConfigSection dummySection = new ConfigSection();
+        dummySection.SetMetadata(dummyMetadata);
+        AddChildNode(dummySection);
+      }
+      _childrenLoaded = true;
+    }
+
+    /// <summary>
+    /// Helper method to create a meaningful log message. See usage.
+    /// </summary>
+    /// <param name="location">Parent location to search all child locations where plugins registering
+    /// items to.</param>
+    /// <returns>List of plugin names registering items under the specified
+    /// <paramref name="location"/>.</returns>
+    private static IList<string> FindPluginRegistrations(string location)
+    {
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      ICollection<PluginItemMetadata> itemRegistrations = pluginManager.GetAllPluginItemMetadata(location);
+      List<string> result = new List<string>();
+      foreach (PluginItemMetadata itemRegistration in itemRegistrations)
+        result.Add(itemRegistration.PluginRuntime.Metadata.Name);
+      foreach (string childLocation in pluginManager.GetAvailableChildLocations(location))
+        result.AddRange(FindPluginRegistrations(childLocation));
+      return result;
+    }
+
+    protected void AddChildNode(ConfigBase childObj)
+    {
+      _childNodes.Add(new ConfigurationNode(childObj, this));
+    }
+
+    protected static ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
+    {
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ConfigBase result;
+      if (metadata.GetType() == typeof(ConfigGroupMetadata))
+        result = new ConfigGroup();
+      else if (metadata.GetType() == typeof(ConfigSectionMetadata))
+        result = new ConfigSection();
+      else if (metadata.GetType() == typeof(ConfigSettingMetadata))
+      {
+        ConfigSettingMetadata csm = (ConfigSettingMetadata)metadata;
+        ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
+        cs.Load(settingsManager.Load(cs.SettingsObjectType));
+        result = cs;
+      }
+      else
+        throw new NotImplementedException(string.Format("Unknown child class '{0}' of '{1}'", metadata.GetType().FullName, typeof(ConfigBaseMetadata).FullName));
+      result.SetMetadata(metadata);
+      return result;
+    }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// Lazy load flag. If set to <c>true</c>, this node was loaded and its direct childnodes were
+    /// set (the childnodes themselves don't need to be loaded yet). If set to <c>false</c>, this
+    /// node needs to be loaded by method <see cref="Load"/>.
+    /// </summary>
+    public bool IsChildrenLoaded
+    {
+      get { return _childrenLoaded; }
+      set { _childrenLoaded = value; }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void ForEach(ConfigurationNodeActionDelegate action, bool avoidUnloadedNodes)
+    {
+      action(this);
+      if (!IsChildrenLoaded)
+        if (avoidUnloadedNodes)
+          return;
         else
-          _section = _parent._section;
-      }
+          LoadChildren();
+      foreach (ConfigurationNode childNode in _childNodes)
+        childNode.ForEach(action, avoidUnloadedNodes);
     }
 
-    #endregion
-
-    #region Public Methods
-
     /// <summary>
-    /// Returns a value between 0 and 1 representing how the searchValue matches this node.
+    /// Disposes the child nodes and release their registration at the plugin manager.
+    /// After this method was called, the node is in the same state like it was before it was
+    /// lazy loaded - and will switch back to a fully initialized state automatically when it is used again.
     /// </summary>
-    /// <param name="searchValue"></param>
-    /// <returns></returns>
-    public float Matches(string searchValue)
+    public void DisposeChildren()
     {
-      if (_matcher == null)
-        _matcher = new NodeMatcher(_setting);
-      return _matcher.Match(searchValue);
-    }
-
-    #endregion
-
-    #region IConfigurationNode Members
-
-    /// <summary>
-    /// Gets or sets the setting related to the node.
-    /// </summary>
-    public ConfigBase Setting
-    {
-      get { return _setting; }
-      internal set
+      if (!_childrenLoaded)
+        return;
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      string location = PLUGINTREEBASELOCATION + Location;
+      foreach (ConfigurationNode node in _childNodes)
       {
-        _matcher = null;
-        _setting = value;
+        node.DisposeChildren();
+        // To fulfil the classes invariant, we need to do the dispose work for our children - like
+        // we built up our children in method LoadChildren()
+        pluginManager.RevokePluginItem(location, node.Id, _childPluginItemStateTracker);
+        _childPluginItemStateTracker = null;
+      }
+      _childNodes.Clear();
+      _childrenLoaded = false;
+    }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      DisposeChildren();
+    }
+
+    #endregion
+
+    #region IConfigurationNode implementation
+
+    public string Id
+    {
+      get { return _configObj == null ? string.Empty : _configObj.Metadata.Id; }
+    }
+
+    public string Location
+    {
+      get
+      {
+        if (_parent == null)
+          return Id;
+        return String.Format("{0}/{1}", _parent.Location, Id);
       }
     }
 
-    /// <summary>
-    /// Gets the parent.
-    /// </summary>
+    public ConfigBase ConfigObj
+    {
+      get { return _configObj; }
+    }
+
     public IConfigurationNode Parent
     {
       get { return _parent; }
-      internal set
+    }
+
+    public IList<IConfigurationNode> ChildNodes
+    {
+      get
       {
-        _parent = (ConfigurationNode)value;
-        if (_parent != null)
-        {
-          if (_parent.Setting is ConfigSection)
-            _section = _parent;
-          else
-            _section = _parent._section;
-        }
+        CheckChildrenLoaded();
+        IList<IConfigurationNode> result = new List<IConfigurationNode>(_childNodes.Count);
+        foreach (ConfigurationNode node in _childNodes)
+          result.Add(node);
+        return result;
       }
     }
 
-    /// <summary>
-    /// Gets the section containing the current node.
-    /// </summary>
-    public IConfigurationNode Section
+    public IConfigurationNode GetSubNodeById(string id)
     {
-      get { return _section; }
-    }
-
-    /// <summary>
-    /// Gets the collection of ConfigurationNode objects assigned to the current tree node.
-    /// </summary>
-    public IList<IConfigurationNode> Nodes
-    {
-      get { return _nodes; }
-    }
-
-    /// <summary>
-    /// Gets if the node is enabled.
-    /// </summary>
-    public bool IsEnabled
-    {
-      get { return _setting.Disabled; }
-    }
-
-    /// <summary>
-    /// Gets if the node is visible.
-    /// </summary>
-    public bool IsVisible
-    {
-      get { return _setting.Hidden; }
-    }
-
-    /// <summary>
-    /// Returns a string representing the location of the node in the tree.
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-      if (_parent == null)
-        return _setting.Id.ToString();
-      else
-        return String.Format("{0}/{1}", _parent.ToString(), _setting.Id.ToString());
+      CheckChildrenLoaded();
+      foreach (IConfigurationNode node in _childNodes)
+        if (node.Id == id)
+          return node;
+      return null;
     }
 
     #endregion
-
-    #region IEquatable<IConfigurationNode> Members
-
-    public bool Equals(IConfigurationNode other)
-    {
-      // Compares the location in the tree
-      return (other is ConfigurationNode
-        && this.ToString() == other.ToString());
-    }
-
-    #endregion
-
   }
 }

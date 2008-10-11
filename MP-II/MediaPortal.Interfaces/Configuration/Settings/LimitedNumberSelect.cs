@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class LimitedNumberSelect : NumberSelect
+  public abstract class LimitedNumberSelect : NumberSelect
   {
-
     #region Variables
 
     protected double _lowerLimit;
@@ -57,6 +55,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

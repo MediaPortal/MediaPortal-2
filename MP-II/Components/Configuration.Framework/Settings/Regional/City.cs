@@ -23,14 +23,21 @@
 
 #endregion
 
+using System;
 using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.Settings.Regional;
 
-namespace Components.Configuration.Settings
+namespace Components.Configuration.Settings.Regional
 {
   public class City : SingleSelectionList
   {
-    public City()
+    #region Public properties
+
+    public override Type SettingsObjectType
     {
+      get { return typeof(LocalizationSettings); }
     }
+
+    #endregion
   }
 }

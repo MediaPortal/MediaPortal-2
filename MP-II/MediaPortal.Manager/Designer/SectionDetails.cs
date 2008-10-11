@@ -23,7 +23,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Configuration;
 
 using FormControl = System.Windows.Forms.Control;
@@ -33,7 +32,6 @@ namespace MediaPortal.Manager
 {
   public class SectionDetails
   {
-
     #region Variables
 
     private ConfigSection _section;
@@ -101,6 +99,5 @@ namespace MediaPortal.Manager
       _rightToLeft = false;
       _width = -1;
     }
-
   }
 }

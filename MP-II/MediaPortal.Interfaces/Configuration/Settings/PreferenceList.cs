@@ -25,12 +25,10 @@
 
 using System.Collections.Generic;
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class PreferenceList : ConfigItemList
+  public abstract class PreferenceList : ConfigItemList
   {
-
     #region Variables
 
     protected IList<int> _ranking = new List<int>(0);
@@ -113,6 +111,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

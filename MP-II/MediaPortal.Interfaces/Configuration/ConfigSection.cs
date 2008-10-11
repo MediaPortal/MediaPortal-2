@@ -23,50 +23,14 @@
 
 #endregion
 
-using MediaPortal.Presentation.Localisation;
-
 
 namespace MediaPortal.Configuration
 {
   public sealed class ConfigSection : ConfigBase
   {
-
-    #region Variables
-
-    private string _iconsmall;
-    private string _iconlarge;
-
-    #endregion
-
-    #region Properties
-
-    public string IconSmall
+    public ConfigSectionMetadata SectionMetadata
     {
-      get { return _iconsmall; }
+      get { return (ConfigSectionMetadata) Metadata; }
     }
-
-    public string IconLarge
-    {
-      get { return _iconlarge; }
-    }
-
-    #endregion
-
-    #region Constructors 
-
-    public ConfigSection() : base()
-    {
-      
-    }
-
-    public ConfigSection(string location, StringId text, string iconsmall, string iconlarge)
-      : base (location, text)
-    {
-      _iconsmall = iconsmall;
-      _iconlarge = iconlarge;
-    }
-
-    #endregion
-
   }
 }

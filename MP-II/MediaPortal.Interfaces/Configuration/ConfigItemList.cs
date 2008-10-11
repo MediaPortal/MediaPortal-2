@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Localisation;
 
@@ -34,16 +35,15 @@ namespace MediaPortal.Configuration
   /// ConfigItemList has no actual functionality implemented,
   /// it's only used to define that the ConfigBase has a list of items.
   /// </summary>
-  public class ConfigItemList : ConfigItem
+  public abstract class ConfigItemList : ConfigSetting
   {
-
     #region Variables
 
     protected List<StringId> _items = new List<StringId>();
 
     #endregion
 
-    #region Properties
+    #region Public properties
 
     /// <summary>
     /// Gets all items in the list.
@@ -55,5 +55,17 @@ namespace MediaPortal.Configuration
 
     #endregion
 
+    public override IEnumerable<string> GetSearchTexts()
+    {
+      List<string> result = new List<string>();
+      result.AddRange(base.GetSearchTexts());
+      foreach (StringId o in _items)
+      {
+        if (o.Label == "[system.invalid]")
+          continue;
+        result.Add(o.ToString());
+      }
+      return result;
+    }
   }
 }

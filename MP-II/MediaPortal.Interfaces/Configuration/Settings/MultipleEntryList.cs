@@ -27,9 +27,8 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class MultipleEntryList : ConfigItem
+  public abstract class MultipleEntryList : ConfigSetting
   {
-
     #region Variables
 
     /// <summary>
@@ -55,6 +54,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

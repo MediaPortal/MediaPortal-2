@@ -64,12 +64,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\ConfigItem.cs" />
+    <Compile Include="Configuration\ConfigSetting.cs" />
     <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\ConfigGroup.cs" />
     <Compile Include="Configuration\ConfigChangedEventHandler.cs" />
     <Compile Include="Configuration\ConfigItemList.cs" />
     <Compile Include="Configuration\ConfigSection.cs" />
+    <Compile Include="Configuration\ConfigGroupMetadata.cs" />
+    <Compile Include="Configuration\ConfigSectionMetadata.cs" />
+    <Compile Include="Configuration\ConfigSettingMetadata.cs" />
+    <Compile Include="Configuration\IConfigurationManager.cs" />
+    <Compile Include="Configuration\IConfigurationNode.cs" />
+    <Compile Include="Configuration\NodeNotFoundException.cs" />
+    <Compile Include="Configuration\ConfigBaseMetadata.cs" />
     <Compile Include="Configuration\Settings\Entry.cs" />
     <Compile Include="Configuration\Settings\LimitedNumberSelect.cs" />
     <Compile Include="Configuration\Settings\MultipleEntryList.cs" />
@@ -113,6 +120,7 @@
     <Compile Include="Presentation\DataObjects\FolderItem.cs" />
     <Compile Include="Presentation\DataObjects\ItemsCollection.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
+    <Compile Include="Presentation\Localisation\LocalizationHelper.cs" />
     <Compile Include="Presentation\DataObjects\TreeItem.cs" />
     <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />

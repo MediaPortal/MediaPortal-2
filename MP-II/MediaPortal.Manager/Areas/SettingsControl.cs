@@ -45,10 +45,8 @@ using FormControl = System.Windows.Forms.Control;
 
 namespace MediaPortal.Manager
 {
-
   public partial class SettingsControl : UserControl
   {
-
     #region Variables
 
     private bool _languageChange = false;
@@ -67,14 +65,14 @@ namespace MediaPortal.Manager
 
       // localise buttons
       StringId save = new StringId("configuration", "settings.button.save");
-      this._btnSave.Tag = save;
-      this._btnSave.Text = save.ToString();
-      this._btnSave.Enabled = false;
+      _btnSave.Tag = save;
+      _btnSave.Text = save.ToString();
+      _btnSave.Enabled = false;
 
       StringId apply = new StringId("configuration", "settings.button.apply");
-      this._btnApply.Tag = apply;
-      this._btnApply.Text = apply.ToString();
-      this._btnApply.Enabled = false;
+      _btnApply.Tag = apply;
+      _btnApply.Text = apply.ToString();
+      _btnApply.Enabled = false;
 
       _treeSections.ImageList = new ImageList();
       _treeSections.ImageList.ColorDepth = ColorDepth.Depth32Bit;
@@ -83,7 +81,7 @@ namespace MediaPortal.Manager
 
       LoadSections();
 
-      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LanguageChange);
+      ServiceScope.Get<ILocalisation>().LanguageChange += LanguageChange;
       CheckRightToLeft();
     }
 
@@ -97,7 +95,7 @@ namespace MediaPortal.Manager
     /// <returns></returns>
     public bool Closing()
     {
-      if (this._btnSave.Enabled)
+      if (_btnSave.Enabled)
       {
         StringId message = new StringId("configuration", "save_on_exit");
         StringId title = new StringId("configuration", "unsaved_warning");
@@ -120,7 +118,7 @@ namespace MediaPortal.Manager
     /// </summary>
     public void FocusSearch()
     {
-      this.Focus();
+      Focus();
       _txtSearch.Select();
     }
 
@@ -144,27 +142,25 @@ namespace MediaPortal.Manager
       _rightToLeft = ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft;
       if (_rightToLeft)
       {
+        RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 
-        base.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+        _treeSections.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+        _treeSections.RightToLeftLayout = true;
 
-        this._treeSections.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-        this._treeSections.RightToLeftLayout = true;
-
-        this._picSectionIcon.Location = new System.Drawing.Point(5, 5);
-        this._lblSectionTitle.Size = new System.Drawing.Size(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 16);
-        this._lblSectionTitle.Location = new System.Drawing.Point(_picSectionIcon.Size.Width + 5, 22);
+        _picSectionIcon.Location = new Point(5, 5);
+        _lblSectionTitle.Size = new Size(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 16);
+        _lblSectionTitle.Location = new Point(_picSectionIcon.Size.Width + 5, 22);
       }
       else
       {
+        RightToLeft = System.Windows.Forms.RightToLeft.No;
 
-        this.RightToLeft = System.Windows.Forms.RightToLeft.No;
+        _treeSections.RightToLeft = System.Windows.Forms.RightToLeft.No;
+        _treeSections.RightToLeftLayout = false;
 
-        this._treeSections.RightToLeft = System.Windows.Forms.RightToLeft.No;
-        this._treeSections.RightToLeftLayout = false;
-
-        this._picSectionIcon.Location = new System.Drawing.Point(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 5);
-        this._lblSectionTitle.Size = new System.Drawing.Size(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 16);
-        this._lblSectionTitle.Location = new System.Drawing.Point(0, 22);
+        _picSectionIcon.Location = new Point(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 5);
+        _lblSectionTitle.Size = new Size(_sectionHeader.Size.Width - _picSectionIcon.Size.Width - 5, 16);
+        _lblSectionTitle.Location = new Point(0, 22);
       }
     }
 
@@ -183,11 +179,11 @@ namespace MediaPortal.Manager
       if (_languageChange)
       {
         // Update text on buttons
-        if (this._btnSave.Tag is StringId)
-          this._btnSave.Text = ((StringId)this._btnSave.Tag).ToString();
+        if (_btnSave.Tag is StringId)
+          _btnSave.Text = ((StringId)_btnSave.Tag).ToString();
 
-        if (this._btnApply.Tag is StringId)
-          this._btnApply.Text = ((StringId)this._btnApply.Tag).ToString();
+        if (_btnApply.Tag is StringId)
+          _btnApply.Text = ((StringId)_btnApply.Tag).ToString();
         // Update text in section tree,
         // all section details controls need to be redrawn.
         foreach (TreeNode node in _treeSections.Nodes)
@@ -195,7 +191,7 @@ namespace MediaPortal.Manager
           if (node.Tag is SectionDetails)
           {
             SectionDetails details = (SectionDetails)node.Tag;
-            node.Text = details.Section.Text.ToString();
+            node.Text = details.Section.Text.Evaluate();
             details.Designed = false;
           }
           foreach (TreeNode subnode in node.Nodes)
@@ -203,7 +199,7 @@ namespace MediaPortal.Manager
             if (subnode.Tag is SectionDetails)
             {
               SectionDetails details = (SectionDetails)subnode.Tag;
-              subnode.Text = details.Section.Text.ToString();
+              subnode.Text = details.Section.Text.Evaluate();
               details.Designed = false;
             }
           }
@@ -226,11 +222,11 @@ namespace MediaPortal.Manager
     private void LoadSections()
     {
       IConfigurationManager manager = ServiceScope.Get<IConfigurationManager>();
-      IEnumerable<ConfigSection> sections = manager.GetSections();
+      IEnumerable<ConfigSection> sections = GetSections(manager, "/");
       foreach (ConfigSection section in sections)
       {
         TreeNode node = CreateTreeNode(section);
-        LoadSections(manager, section.Id, node.Nodes);
+        LoadSections(manager, section.Metadata.Id, node.Nodes);
         _treeSections.Nodes.Add(node);
       }
     }
@@ -243,11 +239,11 @@ namespace MediaPortal.Manager
     /// <param name="destination">Collection to add nodes to.</param>
     private void LoadSections(IConfigurationManager manager, string parentPath, TreeNodeCollection destination)
     {
-      IEnumerable<ConfigSection> sections = manager.GetSections(parentPath);
+      IEnumerable<ConfigSection> sections = GetSections(manager, parentPath);
       foreach (ConfigSection section in sections)
       {
         TreeNode node = CreateTreeNode(section);
-        LoadSections(manager, parentPath + "/" + section.Id, node.Nodes);
+        LoadSections(manager, parentPath + "/" + section.Metadata.Id, node.Nodes);
         destination.Add(node);
       }
     }
@@ -256,16 +252,15 @@ namespace MediaPortal.Manager
     /// Loads an enumeration of ConfigurationNodes to a TreeNodeCollection.
     /// </summary>
     /// <param name="nodes">Collection to get nodes from.</param>
-    /// <param name="selectedNode"></param>
     /// <param name="destination">Collection to add nodes to.</param>
-    private void LoadSections(IEnumerable<IConfigurationNode> nodes, IConfigurationNode selectedNode, TreeNodeCollection destination)
+    private void LoadSections(IEnumerable<IConfigurationNode> nodes, TreeNodeCollection destination)
     {
       foreach (IConfigurationNode node in nodes)
       {
-        if (node.Setting is ConfigSection)
+        if (node.ConfigObj is ConfigSection)
         {
-          TreeNode treeNode = CreateTreeNode((ConfigSection)node.Setting);
-          LoadSections(node.Nodes, selectedNode, treeNode.Nodes);
+          TreeNode treeNode = CreateTreeNode((ConfigSection)node.ConfigObj);
+          LoadSections(node.ChildNodes, treeNode.Nodes);
           destination.Add(treeNode);
           if (treeNode.Parent != null)
             treeNode.Parent.Expand();
@@ -284,43 +279,29 @@ namespace MediaPortal.Manager
       SectionDetails sectionTag = new SectionDetails();
       sectionTag.Section = section;
       node.Tag = sectionTag;
-      node.Text = section.Text.ToString();
+      node.Text = section.Text.Evaluate();
       node.ImageIndex = _treeSections.ImageList.Images.Count;
       node.SelectedImageIndex = _treeSections.ImageList.Images.Count;
-      AddPNGToImageList(_treeSections.ImageList, section.IconSmall);
+      AddPNGToImageList(_treeSections.ImageList, section.SectionMetadata.IconSmallFilePath);
       return node;
     }
 
     /// <summary>
-    /// Expands the section holding the specified IConfigurationNode.
+    /// Expands the section with the specified <paramref name="location"/>.
     /// The expanded TreeNode is returned.
     /// </summary>
-    /// <param name="configNode">IConfigurationNode to expand section from.</param>
+    /// <param name="location">Location of the tree node to expand.</param>
     /// <param name="maySelect">May the section be selected?</param>
     /// <returns>The expanded TreeNode.</returns>
-    private TreeNode ExpandNodeSection(IConfigurationNode configNode, bool maySelect)
+    private TreeNode ExpandNodeSection(string location, bool maySelect)
     {
-      configNode = (configNode.Setting is ConfigSection ? configNode : configNode.Section);
-      TreeNodeCollection collection;  // Collection which will contain the node to select
-      if (configNode.Section != null) // Find the parentnode and use its childnodes
-        collection = ExpandNodeSection(configNode.Section, false).Nodes;
-      else                            // Rootnode, so use the childnodes of the tree
-        collection = _treeSections.Nodes;
-      // Find the node in the collection
-      foreach (TreeNode node in collection)
-      {
-        if (node.Text == configNode.Setting.Text.ToString())
-        {
-          node.Expand();
-          TreeNode returnNode = node;
-          if (returnNode == null)
-            return new TreeNode();
-          if (maySelect)
-            _treeSections.SelectedNode = returnNode;
-          return returnNode;
-        }
-      }
-      return new TreeNode();  // Nothing found: return empty node
+      IList<TreeNode> nodes = GetTreeNodes(location);
+      foreach (TreeNode node in nodes)
+        node.Expand();
+      TreeNode result = nodes.Count == 0 ? null : nodes[nodes.Count - 1];
+      if (result != null && maySelect)
+        _treeSections.SelectedNode = result;
+      return result;
     }
 
     #endregion
@@ -336,7 +317,7 @@ namespace MediaPortal.Manager
       if (_treeSections.SelectedNode == null)
         return;
       _lblSectionTitle.Text = _treeSections.SelectedNode.Text;
-      _picSectionIcon.Image = GetImage(((SectionDetails)_treeSections.SelectedNode.Tag).Section.IconLarge, ImageSize.L48);
+      _picSectionIcon.Image = GetImage(((SectionDetails)_treeSections.SelectedNode.Tag).Section.SectionMetadata.IconLargeFilePath, ImageSize.L48);
       if (_treeSections.SelectedNode.Tag != null && _treeSections.SelectedNode.Tag is SectionDetails)
       {
         if (!((SectionDetails)_treeSections.SelectedNode.Tag).Designed                              // no settings built yet
@@ -370,6 +351,22 @@ namespace MediaPortal.Manager
       }
     }
 
+    private static IList<ConfigSection> GetSections(IConfigurationManager manager, string parentLocation)
+    {
+      List<ConfigSection> result = new List<ConfigSection>();
+      // Get the collection containing the nodes
+      IConfigurationNode parentNode = manager.GetNode(parentLocation);
+      if (parentNode == null)
+        return null;
+      // Section found, get subsections
+      foreach (IConfigurationNode node in parentNode.ChildNodes)
+      {
+        if (node.ConfigObj is ConfigSection)
+          result.Add((ConfigSection) node.ConfigObj);
+      }
+      return result;
+    }
+
     /// <summary>
     /// Builds the settings for a TreeNode and adds them to the Tag as SectionDetails.
     /// </summary>
@@ -382,47 +379,55 @@ namespace MediaPortal.Manager
       sectionTag.Width = _panelSectionSettings.Width;
       // Create controls
       FormDesigner designer = new FormDesigner(GetSectionPath(node));
-      designer.Help = this._help;
-      designer.ConfigChangedHandler = new ConfigChangedEventHandler(UpdateConfigItem);
-      designer.YesNoChange = new EventHandler(YesNoChange);
-      designer.MultiSelectionListChange = new EventHandler(MultiSelectionListChange);
-      designer.SingleSelectionListChange = new EventHandler(SingleSelectionListChange);
-      designer.ListBoxSelectionChange = new EventHandler(ListSelectionChanged);
-      designer.ButtonClick = new EventHandler(ButtonClicked);
-      designer.EntryLeave = new EventHandler(EntryChange);
-      designer.NumUpDownChanged = new EventHandler(NumUpDownChanged);
+      designer.Help = _help;
+      designer.ConfigChangedHandler = UpdateConfigItem;
+      designer.YesNoChange = YesNoChange;
+      designer.MultiSelectionListChange = MultiSelectionListChange;
+      designer.SingleSelectionListChange = SingleSelectionListChange;
+      designer.ListBoxSelectionChange = ListSelectionChanged;
+      designer.ButtonClick = ButtonClicked;
+      designer.EntryLeave = EntryChange;
+      designer.NumUpDownChanged = NumUpDownChanged;
       sectionTag.Control = designer.BuildToPanel(_rightToLeft, _panelSectionSettings.Width);
       sectionTag.Designed = true;
       node.Tag = sectionTag;
     }
 
     /// <summary>
-    /// Gets the TreeNode linked to the specified path.
+    /// Gets the TreeNode linked to the specified <paramref name="location"/>.
     /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    private TreeNode GetTreeNode(string path)
+    /// <param name="location">Location of the tree node to search. If the specified
+    /// <paramref name="location"/> doesn't correspond to a section, the section containing the
+    /// specified location is returned.</param>
+    /// <returns>Last section tree node of the specified <paramref name="location"/>.</returns>
+    private TreeNode GetTreeNode(string location)
     {
-      string[] loc = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-      TreeNode parent = null;
+      IList<TreeNode> nodesPath = GetTreeNodes(location);
+      return nodesPath.Count == 0 ? null : nodesPath[nodesPath.Count - 1];
+    }
+
+    private IList<TreeNode> GetTreeNodes(string location)
+    {
+      IList<TreeNode> result = new List<TreeNode>();
+      string[] loc = location.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
       TreeNodeCollection nodes = _treeSections.Nodes;
       foreach (string l in loc)
       {
         bool found = false;
         foreach (TreeNode node in nodes)
         {
-          if (((SectionDetails)node.Tag).Section.Id == l)
+          if (((SectionDetails)node.Tag).Section.Metadata.Id == l)
           {
-            parent = node;
+            result.Add(node);
             nodes = node.Nodes;
             found = true;
             break;
           }
         }
-        if (!found) // Not found => next part of the path wasn't a section
+        if (!found) // Not found => next part of the location wasn't a section
           break;
       }
-      return parent;
+      return result;
     }
 
     /// <summary>
@@ -436,12 +441,12 @@ namespace MediaPortal.Manager
       SectionDetails sectionTag = (SectionDetails)node.Tag;
       if (sectionTag.Section == null)
         return "";
-      StringBuilder location = new StringBuilder(sectionTag.Section.Id + "/");
+      StringBuilder location = new StringBuilder(sectionTag.Section.Metadata.Id + "/");
       while (node.Parent != null
             && node.Parent.Tag != null
             && node.Parent.Tag is SectionDetails)
       {
-        location.Insert(0, ((SectionDetails)node.Parent.Tag).Section.Id + "/");
+        location.Insert(0, ((SectionDetails)node.Parent.Tag).Section.Metadata.Id + "/");
         node = node.Parent;
       }
       return location.ToString();
@@ -464,7 +469,7 @@ namespace MediaPortal.Manager
         bool found = false;
         foreach (FormControl control in controls)
         {
-          if (control.Tag != null && ((ConfigBase)control.Tag).Id == loc)
+          if (control.Tag != null && ((ConfigBase)control.Tag).Metadata.Id == loc)
           {
             found = true;
             controls = control.Controls;
@@ -478,18 +483,23 @@ namespace MediaPortal.Manager
     }
 
     /// <summary>
-    /// Focuses on the specified control.
+    /// Focuses on the setting control at the specified <paramref name="location"/>.
     /// </summary>
-    /// <param name="path">Path to the control, should be the same as IConfigurationNode.ToString()</param>
-    private void FocusControl(string path)
+    /// <param name="location">Location of the config control to focus.</param>
+    private void FocusControl(string location)
     {
       string section = GetSectionPath(_treeSections.SelectedNode);
-      if (section.Length >= path.Length)
+      if (section.Length >= location.Length)
         return;
-      path = path.Substring(section.Length);
-      FormControl control = GetFormControl(path);
+      location = location.Substring(section.Length);
+      FormControl control = GetFormControl(location);
       if (control.CanSelect)
         control.Select();
+    }
+
+    private void SearchGoto(string location)
+    {
+      FocusControl(location);
     }
 
     #endregion
@@ -643,13 +653,13 @@ namespace MediaPortal.Manager
     private void buttonSave_Click(object sender, EventArgs e)
     {
       ServiceScope.Get<IConfigurationManager>().Save();
-      this._btnSave.Enabled = false;
+      _btnSave.Enabled = false;
     }
 
     private void buttonApply_Click(object sender, EventArgs e)
     {
       ApplyAll();
-      this._btnApply.Enabled = false;
+      _btnApply.Enabled = false;
     }
 
     private void panelSectionSettings_SizeChanged(object sender, EventArgs e)
@@ -672,13 +682,16 @@ namespace MediaPortal.Manager
       }
       else
       {
-        IConfigurationNode bestNode;
-        IEnumerable<IConfigurationNode> result = ServiceScope.Get<IConfigurationManager>().Search(_txtSearch.Text, out bestNode);
-        _txtSearch.Tag = bestNode;
-        _btnSearch.Tag = bestNode;
-        LoadSections(result, bestNode, _treeSections.Nodes);
-        if (bestNode != null)
-          ExpandNodeSection(bestNode, true);
+        IConfigurationNode bestMatch;
+        IEnumerable<IConfigurationNode> matchingLocations = ServiceScope.Get<IConfigurationManager>().Search(
+            _txtSearch.Text, out bestMatch);
+        if (bestMatch != null)
+        {
+          _txtSearch.Tag = bestMatch;
+          _btnSearch.Tag = bestMatch;
+          LoadSections(matchingLocations, _treeSections.Nodes);
+          ExpandNodeSection(bestMatch.Location, true);
+        }
         else
         {
           _panelSectionSettings.Controls.Clear();  // Clear the old bestNode
@@ -689,14 +702,13 @@ namespace MediaPortal.Manager
 
     private void txtSearch_KeyPress(object sender, KeyPressEventArgs e)
     {
-      if ((int)e.KeyChar == 13)     // focus on the best match if user presses enter
-        btnSearch_Click(sender, e);
+      if (e.KeyChar == '\r') // focus on the best match if user presses enter
+        SearchGoto((string) ((FormControl) sender).Tag);
     }
 
     private void btnSearch_Click(object sender, EventArgs e)
     {
-      if (((FormControl)sender).Tag != null)
-        FocusControl(((FormControl)sender).Tag.ToString());
+      SearchGoto((string) ((FormControl) sender).Tag);
     }
 
     #endregion
@@ -716,7 +728,7 @@ namespace MediaPortal.Manager
       // Setting is on a different page
       else
       {
-        ((SectionDetails)GetTreeNode(senderLocation).Tag).Designed = false;
+        ((SectionDetails) GetTreeNode(senderLocation).Tag).Designed = false;
       }
     }
 
@@ -730,8 +742,8 @@ namespace MediaPortal.Manager
           && chk.Tag is YesNo)
         {
           ((YesNo)chk.Tag).Yes = chk.Checked;
-          this._btnSave.Enabled = true;
-          this._btnApply.Enabled = true;
+          _btnSave.Enabled = true;
+          _btnApply.Enabled = true;
         }
       }
     }
@@ -746,8 +758,8 @@ namespace MediaPortal.Manager
           && cmb.Tag is SingleSelectionList)
         {
           ((SingleSelectionList)cmb.Tag).Selected = cmb.SelectedIndex;
-          this._btnSave.Enabled = true;
-          this._btnApply.Enabled = true;
+          _btnSave.Enabled = true;
+          _btnApply.Enabled = true;
         }
       }
       else if (sender is RadioButton)
@@ -761,8 +773,8 @@ namespace MediaPortal.Manager
           && radio.Parent.Tag is SingleSelectionList)
         {
           ((SingleSelectionList)radio.Parent.Tag).Selected = (int)radio.Tag;
-          this._btnSave.Enabled = true;
-          this._btnApply.Enabled = true;
+          _btnSave.Enabled = true;
+          _btnApply.Enabled = true;
         }
       }
     }
@@ -777,8 +789,8 @@ namespace MediaPortal.Manager
           && chk.Tag is MultipleSelectionList)
         {
           ((MultipleSelectionList)chk.Tag).SelectedIndices = (IList<int>)chk.SelectedIndices;
-          this._btnSave.Enabled = true;
-          this._btnApply.Enabled = true;
+          _btnSave.Enabled = true;
+          _btnApply.Enabled = true;
         }
       }
     }
@@ -809,8 +821,8 @@ namespace MediaPortal.Manager
         {
           return; // don't enable the buttons
         }
-        this._btnSave.Enabled = true;
-        this._btnApply.Enabled = true;
+        _btnSave.Enabled = true;
+        _btnApply.Enabled = true;
       }
     }
 
@@ -858,8 +870,8 @@ namespace MediaPortal.Manager
             details.ListBox.Items.RemoveAt(selectedIndex);
             details.ListBox.Items.Insert(selectedIndex + indexChange, itemString);
             details.ListBox.SelectedIndex = selectedIndex + indexChange;
-            this._btnSave.Enabled = true;
-            this._btnApply.Enabled = true;
+            _btnSave.Enabled = true;
+            _btnApply.Enabled = true;
           }
         }
         // Handle a Path
@@ -877,8 +889,8 @@ namespace MediaPortal.Manager
               {
                 details.TextBox.Text = ofd.FileName;
                 details.Path.SelectedPath = ofd.FileName;
-                this._btnSave.Enabled = true;
-                this._btnApply.Enabled = true;
+                _btnSave.Enabled = true;
+                _btnApply.Enabled = true;
               }
               break;
             case Path.PathType.FOLDER:
@@ -888,8 +900,8 @@ namespace MediaPortal.Manager
               {
                 details.TextBox.Text = fbd.SelectedPath;
                 details.Path.SelectedPath = fbd.SelectedPath;
-                this._btnSave.Enabled = true;
-                this._btnApply.Enabled = true;
+                _btnSave.Enabled = true;
+                _btnApply.Enabled = true;
               }
               break;
             default:
@@ -910,8 +922,8 @@ namespace MediaPortal.Manager
         if (num.Tag is NumberSelect)
         {
           ((NumberSelect)num.Tag).Value = (double)num.Value;
-          this._btnSave.Enabled = true;
-          this._btnApply.Enabled = true;
+          _btnSave.Enabled = true;
+          _btnApply.Enabled = true;
         }
       }
     }
@@ -919,6 +931,5 @@ namespace MediaPortal.Manager
     #endregion
 
     #endregion
-
   }
 }

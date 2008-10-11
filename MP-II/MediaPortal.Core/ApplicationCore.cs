@@ -37,7 +37,7 @@ using MediaPortal.Core.TaskScheduler;
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// Starter class for the MediaPortal system. Before calling the <see cref="Start()"/> method,
+  /// Starter class for the MediaPortal system. Before calling the <see cref="Start"/> method,
   /// the <see cref="ServiceScope"/> has to be configured with all needed services.
   /// </summary>
   public class ApplicationCore
@@ -83,7 +83,7 @@ namespace MediaPortal.Core
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       pluginManager.Initialize();
-      pluginManager.Startup();
+      pluginManager.Startup(false);
       Application.Run();
       pluginManager.Shutdown();
     }

@@ -52,17 +52,37 @@ namespace MediaPortal.Core.Services.Settings
 
     #endregion
 
-    #region IDisposable implementation
+    #region Protected methods
 
-    public void Dispose()
+    /// <summary>
+    /// Returns the full file path for a user setting object of the specified
+    /// <paramref name="settingType"/>.
+    /// </summary>
+    /// <param name="settingType">Type of the settings class to map to a filename.</param>
+    /// <returns>File name without path of a file which will store the setting instance of the
+    /// specified <paramref name="settingType"/>.</returns>
+    protected static string GetUserFilePath(Type settingType)
     {
-      _cache.Dispose();
-      _cache = null;
+      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingType.FullName + ".xml");
+      return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
+    }
+
+    /// <summary>
+    /// Returns the full file path for a global setting object of the specified
+    /// <paramref name="settingType"/>.
+    /// </summary>
+    /// <param name="settingType">Type of the settings class to map to a filename.</param>
+    /// <returns>File name without path of a file which will store the setting instance of the
+    /// specified <paramref name="settingType"/>.</returns>
+    protected static string GetGlobalFilePath(Type settingType)
+    {
+      string fullFileName = String.Format(@"<CONFIG>\{0}", settingType.FullName + ".xml");
+      return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
     }
 
     #endregion
 
-    #region Public methods
+    #region ISettingsManager implementation
 
     public SettingsType Load<SettingsType>() where SettingsType : class
     {
@@ -126,35 +146,14 @@ namespace MediaPortal.Core.Services.Settings
 
     #endregion
 
-    #region Private Methods
+    #region IDisposable implementation
 
-    /// <summary>
-    /// Returns the full file path for a user setting object of the specified
-    /// <paramref name="settingType"/>.
-    /// </summary>
-    /// <param name="settingType">Type of the settings class to map to a filename.</param>
-    /// <returns>File name without path of a file which will store the setting instance of the
-    /// specified <paramref name="settingType"/>.</returns>
-    protected static string GetUserFilePath(Type settingType)
+    public void Dispose()
     {
-      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingType.FullName + ".xml");
-      return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
-    }
-
-    /// <summary>
-    /// Returns the full file path for a global setting object of the specified
-    /// <paramref name="settingType"/>.
-    /// </summary>
-    /// <param name="settingType">Type of the settings class to map to a filename.</param>
-    /// <returns>File name without path of a file which will store the setting instance of the
-    /// specified <paramref name="settingType"/>.</returns>
-    protected static string GetGlobalFilePath(Type settingType)
-    {
-      string fullFileName = String.Format(@"<CONFIG>\{0}", settingType.FullName + ".xml");
-      return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
+      _cache.Dispose();
+      _cache = null;
     }
 
     #endregion
-
   }
 }

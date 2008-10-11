@@ -37,7 +37,6 @@ using MediaPortal.Configuration.Settings;
 
 namespace MediaPortal.Manager
 {
-
   /// <summary>
   /// Calculates the location of controls, based on an instance of ConfigBase.
   /// </summary>
@@ -46,17 +45,18 @@ namespace MediaPortal.Manager
   /// </remarks>
   public class FormDesigner
   {
-
     #region Variables
 
     /// <summary>
     /// Location of the configuration in the ConfigurationTree.
     /// </summary>
     private string _configLocation;
+
     /// <summary>
-    /// IConfigurationManager to load settings with.
+    /// IConfigurationManager to load settings from.
     /// </summary>
     private IConfigurationManager _manager;
+    
     /// <summary>
     /// ToolTip to add all help string to.
     /// Use SetHelp() to add help.
@@ -242,7 +242,7 @@ namespace MediaPortal.Manager
     /// <returns></returns>
     public Panel BuildToPanel(bool rightToLeft, int width)
     {
-      return BuildToPanel(_manager.GetItem(_configLocation), new Position(rightToLeft, width));
+      return BuildToPanel(_manager.GetNode(_configLocation), new Position(rightToLeft, width));
     }
 
     #endregion
@@ -258,27 +258,27 @@ namespace MediaPortal.Manager
     private Panel BuildToPanel(IConfigurationNode node, Position position)
     {
       Panel panel = new Panel();
-      panel.Tag = node.Setting;
+      panel.Tag = node == null ? null : node.ConfigObj;
       panel.AutoSize = false;
       panel.Height = 0;
       panel.Width = position.FullWidth;
       panel.Padding = new Padding(0, 0, 0, 0);
       panel.Margin = new Padding(0, 0, 0, 0);
-      if (node == null || node.Setting == null)
+      if (node == null || node.ConfigObj == null)
         return panel; // Return empty panel
-      panel.Name = node.ToString() + "_" + node.Setting.ToString();
+      panel.Name = string.Format("{0}_{1}", node.Location, node.ConfigObj);
       // Add heading
-      if (node.Setting is ConfigGroup)
+      if (node.ConfigObj is ConfigGroup)
       {
-        panel.Controls.Add(CreateHeading(position, node.Setting.Text.ToString()));
+        panel.Controls.Add(CreateHeading(position, node.ConfigObj.Text.Evaluate()));
         position.LinePosition += position.LineHeight;
       }
       // Add subcontrols
-      foreach (IConfigurationNode subNode in node.Nodes)
+      foreach (IConfigurationNode subNode in node.ChildNodes)
       {
-        if (subNode.Setting.Hidden) continue;
-        subNode.Setting.RedrawSettingEvent += _configChangedHandler;
-        if (subNode.Setting is ConfigGroup)
+        if (subNode.ConfigObj.Hidden) continue;
+        subNode.ConfigObj.RedrawSettingEvent += _configChangedHandler;
+        if (subNode.ConfigObj is ConfigGroup)
         {
           Position pos = (Position) position.Clone();
           pos.StartColumnOne += pos.Indent; // indent the first column
@@ -286,22 +286,22 @@ namespace MediaPortal.Manager
           pos.LinePosition = 0; // reset linePosition, this is relative to the new control
           // Make a recursive call to process the group to a Panel
           Panel subPanel = BuildToPanel(subNode, pos);
-          subPanel.Anchor = (((AnchorStyles.Top | AnchorStyles.Left) | AnchorStyles.Right));
+          subPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
           subPanel.Location = new Point(0, position.LinePosition);
-          subPanel.Enabled = !subNode.Setting.Disabled;
+          subPanel.Enabled = !subNode.ConfigObj.Disabled;
           panel.Controls.Add(subPanel);
           position.LinePosition += pos.LinePosition;
         }
-        else if (subNode.Setting is ConfigItem)
+        else if (subNode.ConfigObj is ConfigSetting)
         {
-          ConfigItem setting = (ConfigItem) subNode.Setting;
+          ConfigSetting setting = (ConfigSetting) subNode.ConfigObj;
           if (setting is Entry)
           {
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString()));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate()));
             TextBox txt = CreateTextBox(position, setting.Columns);
             txt.Text = ((Entry) setting).Value;
             txt.Tag = setting;
-            SetHelp(txt, setting.Help.ToString());
+            SetHelp(txt, setting.Help.Evaluate());
             txt.Enabled = !setting.Disabled;
             panel.Controls.Add(txt);
             position.LinePosition += position.LineHeight + position.Margin;
@@ -309,13 +309,13 @@ namespace MediaPortal.Manager
           else if (setting is LimitedNumberSelect)
           {
             int height;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.Width, out height));
             panel.Controls.Add(CreateLimitedNumberSelect(position, (LimitedNumberSelect) setting));
             position.LinePosition += height + position.Margin;
           }
           else if (setting is MultipleEntryList)
           {
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString()));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate()));
             position.LinePosition += position.LineHeight;
             TextBox txt = CreateMultiLineTextBox(position, setting.Rows);
             txt.Tag = setting;
@@ -323,7 +323,7 @@ namespace MediaPortal.Manager
             txt.Lines = new string[entryList.Lines.Count];
             for (int i = 0; i < txt.Lines.Length; i++)
               txt.Lines[i] = entryList.Lines[i];
-            SetHelp(txt, setting.Help.ToString());
+            SetHelp(txt, setting.Help.Evaluate());
             txt.Enabled = !setting.Disabled;
             panel.Controls.Add(txt);
             position.LinePosition += txt.Height + position.Margin;
@@ -331,7 +331,7 @@ namespace MediaPortal.Manager
           else if (setting is MultipleSelectionList)
           {
             int lblHeight;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne,
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.WidthColumnOne,
                                            out lblHeight));
             position.LinePosition += lblHeight + position.Margin;
             CheckedListBox chk = CreateCheckedListBox(position);
@@ -345,14 +345,14 @@ namespace MediaPortal.Manager
           else if (setting is NumberSelect)
           {
             int height;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.Width, out height));
             panel.Controls.Add(CreateNumberSelect(position, (NumberSelect) setting));
             position.LinePosition += height + position.Margin;
           }
           else if (setting is Path)
           {
             int height;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.Width, out height));
             position.LinePosition += height + position.Margin;
             Panel browse = CreateBrowseEntry(position, (Path) setting);
             panel.Controls.Add(browse);
@@ -361,7 +361,7 @@ namespace MediaPortal.Manager
           else if (setting is PreferenceList)
           {
             int height;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.Width, out height));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.Width, out height));
             position.LinePosition += height + position.Margin;
             Panel list = CreatePreferenceList(position, (PreferenceList) setting);
             panel.Controls.Add(list);
@@ -370,7 +370,7 @@ namespace MediaPortal.Manager
           else if (setting is SingleSelectionList)
           {
             int lblHeight;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne,
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.WidthColumnOne,
                                            out lblHeight));
             lblHeight += position.Margin;
             if (((SingleSelectionList) setting).Items.Count > 3) // ComboBox
@@ -380,7 +380,7 @@ namespace MediaPortal.Manager
                 cmb.Items.Add(item.ToString());
               cmb.SelectedIndex = ((SingleSelectionList) setting).Selected;
               cmb.Tag = setting;
-              SetHelp(cmb, setting.Help.ToString());
+              SetHelp(cmb, setting.Help.Evaluate());
               cmb.Enabled = !setting.Disabled;
               panel.Controls.Add(cmb);
               if (lblHeight > position.LineHeight)
@@ -398,12 +398,12 @@ namespace MediaPortal.Manager
           else if (setting is YesNo)
           {
             int lblHeight;
-            panel.Controls.Add(CreateLabel(position, setting.Text.ToString(), position.WidthColumnOne, out lblHeight));
+            panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate(), position.WidthColumnOne, out lblHeight));
             lblHeight += position.Margin;
             CheckBox chk = CreateCheckBox(position);
             chk.Checked = ((YesNo) setting).Yes;
             chk.Tag = setting;
-            SetHelp(chk, setting.Help.ToString());
+            SetHelp(chk, setting.Help.Evaluate());
             chk.Enabled = !setting.Disabled;
             panel.Controls.Add(chk);
             if (lblHeight > position.LineHeight)
@@ -651,7 +651,7 @@ namespace MediaPortal.Manager
         btn.Checked = (i == tag.Selected);
         btn.CheckedChanged += _singleSelectionListChange;
         btn.Tag = i;
-        SetHelp(btn, tag.Help.ToString());
+        SetHelp(btn, tag.Help.Evaluate());
         items.Add(btn);
         // see if we should take a new line (add 30 for the radiobutton and to cover too small measurements)
         btn.Width = (int)(btn.CreateGraphics().MeasureString(btn.Text, btn.Font).Width + 30);
@@ -828,6 +828,5 @@ namespace MediaPortal.Manager
     #endregion
 
     #endregion
-
   }
 }

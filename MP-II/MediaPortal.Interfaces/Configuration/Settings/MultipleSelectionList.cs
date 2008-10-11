@@ -29,9 +29,8 @@ using MediaPortal.Presentation.Localisation;
 
 namespace MediaPortal.Configuration.Settings
 {
-  public class MultipleSelectionList : ConfigItemList
+  public abstract class MultipleSelectionList : ConfigItemList
   {
-    
     #region Variables
 
     protected List<int> _selected = new List<int>();

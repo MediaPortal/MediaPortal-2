@@ -23,18 +23,14 @@
 
 #endregion
 
-using MediaPortal.Presentation.Localisation;
-
 
 namespace MediaPortal.Configuration
 {
   public sealed class ConfigGroup : ConfigBase
   {
-
-    public ConfigGroup(string location, StringId text)
-      : base(location, text)
+    public ConfigGroupMetadata GroupMetadata
     {
+      get { return (ConfigGroupMetadata) Metadata; }
     }
-
   }
 }

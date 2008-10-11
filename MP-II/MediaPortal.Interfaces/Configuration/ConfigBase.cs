@@ -23,101 +23,59 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 
 
 namespace MediaPortal.Configuration
 {
-  public class ConfigBase
+  public abstract class ConfigBase
   {
-
     #region Variables
 
-    /// <summary>
-    /// Registration location of the current ConfigBase.
-    /// </summary>
-    protected string _location;
+    protected ConfigBaseMetadata _metadata;
+
     /// <summary>
     /// Text to display for the current ConfigBase.
     /// </summary>
-    protected StringId _text;
-    /// <summary>
-    /// Indicates whether the current ConfigBase is disabled.
-    /// </summary>
-    protected bool _disabled;
-    /// <summary>
-    /// Indicates whether the current ConfigBase is hidden.
-    /// </summary>
+    protected IStringBuilder _text;
     protected bool _hidden;
+    protected bool _disabled;
 
     #endregion
 
-    #region Properties
+    #region Public properties
 
-    /// <summary>
-    /// Gets or sets the location path of this setting registration. The location contains
-    /// the parent location as well as the Id part of this setting registration.
-    /// </summary>
-    public string Location
+    public ConfigBaseMetadata Metadata
     {
-      get { return _location; }
-      set { _location = value; }
-    }
-
-    /// <summary>
-    /// Gets the location part of the parent setting registration element.
-    /// </summary>
-    public string ParentLocation
-    {
-      get
-      {
-        int i = _location.LastIndexOf('/');
-        return i == -1 ? string.Empty : _location.Substring(0, i);
-      }
-    }
-
-    /// <summary>
-    /// Gets the Id part of the location path.
-    /// </summary>
-    public string Id
-    {
-      get
-      {
-        int i = _location.LastIndexOf('/');
-        return i == -1 ? _location : _location.Substring(i + 1);
-      }
+      get { return _metadata; }
     }
 
     /// <summary>
     /// Gets or sets the text to be displayed for this setting registration element.
     /// </summary>
-    public StringId Text
+    public IStringBuilder Text
     {
       get { return _text; }
       set { _text = value; }
     }
 
-    /// <summary>
-    /// Gets or sets whether the current ConfigBase is disabled.
-    /// </summary>
-    public bool Disabled
-    {
-      get { return _disabled; }
-      set { _disabled = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets whether the current ConfigBase is hidden.
-    /// </summary>
+    // TODO: There is no API yet to set this property. Should it be set in subclasses?
     public bool Hidden
     {
       get { return _hidden; }
-      set { _hidden = value; }
+    }
+
+    // TODO: There is no API yet to set this property. Should it be set in subclasses?
+    public bool Disabled
+    {
+      get { return _disabled; }
     }
 
     #endregion
 
-    #region Public Events
+    #region Public events
 
     /// <summary>
     /// Gets called when the UI must redraw the setting.
@@ -135,30 +93,6 @@ namespace MediaPortal.Configuration
 
     #endregion
 
-    #region Constructors
-
-    /// <summary>
-    /// Initializes a new (invalid) instance of ConfigBase.
-    /// </summary>
-    protected ConfigBase()
-    {
-      
-    }
-
-    /// <summary>
-    /// Initializes a new <see cref="ConfigBase"/> instance.
-    /// </summary>
-    /// <param name="location">The location of the new instance. This must contain the parent location
-    /// if there is a parent, and the Id of this setting registration as last location path element.</param>
-    /// <param name="text">The text to be displayed for this setting registration.</param>
-    public ConfigBase(string location, StringId text)
-    {
-      _location = location;
-      _text = text;
-    }
-
-    #endregion
-
     #region Protected Methods
 
     /// <summary>
@@ -167,7 +101,7 @@ namespace MediaPortal.Configuration
     protected void NotifyChange()
     {
       if (OnChangeEvent != null)
-        OnChangeEvent(this, _location);
+        OnChangeEvent(this, _metadata.Location);
     }
 
     /// <summary>
@@ -189,10 +123,24 @@ namespace MediaPortal.Configuration
     {
       ConfigChangedHandler(sender, senderLocation);
       if (RedrawSettingEvent != null)
-        RedrawSettingEvent(this, _location);
+        RedrawSettingEvent(this, _metadata.Location);
     }
 
     #endregion
 
+    /// <summary>
+    /// Returns all text strings in this configuration object which are searchable.
+    /// Those strings can be used by the engine to make this configuration object searchable.
+    /// </summary>
+    public virtual IEnumerable<string> GetSearchTexts()
+    {
+      yield return Text.Evaluate();
+    }
+
+    public virtual void SetMetadata(ConfigBaseMetadata metadata)
+    {
+      _metadata = metadata;
+      _text = LocalizationHelper.CreateLabelProperty(_metadata.Text);
+    }
   }
 }

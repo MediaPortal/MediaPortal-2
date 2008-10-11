@@ -23,8 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.IO;
-using MediaPortal.Core.PluginManager.Settings;
 
 namespace MediaPortal.Core.PluginManager
 {
@@ -96,11 +94,6 @@ namespace MediaPortal.Core.PluginManager
     /// locations and the additional attributes of the item.
     /// </summary>
     ICollection<PluginItemMetadata> PluginItemsMetadata { get; }
-
-    /// <summary>
-    /// Contains the metadata for all settings exposed by this plugin.
-    /// </summary>
-    ICollection<SettingRegistrationBase> PluginSettingsMetadata { get; }
 
     /// <summary>
     /// Returns the names of all builders which are necessary to build the items of this

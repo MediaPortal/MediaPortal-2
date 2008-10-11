@@ -22,40 +22,13 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MediaPortal.Core.PluginManager.Settings
+namespace MediaPortal.Configuration
 {
   /// <summary>
-  /// Setting metadata structure. Holds all values to describe a plugin's setting.
+  /// Group metadata structure. Holds all values to describe a plugin's setting group.
   /// </summary>
-  public class Setting : SettingRegistrationBase
+  public class ConfigGroupMetadata : ConfigBaseMetadata
   {
-    protected string _className;
-    protected string _helpText;
-    protected ICollection<string> _listenTo;
-
-    public Setting(string location, string text, string className,
-        string helpText, ICollection<string> listenTo) : base(location, text)
-    {
-      _className = className;
-      _helpText = helpText;
-      _listenTo = listenTo;
-    }
-
-    public string ClassName
-    {
-      get { return _className; }
-    }
-
-    public string HelpText
-    {
-      get { return _helpText; }
-    }
-
-    public ICollection<string> ListenTo
-    {
-      get { return _listenTo; }
-    }
+    public ConfigGroupMetadata(string location, string text) : base(location, text) { }
   }
 }

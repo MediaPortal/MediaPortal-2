@@ -23,12 +23,10 @@
 
 #endregion
 
-
 namespace MediaPortal.Configuration.Settings
 {
-  public class NumberSelect : ConfigItem
+  public abstract class NumberSelect : ConfigSetting
   {
-
     #region Enums
 
     /// <summary>
@@ -83,6 +81,5 @@ namespace MediaPortal.Configuration.Settings
     }
 
     #endregion
-
   }
 }

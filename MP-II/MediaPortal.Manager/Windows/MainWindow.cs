@@ -23,24 +23,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Configuration;
 
 namespace MediaPortal.Manager
 {
   public partial class MainWindow : Form
   {
-
     #region Enums
 
     private enum AreaType
@@ -68,20 +60,17 @@ namespace MediaPortal.Manager
       ServiceScope.Get<IConfigurationManager>().Load();
       // Localise window
       StringId settings = new StringId("configuration", "areas.settings");
-      this.areaSettings.Tag = settings;
-      this.areaSettings.Text = settings.ToString();
+      areaSettings.Tag = settings;
+      areaSettings.Text = settings.ToString();
       StringId logs = new StringId("configuration", "areas.logs");
-      this.areaLogs.Tag = logs;
-      this.areaLogs.Text = logs.ToString();
-      this.areaLogs.Enabled = false;
-      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LangageChange);
+      areaLogs.Tag = logs;
+      areaLogs.Text = logs.ToString();
+      areaLogs.Enabled = false;
+      ServiceScope.Get<ILocalisation>().LanguageChange += LangageChange;
       CheckRightToLeft();
       // Initialize SettingsControl
       _settingsArea = new SettingsControl();
-      _settingsArea.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top
-        | System.Windows.Forms.AnchorStyles.Bottom)
-        | System.Windows.Forms.AnchorStyles.Left)
-        | System.Windows.Forms.AnchorStyles.Right)));
+      _settingsArea.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
       _areaType = AreaType.SettingsArea;
       areaControls.Controls.Add(_settingsArea);
     }
@@ -117,25 +106,20 @@ namespace MediaPortal.Manager
     private void LangageChange(object o)
     {
       if (areaSettings.Tag is StringId)
-        areaSettings.Text = ((StringId)areaSettings.Tag).ToString();
+        areaSettings.Text = areaSettings.Tag.ToString();
 
       if (areaLogs.Tag is StringId)
-        areaLogs.Text = ((StringId)areaLogs.Tag).ToString();
+        areaLogs.Text = areaLogs.Tag.ToString();
 
       CheckRightToLeft();
     }
 
     private void CheckRightToLeft()
     {
-      this.RightToLeftLayout = ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft;
-      if (this.RightToLeftLayout)
-        this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-      else
-        this.RightToLeft = System.Windows.Forms.RightToLeft.No;
+      RightToLeftLayout = ServiceScope.Get<ILocalisation>().CurrentCulture.TextInfo.IsRightToLeft;
+      RightToLeft = RightToLeftLayout ? System.Windows.Forms.RightToLeft.Yes : System.Windows.Forms.RightToLeft.No;
     }
 
     #endregion
-
-
   }
 }

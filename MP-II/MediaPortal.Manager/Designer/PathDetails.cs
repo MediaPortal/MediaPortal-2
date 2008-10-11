@@ -68,13 +68,6 @@ namespace MediaPortal.Manager
 
     #region Constructors
 
-    public PathDetails()
-    {
-      _path = new Path();
-      _txtValue = new TextBox();
-      _btnBrowse = new Button();
-    }
-
     public PathDetails(Path path, TextBox textValue, Button buttonBrowse)
     {
       _path = path;

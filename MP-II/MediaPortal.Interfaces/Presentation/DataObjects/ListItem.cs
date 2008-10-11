@@ -116,7 +116,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <returns>Label property instance with the specified name or a new label property with the default value.</returns>
     public IStringBuilder Label(string name, string defValue)
     {
-      return _labels.ContainsKey(name) ? _labels[name] : CreateLabelProperty(defValue);
+      return _labels.ContainsKey(name) ? _labels[name] : LocalizationHelper.CreateLabelProperty(defValue);
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// localized resource, the new label will be a localized string label.</param>
     public void Add(string name, string value)
     {
-      _labels[name] = CreateLabelProperty(value);
+      _labels[name] = LocalizationHelper.CreateLabelProperty(value);
     }
 
     /// <summary>
@@ -214,20 +214,6 @@ namespace MediaPortal.Presentation.DataObjects
       foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
       return StringUtils.Join(", ", l);
-    }
-
-    /// <summary>
-    /// Creates an instance implementing <see cref="IStringBuilder
-    /// localized or unlocalized string. This method will check, if the specified string
-    /// references a localized string resource. If so, the return value will be a localized
-    /// <see cref="IStringBuilder"/>, else it will not be localized.
-    /// </summary>
-    // FIXME: This method should be moved to a factory class, as it is not bound to this class
-    protected static IStringBuilder CreateLabelProperty(string value)
-    {
-      if (StringId.IsResourceString(value))
-        return new LocalizedStringBuilder(new StringId(value));
-      return new StaticStringBuilder(value);
     }
   }
 }

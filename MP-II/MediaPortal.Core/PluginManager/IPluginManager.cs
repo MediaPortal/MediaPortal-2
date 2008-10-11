@@ -62,15 +62,28 @@ namespace MediaPortal.Core.PluginManager
     IDictionary<string, PluginRuntime> AvailablePlugins { get; }
 
     /// <summary>
+    /// Returns the information whether the plugin manager is in maintenance mode. This mode is for
+    /// using the plugin manager without having the managed plugins started. You can start the plugin
+    /// manager in maintenance mode by using its <see cref="Startup"/> method with the
+    /// <c>maintenanceMode</c> parameter set to <c>true</c>.
+    /// </summary>
+    bool MaintenanceMode { get; }
+
+    /// <summary>
     /// Initializes the plugin manager. This will initialize internal structures, load the list
     /// of available plugins and initializes the plugins.
     /// </summary>
     void Initialize();
 
     /// <summary>
-    /// Starts the plugin manager. This will handles the plugin's auto-activations.
+    /// Starts the plugin manager. This will handle the plugin's auto activations, if
+    /// the <paramref name="maintenanceMode"/> parameter is set to <c>false</c>.
     /// </summary>
-    void Startup();
+    /// <param name="maintenanceMode">If set to <c>false</c> (normal case), this method will automatically
+    /// activate those plugins with the <see cref="IPluginMetadata.AutoActivate"/> flag set. If set to
+    /// <c>false</c> (maintainance mode), the plugins won't be started. This can be used for management
+    /// application, which need the plugins be enabled but not activated.</param>
+    void Startup(bool maintenanceMode);
 
     /// <summary>
     /// Called on system shutdown. The plugin manager will notify all plugins about the ongoing shutdown.

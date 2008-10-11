@@ -32,7 +32,6 @@ namespace MediaPortal.Manager
   /// </summary>
   internal class Position : ICloneable
   {
-
     #region Variables
 
     private bool _rightToLeft;
@@ -261,6 +260,5 @@ namespace MediaPortal.Manager
     }
 
     #endregion
-
   }
 }
