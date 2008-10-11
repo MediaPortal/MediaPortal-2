@@ -57,6 +57,14 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
+      /// Prepares for a fadein; sets the volume to zero.
+      /// </summary>
+      public void PrepareFadeIn()
+      {
+        SetVolume(0f);
+      }
+      
+      /// <summary>
       /// Performs a fadein.
       /// </summary>
       /// <remarks>
@@ -64,13 +72,10 @@ namespace Media.Players.BassPlayer
       /// </remarks>
       public void FadeIn()
       {
-        if (_DurationMS == 0)
-          SetVolume(1f);
-        else
-        {
-          SetVolume(0f);
+        if (_DurationMS != 0)
           SlideVolume(1f);
-        }
+        else
+          SetVolume(1f);
       }
 
       /// <summary>
@@ -81,9 +86,7 @@ namespace Media.Players.BassPlayer
       /// </remarks>
       public void FadeOut()
       {
-        if (_DurationMS == 0)
-          SetVolume(0f);
-        else
+        if (_DurationMS != 0)
         {
           SlideVolume(0f);
 
@@ -92,6 +95,8 @@ namespace Media.Players.BassPlayer
             Thread.Sleep(10);
           }
         }
+        else
+          SetVolume(0f);
       }
 
       #endregion

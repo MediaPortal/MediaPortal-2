@@ -125,6 +125,21 @@ namespace Media.Players.BassPlayer
     }
 
     /// <summary>
+    /// Gets or sets the volume (0-100)
+    /// </summary>
+    public float Volume
+    {
+      get
+      {
+        return GetVolume();
+      }
+      set
+      {
+        SetVolume(value);
+      }
+    }
+
+    /// <summary>
     /// Reads the specified number of samples from the stream.
     /// </summary>
     /// <param name="buffer">Buffer in which the read data is to be returned.</param>
@@ -526,6 +541,30 @@ namespace Media.Players.BassPlayer
 
       if (!success && streamLength > 0)
         Bass.BASS_ChannelSetPosition(_Handle, currentPosition);
+    }
+
+    /// <summary>
+    /// Sets the volume attribute to the given value.
+    /// </summary>
+    /// <param name="volume"></param>
+    private void SetVolume(float volume)
+    {
+      if (!Bass.BASS_ChannelSetAttribute(_Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
+        throw new BassLibraryException("BASS_ChannelSetAttribute");
+
+    }
+
+    /// <summary>
+    /// Gets the current stream volume.
+    /// </summary>
+    /// <returns></returns>
+    private float GetVolume()
+    {
+      float value = 0.0f;
+      if (!Bass.BASS_ChannelGetAttribute(_Handle, BASSAttribute.BASS_ATTRIB_VOL, ref value))
+        throw new BassLibraryException("BASS_ChannelGetAttribute");
+
+      return value;
     }
 
     #endregion

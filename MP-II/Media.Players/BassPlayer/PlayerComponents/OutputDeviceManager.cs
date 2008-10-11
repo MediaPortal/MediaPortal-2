@@ -62,10 +62,16 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
+        Log.Debug("OutputDeviceManager.Dispose()");
+        
         if (_OutputDevice != null)
         {
+          Log.Debug("Disposing output device");
+          
           _OutputDevice.Dispose();
           _OutputDevice = null;
+
+          Log.Debug("Disposing output device factory");
           _OutputDeviceFactory.Dispose();
         }
       }
@@ -96,8 +102,14 @@ namespace Media.Players.BassPlayer
       /// <param name="stream"></param>
       public void SetInputStream(BassStream stream)
       {
+        Log.Debug("OutputDeviceManager.SetInputStream()");
+        
         ResetInputStream();
+        
+        Log.Debug("Instantiating output device");
         _OutputDevice = _OutputDeviceFactory.CreateOutputDevice();
+
+        Log.Debug("Calling SetInputStream()");
         _OutputDevice.SetInputStream(stream);
         _Initialized = true;
       }
@@ -108,8 +120,28 @@ namespace Media.Players.BassPlayer
       /// <param name="fadeIn"></param>
       public void StartDevice(bool fadeIn)
       {
+        Log.Debug("OutputDeviceManager.StartDevice()");
+
+        if (!_Initialized)
+          throw new BassPlayerException("OutputDeviceManager not initialized");
+        
         if (_OutputDevice.DeviceState == DeviceState.Stopped)
-          _OutputDevice.Start(fadeIn);
+        {
+          if (fadeIn)
+          {
+            Log.Debug("Calling PrepareFadeIn()");
+            _OutputDevice.PrepareFadeIn();
+          }
+
+          Log.Debug("Calling Start()");
+          _OutputDevice.Start();
+
+          if (fadeIn)
+          {
+            Log.Debug("Calling FadeIn()");
+            _OutputDevice.FadeIn();
+          }
+        }
       }
 
       /// <summary>
@@ -117,8 +149,32 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void StopDevice()
       {
+        Log.Debug("OutputDeviceManager.StopDevice()");
+
+        if (!_Initialized)
+          throw new BassPlayerException("OutputDeviceManager not initialized");
+
         if (_OutputDevice.DeviceState == DeviceState.Started)
+        {
+          Log.Debug("Calling FadeOut()");
+          _OutputDevice.FadeOut();
+          
+          Log.Debug("Calling Stop()");
           _OutputDevice.Stop();
+        }
+      }
+
+      /// <summary>
+      /// Resets the devices outputbuffers and fills them with zeros.
+      /// </summary>
+      public void ClearDeviceBuffers()
+      {
+        Log.Debug("OutputDeviceManager.ClearDeviceBuffers()");
+        
+        if (!_Initialized)
+          throw new BassPlayerException("OutputDeviceManager not initialized");
+        
+        _OutputDevice.ClearBuffers();
       }
 
       /// <summary>
@@ -126,12 +182,18 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void ResetInputStream()
       {
+        Log.Debug("OutputDeviceManager.ResetInputStream()");
+
         if (_Initialized)
         {
           _Initialized = false;
 
+          Log.Debug("Stopping output device");
+
           if (_OutputDevice.DeviceState == DeviceState.Started)
             _OutputDevice.Stop();
+
+          Log.Debug("Disposing output device");
 
           _OutputDevice.Dispose();
           _OutputDevice = null;

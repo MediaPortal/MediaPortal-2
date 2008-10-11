@@ -106,7 +106,22 @@ namespace Media.Players.BassPlayer
             throw new NotImplementedException();
           }
 
-          public void Start(bool fadeIn)
+          public void PrepareFadeIn()
+          {
+            throw new NotImplementedException();
+          }
+
+          public void FadeIn()
+          {
+            throw new NotImplementedException();
+          }
+
+          public void FadeOut()
+          {
+            throw new NotImplementedException();
+          }
+
+          public void Start()
           {
             throw new NotImplementedException();
           }

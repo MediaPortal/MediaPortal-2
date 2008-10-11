@@ -92,6 +92,16 @@ namespace Media.Players.BassPlayer
       Instance.Warn(_Prefix + format, args);
     }
 
+    /// <summary>
+    /// Writes a critical error to the log.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    public static void Critical(string format, params object[] args)
+    {
+      Instance.Critical(_Prefix + format, args);
+    }
+
     #endregion
   }
 }

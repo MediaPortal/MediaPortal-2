@@ -105,7 +105,7 @@ namespace Media.Players.BassPlayer
         /// </summary>
         private void Initialize()
         {
-          Log.Debug("Initializing inputsource \"BassMODFileInputSource\"");
+          Log.Debug("BassMODFileInputSource.Initialize()");
 
           BASSFlag flags =
               BASSFlag.BASS_SAMPLE_SOFTWARE |

@@ -41,10 +41,11 @@ namespace Media.Players.BassPlayer
       public const int ASIOLastChan = Constants.Auto;
       public static TimeSpan PlaybackBufferSize = TimeSpan.FromMilliseconds(500);
       public static TimeSpan SeekIncrement = TimeSpan.FromSeconds(20);
-      public const PlaybackMode DefaultPlaybackMode = PlaybackMode.Normal;
+      public const PlaybackMode PlaybackMode = Media.Players.BassPlayer.PlaybackMode.Normal;
       public static TimeSpan FadeDuration = TimeSpan.FromMilliseconds(500);
       public static TimeSpan CrossFadeDuration = TimeSpan.FromSeconds(5);
-      public const string SupportedExtensions = 
+      public static TimeSpan VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(0);
+      public const string SupportedExtensions =
         ".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1,.aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi,.kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv";
     }
 
@@ -58,11 +59,12 @@ namespace Media.Players.BassPlayer
     private int _ASIOLastChan = Defaults.ASIOLastChan;
     private TimeSpan _PlaybackBufferSize = Defaults.PlaybackBufferSize;
     private TimeSpan _SeekIncrement = Defaults.SeekIncrement;
-    private PlaybackMode _DefaultPlaybackMode = Defaults.DefaultPlaybackMode;
+    private PlaybackMode _PlaybackMode = Defaults.PlaybackMode;
     private TimeSpan _FadeDuration = Defaults.FadeDuration;
     private TimeSpan _CrossFadeDuration = Defaults.CrossFadeDuration;
+    private TimeSpan _VizStreamLatencyCorrection = Defaults.VizStreamLatencyCorrection;
     private string _SupportedExtensions = Defaults.SupportedExtensions;
-    
+
     #endregion
 
     #region Public members
@@ -115,10 +117,10 @@ namespace Media.Players.BassPlayer
       set { _SeekIncrement = value; }
     }
 
-    public PlaybackMode DefaultPlaybackMode
+    public PlaybackMode PlaybackMode
     {
-      get { return _DefaultPlaybackMode; }
-      set { _DefaultPlaybackMode = value; }
+      get { return _PlaybackMode; }
+      set { _PlaybackMode = value; }
     }
 
     public TimeSpan FadeDuration
@@ -133,11 +135,17 @@ namespace Media.Players.BassPlayer
       set { _CrossFadeDuration = value; }
     }
 
-      public string SupportedExtensions
-      {
-        get { return _SupportedExtensions; }
-        set { _SupportedExtensions = value; }
-      }
+    public string SupportedExtensions
+    {
+      get { return _SupportedExtensions; }
+      set { _SupportedExtensions = value; }
+    }
+
+    public TimeSpan VizStreamLatencyCorrection
+    {
+      get { return _VizStreamLatencyCorrection; }
+      set { _VizStreamLatencyCorrection = value; }
+    }
 
     public Settings()
     {

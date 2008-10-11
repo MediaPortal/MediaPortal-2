@@ -103,7 +103,7 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Returns the current internal playback state. 
+      /// Gets the current internal playback state. 
       /// </summary>
       /// <remarks>
       /// Because the player operates asynchronous, its internal state 
@@ -115,7 +115,7 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Returns the current playbackmode.
+      /// Gets the current playbackmode.
       /// </summary>
       public PlaybackMode PlaybackMode
       {

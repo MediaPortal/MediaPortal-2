@@ -80,10 +80,24 @@ namespace Media.Players.BassPlayer
       void SetInputStream(BassStream stream);
 
       /// <summary>
+      /// Prepares for a fadein; sets the volume to zero.
+      /// </summary>
+      void PrepareFadeIn();
+      
+      /// <summary>
+      /// Performs a fadein.
+      /// </summary>
+      void FadeIn();
+
+      /// <summary>
+      /// Performs a fadeout.
+      /// </summary>
+      void FadeOut();
+
+      /// <summary>
       /// Starts playback.
       /// </summary>
-      /// <param name="fadeIn"></param>
-      void Start(bool fadeIn);
+      void Start();
 
       /// <summary>
       /// Stops playback.

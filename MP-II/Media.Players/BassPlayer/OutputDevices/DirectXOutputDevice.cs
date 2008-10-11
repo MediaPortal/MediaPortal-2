@@ -75,7 +75,13 @@ namespace Media.Players.BassPlayer
           public void Dispose()
           {
             Stop();
+
+            Log.Debug("Disposing output stream");
+            
             _OutputStream.Dispose();
+            _OutputStream = null;
+
+            Log.Debug("Resetting global Bass environment");
 
             if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
               throw new BassLibraryException("BASS_SetConfig");
@@ -135,6 +141,8 @@ namespace Media.Players.BassPlayer
 
             _InputStream = stream;
 
+            Log.Debug("Creating output stream");
+
             BASSFlag flags = BASSFlag.BASS_SAMPLE_FLOAT;
             int handle = Bass.BASS_StreamCreate(
                 _InputStream.SamplingRate,
@@ -147,12 +155,35 @@ namespace Media.Players.BassPlayer
               throw new BassLibraryException("BASS_StreamCreate");
 
             _OutputStream = BassStream.Create(handle);
-            _OutputStreamEnded = false;
 
-            _Fader = new BassStreamFader(_OutputStream, _Player.Settings.FadeDuration);
+            if (_Player._InputSourceSwitcher.CurrentInputSource.OutputStream.StreamContentType == StreamContentType.PCM)
+              _Fader = new BassStreamFader(_OutputStream, _Player.Settings.FadeDuration);
+            else
+              _Fader = new BassStreamFader(_OutputStream, TimeSpan.Zero);
+
+            ResetState();
           }
 
-          public void Start(bool fadeIn)
+          public void PrepareFadeIn()
+          {
+            _Fader.PrepareFadeIn();
+          }
+
+          public void FadeIn()
+          {
+            _Fader.FadeIn();
+          }
+
+          public void FadeOut()
+          {
+            if (!_OutputStreamEnded)
+            {
+              Log.Debug("Fading out");
+              _Fader.FadeOut();
+            }
+          }
+
+          public void Start()
           {
             if (_DeviceState != DeviceState.Started)
             {
@@ -160,9 +191,6 @@ namespace Media.Players.BassPlayer
 
               if (!Bass.BASS_ChannelPlay(_OutputStream.Handle, false))
                 throw new BassLibraryException("BASS_ChannelPlay");
-
-              if (fadeIn)
-                _Fader.FadeIn();
 
               _DeviceState = DeviceState.Started;
             }
@@ -173,9 +201,6 @@ namespace Media.Players.BassPlayer
             if (_DeviceState != DeviceState.Stopped)
             {
               Log.Debug("Stopping output");
-
-              if (!_OutputStreamEnded)
-                _Fader.FadeOut();
 
               if (!Bass.BASS_ChannelStop(_OutputStream.Handle))
                 throw new BassLibraryException("BASS_ChannelStop");
@@ -249,7 +274,7 @@ namespace Media.Players.BassPlayer
 
             bool result = Bass.BASS_Init(
                _DeviceNo,
-               44100, //Only relevant for -> pre-xp (VxD drivers)
+               44100, //Only relevant for -> pre-XP (VxD drivers)
                flags,
                IntPtr.Zero,
                null);
@@ -326,7 +351,7 @@ namespace Media.Players.BassPlayer
             if (read == 0)
             {
               // We're done!
-              
+
               // Play silence until playback has stopped to avoid any buffer underruns.
               read = _Silence.Write(buffer, requestedBytes);
 
@@ -334,12 +359,20 @@ namespace Media.Players.BassPlayer
               if (!_OutputStreamEnded)
               {
                 _OutputStreamEnded = true;
-                
+
                 // Let the world know that we can stop now.
                 _Player._Controller.HandleOutputStreamEnded();
               }
             }
             return read;
+          }
+
+          /// <summary>
+          /// Resets all stored state.
+          /// </summary>
+          private void ResetState()
+          {
+            _OutputStreamEnded = false;
           }
 
           #endregion

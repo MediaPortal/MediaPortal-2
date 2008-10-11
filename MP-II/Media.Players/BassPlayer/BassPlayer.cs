@@ -94,10 +94,7 @@ namespace Media.Players.BassPlayer
 
     public bool Paused
     {
-      get
-      {
-        return (_Controller.ExternalState == PlaybackState.Paused);
-      }
+      get { return (_Controller.ExternalState == PlaybackState.Paused); }
       set
       {
         if (value)
@@ -114,14 +111,8 @@ namespace Media.Players.BassPlayer
 
     public TimeSpan CurrentTime
     {
-      get
-      {
-        return _Monitor.CurrentPosition;
-      }
-      set
-      {
-        throw new NotImplementedException();
-      }
+      get { return _Monitor.CurrentPosition; }
+      set { throw new NotImplementedException(); }
     }
 
     public TimeSpan Duration
@@ -145,15 +136,22 @@ namespace Media.Players.BassPlayer
 
     #region Unused IPlayer Members
 
+    public bool Mute
+    {
+      get { return false; }
+      set { }
+    }
+
+    public int Volume
+    {
+      get { return 0; }
+      set { }
+    }
+
     public System.Drawing.Rectangle AlphaMask
     {
-      get
-      {
-        return new System.Drawing.Rectangle();
-      }
-      set
-      {
-      }
+      get { return new System.Drawing.Rectangle(); }
+      set { }
     }
 
     public string[] AudioStreams
@@ -224,17 +222,6 @@ namespace Media.Players.BassPlayer
       get
       {
         return new System.Drawing.Rectangle();
-      }
-      set
-      {
-      }
-    }
-
-    public bool Mute
-    {
-      get
-      {
-        return false;
       }
       set
       {
@@ -332,18 +319,6 @@ namespace Media.Players.BassPlayer
     {
       get { return new System.Drawing.Size(); }
     }
-
-    public int Volume
-    {
-      get
-      {
-        return 0;
-      }
-      set
-      {
-      }
-    }
-
     #endregion
 
     #region IDisposable Members
@@ -377,9 +352,9 @@ namespace Media.Players.BassPlayer
     private void Initialize()
     {
       Log.Debug("Initializing BassPlayer");
-      
+
       _BassLibrary = BassLibrary.Create();
-      
+
       _Settings = new Settings();
       _InputSourceFactory = new InputSourceFactory(this);
 

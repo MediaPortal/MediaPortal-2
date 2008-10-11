@@ -24,14 +24,16 @@
 
 using System;
 using System.Threading;
+using MediaPortal.Presentation.Players;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Mix;
 
 namespace Media.Players.BassPlayer
 {
   public partial class BassPlayer
   {
     /// <summary>
-    /// Buffers the outputstream to ensure stable playback. Also provides a synchronized stream for visualization purposes.
+    /// Buffers the output stream to ensure stable playback. Also provides a synchronized stream for visualization purposes.
     /// </summary>
     class PlaybackBuffer : IDisposable
     {
@@ -53,22 +55,34 @@ namespace Media.Players.BassPlayer
 
       #region Fields
 
-      private BassPlayer _Player;
+      private int _BufferUpdateIntervalMS;
+      private int _ReadOffsetBytes;
+      private int _VizReadOffsetBytes;
+
+      private bool _Initialized;
+      
+      private float[] _ReadData = new float[1];
+
+      private AutoResetEvent _BufferUpdated;
+      private AutoResetEvent _NotifyBufferUpdateThread;
+
       private BassStream _InputStream;
       private BassStream _OutputStream;
-      private AudioRingBuffer _Buffer;
-      private STREAMPROC _StreamWriteProcDelegate;
-      private Thread _BufferUpdateThread;
-      private ManualResetEvent _EnableBufferUpdateThread;
-      private AutoResetEvent _NotifyBufferUpdateThread;
-      private AutoResetEvent _BufferUpdated;
-      private bool _BufferUpdateThreadAbortFlag = false;
+      private BassStream _VizRawStream;
+      private BassStream _VizStream;
+      
       private TimeSpan _BufferSize;
-      private int _BufferUpdateIntervalMS;
       private TimeSpan _ReadOffset;
-      private int _ReadOffsetBytes;
-      private float[] _ReadData = new float[1];
-      private bool _Initialized;
+      private TimeSpan _VizReadOffset;
+
+      private STREAMPROC _StreamWriteProcDelegate;
+      private STREAMPROC _VizRawStreamWriteProcDelegate;
+
+      private AudioRingBuffer _Buffer;
+      private BassPlayer _Player;
+      private ManualResetEvent _EnableBufferUpdateThread;
+      private Silence _Silence;
+      private Thread _BufferUpdateThread;
 
       #endregion
 
@@ -76,6 +90,8 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
+        Log.Debug("OutputDeviceManager.Dispose()");
+        
         ResetInputStream();
       }
 
@@ -100,38 +116,39 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
+      /// Gets the visualization Bass stream.
+      /// </summary>
+      public BassStream VizStream
+      {
+        get { return _VizStream; }
+      }
+
+      /// <summary>
       /// Sets the Bass inputstream and initializes the playbackbuffer.
       /// </summary>
       /// <param name="stream"></param>
       public void SetInputStream(BassStream stream)
       {
+        Log.Debug("PlaybackBuffer.SetInputStream()");
+        
         ResetInputStream();
 
         _InputStream = stream;
-        _Buffer = new AudioRingBuffer(stream.SamplingRate, stream.Channels, _BufferSize + _ReadOffset);
-        
         _ReadOffsetBytes = AudioRingBuffer.CalculateLength(stream.SamplingRate, stream.Channels, _ReadOffset);
+
+        Log.Debug("Output stream reading offset: {0} ms", _ReadOffset.TotalMilliseconds);
+
+        UpdateVizLatencyCorrection();
+
+        _Buffer = new AudioRingBuffer(stream.SamplingRate, stream.Channels, _BufferSize + _ReadOffset);
         _Buffer.ResetPointers(_ReadOffsetBytes);
 
-        BASSFlag flags =
-          BASSFlag.BASS_SAMPLE_FLOAT |
-          BASSFlag.BASS_STREAM_DECODE;
-
-        int handle = Bass.BASS_StreamCreate(
-            _InputStream.SamplingRate,
-            _InputStream.Channels,
-            flags,
-            _StreamWriteProcDelegate,
-            IntPtr.Zero);
-
-        if (handle == Constants.BassInvalidHandle)
-          throw new BassLibraryException("BASS_StreamCreate");
-
-        _OutputStream = BassStream.Create(handle);
-
+        CreateOutputStream();
+        CreateVizStream();
+        
         _Initialized = true;
 
-        // Unblock buffeer update thread.
+        // Unblock buffer update thread.
         _EnableBufferUpdateThread.Set();
 
         // Ensure prebuffering
@@ -154,6 +171,8 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void ResetInputStream()
       {
+        Log.Debug("PlaybackBuffer.ResetInputStream()");
+
         if (_Initialized)
         {
           // Stall the bufferupdate thread.
@@ -161,12 +180,25 @@ namespace Media.Players.BassPlayer
           _Initialized = false;
           _EnableBufferUpdateThread.Reset();
 
+          Log.Debug("Disposing output stream");
+
           _OutputStream.Dispose();
           _OutputStream = null;
-          
+
+          Log.Debug("Disposing visualization stream");
+
+          _VizStream.Dispose();
+          _VizStream = null;
+
+          Log.Debug("Disposing visualization raw stream");
+
+          _VizRawStream.Dispose();
+          _VizRawStream = null;
+
           _Buffer = null;
-          
           _InputStream = null;
+          _ReadOffsetBytes = 0;
+          _VizReadOffsetBytes = 0;
         }
       }
 
@@ -184,12 +216,16 @@ namespace Media.Players.BassPlayer
       /// </summary>
       private void Initialize()
       {
+        _Silence = new Silence();
+
         _BufferSize = _Player.Settings.PlaybackBufferSize;
         _BufferUpdateIntervalMS = (int)_BufferSize.TotalMilliseconds / 5;
 
         _ReadOffset = StaticSettings.VizLatencyCorrectionRange;
 
         _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
+        _VizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
+
         _NotifyBufferUpdateThread = new AutoResetEvent(false);
         _EnableBufferUpdateThread = new ManualResetEvent(false);
         _BufferUpdated = new AutoResetEvent(false);
@@ -200,7 +236,101 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Callback function for the outputstream.
+      /// Reclculates the visualization stream byte-offset according usersettings.
+      /// </summary>
+      private void UpdateVizLatencyCorrection()
+      {
+        Log.Debug("PlaybackBuffer.UpdateVizLatencyCorrection()");
+
+        _VizReadOffset = StaticSettings.VizLatencyCorrectionRange.Add(_Player.Settings.VizStreamLatencyCorrection);
+        _VizReadOffsetBytes = AudioRingBuffer.CalculateLength(_InputStream.SamplingRate, _InputStream.Channels, _VizReadOffset);
+
+        Log.Debug("Vizstream reading offset: {0} ms", _VizReadOffset.TotalMilliseconds);
+      }
+
+      /// <summary>
+      /// Creates the outputstream.
+      /// </summary>
+      private void CreateOutputStream()
+      {
+        Log.Debug("Creating output stream");
+
+        BASSFlag flags =
+          BASSFlag.BASS_SAMPLE_FLOAT |
+          BASSFlag.BASS_STREAM_DECODE;
+
+        int handle = Bass.BASS_StreamCreate(
+            _InputStream.SamplingRate,
+            _InputStream.Channels,
+            flags,
+            _StreamWriteProcDelegate,
+            IntPtr.Zero);
+
+        if (handle == Constants.BassInvalidHandle)
+          throw new BassLibraryException("BASS_StreamCreate");
+
+        _OutputStream = BassStream.Create(handle);
+      }
+
+      /// <summary>
+      /// Creates the visualization Bass stream.
+      /// </summary>
+      private void CreateVizStream()
+      {
+        Log.Debug("Creating visualization raw stream");
+
+        BASSFlag streamFlags =
+            BASSFlag.BASS_STREAM_DECODE |
+            BASSFlag.BASS_SAMPLE_FLOAT;
+
+        int handle = Bass.BASS_StreamCreate(
+            _InputStream.SamplingRate,
+            _InputStream.Channels,
+            streamFlags,
+            _VizRawStreamWriteProcDelegate,
+            IntPtr.Zero);
+
+        if (handle == Constants.BassInvalidHandle)
+          throw new BassLibraryException("BASS_StreamCreate");
+        
+        _VizRawStream = BassStream.Create(handle);
+
+        // Todo: apply AGC
+
+        Log.Debug("Creating visualizationstream");
+
+        streamFlags =
+            BASSFlag.BASS_MIXER_NONSTOP |
+            BASSFlag.BASS_SAMPLE_FLOAT |
+            BASSFlag.BASS_STREAM_DECODE;
+
+        handle = BassMix.BASS_Mixer_StreamCreate(_InputStream.SamplingRate, 2, streamFlags);
+        if (handle == Constants.BassInvalidHandle)
+          throw new BassLibraryException("BASS_StreamCreate");
+
+        _VizStream = BassStream.Create(handle);
+
+        streamFlags =
+            BASSFlag.BASS_MIXER_NORAMPIN |
+            BASSFlag.BASS_MIXER_DOWNMIX |
+            BASSFlag.BASS_MIXER_MATRIX;
+
+        if (!BassMix.BASS_Mixer_StreamAddChannel(_VizStream.Handle, _VizRawStream.Handle, streamFlags))
+          throw new BassLibraryException("BASS_Mixer_StreamAddChannel");
+
+        if (_InputStream.Channels == 1)
+        {
+          float[,] mixMatrix = new float[2, 1];
+          mixMatrix[0, 0] = 1;
+          mixMatrix[1, 0] = 1;
+
+          if (!BassMix.BASS_Mixer_ChannelSetMatrix(_VizRawStream.Handle, mixMatrix))
+            throw new BassLibraryException("BASS_Mixer_ChannelSetMatrix");
+        }
+      }
+
+      /// <summary>
+      /// Callback function for the output stream.
       /// </summary>
       /// <param name="streamHandle">Bass stream handle that requests sample data.</param>
       /// <param name="buffer">Buffer to write the sampledata in.</param>
@@ -214,13 +344,35 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
+      /// Callback function for the visualizationstream.
+      /// </summary>
+      /// <param name="streamHandle">Bass stream handle that requests sample data.</param>
+      /// <param name="buffer">Buffer to write the sampledata in.</param>
+      /// <param name="requestedBytes">Requested number of bytes.</param>
+      /// <param name="userData"></param>
+      /// <returns>Number of bytes read.</returns>
+      private int VizRawStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
+      {
+        if (_Player._Controller.ExternalState == PlaybackState.Playing)
+        {
+          int read = _Buffer.Peek(buffer, requestedBytes, _VizReadOffsetBytes);
+          return read * Constants.FloatBytes;
+        }
+        else
+        {
+          return _Silence.Write(buffer, requestedBytes);
+        }
+      }
+
+      /// <summary>
       /// Bufferupdate thread loop.
       /// </summary>
       private void ThreadBufferUpdate()
       {
         try
         {
-          while (!_BufferUpdateThreadAbortFlag)
+          // This is a background thread
+          while (true)
           {
             _EnableBufferUpdateThread.WaitOne();
             _NotifyBufferUpdateThread.WaitOne(_BufferUpdateIntervalMS, false);

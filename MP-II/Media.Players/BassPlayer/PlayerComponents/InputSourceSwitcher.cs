@@ -64,6 +64,8 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
+        Log.Debug("OutputDeviceManager.Dispose()");
+        
         Reset();
       }
 
@@ -89,9 +91,13 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void InitToInputSource()
       {
+        Log.Debug("InputSourceSwitcher.InitToInputSource()");
+
         Reset();
 
         _CurrentInputSource = _Player._InputSourceQueue.Dequeue();
+
+        Log.Debug("Creating output stream");
 
         BASSFlag flags =
             BASSFlag.BASS_SAMPLE_FLOAT |
@@ -117,6 +123,8 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void Reset()
       {
+        Log.Debug("InputSourceSwitcher.Reset()");
+
         if (_Initialized)
         {
           _Initialized = false;
