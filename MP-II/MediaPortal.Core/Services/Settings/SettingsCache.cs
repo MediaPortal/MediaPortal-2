@@ -82,9 +82,14 @@ namespace MediaPortal.Core.Services.Settings
     /// </summary>
     public const int SETTINGS_OBJ_RELEASE_TIME = 5;
 
+    #region Protected fields
+
     protected readonly IDictionary<Type, SettingsObjectWrapper> _cache =
         new Dictionary<Type, SettingsObjectWrapper>();
     protected Timer _timer;
+    protected object _syncObj = new object();
+
+    #endregion
 
     public SettingsCache()
     {
@@ -95,7 +100,7 @@ namespace MediaPortal.Core.Services.Settings
 
     public void Dispose()
     {
-      lock (this)
+      lock (_syncObj)
       {
         _timer.Stop();
         _timer = null;
@@ -111,7 +116,7 @@ namespace MediaPortal.Core.Services.Settings
     public object Get(Type type)
     {
       SettingsObjectWrapper wrapper;
-      lock (this)
+      lock (_syncObj)
         return _cache.TryGetValue(type, out wrapper) ? wrapper.SettingsObject : null;
     }
 
@@ -124,7 +129,7 @@ namespace MediaPortal.Core.Services.Settings
       if (settingsObject == null)
         return;
       Type type = settingsObject.GetType();
-      lock (this)
+      lock (_syncObj)
       {
         SettingsObjectWrapper wrapper;
         if (_cache.TryGetValue(type, out wrapper))
@@ -143,7 +148,7 @@ namespace MediaPortal.Core.Services.Settings
     public void Use(Type type)
     {
       SettingsObjectWrapper wrapper;
-      lock (this)
+      lock (_syncObj)
         if (_cache.TryGetValue(type, out wrapper))
           wrapper.Use();
     }
@@ -153,7 +158,7 @@ namespace MediaPortal.Core.Services.Settings
     /// </summary>
     public void Clear()
     {
-      lock (this)
+      lock (_syncObj)
         _cache.Clear();
     }
 
@@ -164,7 +169,7 @@ namespace MediaPortal.Core.Services.Settings
     /// </summary>
     public void KeepAll()
     {
-      lock (this)
+      lock (_syncObj)
         _timer.Enabled = false;
     }
 
@@ -173,13 +178,13 @@ namespace MediaPortal.Core.Services.Settings
     /// </summary>
     public void StopKeep()
     {
-      lock (this)
+      lock (_syncObj)
         _timer.Enabled = true;
     }
 
     private void _timer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      lock (this)
+      lock (_syncObj)
       {
         ICollection<Type> releaseTypes = new List<Type>();
         foreach (KeyValuePair<Type, SettingsObjectWrapper> entry in _cache)
@@ -203,7 +208,7 @@ namespace MediaPortal.Core.Services.Settings
     /// <returns>Enumerator over the backing objects of the cache.</returns>
     public IEnumerator<SettingsObjectWrapper> GetEnumerator()
     {
-      lock (this)
+      lock (_syncObj)
         if (_timer.Enabled)
           throw new InvalidStateException("The enumerator on the settings cache may only be requested when the settings cache keeps its objects");
         else
