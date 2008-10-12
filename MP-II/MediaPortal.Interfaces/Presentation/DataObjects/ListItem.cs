@@ -70,7 +70,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// Initializes a new instance of the <see cref="ListItem"/> class with one
     /// localized or unlocalized string label. This constructor will determine if the
     /// specified string references a localized resource.
-    /// This is a convenience constructor for calling <see cref="ListItem(string, StringId"/> or
+    /// This is a convenience constructor for calling <see cref="ListItem(string, StringId)"/> or
     /// <see cref="ListItem(string, IResourceString)"/>.
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
