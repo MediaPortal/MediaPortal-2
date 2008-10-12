@@ -683,15 +683,13 @@ namespace MediaPortal.Manager
       }
       else
       {
-        IConfigurationNode bestMatch;
-        IEnumerable<IConfigurationNode> matchingLocations = ServiceScope.Get<IConfigurationManager>().Search(
-            _txtSearch.Text, out bestMatch);
-        if (bestMatch != null)
+        SearchResult searchResult = ServiceScope.Get<IConfigurationManager>().Search(_txtSearch.Text);
+        if (searchResult.BestMatch != null)
         {
-          _txtSearch.Tag = bestMatch;
-          _btnSearch.Tag = bestMatch;
-          LoadSections(matchingLocations, _treeSections.Nodes);
-          ExpandNodeSection(bestMatch.Location, true);
+          _txtSearch.Tag = searchResult.BestMatch;
+          _btnSearch.Tag = searchResult.BestMatch;
+          LoadSections(searchResult.Matches, _treeSections.Nodes);
+          ExpandNodeSection(searchResult.BestMatch.Location, true);
         }
         else
         {

@@ -108,15 +108,13 @@ namespace MediaPortal.Configuration
 
     /// <summary>
     /// Searches the given <paramref name="searchText"/> in all configuration objects.
-    /// If matching objects are found, this method returns a collection of the matching locations
-    /// as well as the <paramref name="bestMatch"/>.
+    /// This method returns a <seealso cref="SearchResult"/> containing an enumerable of
+    /// all matching configuration nodes and the best matching node.
     /// This can be used for a config application which allows the user to type in a search text to find
     /// nodes in the tree.
     /// </summary>
     /// <param name="searchText">Value to search for.</param>
-    /// <param name="bestMatch">The location of the best matching node for the
-    /// <paramref name="searchText"/>.</param>
-    /// <returns>Enumeration of all matching configuration nodes.</returns>
-    IEnumerable<IConfigurationNode> Search(string searchText, out IConfigurationNode bestMatch);
+    /// <returns>SearchResult, containing an enumeration of all matching configuration nodes and the best match.</returns>
+    SearchResult Search(string searchText);
   }
 }

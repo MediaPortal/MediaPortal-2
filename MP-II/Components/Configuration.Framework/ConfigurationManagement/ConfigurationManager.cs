@@ -157,12 +157,14 @@ namespace MediaPortal.Configuration
       return result;
     }
 
-    public IEnumerable<IConfigurationNode> Search(string searchText, out IConfigurationNode bestMatch)
+    public SearchResult Search(string searchText)
     {
       CheckInitialized();
       float score;
       ConfigObjectSearchMatcher searchMatcher = new ConfigObjectSearchMatcher(searchText);
-      return Search(_tree.RootNode, searchMatcher, out bestMatch, out score);
+      IConfigurationNode bestMatch;
+      ICollection<IConfigurationNode> matches = Search(_tree.RootNode, searchMatcher, out bestMatch, out score);
+      return new SearchResult(matches, bestMatch);
     }
 
     #endregion

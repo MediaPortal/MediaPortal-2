@@ -77,6 +77,7 @@
     <Compile Include="Configuration\IConfigurationNode.cs" />
     <Compile Include="Configuration\NodeNotFoundException.cs" />
     <Compile Include="Configuration\ConfigBaseMetadata.cs" />
+    <Compile Include="Configuration\SearchResult.cs" />
     <Compile Include="Configuration\Settings\Entry.cs" />
     <Compile Include="Configuration\Settings\LimitedNumberSelect.cs" />
     <Compile Include="Configuration\Settings\MultipleEntryList.cs" />
