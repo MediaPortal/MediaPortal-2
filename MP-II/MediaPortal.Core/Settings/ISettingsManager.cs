@@ -78,8 +78,8 @@ namespace MediaPortal.Core.Settings
     void StartBatchUpdate();
 
     /// <summary>
-    /// Leaves the batch update mode. Any settings for which method <see cref="Save"/> was called will be
-    /// saved on disk.
+    /// Leaves the batch update mode. Any settings for which method <see cref="Save"/> was called in
+    /// batch update mode will be saved on disk.
     /// </summary>
     void EndBatchUpdate();
 

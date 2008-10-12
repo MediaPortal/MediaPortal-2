@@ -437,7 +437,7 @@ namespace MediaPortal.Manager
     /// <param name="node"></param>
     private string GetSectionPath(TreeNode node)
     {
-      if (node.Tag == null || !(node.Tag is SectionDetails))
+      if (node == null || node.Tag == null || !(node.Tag is SectionDetails))
         return "";
       SectionDetails sectionTag = (SectionDetails)node.Tag;
       if (sectionTag.Section == null)
@@ -702,12 +702,12 @@ namespace MediaPortal.Manager
     private void txtSearch_KeyPress(object sender, KeyPressEventArgs e)
     {
       if (e.KeyChar == '\r') // focus on the best match if user presses enter
-        SearchGoto((string) ((FormControl) sender).Tag);
+        SearchGoto(((IConfigurationNode) ((FormControl) sender).Tag).Location);
     }
 
     private void btnSearch_Click(object sender, EventArgs e)
     {
-      SearchGoto((string) ((FormControl) sender).Tag);
+      SearchGoto(((IConfigurationNode) ((FormControl) sender).Tag).Location);
     }
 
     #endregion

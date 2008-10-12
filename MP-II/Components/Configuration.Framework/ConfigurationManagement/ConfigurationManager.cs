@@ -140,9 +140,10 @@ namespace MediaPortal.Configuration
     public void Save()
     {
       CheckInitialized();
-      // TODO: Let setting manager know that a batch update follows
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      settingsManager.StartBatchUpdate();
       _tree.SaveSettings();
-      // TODO: Flush setting manager
+      settingsManager.EndBatchUpdate();
     }
 
     public IConfigurationNode GetNode(string nodeLocation)
