@@ -39,7 +39,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Text to display for the current ConfigBase.
     /// </summary>
-    protected IStringBuilder _text;
+    protected IResourceString _text;
     protected bool _hidden;
     protected bool _disabled;
 
@@ -55,7 +55,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets or sets the text to be displayed for this setting registration element.
     /// </summary>
-    public IStringBuilder Text
+    public IResourceString Text
     {
       get { return _text; }
       set { _text = value; }

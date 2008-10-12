@@ -35,6 +35,7 @@ using System.Drawing.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
@@ -64,14 +65,14 @@ namespace MediaPortal.Manager
       InitializeComponent();
 
       // localise buttons
-      StringId save = new StringId("configuration", "settings.button.save");
+      IResourceString save = LocalizationHelper.CreateLabelProperty("[configuration.settings.button.save]");
       _btnSave.Tag = save;
-      _btnSave.Text = save.ToString();
+      _btnSave.Text = save.Evaluate();
       _btnSave.Enabled = false;
 
-      StringId apply = new StringId("configuration", "settings.button.apply");
+      IResourceString apply = LocalizationHelper.CreateLabelProperty("[configuration.settings.button.apply]");
       _btnApply.Tag = apply;
-      _btnApply.Text = apply.ToString();
+      _btnApply.Text = apply.Evaluate();
       _btnApply.Enabled = false;
 
       _treeSections.ImageList = new ImageList();
@@ -97,9 +98,9 @@ namespace MediaPortal.Manager
     {
       if (_btnSave.Enabled)
       {
-        StringId message = new StringId("configuration", "save_on_exit");
-        StringId title = new StringId("configuration", "unsaved_warning");
-        DialogResult result = MessageBox.Show(message.ToString(), title.ToString(), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+        IResourceString message = LocalizationHelper.CreateLabelProperty("[configuration.save_on_exit]");
+        IResourceString title = LocalizationHelper.CreateLabelProperty("[configuration.unsaved_warning]");
+        DialogResult result = MessageBox.Show(message.Evaluate(), title.Evaluate(), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
         switch (result)
         {
@@ -179,11 +180,11 @@ namespace MediaPortal.Manager
       if (_languageChange)
       {
         // Update text on buttons
-        if (_btnSave.Tag is StringId)
-          _btnSave.Text = ((StringId)_btnSave.Tag).ToString();
+        if (_btnSave.Tag is IResourceString)
+          _btnSave.Text = ((IResourceString) _btnSave.Tag).Evaluate();
 
-        if (_btnApply.Tag is StringId)
-          _btnApply.Text = ((StringId)_btnApply.Tag).ToString();
+        if (_btnApply.Tag is IResourceString)
+          _btnApply.Text = ((IResourceString) _btnApply.Tag).Evaluate();
         // Update text in section tree,
         // all section details controls need to be redrawn.
         foreach (TreeNode node in _treeSections.Nodes)

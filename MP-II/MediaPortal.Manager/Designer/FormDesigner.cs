@@ -30,6 +30,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using MediaPortal.Core;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration;
 using MediaPortal.Configuration.Settings;
@@ -376,8 +377,8 @@ namespace MediaPortal.Manager
             if (((SingleSelectionList) setting).Items.Count > 3) // ComboBox
             {
               ComboBox cmb = CreateComboBox(position);
-              foreach (StringId item in ((SingleSelectionList) setting).Items)
-                cmb.Items.Add(item.ToString());
+              foreach (IResourceString item in ((SingleSelectionList)setting).Items)
+                cmb.Items.Add(item.Evaluate());
               cmb.SelectedIndex = ((SingleSelectionList) setting).Selected;
               cmb.Tag = setting;
               SetHelp(cmb, setting.Help.Evaluate());
@@ -646,7 +647,7 @@ namespace MediaPortal.Manager
         btn.AutoSize = false;
         btn.TabIndex = position.NextTabIndex;
         btn.Name = "radioButton" + position.TabIndex.ToString();
-        btn.Text = tag.Items[i].ToString();
+        btn.Text = tag.Items[i].Evaluate();
         btn.CheckAlign = ContentAlignment.TopLeft;
         btn.Checked = (i == tag.Selected);
         btn.CheckedChanged += _singleSelectionListChange;
@@ -768,7 +769,7 @@ namespace MediaPortal.Manager
       btn.Name = "pathButton" + position.TabIndex.ToString();
       btn.Width = position.WidthColumnTwo;
       btn.Location = new Point(position.StartColumnTwo - position.StartColumnOne, 0); // needs to be relative to the parent
-      btn.Text = new StringId("configuration", "browse").ToString();
+      btn.Text = LocalizationHelper.CreateLabelProperty("[configuration.browse]").Evaluate();
       // Add events
       txt.Leave += _entryLeave;
       btn.Click += _buttonClicked;

@@ -174,7 +174,7 @@
     <Compile Include="Presentation\DataObjects\LocalizedStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\Property.cs" />
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
-    <Compile Include="Presentation\DataObjects\IStringBuilder.cs" />
+    <Compile Include="Presentation\DataObjects\IResourceString.cs" />
     <Compile Include="Presentation\Screen\IScreenManager.cs" />
     <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
     <Compile Include="UserManagement\IPermission.cs" />

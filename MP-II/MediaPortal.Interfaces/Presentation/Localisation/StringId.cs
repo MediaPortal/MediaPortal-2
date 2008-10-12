@@ -28,8 +28,7 @@ using MediaPortal.Core;
 namespace MediaPortal.Presentation.Localisation
 {
   /// <summary>
-  /// String descriptor for text strings to be displayed in the GUI. Strings referenced
-  /// by this descriptor can be localized by the localization API.
+  /// String descriptor for localized text strings to be displayed in the GUI.
   /// </summary>
   /// <remarks>
   /// String descriptors of this class hold a section name and a name of the to-be-localized
@@ -38,25 +37,28 @@ namespace MediaPortal.Presentation.Localisation
   /// </remarks>
   public class StringId : IComparable<StringId>, IEquatable<StringId>
   {
-    #region VARIABLES
+    public const string INVALID_LABEL = "[system.invalid]";
+
+    #region Protected fields
 
     /// <summary>
-    /// The section in the language resource
-    /// where the localized string will be searched.
+    /// The section in the language resource where the localized string will be searched.
     /// </summary>
-    private string _section;
+    protected string _section;
+    
     /// <summary>
     /// The name of the string in the language resource.
     /// </summary>
-    private string _name;
+    protected string _name;
+
     /// <summary>
-    /// The Result, a localised string.
+    /// Lazy initialized cache for the localised string.
     /// </summary>
-    private string _localised;
+    protected string _localised;
 
     #endregion
 
-    #region PROPERTIES
+    #region Public properties
 
     /// <summary>
     /// The section name where the localized string will be searched in the language resource.
@@ -84,16 +86,13 @@ namespace MediaPortal.Presentation.Localisation
 
     #endregion
 
-    #region CONSTRUCTORS
+    #region Ctor
 
     /// <summary>
-    /// Initializes a new invalid string descriptor.
+    /// Initializes a new invalid string descriptor. The invalid string descriptor uses
+    /// <see cref="INVALID_LABEL"/> as label.
     /// </summary>
-    public StringId()
-    {
-      _section = "system";
-      _name = "invalid";
-    }
+    public StringId() : this(INVALID_LABEL) { }
 
     /// <summary>
     /// Initializes a new string descriptor with the specified data.
@@ -106,7 +105,7 @@ namespace MediaPortal.Presentation.Localisation
       _section = section;
       _name = name;
 
-      ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LanguageChange);
+      ServiceScope.Get<ILocalisation>().LanguageChange += LanguageChange;
     }
 
     /// <summary>
@@ -124,7 +123,7 @@ namespace MediaPortal.Presentation.Localisation
         _section = label.Substring(1, pos - 1).ToLower();
         _name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
 
-        ServiceScope.Get<ILocalisation>().LanguageChange += new LanguageChangeHandler(LanguageChange);
+        ServiceScope.Get<ILocalisation>().LanguageChange += LanguageChange;
       }
       else
       {
@@ -137,7 +136,7 @@ namespace MediaPortal.Presentation.Localisation
 
     #endregion
 
-    #region PUBLIC METHODS
+    #region Public methods
 
     /// <summary>
     /// Disposes the instance.
@@ -159,13 +158,12 @@ namespace MediaPortal.Presentation.Localisation
 
       if (_localised == null)
         return Label;
-      else
-        return _localised;
+      return _localised;
     }
 
     #endregion
 
-    #region PRIVATE METHODS
+    #region Private methods
 
     private void LanguageChange(object o)
     {
@@ -174,7 +172,7 @@ namespace MediaPortal.Presentation.Localisation
 
     #endregion
 
-    #region STATIC METHODS
+    #region Static methods
 
     /// <summary>
     /// Tests if the given string is of form <c>[section.name]</c> and hence can be looked up
@@ -193,7 +191,7 @@ namespace MediaPortal.Presentation.Localisation
 
     #endregion
 
-    #region IComparable<StringId> Members
+    #region IComparable<StringId> implementation
 
     /// <summary>
     /// Compares the localised strings.
@@ -202,16 +200,16 @@ namespace MediaPortal.Presentation.Localisation
     /// <returns></returns>
     public int CompareTo(StringId other)
     {
-      return string.Compare(this.ToString(), other.ToString(), false, ServiceScope.Get<ILocalisation>().CurrentCulture);
+      return string.Compare(ToString(), other.ToString(), false, ServiceScope.Get<ILocalisation>().CurrentCulture);
     }
 
     #endregion
 
-    #region IEquatable<StringId> Members
+    #region IEquatable<StringId> implementation
 
     public bool Equals(StringId other)
     {
-      return this.Label == other.Label;
+      return Label == other.Label;
     }
 
     #endregion

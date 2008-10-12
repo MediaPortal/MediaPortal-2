@@ -25,9 +25,9 @@
 namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// Class which implements an <see cref="IStringBuilder"/> for a fixed string.
+  /// Class which implements an <see cref="IResourceString"/> for a fixed string.
   /// </summary>
-  public class StaticStringBuilder : IStringBuilder
+  public class StaticStringBuilder : IResourceString
   {
     #region Protected fields
 
@@ -40,13 +40,23 @@ namespace MediaPortal.Presentation.DataObjects
       _stringValue = stringValue;
     }
 
-    #region IStringBuilder Members
+    #region IResourceString implementation
 
     public string Evaluate()
     {
       return _stringValue;
     }
 
+    public int CompareTo(IResourceString other)
+    {
+      return _stringValue.CompareTo(other.Evaluate());
+    }
+
     #endregion
+
+    public override string ToString()
+    {
+      return Evaluate();
+    }
   }
 }

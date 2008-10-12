@@ -69,7 +69,7 @@ namespace MediaPortal.Presentation.DataObjects
     public override string ToString()
     {
       IList<string> l = new List<string>();
-      foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
+      foreach (KeyValuePair<string, IResourceString> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
       if (_subItems.Count > 0)
         l.Add(_subItems.Count + " sub items");

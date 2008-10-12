@@ -22,20 +22,25 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// Classes implementing this interface are able to return a string localised to the user's
-  /// culture.
+  /// Classes implementing this interface are able to return a string which comes from some resource.
+  /// The string might be localized.
+  /// Classes implementing this interface might override the <see cref="object.ToString"/>
+  /// method in that way that it returns the same string as <see cref="Evaluate"/>, but they are not
+  /// forced to. So don't use <see cref="object.ToString"/> to get the resource string, use
+  /// <see cref="Evaluate"/> instead!
   /// </summary>
-  /// FIXME: This interface as well as its implementors should be renamed to a more special name.
-  public interface IStringBuilder
+  public interface IResourceString : IComparable<IResourceString>
   {
     /// <summary>
-    /// Returns a string representing this instance, localised to the user's culture and regional
-    /// settings.
+    /// Returns a string representing this instance, which can be used in the GUI, for example.
+    /// The returned string might be localised to the user's culture and regional settings.
     /// </summary>
-    /// <returns>Localised string.</returns>
+    /// <returns>String to be used.</returns>
     string Evaluate();
   }
 }

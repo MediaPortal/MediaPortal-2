@@ -28,9 +28,9 @@ namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
   /// Wrapper class for a <see cref="StringId"/> instance, which implements
-  /// <see cref="IStringBuilder"/> for this localized string.
+  /// <see cref="IResourceString"/> for this localized string.
   /// </summary>
-  public class LocalizedStringBuilder : IStringBuilder
+  public class LocalizedStringBuilder : IResourceString
   {
     #region Protected fields
 
@@ -53,13 +53,23 @@ namespace MediaPortal.Presentation.DataObjects
       set { _localizedString = value; }
     }
 
-    #region IStringBuilder Members
+    #region IResourceString implementation
 
     public string Evaluate()
     {
       return _localizedString.ToString();
     }
 
+    public int CompareTo(IResourceString other)
+    {
+      return Evaluate().CompareTo(other.Evaluate());
+    }
+
     #endregion
+
+    public override string ToString()
+    {
+      return Evaluate();
+    }
   }
 }

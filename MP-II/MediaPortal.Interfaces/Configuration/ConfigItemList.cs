@@ -23,9 +23,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.DataObjects;
 
 
 namespace MediaPortal.Configuration
@@ -39,7 +38,7 @@ namespace MediaPortal.Configuration
   {
     #region Variables
 
-    protected List<StringId> _items = new List<StringId>();
+    protected List<IResourceString> _items = new List<IResourceString>();
 
     #endregion
 
@@ -48,7 +47,7 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets all items in the list.
     /// </summary>
-    public IList<StringId> Items
+    public IList<IResourceString> Items
     {
       get { return _items; }
     }
@@ -59,12 +58,8 @@ namespace MediaPortal.Configuration
     {
       List<string> result = new List<string>();
       result.AddRange(base.GetSearchTexts());
-      foreach (StringId o in _items)
-      {
-        if (o.Label == "[system.invalid]")
-          continue;
-        result.Add(o.ToString());
-      }
+      foreach (IResourceString sb in _items)
+        result.Add(sb.Evaluate());
       return result;
     }
   }

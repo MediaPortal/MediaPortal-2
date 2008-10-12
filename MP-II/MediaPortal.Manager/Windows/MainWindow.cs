@@ -26,6 +26,7 @@
 using System.Windows.Forms;
 
 using MediaPortal.Core;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration;
 
@@ -59,10 +60,10 @@ namespace MediaPortal.Manager
       // Load plugins
       ServiceScope.Get<IConfigurationManager>().Load();
       // Localise window
-      StringId settings = new StringId("configuration", "areas.settings");
+      IResourceString settings = LocalizationHelper.CreateLabelProperty("[configuration.areas.settings]");
       areaSettings.Tag = settings;
       areaSettings.Text = settings.ToString();
-      StringId logs = new StringId("configuration", "areas.logs");
+      IResourceString logs = LocalizationHelper.CreateLabelProperty("[configuration.areas.logs]");
       areaLogs.Tag = logs;
       areaLogs.Text = logs.ToString();
       areaLogs.Enabled = false;
@@ -105,11 +106,11 @@ namespace MediaPortal.Manager
 
     private void LangageChange(object o)
     {
-      if (areaSettings.Tag is StringId)
-        areaSettings.Text = areaSettings.Tag.ToString();
+      if (areaSettings.Tag is IResourceString)
+        areaSettings.Text = ((IResourceString) areaSettings.Tag).Evaluate();
 
-      if (areaLogs.Tag is StringId)
-        areaLogs.Text = areaLogs.Tag.ToString();
+      if (areaLogs.Tag is IResourceString)
+        areaLogs.Text = ((IResourceString) areaLogs.Tag).Evaluate();
 
       CheckRightToLeft();
     }

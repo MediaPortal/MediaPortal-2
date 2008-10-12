@@ -173,7 +173,7 @@ namespace MediaPortal.Configuration
         result = new ConfigSection();
       else if (metadata.GetType() == typeof(ConfigSettingMetadata))
       {
-        ConfigSettingMetadata csm = (ConfigSettingMetadata)metadata;
+        ConfigSettingMetadata csm = (ConfigSettingMetadata) metadata;
         ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
         cs.Load(settingsManager.Load(cs.SettingsObjectType));
         result = cs;

@@ -24,7 +24,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.DataObjects;
 
 
 namespace MediaPortal.Configuration.Settings
@@ -44,25 +44,25 @@ namespace MediaPortal.Configuration.Settings
     /// </summary>
     public IList<int> SelectedIndices
     {
-      get { return this._selected; }
+      get { return _selected; }
       set
       {
-        this._selected.Clear();
-        this._selected.AddRange(value);
-        base.NotifyChange();
+        _selected.Clear();
+        _selected.AddRange(value);
+        NotifyChange();
       }
     }
 
     /// <summary>
     /// Gets all selected items.
     /// </summary>
-    public IList<StringId> SelectedItems
+    public IList<IResourceString> SelectedItems
     {
       get
       {
-        List<StringId> o = new List<StringId>(this._selected.Count);
-        foreach (int i in this._selected)
-          o.Add(base._items[i]);
+        List<IResourceString> o = new List<IResourceString>(_selected.Count);
+        foreach (int i in _selected)
+          o.Add(_items[i]);
         return o.AsReadOnly();
       }
     }

@@ -36,7 +36,7 @@ namespace MediaPortal.Configuration
 
     protected int _columns = 0;
     protected int _rows = 0;
-    protected IStringBuilder _help = null;
+    protected IResourceString _help = null;
 
     #endregion
 
@@ -54,7 +54,7 @@ namespace MediaPortal.Configuration
       set { _rows = value; }
     }
 
-    public IStringBuilder Help
+    public IResourceString Help
     {
       get { return _help; }
       set { _help = value; }
@@ -110,7 +110,7 @@ namespace MediaPortal.Configuration
     {
       base.SetMetadata(metadata);
       _metadata = metadata;
-      _help = LocalizationHelper.CreateLabelProperty(SettingMetadata.Text);
+      _help = LocalizationHelper.CreateLabelProperty(SettingMetadata.HelpText);
     }
 
     #endregion

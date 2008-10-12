@@ -33,21 +33,22 @@ namespace MediaPortal.Presentation.DataObjects
 
   /// <summary>
   /// Common class for wrapping single "items" to be displayed in the GUI.
-  /// The term "item" in this context stands for a single, to be displayed menu point,
-  /// button, tree view item or similar object. It can hold one or more named "labels",
-  /// which are typically short texts for different properties/attributes of the item, like the
-  /// name, the artist and the play time of a song. Labels can be accessed by their
-  /// label name.
+  /// The term "item" in this context stands for a the (localized) text contents of a single,
+  /// to be displayed menu point, button, tree view item or similar object.
+  /// It can hold one or more named "labels", which are typically short texts for different
+  /// properties/attributes of the item, like the name, the artist and the play time of a song.
+  /// Labels can be accessed by their label name.
   /// </summary>
   /// <remarks>
-  /// Instances of the <see cref="ListItem"/> class can store different information about
-  /// an item:
+  /// Instances of the <see cref="ListItem"/> class can store different information about an item:
   /// <list type="bullet">
   /// <item>Different named "labels"</item>
-  /// <item>Sub items</item>
   /// <item>A selection state</item>
-  /// <item>A command to be executed when this item is choosen</item>
+  /// <item>An associated command, to be executed when this item is choosen for example</item>
+  /// <item>Change listeners which can be called when the item's contents change</item>
   /// </list>
+  /// Changes do <b>not</b> automatically trigger the <see cref="OnChanged"/> event; this event
+  /// has to be explicitly triggered by modifying clients.
   /// </remarks>
   public class ListItem
   {
@@ -55,16 +56,19 @@ namespace MediaPortal.Presentation.DataObjects
 
     protected Property _commandProperty = new Property(typeof(ICommand), null);
     protected Property _commandParameterProperty = new Property(typeof(ICommandParameter), null);
-    protected IDictionary<string, IStringBuilder> _labels = new Dictionary<string, IStringBuilder>();
+    protected IDictionary<string, IResourceString> _labels = new Dictionary<string, IResourceString>();
     protected Property _selectedProperty = new Property(typeof(bool), false);
 
+    /// <summary>
+    /// Event to track changes to this item.
+    /// </summary>
     public event ListItemChangedHandler OnChanged;
 
     #endregion
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ListItem"/> class with one
-    /// localized or unlocalized string label. This constructor will determine, if the
+    /// localized or unlocalized string label. This constructor will determine if the
     /// specified string references a localized resource.
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
@@ -114,7 +118,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="defValue">Label string to be returned if the label with the specified name is not
     /// present in this item. If this value references a localized string, a localized label will be returned.</param>
     /// <returns>Label property instance with the specified name or a new label property with the default value.</returns>
-    public IStringBuilder Label(string name, string defValue)
+    public IResourceString Label(string name, string defValue)
     {
       return _labels.ContainsKey(name) ? _labels[name] : LocalizationHelper.CreateLabelProperty(defValue);
     }
@@ -135,7 +139,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Gets or sets the dictionary of named labels for this item.
     /// </summary>
-    public IDictionary<string, IStringBuilder> Labels
+    public IDictionary<string, IResourceString> Labels
     {
       get { return _labels; }
       set { _labels = value; }
@@ -156,7 +160,7 @@ namespace MediaPortal.Presentation.DataObjects
     }
 
     /// <summary>
-    /// Gets or sets the command to be executed when item was selected.
+    /// Gets or sets the associated command which can be executed.
     /// </summary>
     public ICommand Command
     {
@@ -193,6 +197,9 @@ namespace MediaPortal.Presentation.DataObjects
       set { _selectedProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Fires the <see cref="OnChanged"/> event.
+    /// </summary>
     public void FireChange()
     {
       if (OnChanged != null)
@@ -205,13 +212,13 @@ namespace MediaPortal.Presentation.DataObjects
     /// </summary>
     public string this[string name]
     {
-      get { return Label(name, "").Evaluate(); }
+      get { return _labels.ContainsKey(name) ? _labels[name].Evaluate() : string.Empty; }
     }
 
     public override string ToString()
     {
       IList<string> l = new List<string>();
-      foreach (KeyValuePair<string, IStringBuilder> kvp in _labels)
+      foreach (KeyValuePair<string, IResourceString> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
       return StringUtils.Join(", ", l);
     }

@@ -27,9 +27,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Configuration.Settings.Regional;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Configuration.Settings;
+using MediaPortal.Presentation.Localisation;
 
 namespace Components.Configuration.Settings.Regional
 {
@@ -56,25 +56,24 @@ namespace Components.Configuration.Settings.Regional
     {
       LocalizationSettings settings = (LocalizationSettings)settingsObject;
       InitializeRegionNames();
-      ILocalisation loc = ServiceScope.Get<ILocalisation>();
       // Initialize the list
-      base._items = new List<StringId>(_regionNames.Length);
+      _items = new List<IResourceString>(_regionNames.Length);
       string current = null;
       foreach (RegionInfo region in _regionNames)
       {
         if (region.TwoLetterISORegionName.ToLowerInvariant() == settings.CountryCode)
           current = region.NativeName;
-        base._items.Add(new StringId(region.NativeName));
+        _items.Add(LocalizationHelper.CreateLabelProperty(region.NativeName));
       }
-      base._items.Sort();
+      _items.Sort();
       // Find the item to select
       if (string.IsNullOrEmpty(current)) // Use the systemsetting as default fallback
         current = RegionInfo.CurrentRegion.NativeName;
-      for (int i = 0; i < base._items.Count; i++)
+      for (int i = 0; i < _items.Count; i++)
       {
-        if (current == base._items[i].ToString())
+        if (current == _items[i].Evaluate())
         {
-          base.Selected = i;
+          Selected = i;
           break;
         }
       }
@@ -82,7 +81,7 @@ namespace Components.Configuration.Settings.Regional
 
     public override void Save(object settingsObject)
     {
-      string selection = base._items[base.Selected].ToString();
+      string selection = _items[Selected].Evaluate();
       foreach (RegionInfo region in _regionNames)
       {
         if (region.NativeName == selection)

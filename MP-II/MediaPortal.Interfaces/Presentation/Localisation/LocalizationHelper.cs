@@ -30,12 +30,12 @@ namespace MediaPortal.Presentation.Localisation
   public static class LocalizationHelper
   {
     /// <summary>
-    /// Creates an instance implementing <see cref="IStringBuilder"/>, holding a
+    /// Creates an instance implementing <see cref="IResourceString"/>, holding a
     /// localized or unlocalized string. This method will check, if the specified string
     /// references a localized string resource. If so, the return value will be a localized
-    /// <see cref="IStringBuilder"/>, else it will not be localized.
+    /// <see cref="IResourceString"/>, else it will not be localized.
     /// </summary>
-    public static IStringBuilder CreateLabelProperty(string maybeLocalizationResource)
+    public static IResourceString CreateLabelProperty(string maybeLocalizationResource)
     {
       if (StringId.IsResourceString(maybeLocalizationResource))
         return new LocalizedStringBuilder(new StringId(maybeLocalizationResource));

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Configuration.Settings.Regional;
 using MediaPortal.Core;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Configuration.Settings;
 
@@ -67,17 +68,17 @@ namespace Components.Configuration.Settings.Regional
       _cultures = ServiceScope.Get<ILocalisation>().AvailableLanguages();
       CultureInfo current = ServiceScope.Get<ILocalisation>().CurrentCulture;
       // Fill items
-      List<StringId> items = new List<StringId>(_cultures.Length);
+      List<IResourceString> items = new List<IResourceString>(_cultures.Length);
       for (int i = 0; i < _cultures.Length; i++)
-        items.Add(new StringId(_cultures[i].DisplayName));
+        items.Add(LocalizationHelper.CreateLabelProperty(_cultures[i].DisplayName));
       items.Sort();
-      base._items = items;
+      _items = items;
       // Find index to select after sorting
       for (int i = 0; i < _cultures.Length; i++)
       {
         if (_cultures[i].Name == current.Name)
         {
-          base.Selected = i;
+          Selected = i;
           break;
         }
       }
@@ -85,12 +86,12 @@ namespace Components.Configuration.Settings.Regional
 
     public override void Save(object settingsObject)
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base.Selected].Name);
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[Selected].Name);
     }
 
     public override void Apply()
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[base.Selected].Name);
+      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[Selected].Name);
     }
 
     #endregion
