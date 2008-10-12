@@ -70,6 +70,8 @@ namespace MediaPortal.Presentation.DataObjects
     /// Initializes a new instance of the <see cref="ListItem"/> class with one
     /// localized or unlocalized string label. This constructor will determine if the
     /// specified string references a localized resource.
+    /// This is a convenience constructor for calling <see cref="ListItem(string, StringId"/> or
+    /// <see cref="ListItem(string, IResourceString)"/>.
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
     /// <param name="value">The value to create the label with. If <paramref name="value"/>
@@ -86,9 +88,17 @@ namespace MediaPortal.Presentation.DataObjects
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
     /// <param name="value">Localized string value of the new item.</param>
-    public ListItem(string name, StringId value)
+    public ListItem(string name, StringId value) : this(name, new LocalizedStringBuilder(value)) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ListItem"/> class with a resource string,
+    /// which itself may be localized or unlocalized.
+    /// </summary>
+    /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
+    /// <param name="value">Localized or unlocalized resource string value of the new item.</param>
+    public ListItem(string name, IResourceString value)
     {
-      _labels[name] = new LocalizedStringBuilder(value);
+      _labels[name] = value;
     }
 
     /// <summary>
