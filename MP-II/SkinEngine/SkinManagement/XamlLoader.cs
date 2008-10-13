@@ -23,14 +23,12 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Reflection;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.MpfElements;
-using System.IO;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.SkinEngine.SkinManagement
@@ -54,21 +52,47 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// specified skin file.</returns>
     public static object Load(string skinFilePath)
     {
-      Parser parser = new Parser(skinFilePath, parser_ImportNamespace, parser_GetEventHandler);
-      parser.SetCustomTypeConverter(Registration.ConvertType);
-      DateTime dt = DateTime.Now;
-      object obj = parser.Parse();
-      TimeSpan ts = DateTime.Now - dt;
-      ServiceScope.Get<ILogger>().Debug("XAML file {0} loaded in {1} msec", skinFilePath, ts.TotalMilliseconds);
-      return obj;
+      try
+      {
+        using (TextReader reader = new StreamReader(skinFilePath))
+          return Load(reader);
+      }
+      catch (XamlParserException e)
+      {
+        // Unwrap the exception thrown by Load(TextReader)
+        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e.InnerException, skinFilePath);
+      }
+      catch (Exception e)
+      {
+        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, skinFilePath);
+      }
+    }
+
+    /// <summary>
+    /// Loads a skin file from the specified <paramref name="reader"/> and returns the root UIElement.
+    /// </summary>
+    /// <param name="reader">The reader containing the XAML contents of the skin file.</param>
+    /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
+    /// specified skin file.</returns>
+    public static object Load(TextReader reader)
+    {
+      try
+      {
+        Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
+        parser.SetCustomTypeConverter(Registration.ConvertType);
+        return parser.Parse();
+      }
+      catch (Exception e)
+      {
+        throw new XamlParserException("XAML Parser: Error parsing XAML file from text reader", e);
+      }
     }
 
     static INamespaceHandler parser_ImportNamespace(IParserContext context, string namespaceURI)
     {
       if (namespaceURI == NS_MEDIAPORTAL_MPF_URI)
         return new MpfNamespaceHandler();
-      else
-        throw new XamlNamespaceNotSupportedException("XAML namespace '{0}' is not supported by the MediaPortal skin engine", namespaceURI);
+      throw new XamlNamespaceNotSupportedException("XAML namespace '{0}' is not supported by the MediaPortal skin engine", namespaceURI);
     }
 
     static Delegate parser_GetEventHandler(IParserContext context, MethodInfo signature, string value)

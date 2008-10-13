@@ -31,7 +31,6 @@ using System.Xml;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.SkinEngine.Xaml.XamlNamespace;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.SkinEngine.Xaml
 {
@@ -166,9 +165,9 @@ namespace MediaPortal.SkinEngine.Xaml
     protected ConvertTypeDlgt _customTypeConverter = null;
 
     /// <summary>
-    /// The path of the XAML file to process.
+    /// The input for the XAML content to process.
     /// </summary>
-    protected string _xamlFilePath;
+    protected TextReader _reader;
 
     /// <summary>
     /// The document being processed.
@@ -194,49 +193,37 @@ namespace MediaPortal.SkinEngine.Xaml
     #region Constructor
 
     /// <summary>
-    /// Builds a new XAML parser for the specified file.
+    /// Builds a new XAML parser for the input given by the specified <paramref name="reader"/>.
     /// </summary>
     /// <remarks>
     /// The parsing operation will not start immediately, you'll first have to
     /// register all necessary namespace handlers. To start the parsing operation, call
     /// method <see cref="Parse()"/>.
     /// </remarks>
-    /// <param name="xamlFilePath">The path of the XAML file to parse in this parser.</param>
+    /// <param name="reader">The reader the parser will take its input to parse.</param>
     /// <param name="importNamespace">Delegate to be called when importing
     /// a new XML/XAML namespace.</param>
     /// <param name="getEventHandler">Delegate to be called when an event handler method
     /// should be assigned.</param>
-    public Parser(string xamlFilePath, ImportNamespaceDlgt importNamespace,
+    /// <exception cref="XmlException">If there is an error while reading or parsing the content from
+    /// the specified <paramref name="reader"/>.</exception>
+    public Parser(TextReader reader, ImportNamespaceDlgt importNamespace,
         GetEventHandlerDlgt getEventHandler)
     {
-      try
-      {
-        if (importNamespace == null)
-          throw new ArgumentNullException("importNamespace", "The ImportNamespace delegate must not be null");
-        _importCustomNamespace = importNamespace;
-        if (getEventHandler == null)
-          throw new ArgumentNullException("The GetEventHandler delegate must not be null");
-        _getEventHandler = getEventHandler;
-        _xmlDocument = new XmlDocument();
-        _xamlFilePath = xamlFilePath;
-        _xmlDocument.Load(_xamlFilePath);
-      } catch (Exception e)
-      {
-        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, xamlFilePath);
-      }
+      if (importNamespace == null)
+        throw new ArgumentNullException("importNamespace", "The ImportNamespace delegate must not be null");
+      _importCustomNamespace = importNamespace;
+      if (getEventHandler == null)
+        throw new ArgumentNullException("The GetEventHandler delegate must not be null");
+      _getEventHandler = getEventHandler;
+      _reader = reader;
+      _xmlDocument = new XmlDocument();
+      _xmlDocument.Load(_reader);
     }
 
     #endregion
 
     #region Public properties
-
-    /// <summary>
-    /// Returns the path of the file to parse.
-    /// </summary>
-    public string XAMLFilePath
-    {
-      get { return _xamlFilePath; }
-    }
 
     /// <summary>
     /// Returns the root object which was instantiated for the root XAML element
@@ -266,16 +253,13 @@ namespace MediaPortal.SkinEngine.Xaml
     /// <returns>The visual corresponding to the root XAML element.</returns>
     public object Parse()
     {
-      if (_rootObject == null)
-      {
-        string key;
-        _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
-        if (key != null)
-          throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
-        return _rootObject;
-      }
-      else
-        throw new XamlParserException("XAML Parser parsing file '{0}': Parse() method was invoked multiple times", _xamlFilePath);
+      if (_rootObject != null)
+        throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
+      string key;
+      _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
+      if (key != null)
+        throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
+      return _rootObject;
     }
 
     #endregion
@@ -888,11 +872,10 @@ namespace MediaPortal.SkinEngine.Xaml
     public ElementContextStack ContextStack
     { get { return _elementContextStack; } }
 
-    /// <see cref="IParserContext.LoadXaml(string)"/>
-    public object LoadXaml(string fileName)
+    /// <see cref="IParserContext.LoadXaml(TextReader)"/>
+    public object LoadXaml(TextReader reader)
     {
-      Parser subParser = new Parser(FileUtils.CombinePaths(Path.GetDirectoryName(_xamlFilePath), fileName),
-          _importCustomNamespace, _getEventHandler);
+      Parser subParser = new Parser(reader, _importCustomNamespace, _getEventHandler);
       return subParser.Parse();
     }
 

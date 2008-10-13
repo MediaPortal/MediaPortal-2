@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
@@ -93,8 +94,16 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
       if (includeFilePath == null)
-        throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
-      _content = context.LoadXaml(includeFilePath);
+        throw new XamlLoadException("Include: Could not open include file '{0}'", includeFilePath);
+      try
+      {
+        using (TextReader reader = new StreamReader(includeFilePath))
+          _content = context.LoadXaml(reader);
+      }
+      catch (Exception e)
+      {
+        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, includeFilePath);
+      }
       if (_content is UIElement)
       {
         UIElement target = (UIElement) _content;

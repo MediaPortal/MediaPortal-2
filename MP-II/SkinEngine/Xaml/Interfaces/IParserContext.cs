@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.IO;
+
 namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
@@ -37,13 +39,12 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
     ElementContextStack ContextStack { get; }
 
     /// <summary>
-    /// Loads the XAML file with the specified <paramref name="fileName"/> with
+    /// Loads the XAML content from the specified <paramref name="reader"/> with
     /// a parser instance configured the same as this instance.
     /// </summary>
-    /// <param name="fileName">Name of the file to load, relative to this
-    /// parser's file.</param>
-    /// <returns>Root element created from the XAML file.</returns>
-    object LoadXaml(string fileName);
+    /// <param name="reader">Reader which provides the XAML contents to parse.</param>
+    /// <returns>Root element created from the XAML input <paramref name="reader"/>.</returns>
+    object LoadXaml(TextReader reader);
 
     /// <summary>
     /// Given a qualified or unqualified XML object name, this method separates

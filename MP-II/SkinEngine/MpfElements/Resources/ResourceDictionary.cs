@@ -117,14 +117,24 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     #region IInitializable implementation
 
-    public void Initialize(IParserContext context)
+    public override void Initialize(IParserContext context)
     {
+      base.Initialize(context);
       if (!string.IsNullOrEmpty(_source))
       {
         string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
         if (includeFilePath == null)
           throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
-        ResourceDictionary mergeDict = context.LoadXaml(includeFilePath) as ResourceDictionary;
+        ResourceDictionary mergeDict;
+        try
+        {
+          using (TextReader reader = new StreamReader(includeFilePath))
+            mergeDict = context.LoadXaml(reader) as ResourceDictionary;
+        }
+        catch (Exception e)
+        {
+          throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, includeFilePath);
+        }
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);
