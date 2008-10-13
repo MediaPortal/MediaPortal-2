@@ -872,13 +872,6 @@ namespace MediaPortal.SkinEngine.Xaml
     public ElementContextStack ContextStack
     { get { return _elementContextStack; } }
 
-    /// <see cref="IParserContext.LoadXaml(TextReader)"/>
-    public object LoadXaml(TextReader reader)
-    {
-      Parser subParser = new Parser(reader, _importCustomNamespace, _getEventHandler);
-      return subParser.Parse();
-    }
-
     /// <see cref="IParserContext.LookupNamespace(string,out string,out string)"/>
     public void LookupNamespace(string elementName, out string localName, out string namespaceURI)
     {

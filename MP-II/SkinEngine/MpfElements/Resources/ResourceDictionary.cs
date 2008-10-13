@@ -125,16 +125,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
         string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
         if (includeFilePath == null)
           throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
-        ResourceDictionary mergeDict;
-        try
-        {
-          using (TextReader reader = new StreamReader(includeFilePath))
-            mergeDict = context.LoadXaml(reader) as ResourceDictionary;
-        }
-        catch (Exception e)
-        {
-          throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, includeFilePath);
-        }
+        ResourceDictionary mergeDict = XamlLoader.Load(includeFilePath) as ResourceDictionary;
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);
