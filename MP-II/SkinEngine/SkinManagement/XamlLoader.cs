@@ -47,24 +47,25 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <summary>
     /// Loads the specified skin file and returns the root UIElement.
     /// </summary>
-    /// <param name="skinFilePath">The XAML skin file.</param>
+    /// <param name="skinFileUri">The URI to the XAML skin file. This may be an URI with any of
+    /// the supported protocols.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(string skinFilePath)
+    public static object Load(string skinFileUri)
     {
       try
       {
-        using (TextReader reader = new StreamReader(skinFilePath))
+        using (TextReader reader = OpenURI(skinFileUri))
           return Load(reader);
       }
-      catch (XamlParserException e)
+      catch (XamlLoadException e)
       {
         // Unwrap the exception thrown by Load(TextReader)
-        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e.InnerException, skinFilePath);
+        throw new XamlLoadException("XAML loader: Error parsing file '{0}'", e.InnerException, skinFileUri);
       }
       catch (Exception e)
       {
-        throw new XamlParserException("XAML Parser: Error parsing file '{0}'", e, skinFilePath);
+        throw new XamlLoadException("XAML loader: Error parsing file '{0}'", e, skinFileUri);
       }
     }
 
@@ -84,8 +85,40 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        throw new XamlParserException("XAML Parser: Error parsing XAML file from text reader", e);
+        throw new XamlLoadException("XAML loader: Error reading XAML file from text reader", e);
       }
+    }
+
+    // This method might be outsourced in a util project/namespace
+    static void SeparateURI(string uri, out string scheme, out string path)
+    {
+      int i = uri.IndexOf("://");
+      if (i == -1)
+      { // Default: file
+        scheme = "file";
+        path = uri;
+      }
+      else
+      {
+        scheme = uri.Substring(0, i);
+        path = uri.Substring(i + 3);
+      }
+    }
+
+    static TextReader OpenURI(string skinFileUri)
+    {
+      string scheme;
+      string path;
+      SeparateURI(skinFileUri, out scheme, out path);
+      // Rudimentary implementation of protocoll handlers - this is sufficient here
+      if (scheme == "file")
+      {
+        while (skinFileUri.StartsWith("/"))
+          skinFileUri = skinFileUri.Substring(1);
+        return new StreamReader(skinFileUri);
+      }
+      // TODO: More schemes should be defined here
+      throw new XamlLoadException("XAML loader: URI scheme '{0}' is not supported", scheme);
     }
 
     static INamespaceHandler parser_ImportNamespace(IParserContext context, string namespaceURI)
