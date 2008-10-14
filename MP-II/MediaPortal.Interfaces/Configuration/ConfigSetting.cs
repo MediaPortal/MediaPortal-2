@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 
@@ -65,6 +66,12 @@ namespace MediaPortal.Configuration
       get { return (ConfigSettingMetadata)Metadata; }
     }
 
+    /// <summary>
+    /// Returns the type of the settings this configuration object can handle.
+    /// The methods <see cref="Load"/> and <see cref="Save"/> will be called with the setting
+    /// of this type.
+    /// If this property returns <c>null</c>, this configuration object isn't based on a setting.
+    /// </summary>
     public abstract Type SettingsObjectType { get; }
 
     #endregion
@@ -72,15 +79,19 @@ namespace MediaPortal.Configuration
     #region Public Methods
 
     /// <summary>
-    /// Loads the setting from the specified object.
+    /// Loads the setting from the specified object. The specified <paramref name="settingsObject"/>
+    /// will be loaded from the <see cref="ISettingsManager"/> service.
     /// </summary>
-    /// <param name="settingsObject">Object to extract setting from.</param>
+    /// <param name="settingsObject">Object to extract setting from. This settings object is of
+    /// type <see cref="SettingsObjectType"/>, if given.</param>
     public virtual void Load(object settingsObject) { }
 
     /// <summary>
-    /// Saves the setting to the specified <paramref name="settingsObject"/>.
+    /// Saves the setting to the specified <paramref name="settingsObject"/>. The specified
+    /// <paramref name="settingsObject"/> will be loaded from the <see cref="ISettingsManager"/> service.
     /// </summary>
-    /// <param name="settingsObject">Object to save setting to.</param>
+    /// <param name="settingsObject">Object to save setting to. This settings object is of
+    /// type <see cref="SettingsObjectType"/>, if given.</param>
     public virtual void Save(object settingsObject) { }
 
     /// <summary>
