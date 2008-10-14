@@ -56,7 +56,7 @@ namespace Components.Configuration.Settings.Regional
 
     public override Type SettingsObjectType
     {
-      get { return typeof(LocalizationSettings); }
+      get { return null; }
     }
 
     #endregion

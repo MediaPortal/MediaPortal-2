@@ -67,10 +67,10 @@ namespace MediaPortal.Configuration
 
     protected static void SaveNodeAction(IConfigurationNode node)
     {
-      ISettingsManager manager = ServiceScope.Get<ISettingsManager>();
-      ConfigSetting configSetting = node.ConfigObj as ConfigSetting;
-      if (configSetting != null)
-        configSetting.Save(manager.Load(configSetting.SettingsObjectType));
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ConfigSetting cs = node.ConfigObj as ConfigSetting;
+      if (cs != null)
+        cs.Save(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
     }
 
     #endregion
