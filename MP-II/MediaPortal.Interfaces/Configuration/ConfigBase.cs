@@ -75,59 +75,6 @@ namespace MediaPortal.Configuration
 
     #endregion
 
-    #region Public events
-
-    /// <summary>
-    /// Gets called when the UI must redraw the setting.
-    /// </summary>
-    public event ConfigChangedEventHandler RedrawSettingEvent;
-
-    #endregion
-
-    #region Protected Events
-
-    /// <summary>
-    /// Gets called if the configuration gets changed.
-    /// </summary>
-    protected event ConfigChangedEventHandler OnChangeEvent;
-
-    #endregion
-
-    #region Protected Methods
-
-    /// <summary>
-    /// Notifies all registered items that the current setting is changed.
-    /// </summary>
-    protected void NotifyChange()
-    {
-      if (OnChangeEvent != null)
-        OnChangeEvent(this, _metadata.Location);
-    }
-
-    /// <summary>
-    /// Override this to handle changes in other instances of ConfigBase.
-    /// </summary>
-    /// <param name="sender">Sender of the change notification.</param>
-    /// <param name="senderLocation">Location of the sender in the configurationtree.</param>
-    protected virtual void ConfigChangedHandler(ConfigBase sender, string senderLocation)
-    {
-      // Needs to be overriden by the inheriting class.
-    }
-
-    /// <summary>
-    /// Handler for a configuration change of another item.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="senderLocation"></param>
-    protected void ConfigChangedMainHandler(ConfigBase sender, string senderLocation)
-    {
-      ConfigChangedHandler(sender, senderLocation);
-      if (RedrawSettingEvent != null)
-        RedrawSettingEvent(this, _metadata.Location);
-    }
-
-    #endregion
-
     /// <summary>
     /// Returns all text strings in this configuration object which are searchable.
     /// Those strings can be used by the engine to make this configuration object searchable.

@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Core;
+using MediaPortal.Core.Registry;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Configuration
@@ -103,25 +104,16 @@ namespace MediaPortal.Configuration
     /// Returns if the specified location can be found in the tree.
     /// If found, it <paramref name="node"/> will be returned.
     /// </summary>
-    /// <param name="location">Location to search for.</param>
+    /// <param name="location">Location to search for. Has to be absolute (starting with "/" character).</param>
     /// <param name="node">Node to be returned. If this method returns <c>false</c>, this parameter
     /// is undefined.</param>
     /// <returns><c>true</c>, if the node at the specified <paramref name="location"/> exists,
     /// else <c>false</c>.</returns>
     public bool FindNode(string location, out IConfigurationNode node)
     {
-      if (location == null)
-        throw new ArgumentNullException("location");
-      string[] locEntries = location.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-      node = _root;
-      foreach (string locEntry in locEntries)
-      {
-        node = node.GetSubNodeById(locEntry);
-        if (node == null)
-          return false;
-      }
-      return true;
+      if (!RegistryHelper.IsAbsolutePath(location))
+        throw new ArgumentException(string.Format("ConfigurationTree: Node location has to be absolute (argument was: '{0}')", location));
+      return _root.FindNode(RegistryHelper.RemoveRootFromAbsolutePath(location), out node);
     }
 
     #endregion

@@ -278,7 +278,6 @@ namespace MediaPortal.Manager
       foreach (IConfigurationNode subNode in node.ChildNodes)
       {
         if (subNode.ConfigObj.Hidden) continue;
-        subNode.ConfigObj.RedrawSettingEvent += _configChangedHandler;
         if (subNode.ConfigObj is ConfigGroup)
         {
           Position pos = (Position) position.Clone();
@@ -296,6 +295,7 @@ namespace MediaPortal.Manager
         else if (subNode.ConfigObj is ConfigSetting)
         {
           ConfigSetting setting = (ConfigSetting) subNode.ConfigObj;
+          setting.OnChangeEvent += _configChangedHandler;
           if (setting is Entry)
           {
             panel.Controls.Add(CreateLabel(position, setting.Text.Evaluate()));

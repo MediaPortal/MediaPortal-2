@@ -95,6 +95,14 @@ namespace MediaPortal.Configuration
 
     #region Protected methods
 
+    protected IConfigurationNode GetRootNode()
+    {
+      IConfigurationNode current = this;
+      while (current.Parent != null)
+        current = current.Parent;
+      return current;
+    }
+
     protected void CheckChildrenLoaded()
     {
       if (!IsChildrenLoaded)
@@ -106,14 +114,14 @@ namespace MediaPortal.Configuration
       if (_childrenLoaded)
         return;
       ILogger logger = ServiceScope.Get<ILogger>();
-      _childPluginItemStateTracker = new FixedItemStateTracker();
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      string location = PLUGINTREEBASELOCATION + Location;
       // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
       // after usage. The alternative would be to use a plugin item state tracker which is able to
       // remove a config element usage. But this would mean to also expose a listener registration
       // to the outside. I think this is not worth the labor.
-      ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(location);
+      _childPluginItemStateTracker = new FixedItemStateTracker();
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      string itemLocation = PLUGINTREEBASELOCATION + Location;
+      ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
       IDictionary<string, object> childSet = new Dictionary<string, object>();
       foreach (PluginItemMetadata item in items)
       {
@@ -123,7 +131,7 @@ namespace MediaPortal.Configuration
         AddChildNode(childObj);
         childSet.Add(metadata.Id, null);
       }
-      ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(location);
+      ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(itemLocation);
       foreach (string childLocation in childLocations)
       {
         string childId = RegistryHelper.GetLastPathSegment(childLocation);
@@ -163,7 +171,7 @@ namespace MediaPortal.Configuration
       _childNodes.Add(new ConfigurationNode(childObj, this));
     }
 
-    protected static ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
+    protected ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       ConfigBase result;
@@ -176,6 +184,16 @@ namespace MediaPortal.Configuration
         ConfigSettingMetadata csm = (ConfigSettingMetadata) metadata;
         ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
         cs.Load(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
+        foreach (string listenToLocation in csm.ListenTo)
+        {
+          IConfigurationNode node;
+          if (FindNode(listenToLocation, out node))
+            if (node.ConfigObj is ConfigSetting)
+              cs.ListenTo((ConfigSetting) node.ConfigObj);
+            else
+              ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
+                Location, listenToLocation, node.ConfigObj.GetType().Name);
+        }
         result = cs;
       }
       else
@@ -203,16 +221,41 @@ namespace MediaPortal.Configuration
 
     #region Public methods
 
-    public void ForEach(ConfigurationNodeActionDelegate action, bool avoidUnloadedNodes)
+    /// <summary>
+    /// Returns if the specified location can be found in the tree.
+    /// If found, it <paramref name="node"/> will be returned.
+    /// </summary>
+    /// <param name="location">Location to search for. May be absolute or relative.</param>
+    /// <param name="node">Node to be returned. If this method returns <c>false</c>, this parameter
+    /// is undefined.</param>
+    /// <returns><c>true</c>, if the node at the specified <paramref name="location"/> exists,
+    /// else <c>false</c>.</returns>
+    public bool FindNode(string location, out IConfigurationNode node)
+    {
+      node = RegistryHelper.IsAbsolutePath(location) ? GetRootNode() : this;
+      string[] locEntries = location.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+      foreach (string locEntry in locEntries)
+      {
+        if (locEntry == ".")
+          continue;
+        node = locEntry == ".." ? node.Parent : node.GetSubNodeById(locEntry);
+        if (node == null)
+          return false;
+      }
+      return true;
+    }
+
+    public void ForEach(ConfigurationNodeActionDelegate action, bool skipUnloadedNodes)
     {
       action(this);
       if (!IsChildrenLoaded)
-        if (avoidUnloadedNodes)
+        if (skipUnloadedNodes)
           return;
         else
           LoadChildren();
       foreach (ConfigurationNode childNode in _childNodes)
-        childNode.ForEach(action, avoidUnloadedNodes);
+        childNode.ForEach(action, skipUnloadedNodes);
     }
 
     /// <summary>
@@ -225,13 +268,13 @@ namespace MediaPortal.Configuration
       if (!_childrenLoaded)
         return;
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      string location = PLUGINTREEBASELOCATION + Location;
+      string itemLocation = PLUGINTREEBASELOCATION + Location;
       foreach (ConfigurationNode node in _childNodes)
       {
         node.DisposeChildren();
         // To fulfil the classes invariant, we need to do the dispose work for our children - like
         // we built up our children in method LoadChildren()
-        pluginManager.RevokePluginItem(location, node.Id, _childPluginItemStateTracker);
+        pluginManager.RevokePluginItem(itemLocation, node.Id, _childPluginItemStateTracker);
         _childPluginItemStateTracker = null;
       }
       _childNodes.Clear();
