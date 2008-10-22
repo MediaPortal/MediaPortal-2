@@ -87,6 +87,21 @@ namespace Media.Players.BassPlayer
         get { return _CurrentPosition; }
       }
 
+      /// <summary>
+      /// Terminates and waits for the monitor thread.
+      /// </summary>
+      public void TerminateThread()
+      {
+        if (_MonitorThread.IsAlive)
+        {
+          Log.Debug("Stopping monitor thread.");
+
+          _MonitorThreadAbortFlag = true;
+          _MonitorThreadNotify.Set();
+          _MonitorThread.Join();
+        }
+      }
+
       #endregion
 
       #region Private members
@@ -144,6 +159,9 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
+        Log.Debug("PlaybackBuffer.Dispose()");
+
+        TerminateThread();
       }
 
       #endregion

@@ -52,6 +52,7 @@ namespace Media.Players.BassPlayer
             outputDevice.Initialize();
             return outputDevice;
           }
+
           Dictionary<int, DeviceInfo> _DeviceInfos = new Dictionary<int, DeviceInfo>();
 
           #endregion
@@ -77,7 +78,7 @@ namespace Media.Players.BassPlayer
             Stop();
 
             Log.Debug("Disposing output stream");
-            
+
             _OutputStream.Dispose();
             _OutputStream = null;
 
@@ -156,27 +157,27 @@ namespace Media.Players.BassPlayer
 
             _OutputStream = BassStream.Create(handle);
 
-            if (_Player._InputSourceSwitcher.CurrentInputSource.OutputStream.StreamContentType == StreamContentType.PCM)
+            if (!_Player._InputSourceSwitcher.CurrentInputSource.OutputStream.IsPassThrough)
               _Fader = new BassStreamFader(_OutputStream, _Player.Settings.FadeDuration);
-            else
-              _Fader = new BassStreamFader(_OutputStream, TimeSpan.Zero);
 
             ResetState();
           }
 
           public void PrepareFadeIn()
           {
-            _Fader.PrepareFadeIn();
+            if (_Fader != null)
+              _Fader.PrepareFadeIn();
           }
 
           public void FadeIn()
           {
-            _Fader.FadeIn();
+            if (_Fader != null)
+              _Fader.FadeIn();
           }
 
           public void FadeOut()
           {
-            if (!_OutputStreamEnded)
+            if (_Fader != null && !_OutputStreamEnded)
             {
               Log.Debug("Fading out");
               _Fader.FadeOut();
@@ -236,34 +237,7 @@ namespace Media.Players.BassPlayer
             _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
             _Silence = new Silence();
 
-            string deviceName = _Player.Settings.DirectSoundDevice;
-
-            if (String.IsNullOrEmpty(deviceName) || deviceName == Settings.Defaults.DirectSoundDevice)
-            {
-              Log.Info("Initializing default DirectSound device");
-              _DeviceNo = 1;
-            }
-            else
-            {
-              _DeviceNo = Constants.BassDefaultDevice;
-
-              BASS_DEVICEINFO[] deviceDescriptions = Bass.BASS_GetDeviceInfos();
-              for (int i = 0; i < deviceDescriptions.Length; i++)
-              {
-                if (deviceDescriptions[i].name == deviceName)
-                {
-                  _DeviceNo = i;
-                  break;
-                }
-              }
-              if (_DeviceNo == Constants.BassDefaultDevice)
-              {
-                Log.Warn("Specified DirectSound device does not exist. Initializing default DirectSound Device");
-                _DeviceNo = 1;
-              }
-              else
-                Log.Info("Initializing DirectSound Device {0}", deviceName);
-            }
+            _DeviceNo = GetDeviceNo();
 
             BASSInit flags = BASSInit.BASS_DEVICE_DEFAULT;
 
@@ -292,7 +266,7 @@ namespace Media.Players.BassPlayer
             if (!result)
               throw new BassLibraryException("BASS_Init");
 
-            GetDeviceInfo(_DeviceNo);
+            CollectDeviceInfo(_DeviceNo);
 
             int ms = Convert.ToInt32(_Player.Settings.DirectSoundBufferSize.TotalMilliseconds);
 
@@ -308,11 +282,13 @@ namespace Media.Players.BassPlayer
           /// static deviceinfo dictionary do it can be reused later. 
           /// </summary>
           /// <param name="deviceNo">Device number to retrieve information on.</param>
-          private void GetDeviceInfo(int deviceNo)
+          private void CollectDeviceInfo(int deviceNo)
           {
             // Device info is saved in a dictionary so it can be reused lateron.
             if (!_DeviceInfos.ContainsKey(deviceNo))
             {
+              Log.Debug("Gathering device info");
+
               BASS_DEVICEINFO bassDeviceInfo = Bass.BASS_GetDeviceInfo(deviceNo);
               if (bassDeviceInfo == null)
                 throw new BassLibraryException("BASS_GetDeviceInfo");
@@ -334,7 +310,45 @@ namespace Media.Players.BassPlayer
                 _DeviceInfos.Add(deviceNo, deviceInfo);
               }
             }
-            Log.Debug(String.Format("DirectSound Device info: {0}", _DeviceInfos[_DeviceNo].ToString()));
+            Log.Debug("DirectSound Device info: {0}", _DeviceInfos[_DeviceNo].ToString());
+          }
+
+          /// <summary>
+          /// Gets the device number for the selected DirectSound device.
+          /// </summary>
+          /// <returns></returns>
+          private int GetDeviceNo()
+          {
+            string deviceName = _Player.Settings.DirectSoundDevice;
+            int deviceNo;
+
+            if (String.IsNullOrEmpty(deviceName) || deviceName == Settings.Defaults.DirectSoundDevice)
+            {
+              Log.Info("Initializing default DirectSound device");
+              deviceNo = 1;
+            }
+            else
+            {
+              deviceNo = Constants.BassDefaultDevice;
+
+              BASS_DEVICEINFO[] deviceDescriptions = Bass.BASS_GetDeviceInfos();
+              for (int i = 0; i < deviceDescriptions.Length; i++)
+              {
+                if (deviceDescriptions[i].name == deviceName)
+                {
+                  deviceNo = i;
+                  break;
+                }
+              }
+              if (deviceNo == Constants.BassDefaultDevice)
+              {
+                Log.Warn("Specified DirectSound device does not exist. Initializing default DirectSound Device");
+                deviceNo = 1;
+              }
+              else
+                Log.Info("Initializing DirectSound Device {0}", deviceName);
+            }
+            return deviceNo;
           }
 
           /// <summary>

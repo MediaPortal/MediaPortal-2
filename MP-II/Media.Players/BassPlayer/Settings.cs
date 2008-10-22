@@ -39,6 +39,9 @@ namespace Media.Players.BassPlayer
       public const string ASIODevice = "";
       public const int ASIOFirstChan = Constants.Auto;
       public const int ASIOLastChan = Constants.Auto;
+      public const bool ASIOUseMaxBufferSize = true;
+      public const int ASIOMaxRate = Constants.Auto;
+      public const int ASIOMinRate = Constants.Auto;
       public static TimeSpan PlaybackBufferSize = TimeSpan.FromMilliseconds(500);
       public static TimeSpan SeekIncrement = TimeSpan.FromSeconds(20);
       public const PlaybackMode PlaybackMode = Media.Players.BassPlayer.PlaybackMode.Normal;
@@ -57,6 +60,9 @@ namespace Media.Players.BassPlayer
     private string _ASIODevice = Defaults.ASIODevice;
     private int _ASIOFirstChan = Defaults.ASIOFirstChan;
     private int _ASIOLastChan = Defaults.ASIOLastChan;
+    private int _ASIOMaxRate = Defaults.ASIOMaxRate;
+    private int _ASIOMinRate = Defaults.ASIOMinRate;
+    private bool _ASIOUseMaxBufferSize = Defaults.ASIOUseMaxBufferSize;
     private TimeSpan _PlaybackBufferSize = Defaults.PlaybackBufferSize;
     private TimeSpan _SeekIncrement = Defaults.SeekIncrement;
     private PlaybackMode _PlaybackMode = Defaults.PlaybackMode;
@@ -103,6 +109,24 @@ namespace Media.Players.BassPlayer
     {
       get { return _ASIOLastChan; }
       set { _ASIOLastChan = value; }
+    }
+
+    public int ASIOMaxRate
+    {
+      get { return _ASIOMaxRate; }
+      set { _ASIOMaxRate = value; }
+    }
+    
+    public int ASIOMinRate
+    {
+      get { return _ASIOMinRate; }
+      set { _ASIOMinRate = value; }
+    }
+
+    public bool ASIOUseMaxBufferSize
+    {
+      get { return _ASIOUseMaxBufferSize; }
+      set { _ASIOUseMaxBufferSize = value; }
     }
 
     public TimeSpan PlaybackBufferSize

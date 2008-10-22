@@ -411,14 +411,14 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Terminates the controller thread.
+      /// Terminates and waits for the controller thread.
       /// </summary>
-      private void StopThread()
+      public void TerminateThread()
       {
-        Log.Debug("Stopping controller thread.");
-
         if (_MainThread.IsAlive)
         {
+          Log.Debug("Stopping controller thread.");
+
           _MainThreadAbortFlag = true;
           _MainThreadNotify.Set();
           _MainThread.Join();
@@ -431,7 +431,9 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
-        StopThread();
+        Log.Debug("Controller.Dispose()");
+        
+        TerminateThread();
       }
 
       #endregion

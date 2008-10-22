@@ -64,7 +64,7 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
-        Log.Debug("OutputDeviceManager.Dispose()");
+        Log.Debug("InputSourceSwitcher.Dispose()");
         
         Reset();
       }

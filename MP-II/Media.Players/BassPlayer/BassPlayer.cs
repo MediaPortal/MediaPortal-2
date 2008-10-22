@@ -327,6 +327,9 @@ namespace Media.Players.BassPlayer
     {
       Log.Debug("Disposing BassPlayer");
 
+      _Controller.TerminateThread();
+      _Monitor.TerminateThread();
+
       _OutputDeviceManager.Dispose();
       _PlaybackBuffer.Dispose();
       _WinAmpDSPProcessor.Dispose();

@@ -90,7 +90,7 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
-        Log.Debug("OutputDeviceManager.Dispose()");
+        Log.Debug("PlaybackBuffer.Dispose()");
         
         ResetInputStream();
       }

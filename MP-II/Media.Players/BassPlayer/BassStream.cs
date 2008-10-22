@@ -178,7 +178,7 @@ namespace Media.Players.BassPlayer
     /// <returns>The number of bytes read or -1 when the end of the stream is reached.</returns>
     public int Read(IntPtr buffer, int length)
     {
-      int bytesRead = Bass.BASS_ChannelGetData(Handle, buffer, length);
+      int bytesRead = Bass.BASS_ChannelGetData(_Handle, buffer, length);
 
       if (bytesRead < 0)
       {
