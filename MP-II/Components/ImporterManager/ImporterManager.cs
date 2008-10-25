@@ -514,7 +514,7 @@ namespace Components.Services.ImporterManager
         FileChangeEvent change = action as FileChangeEvent;
         if (change != null)
         {
-          foreach (IImporter importer in _importers)
+          foreach (LazyImporterWrapper importer in _importers)
           {
             if (change.Type == FileChangeEvent.FileChangeType.Created)
               importer.FileCreated(change.FullPath);
