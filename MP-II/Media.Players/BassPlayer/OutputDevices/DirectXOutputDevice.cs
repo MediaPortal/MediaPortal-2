@@ -138,7 +138,7 @@ namespace Media.Players.BassPlayer
           public void SetInputStream(BassStream stream)
           {
             if (_DeviceState != DeviceState.Stopped)
-              throw new BassPlayerException("Device must be in 'Stopped' state.");
+              throw new BassPlayerException("Device state is not 'DeviceState.Stopped'.");
 
             _InputStream = stream;
 

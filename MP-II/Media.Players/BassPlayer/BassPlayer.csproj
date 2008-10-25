@@ -61,6 +61,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\MediaPortal.Base\Bass.Net.dll</HintPath>
     </Reference>
+    <Reference Include="BassPlayer.ASIOInterop, Version=2.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\BassPlayer.ASIOInterop\Distrib\BassPlayer.ASIOInterop.dll</HintPath>
+    </Reference>
     <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\MediaPortal.Base\BassRegistration.dll</HintPath>
@@ -92,7 +96,6 @@
     <Compile Include="OutputDevices\ASIOOutputDevice.cs" />
     <Compile Include="OutputDevices\DirectXOutputDevice.cs" />
     <Compile Include="PlayerComponents\Controller.cs" />
-    <Compile Include="PlayerComponents\ControllerRequest.cs" />
     <Compile Include="PlayerComponents\InputSourceFactory.cs" />
     <Compile Include="PlayerComponents\InputSourceQueue.cs" />
     <Compile Include="PlayerComponents\InputSourceSwitcher.cs" />
@@ -108,6 +111,8 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
+    <Compile Include="Utils\WorkItemQueue.cs" />
+    <Compile Include="Utils\WorkItem.cs" />
     <Compile Include="Utils\Silence.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +144,7 @@
     <PostBuildEvent>mkdir "$(SolutionDir)$(SolutionName)\$(OutDir)"
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
+xcopy /Y "$(TargetDir)BassPlayer.ASIOInterop.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

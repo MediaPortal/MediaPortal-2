@@ -69,22 +69,22 @@ namespace Media.Players.BassPlayer
       // The current playback mode.
       private PlaybackMode _PlaybackMode;
 
-      // Mainthread that handles commands.
+      // Mainthread that controls the player.
       private Thread _MainThread;
       private bool _MainThreadAbortFlag;
       private AutoResetEvent _MainThreadNotify;
 
-      // Command queue
-      private Queue<ControllerCommand> _CommandQueue;
+      // Work item queue
+      private WorkItemQueue _WorkItemQueue;
 
       #endregion
 
       #region Delegates
 
-      // Delegates used in conjunction with commands.
-      private delegate void PlayDelegate(IMediaItem mediaItem);
-      private delegate void SeekDelegate(TimeSpan interval);
-      private delegate void CommandDelegate();
+      // Delegates used in conjunction with workitems.
+      private delegate void PlayWorkItemDelegate(IMediaItem mediaItem);
+      private delegate void SeekWorkItemDelegate(TimeSpan interval);
+      private delegate void WorkItemDelegate();
 
       #endregion
 
@@ -123,17 +123,17 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Enqueues a play command for the given mediaitem.
+      /// Enqueues a play workitem for the given mediaitem.
       /// </summary>
       /// <param name="mediaItem"></param>
       /// <remarks>
-      /// The command will actually be executed on the controller's mainthread.
+      /// The workitem will actually be executed on the controller's mainthread.
       /// </remarks>
       public void Play(IMediaItem mediaItem)
       {
         if (_ExternalState == PlaybackState.Stopped || _ExternalState == PlaybackState.Ended)
         {
-          EnQueueCommand(new ControllerCommand(new PlayDelegate(InternalPlay), mediaItem));
+          EnQueueWorkItem(new WorkItem(new PlayWorkItemDelegate(InternalPlay), mediaItem));
 
           _ExternalState = PlaybackState.Playing;
           SendMPMessage(MPMessages.Started);
@@ -141,40 +141,40 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Enqueues a pause command.
+      /// Enqueues a pause workitem.
       /// </summary>
       /// <remarks>
-      /// The command will actually be executed on the controller's mainthread.
+      /// The workitem will actually be executed on the controller's mainthread.
       /// </remarks>
       public void Pause()
       {
         if (_ExternalState == PlaybackState.Playing)
         {
-          EnQueueCommand(new ControllerCommand(new CommandDelegate(InternalPause)));
+          EnQueueWorkItem(new WorkItem(new WorkItemDelegate(InternalPause)));
           _ExternalState = PlaybackState.Paused;
         }
       }
 
       /// <summary>
-      /// Enqueues a resume command.
+      /// Enqueues a resume workitem.
       /// </summary>
       /// <remarks>
-      /// The command will actually be executed on the controller's mainthread.
+      /// The workitem will actually be executed on the controller's mainthread.
       /// </remarks>
       public void Resume()
       {
         if (_ExternalState == PlaybackState.Paused)
         {
-          EnQueueCommand(new ControllerCommand(new CommandDelegate(InternalResume)));
+          EnQueueWorkItem(new WorkItem(new WorkItemDelegate(InternalResume)));
           _ExternalState = PlaybackState.Playing;
         }
       }
 
       /// <summary>
-      /// Enqueues a stop command.
+      /// Enqueues a stop workitem.
       /// </summary>
       /// <remarks>
-      /// The command will actually be executed on the controller's mainthread.
+      /// The workitem will actually be executed on the controller's mainthread.
       /// </remarks>
       public void Stop()
       {
@@ -182,7 +182,7 @@ namespace Media.Players.BassPlayer
 
         if (_ExternalState == PlaybackState.Playing || _ExternalState == PlaybackState.Paused)
         {
-          EnQueueCommand(new ControllerCommand(new CommandDelegate(InternalStop)));
+          EnQueueWorkItem(new WorkItem(new WorkItemDelegate(InternalStop)));
           _ExternalState = PlaybackState.Stopped;
         }
       }
@@ -191,20 +191,20 @@ namespace Media.Players.BassPlayer
       {
         if (_ExternalState == PlaybackState.Playing)
         {
-          EnQueueCommand(new ControllerCommand(new SeekDelegate(InternalSetPosition), time));
+          EnQueueWorkItem(new WorkItem(new SeekWorkItemDelegate(InternalSetPosition), time));
         }
       }
 
       /// <summary>
-      /// Enqueues a command to change the current playbackmode.
+      /// Enqueues a workitem to change the current playbackmode.
       /// </summary>
       /// <remarks>
-      /// The command will actually be executed on the controller's mainthread.
+      /// The workitem will actually be executed on the controller's mainthread.
       /// </remarks>
       public void TogglePlayBackMode()
       {
-        ControllerCommand command = EnQueueCommand(new ControllerCommand(new CommandDelegate(InternalTogglePlayBackMode)));
-        command.WaitHandle.WaitOne();
+        WorkItem workItem = EnQueueWorkItem(new WorkItem(new WorkItemDelegate(InternalTogglePlayBackMode)));
+        workItem.WaitHandle.WaitOne();
       }
 
       /// <summary>
@@ -212,7 +212,7 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void HandleNextMediaItemSyncPoint()
       {
-        EnQueueCommand(new ControllerCommand(new CommandDelegate(RequestNextMediaItem)));
+        EnQueueWorkItem(new WorkItem(new WorkItemDelegate(RequestNextMediaItem)));
       }
 
       /// <summary>
@@ -220,7 +220,7 @@ namespace Media.Players.BassPlayer
       /// </summary>
       public void HandleCrossFadeSyncPoint()
       {
-        EnQueueCommand(new ControllerCommand(new CommandDelegate(StartCrossFade)));
+        EnQueueWorkItem(new WorkItem(new WorkItemDelegate(StartCrossFade)));
       }
 
       /// <summary>
@@ -230,7 +230,7 @@ namespace Media.Players.BassPlayer
       {
         // When we get here an ended msg is already send to MP (through HandleNextMediaItemSyncPoint).
         // All we have to do is stop playback that only runs in the background.
-        EnQueueCommand(new ControllerCommand(new CommandDelegate(InternalStop)));
+        EnQueueWorkItem(new WorkItem(new WorkItemDelegate(InternalStop)));
       }
 
       #endregion
@@ -251,25 +251,24 @@ namespace Media.Players.BassPlayer
         _InternalState = InternalPlayBackState.Stopped;
         _MainThreadAbortFlag = false;
 
-        _CommandQueue = new Queue<ControllerCommand>();
+        _WorkItemQueue = new WorkItemQueue();
 
         _MainThreadNotify = new AutoResetEvent(false);
         _MainThread = new Thread(new ThreadStart(ThreadMain));
-        _MainThread.SetApartmentState(ApartmentState.STA);
         _MainThread.Start();
       }
 
       /// <summary>
-      /// Enqueues a command and notifies the controller mainthread something needs to be done.
+      /// Enqueues a workitem and notifies the controller mainthread something needs to be done.
       /// </summary>
-      /// <param name="command">The command to enqueue.</param>
-      /// <returns>The enqueued command.</returns>
-      private ControllerCommand EnQueueCommand(ControllerCommand command)
+      /// <param name="workItem">The workitem to enqueue.</param>
+      /// <returns>The enqueued workitem.</returns>
+      private WorkItem EnQueueWorkItem(WorkItem workItem)
       {
-        _CommandQueue.Enqueue(command);
+        _WorkItemQueue.Enqueue(workItem);
         _MainThreadNotify.Set();
 
-        return command;
+        return workItem;
       }
 
       /// <summary>
@@ -394,13 +393,13 @@ namespace Media.Players.BassPlayer
         {
           while (!_MainThreadAbortFlag)
           {
-            if (_CommandQueue.Count == 0)
+            if (_WorkItemQueue.Count == 0)
               _MainThreadNotify.WaitOne();
 
-            if (_CommandQueue.Count > 0)
+            if (_WorkItemQueue.Count > 0)
             {
-              ControllerCommand command = _CommandQueue.Dequeue();
-              command.Invoke();
+              WorkItem workItem = _WorkItemQueue.Dequeue();
+              workItem.Invoke();
             }
           }
         }
