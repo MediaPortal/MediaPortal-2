@@ -30,7 +30,6 @@ using System.Collections;
 using System.Text;
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
-//using MetadataParser;
 
 namespace Components.UPnPServer
 {
@@ -39,66 +38,44 @@ namespace Components.UPnPServer
   {
     // Fields
     private IMediaContainer m_Parent = null;
-    private DvMediaItem2 m_Underlying = null;
+    private DvMediaItem2 m_Underlaying = null;
     private string m_uniqueId = null;
     private static Tags T = Tags.GetInstance();
 
     // Methods
-    public DvMediaReference2(DvMediaItem2 underlyingItem)
+    public DvMediaReference2(DvMediaItem2 underlayingItem)
     {
-      this.m_uniqueId = MediaBuilder.GetUniqueId();
-      this.m_Underlying = underlyingItem;
+      m_uniqueId = MediaBuilder.GetUniqueId();
+      m_Underlaying = underlayingItem;
     }
 
-    public void AddDescNode(string[] ignored)
-    {
-    }
+    public void AddDescNode(string[] ignored) { }
 
-    public void AddDescNode(string ignored)
-    {
-    }
+    public void AddDescNode(string ignored) { }
 
-    public void AddResource(IMediaResource ignored)
-    {
-    }
+    public void AddResource(IMediaResource ignored) { }
 
-    public void AddResources(ICollection ignored)
-    {
-    }
+    public void AddResources(ICollection ignored) { }
 
-    public void AddResources(IMediaResource[] ignored)
-    {
-    }
+    public void ChangeParent(IDvContainer ignored) { }
 
-    public void ChangeParent(IDvContainer ignored)
-    {
-    }
-
-    public void CheckRuntimeBindings(StackTrace ignored)
-    {
-    }
+    public void CheckRuntimeBindings(StackTrace ignored) { }
 
     public IDvItem CreateReference()
     {
       throw new ApplicationException("Calling this method is not legal.");
     }
 
-    public void LockReferenceList()
-    {
-    }
+    public void LockReferenceList() { }
 
     public IUPnPMedia MetadataCopy()
     {
       return null;
     }
 
-    public void NotifyPendingDelete()
-    {
-    }
+    public void NotifyPendingDelete() { }
 
-    public void NotifyRootOfChange()
-    {
-    }
+    public void NotifyRootOfChange() { }
 
     private bool PrintResources(ArrayList desiredProperties)
     {
@@ -127,25 +104,15 @@ namespace Components.UPnPServer
       return false;
     }
 
-    public void RemoveDescNode(string ignored)
-    {
-    }
+    public void RemoveDescNode(string ignored) { }
 
-    public void RemoveResource(IMediaResource ignored)
-    {
-    }
+    public void RemoveResource(IMediaResource ignored) { }
 
-    public void RemoveResources(ICollection ignored)
-    {
-    }
+    public void RemoveResources(ICollection ignored) { }
 
-    public void SetMetadata(MediaBuilder.CoreMetadata ignored)
-    {
-    }
+    public void SetMetadata(MediaBuilder.CoreMetadata ignored) { }
 
-    public void SetPropertyValue(string ignored, IList ignored2)
-    {
-    }
+    public void SetPropertyValue(string ignored, IList ignored2) { }
 
     public string ToDidl()
     {
@@ -172,7 +139,7 @@ namespace Components.UPnPServer
       MediaObject.WriteResponseHeader(xmlWriter);
       ToXmlData data = (ToXmlData)MediaObject.ToXmlData_AllRecurse.Clone();
       data.IsRecursive = false;
-      this.ToXml(ToXmlFormatter.DefaultFormatter, data, xmlWriter);
+      ToXml(ToXmlFormatter.DefaultFormatter, data, xmlWriter);
       xmlWriter.WriteEndDocument();
       xmlWriter.Flush();
       if (MediaObject.ENCODE_UTF8)
@@ -193,250 +160,148 @@ namespace Components.UPnPServer
     public void ToXml(ToXmlFormatter formatter, object data, XmlTextWriter xmlWriter)
     {
       xmlWriter.WriteStartElement(T[_DIDL.Item]);
-      xmlWriter.WriteAttributeString(T[_ATTRIB.id], this.ID);
-      xmlWriter.WriteAttributeString(T[_ATTRIB.refID], this.m_Underlying.ID);
-      xmlWriter.WriteAttributeString(T[_ATTRIB.parentID], this.m_Parent.ID);
+      xmlWriter.WriteAttributeString(T[_ATTRIB.id], ID);
+      xmlWriter.WriteAttributeString(T[_ATTRIB.refID], m_Underlaying.ID);
+      xmlWriter.WriteAttributeString(T[_ATTRIB.parentID], m_Parent.ID);
       xmlWriter.WriteAttributeString(T[_ATTRIB.restricted], "1");
       InnerXmlWriter.WriteInnerXml(this, new InnerXmlWriter.DelegateWriteProperties(InnerXmlWriter.WriteInnerXmlProperties), new InnerXmlWriter.DelegateShouldPrintResources(MediaObject.ShouldPrintResources), new InnerXmlWriter.DelegateWriteResources(InnerXmlWriter.WriteInnerXmlResources), new InnerXmlWriter.DelegateWriteDescNodes(InnerXmlWriter.WriteInnerXmlDescNodes), formatter, (ToXmlData)data, xmlWriter);
       xmlWriter.WriteEndElement();
     }
 
-    public void UnlockReferenceList()
-    {
-    }
+    public void UnlockReferenceList() { }
 
-    public void UpdateObject(IUPnPMedia ignored)
-    {
-    }
+    public void UpdateObject(IUPnPMedia ignored) { }
 
-    public void UpdateObject(string ignored)
-    {
-    }
+    public void UpdateObject(string ignored) { }
 
-    public void UpdateObject(XmlElement ignored)
-    {
-    }
+    public void UpdateObject(XmlElement ignored) { }
 
     // Properties
     public MediaClass Class
     {
-      get
-      {
-        return this.m_Underlying.Class;
-      }
-      set
-      {
-      }
+      get { return m_Underlaying.Class; }
+      set { }
     }
 
     public string Creator
     {
-      get
-      {
-        return this.m_Underlying.Creator;
-      }
-      set
-      {
-      }
+      get { return m_Underlaying.Creator; }
+      set { }
     }
 
     public IList DescNodes
     {
-      get
-      {
-        return null;
-      }
+      get { return null; }
     }
 
     public string ID
     {
-      get
-      {
-        return this.m_uniqueId;
-      }
-      set
-      {
-      }
+      get { return m_uniqueId; }
+      set { }
     }
 
     public bool IsContainer
     {
-      get
-      {
-        return false;
-      }
+      get { return false; }
     }
 
     public bool IsDeletePending
     {
-      get
-      {
-        return false;
-      }
+      get { return false; }
     }
 
     public bool IsItem
     {
-      get
-      {
-        return true;
-      }
+      get { return true; }
     }
 
     public bool IsReference
     {
-      get
-      {
-        return true;
-      }
+      get { return true; }
     }
 
     public bool IsRestricted
     {
-      get
-      {
-        return true;
-      }
-      set
-      {
-      }
+      get { return true; }
+      set { }
     }
 
     public bool IsSearchable
     {
-      get
-      {
-        return false;
-      }
-      set
-      {
-      }
+      get { return false; }
+      set { }
     }
 
     public IList MergedDescNodes
     {
-      get
-      {
-        return this.m_Underlying.DescNodes;
-      }
+      get { return m_Underlaying.DescNodes; }
     }
 
     public IMediaProperties MergedProperties
     {
-      get
-      {
-        return this.m_Underlying.Properties;
-      }
+      get { return m_Underlaying.Properties; }
     }
 
     public IMediaResource[] MergedResources
     {
-      get
-      {
-        return this.m_Underlying.Resources;
-      }
+      get { return m_Underlaying.Resources; }
     }
 
     public IMediaContainer Parent
     {
-      get
-      {
-        return this.m_Parent;
-      }
-      set
-      {
-        this.m_Parent = value;
-      }
+      get { return m_Parent; }
+      set { m_Parent = value; }
     }
 
     public string ParentID
     {
-      get
-      {
-        return this.m_Parent.ID;
-      }
-      set
-      {
-      }
+      get { return m_Parent.ID; }
+      set { }
     }
 
     public IMediaProperties Properties
     {
-      get
-      {
-        return null;
-      }
+      get { return null; }
     }
 
     public IList ReferenceItems
     {
-      get
-      {
-        return null;
-      }
+      get { return null; }
     }
 
     public string RefID
     {
-      get
-      {
-        return this.m_Underlying.ID;
-      }
-      set
-      {
-      }
+      get { return m_Underlaying.ID; }
+      set { }
     }
 
     public IMediaItem RefItem
     {
-      get
-      {
-        return this.m_Underlying;
-      }
-      set
-      {
-      }
+      get { return m_Underlaying; }
+      set { }
     }
 
     public IMediaResource[] Resources
     {
-      get
-      {
-        return null;
-      }
+      get { return null; }
     }
 
     public object Tag
     {
-      get
-      {
-        return null;
-      }
-      set
-      {
-      }
+      get { return null; }
+      set { }
     }
 
     public string Title
     {
-      get
-      {
-        return this.m_Underlying.Title;
-      }
-      set
-      {
-      }
+      get { return m_Underlaying.Title; }
+      set { }
     }
 
     public EnumWriteStatus WriteStatus
     {
-      get
-      {
-        return EnumWriteStatus.NOT_WRITABLE;
-      }
-      set
-      {
-      }
+      get { return EnumWriteStatus.NOT_WRITABLE; }
+      set { }
     }
   }
 

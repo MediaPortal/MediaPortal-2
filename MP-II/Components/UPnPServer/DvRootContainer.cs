@@ -24,7 +24,6 @@
 
 using System;
 using System.Runtime.Serialization;
-//using MetadataParser;
 
 namespace Components.UPnPServer
 {
@@ -35,30 +34,23 @@ namespace Components.UPnPServer
     internal event Delegate_OnContainerChanged OnContainerChanged;
 
     // Methods
-    public DvRootContainer2()
-    {
-    }
+    public DvRootContainer2() { }
 
-    protected DvRootContainer2(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
+    protected DvRootContainer2(SerializationInfo info, StreamingContext context) :
+        base(info, context) { }
 
     internal void FireOnContainerChanged(DvMediaContainer2 thisChanged)
     {
-      if (this.OnContainerChanged != null)
+      if (OnContainerChanged != null)
       {
-        this.OnContainerChanged(this, thisChanged);
+        OnContainerChanged(this, thisChanged);
       }
     }
 
     // Properties
     public override bool IsRootContainer
     {
-      get
-      {
-        return true;
-      }
+      get { return true; }
     }
 
     // Nested Types

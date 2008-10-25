@@ -30,7 +30,6 @@ using System.Threading;
 using System.Runtime.Serialization;
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
-//using MetadataParser;
 
 namespace Components.UPnPServer
 {
@@ -50,35 +49,35 @@ namespace Components.UPnPServer
     // Methods
     public DvMediaItem2()
     {
-      this.m_LockReferences = new object();
-      this.m_ReferringItems = null;
-      this.m_Deleting = false;
-      this.m_RefItem = null;
+      m_LockReferences = new object();
+      m_ReferringItems = null;
+      m_Deleting = false;
+      m_RefItem = null;
     }
 
     public DvMediaItem2(XmlElement xmlElement)
       : base(xmlElement)
     {
-      this.m_LockReferences = new object();
-      this.m_ReferringItems = null;
-      this.m_Deleting = false;
-      this.m_RefItem = null;
+      m_LockReferences = new object();
+      m_ReferringItems = null;
+      m_Deleting = false;
+      m_RefItem = null;
     }
 
     private DvMediaItem2(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      this.m_LockReferences = new object();
-      this.m_ReferringItems = null;
-      this.m_Deleting = false;
-      this.m_RefItem = null;
+      m_LockReferences = new object();
+      m_ReferringItems = null;
+      m_Deleting = false;
+      m_RefItem = null;
     }
 
     public override void AddResource(IMediaResource newResource)
     {
       IDvResource addThis = (IDvResource)newResource;
       base.AddResource(addThis);
-      this.NotifyRootOfChange();
+      NotifyRootOfChange();
     }
 
     public override void AddResources(ICollection newResources)
@@ -87,20 +86,20 @@ namespace Components.UPnPServer
       {
       }
       base.AddResources(newResources);
-      this.NotifyRootOfChange();
+      NotifyRootOfChange();
     }
 
-    public static void AttachRefItem(DvMediaItem2 underlyingItem, DvMediaItem2 refItem)
+    public static void AttachRefItem(DvMediaItem2 underlayingItem, DvMediaItem2 refItem)
     {
-      underlyingItem.LockReferenceList();
-      if (underlyingItem.m_ReferringItems == null)
+      underlayingItem.LockReferenceList();
+      if (underlayingItem.m_ReferringItems == null)
       {
-        underlyingItem.m_ReferringItems = new ArrayList();
+        underlayingItem.m_ReferringItems = new ArrayList();
       }
-      underlyingItem.m_ReferringItems.Add(refItem);
-      refItem.m_RefItem = underlyingItem;
+      underlayingItem.m_ReferringItems.Add(refItem);
+      refItem.m_RefItem = underlayingItem;
       refItem.m_RefID = "";
-      underlyingItem.UnlockReferenceList();
+      underlayingItem.UnlockReferenceList();
     }
 
     public void ChangeParent(IDvContainer diffParent)
@@ -110,26 +109,26 @@ namespace Components.UPnPServer
 
     public override void CheckRuntimeBindings(StackTrace st)
     {
-      if (this.Parent != null)
+      if (Parent != null)
       {
-        ((DvMediaContainer2)this.Parent).CheckRuntimeBindings(st);
+        ((DvMediaContainer2)Parent).CheckRuntimeBindings(st);
       }
     }
 
     public DvMediaReference2 CreateDvMediaReference2()
     {
-      lock (this.m_LockReferences)
+      lock (m_LockReferences)
       {
-        if (this.m_Deleting)
+        if (m_Deleting)
         {
           throw new Error_PendingDeleteException(this);
         }
         DvMediaReference2 reference = new DvMediaReference2(this);
-        if (this.m_ReferringItems == null)
+        if (m_ReferringItems == null)
         {
-          this.m_ReferringItems = new ArrayList(1);
+          m_ReferringItems = new ArrayList(1);
         }
-        this.m_ReferringItems.Add(reference);
+        m_ReferringItems.Add(reference);
         return reference;
       }
     }
@@ -137,28 +136,28 @@ namespace Components.UPnPServer
     public IDvItem CreateReference()
     {
       string uniqueId = MediaBuilder.GetUniqueId();
-      return this.CreateReference(uniqueId);
+      return CreateReference(uniqueId);
     }
 
     public IDvItem CreateReference(string id)
     {
-      lock (this.m_LockReferences)
+      lock (m_LockReferences)
       {
-        if (this.m_Deleting)
+        if (m_Deleting)
         {
           throw new Error_PendingDeleteException(this);
         }
         DvMediaItem2 item = new DvMediaItem2();
         item.m_ID = id;
         item.m_RefItem = this;
-        if (this.m_ReferringItems == null)
+        if (m_ReferringItems == null)
         {
-          this.m_ReferringItems = new ArrayList(1);
+          m_ReferringItems = new ArrayList(1);
         }
-        this.m_ReferringItems.Add(item);
+        m_ReferringItems.Add(item);
         item.m_Restricted = base.m_Restricted;
-        item.SetClass(this.Class.ToString(), this.Class.FriendlyName);
-        item.Title = this.Title;
+        item.SetClass(Class.ToString(), Class.FriendlyName);
+        item.Title = Title;
         return item;
       }
     }
@@ -166,10 +165,10 @@ namespace Components.UPnPServer
     protected override void FinishInitFromXml(XmlElement xmlElement)
     {
       ArrayList list;
-      base.UpdateEverything(true, true, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
-      if (!base.m_ID.StartsWith(MediaBuilder.Seed))
+      UpdateEverything(true, true, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
+      if (!m_ID.StartsWith(MediaBuilder.Seed))
       {
-        base.m_ID = MediaBuilder.GetUniqueId();
+        m_ID = MediaBuilder.GetUniqueId();
       }
     }
 
@@ -181,7 +180,7 @@ namespace Components.UPnPServer
     internal IDvResource GetResource(string resourceID)
     {
       IDvResource resource = null;
-      base.m_LockResources.AcquireReaderLock(-1);
+      m_LockResources.AcquireReaderLock(-1);
       if (base.m_Resources != null)
       {
         foreach (IDvResource resource2 in base.m_Resources)
@@ -193,33 +192,33 @@ namespace Components.UPnPServer
           }
         }
       }
-      base.m_LockResources.ReleaseReaderLock();
+      m_LockResources.ReleaseReaderLock();
       return resource;
     }
 
     protected override void Init()
     {
       base.Init();
-      this.m_LockReferences = new object();
-      this.m_ReferringItems = null;
-      this.m_Deleting = false;
-      this.m_RefItem = null;
+      m_LockReferences = new object();
+      m_ReferringItems = null;
+      m_Deleting = false;
+      m_RefItem = null;
     }
 
     public void LockReferenceList()
     {
-      Monitor.Enter(this.m_LockReferences);
+      Monitor.Enter(m_LockReferences);
     }
 
     public void NotifyPendingDelete()
     {
-      lock (this.m_LockReferences)
+      lock (m_LockReferences)
       {
-        this.m_Deleting = true;
+        m_Deleting = true;
         ArrayList list = new ArrayList();
-        if (this.m_ReferringItems != null)
+        if (m_ReferringItems != null)
         {
-          foreach (IDvItem item in this.m_ReferringItems)
+          foreach (IDvItem item in m_ReferringItems)
           {
             IDvContainer parent = (IDvContainer)item.Parent;
             if (parent != null)
@@ -233,25 +232,25 @@ namespace Components.UPnPServer
           }
           foreach (IDvItem item in list)
           {
-            this.m_ReferringItems.Remove(item);
+            m_ReferringItems.Remove(item);
           }
         }
-        this.m_ReferringItems = null;
-        this.m_RefItem = null;
+        m_ReferringItems = null;
+        m_RefItem = null;
       }
     }
 
     public void NotifyRootOfChange()
     {
-      DvMediaContainer2 parent = (DvMediaContainer2)base.m_Parent;
+      DvMediaContainer2 parent = (DvMediaContainer2)m_Parent;
       if (parent != null)
       {
         parent.NotifyRootOfChange();
       }
-      this.LockReferenceList();
-      if (this.m_ReferringItems != null)
+      LockReferenceList();
+      if (m_ReferringItems != null)
       {
-        foreach (IDvItem item in this.m_ReferringItems)
+        foreach (IDvItem item in m_ReferringItems)
         {
           parent = (DvMediaContainer2)item.Parent;
           if (parent != null)
@@ -260,48 +259,48 @@ namespace Components.UPnPServer
           }
         }
       }
-      this.UnlockReferenceList();
+      UnlockReferenceList();
     }
 
     public override void RemoveResource(IMediaResource removeThis)
     {
       base.RemoveResource(removeThis);
-      this.NotifyRootOfChange();
+      NotifyRootOfChange();
     }
 
     public override void RemoveResources(ICollection removeThese)
     {
       base.RemoveResources(removeThese);
-      this.NotifyRootOfChange();
+      NotifyRootOfChange();
     }
 
     protected override void Sink_OnMediaPropertiesChanged(MediaProperties sender, int stateNumber)
     {
-      base.UpdateCache();
-      this.NotifyRootOfChange();
+      UpdateCache();
+      NotifyRootOfChange();
     }
 
     public override void TrimToSize()
     {
       base.TrimToSize();
-      lock (this.m_LockReferences)
+      lock (m_LockReferences)
       {
-        if (this.m_ReferringItems != null)
+        if (m_ReferringItems != null)
         {
-          this.m_ReferringItems.TrimToSize();
+          m_ReferringItems.TrimToSize();
         }
       }
     }
 
     public void UnlockReferenceList()
     {
-      Monitor.Exit(this.m_LockReferences);
+      Monitor.Exit(m_LockReferences);
     }
 
     public override void UpdateMetadata(XmlElement xmlElement)
     {
       ArrayList list;
-      base.UpdateEverything(false, false, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
+      UpdateEverything(false, false, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
     }
 
     public override void UpdateObject(IUPnPMedia newObj)
@@ -310,36 +309,31 @@ namespace Components.UPnPServer
       {
       }
       base.UpdateObject(newObj);
-      this.NotifyRootOfChange();
+      NotifyRootOfChange();
     }
 
     public override void UpdateObject(XmlElement xmlElement)
     {
       ArrayList list;
-      base.UpdateEverything(true, false, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
+      UpdateEverything(true, false, typeof(DvMediaResource), typeof(DvMediaItem2), typeof(DvMediaContainer2), xmlElement, out list);
     }
 
     public override void WriteInnerXml(ToXmlFormatter formatter, object data, XmlTextWriter xmlWriter)
     {
       ToXmlDataDv dv = (ToXmlDataDv)data;
-      InnerXmlWriter.WriteInnerXml(this, new InnerXmlWriter.DelegateWriteProperties(InnerXmlWriter.WriteInnerXmlProperties), new InnerXmlWriter.DelegateShouldPrintResources(this.PrintResources), new InnerXmlWriter.DelegateWriteResources(InnerXmlWriterDv.WriteInnerXmlResources), new InnerXmlWriter.DelegateWriteDescNodes(InnerXmlWriter.WriteInnerXmlDescNodes), formatter, dv, xmlWriter);
+      InnerXmlWriter.WriteInnerXml(this, new InnerXmlWriter.DelegateWriteProperties(InnerXmlWriter.WriteInnerXmlProperties), new InnerXmlWriter.DelegateShouldPrintResources(PrintResources), new InnerXmlWriter.DelegateWriteResources(InnerXmlWriterDv.WriteInnerXmlResources), new InnerXmlWriter.DelegateWriteDescNodes(InnerXmlWriter.WriteInnerXmlDescNodes), formatter, dv, xmlWriter);
     }
 
     // Properties
     public override string ID
     {
-      get
-      {
-        return base.ID;
-      }
+      get { return base.ID; }
       set
       {
-        this.CheckRuntimeBindings(new StackTrace());
-        if (string.Compare(value, base.m_ID) != 0)
-        {
-          base.m_ID = value;
-          this.NotifyRootOfChange();
-        }
+        CheckRuntimeBindings(new StackTrace());
+        if (value == m_ID) return;
+        m_ID = value;
+        NotifyRootOfChange();
       }
     }
 
@@ -347,39 +341,33 @@ namespace Components.UPnPServer
     {
       get
       {
-        lock (this.m_LockReferences)
+        lock (m_LockReferences)
         {
-          return this.m_Deleting;
+          return m_Deleting;
         }
       }
     }
 
     public override bool IsRestricted
     {
-      get
-      {
-        return base.IsRestricted;
-      }
+      get { return base.IsRestricted; }
       set
       {
-        bool restricted = base.m_Restricted;
-        base.m_Restricted = value;
+        bool restricted = m_Restricted;
+        m_Restricted = value;
         if (restricted != value)
         {
-          this.NotifyRootOfChange();
+          NotifyRootOfChange();
         }
       }
     }
 
     public override IMediaContainer Parent
     {
-      get
-      {
-        return base.Parent;
-      }
+      get { return base.Parent; }
       set
       {
-        this.CheckRuntimeBindings(new StackTrace());
+        CheckRuntimeBindings(new StackTrace());
         DvMediaContainer2 container = (DvMediaContainer2)value;
         base.Parent = container;
       }
@@ -389,26 +377,21 @@ namespace Components.UPnPServer
     {
       get
       {
-        this.LockReferenceList();
-        ArrayList list = (ArrayList)this.m_ReferringItems.Clone();
-        this.UnlockReferenceList();
+        LockReferenceList();
+        ArrayList list = (ArrayList)m_ReferringItems.Clone();
+        UnlockReferenceList();
         return list;
       }
     }
 
     public override IMediaItem RefItem
     {
-      get
-      {
-        return this.m_RefItem;
-      }
+      get { return m_RefItem; }
       set
       {
-        this.CheckRuntimeBindings(new StackTrace());
-        this.m_RefItem = (DvMediaItem2)value;
+        CheckRuntimeBindings(new StackTrace());
+        m_RefItem = (DvMediaItem2)value;
       }
     }
   }
-
-
 }

@@ -23,7 +23,6 @@
 #endregion
 
 using Intel.UPNP;
-//using MetadataParser;
 
 namespace Components.UPnPServer
 {
@@ -35,10 +34,10 @@ namespace Components.UPnPServer
 
     // Methods
     public Error_TransferProblem(uint id, MediaServerDevice2.HttpTransfer transferInfo)
-      : base(0x371, "Error with transfer " + id.ToString())
+      : base(0x371, "Error with transfer " + id)
     {
-      this.TransferId = id;
-      this.TransferInfo = transferInfo;
+      TransferId = id;
+      TransferInfo = transferInfo;
     }
   }
 }

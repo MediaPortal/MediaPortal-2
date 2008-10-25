@@ -39,29 +39,26 @@ namespace Components.UPnPServer
 {
   public class UPnPServer : IPluginStateTracker
   {
-    private MediaServerCore2 _mediaServerCore;
+    private object _syncObj = new object();
+    private Timer _startupTimer = null;
     private UPnPMediaServer2 _mediaServer;
 
     #region IPluginStateTracker implementation
 
     public void Activated()
     {
-#if DEBUG
-      return;
-#endif
-      Thread startupThread = new Thread(new ThreadStart(Start));
-      startupThread.IsBackground = true;
-      startupThread.Name = "UpnP server start";
-      startupThread.Priority = ThreadPriority.BelowNormal;
-      startupThread.Start();
+      SetStartupTimer(new Timer(Start, null, 1000, Timeout.Infinite));
     }
 
     public bool RequestEnd()
     {
-      return false; // FIXME: The UPnPServer plugin should be able to be disabled
+      return true;
     }
 
-    public void Stop() { }
+    public void Stop()
+    {
+      SetStartupTimer(null);
+    }
 
     public void Continue() { }
 
@@ -69,12 +66,22 @@ namespace Components.UPnPServer
 
     #endregion
 
-    void Start()
+    protected void SetStartupTimer(Timer timer)
     {
-      System.Threading.Thread.Sleep(10000);
-      ServiceScope.Get<ILogger>().Info("UPNP server: starting");
-      _mediaServerCore = new MediaServerCore2(System.Environment.MachineName + ": MP-II");
-      _mediaServer = new UPnPMediaServer2();
+      lock (_syncObj)
+      {
+        if (_startupTimer != null)
+          _startupTimer.Dispose();
+        _startupTimer = timer;
+      }
+    }
+
+    void Start(object timerState)
+    {
+      SetStartupTimer(null);
+      ServiceScope.Get<ILogger>().Info("UPnP server: starting");
+      MediaServerCore2 mediaServerCore = new MediaServerCore2(System.Environment.MachineName + ": MP-II");
+      _mediaServer = new UPnPMediaServer2(mediaServerCore);
       IRootContainer root = null;
       IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
 
@@ -89,7 +96,7 @@ namespace Components.UPnPServer
           mediaContainer.OnAddChildren += new DvMediaContainer2.Delegate_AddChildren(mediaContainer_OnAddChildren);
         }
       }
-      ServiceScope.Get<ILogger>().Info("UPNP server: running");
+      ServiceScope.Get<ILogger>().Info("UPnP server: running");
     }
 
     void mediaContainer_OnAddChildren(DvMediaContainer2 parent)
@@ -98,7 +105,7 @@ namespace Components.UPnPServer
       IRootContainer root = parent.Context as IRootContainer;
       if (root == null) return;
 
-      ServiceScope.Get<ILogger>().Info("UPNP server: get {0}", root.Title);
+      ServiceScope.Get<ILogger>().Info("UPnP server: get {0}", root.Title);
       IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
       if (itemsInView == null) return;
       //if (root.Title != "Music") return;

@@ -88,133 +88,133 @@ namespace Components.UPnPServer
     // Methods
     public MediaServerDevice2(DeviceInfo info, UPnPDevice parent, bool enableHttpContentServing, string initialSourceProtocolInfoSet, string initialSinkProtocolInfoSet)
     {
-      this.EnableHttp = enableHttpContentServing;
-      this.LTMDelegate = new LifeTimeMonitor.LifeTimeHandler(this.Sink_OnExpired);
-      this.m_LFT.OnExpired += this.LTMDelegate;
+      EnableHttp = enableHttpContentServing;
+      LTMDelegate = new LifeTimeMonitor.LifeTimeHandler(Sink_OnExpired);
+      m_LFT.OnExpired += LTMDelegate;
       if (parent == null)
       {
-        this.Device = UPnPDevice.CreateRootDevice(info.CacheTime, 1, info.LocalRootDirectory);
+        Device = UPnPDevice.CreateRootDevice(info.CacheTime, 1, info.LocalRootDirectory);
         if (info.CustomUDN != "")
         {
-          this.Device.UniqueDeviceName = info.CustomUDN;
+          Device.UniqueDeviceName = info.CustomUDN;
         }
       }
       else
       {
-        this.Device = UPnPDevice.CreateEmbeddedDevice(1, Guid.NewGuid().ToString());
-        parent.AddDevice(this.Device);
+        Device = UPnPDevice.CreateEmbeddedDevice(1, Guid.NewGuid().ToString());
+        parent.AddDevice(Device);
       }
-      this.Device.HasPresentation = false;
-      this.Device.StandardDeviceType = "MediaServer";
-      this.Device.FriendlyName = info.FriendlyName;
-      this.Device.Manufacturer = info.Manufacturer;
-      this.Device.ManufacturerURL = info.ManufacturerURL;
-      this.Device.ModelName = info.ModelName;
-      this.Device.ModelDescription = info.ModelDescription;
+      Device.HasPresentation = false;
+      Device.StandardDeviceType = "MediaServer";
+      Device.FriendlyName = info.FriendlyName;
+      Device.Manufacturer = info.Manufacturer;
+      Device.ManufacturerURL = info.ManufacturerURL;
+      Device.ModelName = info.ModelName;
+      Device.ModelDescription = info.ModelDescription;
       if (info.ModelURL != null)
       {
         try
         {
-          this.Device.ModelURL = new Uri(info.ModelURL);
+          Device.ModelURL = new Uri(info.ModelURL);
         }
         catch
         {
-          this.Device.ModelURL = null;
+          Device.ModelURL = null;
         }
       }
-      this.Device.ModelNumber = info.ModelNumber;
+      Device.ModelNumber = info.ModelNumber;
       if (info.INMPR03)
       {
-        this.Device.AddCustomFieldInDescription("INMPR03", "1.0", "");
+        Device.AddCustomFieldInDescription("INMPR03", "1.0", "");
       }
-      this.ConnectionManager = new DvConnectionManager();
-      this.ContentDirectory = new DvContentDirectory();
-      this.ContentDirectory.ModerationDuration_SystemUpdateID = 2;
-      this.ContentDirectory.ModerationDuration_ContainerUpdateIDs = 2;
-      this.ContentDirectory.Accumulator_ContainerUpdateIDs = new Accumulator_ContainerUpdateIDs();
+      ConnectionManager = new DvConnectionManager();
+      ContentDirectory = new DvContentDirectory();
+      ContentDirectory.ModerationDuration_SystemUpdateID = 2;
+      ContentDirectory.ModerationDuration_ContainerUpdateIDs = 2;
+      ContentDirectory.Accumulator_ContainerUpdateIDs = new Accumulator_ContainerUpdateIDs();
       if (!info.AllowRemoteContentManagement)
       {
-        this.ContentDirectory.RemoveAction_CreateObject();
-        this.ContentDirectory.RemoveAction_CreateReference();
-        this.ContentDirectory.RemoveAction_DeleteResource();
-        this.ContentDirectory.RemoveAction_DestroyObject();
-        this.ContentDirectory.RemoveAction_ImportResource();
-        this.ContentDirectory.RemoveAction_UpdateObject();
-        this.ContentDirectory.RemoveAction_ExportResource();
-        this.ContentDirectory.RemoveAction_GetTransferProgress();
-        this.ContentDirectory.RemoveAction_StopTransferResource();
+        ContentDirectory.RemoveAction_CreateObject();
+        ContentDirectory.RemoveAction_CreateReference();
+        ContentDirectory.RemoveAction_DeleteResource();
+        ContentDirectory.RemoveAction_DestroyObject();
+        ContentDirectory.RemoveAction_ImportResource();
+        ContentDirectory.RemoveAction_UpdateObject();
+        ContentDirectory.RemoveAction_ExportResource();
+        ContentDirectory.RemoveAction_GetTransferProgress();
+        ContentDirectory.RemoveAction_StopTransferResource();
       }
       if (!info.EnablePrepareForConnection)
       {
-        this.ConnectionManager.RemoveAction_PrepareForConnection();
+        ConnectionManager.RemoveAction_PrepareForConnection();
       }
       if (!info.EnableConnectionComplete)
       {
-        this.ConnectionManager.RemoveAction_ConnectionComplete();
+        ConnectionManager.RemoveAction_ConnectionComplete();
       }
       if (!(info.EnablePrepareForConnection || info.EnableConnectionComplete))
       {
         ProtocolInfoString prot = new ProtocolInfoString("http-get:*:*:*");
-        Connection newConnection = new Connection(this.GetConnectionID(), -1, -1, -1, prot, "/", DvConnectionManager.Enum_A_ARG_TYPE_Direction.OUTPUT, DvConnectionManager.Enum_A_ARG_TYPE_ConnectionStatus.UNKNOWN);
-        this.AddConnection(newConnection);
+        Connection newConnection = new Connection(GetConnectionID(), -1, -1, -1, prot, "/", DvConnectionManager.Enum_A_ARG_TYPE_Direction.OUTPUT, DvConnectionManager.Enum_A_ARG_TYPE_ConnectionStatus.UNKNOWN);
+        AddConnection(newConnection);
       }
       if (!info.EnableSearch)
       {
-        this.ContentDirectory.RemoveAction_Search();
+        ContentDirectory.RemoveAction_Search();
       }
-      this.m_SearchCapabilities = info.SearchCapabilities;
-      this.m_SortCapabilities = info.SortCapabilities;
-      if (this.ConnectionManager.Evented_CurrentConnectionIDs == null)
+      m_SearchCapabilities = info.SearchCapabilities;
+      m_SortCapabilities = info.SortCapabilities;
+      if (ConnectionManager.Evented_CurrentConnectionIDs == null)
       {
-        this.ConnectionManager.Evented_CurrentConnectionIDs = "";
+        ConnectionManager.Evented_CurrentConnectionIDs = "";
       }
-      this.UpdateProtocolInfoSet(false, initialSinkProtocolInfoSet);
-      this.UpdateProtocolInfoSet(true, initialSourceProtocolInfoSet);
-      this.ContentDirectory.Evented_ContainerUpdateIDs = "";
-      this.ContentDirectory.Evented_SystemUpdateID = 0;
-      this.ContentDirectory.Evented_TransferIDs = "";
-      this.ConnectionManager.External_ConnectionComplete = new DvConnectionManager.Delegate_ConnectionComplete(this.SinkCm_ConnectionComplete);
-      this.ConnectionManager.External_GetCurrentConnectionIDs = new DvConnectionManager.Delegate_GetCurrentConnectionIDs(this.SinkCm_GetCurrentConnectionIDs);
-      this.ConnectionManager.External_GetCurrentConnectionInfo = new DvConnectionManager.Delegate_GetCurrentConnectionInfo(this.SinkCm_GetCurrentConnectionInfo);
-      this.ConnectionManager.External_GetProtocolInfo = new DvConnectionManager.Delegate_GetProtocolInfo(this.SinkCm_GetProtocolInfo);
-      this.ConnectionManager.External_PrepareForConnection = new DvConnectionManager.Delegate_PrepareForConnection(this.SinkCm_PrepareForConnection);
-      this.ContentDirectory.External_Browse = new DvContentDirectory.Delegate_Browse(this.SinkCd_Browse);
-      this.ContentDirectory.External_CreateObject = new DvContentDirectory.Delegate_CreateObject(this.SinkCd_CreateObject);
-      this.ContentDirectory.External_CreateReference = new DvContentDirectory.Delegate_CreateReference(this.SinkCd_CreateReference);
-      this.ContentDirectory.External_DeleteResource = new DvContentDirectory.Delegate_DeleteResource(this.SinkCd_DeleteResource);
-      this.ContentDirectory.External_DestroyObject = new DvContentDirectory.Delegate_DestroyObject(this.SinkCd_DestroyObject);
-      this.ContentDirectory.External_ExportResource = new DvContentDirectory.Delegate_ExportResource(this.SinkCd_ExportResource);
-      this.ContentDirectory.External_GetSearchCapabilities = new DvContentDirectory.Delegate_GetSearchCapabilities(this.SinkCd_GetSearchCapabilities);
-      this.ContentDirectory.External_GetSortCapabilities = new DvContentDirectory.Delegate_GetSortCapabilities(this.SinkCd_GetSortCapabilities);
-      this.ContentDirectory.External_GetSystemUpdateID = new DvContentDirectory.Delegate_GetSystemUpdateID(this.SinkCd_GetSystemUpdateID);
-      this.ContentDirectory.External_GetTransferProgress = new DvContentDirectory.Delegate_GetTransferProgress(this.SinkCd_GetTransferProgress);
-      this.ContentDirectory.External_ImportResource = new DvContentDirectory.Delegate_ImportResource(this.SinkCd_ImportResource);
-      this.ContentDirectory.External_Search = new DvContentDirectory.Delegate_Search(this.SinkCd_Search);
-      this.ContentDirectory.External_StopTransferResource = new DvContentDirectory.Delegate_StopTransferResource(this.SinkCd_StopTransferResource);
-      this.ContentDirectory.External_UpdateObject = new DvContentDirectory.Delegate_UpdateObject(this.SinkCd_UpdateObject);
-      this.Device.AddService(this.ConnectionManager);
-      this.Device.AddService(this.ContentDirectory);
+      UpdateProtocolInfoSet(false, initialSinkProtocolInfoSet);
+      UpdateProtocolInfoSet(true, initialSourceProtocolInfoSet);
+      ContentDirectory.Evented_ContainerUpdateIDs = "";
+      ContentDirectory.Evented_SystemUpdateID = 0;
+      ContentDirectory.Evented_TransferIDs = "";
+      ConnectionManager.External_ConnectionComplete = SinkCm_ConnectionComplete;
+      ConnectionManager.External_GetCurrentConnectionIDs = SinkCm_GetCurrentConnectionIDs;
+      ConnectionManager.External_GetCurrentConnectionInfo = SinkCm_GetCurrentConnectionInfo;
+      ConnectionManager.External_GetProtocolInfo = SinkCm_GetProtocolInfo;
+      ConnectionManager.External_PrepareForConnection = SinkCm_PrepareForConnection;
+      ContentDirectory.External_Browse = SinkCd_Browse;
+      ContentDirectory.External_CreateObject = SinkCd_CreateObject;
+      ContentDirectory.External_CreateReference = SinkCd_CreateReference;
+      ContentDirectory.External_DeleteResource = SinkCd_DeleteResource;
+      ContentDirectory.External_DestroyObject = SinkCd_DestroyObject;
+      ContentDirectory.External_ExportResource = SinkCd_ExportResource;
+      ContentDirectory.External_GetSearchCapabilities = SinkCd_GetSearchCapabilities;
+      ContentDirectory.External_GetSortCapabilities = SinkCd_GetSortCapabilities;
+      ContentDirectory.External_GetSystemUpdateID = SinkCd_GetSystemUpdateID;
+      ContentDirectory.External_GetTransferProgress = SinkCd_GetTransferProgress;
+      ContentDirectory.External_ImportResource = SinkCd_ImportResource;
+      ContentDirectory.External_Search = SinkCd_Search;
+      ContentDirectory.External_StopTransferResource = SinkCd_StopTransferResource;
+      ContentDirectory.External_UpdateObject = SinkCd_UpdateObject;
+      Device.AddService(ConnectionManager);
+      Device.AddService(ContentDirectory);
       Interlocked.Increment(ref VirtualDirCounter);
-      this.m_VirtualDirName = "MediaServerContent_" + VirtualDirCounter.ToString();
-      this.Device.AddVirtualDirectory(this.m_VirtualDirName, new UPnPDevice.VirtualDirectoryHandler(this.WebServer_OnHeaderReceiveSink), new UPnPDevice.VirtualDirectoryHandler(this.WebServer_OnPacketReceiveSink));
+      m_VirtualDirName = "MediaServerContent_" + VirtualDirCounter;
+      Device.AddVirtualDirectory(m_VirtualDirName, WebServer_OnHeaderReceiveSink, WebServer_OnPacketReceiveSink);
       MediaBuilder.container container = new MediaBuilder.container("Root");
       container.Searchable = true;
       container.IsRestricted = true;
-      this.m_Root = DvMediaBuilder2.CreateRoot(container);
-      this.m_Root.OnContainerChanged += new DvRootContainer2.Delegate_OnContainerChanged(this.Sink_ContainerChanged);
+      m_Root = DvMediaBuilder2.CreateRoot(container);
+      m_Root.OnContainerChanged += Sink_ContainerChanged;
     }
 
     private IDvMedia _GetEntry(string id)
     {
-      return (IDvMedia)this.GetDescendent(id);
+      return (IDvMedia)GetDescendent(id);
     }
 
     private void AddConnection(Connection newConnection)
     {
-      this.m_LockConnections.AcquireWriterLock(-1);
-      this.m_Connections.Add(newConnection.ConnectionId, newConnection);
-      this.UpdateConnections();
-      this.m_LockConnections.ReleaseWriterLock();
+      m_LockConnections.AcquireWriterLock(-1);
+      m_Connections.Add(newConnection.ConnectionId, newConnection);
+      UpdateConnections();
+      m_LockConnections.ReleaseWriterLock();
     }
 
     private ArrayList AddRangeSets(ArrayList rangeSets, string rangeStr, long contentLength)
@@ -306,19 +306,19 @@ namespace Components.UPnPServer
 
     private void AddTransfer(HTTPSession session, HttpTransfer transferInfo)
     {
-      this.m_LockHttpTransfers.AcquireWriterLock(-1);
+      m_LockHttpTransfers.AcquireWriterLock(-1);
       SessionData stateObject = (SessionData)session.StateObject;
       stateObject.Transfers.Enqueue(transferInfo);
       stateObject.Requested++;
       uint hashCode = (uint)session.GetHashCode();
-      while (this.m_HttpTransfers.ContainsKey(hashCode))
+      while (m_HttpTransfers.ContainsKey(hashCode))
       {
         hashCode++;
       }
-      this.m_HttpTransfers.Add(hashCode, transferInfo);
+      m_HttpTransfers.Add(hashCode, transferInfo);
       transferInfo.m_TransferId = hashCode;
-      this.m_LockHttpTransfers.ReleaseWriterLock();
-      this.FireHttpTransfersChange();
+      m_LockHttpTransfers.ReleaseWriterLock();
+      FireHttpTransfersChange();
     }
 
     private void BadMetadata()
@@ -364,19 +364,19 @@ namespace Components.UPnPServer
     private uint CreateTransferId(HTTPSession session)
     {
       uint hashCode = (uint)session.GetHashCode();
-      this.m_LockHttpTransfers.AcquireWriterLock(-1);
-      while (this.m_HttpTransfers.ContainsKey(hashCode))
+      m_LockHttpTransfers.AcquireWriterLock(-1);
+      while (m_HttpTransfers.ContainsKey(hashCode))
       {
         hashCode++;
       }
-      this.m_LockHttpTransfers.ReleaseWriterLock();
+      m_LockHttpTransfers.ReleaseWriterLock();
       return hashCode;
     }
 
     public void Dispose()
     {
-      this.m_Root.OnContainerChanged -= new DvRootContainer2.Delegate_OnContainerChanged(this.Sink_ContainerChanged);
-      this.m_LFT.OnExpired -= new LifeTimeMonitor.LifeTimeHandler(this.Sink_OnExpired);
+      m_Root.OnContainerChanged -= Sink_ContainerChanged;
+      m_LFT.OnExpired -= Sink_OnExpired;
     }
 
     private long ExtractContentLength(HTTPMessage msg)
@@ -395,9 +395,9 @@ namespace Components.UPnPServer
 
     private void FireHttpTransfersChange()
     {
-      this.m_LockHttpTransfers.AcquireReaderLock(-1);
+      m_LockHttpTransfers.AcquireReaderLock(-1);
       int num = 0;
-      ICollection values = this.m_HttpTransfers.Values;
+      ICollection values = m_HttpTransfers.Values;
       StringBuilder builder = new StringBuilder();
       foreach (HttpTransfer transfer in values)
       {
@@ -415,47 +415,47 @@ namespace Components.UPnPServer
           num++;
         }
       }
-      string strA = this.ContentDirectory.Evented_TransferIDs;
+      string strA = ContentDirectory.Evented_TransferIDs;
       string strB = builder.ToString();
-      this.m_LockHttpTransfers.ReleaseReaderLock();
-      if (this.OnHttpTransfersChanged != null)
+      m_LockHttpTransfers.ReleaseReaderLock();
+      if (OnHttpTransfersChanged != null)
       {
         if (string.Compare(strA, strB) != 0)
         {
-          this.ContentDirectory.Evented_TransferIDs = strB;
+          ContentDirectory.Evented_TransferIDs = strB;
         }
-        this.OnHttpTransfersChanged(this);
+        OnHttpTransfersChanged(this);
       }
     }
 
     private void FireStatsChange()
     {
-      if (this.OnStatsChanged != null)
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
     }
 
     private string GetBaseUrlByInterface()
     {
-      IPEndPoint receiver = this.ConnectionManager.GetUPnPService().GetReceiver();
+      IPEndPoint receiver = ConnectionManager.GetUPnPService().GetReceiver();
       StringBuilder builder = new StringBuilder(0x23);
-      builder.AppendFormat("http://{0}:{1}/{2}", receiver.Address.ToString(), receiver.Port.ToString(), this.m_VirtualDirName);
+      builder.AppendFormat("http://{0}:{1}/{2}", receiver.Address.ToString(), receiver.Port.ToString(), m_VirtualDirName);
       return builder.ToString();
     }
 
     private string[] GetBaseUrlsByInterfaces()
     {
-      string baseUrlByInterface = this.GetBaseUrlByInterface();
-      if (this.Device.LocalIPEndPoints != null)
+      string baseUrlByInterface = GetBaseUrlByInterface();
+      if (Device.LocalIPEndPoints != null)
       {
-        IPEndPoint[] localIPEndPoints = this.Device.LocalIPEndPoints;
+        IPEndPoint[] localIPEndPoints = Device.LocalIPEndPoints;
         string[] strArray = new string[localIPEndPoints.Length];
         int index = -1;
         for (int i = 0; i < localIPEndPoints.Length; i++)
         {
           StringBuilder builder = new StringBuilder(localIPEndPoints[i].ToString().Length * 2);
-          builder.AppendFormat("http://{0}/{1}", localIPEndPoints[i].ToString(), this.m_VirtualDirName);
+          builder.AppendFormat("http://{0}/{1}", localIPEndPoints[i].ToString(), m_VirtualDirName);
           strArray[i] = builder.ToString();
           if (string.Compare(builder.ToString(), baseUrlByInterface, true) == 0)
           {
@@ -475,7 +475,7 @@ namespace Components.UPnPServer
 
     private IDvMedia GetCdsEntry(string id)
     {
-      IDvMedia media = this._GetEntry(id);
+      IDvMedia media = _GetEntry(id);
       if (media == null)
       {
         throw new Error_NoSuchObject("(" + id + ")");
@@ -487,22 +487,22 @@ namespace Components.UPnPServer
     {
       bool flag = true;
       bool flag2 = false;
-      int nextConnId = this.NextConnId;
+      int nextConnId = NextConnId;
       while (flag)
       {
-        if (this.NextConnId < this.MaxConnections)
+        if (NextConnId < MaxConnections)
         {
-          this.NextConnId++;
+          NextConnId++;
         }
         else
         {
-          this.NextConnId = -1;
+          NextConnId = -1;
         }
-        if (!this.m_Connections.ContainsKey(this.NextConnId))
+        if (!m_Connections.ContainsKey(NextConnId))
         {
           flag = false;
         }
-        else if (this.NextConnId == nextConnId)
+        else if (NextConnId == nextConnId)
         {
           flag2 = true;
           flag = false;
@@ -512,12 +512,12 @@ namespace Components.UPnPServer
       {
         throw new Error_MaximumConnectionsExceeded("");
       }
-      return this.NextConnId;
+      return NextConnId;
     }
 
     private DvMediaContainer2 GetContainer(string id)
     {
-      IDvMedia descendent = (IDvMedia)this.GetDescendent(id);
+      IDvMedia descendent = (IDvMedia)GetDescendent(id);
       if ((descendent != null) && descendent.IsContainer)
       {
         return (DvMediaContainer2)descendent;
@@ -529,17 +529,17 @@ namespace Components.UPnPServer
     {
       if (id == "0")
       {
-        return this.m_Root;
+        return m_Root;
       }
       IUPnPMedia target = null;
-      WeakReference reference = (WeakReference)this.m_Cache[id];
+      WeakReference reference = (WeakReference)m_Cache[id];
       if ((reference != null) && reference.IsAlive)
       {
         target = (IUPnPMedia)reference.Target;
       }
       if (target == null)
       {
-        target = this.m_Root.GetDescendent(id, this.m_Cache);
+        target = m_Root.GetDescendent(id, m_Cache);
       }
       GC.Collect();
       return target;
@@ -657,7 +657,7 @@ namespace Components.UPnPServer
 
     private DvMediaItem2 GetItem(string id)
     {
-      IDvMedia descendent = (IDvMedia)this.GetDescendent(id);
+      IDvMedia descendent = (IDvMedia)GetDescendent(id);
       if ((descendent != null) && descendent.IsItem)
       {
         return (DvMediaItem2)descendent;
@@ -672,7 +672,7 @@ namespace Components.UPnPServer
       try
       {
         string str = theUri.ToString();
-        string str2 = "/" + this.m_VirtualDirName + "/";
+        string str2 = "/" + m_VirtualDirName + "/";
         int index = str.IndexOf(str2);
         string str3 = str.Substring(index + str2.Length);
         DText text = new DText();
@@ -692,13 +692,13 @@ namespace Components.UPnPServer
       ReaderWriterLock lockSourceProtocolInfo;
       if (sourceProtocolInfo)
       {
-        sourceProtocolInfoSet = this.m_SourceProtocolInfoSet;
-        lockSourceProtocolInfo = this.m_LockSourceProtocolInfo;
+        sourceProtocolInfoSet = m_SourceProtocolInfoSet;
+        lockSourceProtocolInfo = m_LockSourceProtocolInfo;
       }
       else
       {
-        sourceProtocolInfoSet = this.m_SinkProtocolInfoSet;
-        lockSourceProtocolInfo = this.m_LockSinkProtocolInfo;
+        sourceProtocolInfoSet = m_SinkProtocolInfoSet;
+        lockSourceProtocolInfo = m_LockSinkProtocolInfo;
       }
       lockSourceProtocolInfo.AcquireReaderLock(-1);
       ProtocolInfoString[] strArray = new ProtocolInfoString[sourceProtocolInfoSet.Count];
@@ -712,7 +712,7 @@ namespace Components.UPnPServer
 
     private void GetRequest_OnHeaderReceiveSink(HTTPSession WebSession, HTTPMessage msg, Stream stream)
     {
-      long num = this.ExtractContentLength(msg);
+      long num = ExtractContentLength(msg);
       SessionData stateObject = (SessionData)WebSession.StateObject;
       if (stateObject.Transfers.Count != 1)
       {
@@ -720,12 +720,12 @@ namespace Components.UPnPServer
       }
       HttpTransfer transfer = (HttpTransfer)stateObject.Transfers.Peek();
       transfer.m_TransferSize = num;
-      WebSession.OnHeader -= new HTTPSession.ReceiveHeaderHandler(this.GetRequest_OnHeaderReceiveSink);
+      WebSession.OnHeader -= new HTTPSession.ReceiveHeaderHandler(GetRequest_OnHeaderReceiveSink);
     }
 
     private IDvResource GetResource(string objectID, string resourceID)
     {
-      IDvMedia media = this._GetEntry(objectID);
+      IDvMedia media = _GetEntry(objectID);
       if (media == null)
       {
         return null;
@@ -745,7 +745,7 @@ namespace Components.UPnPServer
 
     public UPnPDevice GetUPnPDevice()
     {
-      return this.Device;
+      return Device;
     }
 
     private void HandleGetOrHeadRequest(HTTPMessage msg, HTTPSession session)
@@ -761,7 +761,7 @@ namespace Components.UPnPServer
         text[0] = msg.DirectiveObj;
         resourceID = text[2];
         objectID = text[3];
-        IDvResource res = this.GetResource(objectID, resourceID);
+        IDvResource res = GetResource(objectID, resourceID);
         if (res == null)
         {
           throw new Error_GetRequestError(msg.DirectiveObj, null);
@@ -792,9 +792,9 @@ namespace Components.UPnPServer
         {
           try
           {
-            if (this.OnFileNotMapped != null)
+            if (OnFileNotMapped != null)
             {
-              this.OnFileNotMapped(this, fileNotMapped);
+              OnFileNotMapped(this, fileNotMapped);
             }
           }
           catch (Exception)
@@ -827,7 +827,7 @@ namespace Components.UPnPServer
               {
                 packet.OverrideContentLength = true;
                 tag = msg.GetTag("RANGE");
-                if ((tag == null) || (tag == ""))
+                if (string.IsNullOrEmpty(tag))
                 {
                   packet.AddTag("CONTENT-LENGTH", contentLength.ToString());
                   packet.AddTag("ACCEPT-RANGES", "bytes");
@@ -836,7 +836,7 @@ namespace Components.UPnPServer
                 {
                   list = new ArrayList();
                   packet.StatusCode = 0xce;
-                  this.AddRangeSets(list, tag.Trim().ToLower(), contentLength);
+                  AddRangeSets(list, tag.Trim().ToLower(), contentLength);
                   if (list.Count == 1)
                   {
                     string[] strArray = new string[] { "bytes ", ((HTTPSession.Range)list[0]).Position.ToString(), "-", ((int)((((HTTPSession.Range)list[0]).Position + ((HTTPSession.Range)list[0]).Length) - 1L)).ToString(), "/", contentLength.ToString() };
@@ -858,10 +858,10 @@ namespace Components.UPnPServer
               tag = msg.GetTag("RANGE");
               if (((tag == null) || (tag != "")) && (contentLength >= 0L))
               {
-                this.AddRangeSets(list, tag.Trim().ToLower(), contentLength);
+                AddRangeSets(list, tag.Trim().ToLower(), contentLength);
               }
               HttpTransfer transferInfo = new HttpTransfer(false, false, session, res, fileNotMapped.RedirectedStream, contentLength);
-              this.AddTransfer(session, transferInfo);
+              AddTransfer(session, transferInfo);
               if (list.Count > 0)
               {
                 session.SendStreamObject(fileNotMapped.RedirectedStream, (HTTPSession.Range[])list.ToArray(typeof(HTTPSession.Range)), mimeType);
@@ -904,7 +904,7 @@ namespace Components.UPnPServer
         if (error != null)
         {
           builder.Append("\r\n");
-          IUPnPMedia media = this._GetEntry(objectID);
+          IUPnPMedia media = _GetEntry(objectID);
           if (media == null)
           {
             builder.AppendFormat("\r\n\tCould not find object with ID=\"{0}\"", objectID);
@@ -968,13 +968,13 @@ namespace Components.UPnPServer
       text[0] = msg.DirectiveObj;
       string resourceID = text[2];
       string objectID = text[3];
-      IDvResource resource = this.GetResource(objectID, resourceID);
+      IDvResource resource = GetResource(objectID, resourceID);
       WebSession.UserStream = null;
       if ((resource != null) && resource.AllowImport)
       {
-        if (this.OnRequestSaveBinary == null)
+        if (OnRequestSaveBinary == null)
         {
-          this.OnRequestSaveBinary(this, resource);
+          OnRequestSaveBinary(this, resource);
         }
         string path = resource.ContentUri.Substring(MediaResource.AUTOMAPFILE.Length);
         string str5 = MimeTypes.MimeToExtension(msg.ContentType);
@@ -985,7 +985,7 @@ namespace Components.UPnPServer
         long expectedLength = 0L;
         try
         {
-          expectedLength = this.ExtractContentLength(msg);
+          expectedLength = ExtractContentLength(msg);
         }
         catch
         {
@@ -993,20 +993,20 @@ namespace Components.UPnPServer
         FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 0x1000);
         WebSession.UserStream = stream;
         HttpTransfer transferInfo = new HttpTransfer(true, true, WebSession, resource, WebSession.UserStream, expectedLength);
-        this.AddTransfer(WebSession, transferInfo);
+        AddTransfer(WebSession, transferInfo);
       }
     }
 
     private void MarkTransferForRemoval(HTTPSession TheSession, Stream stream)
     {
-      this.m_LockHttpTransfers.AcquireWriterLock(-1);
+      m_LockHttpTransfers.AcquireWriterLock(-1);
       SessionData stateObject = (SessionData)TheSession.StateObject;
       HttpTransfer transfer = (HttpTransfer)stateObject.Transfers.Dequeue();
       stateObject.Completed++;
       uint transferID = transfer.TransferID;
-      if (this.m_HttpTransfers.ContainsKey(transferID))
+      if (m_HttpTransfers.ContainsKey(transferID))
       {
-        HttpTransfer transfer2 = (HttpTransfer)this.m_HttpTransfers[transferID];
+        HttpTransfer transfer2 = (HttpTransfer)m_HttpTransfers[transferID];
         if (transfer2 != transfer)
         {
           throw new ApplicationException("Bad Evil. The transfers must match.");
@@ -1021,12 +1021,12 @@ namespace Components.UPnPServer
           transfer2.Resource.CheckLocalFileExists();
         }
       }
-      this.m_LockHttpTransfers.ReleaseWriterLock();
+      m_LockHttpTransfers.ReleaseWriterLock();
       if (transfer == null)
       {
         throw new ApplicationException("Bad evil. We should always have an HttpTransfer object to remove.");
       }
-      this.m_LFT.Add(transfer, 40);
+      m_LFT.Add(transfer, 40);
     }
 
     private void ObtainBranchIDs(IUPnPMedia branch, StringBuilder newIds)
@@ -1044,17 +1044,17 @@ namespace Components.UPnPServer
       {
         foreach (IUPnPMedia media in container.CompleteList)
         {
-          this.ObtainBranchIDs(media, newIds);
+          ObtainBranchIDs(media, newIds);
         }
       }
     }
 
     private void RecurseNewBranches(IList newBranches, StringBuilder newIds, XmlTextWriter resultXml)
     {
-      string baseUrlByInterface = this.GetBaseUrlByInterface();
+      string baseUrlByInterface = GetBaseUrlByInterface();
       foreach (IUPnPMedia media in newBranches)
       {
-        this.ObtainBranchIDs(media, newIds);
+        ObtainBranchIDs(media, newIds);
         ToXmlDataDv data = new ToXmlDataDv();
         data.BaseUri = baseUrlByInterface;
         data.DesiredProperties = new ArrayList(0);
@@ -1065,23 +1065,23 @@ namespace Components.UPnPServer
 
     private void RemoveConnection(Connection theConnection)
     {
-      this.m_LockConnections.AcquireWriterLock(-1);
-      this.m_Connections.Remove(theConnection.ConnectionId);
-      this.UpdateConnections();
-      this.m_LockConnections.ReleaseWriterLock();
+      m_LockConnections.AcquireWriterLock(-1);
+      m_Connections.Remove(theConnection.ConnectionId);
+      UpdateConnections();
+      m_LockConnections.ReleaseWriterLock();
     }
 
     private void RemoveTransfer(HttpTransfer transferInfo)
     {
       uint transferId = transferInfo.m_TransferId;
-      this.m_LockHttpTransfers.AcquireWriterLock(-1);
+      m_LockHttpTransfers.AcquireWriterLock(-1);
       bool flag = false;
-      if (this.m_HttpTransfers.ContainsKey(transferId))
+      if (m_HttpTransfers.ContainsKey(transferId))
       {
-        HttpTransfer transfer = (HttpTransfer)this.m_HttpTransfers[transferId];
+        HttpTransfer transfer = (HttpTransfer)m_HttpTransfers[transferId];
         if (transfer == transferInfo)
         {
-          this.m_HttpTransfers.Remove(transferId);
+          m_HttpTransfers.Remove(transferId);
         }
         else
         {
@@ -1092,12 +1092,12 @@ namespace Components.UPnPServer
       {
         flag = true;
       }
-      this.m_LockHttpTransfers.ReleaseWriterLock();
+      m_LockHttpTransfers.ReleaseWriterLock();
       if (flag)
       {
         throw new Error_TransferProblem(transferId, transferInfo);
       }
-      this.FireHttpTransfersChange();
+      FireHttpTransfersChange();
     }
 
     private void SetupSessionForTransfer(HTTPSession session)
@@ -1105,21 +1105,21 @@ namespace Components.UPnPServer
       if (session.StateObject == null)
       {
         session.StateObject = new SessionData();
-        session.OnClosed += new HTTPSession.SessionHandler(this.WebSession_OnSessionClosed);
-        session.OnStreamDone += new HTTPSession.StreamDoneHandler(this.WebSession_OnStreamDone);
+        session.OnClosed += new HTTPSession.SessionHandler(WebSession_OnSessionClosed);
+        session.OnStreamDone += new HTTPSession.StreamDoneHandler(WebSession_OnStreamDone);
       }
     }
 
     private void Sink_ContainerChanged(DvRootContainer2 sender, DvMediaContainer2 thisChanged)
     {
-      this.Lock_SystemUpdateID.WaitOne();
-      this.ContentDirectory.Evented_SystemUpdateID++;
-      this.Lock_SystemUpdateID.ReleaseMutex();
-      this.Lock_ContainerUpdateIDs.WaitOne();
+      Lock_SystemUpdateID.WaitOne();
+      ContentDirectory.Evented_SystemUpdateID++;
+      Lock_SystemUpdateID.ReleaseMutex();
+      Lock_ContainerUpdateIDs.WaitOne();
       StringBuilder builder = new StringBuilder(20);
       builder.AppendFormat("{0}{1}{2}", thisChanged.ID, ",", thisChanged.UpdateID);
-      this.ContentDirectory.Evented_ContainerUpdateIDs = builder.ToString();
-      this.Lock_ContainerUpdateIDs.ReleaseMutex();
+      ContentDirectory.Evented_ContainerUpdateIDs = builder.ToString();
+      Lock_ContainerUpdateIDs.ReleaseMutex();
     }
 
     private void Sink_OnExpired(LifeTimeMonitor sender, object obj)
@@ -1128,7 +1128,7 @@ namespace Components.UPnPServer
       {
         throw new Error_TransferProblem(0, null);
       }
-      this.RemoveTransfer((HttpTransfer)obj);
+      RemoveTransfer((HttpTransfer)obj);
     }
 
     private void SinkCd_Browse(string objectID, DvContentDirectory.Enum_A_ARG_TYPE_BrowseFlag browseFlag, string filter, uint startingIndex, uint requestedCount, string sortCriteria, out string Result, out uint numberReturned, out uint totalMatches, out uint updateID)
@@ -1144,7 +1144,7 @@ namespace Components.UPnPServer
         {
           requestedCount = Convert.ToUInt32(0x7fffffff);
         }
-        IDvMedia cdsEntry = this.GetCdsEntry(objectID);
+        IDvMedia cdsEntry = GetCdsEntry(objectID);
         if (cdsEntry.IsContainer && (browseFlag == DvContentDirectory.Enum_A_ARG_TYPE_BrowseFlag.BROWSEDIRECTCHILDREN))
         {
           parent = (DvMediaContainer2)cdsEntry;
@@ -1174,8 +1174,8 @@ namespace Components.UPnPServer
           }
           updateID = parent.UpdateID;
         }
-        ArrayList filters = this.GetFilters(filter);
-        string[] baseUrlsByInterfaces = this.GetBaseUrlsByInterfaces();
+        ArrayList filters = GetFilters(filter);
+        string[] baseUrlsByInterfaces = GetBaseUrlsByInterfaces();
         Result = BuildXmlRepresentation(baseUrlsByInterfaces, filters, list);
       }
       catch (Exception exception)
@@ -1183,31 +1183,30 @@ namespace Components.UPnPServer
         Exception exception2 = new Exception("MediaServerDevice2.SinkCd_Browse()", exception);
         throw exception2;
       }
-      this.m_Stats.Browse++;
-      this.FireStatsChange();
+      m_Stats.Browse++;
+      FireStatsChange();
     }
 
     private void SinkCd_CreateObject(string containerID, string Elements, out string objectID, out string Result)
     {
       try
       {
-        DvMediaContainer2 parentContainer = this.GetContainer(containerID);
+        DvMediaContainer2 parentContainer = GetContainer(containerID);
         if (parentContainer == null)
         {
           throw new Error_NoSuchObject("The container \"" + containerID + "\" does not exist.");
         }
-        ArrayList list = DvMediaBuilder2.BuildMediaBranches(Elements);
-        if (this.OnRequestAddBranch == null)
+        if (OnRequestAddBranch == null)
         {
           throw new Error_InvalidServerConfiguration("CreateObject() cannot be supported until the vendor configures the server correctly.");
         }
-        IDvMedia[] addTheseBranches = new IDvMedia[list.Count];
-        for (int i = 0; i < list.Count; i++)
+        IList mediaBranches = DvMediaBuilder2.BuildMediaBranches(Elements);
+        IDvMedia[] addTheseBranches = new IDvMedia[mediaBranches.Count];
+        for (int i = 0; i < mediaBranches.Count; i++)
         {
-          addTheseBranches[i] = (IDvMedia)list[i];
+          addTheseBranches[i] = (IDvMedia)mediaBranches[i];
         }
-        list = null;
-        this.OnRequestAddBranch(this, parentContainer, ref addTheseBranches);
+        OnRequestAddBranch(this, parentContainer, ref addTheseBranches);
         foreach (IDvMedia media in addTheseBranches)
         {
           parentContainer.AddObject(media, false);
@@ -1231,7 +1230,7 @@ namespace Components.UPnPServer
         xmlWriter.Formatting = Formatting.Indented;
         xmlWriter.Namespaces = true;
         MediaObject.WriteResponseHeader(xmlWriter);
-        this.RecurseNewBranches(addTheseBranches, newIds, xmlWriter);
+        RecurseNewBranches(addTheseBranches, newIds, xmlWriter);
         MediaObject.WriteResponseFooter(xmlWriter);
         xmlWriter.Flush();
         objectID = newIds.ToString();
@@ -1252,18 +1251,18 @@ namespace Components.UPnPServer
         Exception exception2 = new Exception("MediaServerDevice2.CreateObject()", exception);
         throw exception2;
       }
-      this.m_Stats.CreateObject++;
-      this.FireStatsChange();
+      m_Stats.CreateObject++;
+      FireStatsChange();
     }
 
     private void SinkCd_CreateReference(string containerID, string objectID, out string NewID)
     {
-      DvMediaContainer2 parentContainer = this.GetContainer(containerID);
+      DvMediaContainer2 parentContainer = GetContainer(containerID);
       if (parentContainer == null)
       {
         throw new Error_NoSuchContainer("(" + containerID + ")");
       }
-      DvMediaItem2 item = this.GetItem(objectID);
+      DvMediaItem2 item = GetItem(objectID);
       if (item == null)
       {
         throw new Error_NoSuchObject("(" + objectID + ")");
@@ -1272,35 +1271,35 @@ namespace Components.UPnPServer
       IDvItem item2 = item.CreateReference();
       item.UnlockReferenceList();
       IDvMedia[] addTheseBranches = new IDvMedia[] { item2 };
-      if (this.OnRequestAddBranch == null)
+      if (OnRequestAddBranch == null)
       {
         throw new Error_InvalidServerConfiguration("CreateReference() cannot be supported until the vendor configures the server correctly.");
       }
-      this.OnRequestAddBranch(this, parentContainer, ref addTheseBranches);
+      OnRequestAddBranch(this, parentContainer, ref addTheseBranches);
       NewID = item2.ID;
-      this.m_Stats.CreateReference++;
-      this.FireStatsChange();
+      m_Stats.CreateReference++;
+      FireStatsChange();
     }
 
     private void SinkCd_DeleteResource(Uri ResourceURI)
     {
       string str;
       string str2;
-      this.GetObjectResourceIDS(ResourceURI, out str, out str2);
+      GetObjectResourceIDS(ResourceURI, out str, out str2);
       if ((str == "") || (str2 == ""))
       {
         throw new Error_NoSuchResource(ResourceURI.ToString());
       }
-      IDvResource resource = this.GetResource(str, str2);
+      IDvResource resource = GetResource(str, str2);
       if (resource == null)
       {
         throw new Error_NoSuchResource(ResourceURI.ToString());
       }
-      if (this.OnRequestDeleteBinary == null)
+      if (OnRequestDeleteBinary == null)
       {
         throw new Error_InvalidServerConfiguration("DeleteResource() cannot be supported until the vendor configures the server correctly.");
       }
-      this.OnRequestDeleteBinary(this, resource);
+      OnRequestDeleteBinary(this, resource);
       if (resource.Owner.IsContainer)
       {
         ((DvMediaContainer2)resource.Owner).RemoveResource(resource);
@@ -1309,15 +1308,15 @@ namespace Components.UPnPServer
       {
         ((DvMediaItem2)resource.Owner).RemoveResource(resource);
       }
-      this.m_Stats.DeleteResource++;
-      this.FireStatsChange();
+      m_Stats.DeleteResource++;
+      FireStatsChange();
     }
 
     private void SinkCd_DestroyObject(string objectID)
     {
       try
       {
-        IDvMedia cdsEntry = this.GetCdsEntry(objectID);
+        IDvMedia cdsEntry = GetCdsEntry(objectID);
         DvMediaContainer2 parent = (DvMediaContainer2)cdsEntry.Parent;
         if (cdsEntry.ID == "0")
         {
@@ -1331,12 +1330,12 @@ namespace Components.UPnPServer
         {
           throw new Error_RestrictedObject("Cannot destroy object " + objectID);
         }
-        if (this.OnRequestRemoveBranch == null)
+        if (OnRequestRemoveBranch == null)
         {
           throw new Error_InvalidServerConfiguration("DestroyObject() cannot be supported until the vendor configures the server correctly.");
         }
-        this.OnRequestRemoveBranch(this, parent, cdsEntry);
-        this.m_Cache.Remove(objectID);
+        OnRequestRemoveBranch(this, parent, cdsEntry);
+        m_Cache.Remove(objectID);
         parent.RemoveObject(cdsEntry);
         GC.Collect();
       }
@@ -1345,8 +1344,8 @@ namespace Components.UPnPServer
         Exception exception2 = new Exception("MediaServer.SinkCd_DestroyObject()", exception);
         throw exception2;
       }
-      this.m_Stats.DestroyObject++;
-      this.FireStatsChange();
+      m_Stats.DestroyObject++;
+      FireStatsChange();
     }
 
     private void SinkCd_ExportResource(Uri SourceURI, Uri DestinationURI, out uint TransferID)
@@ -1355,12 +1354,12 @@ namespace Components.UPnPServer
       string str2;
       TransferID = 0;
       Uri uri = DestinationURI;
-      this.GetObjectResourceIDS(SourceURI, out str2, out str);
+      GetObjectResourceIDS(SourceURI, out str2, out str);
       if ((str2 == "") || (str == ""))
       {
         throw new Error_NoSuchResource(SourceURI.ToString());
       }
-      IDvResource res = this.GetResource(str2, str);
+      IDvResource res = GetResource(str2, str);
       if (res == null)
       {
         throw new Error_NoSuchResource("");
@@ -1398,9 +1397,9 @@ namespace Components.UPnPServer
       {
         try
         {
-          if (this.OnFileNotMapped != null)
+          if (OnFileNotMapped != null)
           {
-            this.OnFileNotMapped(this, fileNotMapped);
+            OnFileNotMapped(this, fileNotMapped);
           }
         }
         catch (Exception)
@@ -1421,57 +1420,57 @@ namespace Components.UPnPServer
         throw new UPnPCustomException(800, "Could not connect to the remote address of " + remoteEP.ToString() + ":" + remoteEP.Port.ToString());
       }
       HTTPSession session = null;
-      this.SetupSessionForTransfer(session);
+      SetupSessionForTransfer(session);
       SessionData stateObject = (SessionData)session.StateObject;
       stateObject.HttpVer1_1 = true;
       HttpTransfer transferInfo = new HttpTransfer(false, true, session, res, fileNotMapped.RedirectedStream, fileNotMapped.RedirectedStream.Length);
-      this.AddTransfer(session, transferInfo);
+      AddTransfer(session, transferInfo);
       session.PostStreamObject(fileNotMapped.RedirectedStream, uri.PathAndQuery, res.ProtocolInfo.MimeType);
       TransferID = transferInfo.m_TransferId;
-      this.m_Stats.ExportResource++;
-      this.FireStatsChange();
+      m_Stats.ExportResource++;
+      FireStatsChange();
     }
 
     private void SinkCd_GetSearchCapabilities(out string SearchCaps)
     {
-      SearchCaps = this.m_SearchCapabilities;
-      this.m_Stats.GetSearchCapabilities++;
-      this.FireStatsChange();
+      SearchCaps = m_SearchCapabilities;
+      m_Stats.GetSearchCapabilities++;
+      FireStatsChange();
     }
 
     private void SinkCd_GetSortCapabilities(out string SortCaps)
     {
-      SortCaps = this.m_SortCapabilities;
-      this.m_Stats.GetSortCapabilities++;
-      this.FireStatsChange();
+      SortCaps = m_SortCapabilities;
+      m_Stats.GetSortCapabilities++;
+      FireStatsChange();
     }
 
     private void SinkCd_GetSystemUpdateID(out uint id)
     {
-      id = this.ContentDirectory.Evented_SystemUpdateID;
-      this.m_Stats.GetSystemUpdateID++;
-      this.FireStatsChange();
+      id = ContentDirectory.Evented_SystemUpdateID;
+      m_Stats.GetSystemUpdateID++;
+      FireStatsChange();
     }
 
     private void SinkCd_GetTransferProgress(uint TransferID, out DvContentDirectory.Enum_A_ARG_TYPE_TransferStatus TransferStatus, out string TransferLength, out string TransferTotal)
     {
-      if (!this.m_HttpTransfers.ContainsKey(TransferID))
+      if (!m_HttpTransfers.ContainsKey(TransferID))
       {
         throw new Error_NoSuchFileTransfer("(" + TransferID.ToString() + ")");
       }
-      HttpTransfer transfer = (HttpTransfer)this.m_HttpTransfers[TransferID];
+      HttpTransfer transfer = (HttpTransfer)m_HttpTransfers[TransferID];
       TransferLength = transfer.Position.ToString();
       TransferTotal = transfer.TransferSize.ToString();
       TransferStatus = transfer.TransferStatus;
-      this.m_Stats.GetTransferProgress++;
-      this.FireStatsChange();
+      m_Stats.GetTransferProgress++;
+      FireStatsChange();
     }
 
     private void SinkCd_ImportResource(Uri SourceURI, Uri DestinationURI, out uint TransferID)
     {
       string str;
       string str2;
-      this.GetObjectResourceIDS(DestinationURI, out str, out str2);
+      GetObjectResourceIDS(DestinationURI, out str, out str2);
       if ((str == "") || (str2 == ""))
       {
         throw new Error_NoSuchResource(DestinationURI.ToString());
@@ -1480,14 +1479,13 @@ namespace Components.UPnPServer
       {
         throw new Error_NonHttpImport(DestinationURI.ToString());
       }
-      IDvResource resource = this.GetResource(str, str2);
-      if (this.OnRequestSaveBinary == null)
+      IDvResource resource = GetResource(str, str2);
+      if (OnRequestSaveBinary == null)
       {
         throw new Error_InvalidServerConfiguration("ImportResource() cannot be supported until the vendor configures the server correctly.");
       }
-      this.OnRequestSaveBinary(this, resource);
-      IPAddress address = null;
-      IPEndPoint remoteEP = null;
+      OnRequestSaveBinary(this, resource);
+      IPAddress address;
       try
       {
         if (SourceURI.HostNameType == UriHostNameType.Dns)
@@ -1503,7 +1501,7 @@ namespace Components.UPnPServer
       {
         throw new Error_ConnectionProblem("Could parse or resolve the SourceURI IP address represented by" + SourceURI.ToString());
       }
-      remoteEP = new IPEndPoint(address, SourceURI.Port);
+      IPEndPoint remoteEP = new IPEndPoint(address, SourceURI.Port);
       Socket theSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
       try
       {
@@ -1519,8 +1517,8 @@ namespace Components.UPnPServer
         throw new Error_ImportError("System error. Resource has been mapped incorrectly. Cannot overwrite a directory with a binary.");
       }
       HTTPSession session = new HTTPSession(theSocket, null, null);
-      this.SetupSessionForTransfer(session);
-      session.OnHeader += new HTTPSession.ReceiveHeaderHandler(this.GetRequest_OnHeaderReceiveSink);
+      SetupSessionForTransfer(session);
+      session.OnHeader += new HTTPSession.ReceiveHeaderHandler(GetRequest_OnHeaderReceiveSink);
       try
       {
         session.UserStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -1542,11 +1540,11 @@ namespace Components.UPnPServer
       packet.Version = "1.0";
       long expectedLength = 0L;
       HttpTransfer transferInfo = new HttpTransfer(true, true, session, resource, session.UserStream, expectedLength);
-      this.AddTransfer(session, transferInfo);
+      AddTransfer(session, transferInfo);
       TransferID = transferInfo.m_TransferId;
       session.Send(packet);
-      this.m_Stats.ImportResource++;
-      this.FireStatsChange();
+      m_Stats.ImportResource++;
+      FireStatsChange();
     }
 
     private void SinkCd_Search(string containerID, string searchCriteria, string filter, uint startingIndex, uint requestedCount, string sortCriteria, out string Result, out uint numberReturned, out uint totalMatches, out uint updateID)
@@ -1559,7 +1557,7 @@ namespace Components.UPnPServer
         Result = "";
         totalMatches = 0;
         updateID = 0;
-        IDvMedia cdsEntry = this.GetCdsEntry(containerID);
+        IDvMedia cdsEntry = GetCdsEntry(containerID);
         if (!cdsEntry.IsContainer)
         {
           throw new Error_NoSuchContainer("(" + containerID + ")");
@@ -1582,8 +1580,8 @@ namespace Components.UPnPServer
         }
         numberReturned = Convert.ToUInt32(list.Count);
         updateID = container.UpdateID;
-        ArrayList filters = this.GetFilters(filter);
-        string[] baseUrlsByInterfaces = this.GetBaseUrlsByInterfaces();
+        ArrayList filters = GetFilters(filter);
+        string[] baseUrlsByInterfaces = GetBaseUrlsByInterfaces();
         Result = BuildXmlRepresentation(baseUrlsByInterfaces, filters, list);
       }
       catch (Exception exception)
@@ -1591,24 +1589,24 @@ namespace Components.UPnPServer
         Exception exception2 = new Exception("MediaServer.SinkCd_Search()", exception);
         throw exception2;
       }
-      this.m_Stats.Search++;
-      this.FireStatsChange();
+      m_Stats.Search++;
+      FireStatsChange();
     }
 
     private void SinkCd_StopTransferResource(uint TransferID)
     {
-      if (!this.m_HttpTransfers.ContainsKey(TransferID))
+      if (!m_HttpTransfers.ContainsKey(TransferID))
       {
         throw new Error_NoSuchFileTransfer("(" + TransferID.ToString() + ")");
       }
-      HttpTransfer transfer = (HttpTransfer)this.m_HttpTransfers[TransferID];
+      HttpTransfer transfer = (HttpTransfer)m_HttpTransfers[TransferID];
       bool flag = false;
       if ((transfer != null) && transfer.ImportExportTransfer)
       {
         flag = true;
         transfer.Close(true);
       }
-      this.m_Stats.StopTransferResource++;
+      m_Stats.StopTransferResource++;
       if (!flag)
       {
         throw new Error_NoSuchFileTransfer("(" + TransferID.ToString() + ")");
@@ -1623,7 +1621,7 @@ namespace Components.UPnPServer
         string str2;
         int index;
         IDvMedia media2;
-        IDvMedia cdsEntry = this.GetCdsEntry(objectID);
+        IDvMedia cdsEntry = GetCdsEntry(objectID);
         if (cdsEntry == null)
         {
           throw new Error_NoSuchObject("(" + objectID + ")");
@@ -1644,7 +1642,7 @@ namespace Components.UPnPServer
         {
           throw new Error_ParameterMismatch("The number of tag/value pairs is not the same between currentTagValue and newTagValue.");
         }
-        string baseUrlByInterface = this.GetBaseUrlByInterface();
+        string baseUrlByInterface = GetBaseUrlByInterface();
         ArrayList properties = new ArrayList();
         ArrayList entries = new ArrayList();
         entries.Add(cdsEntry);
@@ -1711,24 +1709,24 @@ namespace Components.UPnPServer
         foreach (IMediaResource resource in media2.Resources)
         {
           string contentUri = resource.ContentUri;
-          index = contentUri.IndexOf(this.m_VirtualDirName);
+          index = contentUri.IndexOf(m_VirtualDirName);
           if (index > 0)
           {
-            string str7 = contentUri.Substring(index + this.m_VirtualDirName.Length);
+            string str7 = contentUri.Substring(index + m_VirtualDirName.Length);
             DText text3 = new DText();
             text3.ATTRMARK = "/";
             text3[0] = str7;
             string resourceID = text3[2];
             string str9 = text3[3];
             Debug.Assert(str9 == objectID);
-            IDvResource resource2 = this.GetResource(objectID, resourceID);
+            IDvResource resource2 = GetResource(objectID, resourceID);
             resource[CdsTags[_RESATTRIB.importUri]] = null;
             resource.ContentUri = resource2.ContentUri;
           }
         }
-        if (this.OnRequestChangeMetadata != null)
+        if (OnRequestChangeMetadata != null)
         {
-          this.OnRequestChangeMetadata(this, cdsEntry, media2);
+          OnRequestChangeMetadata(this, cdsEntry, media2);
         }
         cdsEntry.UpdateObject(media2);
       }
@@ -1738,8 +1736,8 @@ namespace Components.UPnPServer
         Exception exception2 = new Exception("MediaServer.SinkCd_UpdateObject()", exception);
         throw exception2;
       }
-      this.m_Stats.UpdateObject++;
-      this.FireStatsChange();
+      m_Stats.UpdateObject++;
+      FireStatsChange();
     }
 
     private void SinkCm_ConnectionComplete(int ConnectionID)
@@ -1749,30 +1747,30 @@ namespace Components.UPnPServer
         throw new Error_InvalidConnection("(" + ConnectionID + ")");
       }
       int key = ConnectionID;
-      this.m_LockConnections.AcquireWriterLock(-1);
-      if (this.m_Connections.ContainsKey(key))
+      m_LockConnections.AcquireWriterLock(-1);
+      if (m_Connections.ContainsKey(key))
       {
-        Connection theConnection = (Connection)this.m_Connections[key];
-        this.RemoveConnection(theConnection);
+        Connection theConnection = (Connection)m_Connections[key];
+        RemoveConnection(theConnection);
       }
-      this.m_Stats.ExportResource++;
-      this.FireStatsChange();
+      m_Stats.ExportResource++;
+      FireStatsChange();
     }
 
     private void SinkCm_GetCurrentConnectionIDs(out string ConnectionIDs)
     {
-      ConnectionIDs = this.ConnectionManager.Evented_CurrentConnectionIDs;
-      this.m_Stats.GetCurrentConnectionIDs++;
-      this.FireStatsChange();
+      ConnectionIDs = ConnectionManager.Evented_CurrentConnectionIDs;
+      m_Stats.GetCurrentConnectionIDs++;
+      FireStatsChange();
     }
 
     private void SinkCm_GetCurrentConnectionInfo(int ConnectionID, out int RcsID, out int AVTransportID, out string ProtocolInfo, out string PeerConnectionManager, out int PeerConnectionID, out DvConnectionManager.Enum_A_ARG_TYPE_Direction Direction, out DvConnectionManager.Enum_A_ARG_TYPE_ConnectionStatus Status)
     {
-      if (!this.m_Connections.ContainsKey(ConnectionID))
+      if (!m_Connections.ContainsKey(ConnectionID))
       {
         throw new Error_InvalidConnection("(" + ConnectionID + ")");
       }
-      Connection connection = (Connection)this.m_Connections[ConnectionID];
+      Connection connection = (Connection)m_Connections[ConnectionID];
       RcsID = connection.RcsId;
       AVTransportID = connection.AVTransportId;
       ProtocolInfo = connection.ProtocolInfo.ToString();
@@ -1780,36 +1778,36 @@ namespace Components.UPnPServer
       PeerConnectionID = connection.PeerConnectionId;
       Direction = connection.Direction;
       Status = connection.Status;
-      this.m_Stats.GetCurrentConnectionInfo++;
-      this.FireStatsChange();
+      m_Stats.GetCurrentConnectionInfo++;
+      FireStatsChange();
     }
 
     private void SinkCm_GetProtocolInfo(out string Source, out string Sink)
     {
-      Source = this.ConnectionManager.Evented_SourceProtocolInfo;
-      Sink = this.ConnectionManager.Evented_SinkProtocolInfo;
-      this.m_Stats.GetProtocolInfo++;
-      this.FireStatsChange();
+      Source = ConnectionManager.Evented_SourceProtocolInfo;
+      Sink = ConnectionManager.Evented_SinkProtocolInfo;
+      m_Stats.GetProtocolInfo++;
+      FireStatsChange();
     }
 
     private void SinkCm_PrepareForConnection(string RemoteProtocolInfo, string PeerConnectionManager, int PeerConnectionID, DvConnectionManager.Enum_A_ARG_TYPE_Direction Direction, out int ConnectionID, out int AVTransportID, out int RcsID)
     {
       bool flag = true;
       ProtocolInfoString protInfo = new ProtocolInfoString(RemoteProtocolInfo);
-      this.ValidateConnectionRequest(protInfo, Direction);
-      if ((this.EnableHttp && (string.Compare(protInfo.Protocol, "http-get", true) == 0)) && (Direction == DvConnectionManager.Enum_A_ARG_TYPE_Direction.OUTPUT))
+      ValidateConnectionRequest(protInfo, Direction);
+      if ((EnableHttp && (string.Compare(protInfo.Protocol, "http-get", true) == 0)) && (Direction == DvConnectionManager.Enum_A_ARG_TYPE_Direction.OUTPUT))
       {
         flag = false;
       }
-      ConnectionID = this.GetConnectionID();
+      ConnectionID = GetConnectionID();
       DvConnectionManager.Enum_A_ARG_TYPE_ConnectionStatus uNKNOWN = DvConnectionManager.Enum_A_ARG_TYPE_ConnectionStatus.UNKNOWN;
       if (flag)
       {
-        if (this.OnCallPrepareForConnection == null)
+        if (OnCallPrepareForConnection == null)
         {
           throw new Error_InvalidServerConfiguration("PrepareForConnection() cannot be supported until the vendor configures the server correctly.");
         }
-        this.OnCallPrepareForConnection(RemoteProtocolInfo, PeerConnectionManager, Direction, out AVTransportID, out RcsID, out uNKNOWN);
+        OnCallPrepareForConnection(RemoteProtocolInfo, PeerConnectionManager, Direction, out AVTransportID, out RcsID, out uNKNOWN);
       }
       else
       {
@@ -1817,31 +1815,31 @@ namespace Components.UPnPServer
         RcsID = -1;
       }
       Connection newConnection = new Connection(ConnectionID, PeerConnectionID, RcsID, AVTransportID, protInfo, PeerConnectionManager, Direction, uNKNOWN);
-      this.AddConnection(newConnection);
-      this.m_Stats.PrepareForConnection++;
-      this.FireStatsChange();
+      AddConnection(newConnection);
+      m_Stats.PrepareForConnection++;
+      FireStatsChange();
     }
 
     public void Start()
     {
-      this.Device.StartDevice();
+      Device.StartDevice();
     }
 
     public void Start(int portNumber)
     {
-      this.Device.StartDevice(portNumber);
+      Device.StartDevice(portNumber);
     }
 
     public void Stop()
     {
-      this.Device.StopDevice();
+      Device.StopDevice();
     }
 
     private void UpdateConnections()
     {
-      StringBuilder builder = new StringBuilder(this.m_Connections.Count * 50);
+      StringBuilder builder = new StringBuilder(m_Connections.Count * 50);
       int num = 0;
-      foreach (int num2 in this.m_Connections.Keys)
+      foreach (int num2 in m_Connections.Keys)
       {
         if (num > 0)
         {
@@ -1853,7 +1851,7 @@ namespace Components.UPnPServer
         }
         num++;
       }
-      this.ConnectionManager.Evented_CurrentConnectionIDs = builder.ToString();
+      ConnectionManager.Evented_CurrentConnectionIDs = builder.ToString();
     }
 
     private void UpdateProtocolInfoSet(bool sourceProtocolInfo, ProtocolInfoString[] array)
@@ -1862,13 +1860,13 @@ namespace Components.UPnPServer
       ReaderWriterLock lockSourceProtocolInfo;
       if (sourceProtocolInfo)
       {
-        sourceProtocolInfoSet = this.m_SourceProtocolInfoSet;
-        lockSourceProtocolInfo = this.m_LockSourceProtocolInfo;
+        sourceProtocolInfoSet = m_SourceProtocolInfoSet;
+        lockSourceProtocolInfo = m_LockSourceProtocolInfo;
       }
       else
       {
-        sourceProtocolInfoSet = this.m_SinkProtocolInfoSet;
-        lockSourceProtocolInfo = this.m_LockSinkProtocolInfo;
+        sourceProtocolInfoSet = m_SinkProtocolInfoSet;
+        lockSourceProtocolInfo = m_LockSinkProtocolInfo;
       }
       lockSourceProtocolInfo.AcquireWriterLock(-1);
       StringBuilder builder = new StringBuilder();
@@ -1887,11 +1885,11 @@ namespace Components.UPnPServer
       }
       if (sourceProtocolInfo)
       {
-        this.ConnectionManager.Evented_SourceProtocolInfo = builder.ToString();
+        ConnectionManager.Evented_SourceProtocolInfo = builder.ToString();
       }
       else
       {
-        this.ConnectionManager.Evented_SinkProtocolInfo = builder.ToString();
+        ConnectionManager.Evented_SinkProtocolInfo = builder.ToString();
       }
       lockSourceProtocolInfo.ReleaseWriterLock();
     }
@@ -1929,7 +1927,7 @@ namespace Components.UPnPServer
       {
         array = (ProtocolInfoString[])list.ToArray(list[0].GetType());
       }
-      this.UpdateProtocolInfoSet(sourceProtocolInfo, array);
+      UpdateProtocolInfoSet(sourceProtocolInfo, array);
     }
 
     private void ValidateConnectionRequest(ProtocolInfoString protInfo, DvConnectionManager.Enum_A_ARG_TYPE_Direction dir)
@@ -1938,7 +1936,7 @@ namespace Components.UPnPServer
       bool flag = true;
       if (dir == DvConnectionManager.Enum_A_ARG_TYPE_Direction.INPUT)
       {
-        sinkProtocolInfoSet = this.m_SinkProtocolInfoSet;
+        sinkProtocolInfoSet = m_SinkProtocolInfoSet;
       }
       else
       {
@@ -1946,7 +1944,7 @@ namespace Components.UPnPServer
         {
           throw new Error_InvalidDirection("");
         }
-        sinkProtocolInfoSet = this.m_SourceProtocolInfoSet;
+        sinkProtocolInfoSet = m_SourceProtocolInfoSet;
       }
       foreach (ProtocolInfoString str in sinkProtocolInfoSet)
       {
@@ -1964,7 +1962,7 @@ namespace Components.UPnPServer
 
     private void WebServer_OnHeaderReceiveSink(UPnPDevice sender, HTTPMessage msg, HTTPSession WebSession, string VirtualDir)
     {
-      this.SetupSessionForTransfer(WebSession);
+      SetupSessionForTransfer(WebSession);
       SessionData stateObject = (SessionData)WebSession.StateObject;
       if ((msg.Version == "1.0") || (msg.Version == "0.0"))
       {
@@ -1980,11 +1978,11 @@ namespace Components.UPnPServer
     {
       if (string.Compare(msg.Directive, "POST", true) == 0)
       {
-        this.HandlePostedFileToServer(msg, WebSession);
+        HandlePostedFileToServer(msg, WebSession);
       }
       else if ((string.Compare(msg.Directive, "GET", true) == 0) || (string.Compare(msg.Directive, "HEAD", true) == 0))
       {
-        this.HandleGetOrHeadRequest(msg, WebSession);
+        HandleGetOrHeadRequest(msg, WebSession);
       }
     }
 
@@ -2002,7 +2000,7 @@ namespace Components.UPnPServer
         {
           throw new ApplicationException("bad evil. Can't mark a stream for removal if there's nothing to remove.");
         }
-        this.MarkTransferForRemoval(TheSession, stream);
+        MarkTransferForRemoval(TheSession, stream);
         if (!stateObject.HttpVer1_1)
         {
         }
@@ -2012,25 +2010,22 @@ namespace Components.UPnPServer
     // Properties
     public UPnPDevice _Device
     {
-      get
-      {
-        return this.Device;
-      }
+      get { return Device; }
     }
 
     public Connection[] Connections
     {
       get
       {
-        this.m_LockConnections.AcquireReaderLock(-1);
-        Connection[] connectionArray = new Connection[this.m_Connections.Count];
+        m_LockConnections.AcquireReaderLock(-1);
+        Connection[] connectionArray = new Connection[m_Connections.Count];
         int index = 0;
-        foreach (uint num2 in this.m_Connections.Keys)
+        foreach (uint num2 in m_Connections.Keys)
         {
-          connectionArray[index] = (Connection)this.m_Connections[num2];
+          connectionArray[index] = (Connection)m_Connections[num2];
           index++;
         }
-        this.m_LockConnections.ReleaseReaderLock();
+        m_LockConnections.ReleaseReaderLock();
         return connectionArray;
       }
     }
@@ -2039,88 +2034,67 @@ namespace Components.UPnPServer
     {
       get
       {
-        this.m_LockHttpTransfers.AcquireReaderLock(-1);
-        ArrayList list = new ArrayList(this.m_HttpTransfers.Count);
-        list.AddRange(this.m_HttpTransfers.Values);
-        this.m_LockHttpTransfers.ReleaseReaderLock();
+        m_LockHttpTransfers.AcquireReaderLock(-1);
+        ArrayList list = new ArrayList(m_HttpTransfers.Count);
+        list.AddRange(m_HttpTransfers.Values);
+        m_LockHttpTransfers.ReleaseReaderLock();
         return list;
       }
     }
 
     public DvMediaContainer2 Root
     {
-      get
-      {
-        return this.m_Root;
-      }
+      get { return m_Root; }
     }
 
     public string SearchCapabilities
     {
-      get
-      {
-        return this.m_SearchCapabilities;
-      }
-      set
-      {
-        this.m_SearchCapabilities = value;
-      }
+      get { return m_SearchCapabilities; }
+      set { m_SearchCapabilities = value; }
     }
 
     public ProtocolInfoString[] SinkProtocolInfoSet
     {
       get
       {
-        this.GetProtocolInfoSet(false);
+        GetProtocolInfoSet(false);
         return null;
       }
       set
       {
         ProtocolInfoString[] array = value;
-        this.UpdateProtocolInfoSet(false, array);
+        UpdateProtocolInfoSet(false, array);
       }
     }
 
     public string SortCapabilities
     {
-      get
-      {
-        return this.m_SortCapabilities;
-      }
-      set
-      {
-        this.m_SortCapabilities = value;
-      }
+      get { return m_SortCapabilities; }
+      set { m_SortCapabilities = value; }
     }
 
     public ProtocolInfoString[] SourceProtocolInfoSet
     {
       get
       {
-        this.GetProtocolInfoSet(true);
+        GetProtocolInfoSet(true);
         return null;
       }
       set
       {
         ProtocolInfoString[] array = value;
-        this.UpdateProtocolInfoSet(true, array);
+        UpdateProtocolInfoSet(true, array);
       }
     }
 
     public Statistics Stats
     {
-      get
-      {
-        return this.m_Stats;
-      }
+      get { return m_Stats; }
     }
 
     public string VirtualDirName
     {
-      get
-      {
-        return this.m_VirtualDirName;
-      }
+      get { return m_VirtualDirName; }
     }
 
     // Nested Types
@@ -2141,14 +2115,14 @@ namespace Components.UPnPServer
         {
           throw new ApplicationException("ConnectionId cannot be negative.");
         }
-        this.ConnectionId = id;
-        this.PeerConnectionId = peerId;
-        this.RcsId = rcs;
-        this.AVTransportId = avt;
-        this.ProtocolInfo = prot;
-        this.PeerConnectionManager = peer;
-        this.Direction = dir;
-        this.Status = status;
+        ConnectionId = id;
+        PeerConnectionId = peerId;
+        RcsId = rcs;
+        AVTransportId = avt;
+        ProtocolInfo = prot;
+        PeerConnectionManager = peer;
+        Direction = dir;
+        Status = status;
       }
     }
 
@@ -2195,33 +2169,33 @@ namespace Components.UPnPServer
       // Methods
       internal HttpTransfer(bool incoming, bool importExportTransfer, HTTPSession session, IDvResource res, Stream stream, long expectedLength)
       {
-        this.Incoming = incoming;
-        this.ImportExportTransfer = importExportTransfer;
-        this.Session = session;
-        this.Source = session.Source;
-        this.Destination = session.Remote;
-        this.Resource = res;
-        this.Stream = stream;
-        this.m_TransferSize = expectedLength;
-        this.ClosedOrDone = false;
-        this.CriticalError = session == null;
+        Incoming = incoming;
+        ImportExportTransfer = importExportTransfer;
+        Session = session;
+        Source = session.Source;
+        Destination = session.Remote;
+        Resource = res;
+        Stream = stream;
+        m_TransferSize = expectedLength;
+        ClosedOrDone = false;
+        CriticalError = session == null;
       }
 
       public void Close(bool deleteFile)
       {
-        this.ClosedOrDone = true;
-        this.lastKnownPos = this.Stream.Position;
-        this.Session.CloseStreamObject(this.Stream);
-        if ((this.Stream.GetType().ToString() == "System.IO.FileStream") && deleteFile)
+        ClosedOrDone = true;
+        lastKnownPos = Stream.Position;
+        Session.CloseStreamObject(Stream);
+        if ((Stream.GetType().ToString() == "System.IO.FileStream") && deleteFile)
         {
-          FileStream stream = (FileStream)this.Stream;
+          FileStream stream = (FileStream)Stream;
           File.Delete(stream.Name);
         }
       }
 
       internal bool IsSessionMatch(HTTPSession session)
       {
-        return (session == this.Session);
+        return (session == Session);
       }
 
       // Properties
@@ -2231,47 +2205,41 @@ namespace Components.UPnPServer
         {
           try
           {
-            if (this.ClosedOrDone)
+            if (ClosedOrDone)
             {
-              return this.lastKnownPos;
+              return lastKnownPos;
             }
           }
           catch
           {
           }
-          return this.Stream.Position;
+          return Stream.Position;
         }
       }
 
       public uint TransferID
       {
-        get
-        {
-          return this.m_TransferId;
-        }
+        get { return m_TransferId; }
       }
 
       public long TransferSize
       {
-        get
-        {
-          return this.m_TransferSize;
-        }
+        get { return m_TransferSize; }
       }
 
       public DvContentDirectory.Enum_A_ARG_TYPE_TransferStatus TransferStatus
       {
         get
         {
-          if (this.CriticalError)
+          if (CriticalError)
           {
             return DvContentDirectory.Enum_A_ARG_TYPE_TransferStatus.ERROR;
           }
-          if ((this.TransferSize == this.Position) && (this.TransferSize != 0L))
+          if ((TransferSize == Position) && (TransferSize != 0L))
           {
             return DvContentDirectory.Enum_A_ARG_TYPE_TransferStatus.COMPLETED;
           }
-          if (this.ClosedOrDone)
+          if (ClosedOrDone)
           {
             return DvContentDirectory.Enum_A_ARG_TYPE_TransferStatus.STOPPED;
           }
@@ -2313,6 +2281,4 @@ namespace Components.UPnPServer
       public int Search;
     }
   }
-
-
 }

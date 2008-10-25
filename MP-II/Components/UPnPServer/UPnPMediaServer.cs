@@ -33,9 +33,10 @@ namespace Components.UPnPServer
   public class UPnPMediaServer2 : MarshalByRefObject
   {
     // Fields
-    public int mediaHttpTransfersUpdateId = 1;
-    public int mediaServerStatsUpdateId = 1;
-    public int mediaSharedDirectoryUpdateId = 1;
+    public int _mediaHttpTransfersUpdateId = 1;
+    public int _mediaServerStatsUpdateId = 1;
+    public int _mediaSharedDirectoryUpdateId = 1;
+    protected MediaServerCore2 _mediaServerCore;
 
     // Events
     public event NotifyEvent MediaHttpTransfersChanged;
@@ -43,29 +44,43 @@ namespace Components.UPnPServer
     public event NotifyEvent MediaServerStatsChanged;
 
     // Methods
-    public UPnPMediaServer2()
+    public UPnPMediaServer2(MediaServerCore2 mediaServerCore)
     {
-      if (MediaServerCore2.serverCore != null)
-      {
-        MediaServerCore2.serverCore.OnStatsChanged += new MediaServerCore2.MediaServerCore2EventHandler(this.MediaServerStatsChangedSink);
-        MediaServerCore2.serverCore.OnHttpTransfersChanged += new MediaServerCore2.MediaServerCore2EventHandler(this.MediaHttpTransferssChangedSink);
-        MediaServerCore2.serverCore.OnDebugMessage += new MediaServerCore2.MediaServerCore2DebugHandler(this.MediaServerCore2DebugSink);
-      }
+      if (mediaServerCore == null)
+        throw new NullReferenceException("MediaServer core object is null");
+      _mediaServerCore = mediaServerCore;
+      _mediaServerCore.OnStatsChanged += MediaServerStatsChangedSink;
+      _mediaServerCore.OnHttpTransfersChanged += MediaHttpTransfersChangedSink;
+      _mediaServerCore.OnDebugMessage += MediaServerCore2DebugSink;
     }
+
+    ~UPnPMediaServer2()
+    {
+      _mediaServerCore.OnStatsChanged -= MediaServerStatsChangedSink;
+      _mediaServerCore.OnHttpTransfersChanged -= MediaHttpTransfersChangedSink;
+      _mediaServerCore.OnDebugMessage -= MediaServerCore2DebugSink;
+      _mediaServerCore.Dispose();
+    }
+
+    public void Dispose()
+    {
+      _mediaServerCore.Dispose();
+    }
+
 #if NOTUSED
     public Exception AddDirectory(DirectoryInfo directory, bool restricted, bool allowWrite)
     {
       try
       {
-        if (MediaServerCore2.serverCore == null)
+        if (_mediaServerCore == null)
         {
           return new NullReferenceException("No MediaServer object exists for the application.");
         }
-        bool flag = MediaServerCore2.serverCore.AddDirectory(directory);
-        this.mediaSharedDirectoryUpdateId++;
-        if (this.mediaSharedDirectoryUpdateId < 0)
+        bool flag = _mediaServerCore.AddDirectory(directory);
+        mediaSharedDirectoryUpdateId++;
+        if (mediaSharedDirectoryUpdateId < 0)
         {
-          this.mediaSharedDirectoryUpdateId = 1;
+          mediaSharedDirectoryUpdateId = 1;
         }
         return null;
       }
@@ -77,60 +92,31 @@ namespace Components.UPnPServer
     }
     public IDvMedia AddFile(DvMediaContainer2 parent, string file)
     {
-      return MediaServerCore2.serverCore.AddFile(parent, file);
+      return _mediaServerCore.AddFile(parent, file);
     }
 #endif
     public DvMediaContainer2 AddDirectory(DvMediaContainer2 parent, string subfolder)
     {
-      try
+      DvMediaContainer2 newContainer = _mediaServerCore.AddDirectory(parent, subfolder);
+      _mediaSharedDirectoryUpdateId++;
+      if (_mediaSharedDirectoryUpdateId < 0)
       {
-        if (MediaServerCore2.serverCore == null)
-        {
-          throw new NullReferenceException("No MediaServer object exists for the application.");
-        }
-        DvMediaContainer2 newContainer = MediaServerCore2.serverCore.AddDirectory(parent, subfolder);
-        this.mediaSharedDirectoryUpdateId++;
-        if (this.mediaSharedDirectoryUpdateId < 0)
-        {
-          this.mediaSharedDirectoryUpdateId = 1;
-        }
-        return newContainer;
+        _mediaSharedDirectoryUpdateId = 1;
       }
-      catch (Exception exception)
-      {
-//        EventLogger.Log(exception);
-        throw exception;
-      }
+      return newContainer;
     }
 
     public void DeserializeTree(BinaryFormatter formatter, FileStream fstream)
     {
-      if (MediaServerCore2.serverCore != null)
-      {
-        MediaServerCore2.serverCore.DeserializeTree(formatter, fstream);
-        this.mediaSharedDirectoryUpdateId++;
-      }
-    }
-
-    ~UPnPMediaServer2()
-    {
-      if (MediaServerCore2.serverCore != null)
-      {
-        MediaServerCore2.serverCore.OnStatsChanged -= new MediaServerCore2.MediaServerCore2EventHandler(this.MediaServerStatsChangedSink);
-        MediaServerCore2.serverCore.OnHttpTransfersChanged -= new MediaServerCore2.MediaServerCore2EventHandler(this.MediaHttpTransferssChangedSink);
-        MediaServerCore2.serverCore.OnDebugMessage -= new MediaServerCore2.MediaServerCore2DebugHandler(this.MediaServerCore2DebugSink);
-      }
+      _mediaServerCore.DeserializeTree(formatter, fstream);
+      _mediaSharedDirectoryUpdateId++;
     }
 
     public IList GetSharedDirectories()
     {
       try
       {
-        if (MediaServerCore2.serverCore == null)
-        {
-          return null;
-        }
-        return MediaServerCore2.serverCore.Directories;
+        return _mediaServerCore.Directories;
       }
       catch (Exception )
       {
@@ -143,11 +129,7 @@ namespace Components.UPnPServer
     {
       try
       {
-        if (MediaServerCore2.serverCore == null)
-        {
-          return null;
-        }
-        IList directories = MediaServerCore2.serverCore.Directories;
+        IList directories = _mediaServerCore.Directories;
         string[] strArray = new string[directories.Count];
         int index = 0;
         foreach (MediaServerCore2.SharedDirectoryInfo info in directories)
@@ -164,37 +146,37 @@ namespace Components.UPnPServer
       }
     }
 
-    private void MediaHttpTransferssChangedSink(MediaServerCore2 sender)
+    private void MediaHttpTransfersChangedSink(MediaServerCore2 sender)
     {
-      this.mediaHttpTransfersUpdateId++;
-      if (this.mediaHttpTransfersUpdateId < 0)
+      _mediaHttpTransfersUpdateId++;
+      if (_mediaHttpTransfersUpdateId < 0)
       {
-        this.mediaHttpTransfersUpdateId = 1;
+        _mediaHttpTransfersUpdateId = 1;
       }
-      if (this.MediaHttpTransfersChanged != null)
+      if (MediaHttpTransfersChanged != null)
       {
-        this.MediaHttpTransfersChanged();
+        MediaHttpTransfersChanged();
       }
     }
 
     private void MediaServerCore2DebugSink(MediaServerCore2 sender, string msg)
     {
-      if (this.MediaServerDebugMessage != null)
+      if (MediaServerDebugMessage != null)
       {
-        this.MediaServerDebugMessage(msg);
+        MediaServerDebugMessage(msg);
       }
     }
 
     private void MediaServerStatsChangedSink(MediaServerCore2 sender)
     {
-      this.mediaServerStatsUpdateId++;
-      if (this.mediaServerStatsUpdateId < 0)
+      _mediaServerStatsUpdateId++;
+      if (_mediaServerStatsUpdateId < 0)
       {
-        this.mediaServerStatsUpdateId = 1;
+        _mediaServerStatsUpdateId = 1;
       }
-      if (this.MediaServerStatsChanged != null)
+      if (MediaServerStatsChanged != null)
       {
-        this.MediaServerStatsChanged();
+        MediaServerStatsChanged();
       }
     }
 
@@ -202,15 +184,11 @@ namespace Components.UPnPServer
     {
       try
       {
-        if (MediaServerCore2.serverCore == null)
+        bool flag = _mediaServerCore.RemoveDirectory(directory);
+        _mediaSharedDirectoryUpdateId++;
+        if (_mediaSharedDirectoryUpdateId < 0)
         {
-          return false;
-        }
-        bool flag = MediaServerCore2.serverCore.RemoveDirectory(directory);
-        this.mediaSharedDirectoryUpdateId++;
-        if (this.mediaSharedDirectoryUpdateId < 0)
-        {
-          this.mediaSharedDirectoryUpdateId = 1;
+          _mediaSharedDirectoryUpdateId = 1;
         }
         return flag;
       }
@@ -223,33 +201,23 @@ namespace Components.UPnPServer
 
     public void ResetTree()
     {
-      if (MediaServerCore2.serverCore != null)
-      {
-        MediaServerCore2.serverCore.ResetCoreRoot();
-      }
+      _mediaServerCore.ResetCoreRoot();
     }
 
     public void SerializeTree(BinaryFormatter formatter, FileStream fstream)
     {
-      if (MediaServerCore2.serverCore != null)
-      {
-        MediaServerCore2.serverCore.SerializeTree(formatter, fstream);
-      }
+      _mediaServerCore.SerializeTree(formatter, fstream);
     }
 
     public bool UpdatePermissions(DirectoryInfo directory, bool restricted, bool allowWrite)
     {
       try
       {
-        if (MediaServerCore2.serverCore == null)
+        bool flag = _mediaServerCore.UpdatePermissions(directory, restricted, allowWrite);
+        _mediaSharedDirectoryUpdateId++;
+        if (_mediaSharedDirectoryUpdateId < 0)
         {
-          return false;
-        }
-        bool flag = MediaServerCore2.serverCore.UpdatePermissions(directory, restricted, allowWrite);
-        this.mediaSharedDirectoryUpdateId++;
-        if (this.mediaSharedDirectoryUpdateId < 0)
-        {
-          this.mediaSharedDirectoryUpdateId = 1;
+          _mediaSharedDirectoryUpdateId = 1;
         }
         return flag;
       }
@@ -267,12 +235,8 @@ namespace Components.UPnPServer
       {
         try
         {
-          if (MediaServerCore2.serverCore == null)
-          {
-            return null;
-          }
           ArrayList list = new ArrayList();
-          foreach (MediaServerDevice2.HttpTransfer transfer in MediaServerCore2.serverCore.HttpTransfers)
+          foreach (MediaServerDevice2.HttpTransfer transfer in _mediaServerCore.HttpTransfers)
           {
             MediaServerCore2.TransferStruct struct2 = new MediaServerCore2.TransferStruct();
             struct2.Incoming = transfer.Incoming;
@@ -295,50 +259,27 @@ namespace Components.UPnPServer
 
     public int MediaHttpTransfersUpdateId
     {
-      get
-      {
-        return this.mediaHttpTransfersUpdateId;
-      }
+      get { return _mediaHttpTransfersUpdateId; }
     }
 
     public int MediaServerStatsUpdateId
     {
-      get
-      {
-        return this.mediaServerStatsUpdateId;
-      }
+      get { return _mediaServerStatsUpdateId; }
     }
 
     public int MediaSharedDirectoryUpdateId
     {
-      get
-      {
-        return this.mediaSharedDirectoryUpdateId;
-      }
+      get { return _mediaSharedDirectoryUpdateId; }
     }
 
     public int TotalDirectoryCount
     {
-      get
-      {
-        if (MediaServerCore2.serverCore == null)
-        {
-          return 0;
-        }
-        return MediaServerCore2.serverCore.TotalDirectoryCount;
-      }
+      get { return _mediaServerCore.TotalDirectoryCount; }
     }
 
     public int TotalFileCount
     {
-      get
-      {
-        if (MediaServerCore2.serverCore == null)
-        {
-          return 0;
-        }
-        return MediaServerCore2.serverCore.TotalFileCount;
-      }
+      get { return _mediaServerCore.TotalFileCount; }
     }
 
     // Nested Types
@@ -346,6 +287,4 @@ namespace Components.UPnPServer
 
     public delegate void NotifyEvent();
   }
-
-
 }

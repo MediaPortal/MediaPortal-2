@@ -58,7 +58,6 @@ namespace Components.UPnPServer
     private MediaServerDevice2 mediaServer;
     private Hashtable permissionsTable = new Hashtable();
     private DvMediaContainer2 rootContainer;
-    internal static MediaServerCore2 serverCore;
     //private CMediaMetadataClass TheMetadataParser = null;
     private int totalDirectoryCount = 0;
     private int totalFileCount = 0;
@@ -75,12 +74,6 @@ namespace Components.UPnPServer
     // Methods
     public MediaServerCore2(string friendlyName)
     {
-      if (serverCore != null)
-      {
-        throw new Exception("Only a single MediaServerCode instance is allowed");
-      }
-      serverCore = this;
-//      EventLogger.SetLog("Media Server", "Intel Extended PC", "1.0.0.0");
       DeviceInfo info = new DeviceInfo();
       info.AllowRemoteContentManagement = true;
       info.FriendlyName = friendlyName;
@@ -99,21 +92,21 @@ namespace Components.UPnPServer
       info.CustomUDN = CustomUDN;
       info.INMPR03 = INMPR;
       MediaObject.ENCODE_UTF8 = false;
-      this.mediaServer = new MediaServerDevice2(info, null, true, "http-get:*:*:*", "");
-      this.mediaServer.OnStatsChanged += new MediaServerDevice2.Delegate_MediaServerHandler(this.StatsChangedChangedSink);
-      this.mediaServer.OnHttpTransfersChanged += new MediaServerDevice2.Delegate_MediaServerHandler(this.HttpTransfersChangedSink);
-      this.mediaServer.OnFileNotMapped = new MediaServerDevice2.Delegate_FileNotMappedHandler(this.Handle_OnRequestUnmappedFile);
-      this.mediaServer.OnRequestAddBranch = new MediaServerDevice2.Delegate_AddBranch(this.Handle_OnRequestAddBranch);
-      this.mediaServer.OnRequestRemoveBranch = new MediaServerDevice2.Delegate_RemoveBranch(this.Handle_OnRequestRemoveBranch);
-      this.mediaServer.OnRequestChangeMetadata = new MediaServerDevice2.Delegate_ChangeMetadata(this.Handle_OnRequestChangeMetadata);
-      this.mediaServer.OnRequestSaveBinary = new MediaServerDevice2.Delegate_ModifyBinary(this.Handle_OnRequestSaveBinary);
-      this.mediaServer.OnRequestDeleteBinary = new MediaServerDevice2.Delegate_ModifyBinary(this.Handle_OnRequestDeleteBinary);
+      mediaServer = new MediaServerDevice2(info, null, true, "http-get:*:*:*", "");
+      mediaServer.OnStatsChanged += StatsChangedChangedSink;
+      mediaServer.OnHttpTransfersChanged += HttpTransfersChangedSink;
+      mediaServer.OnFileNotMapped = Handle_OnRequestUnmappedFile;
+      mediaServer.OnRequestAddBranch = Handle_OnRequestAddBranch;
+      mediaServer.OnRequestRemoveBranch = Handle_OnRequestRemoveBranch;
+      mediaServer.OnRequestChangeMetadata = Handle_OnRequestChangeMetadata;
+      mediaServer.OnRequestSaveBinary = Handle_OnRequestSaveBinary;
+      mediaServer.OnRequestDeleteBinary = Handle_OnRequestDeleteBinary;
 
-      this.ResetCoreRoot();
-      this.m_DeviceWatcher = new UPnPDeviceWatcher(this.mediaServer._Device);
-      this.m_DeviceWatcher.OnSniff += new UPnPDeviceWatcher.SniffHandler(this.Sink_DeviceWatcherSniff);
-      this.mediaServer.Start();
-      this.m_Paused = false;
+      ResetCoreRoot();
+      m_DeviceWatcher = new UPnPDeviceWatcher(mediaServer._Device);
+      m_DeviceWatcher.OnSniff += Sink_DeviceWatcherSniff;
+      mediaServer.Start();
+      m_Paused = false;
     }
 
     public DvMediaContainer2 AddDirectory(DvMediaContainer2 parent, string subfolder)
@@ -122,7 +115,7 @@ namespace Components.UPnPServer
       DvMediaContainer2 newContainer = DvMediaBuilder2.CreateContainer(info);
       if (parent == null)
       {
-        this.rootContainer.AddObject(newContainer, true);
+        rootContainer.AddObject(newContainer, true);
       }
       else
       {
@@ -140,17 +133,17 @@ namespace Components.UPnPServer
     public bool AddDirectory(DirectoryInfo directory)
     {
       bool flag = false;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       Exception innerException = null;
       try
       {
-        flag = this.AddDirectoryEx(this.rootContainer, directory);
+        flag = AddDirectoryEx(rootContainer, directory);
       }
       catch (Exception exception2)
       {
         innerException = exception2;
       }
-      this.m_LockRoot.ReleaseMutex();
+      m_LockRoot.ReleaseMutex();
       if (innerException != null)
       {
         throw new ApplicationException("AddDirectory() Error", innerException);
@@ -168,30 +161,30 @@ namespace Components.UPnPServer
       folder.Searchable = true;
       folder.IsRestricted = false;
       DvMediaContainer2 container2 = DvMediaBuilder2.CreateContainer(folder);
-      container2.OnChildrenRemoved += new DvDelegates.Delegate_OnChildrenRemove(this.Sink_OnChildRemoved);
-      container2.Callback_UpdateMetadata = new DvMediaContainer2.Delegate_UpdateMetadata(this.Sink_UpdateContainerMetadata);
+      container2.OnChildrenRemoved += new DvDelegates.Delegate_OnChildrenRemove(Sink_OnChildRemoved);
+      container2.Callback_UpdateMetadata = new DvMediaContainer2.Delegate_UpdateMetadata(Sink_UpdateContainerMetadata);
       InnerMediaDirectory directory2 = new InnerMediaDirectory();
       directory2.directory = directory;
       directory2.directoryname = directory.FullName;
       directory2.watcher = new FileSystemWatcher(directory.FullName);
-      directory2.watcher.Changed += new FileSystemEventHandler(this.OnDirectoryChangedSink);
-      directory2.watcher.Created += new FileSystemEventHandler(this.OnDirectoryCreatedSink);
-      directory2.watcher.Deleted += new FileSystemEventHandler(this.OnDirectoryDeletedSink);
-      directory2.watcher.Renamed += new RenamedEventHandler(this.OnFileSystemRenameSink);
+      directory2.watcher.Changed += new FileSystemEventHandler(OnDirectoryChangedSink);
+      directory2.watcher.Created += new FileSystemEventHandler(OnDirectoryCreatedSink);
+      directory2.watcher.Deleted += new FileSystemEventHandler(OnDirectoryDeletedSink);
+      directory2.watcher.Renamed += new RenamedEventHandler(OnFileSystemRenameSink);
       directory2.restricted = true;
       directory2.readOnly = true;
-      this.watcherTable.Add(directory2.watcher, container2);
+      watcherTable.Add(directory2.watcher, container2);
       directory2.watcher.EnableRaisingEvents = true;
       container2.Tag = directory2;
       FileInfo[] files = directory.GetFiles();
       ArrayList newObjects = new ArrayList(files.Length);
       foreach (FileInfo info in files)
       {
-        IDvMedia media = this.CreateObjFromFile(info, new ArrayList());
+        IDvMedia media = CreateObjFromFile(info, new ArrayList());
         if (media != null)
         {
           newObjects.Add(media);
-          this.totalFileCount++;
+          totalFileCount++;
         }
       }
       container2.AddObjects(newObjects, true);
@@ -200,15 +193,15 @@ namespace Components.UPnPServer
       {
         if (media2.Class.IsA(MediaBuilder.StandardMediaClasses.AudioItem))
         {
-          this.m_AudioItems.AddReference((DvMediaItem2)media2);
+          m_AudioItems.AddReference((DvMediaItem2)media2);
         }
         else if (media2.Class.IsA(MediaBuilder.StandardMediaClasses.ImageItem))
         {
-          this.m_ImageItems.AddReference((DvMediaItem2)media2);
+          m_ImageItems.AddReference((DvMediaItem2)media2);
         }
         else if (media2.Class.IsA(MediaBuilder.StandardMediaClasses.VideoItem))
         {
-          this.m_VideoItems.AddReference((DvMediaItem2)media2);
+          m_VideoItems.AddReference((DvMediaItem2)media2);
         }
         else if (media2.Class.IsA(MediaBuilder.StandardMediaClasses.PlaylistContainer))
         {
@@ -277,18 +270,18 @@ namespace Components.UPnPServer
           {
             newObject.AddReference(item);
           }
-          this.m_Playlists.AddObject(newObject, true);
+          m_Playlists.AddObject(newObject, true);
         }
       }
       DirectoryInfo[] directories = directory.GetDirectories();
       foreach (DirectoryInfo info2 in directories)
       {
-        this.AddDirectoryEx(container2, info2);
+        AddDirectoryEx(container2, info2);
       }
-      this.totalDirectoryCount++;
-      if (this.OnStatsChanged != null)
+      totalDirectoryCount++;
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
       return true;
     }
@@ -514,7 +507,7 @@ namespace Components.UPnPServer
         attribs.contentUri = MediaResource.AUTOMAPFILE + file.FullName;
         attribs.protocolInfo = new ProtocolInfoString(protocolInfo);
         attribs.size = new _ULong((ulong)file.Length);
-        attribs.colorDepth = new _UInt(this.GetColorDepth(image.PixelFormat));
+        attribs.colorDepth = new _UInt(GetColorDepth(image.PixelFormat));
         attribs.resolution = new ImageDimensions(image.Width, image.Height);
         DvMediaResource addThis = DvResourceBuilder.CreateResource(attribs, true);
         addThis.Tag = file;
@@ -532,7 +525,7 @@ namespace Components.UPnPServer
           resource2.OverrideFileExtenstion = ".jpg";
           item.AddResource(resource2);
         }
-        float zoomFactor = this.GetZoomFactor(80, image);
+        float zoomFactor = GetZoomFactor(80, image);
         if (zoomFactor > 0.01)
         {
           int width = (int)(image.Width * zoomFactor);
@@ -569,11 +562,11 @@ namespace Components.UPnPServer
       long num3 = -1L;
       try
       {
-        if (this.TheMetadataParser == null)
+        if (TheMetadataParser == null)
         {
-          this.TheMetadataParser = new CMediaMetadataClass();
+          TheMetadataParser = new CMediaMetadataClass();
         }
-        this.TheMetadataParser.ParseMetadata_WindowsMediaPlayerFriendly(file.FullName, out fileNameWithoutExtension, out str2, out str3, out str4, out num2, out num, out num3);
+        TheMetadataParser.ParseMetadata_WindowsMediaPlayerFriendly(file.FullName, out fileNameWithoutExtension, out str2, out str3, out str4, out num2, out num, out num3);
       }
       catch (Exception)
       {
@@ -648,7 +641,7 @@ namespace Components.UPnPServer
         if (!Directory.Exists(path) && File.Exists(path))
         {
           FileInfo info = new FileInfo(path);
-          IDvMedia media = this.CreateObjFromFile(info, childPlaylists);
+          IDvMedia media = CreateObjFromFile(info, childPlaylists);
           media.WriteStatus = EnumWriteStatus.NOT_WRITABLE;
           media.IsRestricted = true;
           if (media != null)
@@ -669,7 +662,7 @@ namespace Components.UPnPServer
         }
       }
       reader.Close();
-      DvMediaResource addThis = this.BuildM3uResource(file, protInfo);
+      DvMediaResource addThis = BuildM3uResource(file, protInfo);
       container2.AddResource(addThis);
       return container2;
     }
@@ -688,23 +681,23 @@ namespace Components.UPnPServer
         case ".MPEG":
         case ".MPEG2":
         case ".MPG":
-          media = this.CreateItemFromGenericVideoFile(file);
+          media = CreateItemFromGenericVideoFile(file);
           break;
 
         case ".WAV":
         case ".WMA":
         case ".MP3":
           {
-            DvMediaItem2 item = this.CreateItemFromMp3WmaFile(file);
+            DvMediaItem2 item = CreateItemFromMp3WmaFile(file);
             if (item == null)
             {
-              item = this.CreateAudioItemFromFormatedNameFile(file);
+              item = CreateAudioItemFromFormatedNameFile(file);
             }
             media = item;
             break;
           }
         case ".M3U":
-          media = this.CreateM3uPlaylistContainer(file, childPlaylists);
+          media = CreateM3uPlaylistContainer(file, childPlaylists);
           break;
 
         case ".ASX":
@@ -715,15 +708,15 @@ namespace Components.UPnPServer
         case ".BMP":
         case ".TIF":
         case ".PNG":
-          media = this.CreateItemFromImageFile(file);
+          media = CreateItemFromImageFile(file);
           break;
 
         case ".CDSLNK":
-          media = this.CreateItemFromCdsLink(file);
+          media = CreateItemFromCdsLink(file);
           break;
 
         default:
-          media = this.CreateItemFromGenericFile(file);
+          media = CreateItemFromGenericFile(file);
           break;
       }
       if (media != null)
@@ -732,17 +725,17 @@ namespace Components.UPnPServer
       }
       if (mime != null)
       {
-        if (this.m_MimeTypes.Contains(mime))
+        if (m_MimeTypes.Contains(mime))
         {
           return media;
         }
-        this.m_MimeTypes.Add(mime);
-        ProtocolInfoString[] strArray = new ProtocolInfoString[this.m_MimeTypes.Count];
-        for (int i = 0; i < this.m_MimeTypes.Count; i++)
+        m_MimeTypes.Add(mime);
+        ProtocolInfoString[] strArray = new ProtocolInfoString[m_MimeTypes.Count];
+        for (int i = 0; i < m_MimeTypes.Count; i++)
         {
-          strArray[i] = new ProtocolInfoString("http-get:*:" + this.m_MimeTypes[i].ToString() + ":*");
+          strArray[i] = new ProtocolInfoString("http-get:*:" + m_MimeTypes[i].ToString() + ":*");
         }
-        this.mediaServer.SourceProtocolInfoSet = strArray;
+        mediaServer.SourceProtocolInfoSet = strArray;
       }
       return media;
     }
@@ -767,7 +760,7 @@ namespace Components.UPnPServer
       {
         if (media.IsContainer)
         {
-          this.AdjustContainer((DvMediaContainer2)media);
+          AdjustContainer((DvMediaContainer2)media);
         }
         else if (!media.IsReference)
         {
@@ -795,7 +788,7 @@ namespace Components.UPnPServer
       if (flag)
       {
         bool flag2;
-        this.totalDirectoryCount++;
+        totalDirectoryCount++;
         DirectoryInfo[] directories = tag.directory.GetDirectories();
         FileInfo[] files = tag.directory.GetFiles();
         IList containers = c.Containers;
@@ -814,7 +807,7 @@ namespace Components.UPnPServer
           }
           if (!flag2)
           {
-            this.AddDirectoryEx(c, info);
+            AddDirectoryEx(c, info);
           }
         }
         foreach (FileInfo info2 in files)
@@ -861,39 +854,39 @@ namespace Components.UPnPServer
           }
           if (!flag2)
           {
-            IDvMedia newObject = this.CreateObjFromFile(info2, new ArrayList());
+            IDvMedia newObject = CreateObjFromFile(info2, new ArrayList());
             c.AddObject(newObject, true);
           }
-          this.totalFileCount++;
+          totalFileCount++;
         }
         tag.watcher = new FileSystemWatcher(tag.directory.FullName);
-        tag.watcher.Changed += new FileSystemEventHandler(this.OnDirectoryChangedSink);
-        tag.watcher.Created += new FileSystemEventHandler(this.OnDirectoryCreatedSink);
-        tag.watcher.Deleted += new FileSystemEventHandler(this.OnDirectoryDeletedSink);
-        tag.watcher.Renamed += new RenamedEventHandler(this.OnFileSystemRenameSink);
+        tag.watcher.Changed += new FileSystemEventHandler(OnDirectoryChangedSink);
+        tag.watcher.Created += new FileSystemEventHandler(OnDirectoryCreatedSink);
+        tag.watcher.Deleted += new FileSystemEventHandler(OnDirectoryDeletedSink);
+        tag.watcher.Renamed += new RenamedEventHandler(OnFileSystemRenameSink);
       }
     }
 #endif
     public void ChangePauseState()
     {
-      if (this.IsPaused)
+      if (IsPaused)
       {
-        this.m_Paused = false;
-        this.mediaServer.Start();
+        m_Paused = false;
+        mediaServer.Start();
       }
       else
       {
-        this.m_Paused = true;
-        this.mediaServer.Stop();
+        m_Paused = true;
+        mediaServer.Stop();
       }
     }
 
     private void ClearContentHierarchy()
     {
-      IList completeList = this.rootContainer.CompleteList;
-      this.rootContainer.RemoveObjects(completeList);
-      this.totalDirectoryCount = 0;
-      this.totalFileCount = 0;
+      IList completeList = rootContainer.CompleteList;
+      rootContainer.RemoveObjects(completeList);
+      totalDirectoryCount = 0;
+      totalFileCount = 0;
       MediaBuilder.SetNextID(0L);
     }
 
@@ -919,9 +912,9 @@ namespace Components.UPnPServer
 
     private void Debug(string msg)
     {
-      if (this.OnDebugMessage != null)
+      if (OnDebugMessage != null)
       {
-        this.OnDebugMessage(this, msg);
+        OnDebugMessage(this, msg);
       }
     }
 
@@ -944,7 +937,7 @@ namespace Components.UPnPServer
         DvMediaContainer2 container2 = obj2 as DvMediaContainer2;
         if (container2 != null)
         {
-          this.DeserializeContainer(container2, formatter, fstream);
+          DeserializeContainer(container2, formatter, fstream);
           newObjects.Add(container2);
         }
         else
@@ -961,21 +954,20 @@ namespace Components.UPnPServer
 
     public void DeserializeTree(BinaryFormatter formatter, FileStream fstream)
     {
-      this.m_LockRoot.WaitOne();
-      Exception innerException = null;
+      m_LockRoot.WaitOne();
       try
       {
-        this.ClearContentHierarchy();
+        ClearContentHierarchy();
         DvMediaContainer2 newObj = (DvMediaContainer2)formatter.Deserialize(fstream);
-        this.mediaServer.Root.UpdateObject(newObj);
-        this.DeserializeContainer(this.mediaServer.Root, formatter, fstream);
+        mediaServer.Root.UpdateObject(newObj);
+        DeserializeContainer(mediaServer.Root, formatter, fstream);
         Hashtable hashtable = (Hashtable)formatter.Deserialize(fstream);
         Hashtable cache = new Hashtable();
         foreach (string str in hashtable.Keys)
         {
           string id = (string)hashtable[str];
-          DvMediaItem2 descendent = this.mediaServer.Root.GetDescendent(id, cache) as DvMediaItem2;
-          DvMediaItem2 refItem = this.mediaServer.Root.GetDescendent(str, cache) as DvMediaItem2;
+          DvMediaItem2 descendent = mediaServer.Root.GetDescendent(id, cache) as DvMediaItem2;
+          DvMediaItem2 refItem = mediaServer.Root.GetDescendent(str, cache) as DvMediaItem2;
           if ((descendent == null) || (refItem == null))
           {
             throw new NullReferenceException("At least one DvMediaItem2 is null.");
@@ -985,82 +977,35 @@ namespace Components.UPnPServer
         string newBaseID = (string)formatter.Deserialize(fstream);
         MediaBuilder.PrimeNextId(newBaseID);
 #if NOTUSED
-        this.AdjustContainer(this.mediaServer.Root);
+        AdjustContainer(mediaServer.Root);
 #endif
       }
       catch (Exception exception2)
       {
-        this.ClearContentHierarchy();
-        innerException = exception2;
+        ClearContentHierarchy();
+        throw;
       }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
+      finally
       {
-        throw new Exception("DeserializeTree() error", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
     public void Dispose()
     {
-      this.rootContainer = null;
-      this.mediaServer.Dispose();
-      this.mediaServer = null;
-      serverCore = null;
-      this.m_DeviceWatcher = null;
-      this.m_DeviceWatcher.OnSniff -= new UPnPDeviceWatcher.SniffHandler(this.Sink_DeviceWatcherSniff);
-    }
-
-    private uint GetColorDepth(PixelFormat pixelFormat)
-    {
-      switch (pixelFormat)
-      {
-        case PixelFormat.Format1bppIndexed:
-          return 1;
-
-        case PixelFormat.Format4bppIndexed:
-          return 12;
-
-        case PixelFormat.Format8bppIndexed:
-          return 8;
-
-        case PixelFormat.Format16bppRgb555:
-        case PixelFormat.Format16bppRgb565:
-        case PixelFormat.Format16bppArgb1555:
-        case PixelFormat.Format16bppGrayScale:
-          return 0x10;
-
-        case PixelFormat.Format24bppRgb:
-          return 0x18;
-
-        case PixelFormat.Format32bppRgb:
-        case PixelFormat.Format32bppPArgb:
-        case PixelFormat.Format32bppArgb:
-          return 0x20;
-
-        case PixelFormat.Format64bppArgb:
-        case PixelFormat.Format64bppPArgb:
-          return 0x40;
-
-        case PixelFormat.Format48bppRgb:
-          return 0x30;
-      }
-      return 0;
-    }
-
-    private float GetZoomFactor(int maxResXorY, Image image)
-    {
-      float num = 80f / ((float)image.Width);
-      float num2 = 80f / ((float)image.Height);
-      return Math.Min(num, num2);
+      rootContainer = null;
+      mediaServer.Dispose();
+      mediaServer = null;
+      m_DeviceWatcher.OnSniff -= Sink_DeviceWatcherSniff;
+      m_DeviceWatcher = null;
     }
 
     private void Handle_OnRequestAddBranch(MediaServerDevice2 sender, DvMediaContainer2 parentContainer, ref IDvMedia[] addTheseBranches)
     {
-      Exception innerException = null;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       try
       {
-        if (parentContainer == this.mediaServer.Root)
+        if (parentContainer == mediaServer.Root)
         {
           throw new Error_RestrictedObject("Cannot create objects directly in the root container.");
         }
@@ -1076,7 +1021,7 @@ namespace Components.UPnPServer
         }
         foreach (IDvMedia media in addTheseBranches)
         {
-          this.ValidateBranch(parentContainer, media, allowNewLocalResources);
+          ValidateBranch(parentContainer, media, allowNewLocalResources);
         }
         foreach (IDvMedia media in addTheseBranches)
         {
@@ -1086,25 +1031,19 @@ namespace Components.UPnPServer
           }
           else
           {
-            this.ModifyLocalFileSystem(parentContainer, media);
+            ModifyLocalFileSystem(parentContainer, media);
           }
         }
       }
-      catch (Exception exception2)
+      finally
       {
-        innerException = exception2;
-      }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
-      {
-        throw new ApplicationException("Handle_OnRequestAddBranch()", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
     private void Handle_OnRequestChangeMetadata(MediaServerDevice2 sender, IDvMedia oldObject, IDvMedia newObject)
     {
-      Exception innerException = null;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       try
       {
         if (oldObject.IsRestricted)
@@ -1142,21 +1081,15 @@ namespace Components.UPnPServer
           }
         }
       }
-      catch (Exception exception2)
+      finally
       {
-        innerException = exception2;
-      }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
-      {
-        throw new ApplicationException("Handle_OnRequestChangeMetadata()", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
     private void Handle_OnRequestDeleteBinary(MediaServerDevice2 sender, IDvResource res)
     {
-      Exception innerException = null;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       try
       {
         if (!res.AllowImport)
@@ -1167,40 +1100,28 @@ namespace Components.UPnPServer
           File.Delete(res.ContentUri.Substring(MediaResource.AUTOMAPFILE.Length));
         }
       }
-      catch (Exception exception2)
+      finally
       {
-        innerException = exception2;
-      }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
-      {
-        throw new ApplicationException("Handle_OnRequestDeleteBinary()", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
     private void Handle_OnRequestRemoveBranch(MediaServerDevice2 sender, DvMediaContainer2 parentContainer, IDvMedia removeThisBranch)
     {
-      Exception innerException = null;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       try
       {
         parentContainer.RemoveBranch(removeThisBranch);
       }
-      catch (Exception exception2)
+      finally
       {
-        innerException = exception2;
-      }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
-      {
-        throw new ApplicationException("Handle_OnRequestRemoveBranch()", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
     private void Handle_OnRequestSaveBinary(MediaServerDevice2 sender, IDvResource res)
     {
-      Exception innerException = null;
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       try
       {
         if (!res.AllowImport)
@@ -1208,14 +1129,9 @@ namespace Components.UPnPServer
           throw new Error_AccessDenied("The resource cannot be overwritten or created.");
         }
       }
-      catch (Exception exception2)
+      finally
       {
-        innerException = exception2;
-      }
-      this.m_LockRoot.ReleaseMutex();
-      if (innerException != null)
-      {
-        throw new ApplicationException("Handle_OnRequestSaveBinary()", innerException);
+        m_LockRoot.ReleaseMutex();
       }
     }
 
@@ -1275,7 +1191,7 @@ namespace Components.UPnPServer
           {
             if (resource.ContentUri.StartsWith(MediaResource.AUTOMAPFILE))
             {
-              builder2.AppendFormat("http://{0}/{1}{2}", localInterface, this.mediaServer.VirtualDirName, resource.RelativeContentUri);
+              builder2.AppendFormat("http://{0}/{1}{2}", localInterface, mediaServer.VirtualDirName, resource.RelativeContentUri);
             }
             else
             {
@@ -1303,9 +1219,9 @@ namespace Components.UPnPServer
 
     public void HttpTransfersChangedSink(MediaServerDevice2 sender)
     {
-      if (this.OnHttpTransfersChanged != null)
+      if (OnHttpTransfersChanged != null)
       {
-        this.OnHttpTransfersChanged(this);
+        OnHttpTransfersChanged(this);
       }
     }
 
@@ -1335,7 +1251,7 @@ namespace Components.UPnPServer
         }
         foreach (IDvMedia media in container2.CompleteList)
         {
-          this.ModifyLocalFileSystem(container2, media);
+          ModifyLocalFileSystem(container2, media);
         }
       }
     }
@@ -1348,25 +1264,25 @@ namespace Components.UPnPServer
     {
 #if NOTUSED
       FileSystemWatcher watcher = (FileSystemWatcher)sender;
-      DvMediaContainer2 container = (DvMediaContainer2)this.watcherTable[watcher];
-      if ((container == null) && (this.OnDebugMessage != null))
+      DvMediaContainer2 container = (DvMediaContainer2)watcherTable[watcher];
+      if ((container == null) && (OnDebugMessage != null))
       {
-        this.OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
+        OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
       }
       if (File.Exists(e.FullPath))
       {
-        container.AddBranch(this.CreateObjFromFile(new FileInfo(e.FullPath), new ArrayList()));
-        this.totalFileCount++;
-        this.Debug("File System Create: " + e.Name);
-        if (this.OnStatsChanged != null)
+        container.AddBranch(CreateObjFromFile(new FileInfo(e.FullPath), new ArrayList()));
+        totalFileCount++;
+        Debug("File System Create: " + e.Name);
+        if (OnStatsChanged != null)
         {
-          this.OnStatsChanged(this);
+          OnStatsChanged(this);
         }
       }
       else if (Directory.Exists(e.FullPath))
       {
-        this.AddDirectoryEx(container, new DirectoryInfo(e.FullPath));
-        this.Debug("File System Dir Create: " + e.Name);
+        AddDirectoryEx(container, new DirectoryInfo(e.FullPath));
+        Debug("File System Dir Create: " + e.Name);
       }
 #endif
     }
@@ -1375,10 +1291,10 @@ namespace Components.UPnPServer
     {
       #if NOTUSED
       FileSystemWatcher watcher = (FileSystemWatcher)sender;
-      DvMediaContainer2 container = (DvMediaContainer2)this.watcherTable[watcher];
-      if ((container == null) && (this.OnDebugMessage != null))
+      DvMediaContainer2 container = (DvMediaContainer2)watcherTable[watcher];
+      if ((container == null) && (OnDebugMessage != null))
       {
-        this.OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
+        OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
       }
       DvMediaItem2 branch = null;
       foreach (DvMediaItem2 item2 in container.Items)
@@ -1395,12 +1311,12 @@ namespace Components.UPnPServer
       if (branch != null)
       {
         container.RemoveBranch(branch);
-        this.totalFileCount--;
-        if (this.OnStatsChanged != null)
+        totalFileCount--;
+        if (OnStatsChanged != null)
         {
-          this.OnStatsChanged(this);
+          OnStatsChanged(this);
         }
-        this.Debug("File System Delete: " + e.Name);
+        Debug("File System Delete: " + e.Name);
       }
       else
       {
@@ -1416,13 +1332,13 @@ namespace Components.UPnPServer
         }
         if (container2 != null)
         {
-          this.RemoveContainerEx(container2);
+          RemoveContainerEx(container2);
           container.RemoveBranch(container2);
-          this.Debug("File System Dir Delete: " + e.Name);
+          Debug("File System Dir Delete: " + e.Name);
         }
         else
         {
-          this.Debug("FAILED File System Delete: " + e.Name);
+          Debug("FAILED File System Delete: " + e.Name);
         }
       }
 #endif
@@ -1432,10 +1348,10 @@ namespace Components.UPnPServer
     {
 #if NOTUSED
       FileSystemWatcher watcher = (FileSystemWatcher)sender;
-      DvMediaContainer2 container = (DvMediaContainer2)this.watcherTable[watcher];
-      if ((container == null) && (this.OnDebugMessage != null))
+      DvMediaContainer2 container = (DvMediaContainer2)watcherTable[watcher];
+      if ((container == null) && (OnDebugMessage != null))
       {
-        this.OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
+        OnDebugMessage(this, "WATCH EVENT FOR UNKNOWN CONTAINER");
       }
       if (File.Exists(e.FullPath))
       {
@@ -1455,12 +1371,12 @@ namespace Components.UPnPServer
         if (branch != null)
         {
           container.RemoveBranch(branch);
-          container.AddBranch(this.CreateObjFromFile(new FileInfo(e.FullPath), new ArrayList()));
-          this.Debug("File System Rename: " + e.OldName + "->" + e.Name);
+          container.AddBranch(CreateObjFromFile(new FileInfo(e.FullPath), new ArrayList()));
+          Debug("File System Rename: " + e.OldName + "->" + e.Name);
         }
         else
         {
-          this.Debug("FAILED File System Rename: " + e.OldName + "->" + e.Name);
+          Debug("FAILED File System Rename: " + e.OldName + "->" + e.Name);
         }
       }
       else if (Directory.Exists(e.FullPath))
@@ -1477,14 +1393,14 @@ namespace Components.UPnPServer
         }
         if (container2 != null)
         {
-          this.RemoveContainerEx(container2);
+          RemoveContainerEx(container2);
           container.RemoveBranch(container2);
-          this.AddDirectoryEx(container, new DirectoryInfo(e.FullPath));
-          this.Debug("File System Dir Rename: " + e.OldName + "->" + e.Name);
+          AddDirectoryEx(container, new DirectoryInfo(e.FullPath));
+          Debug("File System Dir Rename: " + e.OldName + "->" + e.Name);
         }
         else
         {
-          this.Debug("FAILED File System Dir Rename: " + e.OldName + "->" + e.Name);
+          Debug("FAILED File System Dir Rename: " + e.OldName + "->" + e.Name);
         }
       }
 #endif
@@ -1494,27 +1410,27 @@ namespace Components.UPnPServer
     {
       InnerMediaDirectory tag = (InnerMediaDirectory)container.Tag;
       tag.watcher.EnableRaisingEvents = false;
-      this.watcherTable.Remove(tag.watcher);
-      tag.watcher.Changed -= new FileSystemEventHandler(this.OnDirectoryChangedSink);
-      tag.watcher.Created -= new FileSystemEventHandler(this.OnDirectoryCreatedSink);
-      tag.watcher.Deleted -= new FileSystemEventHandler(this.OnDirectoryDeletedSink);
-      tag.watcher.Renamed -= new RenamedEventHandler(this.OnFileSystemRenameSink);
+      watcherTable.Remove(tag.watcher);
+      tag.watcher.Changed -= OnDirectoryChangedSink;
+      tag.watcher.Created -= OnDirectoryCreatedSink;
+      tag.watcher.Deleted -= OnDirectoryDeletedSink;
+      tag.watcher.Renamed -= OnFileSystemRenameSink;
       tag.watcher.Dispose();
       tag.watcher = null;
       tag.directory = null;
-      this.RemoveInnerContainers(container);
-      this.totalDirectoryCount--;
-      this.totalFileCount -= container.Items.Count;
-      if (this.OnStatsChanged != null)
+      RemoveInnerContainers(container);
+      totalDirectoryCount--;
+      totalFileCount -= container.Items.Count;
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
     }
 
     public bool RemoveDirectory(DirectoryInfo directory)
     {
       DvMediaContainer2 container = null;
-      foreach (DvMediaContainer2 container2 in this.rootContainer.Containers)
+      foreach (DvMediaContainer2 container2 in rootContainer.Containers)
       {
         InnerMediaDirectory tag = (InnerMediaDirectory)container2.Tag;
         if ((tag != null) && (directory.FullName == tag.directory.FullName))
@@ -1527,11 +1443,11 @@ namespace Components.UPnPServer
       {
         return false;
       }
-      this.RemoveContainerEx(container);
-      this.rootContainer.RemoveBranch(container);
-      if (this.OnStatsChanged != null)
+      RemoveContainerEx(container);
+      rootContainer.RemoveBranch(container);
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
       return true;
     }
@@ -1544,26 +1460,26 @@ namespace Components.UPnPServer
         if (tag != null)
         {
           tag.watcher.EnableRaisingEvents = false;
-          this.watcherTable.Remove(tag.watcher);
-          tag.watcher.Changed -= new FileSystemEventHandler(this.OnDirectoryChangedSink);
-          tag.watcher.Created -= new FileSystemEventHandler(this.OnDirectoryCreatedSink);
-          tag.watcher.Deleted -= new FileSystemEventHandler(this.OnDirectoryDeletedSink);
-          tag.watcher.Renamed -= new RenamedEventHandler(this.OnFileSystemRenameSink);
+          watcherTable.Remove(tag.watcher);
+          tag.watcher.Changed -= OnDirectoryChangedSink;
+          tag.watcher.Created -= OnDirectoryCreatedSink;
+          tag.watcher.Deleted -= OnDirectoryDeletedSink;
+          tag.watcher.Renamed -= OnFileSystemRenameSink;
           tag.watcher.Dispose();
           tag.watcher = null;
           tag.directory = null;
-          this.RemoveInnerContainers(container2);
-          this.totalFileCount -= container2.Items.Count;
+          RemoveInnerContainers(container2);
+          totalFileCount -= container2.Items.Count;
           container.RemoveBranch(container2);
-          this.totalDirectoryCount--;
-          if (this.OnStatsChanged != null)
+          totalDirectoryCount--;
+          if (OnStatsChanged != null)
           {
-            this.OnStatsChanged(this);
+            OnStatsChanged(this);
           }
         }
         else if (container2.Tag.GetType() == typeof(FileInfo))
         {
-          this.totalFileCount--;
+          totalFileCount--;
         }
       }
     }
@@ -1571,7 +1487,7 @@ namespace Components.UPnPServer
     public void ResetCoreRoot()
     {
       MediaBuilder.SetNextID(0L);
-      this.rootContainer = this.mediaServer.Root;
+      rootContainer = mediaServer.Root;
       /*
       MediaBuilder.container info = new MediaBuilder.container("All Image Items");
       info.IsRestricted = true;
@@ -1581,15 +1497,14 @@ namespace Components.UPnPServer
       container3.IsRestricted = true;
       MediaBuilder.container container4 = new MediaBuilder.container("All Playlists");
       container4.IsRestricted = true;
-      this.m_ImageItems = DvMediaBuilder2.CreateContainer(info);
-      this.m_AudioItems = DvMediaBuilder2.CreateContainer(container2);
-      this.m_VideoItems = DvMediaBuilder2.CreateContainer(container3);
-      this.m_Playlists = DvMediaBuilder2.CreateContainer(container4);
-      this.rootContainer.AddObject(this.m_ImageItems, true);
-      this.rootContainer.AddObject(this.m_AudioItems, true);
-      this.rootContainer.AddObject(this.m_VideoItems, true);
-      this.rootContainer.AddObject(this.m_Playlists, true);*/
-
+      m_ImageItems = DvMediaBuilder2.CreateContainer(info);
+      m_AudioItems = DvMediaBuilder2.CreateContainer(container2);
+      m_VideoItems = DvMediaBuilder2.CreateContainer(container3);
+      m_Playlists = DvMediaBuilder2.CreateContainer(container4);
+      rootContainer.AddObject(m_ImageItems, true);
+      rootContainer.AddObject(m_AudioItems, true);
+      rootContainer.AddObject(m_VideoItems, true);
+      rootContainer.AddObject(m_Playlists, true);*/
     }
 
     private void SerializeContainer(BinaryFormatter formatter, FileStream fstream, DvMediaContainer2 container, Hashtable refItems)
@@ -1603,7 +1518,7 @@ namespace Components.UPnPServer
         DvMediaItem2 graph = media as DvMediaItem2;
         if (container2 != null)
         {
-          this.SerializeContainer(formatter, fstream, container2, refItems);
+          SerializeContainer(formatter, fstream, container2, refItems);
         }
         else
         {
@@ -1612,7 +1527,7 @@ namespace Components.UPnPServer
             throw new ApplicationException("The MediaServer has a IUPnPMedia item with ID=\"" + media.ID + "\" that is neither a DvMediaItem2 nor a DvMediaContainer2.");
           }
           formatter.Serialize(fstream, graph);
-          if (graph.IsReference && ((graph.RefID != null) && (graph.RefID != "")))
+          if (graph.IsReference && !string.IsNullOrEmpty(graph.RefID))
           {
             refItems[graph.ID] = graph.RefID;
           }
@@ -1622,12 +1537,12 @@ namespace Components.UPnPServer
 
     public void SerializeTree(BinaryFormatter formatter, FileStream fstream)
     {
-      this.m_LockRoot.WaitOne();
+      m_LockRoot.WaitOne();
       Exception innerException = null;
       try
       {
         Hashtable refItems = new Hashtable();
-        this.SerializeContainer(formatter, fstream, this.mediaServer.Root, refItems);
+        SerializeContainer(formatter, fstream, mediaServer.Root, refItems);
         formatter.Serialize(fstream, refItems);
         string mostRecentUniqueId = MediaBuilder.GetMostRecentUniqueId();
         formatter.Serialize(fstream, mostRecentUniqueId);
@@ -1644,10 +1559,10 @@ namespace Components.UPnPServer
 
     private void Sink_DeviceWatcherSniff(byte[] raw, int offset, int length)
     {
-      string socketData = this.UTF8.GetString(raw, offset, length);
-      if (this.OnSocketData != null)
+      string socketData = UTF8.GetString(raw, offset, length);
+      if (OnSocketData != null)
       {
-        this.OnSocketData(this, socketData);
+        OnSocketData(this, socketData);
       }
     }
 
@@ -1658,7 +1573,7 @@ namespace Components.UPnPServer
         DvMediaContainer2 container = media as DvMediaContainer2;
         if (container != null)
         {
-          container.OnChildrenRemoved -= new DvDelegates.Delegate_OnChildrenRemove(this.Sink_OnChildRemoved);
+          container.OnChildrenRemoved -= new DvDelegates.Delegate_OnChildrenRemove(Sink_OnChildRemoved);
           container.Callback_UpdateMetadata = null;
         }
       }
@@ -1670,16 +1585,16 @@ namespace Components.UPnPServer
 
     public void StatsChangedChangedSink(MediaServerDevice2 sender)
     {
-      if (this.OnStatsChanged != null)
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
     }
 
     public bool UpdatePermissions(DirectoryInfo directory, bool restricted, bool readOnly)
     {
       DvMediaContainer2 container = null;
-      foreach (DvMediaContainer2 container2 in this.rootContainer.Containers)
+      foreach (DvMediaContainer2 container2 in rootContainer.Containers)
       {
         InnerMediaDirectory directory2 = (InnerMediaDirectory)container2.Tag;
         if ((directory2 != null) && (directory.FullName == directory2.directory.FullName))
@@ -1695,10 +1610,10 @@ namespace Components.UPnPServer
       InnerMediaDirectory tag = (InnerMediaDirectory)container.Tag;
       tag.restricted = restricted;
       tag.readOnly = readOnly;
-      this.UpdatePermissionsEx(container, restricted, readOnly);
-      if (this.OnStatsChanged != null)
+      UpdatePermissionsEx(container, restricted, readOnly);
+      if (OnStatsChanged != null)
       {
-        this.OnStatsChanged(this);
+        OnStatsChanged(this);
       }
       return true;
     }
@@ -1723,7 +1638,7 @@ namespace Components.UPnPServer
       }
       foreach (DvMediaContainer2 container2 in container.Containers)
       {
-        this.UpdatePermissionsEx(container2, restricted, readOnly);
+        UpdatePermissionsEx(container2, restricted, readOnly);
       }
     }
 
@@ -1764,7 +1679,7 @@ namespace Components.UPnPServer
         container2 = (DvMediaContainer2)branch;
         foreach (IDvMedia media in container2.CompleteList)
         {
-          this.ValidateBranch(container2, media, allowNewLocalResources);
+          ValidateBranch(container2, media, allowNewLocalResources);
         }
       }
       else if (!branch.IsItem)
@@ -1830,7 +1745,7 @@ namespace Components.UPnPServer
       get
       {
         ArrayList list = new ArrayList();
-        foreach (DvMediaContainer2 container in this.rootContainer.Containers)
+        foreach (DvMediaContainer2 container in rootContainer.Containers)
         {
           InnerMediaDirectory tag = (InnerMediaDirectory)container.Tag;
           if (tag != null)
@@ -1848,66 +1763,39 @@ namespace Components.UPnPServer
 
     public IList HttpTransfers
     {
-      get
-      {
-        return this.mediaServer.HttpTransfers;
-      }
+      get { return mediaServer.HttpTransfers; }
     }
 
     public bool IsPaused
     {
-      get
-      {
-        return this.m_Paused;
-      }
+      get { return m_Paused; }
     }
 
     public string SearchCapabilities
     {
-      get
-      {
-        return this.mediaServer.SearchCapabilities;
-      }
-      set
-      {
-        this.mediaServer.SearchCapabilities = value;
-      }
+      get { return mediaServer.SearchCapabilities; }
+      set { mediaServer.SearchCapabilities = value; }
     }
 
     public string SortCapabilities
     {
-      get
-      {
-        return this.mediaServer.SortCapabilities;
-      }
-      set
-      {
-        this.mediaServer.SortCapabilities = value;
-      }
+      get { return mediaServer.SortCapabilities; }
+      set { mediaServer.SortCapabilities = value; }
     }
 
     public MediaServerDevice2.Statistics Statistics
     {
-      get
-      {
-        return this.mediaServer.Stats;
-      }
+      get { return mediaServer.Stats; }
     }
 
     public int TotalDirectoryCount
     {
-      get
-      {
-        return this.totalDirectoryCount;
-      }
+      get { return totalDirectoryCount; }
     }
 
     public int TotalFileCount
     {
-      get
-      {
-        return this.totalFileCount;
-      }
+      get { return totalFileCount; }
     }
 
     // Nested Types
@@ -1949,6 +1837,4 @@ namespace Components.UPnPServer
       public long ResourcePosition;
     }
   }
-
-
 }

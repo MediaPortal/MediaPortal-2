@@ -25,16 +25,15 @@
 using System.Collections;
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
-//using MetadataParser;
 
 namespace Components.UPnPServer
 {
   public class DvMediaBuilder2
   {
     // Methods
-    public static ArrayList BuildMediaBranches(string DidlLiteXml)
+    public static IList BuildMediaBranches(string DidlLiteXml)
     {
-      ArrayList list = MediaBuilder.BuildMediaBranches(DidlLiteXml, typeof(DvMediaItem2), typeof(DvMediaContainer2));
+      IList list = MediaBuilder.BuildMediaBranches(DidlLiteXml, typeof(DvMediaItem2), typeof(DvMediaContainer2));
       foreach (IDvMedia media in list)
       {
         EnableMetadataTracking(media);
