@@ -135,8 +135,8 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
             for (int i = 0; i < count; ++i)
             {
               Thumb thumb = new Thumb();
-              thumb.ImageType = (ImageType) reader.ReadInt32();
               thumb.Name = reader.ReadString();
+              thumb.ImageType = (ImageType)reader.ReadInt32();
               thumb.Offset = reader.ReadInt64();
               thumb.Size = reader.ReadInt64();
               string thumbPath = Path.Combine(_folderPath, thumb.Name);
