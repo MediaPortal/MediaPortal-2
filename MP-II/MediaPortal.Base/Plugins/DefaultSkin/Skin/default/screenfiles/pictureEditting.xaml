@@ -2,7 +2,7 @@
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model RegistrationLocation=mypicture,Id=PictureModel}}"
+    DataContext="{Binding Source={Model RegistrationLocation=Pictures,Id=PictureModel}}"
     FocusedElement="{Binding ElementName=cropButton}"
     History="False">
 
