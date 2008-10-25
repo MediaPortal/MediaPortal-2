@@ -255,7 +255,7 @@ namespace Models.Pictures
     /// Gets or sets the m_ExposureTime property.
     /// </summary>
     /// <value>The m_ExposureTime property.</value>
-    public Property  ExposureTimeProperty
+    public Property ExposureTimeProperty
     {
       get { return m_ExposureTime; }
       set { m_ExposureTime = value; }
@@ -265,7 +265,7 @@ namespace Models.Pictures
     /// Property to get/set the m_Flash field of the picture file
     /// </summary>
     /// 
-    public string  Flash
+    public string Flash
     {
       get { return (string)m_Flash.GetValue(); }
       set { m_Flash.SetValue(value); }
@@ -275,7 +275,7 @@ namespace Models.Pictures
     /// Gets or sets the m_Flash property.
     /// </summary>
     /// <value>The m_Flash property.</value>
-    public Property  FlashProperty
+    public Property FlashProperty
     {
       get { return m_Flash; }
       set { m_Flash = value; }
@@ -285,7 +285,7 @@ namespace Models.Pictures
     /// Property to get/set the m_MeteringMod field of the picture file
     /// </summary>
     /// 
-    public string  MeteringMod
+    public string MeteringMod
     {
       get { return (string)m_MeteringMod.GetValue(); }
       set { m_MeteringMod.SetValue(value); }
@@ -295,7 +295,7 @@ namespace Models.Pictures
     /// Gets or sets the m_MeteringMod property.
     /// </summary>
     /// <value>The m_MeteringMod property.</value>
-    public Property  MeteringModProperty
+    public Property MeteringModProperty
     {
       get { return m_MeteringMod; }
       set { m_MeteringMod = value; }
@@ -305,7 +305,7 @@ namespace Models.Pictures
     /// Property to get/set the m_Fstop field of the picture file
     /// </summary>
     /// 
-    public string  Fstop
+    public string Fstop
     {
       get { return (string)m_Fstop.GetValue(); }
       set { m_Fstop.SetValue(value); }
@@ -345,7 +345,7 @@ namespace Models.Pictures
     /// Property to get/set the m_ShutterSpeed field of the picture file
     /// </summary>
     /// 
-    public string  ShutterSpeed
+    public string ShutterSpeed
     {
       get { return (string)m_ShutterSpeed.GetValue(); }
       set { m_ShutterSpeed.SetValue(value); }
@@ -355,7 +355,7 @@ namespace Models.Pictures
     /// Gets or sets the m_ShutterSpeed property.
     /// </summary>
     /// <value>The m_ShutterSpeed property.</value>
-    public Property  ShutterSpeedProperty
+    public Property ShutterSpeedProperty
     {
       get { return m_ShutterSpeed; }
       set { m_ShutterSpeed = value; }
@@ -365,7 +365,7 @@ namespace Models.Pictures
     /// Property to get/set the m_Resolutions field of the picture file
     /// </summary>
     /// 
-    public string   Resolutions
+    public string Resolutions
     {
       get { return (string)m_Resolutions.GetValue(); }
       set { m_Resolutions.SetValue(value); }
@@ -375,7 +375,7 @@ namespace Models.Pictures
     /// Gets or sets the m_Resolutions property.
     /// </summary>
     /// <value>The m_Resolutions property.</value>
-    public Property   ResolutionsProperty
+    public Property ResolutionsProperty
     {
       get { return m_Resolutions; }
       set { m_Resolutions = value; }
@@ -385,7 +385,7 @@ namespace Models.Pictures
     /// Property to get/set the m_ViewComment field of the picture file
     /// </summary>
     /// 
-    public string   ViewComment
+    public string ViewComment
     {
       get { return (string)m_ViewComment.GetValue(); }
       set { m_ViewComment.SetValue(value); }
@@ -395,7 +395,7 @@ namespace Models.Pictures
     /// Gets or sets the m_ViewComment property.
     /// </summary>
     /// <value>The m_ViewComment property.</value>
-    public Property   ViewCommentProperty
+    public Property ViewCommentProperty
     {
       get { return m_ViewComment; }
       set { m_ViewComment = value; }

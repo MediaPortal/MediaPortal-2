@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using Intel.UPNP.AV.CdsMetadata;
 using Intel.UPNP.AV.MediaServer.CP;
-using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 using IRootContainer = MediaPortal.Media.MediaManager.IRootContainer;
 using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
@@ -89,7 +88,7 @@ namespace Media.Providers.UpNpProvider
       }
       set { }
     }
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get
       {

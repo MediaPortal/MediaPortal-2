@@ -62,9 +62,9 @@ namespace Models.PlayList
 
       }
     }
-    void MapMetaData(IMetaDataMappingCollection mapping, int sortMethod, Dictionary<string, object> localMetaData, IAbstractMediaItem mediaItem, ListItem newItem)
+    void MapMetaData(IMetaDataMappingCollection mapping, int sortMethod, IDictionary<string, object> localMetaData, IAbstractMediaItem mediaItem, ListItem newItem)
     {
-      Dictionary<string, object> metadata;
+      IDictionary<string, object> metadata;
       if (mediaItem == null)
       {
         metadata = localMetaData;

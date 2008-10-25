@@ -36,7 +36,7 @@ namespace Components.Services.MediaManager.Views
   {
     private View _view;
     private int _currentSubView;
-    private readonly List<IMediaItem> _history;
+    private readonly IList<IMediaItem> _history;
 
     public ViewNavigator(View view)
     {
@@ -65,7 +65,7 @@ namespace Components.Services.MediaManager.Views
     /// Loads the first subview and returns a list of all items found.
     /// </summary>
     /// <returns>a list containing all items found</returns>
-    public List<IAbstractMediaItem> Get(IRootContainer root, IRootContainer parent)
+    public IList<IAbstractMediaItem> Get(IRootContainer root, IRootContainer parent)
     {
       //select first subview and clear the history
       _currentSubView = 0;
@@ -81,7 +81,7 @@ namespace Components.Services.MediaManager.Views
     /// <returns>
     /// a list containing all item found
     /// </returns>
-    public List<IAbstractMediaItem> Get(IMediaItem item, IRootContainer root, IRootContainer parent)
+    public IList<IAbstractMediaItem> Get(IMediaItem item, IRootContainer root, IRootContainer parent)
     {
       if (_view.Type == "shares")
       {
@@ -111,7 +111,7 @@ namespace Components.Services.MediaManager.Views
           _history.RemoveAt(_history.Count - 1);
         }
       }
-      else if (item != null && parent != null && parent.Parent != null && item.FullPath == parent.Parent.FullPath)
+      else if (parent != null && parent.Parent != null && item.FullPath == parent.Parent.FullPath)
       {
         if (_currentSubView > 0)
         {
@@ -127,7 +127,7 @@ namespace Components.Services.MediaManager.Views
       }
 
       bool lastSubView = (_currentSubView == _view.SubViews.Count - 1);
-      List<IAbstractMediaItem> items = null;
+      IList<IAbstractMediaItem> items = null;
       if (_currentSubView > 0)
       {
         // make a new dynamic query which includes the query of the subview
@@ -172,11 +172,11 @@ namespace Components.Services.MediaManager.Views
       return items;
     }
 
-    List<IAbstractMediaItem> GetShares(IRootContainer root, IRootContainer parent)
+    IList<IAbstractMediaItem> GetShares(IRootContainer root, IRootContainer parent)
     {
-      List<IRootContainer> items = ServiceScope.Get<IMediaManager>().RootContainers;
+      IList<IRootContainer> items = ServiceScope.Get<IMediaManager>().RootContainers;
 
-      List<IAbstractMediaItem> returnItems = new List<IAbstractMediaItem>();
+      IList<IAbstractMediaItem> returnItems = new List<IAbstractMediaItem>();
       IMetaDataMappingCollection mapColl = ServiceScope.Get<IMetadataMappingProvider>().Get(_view.SubViews[0].MappingTable);
       foreach (IRootContainer container in items)
       {
@@ -187,7 +187,7 @@ namespace Components.Services.MediaManager.Views
       return returnItems;
     }
 
-    List<IAbstractMediaItem> GetView(IView view, IRootContainer root, IRootContainer parent)
+    IList<IAbstractMediaItem> GetView(IView view, IRootContainer root, IRootContainer parent)
     {
       IMetaDataMappingCollection mapColl = ServiceScope.Get<IMetadataMappingProvider>().Get(view.MappingTable);
       IMediaManager manager = ServiceScope.Get<IMediaManager>();
@@ -200,7 +200,7 @@ namespace Components.Services.MediaManager.Views
           {
             return items;
           }
-          List<IAbstractMediaItem> returnItems = new List<IAbstractMediaItem>();
+          IList<IAbstractMediaItem> returnItems = new List<IAbstractMediaItem>();
           foreach (IAbstractMediaItem abstractItem in items)
           {
             ViewContainer container = new ViewContainer(this, root, parent, (IMediaItem)abstractItem);

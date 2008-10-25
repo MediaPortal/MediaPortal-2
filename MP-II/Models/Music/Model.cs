@@ -55,9 +55,9 @@ namespace Models.Music
     private MusicSettings _settings;
     private readonly MusicFactory _factory;
     private FolderItem _folder;
-    private readonly List<IAbstractMediaItem> _musicViews;
+    private readonly IList<IAbstractMediaItem> _musicViews;
     private ListItem _selectedItem;
-    private List<IMenuItem> _dynamicContextMenuItems;
+    private IList<IMenuItem> _dynamicContextMenuItems;
     private IMetaDataMappingCollection _currentMap;
 
     enum ContextMenuItem

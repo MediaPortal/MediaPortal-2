@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
@@ -70,7 +68,7 @@ namespace Media.Importers.MovieImporter
     /// Returns the metadata of the media item.
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }
@@ -113,7 +111,5 @@ namespace Media.Importers.MovieImporter
       set { }
     }
     #endregion
-
-
   }
 }

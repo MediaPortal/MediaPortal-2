@@ -25,7 +25,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
@@ -43,7 +42,6 @@ namespace Media.Importers.MusicImporter
     /// Initializes a new instance of the <see cref="FileContainer"/> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="parent">The parent.</param>
     public CueMediaItem(string file)
     {
       _uri = new Uri(file);
@@ -53,7 +51,7 @@ namespace Media.Importers.MusicImporter
 
     #region IMediaItem Members
 
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get
       {
@@ -72,7 +70,6 @@ namespace Media.Importers.MusicImporter
     #endregion
 
     #region IAbstractMediaItem Members
-
 
     public IMetaDataMappingCollection Mapping
     {

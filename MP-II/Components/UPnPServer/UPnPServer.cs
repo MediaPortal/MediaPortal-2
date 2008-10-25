@@ -42,14 +42,6 @@ namespace Components.UPnPServer
     private MediaServerCore2 _mediaServerCore;
     private UPnPMediaServer2 _mediaServer;
 
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-    }
-
-    #endregion
-
     #region IPluginStateTracker implementation
 
     public void Activated()
@@ -84,7 +76,7 @@ namespace Components.UPnPServer
       _mediaServerCore = new MediaServerCore2(System.Environment.MachineName + ": MP-II");
       _mediaServer = new UPnPMediaServer2();
       IRootContainer root = null;
-      List<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
+      IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
 
       foreach (IAbstractMediaItem item in itemsInView)
       {
@@ -107,7 +99,7 @@ namespace Components.UPnPServer
       if (root == null) return;
 
       ServiceScope.Get<ILogger>().Info("UPNP server: get {0}", root.Title);
-      List<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
+      IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(root);
       if (itemsInView == null) return;
       //if (root.Title != "Music") return;
       foreach (IAbstractMediaItem abstractItem in itemsInView)
@@ -260,7 +252,7 @@ namespace Components.UPnPServer
     }
     void AddMetaData(DvMediaItem2 upnpItem, IMediaItem mediaItem)
     {
-      Dictionary<string, object>.Enumerator enumer = mediaItem.MetaData.GetEnumerator();
+      IEnumerator<KeyValuePair<string, object>> enumer = mediaItem.MetaData.GetEnumerator();
       while (enumer.MoveNext())
       {
         object val = enumer.Current.Value;

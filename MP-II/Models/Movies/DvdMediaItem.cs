@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MediaManager;
 using MediaPortal.Media.MetaData;
 
@@ -34,7 +33,7 @@ namespace Models.Movies
   {
     #region IMediaItem Members
 
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get
       {

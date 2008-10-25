@@ -83,12 +83,13 @@ namespace Components.Services.MediaManager
     public void Dispose() { }
 
     #region IMediaManager Implementation
+
     #region Properties
     /// <summary>
     /// Gets the providers.
     /// </summary>
     /// <value>The providers.</value>
-    public List<IProvider> Providers
+    public IList<IProvider> Providers
     {
       get
       {
@@ -102,13 +103,14 @@ namespace Components.Services.MediaManager
     /// Gets the views.
     /// </summary>
     /// <value>The views.</value>
-    public List<IRootContainer> Views
+    public IList<IRootContainer> Views
     {
       get
       {
         return _views;
       }
     }
+
     #endregion
 
     /// <summary>
@@ -131,7 +133,6 @@ namespace Components.Services.MediaManager
       _views.Add(view);
     }
 
-
     /// <summary>
     /// Uns the register.
     /// </summary>
@@ -141,12 +142,11 @@ namespace Components.Services.MediaManager
       _providers.Remove(provider);
     }
 
-
     /// <summary>
     /// Returns  a list of all root containers.
     /// </summary>
     /// <value>The root containers.</value>
-    public List<IRootContainer> RootContainers
+    public IList<IRootContainer> RootContainers
     {
       get
       {
@@ -171,7 +171,7 @@ namespace Components.Services.MediaManager
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    public List<IAbstractMediaItem> GetView(string path)
+    public IList<IAbstractMediaItem> GetView(string path)
     {
       List<IAbstractMediaItem> result = new List<IAbstractMediaItem>();
       IRootContainer root = GetRoot();
@@ -211,7 +211,7 @@ namespace Components.Services.MediaManager
     /// </summary>
     /// <param name="parentItem">The parent item.</param>
     /// <returns></returns>
-    public List<IAbstractMediaItem> GetView(IRootContainer parentItem)
+    public IList<IAbstractMediaItem> GetView(IRootContainer parentItem)
     {
       if (parentItem == null)
       {
@@ -288,9 +288,11 @@ namespace Components.Services.MediaManager
       }
       return root;
     }
+
     #endregion
 
     #region IStatus Implementation
+
     public IList<string> GetStatus()
     {
       List<string> status = new List<string>();
@@ -307,6 +309,7 @@ namespace Components.Services.MediaManager
 
       return status;
     }
+
     #endregion
   }
 }

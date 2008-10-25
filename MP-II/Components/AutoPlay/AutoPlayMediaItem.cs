@@ -52,7 +52,7 @@ namespace Components.Services.AutoPlay
 
     #region IMediaItem Members
 
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get
       {

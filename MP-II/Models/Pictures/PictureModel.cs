@@ -67,12 +67,12 @@ namespace Models.Pictures
     private readonly PictureFactory _factory;
 
     private FolderItem _folder;
-    private readonly List<IAbstractMediaItem> _pictureViews;
+    private readonly IList<IAbstractMediaItem> _pictureViews;
     ListItem _selectedItem;
     IMetaDataMappingCollection _currentMap;
     SlideShow _slideShow;
     PictureEditor _editor;
-    List<IMenuItem> _dynamicContextMenuItems;
+    IList<IMenuItem> _dynamicContextMenuItems;
     enum ContextMenuItem
     {
       AddShare = 0,

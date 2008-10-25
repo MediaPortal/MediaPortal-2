@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 

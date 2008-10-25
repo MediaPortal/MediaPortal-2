@@ -414,7 +414,7 @@ namespace Models.Pictures
       Info = info;
     }
 
-    string AddMetaData(string field, Dictionary<string, object> metadata)
+    string AddMetaData(string field, IDictionary<string, object> metadata)
     {
       if (metadata.ContainsKey(field))
       {

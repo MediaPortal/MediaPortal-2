@@ -51,6 +51,7 @@ namespace Media.Providers.SharesProvider
     }
 
     #region IMediaItem Members
+
     public IMetaDataMappingCollection Mapping
     {
       get
@@ -63,6 +64,7 @@ namespace Media.Providers.SharesProvider
       {
       }
     }
+
     /// <summary>
     /// the media container in which this media item resides
     /// </summary>
@@ -75,6 +77,7 @@ namespace Media.Providers.SharesProvider
         _parent = value;
       }
     }
+
     /// <summary>
     /// Gets a value indicating whether this item is located locally or remote
     /// </summary>
@@ -93,7 +96,7 @@ namespace Media.Providers.SharesProvider
     /// Returns the metadata of the media item.
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }
@@ -135,6 +138,7 @@ namespace Media.Providers.SharesProvider
       }
       set { }
     }
+
     #endregion
 
     /// <summary>

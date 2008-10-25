@@ -483,7 +483,7 @@ namespace MediaPortal.SkinEngine.Players
         {
 
           Title = mediaItem.Title;
-          Dictionary<string, object>.Enumerator enumer = mediaItem.MetaData.GetEnumerator();
+          IEnumerator<KeyValuePair<string, object>> enumer = mediaItem.MetaData.GetEnumerator();
           while (enumer.MoveNext())
           {
             object v = enumer.Current.Value;

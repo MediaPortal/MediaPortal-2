@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
@@ -30,7 +29,6 @@ using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.SkinManagement;
-using System.IO;
 
 namespace MediaPortal.SkinEngine.MpfElements.Resources
 {

@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
-using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using Intel.UPNP.AV.CdsMetadata;
@@ -93,7 +91,7 @@ namespace Media.Providers.UpNpProvider
     /// Returns the metadata of the media item.
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }
@@ -114,7 +112,7 @@ namespace Media.Providers.UpNpProvider
     /// gets the media items
     /// </summary>
     /// <value></value>
-    public List<IAbstractMediaItem> Items
+    public IList<IAbstractMediaItem> Items
     {
       get
       {
@@ -207,6 +205,7 @@ namespace Media.Providers.UpNpProvider
         queue.Send(msg);
       }
     }
+
     #region IDisposable Members
 
     public void Dispose()

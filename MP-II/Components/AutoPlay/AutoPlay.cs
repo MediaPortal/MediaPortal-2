@@ -188,7 +188,7 @@ namespace Components.Services.AutoPlay
               // Get the files of the Audio CD via the MediaManager
               // This does call the MusicImporter, which does a FreeDB Query
               IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-              List<IAbstractMediaItem> tracks = mediaManager.GetView(strDrive + @"\");
+              IList<IAbstractMediaItem> tracks = mediaManager.GetView(strDrive + @"\");
 
               // Add all items of the CD to the Playlist
               IPlaylistManager playList = ServiceScope.Get<IPlaylistManager>();

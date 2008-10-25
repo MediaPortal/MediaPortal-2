@@ -29,8 +29,9 @@ namespace MediaPortal.Media.MediaManager
 {
 	public interface IMediaManager : IStatus
   {
-    List<IProvider> Providers { get;}
-    List<IRootContainer> Views { get;}
+    IList<IProvider> Providers { get;}
+
+    IList<IRootContainer> Views { get;}
 
     /// <summary>
     /// register a new provider
@@ -54,9 +55,10 @@ namespace MediaPortal.Media.MediaManager
     /// Returns  a list of all root containers.
     /// </summary>
     /// <value>The root containers.</value>
-    List<IRootContainer> RootContainers { get; }
+    IList<IRootContainer> RootContainers { get; }
 
-    List<IAbstractMediaItem> GetView(string path);
-    List<IAbstractMediaItem> GetView(IRootContainer parentItem);
+    IList<IAbstractMediaItem> GetView(string path);
+
+    IList<IAbstractMediaItem> GetView(IRootContainer parentItem);
   }
 }

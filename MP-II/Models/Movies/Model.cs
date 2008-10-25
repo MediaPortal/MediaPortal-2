@@ -69,10 +69,10 @@ namespace Models.Movies
     private MovieFactory _factory;
     private MovieSettings _settings;
     private FolderItem _folder;
-    private List<IAbstractMediaItem> _movieViews;
+    private IList<IAbstractMediaItem> _movieViews;
     ListItem _selectedItem;
 
-    List<IMenuItem> _dynamicContextMenuItems;
+    IList<IMenuItem> _dynamicContextMenuItems;
     IMetaDataMappingCollection _currentMap;
 
     enum ContextMenuItem

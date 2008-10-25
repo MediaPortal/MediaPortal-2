@@ -109,7 +109,7 @@ namespace Media.Providers.DatabaseProvider
     /// meta data belonging to this media item
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }

@@ -425,7 +425,9 @@ namespace Components.UPnPServer
       {
         this.Callback_UpdateMetadata(this);
       }
-      InnerXmlWriter.WriteInnerXml(this, new InnerXmlWriter.DelegateWriteProperties(InnerXmlWriter.WriteInnerXmlProperties), new InnerXmlWriter.DelegateShouldPrintResources(this.PrintResources), new InnerXmlWriter.DelegateWriteResources(InnerXmlWriterDv.WriteInnerXmlResources), new InnerXmlWriter.DelegateWriteDescNodes(InnerXmlWriter.WriteInnerXmlDescNodes), formatter, (ToXmlData)data, xmlWriter);
+      InnerXmlWriter.WriteInnerXml(this, InnerXmlWriter.WriteInnerXmlProperties, PrintResources,
+          InnerXmlWriterDv.WriteInnerXmlResources, InnerXmlWriter.WriteInnerXmlDescNodes, formatter,
+          (ToXmlData) data, xmlWriter);
     }
 
     // Properties

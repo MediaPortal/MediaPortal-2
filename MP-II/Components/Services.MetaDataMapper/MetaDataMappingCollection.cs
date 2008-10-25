@@ -22,20 +22,20 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Media.MetaData;
 
 namespace Components.Services.MetaDataMapper
 {
   public class MetaDataMappingCollection : IMetaDataMappingCollection
   {
-    List<IMetadataMapping> _mappings;
+    IList<IMetadataMapping> _mappings;
+
     public MetaDataMappingCollection()
     {
       _mappings = new List<IMetadataMapping>();
     }
+
     #region IMetaDataMappingCollection Members
 
     public void Add(IMetadataMapping mapping)
@@ -43,13 +43,14 @@ namespace Components.Services.MetaDataMapper
       _mappings.Add(mapping);
     }
 
-    public List<IMetadataMapping> Mappings
+    public IList<IMetadataMapping> Mappings
     {
       get
       {
         return _mappings;
       }
     }
+
     public int Count
     {
       get

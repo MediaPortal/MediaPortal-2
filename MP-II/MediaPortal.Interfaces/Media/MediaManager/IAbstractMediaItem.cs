@@ -43,7 +43,7 @@ namespace MediaPortal.Media.MediaManager
     /// <summary>
     /// Returns the metadata of the media item.
     /// </summary>
-    Dictionary<string, object> MetaData { get; }
+    IDictionary<string, object> MetaData { get; }
 
     /// <summary>
     /// Returns the title of the media item.

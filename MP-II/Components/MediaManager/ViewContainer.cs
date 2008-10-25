@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
 using MediaPortal.Media.MetaData;
 
 using Components.Services.MediaManager.Views;
@@ -36,6 +35,7 @@ namespace Components.Services.MediaManager
   public class ViewContainer : IRootContainer
   {
     #region variables
+
     View _view;
     IRootContainer _root;
     IRootContainer _parent;
@@ -44,6 +44,7 @@ namespace Components.Services.MediaManager
     string _title;
     private Dictionary<string, object> _metaData;
     IMetaDataMappingCollection _mapping;
+
     #endregion
 
     /// <summary>
@@ -62,6 +63,7 @@ namespace Components.Services.MediaManager
       _metaData = new Dictionary<string, object>();
       _metaData["title"] = Title;
     }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ViewContainer"/> class.
     /// </summary>
@@ -119,7 +121,7 @@ namespace Components.Services.MediaManager
     /// gets the media items
     /// </summary>
     /// <value></value>
-    public List<IAbstractMediaItem> Items
+    public IList<IAbstractMediaItem> Items
     {
       get
       {
@@ -209,7 +211,7 @@ namespace Components.Services.MediaManager
     /// Returns the metadata of the media item.
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }

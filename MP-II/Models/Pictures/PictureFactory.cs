@@ -45,7 +45,7 @@ namespace Models.Pictures
     public void LoadPictures(ref ItemsCollection pictures, ref IMetaDataMappingCollection mapping, int sortMethod, string folder)
     {
       pictures.Clear();
-      List<IAbstractMediaItem> items = ServiceScope.Get<IMediaManager>().GetView(folder);
+      IList<IAbstractMediaItem> items = ServiceScope.Get<IMediaManager>().GetView(folder);
       if (items == null) return;
       if (items.Count == 0) return;
 
@@ -107,7 +107,7 @@ namespace Models.Pictures
         currentFolder = null;
       if (currentFolder == null)
       {
-        List<IRootContainer> rootContainers = ServiceScope.Get<IMediaManager>().RootContainers;
+        IList<IRootContainer> rootContainers = ServiceScope.Get<IMediaManager>().RootContainers;
         foreach (IRootContainer rootContainer in rootContainers)
         {
           if (rootContainer.Mapping != null)
@@ -133,7 +133,7 @@ namespace Models.Pictures
           MapMetaData(mapping, sortMethod, metaData, currentFolder.MediaContainer.Parent, parentItem);
           pictures.Add(parentItem);
         }
-        List<IAbstractMediaItem> subItems = currentFolder.MediaContainer.Items;
+        IList<IAbstractMediaItem> subItems = currentFolder.MediaContainer.Items;
         if (subItems != null)
         {
           foreach (IAbstractMediaItem abstractItem in subItems)
@@ -171,7 +171,7 @@ namespace Models.Pictures
         MapMetaData(mapping, sortMethod, metaData, currentFolder.Root, parentItem);
         pictures.Add(parentItem);
 
-        List<IAbstractMediaItem> containers = currentFolder.Root.Items;
+        IList<IAbstractMediaItem> containers = currentFolder.Root.Items;
         foreach (IRootContainer container in containers)
         {
           metaData = new Dictionary<string, object>();
@@ -187,9 +187,9 @@ namespace Models.Pictures
     #endregion
 
     #region helper methods
-    private static void MapMetaData(IMetaDataMappingCollection mapping, int sortMethod, Dictionary<string, object> localMetaData, IAbstractMediaItem mediaItem, ListItem newItem)
+    private static void MapMetaData(IMetaDataMappingCollection mapping, int sortMethod, IDictionary<string, object> localMetaData, IAbstractMediaItem mediaItem, ListItem newItem)
     {
-      Dictionary<string, object> metadata;
+      IDictionary<string, object> metadata;
       if (mediaItem == null)
       {
         metadata = localMetaData;
@@ -251,7 +251,7 @@ namespace Models.Pictures
         }
       }
 
-      Dictionary<string, object> metadata = mediaItem.MetaData;
+      IDictionary<string, object> metadata = mediaItem.MetaData;
 
       PictureItem newItem = new PictureItem(mediaItem);
       newItem.Add("Name", mediaItem.Title);

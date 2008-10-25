@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Media.MetaData;
 
 namespace MediaPortal.Media.MediaManager
 {
@@ -35,14 +34,12 @@ namespace MediaPortal.Media.MediaManager
     /// <summary>
     /// gets the media items
     /// </summary>
-    List<IAbstractMediaItem> Items { get; }
+    IList<IAbstractMediaItem> Items { get; }
 
     /// <summary>
     /// Gets the root container
     /// </summary>
     /// <value>The root container.</value>
     IRootContainer Root { get; }
-
-
   }
 }

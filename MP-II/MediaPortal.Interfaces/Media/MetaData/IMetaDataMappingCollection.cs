@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Media.MetaData
 {
@@ -36,7 +34,7 @@ namespace MediaPortal.Media.MetaData
     /// <param name="mapping">The mapping.</param>
     void Add(IMetadataMapping mapping);
 
-    List<IMetadataMapping> Mappings { get;}
+    IList<IMetadataMapping> Mappings { get;}
 
     int Count { get;}
   }

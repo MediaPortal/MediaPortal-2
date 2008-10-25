@@ -37,7 +37,7 @@ namespace Models.Media
     #region shares
     public static IRootContainer GetItemForFolder(string folder)
     {
-      List<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(folder);
+      IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(folder);
       if (itemsInView == null)
         return null;
       foreach (IAbstractMediaItem item in itemsInView)
@@ -62,7 +62,7 @@ namespace Models.Media
         ServiceScope.Get<ILogger>().Info("Get root");
       else
         ServiceScope.Get<ILogger>().Info("Get {0}", parentItem.FullPath);
-      List<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(parentItem);
+      IList<IAbstractMediaItem> itemsInView = ServiceScope.Get<IMediaManager>().GetView(parentItem);
       if (itemsInView == null)
         return;
       items.Clear();
@@ -141,12 +141,12 @@ namespace Models.Media
 
     #region helper methods
 
-    private static void AddItem(ItemsCollection songs, IMediaItem mediaItem)
+    private static void AddItem(ICollection<ListItem> songs, IMediaItem mediaItem)
     {
-      Dictionary<string, object> metadata = mediaItem.MetaData;
+      IDictionary<string, object> metadata = mediaItem.MetaData;
       MediaItem newItem = new MediaItem(mediaItem);
       newItem.Add("Name", mediaItem.Title);
-      Dictionary<string, object>.Enumerator enumer = metadata.GetEnumerator();
+      IEnumerator<KeyValuePair<string, object>> enumer = metadata.GetEnumerator();
       while (enumer.MoveNext())
       {
         if (enumer.Current.Value != null)

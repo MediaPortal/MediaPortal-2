@@ -61,7 +61,7 @@ namespace Media.Providers.DatabaseProvider
     /// Returns the metadata of the media item.
     /// </summary>
     /// <value></value>
-    public Dictionary<string, object> MetaData
+    public IDictionary<string, object> MetaData
     {
       get { return _metaData; }
     }
@@ -129,7 +129,7 @@ namespace Media.Providers.DatabaseProvider
     /// gets the media items
     /// </summary>
     /// <value></value>
-    public List<IAbstractMediaItem> Items
+    public IList<IAbstractMediaItem> Items
     {
       get { return _items; }
     }

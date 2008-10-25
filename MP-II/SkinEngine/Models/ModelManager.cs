@@ -130,8 +130,7 @@ namespace MediaPortal.SkinEngine.Models
     {
       if (_models.ContainsKey(internalName))
         return _models[internalName];
-      else
-        return null;
+      return null;
     }
 
     /// <summary>
