@@ -25,17 +25,20 @@
 using System;
 using System.IO;
 
-using MediaPortal.Presentation.Players;
+using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManager;
+using MediaPortal.Presentation.Players;
 
 namespace Media.Players.BassPlayer
 {
-  public class BassPlugin : IPluginStateTracker, IPlayerBuilder
+  public class BassPlayerPlugin : IPluginStateTracker, IPlayerBuilder
   {
     #region Fields
 
     private BassPlayer _BassPlayer;
+    private BassPlayerSettings _BassPlayerSettings;
     private bool _Enabled = true;
 
     #endregion
@@ -44,8 +47,11 @@ namespace Media.Players.BassPlayer
 
     void IPluginStateTracker.Activated()
     {
+      if (_BassPlayerSettings == null)
+        _BassPlayerSettings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
+
       if (_BassPlayer == null)
-        _BassPlayer = BassPlayer.Create();
+        _BassPlayer = BassPlayer.Create(this);
       
       _Enabled = true;
     }
@@ -72,6 +78,7 @@ namespace Media.Players.BassPlayer
     {
       if (_BassPlayer != null)
       {
+        ServiceScope.Get<ISettingsManager>().Save(_BassPlayerSettings);
         _BassPlayer.Dispose();
         _BassPlayer = null;
       }
@@ -96,6 +103,15 @@ namespace Media.Players.BassPlayer
 
     #endregion
 
+    #region Internal Members
+
+    internal BassPlayerSettings Settings
+    {
+      get { return _BassPlayerSettings; }
+    }
+    
+    #endregion
+    
     #region Private Members
 
     bool IsAudioFile(IMediaItem mediaItem, string filename)
@@ -110,12 +126,12 @@ namespace Media.Players.BassPlayer
         {
           if (mimeType.Contains("audio"))
           {
-            if (_BassPlayer.Settings.SupportedExtensions.IndexOf(ext) > -1)
+            if (_BassPlayerSettings.SupportedExtensions.IndexOf(ext) > -1)
               return true;
           }
         }
       }
-      else if (_BassPlayer.Settings.SupportedExtensions.IndexOf(ext) > -1)
+      else if (_BassPlayerSettings.SupportedExtensions.IndexOf(ext) > -1)
         return true;
       
       return false;

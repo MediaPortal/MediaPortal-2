@@ -69,7 +69,7 @@ namespace Media.Players.BassPlayer
     #region Variables
     private int _stream;
     private IMediaItem _mediaItem;
-    private _BassPlayerSettings _settings;
+    private BassPlayerSettings _settings;
     private FileType _filetype;
 
     private int _resumeAt = 0;                                // Playback should resume at the specified position
@@ -80,7 +80,7 @@ namespace Media.Players.BassPlayer
     #endregion
 
     #region Constructor
-    public _Stream(IMediaItem mediaitem, _BassPlayerSettings settings)
+    public _Stream(IMediaItem mediaitem, BassPlayerSettings settings)
     {
       _mediaItem = mediaitem;
       _settings = settings;
@@ -278,11 +278,11 @@ namespace Media.Players.BassPlayer
 
       float fadeOutSeconds = 0;
 
-      if (!_settings.GaplessPlayback && _settings.Crossfade > 0)
-        fadeOutSeconds = _settings.Crossfade / 1000f;
-      else
-        // Request the next file of a playlist 4 secs before the song ends. to allow bufering for gaplesss playback
-        fadeOutSeconds = 4000 / 1000f;
+//      if (!_settings.GaplessPlayback && _settings.Crossfade > 0)
+//        fadeOutSeconds = _settings.Crossfade / 1000f;
+//      else
+//        // Request the next file of a playlist 4 secs before the song ends. to allow bufering for gaplesss playback
+//        fadeOutSeconds = 4000 / 1000f;
 
       long bytePos = Bass.BASS_ChannelSeconds2Bytes(_stream, totaltime - fadeOutSeconds);
 
@@ -307,8 +307,8 @@ namespace Media.Players.BassPlayer
     {
       ServiceScope.Get<ILogger>().Debug("BASS: Fade out of stream {0}", stream);
 
-      if (!_settings.GaplessPlayback)
-        Bass.BASS_ChannelSlideAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, 0, _settings.Crossfade);
+//      if (!_settings.GaplessPlayback)
+//        Bass.BASS_ChannelSlideAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, 0, _settings.Crossfade);
       SendInternalMessage("xfading");
     }
 

@@ -322,7 +322,7 @@ namespace Media.Players.BassPlayer
             string deviceName = _Player.Settings.DirectSoundDevice;
             int deviceNo;
 
-            if (String.IsNullOrEmpty(deviceName) || deviceName == Settings.Defaults.DirectSoundDevice)
+            if (String.IsNullOrEmpty(deviceName) || deviceName == BassPlayerSettings.Defaults.DirectSoundDevice)
             {
               Log.Info("Initializing default DirectSound device");
               deviceNo = 1;

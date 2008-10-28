@@ -160,7 +160,7 @@ namespace Media.Players.BassPlayer
 
             _InputStream = stream;
 
-            if (_Player.Settings.ASIOFirstChan == Settings.Constants.Auto)
+            if (_Player.Settings.ASIOFirstChan == BassPlayerSettings.Constants.Auto)
               _FirstOutputChannel = 0;
             else
               _FirstOutputChannel = _Player.Settings.ASIOFirstChan;
@@ -168,7 +168,7 @@ namespace Media.Players.BassPlayer
             _FirstOutputChannel = Math.Max(_FirstOutputChannel, 0);
             _FirstOutputChannel = Math.Min(_FirstOutputChannel, _Driver.OutputChannels.Length - 1);
 
-            if (_Player.Settings.ASIOLastChan == Settings.Constants.Auto)
+            if (_Player.Settings.ASIOLastChan == BassPlayerSettings.Constants.Auto)
               _LastOutputChannel = _Driver.OutputChannels.Length;
             else
               _LastOutputChannel = _Player.Settings.ASIOLastChan;
@@ -432,7 +432,7 @@ namespace Media.Players.BassPlayer
           private int GetMinASIORate()
           {
             int minimumRate;
-            if (_Player.Settings.ASIOMinRate == Settings.Constants.Auto)
+            if (_Player.Settings.ASIOMinRate == BassPlayerSettings.Constants.Auto)
             {
               Log.Debug("Auto-detecting minimum supported ASIO samplerate");
 
@@ -464,7 +464,7 @@ namespace Media.Players.BassPlayer
           private int GetMaxASIORate()
           {
             int maximumRate;
-            if (_Player.Settings.ASIOMaxRate == Settings.Constants.Auto)
+            if (_Player.Settings.ASIOMaxRate == BassPlayerSettings.Constants.Auto)
             {
               Log.Debug("Auto-detecting maximum supported ASIO samplerate");
 

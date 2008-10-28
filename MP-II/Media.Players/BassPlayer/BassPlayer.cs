@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Players;
 
 namespace Media.Players.BassPlayer
@@ -38,9 +40,9 @@ namespace Media.Players.BassPlayer
     /// Creates and initializes an new instance.
     /// </summary>
     /// <returns>The new instance.</returns>
-    public static BassPlayer Create()
+    public static BassPlayer Create(BassPlayerPlugin plugin)
     {
-      BassPlayer player = new BassPlayer();
+      BassPlayer player = new BassPlayer(plugin);
       player.Initialize();
       return player;
     }
@@ -49,8 +51,9 @@ namespace Media.Players.BassPlayer
 
     #region Fields
 
+    private BassPlayerPlugin _Plugin;
     private BassLibraryManager _BassLibraryManager;
-    private Settings _Settings;
+    private BassPlayerSettings _Settings;
     private Controller _Controller;
     private Monitor _Monitor;
     private InputSourceFactory _InputSourceFactory;
@@ -67,7 +70,7 @@ namespace Media.Players.BassPlayer
 
     #region Public members
 
-    public Settings Settings
+    public BassPlayerSettings Settings
     {
       get { return _Settings; }
     }
@@ -347,8 +350,9 @@ namespace Media.Players.BassPlayer
 
     #region Private members
 
-    private BassPlayer()
+    private BassPlayer(BassPlayerPlugin plugin)
     {
+      _Plugin = plugin;
     }
 
     private void Initialize()
@@ -357,7 +361,8 @@ namespace Media.Players.BassPlayer
 
       _BassLibraryManager = BassLibraryManager.Create();
 
-      _Settings = new Settings();
+      _Settings = _Plugin.Settings;
+
       _InputSourceFactory = new InputSourceFactory(this);
 
       _Controller = Controller.Create(this);
