@@ -283,7 +283,7 @@ namespace Media.Players.BassPlayer
 
         if (_InternalState != InternalPlayBackState.Playing && _InternalState != InternalPlayBackState.Paused)
         {
-          _Player._PlaybackSession = PlaybackSession.Create(_Player, inputSource.OutputStream.Channels, inputSource.OutputStream.SamplingRate, inputSource.OutputStream.IsPassThrough);
+          _Player._PlaybackSession = PlaybackSession.Create(_Player, inputSource.OutputStream.Channels, inputSource.OutputStream.SampleRate, inputSource.OutputStream.IsPassThrough);
 
           _InternalState = InternalPlayBackState.Playing;
         }

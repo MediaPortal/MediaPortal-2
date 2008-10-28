@@ -113,7 +113,7 @@ namespace Media.Players.BassPlayer
 
           int handle = Bass.BASS_StreamCreateFile(_MediaItem.ContentUri.LocalPath, 0, 0, flags);
 
-          if (handle == Constants.BassInvalidHandle)
+          if (handle == BassConstants.BassInvalidHandle)
             throw new BassLibraryException("BASS_StreamCreateFile");
 
           _BassStream = BassStream.Create(handle);

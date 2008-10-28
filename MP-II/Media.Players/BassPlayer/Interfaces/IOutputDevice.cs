@@ -59,12 +59,12 @@ namespace Media.Players.BassPlayer
       int Channels { get; }
 
       /// <summary>
-      /// Gets the minimum supported samplingrate.
+      /// Gets the minimum supported samplerate.
       /// </summary>
       int MinRate { get; }
 
       /// <summary>
-      /// Gets the maximum supported samplingrate.
+      /// Gets the maximum supported samplerate.
       /// </summary>
       int MaxRate { get; }
 

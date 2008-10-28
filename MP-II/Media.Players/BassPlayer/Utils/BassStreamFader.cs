@@ -28,103 +28,100 @@ using Un4seen.Bass;
 
 namespace Media.Players.BassPlayer
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Performs fade-in and fade-out on a Bass stream.
+  /// </summary>
+  /// <remarks>
+  /// Only modifies the volume attribute.
+  /// The actual fading must be implemented in code that reads from the stream!
+  /// </remarks>
+  internal class BassStreamFader
   {
+    #region Fields
+
+    BassStream _Stream;
+    TimeSpan _Duration;
+    int _DurationMS;
+
+    #endregion
+
+    #region Public members
+
+    public BassStreamFader(BassStream stream, TimeSpan duration)
+    {
+      _Stream = stream;
+      _Duration = duration;
+      _DurationMS = Convert.ToInt32(duration.TotalMilliseconds);
+    }
+
     /// <summary>
-    /// Performs fade-in and fade-out on a Bass stream.
+    /// Prepares for a fadein; sets the volume to zero.
+    /// </summary>
+    public void PrepareFadeIn()
+    {
+      SetVolume(0f);
+    }
+
+    /// <summary>
+    /// Performs a fadein.
     /// </summary>
     /// <remarks>
-    /// Only modifies the volume attribute.
-    /// The actual fading must be implemented in code that reads from the stream!
+    /// If the fade duration is set to 0 in usersettings, volume is set to 100% instantly.
     /// </remarks>
-    class BassStreamFader
+    public void FadeIn()
     {
-      #region Fields
-
-      BassStream _Stream;
-      TimeSpan _Duration;
-      int _DurationMS;
-
-      #endregion
-
-      #region Public members
-
-      public BassStreamFader(BassStream stream, TimeSpan duration)
-      {
-        _Stream = stream;
-        _Duration = duration;
-        _DurationMS = Convert.ToInt32(duration.TotalMilliseconds);
-      }
-
-      /// <summary>
-      /// Prepares for a fadein; sets the volume to zero.
-      /// </summary>
-      public void PrepareFadeIn()
-      {
-        SetVolume(0f);
-      }
-      
-      /// <summary>
-      /// Performs a fadein.
-      /// </summary>
-      /// <remarks>
-      /// If the fade duration is set to 0 in usersettings, volume is set to 100% instantly.
-      /// </remarks>
-      public void FadeIn()
-      {
-        if (_DurationMS != 0)
-          SlideVolume(1f);
-        else
-          SetVolume(1f);
-      }
-
-      /// <summary>
-      /// Performs a fadeout.
-      /// </summary>
-      /// <remarks>
-      /// If the fade duration is set to 0 in usersettings, volume is set to 0% instantly.
-      /// </remarks>
-      public void FadeOut()
-      {
-        if (_DurationMS != 0)
-        {
-          SlideVolume(0f);
-
-          while (Bass.BASS_ChannelIsSliding(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
-          {
-            Thread.Sleep(10);
-          }
-        }
-        else
-          SetVolume(0f);
-      }
-
-      #endregion
-
-      #region Private members
-
-      /// <summary>
-      /// Sets the volume to the given value instantly.
-      /// </summary>
-      /// <param name="volume">0.0f-1.0f -> 0-100%</param>
-      private void SetVolume(float volume)
-      {
-        if (!Bass.BASS_ChannelSetAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
-          throw new BassPlayerException("BASS_ChannelSetAttribute");
-      }
-
-      /// <summary>
-      /// Slides the volume to the given value over the period of time determined by the fadeduration usersetting.
-      /// </summary>
-      /// <param name="volume">0.0f-1.0f -> 0-100%</param>
-      private void SlideVolume(float volume)
-      {
-        if (!Bass.BASS_ChannelSlideAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume, _DurationMS))
-          throw new BassPlayerException("BASS_ChannelSlideAttribute");
-      }
-
-      #endregion
-
+      if (_DurationMS != 0)
+        SlideVolume(1f);
+      else
+        SetVolume(1f);
     }
+
+    /// <summary>
+    /// Performs a fadeout.
+    /// </summary>
+    /// <remarks>
+    /// If the fade duration is set to 0 in usersettings, volume is set to 0% instantly.
+    /// </remarks>
+    public void FadeOut()
+    {
+      if (_DurationMS != 0)
+      {
+        SlideVolume(0f);
+
+        while (Bass.BASS_ChannelIsSliding(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
+        {
+          Thread.Sleep(10);
+        }
+      }
+      else
+        SetVolume(0f);
+    }
+
+    #endregion
+
+    #region Private members
+
+    /// <summary>
+    /// Sets the volume to the given value instantly.
+    /// </summary>
+    /// <param name="volume">0.0f-1.0f -> 0-100%</param>
+    private void SetVolume(float volume)
+    {
+      if (!Bass.BASS_ChannelSetAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
+        throw new BassPlayerException("BASS_ChannelSetAttribute");
+    }
+
+    /// <summary>
+    /// Slides the volume to the given value over the period of time determined by the fadeduration usersetting.
+    /// </summary>
+    /// <param name="volume">0.0f-1.0f -> 0-100%</param>
+    private void SlideVolume(float volume)
+    {
+      if (!Bass.BASS_ChannelSlideAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume, _DurationMS))
+        throw new BassPlayerException("BASS_ChannelSlideAttribute");
+    }
+
+    #endregion
+
   }
 }

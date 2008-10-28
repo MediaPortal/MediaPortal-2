@@ -134,13 +134,13 @@ namespace Media.Players.BassPlayer
         ResetInputStream();
 
         _InputStream = stream;
-        _ReadOffsetBytes = AudioRingBuffer.CalculateLength(stream.SamplingRate, stream.Channels, _ReadOffset);
+        _ReadOffsetBytes = AudioRingBuffer.CalculateLength(stream.SampleRate, stream.Channels, _ReadOffset);
 
         Log.Debug("Output stream reading offset: {0} ms", _ReadOffset.TotalMilliseconds);
 
         UpdateVizLatencyCorrection();
 
-        _Buffer = new AudioRingBuffer(stream.SamplingRate, stream.Channels, _BufferSize + _ReadOffset);
+        _Buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _BufferSize + _ReadOffset);
         _Buffer.ResetPointers(_ReadOffsetBytes);
 
         CreateOutputStream();
@@ -221,7 +221,7 @@ namespace Media.Players.BassPlayer
         _BufferSize = _Player.Settings.PlaybackBufferSize;
         _BufferUpdateIntervalMS = (int)_BufferSize.TotalMilliseconds / 5;
 
-        _ReadOffset = StaticSettings.VizLatencyCorrectionRange;
+        _ReadOffset = InternalSettings.VizLatencyCorrectionRange;
 
         _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
         _VizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
@@ -242,8 +242,8 @@ namespace Media.Players.BassPlayer
       {
         Log.Debug("PlaybackBuffer.UpdateVizLatencyCorrection()");
 
-        _VizReadOffset = StaticSettings.VizLatencyCorrectionRange.Add(_Player.Settings.VizStreamLatencyCorrection);
-        _VizReadOffsetBytes = AudioRingBuffer.CalculateLength(_InputStream.SamplingRate, _InputStream.Channels, _VizReadOffset);
+        _VizReadOffset = InternalSettings.VizLatencyCorrectionRange.Add(_Player.Settings.VizStreamLatencyCorrection);
+        _VizReadOffsetBytes = AudioRingBuffer.CalculateLength(_InputStream.SampleRate, _InputStream.Channels, _VizReadOffset);
 
         Log.Debug("Vizstream reading offset: {0} ms", _VizReadOffset.TotalMilliseconds);
       }
@@ -260,13 +260,13 @@ namespace Media.Players.BassPlayer
           BASSFlag.BASS_STREAM_DECODE;
 
         int handle = Bass.BASS_StreamCreate(
-            _InputStream.SamplingRate,
+            _InputStream.SampleRate,
             _InputStream.Channels,
             flags,
             _StreamWriteProcDelegate,
             IntPtr.Zero);
 
-        if (handle == Constants.BassInvalidHandle)
+        if (handle == BassConstants.BassInvalidHandle)
           throw new BassLibraryException("BASS_StreamCreate");
 
         _OutputStream = BassStream.Create(handle);
@@ -284,13 +284,13 @@ namespace Media.Players.BassPlayer
             BASSFlag.BASS_SAMPLE_FLOAT;
 
         int handle = Bass.BASS_StreamCreate(
-            _InputStream.SamplingRate,
+            _InputStream.SampleRate,
             _InputStream.Channels,
             streamFlags,
             _VizRawStreamWriteProcDelegate,
             IntPtr.Zero);
 
-        if (handle == Constants.BassInvalidHandle)
+        if (handle == BassConstants.BassInvalidHandle)
           throw new BassLibraryException("BASS_StreamCreate");
         
         _VizRawStream = BassStream.Create(handle);
@@ -304,8 +304,8 @@ namespace Media.Players.BassPlayer
             BASSFlag.BASS_SAMPLE_FLOAT |
             BASSFlag.BASS_STREAM_DECODE;
 
-        handle = BassMix.BASS_Mixer_StreamCreate(_InputStream.SamplingRate, 2, streamFlags);
-        if (handle == Constants.BassInvalidHandle)
+        handle = BassMix.BASS_Mixer_StreamCreate(_InputStream.SampleRate, 2, streamFlags);
+        if (handle == BassConstants.BassInvalidHandle)
           throw new BassLibraryException("BASS_StreamCreate");
 
         _VizStream = BassStream.Create(handle);
@@ -339,8 +339,8 @@ namespace Media.Players.BassPlayer
       /// <returns>Number of bytes read.</returns>
       private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
       {
-        int read = _Buffer.Read(buffer, requestedBytes / Constants.FloatBytes, _ReadOffsetBytes);
-        return read * Constants.FloatBytes;
+        int read = _Buffer.Read(buffer, requestedBytes / BassConstants.FloatBytes, _ReadOffsetBytes);
+        return read * BassConstants.FloatBytes;
       }
 
       /// <summary>
@@ -356,7 +356,7 @@ namespace Media.Players.BassPlayer
         if (_Player._Controller.ExternalState == PlaybackState.Playing)
         {
           int read = _Buffer.Peek(buffer, requestedBytes, _VizReadOffsetBytes);
-          return read * Constants.FloatBytes;
+          return read * BassConstants.FloatBytes;
         }
         else
         {

@@ -153,7 +153,7 @@ namespace Media
         // Contructor
         AsioDriver::AsioDriver()
         {
-				  // create eventArgs instance once to pass on to bufferupdate event, 
+          // create eventArgs instance once to pass on to bufferupdate event, 
           // decreases load on gc
           _bufferUpdateEventArgs = gcnew EventArgs();
         }
@@ -316,21 +316,21 @@ namespace Media
             return 0;
         }
 
-        bool AsioDriver::SetSampleRate(double rate)
+        bool AsioDriver::SetSampleRate(int rate)
         {
           // make sure a driver has been engaged
           CheckInitialised();
 
-          _lastASIOError = _pDriver->setSampleRate(rate);
+          _lastASIOError = _pDriver->setSampleRate(Convert::ToDouble(rate));
           return (_lastASIOError == ASE_OK);
         }
 
-        bool AsioDriver::CanSampleRate(double rate)
+        bool AsioDriver::CanSampleRate(int rate)
         {
           // make sure a driver has been engaged
           CheckInitialised();
 
-          return (_pDriver->canSampleRate(rate) == ASE_OK);
+          return (_pDriver->canSampleRate(Convert::ToDouble(rate)) == ASE_OK);
         }
 
         bool AsioDriver::Start()

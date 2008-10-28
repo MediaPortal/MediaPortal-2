@@ -22,11 +22,14 @@
 
 #endregion
 
+// Todo: 
+// Obsolete. Can be removed as soon as new Settings class is ready.
+
 using MediaPortal.Core.Settings;
 
 namespace Media.Players.BassPlayer
 {
-  public class BassPlayerSettings
+  public class _BassPlayerSettings
   {
     #region variables
     private int _volume;

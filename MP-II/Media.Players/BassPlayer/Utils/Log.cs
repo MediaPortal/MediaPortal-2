@@ -30,7 +30,7 @@ namespace Media.Players.BassPlayer
   /// <summary>
   /// Logger service wrapper.
   /// </summary>
-  public static class Log
+  internal static class Log
   {
     #region Fields
 

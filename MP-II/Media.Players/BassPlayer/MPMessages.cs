@@ -44,35 +44,4 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public const string Ended = "ended";
   }
-
-  static class Constants
-  {
-    public const int Auto = -1;
-  }
-
-  public partial class BassStream
-  {
-    static class Constants
-    {
-      public const int FloatBytes = 4;
-      public const int BassErrorEnded = 45;
-    }
-  }
-
-  public partial class BassPlayer
-  {
-    static class Constants
-    {
-      public const int FloatBytes = 4;
-      public const int BassDefaultDevice = -1;
-      public const int BassNoSoundDevice = 0;
-      public const int BassInvalidHandle = 0;
-    }
-    
-    static class StaticSettings
-    {
-      public static TimeSpan VizLatencyCorrectionRange = TimeSpan.FromMilliseconds(500);
-      public const string AudioDecoderPath = @"MusicPlayer\Plugins\Audio Decoders";
-    }
-  }
 }

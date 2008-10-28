@@ -71,6 +71,7 @@ namespace Media
           int intValue = (int)(value * 2147483648.0f);
 
           // Split the integer into its 4 bytes
+          // Todo: memleak. All this stuff ends up un the heap
           array<Byte>^ bytes = BitConverter::GetBytes(intValue);
 
           // Write 3 MSB to little-endian buffer
@@ -78,17 +79,13 @@ namespace Media
           {
             // Discard byte 0, write bytes 1, 2, 3
             for (int i = 0; i < 3; i++)
-            {
               _pTheirCurrentBuffer[bufferIndex + i] = bytes[i + 1];
-            }
           }
           else
           {
             // Discard byte 3, write bytes 2, 1, 0
             for (int i = 0; i < 3; i++)
-            {
               _pTheirCurrentBuffer[bufferIndex + i] = bytes[2-i];
-            }
           }
         }
 
@@ -106,17 +103,13 @@ namespace Media
           {
             _Int32Bytes[0] = 0;
             for (int i = 0; i< 3; i++)
-            {
               _Int32Bytes[i + 1] = _pTheirCurrentBuffer[bufferIndex + i];
-            }
           }
           else
           {
             _Int32Bytes[3] = 0;
             for (int i = 0; i < 3; i++)
-            {
               _Int32Bytes[2 - i] = _pTheirCurrentBuffer[bufferIndex + i];
-            }
           }
 
           // Create a signed integer from byte structure

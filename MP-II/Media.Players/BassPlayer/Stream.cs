@@ -22,6 +22,11 @@
 
 #endregion
 
+// Todo: 
+// Obsolete. Merge parts of this into new player and then remove:
+// - stream events
+// - "resumeAt" and "duration" metadata
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,7 +45,7 @@ using Un4seen.Bass.AddOn.Mix;
 
 namespace Media.Players.BassPlayer
 {
-  public class Stream
+  public class _Stream
   {
     #region Enum
     private enum FileType
@@ -64,7 +69,7 @@ namespace Media.Players.BassPlayer
     #region Variables
     private int _stream;
     private IMediaItem _mediaItem;
-    private BassPlayerSettings _settings;
+    private _BassPlayerSettings _settings;
     private FileType _filetype;
 
     private int _resumeAt = 0;                                // Playback should resume at the specified position
@@ -75,7 +80,7 @@ namespace Media.Players.BassPlayer
     #endregion
 
     #region Constructor
-    public Stream(IMediaItem mediaitem, BassPlayerSettings settings)
+    public _Stream(IMediaItem mediaitem, _BassPlayerSettings settings)
     {
       _mediaItem = mediaitem;
       _settings = settings;

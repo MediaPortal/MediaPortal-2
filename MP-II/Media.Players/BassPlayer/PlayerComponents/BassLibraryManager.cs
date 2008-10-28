@@ -34,19 +34,20 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Manages the Bass audio library and its plugins.
     /// </summary>
-    class BassLibrary:IDisposable
+    class BassLibraryManager : IDisposable
     {
       #region Static members
 
       private static bool _BassInitialized;
-      
+      private static List<int> _DecoderPluginHandles = new List<int>();
+
       /// <summary>
       /// Loads and initializes the Bass library.
       /// </summary>
       /// <returns>The new instance.</returns>
-      public static BassLibrary Create()
+      public static BassLibraryManager Create()
       {
-        BassLibrary bassLibrary = new BassLibrary();
+        BassLibraryManager bassLibrary = new BassLibraryManager();
         bassLibrary.Initialize();
         return bassLibrary;
       }
@@ -54,24 +55,22 @@ namespace Media.Players.BassPlayer
       #endregion
 
       #region Fields
-      
-      private List<int> _DecoderPluginHandles = new List<int>();
 
       #endregion
 
       #region Public members
 
       #endregion
-      
+
       #region Private members
 
-      private BassLibrary()
+      private BassLibraryManager()
       {
       }
 
       private void Initialize()
       {
-        if (!BassLibrary._BassInitialized)
+        if (!BassLibraryManager._BassInitialized)
         {
           // Register BASS.Net
           BassRegistration.BassRegistration.Register();
@@ -87,22 +86,22 @@ namespace Media.Players.BassPlayer
 
           LoadAudioDecoderPlugins();
 
-          BassLibrary._BassInitialized = true;
+          BassLibraryManager._BassInitialized = true;
         }
       }
 
       private void LoadAudioDecoderPlugins()
       {
         // Bass_ofr 2.4.0.0 gives BASS_ERROR_FILEOPEN error.
-        
+
         string appPath = System.Windows.Forms.Application.StartupPath;
-        string decoderFolderPath = Path.Combine(appPath, StaticSettings.AudioDecoderPath);
+        string decoderFolderPath = Path.Combine(appPath, InternalSettings.AudioDecoderPath);
 
         Log.Info("Loading audio decoder add-ins from {0}", decoderFolderPath);
 
         if (!Directory.Exists(decoderFolderPath))
         {
-          Log.Error("Unable to find \"{0}\" folder in MediaPortal.exe path.", StaticSettings.AudioDecoderPath);
+          Log.Error("Unable to find \"{0}\" folder in MediaPortal.exe path.", InternalSettings.AudioDecoderPath);
           return;
         }
 
@@ -123,7 +122,7 @@ namespace Media.Players.BassPlayer
 
           if (pluginHandle != 0)
           {
-            _DecoderPluginHandles.Add(pluginHandle);
+            BassLibraryManager._DecoderPluginHandles.Add(pluginHandle);
             decoderCount++;
             Log.Debug("  Added: {0}", file.Name);
           }
@@ -156,7 +155,7 @@ namespace Media.Players.BassPlayer
 
       public void Dispose()
       {
-        foreach (int pluginHandle in _DecoderPluginHandles)
+        foreach (int pluginHandle in BassLibraryManager._DecoderPluginHandles)
         {
           Bass.BASS_PluginFree(pluginHandle);
         }

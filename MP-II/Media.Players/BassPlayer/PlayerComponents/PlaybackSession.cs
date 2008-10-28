@@ -29,7 +29,10 @@ namespace Media.Players.BassPlayer
   public partial class BassPlayer
   {
     /// <summary>
-    /// Represents a single playbacksession. A playback session is a sequence of sources that have the same number of channels and the same samplingrate. Within a playback session we can perform crossfading and gapless switching.
+    /// Represents a single playbacksession. 
+    /// A playback session is a sequence of sources that have the same 
+    /// number of channels and the same samplerate. Within a playback 
+    /// session we can perform crossfading and gapless switching.
     /// </summary>
     class PlaybackSession
     {
@@ -40,9 +43,9 @@ namespace Media.Players.BassPlayer
       /// </summary>
       /// <param name="player">Reference to containing IPlayer object.</param>
       /// <returns>The new instance.</returns>
-      public static PlaybackSession Create(BassPlayer player, int channels, int samplingRate, bool isPassThrough)
+      public static PlaybackSession Create(BassPlayer player, int channels, int sampleRate, bool isPassThrough)
       {
-        PlaybackSession playbackSession = new PlaybackSession(player, channels, samplingRate, isPassThrough);
+        PlaybackSession playbackSession = new PlaybackSession(player, channels, sampleRate, isPassThrough);
         playbackSession.Initialize();
         return playbackSession;
       }
@@ -53,7 +56,7 @@ namespace Media.Players.BassPlayer
 
       private BassPlayer _Player;
       private int _Channels;
-      private int _SamplingRate;
+      private int _SampleRate;
       private bool _IsPassThrough;
 
       #endregion
@@ -69,11 +72,11 @@ namespace Media.Players.BassPlayer
       }
 
       /// <summary>
-      /// Gets the samplingrate for the session.
+      /// Gets the samplerate for the session.
       /// </summary>
-      public int SamplingRate
+      public int SampleRate
       {
-        get { return _SamplingRate; }
+        get { return _SampleRate; }
       }
 
       /// <summary>
@@ -93,7 +96,7 @@ namespace Media.Players.BassPlayer
       {
         return
             inputSource.OutputStream.Channels == Channels &&
-            inputSource.OutputStream.SamplingRate == SamplingRate &&
+            inputSource.OutputStream.SampleRate == SampleRate &&
             inputSource.OutputStream.IsPassThrough == IsPassThrough;
       }
 
@@ -116,11 +119,11 @@ namespace Media.Players.BassPlayer
 
       #region Private members
 
-      private PlaybackSession(BassPlayer player, int channels, int samplingRate, bool isPassThrough)
+      private PlaybackSession(BassPlayer player, int channels, int sampleRate, bool isPassThrough)
       {
         _Player = player;
         _Channels = channels;
-        _SamplingRate = samplingRate;
+        _SampleRate = sampleRate;
         _IsPassThrough = isPassThrough;
       }
 

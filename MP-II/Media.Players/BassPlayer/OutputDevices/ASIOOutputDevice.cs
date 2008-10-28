@@ -38,7 +38,7 @@ namespace Media.Players.BassPlayer
       partial class OutputDeviceFactory
       {
         /// <summary>
-        /// Represents an ASIO outputdevice.
+        /// Represents the user-selected ASIO outputdevice.
         /// </summary>
         class ASIOOutputDevice : IOutputDevice
         {
@@ -63,7 +63,7 @@ namespace Media.Players.BassPlayer
           #region Fields
 
           private AsioDriver _Driver;
-          private AutoResetEvent _WakeupSTAThread;
+          private AutoResetEvent _STAThreadNotify;
           private BassPlayer _Player;
           private BassStream _InputStream;
           private BassStream _MixerStream;
@@ -72,23 +72,14 @@ namespace Media.Players.BassPlayer
           private Thread _STAThread;
           private WorkItemQueue _STAWorkItemQueue;
 
-          private delegate void WorkItemDelegate();
-          private delegate AsioDriver SelectDriverWorkItemDelegate(InstalledDriver driver);
-          private delegate bool CreateBuffersWorkItemDelegate(bool useMaxBufferSize);
-          private delegate bool StartWorkItemDelegate();
-          private delegate bool StopWorkItemDelegate();
-          private delegate bool CanSampleRateWorkItemDelegate(int sampleRate);
-          private delegate int GetSampleRateWorkItemDelegate();
-          private delegate bool SetSampleRateWorkItemDelegate(int sampleRate);
-
-          private bool _STAThreadAbortFlag = false;
           private bool _OutputStreamEnded;
+          private bool _STAThreadAbortFlag = false;
           private float[] _Buffer = new float[0];
           private int _DeviceNo;
           private int _FirstOutputChannel;
           private int _LastOutputChannel;
 
-          private int[] SamplingRates = new int[] {
+          private int[] SampleRates = new int[] {
       			8000,
 			      9600,
 			      11025,
@@ -106,7 +97,20 @@ namespace Media.Players.BassPlayer
 		      };
 
           #endregion
+          
+          #region Delegates
+          
+          private delegate AsioDriver SelectDriverDelegate(InstalledDriver driver, IntPtr sysHandle);
+          private delegate bool CreateBuffersDelegate(bool useMaxBufferSize);
+          private delegate bool CanSampleRateDelegate(int sampleRate);
+          private delegate bool SetSampleRateDelegate(int sampleRate);
+          private delegate int GetSampleRateDelegate();
+          private delegate bool StartStopDelegate();
+          private delegate bool DisposeBuffersDelegate();
+          private delegate void ReleaseDelegate();
 
+          #endregion
+          
           #region IOutputDevice Members
 
           public BassStream InputStream
@@ -156,7 +160,7 @@ namespace Media.Players.BassPlayer
 
             _InputStream = stream;
 
-            if (_Player.Settings.ASIOFirstChan == Media.Players.BassPlayer.Constants.Auto)
+            if (_Player.Settings.ASIOFirstChan == Settings.Constants.Auto)
               _FirstOutputChannel = 0;
             else
               _FirstOutputChannel = _Player.Settings.ASIOFirstChan;
@@ -164,7 +168,7 @@ namespace Media.Players.BassPlayer
             _FirstOutputChannel = Math.Max(_FirstOutputChannel, 0);
             _FirstOutputChannel = Math.Min(_FirstOutputChannel, _Driver.OutputChannels.Length - 1);
 
-            if (_Player.Settings.ASIOLastChan == Media.Players.BassPlayer.Constants.Auto)
+            if (_Player.Settings.ASIOLastChan == Settings.Constants.Auto)
               _LastOutputChannel = _Driver.OutputChannels.Length;
             else
               _LastOutputChannel = _Player.Settings.ASIOLastChan;
@@ -175,7 +179,7 @@ namespace Media.Players.BassPlayer
 
             Log.Info("Using ASIO channels {0} - {1}", _FirstOutputChannel, _LastOutputChannel);
 
-            int inputRate = _InputStream.SamplingRate;
+            int inputRate = _InputStream.SampleRate;
             int outputRate = inputRate;
 
             outputRate = Math.Max(outputRate, MinRate);
@@ -191,7 +195,7 @@ namespace Media.Players.BassPlayer
                 BASSFlag.BASS_STREAM_DECODE;
 
             int handle = BassMix.BASS_Mixer_StreamCreate(outputRate, _InputStream.Channels, streamFlags);
-            if (handle == Constants.BassInvalidHandle)
+            if (handle == BassConstants.BassInvalidHandle)
               throw new BassLibraryException("BASS_StreamCreate");
 
             _MixerStream = BassStream.Create(handle);
@@ -199,11 +203,11 @@ namespace Media.Players.BassPlayer
             if (!BassMix.BASS_Mixer_StreamAddChannel(_MixerStream.Handle, _InputStream.Handle, BASSFlag.BASS_MIXER_NORAMPIN))
               throw new BassLibraryException("BASS_Mixer_StreamAddChannel");
 
-            WorkItem workItem = EnQueueWorkItem(new WorkItem(new SetSampleRateWorkItemDelegate(STADriverSetSampleRate), outputRate));
+            WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new SetSampleRateDelegate(_Driver.SetSampleRate), outputRate));
             workItem.WaitHandle.WaitOne();
 
             if (!workItem.ResultAsBool)
-              throw new BassLibraryException("Error setting samplingrate");
+              throw new BassLibraryException("Error setting samplerate");
 
             DeviceInfo deviceInfo = _DeviceInfos[_DeviceNo];
             deviceInfo._Latency = GetASIOLatency();
@@ -243,7 +247,7 @@ namespace Media.Players.BassPlayer
               if (_Buffer.Length != bufferSize)
                 Array.Resize<float>(ref _Buffer, bufferSize);
 
-              WorkItem workItem = EnQueueWorkItem(new WorkItem(new StartWorkItemDelegate(STADriverStart)));
+              WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new StartStopDelegate(_Driver.Start)));
               workItem.WaitHandle.WaitOne();
 
               if (!workItem.ResultAsBool)
@@ -259,7 +263,7 @@ namespace Media.Players.BassPlayer
             {
               Log.Debug("Stopping output");
 
-              WorkItem workItem = EnQueueWorkItem(new WorkItem(new StopWorkItemDelegate(STADriverStop)));
+              WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new StartStopDelegate(_Driver.Stop)));
               workItem.WaitHandle.WaitOne();
 
               if (!workItem.ResultAsBool)
@@ -275,9 +279,7 @@ namespace Media.Players.BassPlayer
             foreach (Channel channel in _Driver.OutputChannels)
             {
               for (int i = 0; i < bufferSize; i++)
-              {
                 channel[i] = 0.0f;
-              }
             }
           }
 
@@ -293,10 +295,25 @@ namespace Media.Players.BassPlayer
 
               Stop();
 
-              WorkItem workItem = EnQueueWorkItem(new WorkItem(new WorkItemDelegate(STAReleaseDriver)));
+              WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new DisposeBuffersDelegate(_Driver.DisposeBuffers)));
+              workItem.WaitHandle.WaitOne();
+
+              workItem = EnQueueSTAWorkItem(new WorkItem(new ReleaseDelegate(_Driver.Release)));
               workItem.WaitHandle.WaitOne();
               _Driver = null;
+            }
 
+            if (_STAThread.IsAlive)
+            {
+              Log.Debug("Stopping ASIO STA thread.");
+
+              _STAThreadAbortFlag = true;
+              _STAThreadNotify.Set();
+              _STAThread.Join();
+            }
+
+            if (_MixerStream != null)
+            {
               Log.Debug("Disposing mixer");
               _MixerStream.Dispose();
               _MixerStream = null;
@@ -322,9 +339,9 @@ namespace Media.Players.BassPlayer
           private void Initialize()
           {
             // ASIO requires to be initialized on a STA thread.
-            // To assure this we create dedicated STA thread that performs all driver calls.
+            // To assure this we create a dedicated STA thread that performs all driver calls.
             _STAWorkItemQueue = new WorkItemQueue();
-            _WakeupSTAThread = new AutoResetEvent(false);
+            _STAThreadNotify = new AutoResetEvent(false);
             _STAThread = new Thread(new ThreadStart(STAThread));
             _STAThread.SetApartmentState(ApartmentState.STA);
             _STAThread.IsBackground = true;
@@ -336,17 +353,17 @@ namespace Media.Players.BassPlayer
 
             InstalledDriver driver = AsioDriver.InstalledDrivers[_DeviceNo];
 
-            WorkItem workItem = EnQueueWorkItem(new WorkItem(new SelectDriverWorkItemDelegate(STADriverSelect), driver));
+            WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new SelectDriverDelegate(AsioDriver.SelectDriver), driver, IntPtr.Zero));
             workItem.WaitHandle.WaitOne();
-            
+
             if (workItem.Result == null)
               throw new BassPlayerException("Error selecting driver");
-            
+
             _Driver = (AsioDriver)workItem.Result;
 
-            workItem = EnQueueWorkItem(new WorkItem(new CreateBuffersWorkItemDelegate(STADriverCreateBuffers), _Player.Settings.ASIOUseMaxBufferSize));
+            workItem = EnQueueSTAWorkItem(new WorkItem(new CreateBuffersDelegate(_Driver.CreateBuffers), _Player.Settings.ASIOUseMaxBufferSize));
             workItem.WaitHandle.WaitOne();
-            
+
             if (!workItem.ResultAsBool)
               throw new BassPlayerException("Error creating buffers");
 
@@ -365,7 +382,7 @@ namespace Media.Players.BassPlayer
               while (!_STAThreadAbortFlag)
               {
                 if (_STAWorkItemQueue.Count == 0)
-                  _WakeupSTAThread.WaitOne();
+                  _STAThreadNotify.WaitOne();
 
                 if (_STAWorkItemQueue.Count > 0)
                 {
@@ -390,7 +407,7 @@ namespace Media.Players.BassPlayer
             // Device info is saved in a dictionary so it can be reused lateron.
             if (!_DeviceInfos.ContainsKey(deviceNo))
             {
-              Log.Debug("Gathering device info");
+              Log.Debug("Collecting device info");
 
               DeviceInfo deviceInfo = new DeviceInfo();
               deviceInfo._Name = _Driver.DriverName;
@@ -409,22 +426,22 @@ namespace Media.Players.BassPlayer
           }
 
           /// <summary>
-          /// Determines the minimum supported samplingrate for the device.
+          /// Determines the minimum supported samplerate for the device.
           /// </summary>
           /// <returns></returns>
           private int GetMinASIORate()
           {
             int minimumRate;
-            if (_Player.Settings.ASIOMinRate == Media.Players.BassPlayer.Constants.Auto)
+            if (_Player.Settings.ASIOMinRate == Settings.Constants.Auto)
             {
-              Log.Debug("Auto-detecting minimum supported ASIO samplingrate");
+              Log.Debug("Auto-detecting minimum supported ASIO samplerate");
 
-              minimumRate = SamplingRates[0];
-              for (int index = 0; index < SamplingRates.Length; index++)
+              minimumRate = SampleRates[0];
+              for (int index = 0; index < SampleRates.Length; index++)
               {
-                int rate = SamplingRates[index];
+                int rate = SampleRates[index];
 
-                WorkItem workItem = EnQueueWorkItem(new WorkItem(new CanSampleRateWorkItemDelegate(STADriverCanSampleRate), rate));
+                WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new CanSampleRateDelegate(_Driver.CanSampleRate), rate));
                 workItem.WaitHandle.WaitOne();
                 if (workItem.ResultAsBool)
                 {
@@ -441,22 +458,22 @@ namespace Media.Players.BassPlayer
           }
 
           /// <summary>
-          /// Determines the maximum supported samplingrate for the device.
+          /// Determines the maximum supported samplerate for the device.
           /// </summary>
           /// <returns></returns>
           private int GetMaxASIORate()
           {
             int maximumRate;
-            if (_Player.Settings.ASIOMaxRate == Media.Players.BassPlayer.Constants.Auto)
+            if (_Player.Settings.ASIOMaxRate == Settings.Constants.Auto)
             {
-              Log.Debug("Auto-detecting maximum supported ASIO samplingrate");
+              Log.Debug("Auto-detecting maximum supported ASIO samplerate");
 
-              maximumRate = SamplingRates[SamplingRates.Length - 1];
-              for (int index = SamplingRates.Length - 1; index >= 0; index--)
+              maximumRate = SampleRates[SampleRates.Length - 1];
+              for (int index = SampleRates.Length - 1; index >= 0; index--)
               {
-                int rate = SamplingRates[index];
+                int rate = SampleRates[index];
 
-                WorkItem workItem = EnQueueWorkItem(new WorkItem(new CanSampleRateWorkItemDelegate(STADriverCanSampleRate), rate));
+                WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new CanSampleRateDelegate(_Driver.CanSampleRate), rate));
                 workItem.WaitHandle.WaitOne();
                 if (workItem.ResultAsBool)
                 {
@@ -480,7 +497,7 @@ namespace Media.Players.BassPlayer
           {
             int sampleLatency = _Driver.Latency.OutputLatency;
 
-            WorkItem workItem = EnQueueWorkItem(new WorkItem(new GetSampleRateWorkItemDelegate(STADriverGetSampleRate)));
+            WorkItem workItem = EnQueueSTAWorkItem(new WorkItem(new GetSampleRateDelegate(_Driver.GetSampleRate)));
             workItem.WaitHandle.WaitOne();
             int freq = workItem.ResultAsInt;
 
@@ -511,7 +528,7 @@ namespace Media.Players.BassPlayer
             }
             else
             {
-              deviceNo = Constants.BassDefaultDevice;
+              deviceNo = BassConstants.BassDefaultDevice;
 
               // Check if the ASIO device read is amongst the one retrieved
               for (int i = 0; i < AsioDriver.InstalledDrivers.Length; i++)
@@ -522,7 +539,7 @@ namespace Media.Players.BassPlayer
                   break;
                 }
               }
-              if (deviceNo == Constants.BassDefaultDevice)
+              if (deviceNo == BassConstants.BassDefaultDevice)
               {
                 Log.Warn("Specified ASIO device does not exist. Initializing first available ASIO Device");
                 deviceNo = 0;
@@ -540,53 +557,12 @@ namespace Media.Players.BassPlayer
           /// </summary>
           /// <param name="workItem">The workitem to enqueue.</param>
           /// <returns>The enqueued workitem.</returns>
-          private WorkItem EnQueueWorkItem(WorkItem workItem)
+          private WorkItem EnQueueSTAWorkItem(WorkItem workItem)
           {
             _STAWorkItemQueue.Enqueue(workItem);
-            _WakeupSTAThread.Set();
+            _STAThreadNotify.Set();
 
             return workItem;
-          }
-
-          private AsioDriver STADriverSelect(InstalledDriver driver)
-          {
-            return AsioDriver.SelectDriver(driver, IntPtr.Zero);
-          }
-
-          private bool STADriverCreateBuffers(bool useMaxBufferSize)
-          {
-            return _Driver.CreateBuffers(useMaxBufferSize);
-          }
-
-          private int STADriverGetSampleRate()
-          {
-            return _Driver.GetSampleRate();
-          }
-
-          private bool STADriverSetSampleRate(int sampleRate)
-          {
-            return _Driver.SetSampleRate(sampleRate);
-          }
-
-          private bool STADriverCanSampleRate(int sampleRate)
-          {
-            return _Driver.CanSampleRate(sampleRate);
-          }
-
-          public bool STADriverStart()
-          {
-            return _Driver.Start();
-          }
-
-          public bool STADriverStop()
-          {
-            return _Driver.Stop();
-          }
-
-          private void STAReleaseDriver()
-          {
-            _Driver.DisposeBuffers();
-            _Driver.Release();
           }
 
           /// <summary>
@@ -604,8 +580,6 @@ namespace Media.Players.BassPlayer
 
             if (samplesRead == 0)
             {
-              Log.Debug("Ended!");
-
               // Set a flag so we call HandleOutputStreamEnded() only once.
               if (!_OutputStreamEnded)
               {

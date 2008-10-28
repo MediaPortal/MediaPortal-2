@@ -104,13 +104,13 @@ namespace Media.Players.BassPlayer
             BASSFlag.BASS_STREAM_DECODE;
 
         int handle = Bass.BASS_StreamCreate(
-            _CurrentInputSource.OutputStream.SamplingRate,
+            _CurrentInputSource.OutputStream.SampleRate,
             _CurrentInputSource.OutputStream.Channels,
             flags,
             _StreamWriteProcDelegate,
             IntPtr.Zero);
 
-        if (handle == Constants.BassInvalidHandle)
+        if (handle == BassConstants.BassInvalidHandle)
           throw new BassLibraryException("BASS_StreamCreate");
 
         _OutputStream = BassStream.Create(handle);

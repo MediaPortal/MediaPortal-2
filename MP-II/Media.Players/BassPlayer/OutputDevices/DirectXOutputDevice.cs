@@ -35,7 +35,7 @@ namespace Media.Players.BassPlayer
       partial class OutputDeviceFactory
       {
         /// <summary>
-        /// Represents a DirectX outputdevice.
+        /// Represents the user-selected DirectX outputdevice.
         /// </summary>
         class DirectXOutputDevice : IOutputDevice
         {
@@ -87,7 +87,7 @@ namespace Media.Players.BassPlayer
             if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
               throw new BassLibraryException("BASS_SetConfig");
 
-            if (!Bass.BASS_SetDevice(Constants.BassNoSoundDevice))
+            if (!Bass.BASS_SetDevice(BassConstants.BassNoSoundDevice))
               throw new BassLibraryException("BASS_SetDevice");
           }
 
@@ -132,7 +132,7 @@ namespace Media.Players.BassPlayer
 
           public TimeSpan Latency
           {
-            get { return _DeviceInfos[_DeviceNo]._Latency; }
+            get { return _DeviceInfos[_DeviceNo]._Latency + _Player.Settings.DirectSoundBufferSize; }
           }
 
           public void SetInputStream(BassStream stream)
@@ -146,13 +146,13 @@ namespace Media.Players.BassPlayer
 
             BASSFlag flags = BASSFlag.BASS_SAMPLE_FLOAT;
             int handle = Bass.BASS_StreamCreate(
-                _InputStream.SamplingRate,
+                _InputStream.SampleRate,
                 _InputStream.Channels,
                 flags,
                 _StreamWriteProcDelegate,
                 IntPtr.Zero);
 
-            if (handle == Constants.BassInvalidHandle)
+            if (handle == BassConstants.BassInvalidHandle)
               throw new BassLibraryException("BASS_StreamCreate");
 
             _OutputStream = BassStream.Create(handle);
@@ -287,7 +287,7 @@ namespace Media.Players.BassPlayer
             // Device info is saved in a dictionary so it can be reused lateron.
             if (!_DeviceInfos.ContainsKey(deviceNo))
             {
-              Log.Debug("Gathering device info");
+              Log.Debug("Collecting device info");
 
               BASS_DEVICEINFO bassDeviceInfo = Bass.BASS_GetDeviceInfo(deviceNo);
               if (bassDeviceInfo == null)
@@ -329,7 +329,7 @@ namespace Media.Players.BassPlayer
             }
             else
             {
-              deviceNo = Constants.BassDefaultDevice;
+              deviceNo = BassConstants.BassDefaultDevice;
 
               BASS_DEVICEINFO[] deviceDescriptions = Bass.BASS_GetDeviceInfos();
               for (int i = 0; i < deviceDescriptions.Length; i++)
@@ -340,7 +340,7 @@ namespace Media.Players.BassPlayer
                   break;
                 }
               }
-              if (deviceNo == Constants.BassDefaultDevice)
+              if (deviceNo == BassConstants.BassDefaultDevice)
               {
                 Log.Warn("Specified DirectSound device does not exist. Initializing default DirectSound Device");
                 deviceNo = 1;

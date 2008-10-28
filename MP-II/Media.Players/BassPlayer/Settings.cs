@@ -22,6 +22,8 @@
 
 #endregion
 
+// Todo: make these values save and restore.
+
 using System;
 
 namespace Media.Players.BassPlayer
@@ -31,6 +33,11 @@ namespace Media.Players.BassPlayer
   /// </summary>
   public class Settings
   {
+    public static class Constants
+    {
+      public const int Auto = -1;
+    }
+
     public static class Defaults
     {
       public const OutputMode OutputMode = Media.Players.BassPlayer.OutputMode.DirectSound;

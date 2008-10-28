@@ -137,8 +137,8 @@ namespace Media
           bool DisposeBuffers();
           void Release();
           int GetSampleRate();
-          bool SetSampleRate(double rate);
-          bool CanSampleRate(double rate);
+          bool SetSampleRate(int rate);
+          bool CanSampleRate(int rate);
           String^ GetErrorMessage();
 
           // and the buffer update event - bit strange the way this works in c++

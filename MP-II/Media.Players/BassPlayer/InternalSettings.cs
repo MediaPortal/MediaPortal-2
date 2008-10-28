@@ -22,43 +22,13 @@
 
 #endregion
 
-// Todo: 
-// Obsolete. However we may need this again when creating the config GUI
-
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Media.Players.BassPlayer
 {
-  /// <summary>
-  /// Represents Zones == Available Audio Devices
-  /// </summary>
-  class Zone
+  internal static class InternalSettings
   {
-    int _id;
-    string _name;
-    
-    public Zone(int id, string name)
-    {
-      _id = id;
-      _name = name;
-    }
-
-    /// <summary>
-    /// Returns the ID of the Zone
-    /// </summary>
-    public int Id
-    {
-      get { return _id; }
-    }
-
-    /// <summary>
-    /// Returns the Name of the Zone
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-    }
+    public static TimeSpan VizLatencyCorrectionRange = TimeSpan.FromMilliseconds(500);
+    public const string AudioDecoderPath = @"MusicPlayer\Plugins\Audio Decoders";
   }
 }

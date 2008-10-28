@@ -77,9 +77,9 @@ namespace Media.Players.BassPlayer
     }
 
     /// <summary>
-    /// Gets the samplingrate for the stream in samples per second.
+    /// Gets the samplerate for the stream in samples per second.
     /// </summary>
-    public int SamplingRate
+    public int SampleRate
     {
       get { return _Info.freq; }
     }
@@ -157,17 +157,17 @@ namespace Media.Players.BassPlayer
     /// <returns></returns>
     public int Read(float[] buffer, int length)
     {
-      int bytesRead = Bass.BASS_ChannelGetData(Handle, buffer, length * Constants.FloatBytes);
+      int bytesRead = Bass.BASS_ChannelGetData(Handle, buffer, length * BassConstants.FloatBytes);
 
       if (bytesRead < 0)
       {
         // Ignore BASS_ERROR_ENDED
         BASSError error = Bass.BASS_ErrorGetCode();
         // BASS_ERROR_ENDED is not in BASSError enumeration!
-        if ((int)error != Constants.BassErrorEnded)
+        if ((int)error != BassConstants.BassErrorEnded)
           throw new BassLibraryException("BASS_ChannelGetData");
       }
-      return bytesRead / Constants.FloatBytes;
+      return bytesRead / BassConstants.FloatBytes;
     }
 
     /// <summary>
@@ -185,7 +185,7 @@ namespace Media.Players.BassPlayer
         // Ignore BASS_ERROR_ENDED
         BASSError error = Bass.BASS_ErrorGetCode();
         // BASS_ERROR_ENDED is not in BASSError enumeration!
-        if ((int)error != Constants.BassErrorEnded)
+        if ((int)error != BassConstants.BassErrorEnded)
           throw new BassLibraryException("BASS_ChannelGetData");
         else
           bytesRead = -1;
@@ -204,7 +204,7 @@ namespace Media.Players.BassPlayer
       if (bytes == -1)
         throw new BassLibraryException("BASS_ChannelGetPosition");
 
-      return bytes / Constants.FloatBytes;
+      return bytes / BassConstants.FloatBytes;
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ namespace Media.Players.BassPlayer
     /// <param name="position">Number of samples to set the current position to.</param>
     public void SetSamplePosition(long position)
     {
-      if (!Bass.BASS_ChannelSetPosition(Handle, position * Constants.FloatBytes))
+      if (!Bass.BASS_ChannelSetPosition(Handle, position * BassConstants.FloatBytes))
         throw new BassLibraryException("BASS_ChannelSetPosition");
     }
 
@@ -337,7 +337,7 @@ namespace Media.Players.BassPlayer
       if (bytes == -1)
         throw new BassLibraryException("BASS_ChannelGetLength");
 
-      return bytes / Constants.FloatBytes;
+      return bytes / BassConstants.FloatBytes;
     }
 
     /// <summary>

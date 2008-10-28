@@ -49,7 +49,7 @@ namespace Media.Players.BassPlayer
 
     #region Fields
 
-    private BassLibrary _BassLibrary;
+    private BassLibraryManager _BassLibraryManager;
     private Settings _Settings;
     private Controller _Controller;
     private Monitor _Monitor;
@@ -340,7 +340,7 @@ namespace Media.Players.BassPlayer
       _Monitor.Dispose();
       _Controller.Dispose();
 
-      _BassLibrary.Dispose();
+      _BassLibraryManager.Dispose();
     }
 
     #endregion
@@ -355,7 +355,7 @@ namespace Media.Players.BassPlayer
     {
       Log.Debug("Initializing BassPlayer");
 
-      _BassLibrary = BassLibrary.Create();
+      _BassLibraryManager = BassLibraryManager.Create();
 
       _Settings = new Settings();
       _InputSourceFactory = new InputSourceFactory(this);

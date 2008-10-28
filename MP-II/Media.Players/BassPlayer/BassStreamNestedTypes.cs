@@ -26,7 +26,7 @@ using System;
 
 namespace Media.Players.BassPlayer
 {
-  public partial class BassStream : IDisposable
+  public partial class BassStream
   {
     class SyncFifoBuffer
     {
