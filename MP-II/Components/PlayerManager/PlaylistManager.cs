@@ -190,17 +190,8 @@ namespace Components.Services.PlayerManager
         if (player != null)
         {
           IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-          if (player.Name == "Bass")
-          {
-            // Only add the Player once
-            if (!players.CollectionContainsPlayer(player))
-              players.Add(player);
-          }
-          else
-          {
-            players.Dispose();
-            players.Add(player);
-          }
+          players.Dispose();
+          players.Add(player);
 
           player.Play(_playlist.Queue[_currentIndex]);
         }
