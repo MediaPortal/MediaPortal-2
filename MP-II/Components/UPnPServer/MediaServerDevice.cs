@@ -533,7 +533,7 @@ namespace Components.UPnPServer
       }
       IUPnPMedia target = null;
       WeakReference reference = (WeakReference)m_Cache[id];
-      if ((reference != null) && reference.IsAlive)
+      if (reference != null && reference.IsAlive)
       {
         target = (IUPnPMedia)reference.Target;
       }
@@ -1131,14 +1131,14 @@ namespace Components.UPnPServer
       RemoveTransfer((HttpTransfer)obj);
     }
 
-    private void SinkCd_Browse(string objectID, DvContentDirectory.Enum_A_ARG_TYPE_BrowseFlag browseFlag, string filter, uint startingIndex, uint requestedCount, string sortCriteria, out string Result, out uint numberReturned, out uint totalMatches, out uint updateID)
+    private void SinkCd_Browse(string objectID, DvContentDirectory.Enum_A_ARG_TYPE_BrowseFlag browseFlag, string filter, uint startingIndex, uint requestedCount, string sortCriteria, out string result, out uint numberReturned, out uint totalMatches, out uint updateID)
     {
       try
       {
         IList list;
         DvMediaContainer2 parent;
         numberReturned = 0;
-        Result = "";
+        result = "";
         totalMatches = 0;
         if (requestedCount == 0)
         {
@@ -1176,7 +1176,7 @@ namespace Components.UPnPServer
         }
         ArrayList filters = GetFilters(filter);
         string[] baseUrlsByInterfaces = GetBaseUrlsByInterfaces();
-        Result = BuildXmlRepresentation(baseUrlsByInterfaces, filters, list);
+        result = BuildXmlRepresentation(baseUrlsByInterfaces, filters, list);
       }
       catch (Exception exception)
       {
@@ -1317,15 +1317,15 @@ namespace Components.UPnPServer
       try
       {
         IDvMedia cdsEntry = GetCdsEntry(objectID);
-        DvMediaContainer2 parent = (DvMediaContainer2)cdsEntry.Parent;
-        if (cdsEntry.ID == "0")
-        {
-          throw new Error_RestrictedObject("Cannot destroy container 0");
-        }
         if (cdsEntry == null)
         {
           throw new Error_NoSuchObject(objectID);
         }
+        if (cdsEntry.ID == "0")
+        {
+          throw new Error_RestrictedObject("Cannot destroy container 0");
+        }
+        DvMediaContainer2 parent = (DvMediaContainer2)cdsEntry.Parent;
         if (cdsEntry.IsRestricted)
         {
           throw new Error_RestrictedObject("Cannot destroy object " + objectID);

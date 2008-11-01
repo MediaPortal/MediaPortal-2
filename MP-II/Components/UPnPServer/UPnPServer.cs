@@ -58,6 +58,8 @@ namespace Components.UPnPServer
     public void Stop()
     {
       SetStartupTimer(null);
+      _mediaServer.Dispose();
+      _mediaServer = null;
     }
 
     public void Continue() { }
@@ -78,8 +80,16 @@ namespace Components.UPnPServer
 
     void Start(object timerState)
     {
-      SetStartupTimer(null);
-      ServiceScope.Get<ILogger>().Info("UPnP server: starting");
+      if (_mediaServer != null)
+      {
+        ServiceScope.Get<ILogger>().Info("UPnPServer: Restarting");
+        Stop();
+      }
+      else
+      {
+        ServiceScope.Get<ILogger>().Info("UPnP server: starting");
+        SetStartupTimer(null);
+      }
       MediaServerCore2 mediaServerCore = new MediaServerCore2(System.Environment.MachineName + ": MP-II");
       _mediaServer = new UPnPMediaServer2(mediaServerCore);
       IRootContainer root = null;

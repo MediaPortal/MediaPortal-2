@@ -45,24 +45,20 @@ namespace Components.UPnPServer
     // Fields
     public static int CacheTime = 0x708;
     public static string CustomUDN = "";
-    private static DText DT = new DText();
     public static bool INMPR = true;
     private UPnPDeviceWatcher m_DeviceWatcher;
     //private DvMediaContainer2 m_AudioItems;
     //private DvMediaContainer2 m_ImageItems;
     //private DvMediaContainer2 m_Playlists;
     //private DvMediaContainer2 m_VideoItems;
-    private Mutex m_LockRoot = new Mutex();
-    private ArrayList m_MimeTypes = new ArrayList();
+    private readonly Mutex m_LockRoot = new Mutex();
     private bool m_Paused;
     private MediaServerDevice2 mediaServer;
-    private Hashtable permissionsTable = new Hashtable();
     private DvMediaContainer2 rootContainer;
-    //private CMediaMetadataClass TheMetadataParser = null;
     private int totalDirectoryCount = 0;
     private int totalFileCount = 0;
-    private UTF8Encoding UTF8 = new UTF8Encoding();
-    private Hashtable watcherTable = new Hashtable();
+    private readonly UTF8Encoding UTF8 = new UTF8Encoding();
+    private readonly Hashtable watcherTable = new Hashtable();
 
     // Events
     public event MediaServerCore2DebugHandler OnDebugMessage;
