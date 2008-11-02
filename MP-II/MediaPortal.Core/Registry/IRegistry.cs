@@ -40,7 +40,7 @@ namespace MediaPortal.Core.Registry
   /// Path element separator is the '/' character.
   /// </para>
   /// </remarks>
-  public interface IRegistry : IStatus
+  public interface IRegistry
   {
     /// <summary>
     /// Returns the root node of the registry tree.

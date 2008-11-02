@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace MediaPortal.Core.PathManager
 {
@@ -44,7 +43,7 @@ namespace MediaPortal.Core.PathManager
   /// for the label <i>LOG</i>. If the label <i>LOG</i> was registered with the path
   /// <i>C:\Temp</i> for example, the pattern would be resolved to <i>C:\Temp\MediaPortal.log</i>.</example>
   /// </remarks>
-  public interface IPathManager: IStatus
+  public interface IPathManager
   {
     /// <summary>
     /// Checks if a path with the specified label is registered.

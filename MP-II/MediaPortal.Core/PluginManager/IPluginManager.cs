@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.Core.PluginManager.Exceptions;
 
 namespace MediaPortal.Core.PluginManager
@@ -48,7 +47,7 @@ namespace MediaPortal.Core.PluginManager
   /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
   /// built yet.
   /// </remarks>
-  public interface IPluginManager : IStatus
+  public interface IPluginManager
   {
     /// <summary>
     /// Denotes the current state of the plugin manager.

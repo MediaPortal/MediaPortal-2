@@ -31,7 +31,7 @@ namespace MediaPortal.Core.Services.Registry
   /// <summary>
   /// Non-persistent application registry implementation.
   /// </summary>
-  public class Registry: IRegistry
+  public class Registry: IRegistry, IStatus
   {
     #region Protected fields
 

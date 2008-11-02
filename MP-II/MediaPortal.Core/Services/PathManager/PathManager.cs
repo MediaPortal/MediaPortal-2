@@ -37,7 +37,7 @@ namespace MediaPortal.Core.Services.PathManager
   /// path registrations will be added from a file Paths.xml, located in the applications
   /// DEFAULTS directory.
   /// </summary>
-  public class PathManager : IPathManager
+  public class PathManager : IPathManager, IStatus
   {
     #region Variables
 

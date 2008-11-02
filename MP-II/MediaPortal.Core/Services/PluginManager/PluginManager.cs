@@ -55,7 +55,7 @@ namespace MediaPortal.Core.Services.PluginManager
   /// </para>
   /// <seealso cref="PluginState"/>.
   /// </remarks>
-  public class PluginManager : IPluginManager
+  public class PluginManager : IPluginManager, IStatus
   {
     #region Protected fields
 
