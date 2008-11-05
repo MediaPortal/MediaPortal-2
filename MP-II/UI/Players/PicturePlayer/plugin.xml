@@ -1,0 +1,21 @@
+<Plugin
+    Version = "1.0"
+    Name = "PicturePlayer"
+    Author = "Frodo"
+    Copyright = "GPL"
+    Description = "Picture Player"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name="PlayerManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "PicturePlayer.dll"/>
+    <PluginStateTracker ClassName = "Media.Players.PicturePlayer.PicturePlayerPlugin"/>
+  </Runtime>
+
+  <Register Location = "/Media/Players">
+    <Player Id = "PicturePlayerPlugin" ClassName = "Media.Players.PicturePlayer.PicturePlayerPlugin" Type = "image" Extensions = ".jpg,.png,.bmp,.gif"/>
+  </Register>
+</Plugin>

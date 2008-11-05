@@ -1,0 +1,31 @@
+<Plugin
+    Version = "1.0"
+    Name = "SkinEngine"
+    Author = "Frodo, Albert78"
+    Copyright = "GPL"
+    AutoActivate = "true" 
+    Description = "DirectX Window Manager"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name="Configuration"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "MediaPortal.SkinEngine.dll"/>
+    <PluginStateTracker ClassName= "MediaPortal.SkinEngine.SkinEnginePlugin"/>
+  </Runtime>
+
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigGroup
+        Id = "System"
+        Text = "[configuration.system]"/>
+  </Register>
+  <Register Location="/Configuration/Settings/Appearance/System">
+    <ConfigSetting
+        Id = "Fullscreen"
+        Text = "[configuration.system.fullscreen]"
+        HelpText = "[configuration.system.fullscreen.help]"
+        ClassName = "MediaPortal.SkinEngine.Settings.Fullscreen"/>
+  </Register>
+</Plugin>

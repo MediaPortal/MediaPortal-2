@@ -1,0 +1,20 @@
+<Plugin
+    Version = "1.0"
+    Name = "Music"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Music Plugin"
+    PluginVersion = "1.0">
+
+  <DependsOn>
+    <PluginReference Name = "MediaManager"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName = "Music.dll"/>
+  </Runtime>
+
+  <Register Location = "/Models/Music">
+    <Instance Id = "Model" ClassName = "Models.Music.Model"/>
+  </Register>
+</Plugin>

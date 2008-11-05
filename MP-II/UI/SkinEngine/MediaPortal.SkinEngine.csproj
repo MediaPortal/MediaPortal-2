@@ -1,0 +1,405 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7E943389-3589-40C9-B481-2E223554CC49}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.SkinEngine</RootNamespace>
+    <AssemblyName>MediaPortal.SkinEngine</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|AnyCPU' ">
+    <OutputPath>bin\Xml Documentation\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
+    <OutputPath>bin\x86\Xml Documentation\</OutputPath>
+    <DocumentationFile>bin\x86\Xml Documentation\MediaPortal.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\DirectShowLib-2005.dll</HintPath>
+    </Reference>
+    <Reference Include="SlimDX, Version=1.0.2936.23774, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\SlimDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ColorConverter.cs" />
+    <Compile Include="Commands\CommandBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Commands\CommandList.cs" />
+    <Compile Include="Commands\CommandBridge.cs" />
+    <Compile Include="Commands\Expression\EventClasses.cs" />
+    <Compile Include="Commands\Expression\ExprEval.cs" />
+    <Compile Include="Commands\Expression\FunctionEval.cs" />
+    <Compile Include="Commands\Expression\IExpression.cs" />
+    <Compile Include="Commands\Expression\RegexObjects.cs" />
+    <Compile Include="Commands\ICommandStencil.cs" />
+    <Compile Include="Commands\IExecutableCommand.cs" />
+    <Compile Include="Commands\InvokeCommand.cs" />
+    <Compile Include="Commands\ObjectFactory.cs" />
+    <Compile Include="Commands\ObjectParameter.cs" />
+    <Compile Include="Commands\ReflectionCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Commands\StringParameter.cs" />
+    <Compile Include="ContentManagement\FontBufferAsset.cs" />
+    <Compile Include="ContentManagement\FontRender.cs" />
+    <Compile Include="ContentManagement\ITextureAsset.cs" />
+    <Compile Include="ContentManagement\TextureRender.cs" />
+    <Compile Include="ContentManagement\VertextBufferAsset.cs" />
+    <Compile Include="Controls\Animations\ColorAnimation.cs" />
+    <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
+    <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DoubleAnimation.cs" />
+    <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
+    <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
+    <Compile Include="Controls\Animations\IKeyFrame.cs" />
+    <Compile Include="Controls\Animations\PropertyAnimationTimeline.cs" />
+    <Compile Include="Controls\Animations\TimelineContext.cs" />
+    <Compile Include="Controls\Animations\ValueKeyFrame.cs" />
+    <Compile Include="Controls\Animations\KeySpline.cs" />
+    <Compile Include="Controls\Animations\ParallelTimeline.cs" />
+    <Compile Include="Controls\Animations\PointAnimation.cs" />
+    <Compile Include="Controls\Animations\PointAnimationUsingKeyFrames.cs" />
+    <Compile Include="Controls\Animations\PointKeyFrame.cs" />
+    <Compile Include="Controls\Animations\SplineColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\SplineDoubleKeyFrame.cs" />
+    <Compile Include="Controls\Animations\SplinePointKeyFrame.cs" />
+    <Compile Include="Controls\Animations\Storyboard.cs" />
+    <Compile Include="Controls\Animations\Timeline.cs" />
+    <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
+    <Compile Include="Controls\Panels\Panel.cs" />
+    <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
+    <Compile Include="Controls\Visuals\ISearchableItem.cs" />
+    <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
+    <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
+    <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
+    <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
+    <Compile Include="Controls\Visuals\TreeView.cs" />
+    <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
+    <Compile Include="Controls\Brushes\Brush.cs" />
+    <Compile Include="Controls\Brushes\BrushCache.cs" />
+    <Compile Include="Controls\Brushes\BrushTexture.cs" />
+    <Compile Include="Controls\Brushes\GradientBrush.cs" />
+    <Compile Include="Controls\Brushes\GradientStop.cs" />
+    <Compile Include="Controls\Brushes\GradientStopCollection.cs" />
+    <Compile Include="Controls\Brushes\ImageBrush.cs" />
+    <Compile Include="Controls\Brushes\LinearGradientBrush.cs" />
+    <Compile Include="Controls\Brushes\RadialGradientBrush.cs" />
+    <Compile Include="Controls\Brushes\SolidColorBrush.cs" />
+    <Compile Include="Controls\Brushes\TileBrush.cs" />
+    <Compile Include="Controls\Brushes\VideoBrush.cs" />
+    <Compile Include="Controls\Brushes\VisualBrush.cs" />
+    <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
+    <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="Xaml\DataDescriptors.cs" />
+    <Compile Include="Xaml\Exceptions\Exceptions.cs" />
+    <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\CommandStencilMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\PickupBindingMarkupExtension.cs" />
+    <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
+    <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
+    <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
+    <Compile Include="Xaml\PathExpression.cs" />
+    <Compile Include="Xaml\ReflectionHelper.cs" />
+    <Compile Include="Xaml\TypeConverter.cs" />
+    <Compile Include="Fonts\FreeType.cs" />
+    <Compile Include="MpfElements\DependencyObject.cs" />
+    <Compile Include="Controls\Visuals\IScrollInfo.cs" />
+    <Compile Include="Controls\Panels\Canvas.cs" />
+    <Compile Include="Controls\Panels\ColumnDefinition.cs" />
+    <Compile Include="Controls\Panels\ColumnDefinitionsCollection.cs" />
+    <Compile Include="Controls\Panels\DefinitionBase.cs" />
+    <Compile Include="Controls\Panels\DockPanel.cs" />
+    <Compile Include="Controls\Panels\Grid.cs" />
+    <Compile Include="Controls\Panels\GridLength.cs" />
+    <Compile Include="Controls\Panels\RowDefinition.cs" />
+    <Compile Include="Controls\Panels\RowDefinitionsCollection.cs" />
+    <Compile Include="Controls\Panels\StackPanel.cs" />
+    <Compile Include="Controls\Panels\WrapPanel.cs" />
+    <Compile Include="Controls\Transforms\RotateTransform.cs" />
+    <Compile Include="Controls\Transforms\ScaleTransform.cs" />
+    <Compile Include="Controls\Transforms\SkewTransform.cs" />
+    <Compile Include="Controls\Transforms\Static2dMatrix.cs" />
+    <Compile Include="Controls\Transforms\Transform.cs" />
+    <Compile Include="Controls\Transforms\TransformCollection.cs" />
+    <Compile Include="Controls\Transforms\TransformGroup.cs" />
+    <Compile Include="Controls\Transforms\TranslateTransform.cs" />
+    <Compile Include="Controls\Visuals\Templates\ControlTemplate.cs" />
+    <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
+    <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
+    <Compile Include="Controls\Visuals\TextBox.cs" />
+    <Compile Include="Controls\Visuals\Thickness.cs" />
+    <Compile Include="Controls\Visuals\VisualAssetContext.cs" />
+    <Compile Include="Controls\Visuals\Border.cs" />
+    <Compile Include="Controls\Visuals\Button.cs" />
+    <Compile Include="Controls\Visuals\CheckBox.cs" />
+    <Compile Include="Controls\Visuals\ContentControl.cs" />
+    <Compile Include="Controls\Visuals\ContentPresenter.cs" />
+    <Compile Include="Controls\Visuals\Control.cs" />
+    <Compile Include="Controls\Visuals\FrameworkElement.cs" />
+    <Compile Include="Controls\Visuals\FrameworkTemplate.cs" />
+    <Compile Include="Controls\Visuals\HeaderedItemsControl.cs" />
+    <Compile Include="Controls\Visuals\Image.cs" />
+    <Compile Include="Controls\Visuals\ItemsControl.cs" />
+    <Compile Include="Controls\Visuals\ItemsPanelTemplate.cs" />
+    <Compile Include="Controls\Visuals\ItemsPresenter.cs" />
+    <Compile Include="Controls\Visuals\KeyBinding.cs" />
+    <Compile Include="Controls\Visuals\Label.cs" />
+    <Compile Include="Controls\Visuals\ListView.cs" />
+    <Compile Include="Controls\Visuals\ListViewItem.cs" />
+    <Compile Include="Controls\Visuals\ProgressBar.cs" />
+    <Compile Include="Controls\Visuals\ScrollContentPresenter.cs" />
+    <Compile Include="Controls\Visuals\ScrollViewer.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Ellipse.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Line.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Path.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Polygon.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Rectangle.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Shape.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\AnalyticGeometryException.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\CLine.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPoint2D.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPolygon.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPolygonShape.cs" />
+    <Compile Include="Controls\Visuals\Shapes\Triangulate\Definition.cs" />
+    <Compile Include="Controls\Visuals\StyleSelector.cs" />
+    <Compile Include="Controls\Visuals\Styles\Setter.cs" />
+    <Compile Include="Controls\Visuals\Styles\Style.cs" />
+    <Compile Include="Controls\Visuals\TreeViewItem.cs" />
+    <Compile Include="Controls\Visuals\Triggers\BeginStoryboard.cs" />
+    <Compile Include="Controls\Visuals\Triggers\EventTrigger.cs" />
+    <Compile Include="Controls\Visuals\Triggers\StoryboardContinuationTrigger.cs" />
+    <Compile Include="Controls\Visuals\Triggers\Trigger.cs" />
+    <Compile Include="Controls\Visuals\Triggers\TriggerAction.cs" />
+    <Compile Include="Controls\Visuals\UIElement.cs" />
+    <Compile Include="Controls\Visuals\UIElementCollection.cs" />
+    <Compile Include="Controls\Visuals\Visual.cs" />
+    <Compile Include="SkinEnginePlugin.cs" />
+    <Compile Include="DirectX\d3denumeration.cs" />
+    <Compile Include="DirectX\D3DSettingsForm.cs" />
+    <Compile Include="DirectX\d3dSetup.cs" />
+    <Compile Include="DirectX\d3dutil.cs" />
+    <Compile Include="DirectX\GraphicsDevice.cs" />
+    <Compile Include="DirectX\PositionColoredTextured.cs" />
+    <Compile Include="DirectX\Vertex.cs" />
+    <Compile Include="Effects\EffectAsset.cs" />
+    <Compile Include="Effects\EffectHandleAsset.cs" />
+    <Compile Include="Effects\EffectParameters.cs" />
+    <Compile Include="ExtendedMatrix.cs" />
+    <Compile Include="GUI\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InputManagement\FocusManager.cs" />
+    <Compile Include="InputManagement\InputManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MarkupExtensions\BindingDependency.cs" />
+    <Compile Include="MarkupExtensions\BindingBase.cs" />
+    <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\DynamicResourceMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\RelativeSource.cs" />
+    <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
+    <Compile Include="MpfElements\MpfCopyManager.cs" />
+    <Compile Include="MpfElements\Registration.cs" />
+    <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
+    <Compile Include="MpfElements\Resources\Include.cs" />
+    <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />
+    <Compile Include="MpfElements\Resources\ResourceWrapper.cs" />
+    <Compile Include="SkinManagement\SkinContext.cs" />
+    <Compile Include="SkinManagement\SkinResources.cs" />
+    <Compile Include="SkinManagement\Theme.cs" />
+    <Compile Include="SkinManagement\Skin.cs" />
+    <Compile Include="SkinManagement\SkinManager.cs" />
+    <Compile Include="SkinManagement\XamlLoader.cs" />
+    <Compile Include="Xaml\AssemblyHelper.cs" />
+    <Compile Include="Xaml\AttributeValueInstantiationParser.cs" />
+    <Compile Include="Xaml\Interfaces\IAddChild.cs" />
+    <Compile Include="Xaml\Interfaces\IBinding.cs" />
+    <Compile Include="Xaml\Interfaces\IContentEnabled.cs" />
+    <Compile Include="Xaml\Interfaces\IEvaluableMarkupExtension.cs" />
+    <Compile Include="Xaml\Interfaces\IImplicitKey.cs" />
+    <Compile Include="Xaml\Interfaces\IInclude.cs" />
+    <Compile Include="Xaml\Interfaces\INameScope.cs" />
+    <Compile Include="Xaml\Interfaces\INamespaceHandler.cs" />
+    <Compile Include="Xaml\Interfaces\INativeXamlObject.cs" />
+    <Compile Include="Xaml\Interfaces\IParserContext.cs" />
+    <Compile Include="Xaml\NameScope.cs" />
+    <Compile Include="Models\Model.cs" />
+    <Compile Include="Models\ModelManager.cs" />
+    <Compile Include="Players\CropSettings.cs" />
+    <Compile Include="Players\DvdPlayer.cs" />
+    <Compile Include="Players\FilterGraphTools.cs" />
+    <Compile Include="Players\Geometry\Geometry.cs" />
+    <Compile Include="Players\Geometry\GeometryIntelligentZoom.cs" />
+    <Compile Include="Players\Geometry\GeometryLetterBox.cs" />
+    <Compile Include="Players\Geometry\GeometryNormal.cs" />
+    <Compile Include="Players\Geometry\GeometryOrignal.cs" />
+    <Compile Include="Players\Geometry\GeometryZoom149.cs" />
+    <Compile Include="Players\Geometry\GeometryPanAndScan.cs" />
+    <Compile Include="Players\Geometry\GeometryStretch.cs" />
+    <Compile Include="Players\Geometry\GeometryZoom.cs" />
+    <Compile Include="Players\IPersistMemory.cs" />
+    <Compile Include="Players\OsdProperties.cs" />
+    <Compile Include="Players\PlayerFactory.cs" />
+    <Compile Include="Players\Players.cs" />
+    <Compile Include="Players\Seeking.cs" />
+    <Compile Include="Players\settings\Settings.cs" />
+    <Compile Include="Players\settings\AudioSettings.cs" />
+    <Compile Include="Players\settings\VideoSettings.cs" />
+    <Compile Include="Players\StringTokenizer.cs" />
+    <Compile Include="Players\Subtitles\SubtitleRenderer.cs" />
+    <Compile Include="Players\Subtitles\SubtitleSelector.cs" />
+    <Compile Include="Players\Subtitles\TeletextMagazine.cs" />
+    <Compile Include="Players\Subtitles\TeletextPageHeader.cs" />
+    <Compile Include="Players\Subtitles\TeletextSubtitleDecoder.cs" />
+    <Compile Include="Players\Subtitles\TextConversion.cs" />
+    <Compile Include="Players\Teletext\Hamming.cs" />
+    <Compile Include="Players\Teletext\IDVBTeletextDecoder.cs" />
+    <Compile Include="Players\Teletext\ITeletextSource.cs" />
+    <Compile Include="Players\Teletext\PESDecoder.cs" />
+    <Compile Include="Players\Teletext\TeletextReceiver.cs" />
+    <Compile Include="Players\Teletext\TSHeader.cs" />
+    <Compile Include="Players\TsVideoPlayer.cs" />
+    <Compile Include="Players\VideoPlayer.cs" />
+    <Compile Include="Players\Vmr9\Allocator.cs" />
+    <Compile Include="ContentManagement\ContentManager.cs" />
+    <Compile Include="ContentManagement\IAsset.cs" />
+    <Compile Include="ContentManagement\TextureAsset.cs" />
+    <Compile Include="Fonts\Font.cs" />
+    <Compile Include="Fonts\FontManager.cs" />
+    <Compile Include="Fonts\FontQuad.cs" />
+    <Compile Include="Fonts\Quad.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\PrimitiveContext.cs" />
+    <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\RenderPipeline.cs" />
+    <Compile Include="Settings\AppSettings.cs" />
+    <Compile Include="Settings\Fullscreen.cs" />
+    <Compile Include="Xaml\ParserHelper.cs" />
+    <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
+    <Compile Include="ScreenManagement\Animator.cs" />
+    <Compile Include="ScreenManagement\TimeUtils.cs" />
+    <Compile Include="ScreenManagement\Screen.cs" />
+    <Compile Include="ScreenManagement\ScreenManager.cs" />
+    <Compile Include="ScreenManagement\ScreenSettings.cs" />
+    <Compile Include="Xaml\Interfaces\IInitializable.cs" />
+    <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
+    <Compile Include="Xaml\ElementContextStack.cs" />
+    <Compile Include="Xaml\XamlNamespace\XamlNamespaceHandler.cs" />
+    <Compile Include="Xaml\XamlNamespace\ArrayMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\XDataDirective.cs" />
+    <Compile Include="Xaml\XamlNamespace\TypeMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
+    <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
+    <Compile Include="Xaml\Parser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GUI\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "$(SolutionDir)$(SolutionName)\$(OutDir)"
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)SlimDx.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\d3dx9_36.dll" "$(SolutionDir)$(SolutionName)\$(OutDir)"
+</PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
