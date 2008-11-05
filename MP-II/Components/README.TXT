@@ -1,0 +1,1 @@
+This directory will be deleted when all projects are moved out of here
