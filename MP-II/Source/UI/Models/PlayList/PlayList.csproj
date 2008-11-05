@@ -82,7 +82,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Media\Media.csproj">
       <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
-      <Name>Media</Name>
+      <Name>Media %28UI\Models\Media%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
