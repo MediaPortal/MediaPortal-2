@@ -113,11 +113,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
+    <ProjectReference Include="..\..\..\System\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
