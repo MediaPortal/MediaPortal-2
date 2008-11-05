@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Media.MetaData
 {
@@ -48,7 +45,6 @@ namespace MediaPortal.Media.MetaData
     /// <param name="formatting">The formatting to use.</param>
     /// <returns>string containing the formatted metadata object</returns>
     string Format(object metaData, string formatting);
-
 
     int CompareTo(object metaData1, object metaData2);
   }

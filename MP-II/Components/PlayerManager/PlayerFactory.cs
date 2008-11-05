@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Components.Services.PlayerManager
 {

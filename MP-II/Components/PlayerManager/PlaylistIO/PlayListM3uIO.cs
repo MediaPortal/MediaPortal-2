@@ -30,7 +30,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Utilities.FileSystem;
 
 namespace Components.Services.PlayerManager.PlayListIO

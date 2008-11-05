@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Players;
 
 namespace Media.Players.BassPlayer

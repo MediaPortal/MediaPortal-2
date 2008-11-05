@@ -33,7 +33,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Database;
 using MediaPortal.Database.Provider;
 
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Components.Database.FireBird
 {

@@ -122,7 +122,7 @@ namespace Media.Players.BassPlayer
       get { return _Monitor.Duration; }
     }
 
-    public void Play(MediaPortal.Media.MediaManager.IMediaItem item)
+    public void Play(MediaPortal.Media.MediaManagement.IMediaItem item)
     {
       Log.Debug("Play()");
       _Controller.Play(item);
@@ -214,7 +214,7 @@ namespace Media.Players.BassPlayer
       get { return false; }
     }
 
-    public MediaPortal.Media.MediaManager.IMediaItem MediaItem
+    public MediaPortal.Media.MediaManagement.IMediaItem MediaItem
     {
       get { return null; }
     }

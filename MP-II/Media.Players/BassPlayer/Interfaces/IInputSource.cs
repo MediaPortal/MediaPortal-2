@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Media.Players.BassPlayer
 {

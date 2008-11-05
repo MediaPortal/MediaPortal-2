@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Players;
 
 namespace Media.Players.BassPlayer

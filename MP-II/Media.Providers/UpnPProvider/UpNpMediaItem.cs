@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using Intel.UPNP.AV.CdsMetadata;
 using Intel.UPNP.AV.MediaServer.CP;
 using MediaPortal.Media.MetaData;
-using IRootContainer = MediaPortal.Media.MediaManager.IRootContainer;
-using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
+using IRootContainer = MediaPortal.Media.MediaManagement.IRootContainer;
+using IMediaItem = MediaPortal.Media.MediaManagement.IMediaItem;
 
 namespace Media.Providers.UpNpProvider
 {

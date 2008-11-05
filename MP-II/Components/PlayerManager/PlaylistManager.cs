@@ -26,7 +26,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Components.Services.PlayerManager
 {

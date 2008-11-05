@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Presentation.Localisation;
 
 namespace MediaPortal.Media.MetaData

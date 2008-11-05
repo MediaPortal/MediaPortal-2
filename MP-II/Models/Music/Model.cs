@@ -33,7 +33,7 @@ using MediaPortal.Presentation.Localisation;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Models.Music
 {

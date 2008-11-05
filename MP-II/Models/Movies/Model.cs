@@ -37,7 +37,7 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screen;
 
 namespace Models.Movies

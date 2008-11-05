@@ -34,7 +34,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.Importers;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screen;
 
 

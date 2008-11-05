@@ -29,11 +29,11 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 using Intel.UPNP.AV.MediaServer.DV;
 using Intel.UPNP.AV.CdsMetadata;
-using IMediaItem = MediaPortal.Media.MediaManager.IMediaItem;
+using IMediaItem = MediaPortal.Media.MediaManagement.IMediaItem;
 
 namespace Components.UPnPServer
 {

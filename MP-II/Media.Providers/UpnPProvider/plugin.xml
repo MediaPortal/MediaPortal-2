@@ -10,7 +10,7 @@
     <Assembly FileName = "UpNpProvider.dll"/>
   </Runtime>
 
-  <Register Location = "/Media/Providers">
+  <Register Location = "/Media/MediaProviders">
     <Instance Id = "UpNpProvider" ClassName = "Media.Providers.UpNpProvider.UpNpProvider"/>
   </Register>
 </Plugin>

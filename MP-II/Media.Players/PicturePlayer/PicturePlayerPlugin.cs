@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Players;
 
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 
 namespace Media.Players.PicturePlayer

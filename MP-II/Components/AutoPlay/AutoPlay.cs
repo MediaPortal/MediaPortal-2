@@ -34,7 +34,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Utilities;
 

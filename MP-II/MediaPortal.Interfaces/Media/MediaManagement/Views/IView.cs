@@ -22,24 +22,24 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MediaPortal.Media.MediaManager
+namespace MediaPortal.Media.MediaManagement.Views
 {
   /// <summary>
-  /// interface to the root container of a provider
+  /// Views are used to define predefined or user-configured excerpts of some media
+  /// items out of the collectivity of all available media. A view specifies a set of media items
+  /// by evaluating a <see cref="Query"/> on the media library. The view (logically) contains those
+  /// media items which fulfill the query criteria.
   /// </summary>
-  public interface IRootContainer : IAbstractMediaItem
+  public interface IView 
   {
     /// <summary>
-    /// gets the media items
+    /// Returns the display name for this view.
     /// </summary>
-    IList<IAbstractMediaItem> Items { get; }
+    string Name { get; }
 
     /// <summary>
-    /// Gets the root container
+    /// Gets or sets the query to evaluate the media items which are qualified for this view.
     /// </summary>
-    /// <value>The root container.</value>
-    IRootContainer Root { get; }
+    IQuery Query { get; set; }
   }
 }

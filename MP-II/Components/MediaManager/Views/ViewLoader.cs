@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Xml;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Components.Services.MediaManager.Views
 {

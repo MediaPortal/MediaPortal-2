@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Media.MetaData;
 
 namespace Components.Services.AutoPlay

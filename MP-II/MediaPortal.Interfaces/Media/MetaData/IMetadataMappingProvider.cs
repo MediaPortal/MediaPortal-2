@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Localisation;
 
 namespace MediaPortal.Media.MetaData
 {
@@ -58,6 +54,5 @@ namespace MediaPortal.Media.MetaData
     /// 	<c>true</c> if provider contains the specified mapping ; otherwise, <c>false</c>.
     /// </returns>
     bool Contains(string mappingName);
-
   }
 }

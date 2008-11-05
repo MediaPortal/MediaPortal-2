@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Media.MediaManager
+namespace MediaPortal.Media.MediaManagement
 {
   public interface IMediaItem : IAbstractMediaItem
   { }

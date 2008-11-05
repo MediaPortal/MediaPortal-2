@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -38,6 +38,7 @@ namespace MediaPortal.Presentation.Players
 
   /// <summary>
   /// generic class for a player
+  /// TODO Albert78, 4.11.08: Rework
   /// </summary>
   public interface IPlayer
   {

@@ -33,8 +33,8 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Threading;
 using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 
 using MediaPortal.Utilities.Scraper;
 

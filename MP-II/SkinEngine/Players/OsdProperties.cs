@@ -29,7 +29,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.SkinEngine.SkinManagement;
 
 

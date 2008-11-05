@@ -77,11 +77,6 @@
     <Compile Include="Burning\EventHelper.cs" />
     <Compile Include="Burning\MediaInfo.cs" />
     <Compile Include="Burning\MediaTypeSupport.cs" />
-    <Compile Include="FileEventNotification\FileEventNotifier.cs" />
-    <Compile Include="FileEventNotification\FileWatcher.cs" />
-    <Compile Include="FileEventNotification\FileWatchEvent.cs" />
-    <Compile Include="FileEventNotification\FileWatcherInfo.cs" />
-    <Compile Include="FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localisation\LocalisationStrings.cs" />
     <Compile Include="Localisation\StringManager.cs" />

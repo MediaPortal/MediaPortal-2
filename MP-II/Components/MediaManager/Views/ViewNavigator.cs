@@ -27,8 +27,8 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Components.Services.MediaManager.Views
 {
@@ -191,7 +191,7 @@ namespace Components.Services.MediaManager.Views
     {
       IMetaDataMappingCollection mapColl = ServiceScope.Get<IMetadataMappingProvider>().Get(view.MappingTable);
       IMediaManager manager = ServiceScope.Get<IMediaManager>();
-      foreach (IProvider provider in manager.Providers)
+      foreach (IMediaProvider provider in manager.MediaProviders)
       {
         List<IAbstractMediaItem> items = provider.GetView(view, root, parent);
         if (items != null && items.Count > 0)

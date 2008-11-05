@@ -27,12 +27,12 @@ using Intel.UPNP.AV.MediaServer.CP;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Logging;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Media.Providers.UpNpProvider
 {
-  public class UpNpProvider : IProvider
+  public class UpNpProvider : IMediaProvider
   {
     public const string MEDIAMANAGERQUEUE_NAME = "MediaManager";
 
@@ -121,7 +121,7 @@ namespace Media.Providers.UpNpProvider
       }
     }
 
-    #region IProvider Members
+    #region IMediaProvider Members
     /// <summary>
     /// get the root containers for this provider
     /// </summary>

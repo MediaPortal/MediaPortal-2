@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Media.MetaData;
 
-namespace MediaPortal.Media.MediaManager
+namespace MediaPortal.Media.MediaManagement
 {
 
   /// <summary>

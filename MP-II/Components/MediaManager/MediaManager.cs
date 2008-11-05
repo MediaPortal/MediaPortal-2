@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using Components.Services.MediaManager.Views;
 
 namespace Components.Services.MediaManager
@@ -37,7 +37,7 @@ namespace Components.Services.MediaManager
   {
     #region Variables
     private bool _providerPluginsLoaded = false;
-    private readonly List<IProvider> _providers;
+    private readonly List<IMediaProvider> _providers;
     private readonly List<IRootContainer> _views;
     #endregion
 
@@ -47,7 +47,7 @@ namespace Components.Services.MediaManager
     /// </summary>
     public MediaManager()
     {
-      _providers = new List<IProvider>();
+      _providers = new List<IMediaProvider>();
       _views = new List<IRootContainer>();
     }
     #endregion
@@ -89,7 +89,7 @@ namespace Components.Services.MediaManager
     /// Gets the providers.
     /// </summary>
     /// <value>The providers.</value>
-    public IList<IProvider> Providers
+    public IList<IMediaProvider> MediaProviders
     {
       get
       {
@@ -117,7 +117,7 @@ namespace Components.Services.MediaManager
     /// Registers the specified provider.
     /// </summary>
     /// <param name="provider">The provider.</param>
-    public void Register(IProvider provider)
+    public void Register(IMediaProvider provider)
     {
       _providers.Add(provider);
     }
@@ -137,7 +137,7 @@ namespace Components.Services.MediaManager
     /// Uns the register.
     /// </summary>
     /// <param name="provider">The provider.</param>
-    public void UnRegister(IProvider provider)
+    public void UnRegister(IMediaProvider provider)
     {
       _providers.Remove(provider);
     }
@@ -154,7 +154,7 @@ namespace Components.Services.MediaManager
 
         LoadProviderPlugins();
 
-        foreach (IProvider provider in _providers)
+        foreach (IMediaProvider provider in _providers)
         {
           List<IRootContainer> subContainers = provider.RootContainers;
           if (subContainers != null)
@@ -230,8 +230,8 @@ namespace Components.Services.MediaManager
     {
       if (!_providerPluginsLoaded)
       {
-        foreach (IProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IProvider>(
-            "/Media/Providers", new FixedItemStateTracker()))
+        foreach (IMediaProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMediaProvider>(
+            "/Media/MediaProviders", new FixedItemStateTracker()))
         {
           Register(provider);
         }
@@ -276,7 +276,7 @@ namespace Components.Services.MediaManager
 
       LoadProviderPlugins();
 
-      foreach (IProvider provider in _providers)
+      foreach (IMediaProvider provider in _providers)
       {
         if (provider.RootContainers == null)
           continue;
@@ -296,8 +296,8 @@ namespace Components.Services.MediaManager
     public IList<string> GetStatus()
     {
       List<string> status = new List<string>();
-      status.Add("=== MediaManager - Providers");
-      foreach (IProvider provider in _providers)
+      status.Add("=== MediaManager - MediaProviders");
+      foreach (IMediaProvider provider in _providers)
       {
         status.Add(string.Format("     Provider = {0}", provider.Title));
       }

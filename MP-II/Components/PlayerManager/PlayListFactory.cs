@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
 using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 using Components.Services.PlayerManager.PlayListIO;
 

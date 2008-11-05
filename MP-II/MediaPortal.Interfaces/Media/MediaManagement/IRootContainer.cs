@@ -24,48 +24,22 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Media.MediaManager.Views
+namespace MediaPortal.Media.MediaManagement
 {
-  public interface IQuery
+  /// <summary>
+  /// interface to the root container of a provider
+  /// </summary>
+  public interface IRootContainer : IAbstractMediaItem
   {
     /// <summary>
-    /// Gets or sets the sub queries.
+    /// gets the media items
     /// </summary>
-    /// <value>The sub queries.</value>
-    List<IExpression> SubQueries { get; set; }
+    IList<IAbstractMediaItem> Items { get; }
 
     /// <summary>
-    /// Gets or sets the key.
+    /// Gets the root container
     /// </summary>
-    /// <value>The key.</value>
-    string Key { get; set; }
-
-    /// <summary>
-    /// Gets or sets the operator.
-    /// </summary>
-    /// <value>The operator.</value>
-    Operator Operator { get; set; }
-
-
-    /// <summary>
-    /// Gets or sets the value.
-    /// </summary>
-    /// <value>The value.</value>
-    object Value { get; set; }
-
-    int Limit { get;set;}
-
-    SortOrder Sort { get;set;}
-    List<string> SortFields { get;set;}
-
-    /// <summary>
-    /// Gets the field names used in this query.
-    /// </summary>
-    /// <value>The field names.</value>
-    List<string> FieldNames { get; }
-
-    List<string> FromStatement { get; }
-
-    string WhereStatement { get; }
+    /// <value>The root container.</value>
+    IRootContainer Root { get; }
   }
 }

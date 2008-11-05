@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Components.Services.MediaManager.Views
 {

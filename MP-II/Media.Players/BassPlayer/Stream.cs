@@ -37,7 +37,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.Players;
 
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Cd;

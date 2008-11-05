@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Models.Movies
 {

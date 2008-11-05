@@ -34,7 +34,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Utilities.FileSystem;
 
 namespace Components.Services.ImporterManager

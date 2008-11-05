@@ -441,7 +441,7 @@ namespace MediaPortal.SkinEngine
 
     public void ShowDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog: {0}", dialogName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog '{0}'", dialogName);
       lock (_history)
       {
         InternalShowDialog(dialogName, false);
@@ -450,7 +450,7 @@ namespace MediaPortal.SkinEngine
 
     public void ShowChildDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show child dialog: {0}", dialogName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show child dialog '{0}'", dialogName);
       lock (_history)
       {
         InternalShowDialog(dialogName, true);
@@ -485,7 +485,7 @@ namespace MediaPortal.SkinEngine
 
     public bool ShowScreen(string windowName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show window: {0}", windowName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show screen '{0}'", windowName);
       Screen newScreen = GetScreen(windowName);
       if (newScreen == null)
         // Error message was shown in GetScreen()

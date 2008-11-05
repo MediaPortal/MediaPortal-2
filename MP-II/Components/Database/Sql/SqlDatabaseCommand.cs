@@ -28,7 +28,7 @@ using System.Data;
 using System.Data.SqlClient;
 using MediaPortal.Database;
 using MediaPortal.Database.Provider;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Components.Database.Sql
 {

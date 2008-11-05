@@ -24,38 +24,36 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Media.MediaManager.Views
+namespace MediaPortal.Media.MediaManagement.Views
 {
-  public interface IView 
+  public enum SortOrder
   {
-    /// <summary>
-    /// Gets or sets the view type.
-    /// </summary>
-    /// <value>The view type.</value>
-    string Type { get;set;}
+    None,
+    Ascending,
+    Descending
+  }
 
-    /// <summary>
-    /// returns a list of all databases uses in this view.
-    /// </summary>
-    /// <value>The databases.</value>
-    List<string> Databases { get; set; }
+  /// <summary>
+  /// Holds the data for one (of many) sort field. Stores the name of the field to be sorted and the
+  /// sort direction.
+  /// </summary>
+  public struct SortInformation
+  {
+    public string FieldName;
+    public SortOrder SortOrder;
+  }
 
-    /// <summary>
-    /// Gets or sets the subviews.
-    /// </summary>
-    /// <value>The subviews.</value>
-    List<IView> SubViews { get; set; }
+  /// <summary>
+  /// Specifieds a query to be evaluated on the media library database. The evaluation of this query
+  /// will return a set of media items. A query might be executable on a media database or not, depending
+  /// on the requested table data.
+  /// </summary>
+  public interface IQuery
+  {
+    int ClipSize { get; set; }
 
+    IList<SortInformation> SortInformations { get;set; }
 
-    /// <summary>
-    /// Gets or sets the query.
-    /// </summary>
-    /// <value>The query.</value>
-    IQuery Query { get; set; }
-
-    string MappingTable { get;set;}
-
-    bool IsLastSubView { get;set;}
-
+    // TODO: Getters/setters/accessors for query data and result data
   }
 }

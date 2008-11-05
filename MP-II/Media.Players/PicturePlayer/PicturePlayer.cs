@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screen;
 
 namespace Media.Players.PicturePlayer

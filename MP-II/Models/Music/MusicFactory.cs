@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 
 namespace Models.Music
 {

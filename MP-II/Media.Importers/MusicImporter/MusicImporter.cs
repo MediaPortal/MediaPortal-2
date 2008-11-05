@@ -31,8 +31,8 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
 using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 using MediaPortal.Utilities;
 using Media.Importers.MusicImporter.Freedb;
 using Media.Importers.MusicImporter.Tags;

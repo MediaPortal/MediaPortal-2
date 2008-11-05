@@ -32,8 +32,8 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Database;
 
 using MediaPortal.Media.Importers;
-using MediaPortal.Media.MediaManager;
-using MediaPortal.Media.MediaManager.Views;
+using MediaPortal.Media.MediaManagement;
+using MediaPortal.Media.MediaManagement.Views;
 
 namespace Media.Importers.PictureImporter
 {

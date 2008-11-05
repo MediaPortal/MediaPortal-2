@@ -24,7 +24,7 @@
 
 using System;
 using System.IO;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using Un4seen.Bass;
 
 namespace Media.Players.BassPlayer

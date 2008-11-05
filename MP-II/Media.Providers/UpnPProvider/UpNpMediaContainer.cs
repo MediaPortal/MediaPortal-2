@@ -29,10 +29,10 @@ using Intel.UPNP.AV.CdsMetadata;
 using Intel.UPNP.AV.MediaServer.CP;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Media.MediaManager;
+using MediaPortal.Media.MediaManagement;
 using MediaPortal.Media.MetaData;
 
-using IRootContainer = MediaPortal.Media.MediaManager.IRootContainer;
+using IRootContainer = MediaPortal.Media.MediaManagement.IRootContainer;
 
 namespace Media.Providers.UpNpProvider
 {

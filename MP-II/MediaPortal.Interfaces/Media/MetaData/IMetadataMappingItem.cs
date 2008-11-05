@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Media.MetaData
 {
@@ -56,7 +53,5 @@ namespace MediaPortal.Media.MetaData
     /// </summary>
     /// <value>The formatting text.</value>
     string Formatting { get;set;}
-
-
   }
 }
