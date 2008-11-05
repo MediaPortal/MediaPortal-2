@@ -1,0 +1,16 @@
+<Plugin
+    Version = "1.0"
+    Name = "UpNpProvider"
+    Author = "Frodo"
+    Copyright = "GPL"
+    Description = "UPNP Provider"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "UpNpProvider.dll"/>
+  </Runtime>
+
+  <Register Location = "/Media/MediaProviders">
+    <Instance Id = "UpNpProvider" ClassName = "Media.Providers.UpNpProvider.UpNpProvider"/>
+  </Register>
+</Plugin>
