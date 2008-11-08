@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -59,7 +59,7 @@
   <ItemGroup>
     <Reference Include="Bass.Net, Version=2.3.1.8, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\MediaPortal.Base\Bass.Net.dll</HintPath>
+      <HintPath>..\..\..\Base\Client\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="BassPlayer.ASIOInterop, Version=2.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -67,7 +67,7 @@
     </Reference>
     <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\MediaPortal.Base\BassRegistration.dll</HintPath>
+      <HintPath>..\..\..\Base\Client\BassRegistration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -145,10 +145,10 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)$(SolutionName)\$(OutDir)"
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
-xcopy /Y "$(TargetDir)BassPlayer.ASIOInterop.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
+    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
+xcopy /Y "$(TargetDir)BassPlayer.ASIOInterop.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

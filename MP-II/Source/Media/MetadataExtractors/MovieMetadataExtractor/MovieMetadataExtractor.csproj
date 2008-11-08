@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -67,15 +67,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
+    <ProjectReference Include="..\..\..\System\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
@@ -94,11 +94,11 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)$(SolutionName)\$(OutDir)"
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
-xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
-xcopy /Y "$(TargetDir)movieimporter.pdb"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
-xcopy /Y "$(ProjectDir)References\*.dll"  "$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)movieimporter.pdb"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\*.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
