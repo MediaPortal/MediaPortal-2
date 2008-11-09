@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using MediaPortal.Utilities.CommandLine;
 
 namespace MediaPortal.Tools.BuildReport

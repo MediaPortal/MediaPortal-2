@@ -24,9 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Utilities.Screens;
 
 namespace MediaPortal.Tools.BuildReport
 {

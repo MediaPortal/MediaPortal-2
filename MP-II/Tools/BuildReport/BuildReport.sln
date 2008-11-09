@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildReport", "BuildReport.csproj", "{350957BE-3B86-4928-98FC-04B24682BD66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +11,21 @@ Global
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
+		Xml Documentation|Any CPU = Xml Documentation|Any CPU
+		Xml Documentation|x86 = Xml Documentation|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{350957BE-3B86-4928-98FC-04B24682BD66}.Debug|x86.Build.0 = Debug|Any CPU
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Release|Any CPU.Build.0 = Release|Any CPU
 		{350957BE-3B86-4928-98FC-04B24682BD66}.Release|x86.ActiveCfg = Release|Any CPU
+		{350957BE-3B86-4928-98FC-04B24682BD66}.Release|x86.Build.0 = Release|Any CPU
+		{350957BE-3B86-4928-98FC-04B24682BD66}.Xml Documentation|Any CPU.ActiveCfg = Release|Any CPU
+		{350957BE-3B86-4928-98FC-04B24682BD66}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
+		{350957BE-3B86-4928-98FC-04B24682BD66}.Xml Documentation|x86.ActiveCfg = Release|Any CPU
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Debug|x86.ActiveCfg = Debug|x86
@@ -27,6 +34,10 @@ Global
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.ActiveCfg = Release|x86
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Release|x86.Build.0 = Release|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Xml Documentation|Any CPU.ActiveCfg = Xml Documentation|Any CPU
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
+		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
