@@ -32,7 +32,7 @@ using SystemTimer = System.Timers.Timer;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.FileEventNotification;
+using MediaPortal.Core.FileEventNotification;
 
 namespace MediaPortal.Core.Services.FileEventNotification
 {

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using MediaPortal.FileEventNotification;
+using MediaPortal.Core.FileEventNotification;
 
 namespace MediaPortal.Core.Services.FileEventNotification
 {

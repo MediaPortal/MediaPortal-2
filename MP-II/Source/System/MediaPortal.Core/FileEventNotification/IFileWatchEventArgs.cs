@@ -23,7 +23,7 @@
 #endregion
 
 
-namespace MediaPortal.FileEventNotification
+namespace MediaPortal.Core.FileEventNotification
 {
 
   /// <summary>

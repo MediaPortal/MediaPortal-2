@@ -24,8 +24,7 @@
 
 using System;
 
-
-namespace MediaPortal.FileEventNotification
+namespace MediaPortal.Core.FileEventNotification
 {
   public class NotSupportedDriveTypeException : NotSupportedException
   {
