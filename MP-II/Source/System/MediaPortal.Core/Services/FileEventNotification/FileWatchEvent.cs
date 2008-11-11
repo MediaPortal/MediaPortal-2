@@ -24,11 +24,9 @@
 
 using System;
 using System.IO;
-
 using MediaPortal.FileEventNotification;
 
-
-namespace MediaPortal.Services.FileEventNotification
+namespace MediaPortal.Core.Services.FileEventNotification
 {
 
   /// <summary>

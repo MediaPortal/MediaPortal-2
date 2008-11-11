@@ -24,11 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading;
 using MediaPortal.FileEventNotification;
 
-
-namespace MediaPortal.Services.FileEventNotification
+namespace MediaPortal.Core.Services.FileEventNotification
 {
 
   /// <summary>
@@ -36,16 +35,19 @@ namespace MediaPortal.Services.FileEventNotification
   /// </summary>
   /// <remarks>
   /// Features
-  ///   - Watch files/directories
-  ///   - Autorestore on path lost/retrieved
-  ///   - Events on path lost/retrieved
-  ///   - One event per change
-  ///   - Advanced filtering
-  ///   - No events when filesize is increasing
-  ///   - Internal error handling
+  /// <ul>
+  ///   <li>Watch files/directories</li>
+  ///   <li>Autorestore on path lost/retrieved</li>
+  ///   <li>Events on path lost/retrieved</li>
+  ///   <li>One event per change</li>
+  ///   <li>Advanced filtering</li>
+  ///   <li>No events when filesize is increasing</li>
+  ///   <li>Internal error handling</li>
+  /// </ul>
   /// Limitations
-  ///   - NTFS Only
-  /// 
+  /// <ul>
+  ///   <li>NTFS Only</li>
+  /// </ul>
   /// See the wiki for detailed information.
   /// </remarks>
   public class FileEventNotifier : IFileEventNotifier
@@ -60,11 +62,11 @@ namespace MediaPortal.Services.FileEventNotification
     /// <summary>
     /// All free ID's.
     /// </summary>
-    private Queue<int> _freeId;
+    private readonly Queue<int> _freeId;
     /// <summary>
     /// All active FileWatchers, with the watched path as the key.
     /// </summary>
-    private IDictionary<string, FileWatcher> _watchers;
+    private readonly IDictionary<string, FileWatcher> _watchers;
 
     #endregion
 
@@ -84,49 +86,97 @@ namespace MediaPortal.Services.FileEventNotification
 
     #endregion
 
+    #region Private Methods
+
+    /// <summary>
+    /// Gets the first free ID,
+    /// increments _lastId if a new id is created.
+    /// </summary>
+    /// <returns></returns>
+    private int GetFirstFreeId()
+    {
+      int id;
+      lock (_freeId)
+      {
+        if (_freeId.Count == 0)
+        {
+          Interlocked.Increment(ref _lastId);
+          id = _lastId;
+        }
+        else
+        {
+          id = _freeId.Dequeue();
+        }
+      }
+      return id;
+    }
+
+    /// <summary>
+    /// Removes the sender, which must be a FileWatcher, from _watchers.
+    /// </summary>
+    /// <param name="sender">The disposed FileWatcher.</param>
+    /// <param name="e">Extra arguments. (not used)</param>
+    private void FileWatcher_Disposed(object sender, EventArgs e)
+    {
+      FileWatcher watcher = (FileWatcher)sender;
+      if (!watcher.IsDisposed) return;  // Just make sure it's disposed
+      lock (_watchers)      // Don't let other threads add a new item to the disposed watcher
+      {
+        // Find and remove the disposed watcher
+        foreach (KeyValuePair<string, FileWatcher> pair in _watchers)
+        {
+          // The Value must equal the object.
+          // No IEquetable implemented in FileWatcher.
+          if (pair.Value.Equals(watcher))
+          {
+            _watchers.Remove(pair);
+            break;
+          }
+        }
+      }
+      lock (_freeId)
+      {
+        // Free the ID's
+        foreach (FileWatcherInfo subscription in watcher.Subscriptions)
+        {
+          _freeId.Enqueue(subscription.Id);
+          subscription.Id = -1;
+        }
+      }
+    }
+
+    #endregion
+
     #region IFileEventNotifier Members
 
-    // ToDo: subscribe to parent path if available
+    // ToDo: subscribe to parent path if available and adjust filter
     // eg if D:\ is watched, D:\TEMP can be added there
     // Set the internal SubscribedPath property.
     // Also change the way FileWatcherInfo applies filters! Must inspect the path!
     public FileWatchInfo Subscribe(FileWatchInfo fileWatchInfo)
     {
       FileWatcherInfo fileWatcherInfo = new FileWatcherInfo(fileWatchInfo);
-      if (_freeId.Count == 0)
-      {
-        _lastId++;
-        fileWatcherInfo.Id = _lastId;
-      }
-      else
-      {
-        fileWatcherInfo.Id = _freeId.Dequeue();
-      }
+      fileWatcherInfo.Id = GetFirstFreeId();
       lock (_watchers)
       {
         bool foundWatcher = false;  // Indicate whether we found the FileWatcher during the foreach
         foreach (KeyValuePair<string, FileWatcher> pair in _watchers)
         {
-          // Does the current FileWatcher watch the specified path?
-          if (pair.Key == fileWatcherInfo.Path
-          // Or does the current FileWatcher watch a parentdirectory?
-            || fileWatcherInfo.Path.StartsWith(pair.Key))
+          // Does the current FileWatcher watch the specified path? If not, continue.
+          if (pair.Key != fileWatcherInfo.Path) continue;
+          // Make sure the selected watcher is not disposed.
+          if (!pair.Value.IsDisposed)
           {
-            if (!pair.Value.IsDisposed)
-            {
-              _watchers[fileWatcherInfo.Path].Add(fileWatcherInfo);
-              foundWatcher = true;
-              break;
-            }
+            _watchers[fileWatcherInfo.Path].Add(fileWatcherInfo);
+            foundWatcher = true;
+            break;
           }
-          // Does the current FileWatcher watch a childdirectory?
-          else if (pair.Key.StartsWith(fileWatcherInfo.Path))
-          {
-            
-          }
+          // Else, No need to keep it referenced.
+          _watchers.Remove(pair);
         }
         if (!foundWatcher)
         {
+          // Existing watcher is not found, create a new one.
           FileWatcher watcher = new FileWatcher(fileWatcherInfo.Path);
           watcher.Disposed += FileWatcher_Disposed;
           watcher.Add(fileWatcherInfo);
@@ -143,17 +193,21 @@ namespace MediaPortal.Services.FileEventNotification
     //    -> optimize to "D:\TEMP" when "D:\" is removed.
     public bool Unsubscribe(FileWatchInfo fileWatchInfo)
     {
-      if (fileWatchInfo is FileWatcherInfo)
+      if (!(fileWatchInfo is FileWatcherInfo)
+        || ((FileWatcherInfo) fileWatchInfo).Id == -1)
+        throw new InvalidFileWatchInfoException(
+          String.Format(
+            "The specified FileWatcherInfo for path \"{0}\" can't be unsubscribed because it's not a subscribed item of the service.",
+            fileWatchInfo.Path));
+      FileWatcherInfo fileWatcherInfo = (FileWatcherInfo) fileWatchInfo;
+      lock (_freeId)
       {
-        FileWatcherInfo fileWatcherInfo = (FileWatcherInfo)fileWatchInfo;
-        if (fileWatcherInfo.Id == -1)
-          throw new InvalidFileWatchInfoException(
-            String.Format(
-              "The specified FileWatcherInfo for path \"{0}\" can't be unsubscribed because it's not a subscribed item of the service.",
-              fileWatcherInfo.Path));
         _freeId.Enqueue(fileWatcherInfo.Id);
         fileWatcherInfo.Id = -1;
-        if (_watchers.ContainsKey(fileWatcherInfo.Path))// Must contain key to be able to remove
+      }
+      lock (_watchers)
+      {
+        if (_watchers.ContainsKey(fileWatcherInfo.Path)) // Must contain key to be able to remove
         {
           FileWatcher watcher = _watchers[fileWatcherInfo.Path];
           if (watcher.Remove(fileWatcherInfo))
@@ -163,49 +217,8 @@ namespace MediaPortal.Services.FileEventNotification
             return true;
           }
         }
-        return false;
       }
-      throw new InvalidFileWatchInfoException(
-        String.Format(
-          "The specified FileWatcherInfo for path \"{0}\" can't be unsubscribed because it's not a subscribed item of the service.",
-          fileWatchInfo.Path));
-    }
-
-    #endregion
-
-    #region Private EventHandlers
-
-    /// <summary>
-    /// Removes the sender, which must be a FileWatcher, from _watchers.
-    /// </summary>
-    /// <param name="sender">The disposed FileWatcher.</param>
-    /// <param name="e">Extra arguments. (not used)</param>
-    private void FileWatcher_Disposed(object sender, EventArgs e)
-    {
-      FileWatcher watcher = (FileWatcher)sender;
-      if (watcher.IsDisposed) // Just to be save
-      {
-        lock (_watchers)      // Don't let other threads add a new item to the disposed watcher
-        {
-          // Find and remove the disposed watcher
-          foreach (KeyValuePair<string, FileWatcher> pair in _watchers)
-          {
-            // The Value must equal the object.
-            // No IEquetable implemented in FileWatcher.
-            if (pair.Value.Equals(watcher))
-            {
-              _watchers.Remove(pair);
-              break;
-            }
-          }
-        }
-        // Free the ID's
-        foreach (FileWatcherInfo subscription in watcher.Subscriptions)
-        {
-          _freeId.Enqueue(subscription.Id);
-          subscription.Id = -1;
-        }
-      }
+      return false;
     }
 
     #endregion

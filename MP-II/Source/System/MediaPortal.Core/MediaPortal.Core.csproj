@@ -76,6 +76,13 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\Exceptions.cs" />
+    <Compile Include="FileEventNotification\FileEventHandler.cs" />
+    <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
+    <Compile Include="FileEventNotification\FileWatchInfo.cs" />
+    <Compile Include="FileEventNotification\IFileEventNotifier.cs" />
+    <Compile Include="FileEventNotification\IFileWatchEventArgs.cs" />
+    <Compile Include="FileEventNotification\InvalidFileWatchInfoException.cs" />
+    <Compile Include="FileEventNotification\NotSupportedDriveTypeException.cs" />
     <Compile Include="General\IObservable.cs" />
     <Compile Include="IStatus.cs" />
     <Compile Include="Logging\ILogger.cs" />
@@ -88,6 +95,9 @@
     <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
+    <Compile Include="Services\FileEventNotification\EventData.cs" />
+    <Compile Include="Services\FileEventNotification\PathStateChangedEvent.cs" />
+    <Compile Include="Services\FileEventNotification\WatchedPath.cs" />
     <Compile Include="Services\Logging\ConsoleLogger.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
@@ -147,6 +157,11 @@
     <Compile Include="Services\Threading\ThreadPool.cs" />
     <Compile Include="Services\Threading\ThreadPoolStartInfo.cs" />
     <Compile Include="Services\Threading\WorkQueue.cs" />
+    <Compile Include="Services\FileEventNotification\FileEventNotifier.cs" />
+    <Compile Include="Services\FileEventNotification\FileWatcher.cs" />
+    <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
+    <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
+    <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
