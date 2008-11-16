@@ -23,35 +23,47 @@
 #endregion
 
 
-namespace MediaPortal.Media.MetaData
+namespace MediaPortal.Core.MediaManagement.MediaProviders
 {
   /// <summary>
-  /// interface definition for a single metadatafield mapping
-  /// It defines how a specific metadatafield gets transformed into a gui representation
+  /// Changes that might occur to a media source item or path.
   /// </summary>
-  public interface IMetadataMappingItem
+  public enum MediaSourceChangeType
   {
     /// <summary>
-    /// Gets or sets the skin label.
+    /// No changes.
     /// </summary>
-    /// <value>The skin label.</value>
-    string SkinLabel { get;set;}
-    /// <summary>
-    /// Gets or sets the formatter to use for this mapping item
-    /// </summary>
-    /// <value>The formatter.</value>
-    IMetaDataFormatter Formatter { get;set;}
+    None,
 
     /// <summary>
-    /// Gets or sets the meta data field to use in this mapping.
+    /// The creation of a file or folder.
     /// </summary>
-    /// <value>The meta data field.</value>
-    string MetaDataField { get;set;}
+    Created,
 
     /// <summary>
-    /// Gets or sets the formatting text to use with the formatter
+    /// The deletion of a file or folder.
     /// </summary>
-    /// <value>The formatting text.</value>
-    string Formatting { get;set;}
+    Deleted,
+
+    /// <summary>
+    /// The change of a file or folder. The types of changes include: changes to size, attributes,
+    /// security settings, last write, and last access time.
+    /// </summary>
+    Changed,
+
+    /// <summary>
+    /// The renaming of a file or folder.
+    /// </summary>
+    Renamed,
+
+    /// <summary>
+    /// The creation, deletion, change, or renaming of a file or folder.
+    /// </summary>
+    All,
+
+    /// <summary>
+    /// The deletion of the parent directory.
+    /// </summary>
+    DirectoryDeleted,
   }
 }

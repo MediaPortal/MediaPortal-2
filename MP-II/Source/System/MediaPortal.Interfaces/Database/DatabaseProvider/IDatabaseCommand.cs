@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Media.MediaManagement.Views;
+using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Database.Provider
 {

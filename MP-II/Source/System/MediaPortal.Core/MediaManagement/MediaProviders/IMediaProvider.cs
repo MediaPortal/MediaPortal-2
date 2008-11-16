@@ -22,10 +22,9 @@
 
 #endregion
 
-using System;
 using System.IO;
 
-namespace MediaPortal.Media.MediaManagement
+namespace MediaPortal.Core.MediaManagement.MediaProviders
 {
   /// <summary>
   /// Interface to provide access to physical media files.
@@ -36,18 +35,25 @@ namespace MediaPortal.Media.MediaManagement
   /// Implementations can provide media data by accessing the local file system, a web server,
   /// an UPnP mediaserver, ...
   /// </summary>
+  /// <remarks>
+  /// The media provider is partitioned in its metadata part (<see cref="Metadata"/>)
+  /// and this worker class.
+  /// </remarks>
   public interface IMediaProvider
   {
     /// <summary>
-    /// GUID which uniquely identifies this media provider.
+    /// Metadata descriptor for this media provider.
     /// </summary>
-    Guid GUID { get; }
+    MediaProviderMetadata Metadata { get; }
 
     /// <summary>
-    /// Returns the name of this media provider. The name should be unique among all
-    /// media providers.
+    /// Returns the information if the specified <paramref name="path"/> is a resource which can
+    /// be opened to an input stream.
     /// </summary>
-    string Name { get; }
+    /// <param name="path">The path to check.</param>
+    /// <returns><c>true</c>, if the specified <paramref name="path"/> denotes a resource which can be
+    /// opened, else <c>false</c>.</returns>
+    bool IsResource(string path);
 
     /// <summary>
     /// Opens the media item at the specified <paramref name="path"/> for read operations.

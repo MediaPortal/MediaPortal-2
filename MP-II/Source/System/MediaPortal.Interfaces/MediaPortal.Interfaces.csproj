@@ -87,12 +87,6 @@
     <Compile Include="Configuration\Settings\PreferenceList.cs" />
     <Compile Include="Configuration\Settings\SingleSelectionList.cs" />
     <Compile Include="Configuration\Settings\YesNo.cs" />
-    <Compile Include="Media\MediaManagement\IMetadataFormat.cs" />
-    <Compile Include="Media\MediaManagement\IMetadataWriter.cs" />
-    <Compile Include="Media\MediaManagement\MediaLibrary\IMediaDatabase.cs" />
-    <Compile Include="Media\MediaManagement\IMetadataExtractor.cs" />
-    <Compile Include="Media\MediaManagement\MediaProviders\IFileSystemMediaProvider.cs" />
-    <Compile Include="Media\MediaManagement\MediaProviders\IMediaProvider.cs" />
     <Compile Include="Presentation\Commands\ICommand.cs" />
     <Compile Include="Presentation\Commands\ICommandBuilder.cs" />
     <Compile Include="Presentation\Commands\ICommandParameter.cs" />
@@ -125,8 +119,6 @@
     <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
     <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />
-    <Compile Include="Media\Importers\IImporter.cs" />
-    <Compile Include="Media\Importers\IImporterManager.cs" />
     <Compile Include="Control\InputManager\IInputManager.cs" />
     <Compile Include="Control\InputManager\Key.cs" />
     <Compile Include="Control\InputManager\IInputMapper.cs" />
@@ -134,14 +126,6 @@
     <Compile Include="Presentation\Localisation\NoLocalisation.cs" />
     <Compile Include="Presentation\Localisation\RegionSettings.cs" />
     <Compile Include="Presentation\Localisation\StringId.cs" />
-    <Compile Include="Media\MediaManagement\IAbstractMediaItem.cs" />
-    <Compile Include="Media\MediaManagement\IMediaContainer.cs" />
-    <Compile Include="Media\MediaManagement\IMediaItem.cs" />
-    <Compile Include="Media\MediaManagement\IMediaManager.cs" />
-    <Compile Include="Media\MediaManagement\IRootContainer.cs" />
-    <Compile Include="Media\MediaManagement\Views\Operator.cs" />
-    <Compile Include="Media\MediaManagement\Views\IQuery.cs" />
-    <Compile Include="Media\MediaManagement\Views\IView.cs" />
     <Compile Include="Presentation\MenuManager\IMenu.cs" />
     <Compile Include="Presentation\MenuManager\IMenuBuilder.cs" />
     <Compile Include="Presentation\MenuManager\IMenuCollection.cs" />
@@ -150,12 +134,6 @@
     <Compile Include="Presentation\MenuManager\MenuItem.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Media\MetaData\IMetaDataFormatter.cs" />
-    <Compile Include="Media\MetaData\IMetaDataFormatterCollection.cs" />
-    <Compile Include="Media\MetaData\IMetaDataMapping.cs" />
-    <Compile Include="Media\MetaData\IMetaDataMappingCollection.cs" />
-    <Compile Include="Media\MetaData\IMetadataMappingItem.cs" />
-    <Compile Include="Media\MetaData\IMetadataMappingProvider.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
     <Compile Include="Presentation\Players\IPlayerCollection.cs" />

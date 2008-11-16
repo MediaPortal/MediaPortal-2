@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,15 +22,34 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 
-namespace MediaPortal.Media.MediaManagement
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Interface where extracted metadata is written to.
+  /// Base class for <see cref="MediaItem"/> and <see cref="MediaContainer"/> classes.
+  /// Instances of this class are used for encapsulating single entries in media item views.
   /// </summary>
-  public interface IMetadataWriter
+  public class MediaItem
   {
-    // TODO: Methods to write media metadata to a buffer/stream. The written stream has then be
-    // serializable to be transferred over the UPnP network connection
+    #region Protected fields
+
+    protected readonly IDictionary<Guid, MediaItemAspect> _aspects = new Dictionary<Guid, MediaItemAspect>();
+
+    #endregion
+
+    public MediaItem() { }
+
+    public MediaItem(IEnumerable<MediaItemAspect> aspects)
+    {
+      foreach (MediaItemAspect aspect in aspects)
+        _aspects.Add(aspect.Metadata.AspectId, aspect);
+    }
+
+    public IDictionary<Guid, MediaItemAspect> Aspects
+    {
+      get { return _aspects; }
+    }
   }
 }

@@ -22,10 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -47,7 +44,7 @@ namespace MediaPortal.Presentation.Players
     /// Gets the current media item playing.
     /// </summary>
     /// <value>The current media item playing.</value>
-    IMediaItem CurrentMediaItemPlaying { get;}
+    MediaItem CurrentMediaItemPlaying { get;}
 
     /// <summary>
     /// Plays the next item from the playlist

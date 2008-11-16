@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,20 +22,42 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
 
-namespace MediaPortal.Media.MetaData
+namespace MediaPortal.Core.MediaManagement
 {
-  public interface IMetaDataMappingCollection
+  /// <summary>
+  /// Holds all metadata for a the media provider specified by the <see cref="MediaProviderId"/>
+  /// </summary>
+  public class MediaProviderMetadata
   {
+    #region Protected fields
+
+    protected Guid _mediaProviderId;
+    protected string _name;
+
+    #endregion
+
+    public MediaProviderMetadata(Guid mediaProviderId, string name)
+    {
+      _mediaProviderId = mediaProviderId;
+      _name = name;
+    }
+
     /// <summary>
-    /// Adds a new mapping
+    /// GUID which uniquely identifies the media provider.
     /// </summary>
-    /// <param name="mapping">The mapping.</param>
-    void Add(IMetadataMapping mapping);
+    public Guid MediaProviderId
+    {
+      get { return _mediaProviderId; }
+    }
 
-    IList<IMetadataMapping> Mappings { get;}
-
-    int Count { get;}
+    /// <summary>
+    /// Returns the name of the media provider.
+    /// </summary>
+    public string Name
+    {
+      get { return _name; }
+    }
   }
 }

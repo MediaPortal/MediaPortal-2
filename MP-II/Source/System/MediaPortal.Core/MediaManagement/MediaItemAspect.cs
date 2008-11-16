@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,24 +22,35 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using MediaPortal.Media.MediaManagement.Views;
 
-namespace MediaPortal.Media.MediaManagement
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// The MediaDatabase provides access to a database of all registered media files in the current
-  /// MP-II system. It provides an interface to the locally or remotely located MediaLibrary.
+  /// Represents a bundle of media item metadata belonging together. Every media item has meta information
+  /// from different aspects assigned.
+  /// The total of all media item metadata is classified into media item aspects.
   /// </summary>
-  public interface IMediaDatabase
+  public class MediaItemAspect
   {
-    /// <summary>
-    /// Evaluates the specified query on this media database and returns the qualifying media items.
-    /// </summary>
-    /// <param name="query">The query to evaluate on this media database.</param>
-    /// <returns>List of qualifying media items.</returns>
-    IList<IAbstractMediaItem> Evaluate(IQuery query);
+    #region Protected fields
 
-    // TODO: Methods to access special media item data, to provide import data, ...
+    protected MediaItemAspectMetadata _metadata;
+    protected Guid _mediaItemShareId;
+    protected string _mediaItemPath;
+    protected IDictionary<string, object> _aspectData = new Dictionary<string, object>();
+
+    #endregion
+
+    // TODO: constructor
+
+    /// <summary>
+    /// Returns the metadata descriptor for this media item aspect.
+    /// </summary>
+    public MediaItemAspectMetadata Metadata
+    {
+      get { return _metadata; }
+    }
   }
 }

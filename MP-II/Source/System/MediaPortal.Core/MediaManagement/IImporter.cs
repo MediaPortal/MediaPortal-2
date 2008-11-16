@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,30 +22,22 @@
 
 #endregion
 
+using System;
 
-namespace MediaPortal.Media.MetaData
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Interface definition for a formatter
-  /// A formatter is a class which can format a metadata value into a specific representation
-  /// E.g. you might have formatters which format a date, a file-size or a timespan
+  /// Interface for transmitting import jobs.
   /// </summary>
-  public interface IMetaDataFormatter
+  public interface IImporter
   {
     /// <summary>
-    /// Gets or sets the name for the formatter
+    /// Triggers an asynchronous import of the specified import location. The import results will be written into
+    /// the system's registered <see cref="IMediaDatabase"/> instance, if there is one.
     /// </summary>
-    /// <value>The name.</value>
-    string Name { get;set;}
-
-    /// <summary>
-    /// Formats the specified metadata object into the correct representation
-    /// </summary>
-    /// <param name="metaData">The metadata object.</param>
-    /// <param name="formatting">The formatting to use.</param>
-    /// <returns>string containing the formatted metadata object</returns>
-    string Format(object metaData, string formatting);
-
-    int CompareTo(object metaData1, object metaData2);
-  }
+    /// <param name="shareId">Id of the share to import from. If set to <c>null</c>, all shares
+    /// will be imported, else the <paramref name="path"/> of the specified share will be imported.</param>
+    /// <param name="path">Path to be imported from the share with the specified <paramref name="shareId"/>.
+    /// This parameter will be ignored if <paramref name="shareId"/> is set to <c>null</c>.</param>
+    void ForceImport(Guid? shareId, string path);
 }

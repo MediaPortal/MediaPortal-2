@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Media.MediaManagement.Views
+namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   public enum SortOrder
   {
@@ -34,8 +34,8 @@ namespace MediaPortal.Media.MediaManagement.Views
   }
 
   /// <summary>
-  /// Holds the data for one (of many) sort field. Stores the name of the field to be sorted and the
-  /// sort direction.
+  /// Holds the data for one (of possibly many) sort field. Stores the name of the field to be
+  /// sorted and the sort direction.
   /// </summary>
   public struct SortInformation
   {
@@ -44,16 +44,17 @@ namespace MediaPortal.Media.MediaManagement.Views
   }
 
   /// <summary>
-  /// Specifieds a query to be evaluated on the media library database. The evaluation of this query
-  /// will return a set of media items. A query might be executable on a media database or not, depending
-  /// on the requested table data.
+  /// Specifies a query to be evaluated on the media library database. The evaluation of this query
+  /// will return a set of media items.
   /// </summary>
   public interface IQuery
   {
     int ClipSize { get; set; }
 
-    IList<SortInformation> SortInformations { get;set; }
+    IList<SortInformation> SortInformation { get;set; }
 
     // TODO: Getters/setters/accessors for query data and result data
+    // This query class will be formulated with means of media item aspects, their metadata and operators
+    // between them
   }
 }

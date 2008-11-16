@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Media.MediaManagement
+namespace MediaPortal.Core.MediaManagement.MediaProviders
 {
   /// <summary>
   /// MediaProvider interface to access a hierarchical file system structure.

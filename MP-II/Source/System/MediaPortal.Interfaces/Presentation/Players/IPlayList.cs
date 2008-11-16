@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -35,7 +33,7 @@ namespace MediaPortal.Presentation.Players
     /// Returns a list of all queued media to play.
     /// </summary>
     /// <value>The queue.</value>
-    List<IMediaItem> Queue { get;}
+    List<MediaItem> Queue { get;}
 
     /// <summary>
     /// Clears the playlist.
@@ -46,13 +44,13 @@ namespace MediaPortal.Presentation.Players
     /// Adds the specified media item to the playlist
     /// </summary>
     /// <param name="mediaItem">The media item.</param>
-    void Add(IMediaItem mediaItem);
+    void Add(MediaItem mediaItem);
 
     /// <summary>
     /// Removes the specified media item from the playlist
     /// </summary>
     /// <param name="mediaItem">The media item.</param>
-    void Remove(IMediaItem mediaItem);
+    void Remove(MediaItem mediaItem);
 
     /// <summary>
     /// Removes the media at the specified index item from the playlist
@@ -78,7 +76,7 @@ namespace MediaPortal.Presentation.Players
     /// <param name="item">The new media item.</param>
     /// <param name="afterThisItem">The media item after which the new media item should be inserted.</param>
     /// <returns></returns>
-    bool Insert(IMediaItem item, IMediaItem afterThisItem);
+    bool Insert(MediaItem item, MediaItem afterThisItem);
     
     /// <summary>
     /// Gets a value indicating whether all items have been played

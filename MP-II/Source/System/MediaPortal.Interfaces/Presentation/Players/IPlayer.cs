@@ -24,7 +24,7 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -89,7 +89,7 @@ namespace MediaPortal.Presentation.Players
     /// Plays the file
     /// </summary>
     /// <param name="fileName"></param>
-    void Play(IMediaItem item);
+    void Play(MediaItem item);
 
     /// <summary>
     /// stops playback
@@ -217,7 +217,7 @@ namespace MediaPortal.Presentation.Players
     /// Gets the media-item.
     /// </summary>
     /// <value>The media-item.</value>
-    IMediaItem MediaItem { get;}
+    MediaItem MediaItem { get;}
 
     /// <summary>
     /// Restarts playback from the start.

@@ -22,17 +22,15 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
+using MediaPortal.Core.MediaManagement;
 
-using MediaPortal.Media.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
   public interface IPlaylistIO
   {
-    List<IAbstractMediaItem> Load(string fileName);
+    List<MediaItem> Load(string fileName);
     void Save(IPlaylist playlist, string fileName);
   }
 }

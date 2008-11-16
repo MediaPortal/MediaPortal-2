@@ -22,43 +22,33 @@
 
 #endregion
 
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.DataObjects
 {
   public class FolderItem : TreeItem
   {
-    private readonly IRootContainer _folder;
-    private readonly IMediaItem _mediaItem;
+    private readonly MediaContainer _folder;
+    private readonly MediaItem _mediaItem;
 
     public FolderItem() {}
 
-    public FolderItem(IRootContainer folder)
+    public FolderItem(MediaContainer folder)
     {
       _folder = folder;
     }
 
-    public FolderItem(IMediaItem mediaItem)
+    public FolderItem(MediaItem mediaItem)
     {
       _mediaItem = mediaItem;
     }
 
-    public IRootContainer MediaContainer
+    public MediaContainer MediaContainer
     {
       get { return _folder; }
     }
 
-    public IRootContainer Root
-    {
-      get
-      {
-        if (_folder == null)
-          return null;
-        return _folder.Root;
-      }
-    }
-
-    public IMediaItem MediaItem
+    public MediaItem MediaItem
     {
       get { return _mediaItem; }
     }

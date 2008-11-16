@@ -23,13 +23,13 @@
 #endregion
 
 using System;
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
   public interface IPlayerBuilder
   {
-    bool CanPlay(IMediaItem mediaItem, Uri uri);
-    IPlayer GetPlayer(IMediaItem mediaItem, Uri uri);
+    bool CanPlay(MediaItem mediaItem, Uri uri);
+    IPlayer GetPlayer(MediaItem mediaItem, Uri uri);
   }
 }

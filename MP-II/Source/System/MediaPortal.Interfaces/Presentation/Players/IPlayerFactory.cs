@@ -22,8 +22,7 @@
 
 #endregion
 
-using System;
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -39,7 +38,7 @@ namespace MediaPortal.Presentation.Players
     /// <returns>
     /// IPlayer or null if no player supports the file
     /// </returns>
-    IPlayer GetPlayer(IMediaItem uri);
+    IPlayer GetPlayer(MediaItem uri);
 
     void Register(IPlayerBuilder builder);
   }
