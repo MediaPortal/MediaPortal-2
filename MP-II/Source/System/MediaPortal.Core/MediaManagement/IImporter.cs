@@ -40,4 +40,5 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="path">Path to be imported from the share with the specified <paramref name="shareId"/>.
     /// This parameter will be ignored if <paramref name="shareId"/> is set to <c>null</c>.</param>
     void ForceImport(Guid? shareId, string path);
+  }
 }
