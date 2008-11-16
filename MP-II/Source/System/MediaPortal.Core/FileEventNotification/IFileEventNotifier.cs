@@ -27,7 +27,8 @@ namespace MediaPortal.Core.FileEventNotification
 {
 
   /// <summary>
-  /// IFileEventNotifier is a service which provides an interfaces to a more advanced <see cref="System.IO.FileSystemWatcher"/>.
+  /// IFileEventNotifier is a service which provides an interfaces to a more advanced
+  /// <see cref="System.IO.FileSystemWatcher"/>.
   /// </summary>
   public interface IFileEventNotifier
   {

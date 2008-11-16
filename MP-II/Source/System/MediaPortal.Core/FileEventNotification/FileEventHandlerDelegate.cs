@@ -29,5 +29,5 @@ namespace MediaPortal.Core.FileEventNotification
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="args">The FileWatchEventArgs that contains the event data.</param>
-  public delegate void FileEventHandler(FileWatchInfo sender, IFileWatchEventArgs args);
+  public delegate void FileEventHandlerDelegate(FileWatchInfo sender, IFileWatchEventArgs args);
 }
