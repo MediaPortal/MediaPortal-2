@@ -76,7 +76,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\Exceptions.cs" />
-    <Compile Include="FileEventNotification\FileEventHandler.cs" />
+    <Compile Include="FileEventNotification\FileEventHandlerDelegate.cs" />
     <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
     <Compile Include="FileEventNotification\FileWatchInfo.cs" />
     <Compile Include="FileEventNotification\IFileEventNotifier.cs" />
