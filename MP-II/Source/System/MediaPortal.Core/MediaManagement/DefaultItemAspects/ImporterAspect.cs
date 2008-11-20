@@ -28,23 +28,25 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata of the "ImportedItem" media item aspect which is assigned to all items
+  /// Contains the metadata specification of the "ImportedItem" media item aspect which is assigned to all items
   /// which are updated by an importer.
   /// </summary>
   public static class ImporterAspect
   {
     public static Guid ASPECT_ID = new Guid("{CC0163FE-55A5-426c-A29C-F1D64AF7E683}");
-    public static string ATTR_LAST_IMPORT_TIME = "Last import time";
-    public static string ATTR_LAST_IMPORT_DURATION = "Last import duration";
-    public static string ATTR_DIRTY = "Dirty";
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_LAST_IMPORT_TIME =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Last import time", typeof(DateTime), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_LAST_IMPORT_DURATION =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Last import duration", typeof(TimeSpan), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIRTY =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Dirty", typeof(bool), Cardinality.Inline);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ImportedItem", new[] {
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_LAST_IMPORT_TIME, typeof(DateTime), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_LAST_IMPORT_DURATION, typeof(TimeSpan), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_DIRTY, typeof(bool), false),
-  });
-}
-
+            ATTR_LAST_IMPORT_TIME,
+            ATTR_LAST_IMPORT_DURATION,
+            ATTR_DIRTY,
+        });
+  }
 }

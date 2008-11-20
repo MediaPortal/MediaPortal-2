@@ -28,23 +28,28 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata of the "ProviderResource" media item aspect which is assigned to all resource files
-  /// provided by some media provider.
+  /// Contains the metadata specification of the "ProviderResource" media item aspect which is assigned
+  /// to all resource files provided by some media provider.
   /// </summary>
   public static class ProviderResourceAspect
   {
     public static Guid ASPECT_ID = new Guid("{0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED}");
-    public static string ATTR_SOURCE_COMPUTER = "Source-Computer";
-    public static string ATTR_PROVIDER_ID = "Provider-ID";
-    public static string ATTR_PATH = "Path";
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SOURCE_COMPUTER =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Source-Computer", typeof(string), Cardinality.ManyToOne);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PROVIDER_ID =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Provider-ID", typeof(string), Cardinality.ManyToOne);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PATH =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Path", typeof(string), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENTPROVIDERS =
+        MediaItemAspectMetadata.CreateAttributeSpecification("ParentProviders", typeof(string), Cardinality.ManyToMany);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_SOURCE_COMPUTER, typeof(string), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_PROVIDER_ID, typeof(string), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_PATH, typeof(string), false),
-  });
-}
-
+            ATTR_SOURCE_COMPUTER,
+            ATTR_PROVIDER_ID,
+            ATTR_PATH,
+            ATTR_PARENTPROVIDERS,
+        });
+  }
 }

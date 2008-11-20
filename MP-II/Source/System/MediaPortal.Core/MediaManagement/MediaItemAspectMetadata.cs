@@ -27,6 +27,47 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Core.MediaManagement
 {
+  public enum Cardinality
+  {
+    /// <summary>
+    /// The attribute is defined at the current media item aspect instance.
+    /// </summary>
+    /// <remarks>
+    /// The attribute will be defined inline in the media item aspect's table.
+    /// </remarks>
+    Inline,
+
+    /// <summary>
+    /// There are multiple entries for the attribute, which are all dedicated to the
+    /// current instance.
+    /// </summary>
+    /// <remarks>
+    /// The attribute will be defined in its own table and the association attribute to the
+    /// current media item aspect is located at the attribute's table.
+    /// </remarks>
+    OneToMany,
+
+    /// <summary>
+    /// There is exactly one associated entry, which is assigned to multiple
+    /// media item's aspects.
+    /// </summary>
+    /// <remarks>
+    /// The attribute will be defined in its own table and the association attribute to the
+    /// attribute's value is defined in the media item aspect's table.
+    /// </remarks>
+    ManyToOne,
+
+    /// <summary>
+    /// There are multiple entries for the attribute, which are not dedicated to the
+    /// current instance.
+    /// </summary>
+    /// <remarks>
+    /// The attribute will be defined in its own table and the association between the
+    /// media item aspect's table and the attribute's table will be defined in its own N:M table.
+    /// </remarks>
+    ManyToMany
+  }
+
   /// <summary>
   /// Holds the metadata descriptor for a <see cref="MediaItemAspect"/>.
   /// </summary>
@@ -41,15 +82,15 @@ namespace MediaPortal.Core.MediaManagement
 
       protected string _attributeName;
       protected Type _attributeType;
-      protected bool _cardinalityN;
+      protected Cardinality _cardinality;
 
       #endregion
 
-      internal AttributeSpecification(string name, Type type, bool cardinalityN)
+      internal AttributeSpecification(string name, Type type, Cardinality cardinality)
       {
         _attributeName = name;
         _attributeType = type;
-        _cardinalityN = cardinalityN;
+        _cardinality = cardinality;
       }
 
       /// <summary>
@@ -70,18 +111,12 @@ namespace MediaPortal.Core.MediaManagement
       }
 
       /// <summary>
-      /// Returns the information if the attribute's instance value is a collection
-      /// of <see cref="AttributeType"/> (<c>CardinalityN == true</c>) or a single
-      /// instance of <see cref="AttributeType"/> (<c>CardinalityN == false</c>).
-      /// In case (<c>CardinalityN == false</c>), the attribute's instance value is exactly
-      /// of class <see cref="AttributeType"/> (or any subtype), in case
-      /// (<c>CardinalityN == true</c>), the attribute's instance value is of class
-      /// <c>ICollection&lt;T&gt;</c>, where <c>T</c> is exactly the
-      /// <see cref="AttributeType"/>.
+      /// Gets the cardinality of this attribute. See the docs for the
+      /// <see cref="Cardinality"/> class and its members.
       /// </summary>
-      public bool CardinalityN
+      public Cardinality Cardinality
       {
-        get { return _cardinalityN; }
+        get { return _cardinality; }
       }
     }
 
@@ -153,10 +188,10 @@ namespace MediaPortal.Core.MediaManagement
     /// <see cref="MediaItemAspectMetadata"/> instance.
     /// </summary>
     public static AttributeSpecification CreateAttributeSpecification(string attributeName,
-        Type attributeType, bool cardinalityN)
+        Type attributeType, Cardinality cardinality)
     {
-      // TODO: check attributeType if it is a supported database type
-      return new AttributeSpecification(attributeName, attributeType, cardinalityN);
+      // TODO: check if attributeType is a supported database type
+      return new AttributeSpecification(attributeName, attributeType, cardinality);
     }
   }
 }

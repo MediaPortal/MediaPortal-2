@@ -40,11 +40,18 @@ namespace MediaPortal.Core.MediaManagement
     protected Guid _metadataExtractorId;
     protected string _name;
     protected ICollection<string> _shareCategories;
-    protected ICollection<MediaItemAspectMetadata> _extractedAspects;
+    protected ICollection<MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
 
-    // TODO: Constructor
+    public MetadataExtractorMetadata(Guid metadataExtractorId, string name,
+        IEnumerable<string> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
+    {
+      _metadataExtractorId = metadataExtractorId;
+      _name = name;
+      _shareCategories = new List<string>(shareCategories);
+      _extractedAspectTypes = new List<MediaItemAspectMetadata>(extractedAspectTypes);
+    }
 
     /// <summary>
     /// GUID which uniquely identifies the metadata extractor.
@@ -83,9 +90,9 @@ namespace MediaPortal.Core.MediaManagement
     /// should be defined here. If the ME writes metadata for aspects whose metadata descriptors
     /// aren't returned here, these attributes can be discarded by the system.
     /// </summary>
-    public ICollection<MediaItemAspectMetadata> ExtractedAspects
+    public ICollection<MediaItemAspectMetadata> ExtractedAspectTypes
     {
-      get { return _extractedAspects; }
+      get { return _extractedAspectTypes; }
     }
   }
 }

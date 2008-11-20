@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 
@@ -52,13 +53,16 @@ namespace MediaPortal.Core.MediaManagement
     /// <paramref name="path"/>.</param>
     /// <param name="path">The path of the physical media file in the specified <paramref "provider"/>
     /// to process.</param>
-    /// <param name="extractedAspectData">Collection where this metadata extractor will fill its media item aspects
-    /// with the extracted metadata in.</param>
+    /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
+    /// media item aspects where this metadata extractor will fill its media item aspects with the
+    /// extracted metadata in. The dictionary will contain media items for all media item aspect types
+    /// given by the <see cref="MetadataExtractorMetadata.ExtractedAspectTypes"/> collection of the
+    /// <see cref="Metadata"/> instance.</param>
     /// <returns><c>true</c> if the metadata could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
     bool TryExtractMetadata(IMediaProvider provider, string path,
-        ICollection<MediaItemAspect> extractedAspectData);
+        IDictionary<Guid, MediaItemAspect> extractedAspectData);
   }
 }

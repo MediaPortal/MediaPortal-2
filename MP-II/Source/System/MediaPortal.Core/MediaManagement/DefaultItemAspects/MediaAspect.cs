@@ -28,24 +28,34 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata of the "Media" media item aspect which is assigned to all media items.
+  /// Contains the metadata specification of the "Media" media item aspect which is assigned to all media items.
   /// </summary>
   public static class MediaAspect
   {
+    /// <summary>
+    /// Media item aspect id of the media aspect.
+    /// </summary>
     public static Guid ASPECT_ID = new Guid("{A01B7D6E-A6F2-434b-AC12-49D7D5CBD377}");
-    public static string ATTR_TITLE = "Title";
-    public static string ATTR_ENCODING = "Encoding";
-    public static string ATTR_DATE = "Recording time";
-    public static string ATTR_RATING = "Rating";
+
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Title", typeof(string), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Encoding", typeof(string), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DATE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Recording time", typeof(DateTime), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Comment", typeof(string), Cardinality.Inline);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_TITLE, typeof(string), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_ENCODING, typeof(string), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_DATE, typeof(DateTime), false),
-            MediaItemAspectMetadata.CreateAttributeSpecification(ATTR_RATING, typeof(int), false),
-  });
-}
-
+            ATTR_TITLE,
+            ATTR_ENCODING,
+            ATTR_DATE,
+            ATTR_RATING,
+            ATTR_COMMENT,
+        });
+  }
 }
