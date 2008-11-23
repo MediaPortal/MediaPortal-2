@@ -24,60 +24,37 @@
 
 using System;
 using MediaPortal.Core;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Media.ClientMediaManager;
+using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Screen;
 
 namespace Models.Media
 {
   /// <summary>
-  /// Model which exposes a movie collection
-  /// The movie collection are just movies & folders on the HDD
+  /// Model which holds the GUI state for the current navigation in the media views.
   /// </summary>
   public class Model
   {
-    public const string IMPORTERSQUEUE_NAME = "Importers";
+    #region Protected fields
 
-    #region variables
-    private ItemsCollection _sortMenu;
-    private readonly ItemsCollection _items; //Only one items list allowed as the UI databinds to it.
-    private readonly MediaSettings _settings;
-    private IRootContainer currentItem = null;
+    protected ItemsList _sortMenu;
+    protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
+    protected ViewMetadata _currentView;
+    protected NavigationItem _navigateParentItem;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Model"/> class.
-    /// </summary>
     public Model()
     {
-      //load our settings
-      _settings = ServiceScope.Get<ISettingsManager>().Load<MediaSettings>();
-      _items = new ItemsCollection();
-      //if (_settings.Folder != null)
-        //{
-      //  currentItem = MediaFactory.GetItemForFolder(_settings.Folder);
-      //}
-      Refresh();
-
-
-      IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate(IMPORTERSQUEUE_NAME);
-      queue.OnMessageReceive += OnImporterMessageReceived;
+      _items = new ItemsList();
+      _currentView = ServiceScope.Get<MediaManager>().RootView;
+      ReloadItems();
     }
 
-    void OnImporterMessageReceived(QueueMessage message)
-    {
-      Refresh();
-      _items.FireChange();
-    }
-
-    #region music collection methods
-
-    public ItemsCollection MainMenu
+    // FIXME: Main menu management will be moved out of models
+    public ItemsList MainMenu
     {
       get
       {
@@ -87,155 +64,79 @@ namespace Models.Media
     }
 
     /// <summary>
-    /// provides a collection of moves to the skin
+    /// Provides a list with the sub views and media items of the current view.
     /// </summary>
-    /// <value>The movies.</value>
-    public ItemsCollection Items
+    public ItemsList Items
     {
-      get
-      {
-        return _items;
-      }
+      get { return _items; }
     }
-
-    private void Refresh()
-    {
-      MediaFactory.LoadItems(_items, currentItem);
-      //ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      //if (currentItem != null)
-      //  _settings.Folder = currentItem.FullPath;
-      //else
-      //  _settings.Folder = "";
-
-      //settingsManager.Save(_settings);
-    }
-
 
     /// <summary>
-    /// provides a command for the skin to select a movie
-    /// if its a folder, we build a new movie collection showing the contents of the folder
-    /// if its a movie , we play it
+    /// Provides a <see cref="ListItem"/> to the GUI which denotes the parent view of the current
+    /// view.
     /// </summary>
-    /// <param name="item">The item.</param>
+    public NavigationItem NavigateParentItem
+    {
+      get { return _navigateParentItem; }
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to select an item.
+    /// Depending on the item type, we will navigate to the choosen view or play the item.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be either <see cref="NavigateParentItem"/> or
+    /// one of the items in the <see cref="Items"/> list.</param>
     public void Select(ListItem item)
     {
       if (item == null)
+        return;
+      NavigationItem navigationItem = item as NavigationItem;
+      if (navigationItem != null)
       {
+        NavigateToView(navigationItem.ViewId);
         return;
       }
-      ContainerItem container = item as ContainerItem;
-      if (container != null)
+      PlayableItem playableItem = item as PlayableItem;
+      if (playableItem != null)
       {
-        currentItem = container.MediaContainer;
-        Refresh();
-        _items.FireChange();
+        PlayItem(playableItem.MediaItem);
         return;
       }
-      MediaItem mediaItem = item as MediaItem;
-      if (mediaItem == null)
-      {
-        return;
-      }
-      Uri uri = mediaItem.Item.ContentUri;
-      if (uri == null)
-      {
-        return;
-      }
-      ProcessItem(mediaItem);
     }
 
-    private static void ProcessItem(MediaItem item)
-    {
-      IPlayer player;
-      try
-      {
-        //show waitcursor
-        //window.WaitCursorVisible = true;
+    #region Protected methods
 
-        //stop any other movies
-        IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
-        //create a new player for our movie
-        IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
-        player = factory.GetPlayer(item.Item);
-        if (player != null)
-        {
-          collection.Add(player);
-          player.Play(item.Item);
-          if (player.IsVideo)
-          {
-            IScreenManager manager = ServiceScope.Get<IScreenManager>();
-            manager.ShowScreen("fullscreenvideo");
-          }
-        }
-      }
-      finally
-      {
-        //hide waitcursor
-        //window.WaitCursorVisible = false;
-      }
+    protected void NavigateToView(Guid viewId)
+    {
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      _currentView = mediaManager.GetViewMetadata(viewId);
+      ReloadItems();
+    }
+
+    protected static void PlayItem(MediaItem item)
+    {
+      // TODO: Play item
+    }
+
+    protected void ReloadItems()
+    {
+      _items.Clear();
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      _navigateParentItem = _currentView.ParentViewId.HasValue ? new NavigationItem(_currentView.ParentViewId.Value, "..") : null;
+      // Note: we don't add the NavigateParentItem to _items - it is the job of the screenfile to
+      // provide an item to navigate to the view denoted by NavigateParentItem
+
+      // Add items for sub views
+      foreach (Guid subViewId in _currentView.SubViewIds)
+        _items.Add(new NavigationItem(subViewId, null));
+      View view = mediaManager.GetView(_currentView.ViewId);
+      foreach (MediaItem item in view.MediaItems)
+        _items.Add(new PlayableItem(item));
+      _items.FireChange();
     }
 
     #endregion
 
-    #region sorting methods
-
-    /// <summary>
-    /// returns the current sort mode.
-    /// </summary>
-    /// <value>The sort mode.</value>
-    public string SortMode
-    {
-      get { return _settings.SortOption.ToString(); }
-    }
-
-    /// <summary>
-    /// Provides a list of sort options to the skin
-    /// (used in dialogmenu.xml)
-    /// </summary>
-    /// <value>The sort options.</value>
-    public ItemsCollection SortOptions
-    {
-      get
-      {
-        if (_sortMenu == null)
-        {
-          IMenuCollection menuCollect = ServiceScope.Get<IMenuCollection>();
-          _sortMenu = MenuHelper.WrapMenu(menuCollect.GetMenu("music-sort"));
-        }
-
-        SetSelectedSortMode();
-        return _sortMenu;
-      }
-    }
-    void SetSelectedSortMode()
-    {
-      for (int i = 0; i < _sortMenu.Count; ++i)
-      {
-        if (i != (int)_settings.SortOption)
-          _sortMenu[i].Selected = false;
-        else
-          _sortMenu[i].Selected = true;
-      }
-    }
-    /// <summary>
-    /// provides command for the skin to sort the current movie collection
-    /// </summary>
-    /// <param name="selectedItem">The item.</param>
-    public void Sort(ListItem selectedItem)
-    {
-      for (int i = 0; i < _sortMenu.Count; ++i)
-      {
-        if (selectedItem == _sortMenu[i])
-        {
-          int[] values = (int[])Enum.GetValues(typeof(SortOption));
-          _settings.SortOption = (SortOption)values[i];
-          _items.Sort(new MediaComparer(_settings.SortOption));
-          ServiceScope.Get<ISettingsManager>().Save(_settings);
-        }
-      }
-      SetSelectedSortMode();
-    }
-
-    #endregion
+    // TODO: Context menu handling
   }
 }

@@ -3,12 +3,8 @@
     Name = "Media"
     Author = "Team MediaPortal"
     Copyright = "GPL"
-    Description = "Media Plugin"
+    Description = "Media Navigation Plugin"
     PluginVersion = "1.0">
-
-  <DependsOn>
-    <PluginReference Name = "MediaManager"/>
-  </DependsOn>
 
   <Runtime>
     <Assembly FileName = "Media.dll"/>
