@@ -24,14 +24,18 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Base class for <see cref="MediaItem"/> and <see cref="MediaContainer"/> classes.
-  /// Instances of this class are used for encapsulating single entries in media item views.
+  /// Instances of this class are used for holding the data for single entries in media item views.
   /// </summary>
-  public class MediaItem
+  /// <remarks>
+  /// Instances of this class contain multiple media item aspect instances; not necessarily all media item
+  /// aspects are contained here.
+  /// </remarks>
+  public class MediaItem : IEquatable<MediaItem>
   {
     #region Protected fields
 
@@ -45,11 +49,59 @@ namespace MediaPortal.Core.MediaManagement
     {
       foreach (MediaItemAspect aspect in aspects)
         _aspects.Add(aspect.Metadata.AspectId, aspect);
+      if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
+            typeof(ProviderResourceAspect).Name));
     }
 
     public IDictionary<Guid, MediaItemAspect> Aspects
     {
       get { return _aspects; }
     }
+
+    /// <summary>
+    /// Returns the media item aspect of the specified <paramref name="mediaItemAspectId"/>, if it is
+    /// contained in this media item. If the specified aspect is contained in this instance depends on two
+    /// conditions: 1) the aspect has to be present on this media item in the media storage (media library
+    /// or local storage), 2) the aspect data have to be added to this instance.
+    /// </summary>
+    /// <param name="mediaItemAspectId">Id of the media item aspect to retrieve.</param>
+    /// <returns>Media item aspect of the specified <paramref name="mediaItemAspectId"/>, or <c>null</c>,
+    /// if the aspect is not contained in this instance.</returns>
+    public MediaItemAspect this[Guid mediaItemAspectId]
+    {
+      get { return _aspects.ContainsKey(mediaItemAspectId) ? _aspects[mediaItemAspectId] : null; }
+    }
+
+    #region IEquatable<MediaItem> implementation
+
+    public bool Equals(MediaItem other)
+    {
+      if (other == null)
+        return false;
+      MediaItemAspect myProviderAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
+      MediaItemAspect otherProviderAspect = other._aspects[ProviderResourceAspect.ASPECT_ID];
+      return
+          myProviderAspect[ProviderResourceAspect.ATTR_PROVIDER_ID] == otherProviderAspect[ProviderResourceAspect.ATTR_PROVIDER_ID] &&
+          myProviderAspect[ProviderResourceAspect.ATTR_PATH] == otherProviderAspect[ProviderResourceAspect.ATTR_PATH];
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override int GetHashCode()
+    {
+      MediaItemAspect providerAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
+      return providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID].GetHashCode() +
+          providerAspect[ProviderResourceAspect.ATTR_PATH].GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as MediaItem);
+    }
+
+    #endregion
   }
 }

@@ -32,12 +32,11 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
   /// This interface provides the most common functionality each MediaProvider will have.
   /// Sub interfaces define additional functionality like enumerating available media
   /// files, a hierarchical filesystem, etc.
-  /// Implementations can provide media data by accessing the local file system, a web server,
-  /// an UPnP mediaserver, ...
+  /// Implementations can provide media data by accessing arbitrary sources like the local file system,
+  /// a web server, a UPnP mediaserver, ...
   /// </summary>
   /// <remarks>
-  /// The media provider is partitioned in its metadata part (<see cref="Metadata"/>)
-  /// and this worker class.
+  /// The media provider is partitioned in its metadata part (see <see cref="Metadata"/>) and this worker class.
   /// </remarks>
   public interface IMediaProvider
   {

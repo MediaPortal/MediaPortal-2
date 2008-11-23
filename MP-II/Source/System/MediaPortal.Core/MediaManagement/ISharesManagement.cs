@@ -35,10 +35,11 @@ namespace MediaPortal.Core.MediaManagement
   /// It will also be implemented by a local shares management for the disconnected client mode.
   /// </summary>
   /// <remarks>
-  /// Shares are exclusively managed by the MediaPortal server's media library. So, all shares management
-  /// methods will be based on the shares data from the system's media library. However,
-  /// if the MediaPortal client isn't connected to a MediaPortal server, the MediaPortal client should
-  /// fallback where possible to the set of its local shares, until it gets connected to a MediaPortal server.
+  /// Shares are managed redundantly at MediaPortal clients and at the MediaPortal server's media library.
+  /// So it is possible to access local shares while the client is not connected to the server.
+  /// Shares, which have been reconfigured by the client in disconnected mode MUST be synchronized with the
+  /// server when the next server connection is made. So the client will synchronize its shares each time the
+  /// server gets connected.
   /// <br/>
   /// Shares are globally uniquely identified by share GUIDs.
   /// </remarks>

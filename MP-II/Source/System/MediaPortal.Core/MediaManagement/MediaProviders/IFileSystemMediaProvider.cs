@@ -30,13 +30,13 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
   /// MediaProvider interface to access a hierarchical file system structure.
   /// This interface provides additional methods to navigate through the structure, i.e.
   /// query available sub items and sub directories.
-  /// This provider works for all hierarchical file systems - it is NOT intended to be only used
+  /// This provider works for all hierarchical file systems - it is NOT ONLY intended to be used
   /// for the local HDD filesystem.
   /// </summary>
   /// <remarks>
   /// Implementors of this interface can provide a (maybe virtual) filesystem, starting with
   /// a root directory.
-  /// The root directory is denoted by "/". Directory paths are organized like unix paths.
+  /// The root directory is denoted by "/". Directory path names are organized like unix paths.
   /// </remarks>
   public interface IFileSystemMediaProvider : IMediaProvider
   {

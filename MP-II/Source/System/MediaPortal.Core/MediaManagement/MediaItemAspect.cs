@@ -99,6 +99,7 @@ namespace MediaPortal.Core.MediaManagement
     /// Sets the attribute of type <paramref name="attributeSpecification"/> for this media item aspect.
     /// </summary>
     /// <param name="attributeSpecification">Attribute type to set.</param>
+    /// <param name="value">Value to be set to the specified attribute.</param>
     /// <typeparam name="T">Type of the attribute to set. This type has to be the same type as specified
     /// by <see cref="MediaItemAspectMetadata.AttributeSpecification.AttributeType"/>.</typeparam>
     /// <exception cref="ArgumentException">Thrown if an attribute type is specified which is not defined on this MIA's metadata or
@@ -110,11 +111,18 @@ namespace MediaPortal.Core.MediaManagement
       _aspectData[attributeSpecification] = value;
     }
 
+    public object this[MediaItemAspectMetadata.AttributeSpecification attributeSpecification]
+    {
+      get { return _aspectData.ContainsKey(attributeSpecification) ? _aspectData[attributeSpecification] :
+          null; }
+    }
+
     /// <summary>
     /// Sets the collection attribute of type <paramref name="attributeSpecification"/> for this
     /// media item aspect.
     /// </summary>
     /// <param name="attributeSpecification">Attribute type to set.</param>
+    /// <param name="value">Enumeration of values to be set to the specified attribute.</param>
     /// <typeparam name="T">Value type of the attribute enumeration to set. This type has to be the same
     /// type as specified by <see cref="MediaItemAspectMetadata.AttributeSpecification.AttributeType"/>.</typeparam>
     /// <exception cref="ArgumentException">Thrown if an attribute type is specified which is not defined on this
@@ -137,7 +145,7 @@ namespace MediaPortal.Core.MediaManagement
 
     protected void CheckCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
     {
-      if (attributeSpecification.Cardinality != Cardinality.ManyToMany && attributeSpecification.Cardinality != Cardinality.OneToMany)
+      if (!attributeSpecification.IsCollectionAttribute)
         throw new ArgumentException(string.Format(
             "Media item aspect '{0}': Attribute '{1}' is no collection type",
             _metadata.Name, attributeSpecification.AttributeName));

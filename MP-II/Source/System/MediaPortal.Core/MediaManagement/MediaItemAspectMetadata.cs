@@ -118,6 +118,15 @@ namespace MediaPortal.Core.MediaManagement
       {
         get { return _cardinality; }
       }
+
+      /// <summary>
+      /// Returns the information if this attribute is a collection attribute, i.e. supports multi-value
+      /// entries.
+      /// </summary>
+      public bool IsCollectionAttribute
+      {
+        get { return _cardinality == Cardinality.ManyToMany || _cardinality == Cardinality.OneToMany; }
+      }
     }
 
     #region Protected fields
