@@ -78,9 +78,9 @@ namespace MediaPortal.Media.ClientMediaManager
     protected void SaveSharesToSettings()
     {
       SharesSettings settings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
-      ICollection<ShareDescriptor> shares = new List<ShareDescriptor>();
-      CollectionUtils.AddAll(shares, _shares.Values);
-      ServiceScope.Get<ISettingsManager>().Save(shares);
+      settings.LocalShares.Clear();
+      CollectionUtils.AddAll(settings.LocalShares, _shares.Values);
+      ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
     #region Implementation of IShareManagement

@@ -73,7 +73,7 @@ namespace MediaPortal.Media.ClientMediaManager
             MusicAspect.ASPECT_ID
         };
       LocalShareViewMetadata lsvm = new LocalShareViewMetadata(viewId, "Test-Root-View",
-          shareId, null, null, mediaItemAspectIds);
+          shareId, string.Empty, null, mediaItemAspectIds);
       _rootView = lsvm;
       _viewsIndex.Add(viewId, lsvm);
     }
@@ -177,7 +177,9 @@ namespace MediaPortal.Media.ClientMediaManager
 
     /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata
-    /// from the specified media provider location.
+    /// from the specified media provider location. Only the specified location will be processed,
+    /// i.e. if the location denotes a media item, that item will be processed, else if the location
+    /// denotes a folder, metadata for the folder itself will be extracted, no sub items will be processed.
     /// </summary>
     /// <param name="providerId">Id of the media provider to use as source for this metadata extraction.</param>
     /// <param name="path">Path in the provider to extract metadata from.</param>
