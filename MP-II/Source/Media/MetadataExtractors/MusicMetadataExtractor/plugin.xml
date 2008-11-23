@@ -1,24 +1,18 @@
 <Plugin
     Version = "1.0"
-    Name = "MusicImporter"
-    Author = "hwahrmann"
+    Name = "MusicMetadataExtractor"
+    Author = "Team Mediaportal"
     Copyright = "GPL"
-    Description = "Music Importer"
+    Description = "Metadata extractor for many kinds of music file formats"
     PluginVersion = "1.0">
 
-  <DependsOn>
-    <PluginReference Name="ImporterManager"/>
-  </DependsOn>
-
   <Runtime>
-    <Assembly FileName = "MusicImporter.dll"/>
-    <PluginStateTracker ClassName = "Media.Importers.MusicImporter.MusicImporter"/>
+    <Assembly FileName = "MusicMetadataExtractor.dll"/>
   </Runtime>
 
-  <Register Location = "/Media/Importers">
+  <Register Location = "/Media/MetadataExtractors">
     <Importer
-        Id = "MusicImporter"
-        ClassName = "Media.Importers.MusicImporter.MusicImporter"
-        Extensions = ".mp3,.wma,.ogg,.flac,.wav,.cda,.m3u,.pls,.b4s,.m4a,.m4p,.mp4,.wpl,.wv,.ape,.mpc"/>
+        Id = "MusicMetadataExtractor"
+        ClassName = "MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor.MusicMetadataExtractor"/>
   </Register>
 </Plugin>

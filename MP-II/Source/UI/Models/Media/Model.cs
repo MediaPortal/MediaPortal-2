@@ -29,7 +29,6 @@ using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screen;
 
 namespace Models.Media

@@ -44,7 +44,7 @@ namespace Media.Players.PicturePlayer
 
     public bool RequestEnd()
     {
-      return false; // FIXME: The player plugin should be able to be disabled
+      return false; // TODO: The player plugin should be able to be disabled
     }
 
     public void Stop() { }

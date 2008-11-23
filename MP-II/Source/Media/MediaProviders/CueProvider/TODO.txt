@@ -1,0 +1,3 @@
+﻿See the posting here: http://forum.team-mediaportal.com/general-265/overall-application-design-how-skinengine-talks-rest-world-46367/index4.html#post331495
+
+Create a virtual Cue media provider in this project. The CueSheet class comes from the ancient MusicImporter.

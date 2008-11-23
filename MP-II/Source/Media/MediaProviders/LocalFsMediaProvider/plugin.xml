@@ -1,0 +1,16 @@
+<Plugin
+    Version = "1.0"
+    Name = "LocalFsMediaProvider"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Local Filesystem Media Provider"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "LocalFsMediaProvider.dll"/>
+  </Runtime>
+
+  <Register Location = "/Media/MediaProviders">
+    <Instance Id = "LocalFsProvider" ClassName = "MediaPortal.Media.MediaProviders.LocalFsMediaProvider.LocalFsMediaProvider"/>
+  </Register>
+</Plugin>

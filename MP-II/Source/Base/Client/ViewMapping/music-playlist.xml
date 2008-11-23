@@ -1,7 +1,0 @@
-<mapping>
- <map name="[music.0]">
-  <item skinlabel="CoverArt" metadata="CoverArt" format="text"/>
-  <item skinlabel="Name" metadata="title" format="text"/>
-   <item skinlabel="Size"  metadata="duration" format="timespan" formatas="hh:mm:ss"/>
- </map>
-</mapping>

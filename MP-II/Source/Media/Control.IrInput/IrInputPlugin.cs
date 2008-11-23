@@ -76,7 +76,7 @@ namespace Components.Control.IrInput
 
     public bool RequestEnd()
     {
-      return false; // FIXME: The IR plugin should be able to be disabled
+      return false; // TODO: The IR plugin should be able to be disabled
     }
 
     public void Stop() { }
