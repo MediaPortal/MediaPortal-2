@@ -111,7 +111,6 @@
     <Compile Include="DeviceManager\IOpticalDrive.cs" />
     <Compile Include="DeviceManager\MediaType.cs" />
     <Compile Include="DeviceManager\ProjectType.cs" />
-    <Compile Include="Presentation\DataObjects\FolderItem.cs" />
     <Compile Include="Presentation\DataObjects\ItemsCollection.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Localisation\LocalizationHelper.cs" />
