@@ -75,7 +75,7 @@ namespace MediaPortal.Core.Services.Settings
   /// settings objects after <see cref="SETTINGS_OBJ_RELEASE_TIME"/> seconds.
   /// This cache implementation is thread-safe.
   /// </summary>
-  public class SettingsCache : IEnumerable<SettingsObjectWrapper>, IEnumerable, IDisposable
+  public class SettingsCache : IEnumerable<SettingsObjectWrapper>, IDisposable
   {
     /// <summary>
     /// Timespan in seconds after that an unused setting gets released.
@@ -108,9 +108,9 @@ namespace MediaPortal.Core.Services.Settings
     }
 
     /// <summary>
-    /// Gets the cached setting for the given setting type <typeparamref name="T"/>.
+    /// Gets the cached setting for the given setting type <paramref name="type"/>.
     /// </summary>
-    /// <typeparam name="T">Setting type for the setting to retrieve.</param>
+    /// <param name="type">Setting type for the setting to retrieve.</param>
     /// <returns>Settings object for the specified type or <c>null</c>, if the cache doesn't contain the
     /// setting (any more).</returns>
     public object Get(Type type)
@@ -186,6 +186,10 @@ namespace MediaPortal.Core.Services.Settings
     {
       lock (_syncObj)
       {
+        if (!_timer.Enabled)
+          // Avoid threading issues (i.e. KeepAll was called after this method begun
+          // but before our lock statement)
+          return;
         ICollection<Type> releaseTypes = new List<Type>();
         foreach (KeyValuePair<Type, SettingsObjectWrapper> entry in _cache)
         {
