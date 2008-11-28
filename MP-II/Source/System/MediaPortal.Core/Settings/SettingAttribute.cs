@@ -46,15 +46,16 @@ namespace MediaPortal.Core.Settings
   public sealed class SettingAttribute : Attribute
   {
     private SettingScope _settingScope;
-    private object _DefaultValue;
+    private object _defaultValue = null;
+    private bool _setDefault = false;
 
     /// <summary>
     /// Constructor which configures the scope of the annotated setting.
     /// </summary>
     /// <param name="settingScope">The scope the annotated setting should be contained in.</param>
-    public SettingAttribute(SettingScope settingScope)
+    public SettingAttribute(SettingScope settingScope) : this(settingScope, null)
     {
-      _settingScope = settingScope;
+      _setDefault = false;
     }
 
     /// <summary>
@@ -66,7 +67,8 @@ namespace MediaPortal.Core.Settings
     public SettingAttribute(SettingScope settingScope, object defaultValue)
     {
       _settingScope = settingScope;
-      _DefaultValue = defaultValue;
+      _defaultValue = defaultValue;
+      _setDefault = true;
     }
 
     /// <summary>
@@ -83,8 +85,22 @@ namespace MediaPortal.Core.Settings
     /// </summary>
     public object DefaultValue
     {
-      get { return _DefaultValue; }
-      set { _DefaultValue = value; }
+      get { return _defaultValue; }
+      set
+      {
+        _defaultValue = value;
+        _setDefault = true;
+      }
+    }
+
+    /// <summary>
+    /// Gets/sets the information if the configured <see cref="DefaultValue"/> will be used when no
+    /// not-<c>null</c> value is available.
+    /// </summary>
+    public bool SetDefault
+    {
+      get { return _setDefault; }
+      set { _setDefault = value; }
     }
   }
 }

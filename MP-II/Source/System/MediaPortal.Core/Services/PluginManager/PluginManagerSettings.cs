@@ -46,24 +46,11 @@ namespace MediaPortal.Core.Services.PluginManager
       _userDisabledPlugins.Remove(pluginName);
     }
 
+    [Setting(SettingScope.User)]
     public ICollection<string> UserDisabledPlugins
     {
       get { return _userDisabledPlugins; }
       set { _userDisabledPlugins = new List<string>(value); }
-    }
-
-    /// <summary>
-    /// Only used for the settings system to serialize/deserialize the plugin list.
-    /// </summary>
-    [Setting(SettingScope.User, null)]
-    public string[] UserDisabledPlugins_SettingInternal
-    {
-      get { return _userDisabledPlugins.ToArray(); }
-      set
-      {
-        _userDisabledPlugins.Clear();
-        _userDisabledPlugins.AddRange(value);
-      }
     }
   }
 }

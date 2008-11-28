@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,20 +28,19 @@ namespace MediaPortal.Core.Settings
 {
   /// <summary>
   /// Global service interface for loading and saving settings for application modules.
-  /// The settings manager provides methods to load and save module specific settings objects,
-  /// which should have a special structure.
-  /// The implementation of this interface defines where the setting object will be stored and
-  /// how it will be serialized/deserialized.
+  /// The settings manager provides methods to load and save module specific settings objects.
   /// </summary>
   /// <remarks>
+  /// The implementation of this interface defines where the setting object will be stored and
+  /// how it will be serialized/deserialized.
   /// Every application part, which needs a setting, will define its own settings class to
-  /// contain the settings values. Those classes will use the <see cref="SettingScope"/> meta
+  /// contain the settings values. Those classes will use the <see cref="Setting"/> meta
   /// attribute to define if a settings entry will be stored as global or user setting.
   /// There must be at most one instance of every settings class for holding application settings;
   /// a settings class must not be reused for different application settings of a similar
   /// type. The settings system will use the class name to find a settings object in the settings
   /// store.
-  /// TODO: Document settings structure: [SettingScope] meta attribute, supported types, etc.
+  /// TODO: Document settings structure: [Setting] meta attribute, supported types, etc.
   /// </remarks>
   public interface ISettingsManager
   {
@@ -82,6 +81,14 @@ namespace MediaPortal.Core.Settings
     /// batch update mode will be saved on disk.
     /// </summary>
     void EndBatchUpdate();
+
+    /// <summary>
+    /// Removes the application setting with the specified <paramref name="settingsType"/> from the system.
+    /// </summary>
+    /// <param name="settingsType">Type of settings to remove.</param>
+    /// <param name="user">If set to <c>true</c>, the user data will be removed for the specified setting.</param>
+    /// <param name="global">If set to <c>true</c>, the global data will be removed for the specified setting.</param>
+    void RemoveSettingsData(Type settingsType, bool user, bool global);
 
     /// <summary>
     /// Removes all application configuration data from the system.

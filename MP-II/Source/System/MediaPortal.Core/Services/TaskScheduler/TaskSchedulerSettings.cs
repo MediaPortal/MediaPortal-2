@@ -43,9 +43,11 @@ namespace MediaPortal.Core.Services.TaskScheduler
   public class TaskSchedulerSettings
   {
 
-    #region variables
-    private int _taskID = 0;
-    private TaskCollection _taskCollection = new TaskCollection();
+    #region Protected fields
+
+    protected int _taskID = 0;
+    protected TaskCollection _taskCollection = new TaskCollection();
+
     #endregion
 
     #region Ctor
@@ -90,7 +92,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// Property which is used by the <see cref="ISettingsManager"/> to retrieve/set list of registered <see cref="Task"/>s.
     /// Also used by the <see cref="TaskScheduler"/> to access the <see cref="TaskCollection"/>.
     /// </summary>
-    [Setting(SettingScope.Global, "")]
+    [Setting(SettingScope.Global)]
     public TaskCollection TaskCollection
     {
       get

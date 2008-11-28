@@ -42,20 +42,25 @@ namespace MediaPortal.Core.Services.TaskScheduler
   /// </summary>
   public class TaskCollection
   {
-    #region variables
-    private List<Task> _tasks;
-    private TaskComparer _comparer;
+    #region Protected fields
+
+    protected List<Task> _tasks;
+    protected TaskComparer _comparer;
+
     #endregion
 
     #region Ctor
+
     public TaskCollection()
     {
       _tasks = new List<Task>();
       _comparer = new TaskComparer();
     }
+
     #endregion
 
     #region Public methods
+
     /// <summary>
     /// Adds a task to the TaskCollection. Maintains sorting order while adding.
     /// </summary>
@@ -63,20 +68,14 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public void Add(Task task)
     {
       if (_tasks.Contains(task))
-      {
         throw new ArgumentException("Task is already in task list!");
-      }
       else
       {
         int index = _tasks.BinarySearch(task, _comparer);
         if (index < 0)
-        {
           _tasks.Insert(~index, task);
-        }
         else
-        {
           _tasks.Insert(index, task);
-        }
       }
     }
 
@@ -86,11 +85,8 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <param name="task">Task to remove from the TaskCollection</param>
     public void Remove(Task task)
     {
-      if (task != null)
-      {
-        if (_tasks.Contains(task))
-          _tasks.Remove(task);
-      }
+      if (_tasks.Contains(task))
+        _tasks.Remove(task);
     }
 
     /// <summary>
@@ -126,7 +122,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// Creates a clone of the TaskCollection.
     /// </summary>
     /// <returns>a list of tasks currently in the TaskCollection</returns>
-    public List<Task> Clone()
+    public IList<Task> Clone()
     {
       List<Task> tasks = new List<Task>();
       foreach (Task t in _tasks)
@@ -139,58 +135,18 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Property returning a list of tasks currently in the TaskCollection.
     /// </summary>
-    [XmlIgnore]
-    public List<Task> Tasks
+    public IList<Task> Tasks
     {
-      get
-      {
-        List<Task> tasks = new List<Task>();
-        foreach (Task t in _tasks)
-          tasks.Add(t);
-        return tasks;
-      }
+      get { return new List<Task>(_tasks); }
     }
 
-    /// <summary>
-    /// Serialized representation of the TaskCollection. Used by the <see cref="TaskSchedulerSettings"/> class
-    /// to retrieve/restore a serializable collection of currently registered tasks.
-    /// </summary>
-    public string Collection
-    {
-      get
-      {
-        string result;
-        BinaryFormatter formatter = new BinaryFormatter();
-        using (MemoryStream stream = new MemoryStream())
-        {
-          formatter.Serialize(stream, _tasks);
-          stream.Flush();
-          stream.Seek(0, SeekOrigin.Begin);
-          byte[] buffer = new byte[stream.Length];
-          int bytesRead = stream.Read(buffer, 0, buffer.Length);
-          result = Convert.ToBase64String(buffer, 0, bytesRead);
-        }
-        return result;
-      }
-      set
-      {
-        if (value != String.Empty)
-        {
-          BinaryFormatter formatter = new BinaryFormatter();
-          byte[] buffer = Convert.FromBase64String(value);
-          using (MemoryStream stream = new MemoryStream(buffer, 0, buffer.Length))
-          {
-            _tasks = (List<Task>)formatter.Deserialize(stream);
-          }
-        }
-      }
-    }
     #endregion
   }
+
   /// <summary>
   /// Compares two <see cref="Task"/>s with each other.
   /// </summary>
-  internal class TaskComparer : IComparer<Task>
+  public class TaskComparer : IComparer<Task>
   {
     #region Public methods
     /// <summary>

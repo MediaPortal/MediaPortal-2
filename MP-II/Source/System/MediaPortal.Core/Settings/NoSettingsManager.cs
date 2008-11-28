@@ -51,6 +51,8 @@ namespace MediaPortal.Core.Settings
 
     public void EndBatchUpdate() { }
 
+    public void RemoveSettingsData(Type settingsType, bool user, bool global) { }
+
     public void RemoveAllSettingsData(bool user, bool global) { }
 
     #endregion

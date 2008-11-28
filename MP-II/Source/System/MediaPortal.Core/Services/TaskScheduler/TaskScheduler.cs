@@ -107,13 +107,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
           if (task.Occurrence == Occurrence.EveryStartUp)
           {
             if (task.IsExpired(now))
-            {
               ExpireTask(task);
-            }
             else
-            {
               ProcessTask(task);
-            }
           }
         }
       }
@@ -264,9 +260,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
         foreach (Task t in _settings.TaskCollection.Tasks)
         {
           if (t.ID == taskId)
-          {
             task = t;
-          }
         }
         if (task != null)
         {
@@ -279,36 +273,28 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public Task GetTask(int taskId)
     {
-      List<Task> allTasks;
+      IList<Task> allTasks;
       lock (_taskMutex)
       {
         allTasks = _settings.TaskCollection.Clone();
       }
       foreach (Task task in allTasks)
-      {
         if (task.ID == taskId)
-        {
           return task;
-        }
-      }
       return null;
     }
 
     public IList<Task> GetTasks(string ownerId)
     {
-      List<Task> allTasks;
-      List<Task> tasks = new List<Task>();
+      IList<Task> allTasks;
+      IList<Task> tasks = new List<Task>();
       lock (_taskMutex)
       {
         allTasks = _settings.TaskCollection.Clone();
       }
       foreach (Task task in allTasks)
-      {
         if (task.Owner.Equals(ownerId))
-        {
           tasks.Add(task);
-        }
-      }
       return tasks;
     }
 
