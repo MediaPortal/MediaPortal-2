@@ -28,8 +28,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screen;
-using MediaPortal.SkinEngine.Players;
-using MediaPortal.SkinEngine.Players.Geometry;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
@@ -65,8 +63,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
     private static Form _form;
     private static DateTime _mouseTimer;
     private static bool _isRendering = false;
-    private static Geometry _geometry = new Geometry();
-    private static CropSettings _cropSettings = new CropSettings();
     public static DateTime _now;
     private static Property _mouseUsedProperty = new Property(typeof(bool), false);
     private static Property _timeProperty = new Property(typeof(DateTime), DateTime.Now);
@@ -429,31 +425,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       get { return _isRendering; }
       set { _isRendering = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the current geometry.
-    /// </summary>
-    /// <value>The geometry.</value>
-    public static Geometry Geometry
-    {
-      get { return _geometry; }
-      set { _geometry = value; }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the crop settings.
-    /// </summary>
-    /// <value>The crop settings.</value>
-    public static CropSettings CropSettings
-    {
-      get { return _cropSettings; }
-      set
-      {
-        if (value != null)
-          _cropSettings = value;
-      }
     }
 
     public static DateTime Now

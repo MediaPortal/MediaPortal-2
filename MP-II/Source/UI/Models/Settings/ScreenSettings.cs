@@ -33,17 +33,17 @@ namespace Models.Settings
 {
   public class ScreenSettings
   {
-    ItemsCollection _mainMenu;
-    ItemsCollection _fullScreen;
-    ItemsCollection _aspect;
+    ItemsList _mainMenu;
+    ItemsList _fullScreen;
+    ItemsList _aspect;
     
     public ScreenSettings()
     {
-      _fullScreen = new ItemsCollection();
+      _fullScreen = new ItemsList();
       _fullScreen.Add(new ListItem("Name", new StringId("system", "yes")));
       _fullScreen.Add(new ListItem("Name", new StringId("system", "no")));
 
-      _aspect = new ItemsCollection();
+      _aspect = new ItemsList();
       _aspect.Add(new ListItem("Name", new StringId("settings", "aspectnormal")));
       _aspect.Add(new ListItem("Name", new StringId("settings", "aspectwide")));
     }
@@ -52,7 +52,7 @@ namespace Models.Settings
     /// exposes the main settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -68,7 +68,7 @@ namespace Models.Settings
     /// exposes the fullscreen options to the skin
     /// </summary>
     /// <value>The full screen.</value>
-    public ItemsCollection FullScreen
+    public ItemsList FullScreen
     {
       get
       {
@@ -99,7 +99,7 @@ namespace Models.Settings
     /// <summary>
     /// exposes the aspect rate options to the skin.
     /// </summary>
-    public ItemsCollection Aspect
+    public ItemsList Aspect
     {
       get
       {

@@ -30,7 +30,7 @@ namespace Models.Settings
 {
   public class AudioSetup
   {
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {

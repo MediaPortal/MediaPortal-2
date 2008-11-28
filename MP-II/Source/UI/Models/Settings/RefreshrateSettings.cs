@@ -26,25 +26,24 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localisation;
 using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Screen;
 
 namespace Models.Settings
 {
   public class RefreshrateSettings
   {
-    ItemsCollection _mainMenu;
-    ItemsCollection _refreshrates;
-    ItemsCollection _refreshRateControl;
+    ItemsList _mainMenu;
+    ItemsList _refreshrates;
+    ItemsList _refreshRateControl;
     
     public RefreshrateSettings()
     {
       IScreenControl app = ServiceScope.Get<IScreenControl>();
-      _refreshrates = new ItemsCollection();
+      _refreshrates = new ItemsList();
       foreach (string mode in app.DisplayModes)
         _refreshrates.Add(new ListItem("Name", mode));
 
-      _refreshRateControl = new ItemsCollection();
+      _refreshRateControl = new ItemsList();
       _refreshRateControl.Add(new ListItem("Name", new StringId("system", "yes")));
       _refreshRateControl.Add(new ListItem("Name", new StringId("system", "no")));
     }
@@ -53,7 +52,7 @@ namespace Models.Settings
     /// exposes the main video-settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -67,7 +66,7 @@ namespace Models.Settings
     }
 
 
-    public ItemsCollection RefreshRateControl
+    public ItemsList RefreshRateControl
     {
       get
       {
@@ -97,7 +96,7 @@ namespace Models.Settings
       }
     }
 
-    public ItemsCollection RefreshRate24
+    public ItemsList RefreshRate24
     {
       get
       {
@@ -122,7 +121,7 @@ namespace Models.Settings
       app.SetDisplayMode(FPS.FPS_24, refreshrateChosen);
     }
 
-    public ItemsCollection RefreshRate25
+    public ItemsList RefreshRate25
     {
       get
       {
@@ -147,7 +146,7 @@ namespace Models.Settings
       app.SetDisplayMode(FPS.FPS_25, refreshrateChosen);
     }
 
-    public ItemsCollection RefreshRate30
+    public ItemsList RefreshRate30
     {
       get
       {
@@ -172,7 +171,7 @@ namespace Models.Settings
       app.SetDisplayMode(FPS.FPS_30, refreshrateChosen);
     }
 
-    public ItemsCollection RefreshRateDefault
+    public ItemsList RefreshRateDefault
     {
       get
       {

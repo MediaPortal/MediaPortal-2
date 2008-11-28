@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 
@@ -44,10 +43,10 @@ namespace Models.Weather
     private Property _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
-    private readonly ItemsCollection _locationsCollection = new ItemsCollection();
+    private readonly ItemsList _locationsList = new ItemsList();
     // Used to select a city... Items hold Name and ID
 
-    private ItemsCollection _mainMenu;
+    private ItemsList _mainMenu;
 
     public WeatherViewModel()
     {
@@ -62,7 +61,7 @@ namespace Models.Weather
     /// exposes the main menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -79,7 +78,7 @@ namespace Models.Weather
     protected void GetLocationsFromSettings(bool shouldFire)
     {
       // empty lists
-      _locationsCollection.Clear();
+      _locationsList.Clear();
       _locations.Clear();
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
@@ -92,9 +91,9 @@ namespace Models.Weather
           _locations.Add(buffLoc);
 
           buffItem = new ListItem();
-          buffItem.Add("Name", loc.Name);
-          buffItem.Add("Id", loc.Id);
-          _locationsCollection.Add(buffItem);
+          buffItem.SetLabel("Name", loc.Name);
+          buffItem.SetLabel("Id", loc.Id);
+          _locationsList.Add(buffItem);
 
           // Is this the setting?
           if (loc.Id.Equals(settings.LocationCode))
@@ -125,7 +124,7 @@ namespace Models.Weather
       // we've added new citys, so update the locations collection
       if (shouldFire)
       {
-        _locationsCollection.FireChange();
+        _locationsList.FireChange();
       }
     }
 
@@ -217,11 +216,11 @@ namespace Models.Weather
     /// <summary>
     /// exposes the loaded locations to the skin (Name, Id)
     /// </summary>
-    public ItemsCollection LocationsCollection
+    public ItemsList LocationsList
     {
       get
       {
-        return _locationsCollection;
+        return _locationsList;
       }
     }
   }

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -38,7 +38,7 @@ namespace MediaPortal.Presentation.Players
 
   /// <summary>
   /// generic class for a player
-  /// TODO Albert78, 4.11.08: Rework
+  /// TODO Albert78, 2008-11-04: Rework
   /// </summary>
   public interface IPlayer
   {

@@ -36,7 +36,7 @@ namespace MediaPortal.Services.InputManager
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
       switch (keycode)
       {
         case Keys.F9:
@@ -44,27 +44,31 @@ namespace MediaPortal.Services.InputManager
           return Key.ContextMenu;
 
         case Keys.Up:
-          if (players.Count != 0)
-            if (players[0].InDvdMenu && !players[0].Paused)
-              return Key.DvdUp;
+          if (players != null)
+            if (players.Count != 0)
+              if (players[0].InDvdMenu && !players[0].Paused)
+                return Key.DvdUp;
           return Key.Up;
 
         case Keys.Down:
-          if (players.Count != 0)
-            if (players[0].InDvdMenu && !players[0].Paused)
-              return Key.DvdDown;
+          if (players != null)
+            if (players.Count != 0)
+              if (players[0].InDvdMenu && !players[0].Paused)
+                return Key.DvdDown;
           return Key.Down;
 
         case Keys.Left:
-          if (players.Count != 0)
-            if (players[0].InDvdMenu && !players[0].Paused)
-              return Key.DvdLeft;
+          if (players != null)
+            if (players.Count != 0)
+              if (players[0].InDvdMenu && !players[0].Paused)
+                return Key.DvdLeft;
           return Key.Left;
 
         case Keys.Right:
-          if (players.Count != 0)
-            if (players[0].InDvdMenu && !players[0].Paused)
-              return Key.DvdRight;
+          if (players != null)
+            if (players.Count != 0)
+              if (players[0].InDvdMenu && !players[0].Paused)
+                return Key.DvdRight;
           return Key.Right;
 
         case Keys.PageUp:
@@ -94,9 +98,10 @@ namespace MediaPortal.Services.InputManager
           }
           else
           {
-            if (players.Count != 0)
-              if (players[0].InDvdMenu && !players[0].Paused)
-                return Key.DvdSelect;
+            if (players != null)
+              if (players.Count != 0)
+                if (players[0].InDvdMenu && !players[0].Paused)
+                  return Key.DvdSelect;
             return Key.Enter;
           }
           break;
@@ -116,32 +121,36 @@ namespace MediaPortal.Services.InputManager
           //pause/continue playback
           if (inputManager.NeedRawKeyData)
             return Key.Space;
-          if (players.Count != 0)
-          {
-            players[0].Paused = !players[0].Paused;
-            return Key.None;
-          }
+          if (players != null)
+            if (players.Count != 0)
+            {
+              players[0].Paused = !players[0].Paused;
+              return Key.None;
+            }
           return Key.Space;
         case Keys.M:
           //show dvd menu
           if (inputManager.NeedRawKeyData)
             return Key.None;
-          if (players.Count != 0)
-            return Key.DvdMenu;
+          if (players != null)
+            if (players.Count != 0)
+              return Key.DvdMenu;
           break;
         case Keys.B:
           if (inputManager.NeedRawKeyData)
             return Key.None;
-          if (players.Count != 0)
-            //stop playback
-            players.Dispose();
+          if (players != null)
+            if (players.Count != 0)
+              //stop playback
+              players.Dispose();
           break;
         case Keys.S:
           //change zoom mode
           if (inputManager.NeedRawKeyData)
             return Key.None;
-          if (players.Count != 0)
-            return Key.ZoomMode;
+          if (players != null)
+            if (players.Count != 0)
+              return Key.ZoomMode;
           break;
       }
       return Key.None;

@@ -34,12 +34,11 @@ namespace Components.Control.IrInput
   /// </summary>
   public class IrInputSettings
   {
-
     #region Variables
 
     string _serverHost;
 
-    List<MappedKeyCode> _remoteMap;
+    IList<MappedKeyCode> _remoteMap;
 
     #endregion Variables
 
@@ -61,7 +60,7 @@ namespace Components.Control.IrInput
     /// </summary>
     /// <value>The remote map.</value>
     [Setting(SettingScope.User, null)]
-    public List<MappedKeyCode> RemoteMap
+    public IList<MappedKeyCode> RemoteMap
     {
       get { return _remoteMap; }
       set { _remoteMap = value; }

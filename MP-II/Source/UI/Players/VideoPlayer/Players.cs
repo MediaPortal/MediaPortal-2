@@ -120,6 +120,7 @@ namespace MediaPortal.SkinEngine.Players
     /// Called when a new windows message is received
     /// </summary>
     /// <param name="m">The message</param>
+    FIXME: Has to be called (commented out in SkinEngine's MainForm)
     public void OnMessage(object m)
     {
       for (int i = 0; i < Count; ++i)
@@ -479,12 +480,12 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the subtitles.
     /// </summary>
     /// <value>The subtitles.</value>
-    public ItemsCollection Subtitles
+    public ItemsList Subtitles
     {
       get
       {
         string currentSubtitle = this[0].CurrentSubtitle;
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         if (Count > 0)
         {
           string[] subs = this[0].Subtitles;
@@ -522,12 +523,12 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the audio streams.
     /// </summary>
     /// <value>The audio streams.</value>
-    public ItemsCollection AudioStreams
+    public ItemsList AudioStreams
     {
       get
       {
         string currentStream = this[0].CurrentAudioStream;
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         if (Count > 0)
         {
           string[] streams = this[0].AudioStreams;
@@ -565,12 +566,12 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the dvd titles.
     /// </summary>
     /// <value>The dvd titles.</value>
-    public ItemsCollection DvdTitles
+    public ItemsList DvdTitles
     {
       get
       {
         string currentStream = this[0].CurrentDvdTitle;
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         if (Count > 0)
         {
           string[] streams = this[0].DvdTitles;
@@ -604,12 +605,12 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the DVD chapters.
     /// </summary>
     /// <value>The DVD chapters.</value>
-    public ItemsCollection DvdChapters
+    public ItemsList DvdChapters
     {
       get
       {
         string currentStream = this[0].CurrentDvdChapter;
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         if (Count > 0)
         {
           string[] streams = this[0].DvdChapters;

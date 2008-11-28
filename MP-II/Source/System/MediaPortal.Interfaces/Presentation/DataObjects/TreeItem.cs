@@ -42,7 +42,7 @@ namespace MediaPortal.Presentation.DataObjects
   {
     #region Protected fields
 
-    protected ItemsCollection _subItems = new ItemsCollection();
+    protected ItemsList _subItems = new ItemsList();
 
     #endregion
 
@@ -61,7 +61,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Returns the collection of sub items of this item.
     /// </summary>
-    public ItemsCollection SubItems
+    public ItemsList SubItems
     {
       get { return _subItems; }
     }

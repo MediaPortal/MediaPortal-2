@@ -34,12 +34,12 @@ namespace MediaPortal.SkinEngine.Players
 {
   public class Settings
   {
-    readonly ItemsCollection _mpeg2Codecs;
-    readonly ItemsCollection _h264Codecs;
-    readonly ItemsCollection _divxCodecs;
-    readonly ItemsCollection _audioCodecs;
-    readonly ItemsCollection _defaultAudioLanguages;
-    readonly ItemsCollection _defaultSubtitleLanguages;
+    readonly ItemsList _mpeg2Codecs;
+    readonly ItemsList _h264Codecs;
+    readonly ItemsList _divxCodecs;
+    readonly ItemsList _audioCodecs;
+    readonly ItemsList _defaultAudioLanguages;
+    readonly ItemsList _defaultSubtitleLanguages;
     AudioSettings _audioSettings;
     Property _propertyIsDigital;
     Property _propertyIsAnalog;
@@ -92,12 +92,12 @@ namespace MediaPortal.SkinEngine.Players
       _propertyIs51.Attach(OnSpeakerAmountChanged);
       _propertyIs71.Attach(OnSpeakerAmountChanged);
 
-      _mpeg2Codecs = new ItemsCollection();
-      _h264Codecs = new ItemsCollection();
-      _divxCodecs = new ItemsCollection();
-      _audioCodecs = new ItemsCollection();
-      _defaultAudioLanguages = new ItemsCollection();
-      _defaultSubtitleLanguages = new ItemsCollection();
+      _mpeg2Codecs = new ItemsList();
+      _h264Codecs = new ItemsList();
+      _divxCodecs = new ItemsList();
+      _audioCodecs = new ItemsList();
+      _defaultAudioLanguages = new ItemsList();
+      _defaultSubtitleLanguages = new ItemsList();
 
       AddCodec(_mpeg2Codecs, "CyberLink Video/SP Decoder (PDVD7)", "{8ACD52ED-9C2D-4008-9129-DCE955D86065}");
       AddCodec(_mpeg2Codecs, "CyberLink Video/SP Decoder", "{C81C8C5A-B354-4DEB-96D3-8BD8D0C8ABD0}");
@@ -127,7 +127,7 @@ namespace MediaPortal.SkinEngine.Players
     }
 
     #region default audio language setting
-    public ItemsCollection DefaultAudioLanguages
+    public ItemsList DefaultAudioLanguages
     {
       get
       {
@@ -162,7 +162,7 @@ namespace MediaPortal.SkinEngine.Players
     #endregion
 
     #region default subtitle language setting
-    public ItemsCollection DefaultSubtitleLanguages
+    public ItemsList DefaultSubtitleLanguages
     {
       get
       {
@@ -197,7 +197,7 @@ namespace MediaPortal.SkinEngine.Players
     #endregion
 
     #region default audio/video codecs settings
-    public ItemsCollection Mpeg2Codecs
+    public ItemsList Mpeg2Codecs
     {
       get
       {
@@ -213,7 +213,7 @@ namespace MediaPortal.SkinEngine.Players
         return _mpeg2Codecs;
       }
     }
-    public ItemsCollection H264Codecs
+    public ItemsList H264Codecs
     {
       get
       {
@@ -229,7 +229,7 @@ namespace MediaPortal.SkinEngine.Players
         return _h264Codecs;
       }
     }
-    public ItemsCollection DivxCodecs
+    public ItemsList DivxCodecs
     {
       get
       {
@@ -245,7 +245,7 @@ namespace MediaPortal.SkinEngine.Players
         return _divxCodecs;
       }
     }
-    public ItemsCollection AudioCodecs
+    public ItemsList AudioCodecs
     {
       get
       {

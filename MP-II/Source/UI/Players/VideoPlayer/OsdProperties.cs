@@ -53,7 +53,7 @@ namespace MediaPortal.SkinEngine.Players
     private Property _pipUsed;
     private DateTime _timer = new DateTime();
     private MediaPlayers _players;
-    private ItemsCollection _contextMenu;
+    private ItemsList _contextMenu;
     private ListItem _mediaItem;
     private IMediaItem _prevMediaItem;
     private DateTime _updateTimer;
@@ -337,7 +337,7 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the context menu.
     /// </summary>
     /// <value>The context menu.</value>
-    public ItemsCollection ContextMenu
+    public ItemsList ContextMenu
     {
       get
       {
@@ -509,11 +509,11 @@ namespace MediaPortal.SkinEngine.Players
     /// Gets the zoom modes.
     /// </summary>
     /// <value>The zoom modes.</value>
-    public ItemsCollection ZoomModes
+    public ItemsList ZoomModes
     {
       get
       {
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         for (int i = 0; i < SkinContext.Geometry.Geometries.Count; ++i)
         {
           ListItem item = new ListItem("Name", SkinContext.Geometry.Geometries[i].Name);

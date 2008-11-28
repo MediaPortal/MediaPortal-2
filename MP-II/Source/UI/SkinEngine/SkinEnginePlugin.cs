@@ -34,7 +34,6 @@ using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.SkinEngine.InputManagement;
-using MediaPortal.SkinEngine.Players;
 
 namespace MediaPortal.SkinEngine
 {
@@ -97,14 +96,6 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputManager service");
       InputManager inputManager = new InputManager();
       ServiceScope.Add<IInputManager>(inputManager);
-
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IPlayerFactory service");
-      PlayerFactory playerFactory = new PlayerFactory();
-      ServiceScope.Get<IPlayerFactory>().Register(playerFactory);
-
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IPlayerCollection service");
-      MediaPlayers players = new MediaPlayers();
-      ServiceScope.Add<IPlayerCollection>(players);
     }
 
     #endregion

@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -32,7 +34,6 @@ using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
-using Rectangle = System.Drawing.Rectangle;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -107,69 +108,77 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       Size aspectRatio = player.VideoAspectRatio;
       if (size == _videoSize && aspectRatio == _videoAspectRatio)
       {
-        if (SkinContext.Geometry.Current.Name == _previousGeometry)
-          return;
+        // FIXME Albert78, 2008-11-27: Geometry helper class has to be reworked, see class
+        // Geometry in the video player plugin, which was originally accessable through
+        // the SkinContext.Geometry static property.
+        //if (SkinContext.Geometry.Current.Name == _previousGeometry)
+        //  return;
       }
 
       _videoSize = size;
       _videoAspectRatio = aspectRatio;
-      _previousGeometry = SkinContext.Geometry.Current.Name;
-      Rectangle sourceRect;
-      Rectangle destinationRect;
-      SkinContext.Geometry.ImageWidth = (int)_videoSize.Width;
-      SkinContext.Geometry.ImageHeight = (int)_videoSize.Height;
-      SkinContext.Geometry.ScreenWidth = (int)_bounds.Width;
-      SkinContext.Geometry.ScreenHeight = (int)_bounds.Height;
-      SkinContext.Geometry.GetWindow(aspectRatio.Width, aspectRatio.Height,
-                                     out sourceRect,
-                                     out destinationRect,
-                                     SkinContext.CropSettings);
-      player.MovieRectangle = destinationRect;
-      string shaderName = SkinContext.Geometry.Current.Shader;
-      if (shaderName != "")
-      {
-        _effect = ContentManager.GetEffect(shaderName);
-      }
-      else
-      {
-        _effect = ContentManager.GetEffect("normal");
-      }
+      // FIXME Albert78, 2008-11-27: See comment above about SkinContext.Geometry
+      //_previousGeometry = SkinContext.Geometry.Current.Name;
+      //Rectangle sourceRect;
+      //Rectangle destinationRect;
+      //SkinContext.Geometry.ImageWidth = (int)_videoSize.Width;
+      //SkinContext.Geometry.ImageHeight = (int)_videoSize.Height;
+      //SkinContext.Geometry.ScreenWidth = (int)_bounds.Width;
+      //SkinContext.Geometry.ScreenHeight = (int)_bounds.Height;
+      //SkinContext.Geometry.GetWindow(aspectRatio.Width, aspectRatio.Height,
+      //                               out sourceRect,
+      //                               out destinationRect,
+      //                               SkinContext.CropSettings);
+      //player.MovieRectangle = destinationRect;
+      //string shaderName = SkinContext.Geometry.Current.Shader;
+      //if (shaderName != "")
+      //{
+      //  _effect = ContentManager.GetEffect(shaderName);
+      //}
+      //else
+      //{
+      //  _effect = ContentManager.GetEffect("normal");
+      //}
 
-      float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
-      float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
-      float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
-      float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
+      //float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
+      //float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
+      //float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
+      //float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
 
-      float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
-      float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
+      //float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
+      //float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
 
-      float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
-      float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
+      //float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
+      //float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
 
-      float diffU = maxU - minU;
-      float diffV = maxV - minV;
-      PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
-      for (int i = 0; i < _verts.Length; ++i)
-      {
-        float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
-        float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
-        verts[i].X = (x * _bounds.Width) + _minPosition.X;
-        verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
+      //float diffU = maxU - minU;
+      //float diffV = maxV - minV;
+      //PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
+      //for (int i = 0; i < _verts.Length; ++i)
+      //{
+      //  float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
+      //  float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
+      //  verts[i].X = (x * _bounds.Width) + _minPosition.X;
+      //  verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
 
-        float u = _verts[i].Tu1 * diffU + minU;
-        float v = _verts[i].Tv1 * diffV + minV;
-        verts[i].Tu1 = u;
-        verts[i].Tv1 = v;
-        verts[i].Color = _verts[i].Color;
-        verts[i].Z = SkinContext.GetZorder();
-      }
-      PositionColored2Textured.Set(vertexBuffer, ref verts);
+      //  float u = _verts[i].Tu1 * diffU + minU;
+      //  float v = _verts[i].Tv1 * diffV + minV;
+      //  verts[i].Tu1 = u;
+      //  verts[i].Tv1 = v;
+      //  verts[i].Color = _verts[i].Color;
+      //  verts[i].Z = SkinContext.GetZorder();
+      //}
+      //PositionColored2Textured.Set(vertexBuffer, ref verts);
     }
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
+      if (players == null)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
+        return false;
+      }
       if (players.Count <= Stream) return false;
 
       if (Transform != null)
@@ -187,8 +196,12 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-      players = ServiceScope.Get<IPlayerCollection>();
+      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
+      if (players == null)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
+        return;
+      }
       if (players.Count <= Stream) return;
 
       IPlayer player = players[Stream];

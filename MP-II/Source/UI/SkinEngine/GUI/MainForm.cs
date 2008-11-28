@@ -116,8 +116,6 @@ namespace MediaPortal.SkinEngine.GUI
     {
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
       StopRenderThread();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop players");
-      ServiceScope.Get<IPlayerCollection>().Dispose();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Exit screen manager");
       _screenManager.Exit();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
@@ -333,7 +331,8 @@ namespace MediaPortal.SkinEngine.GUI
           }
         }
       }
-      ServiceScope.Get<IPlayerCollection>().OnMessage(m);
+      //FIXME Albert78: The hard coded OnMessage call has to be replaced by a dynamic approach
+      //ServiceScope.Get<IPlayerCollection>().OnMessage(m);
       base.WndProc(ref m);
     }
 

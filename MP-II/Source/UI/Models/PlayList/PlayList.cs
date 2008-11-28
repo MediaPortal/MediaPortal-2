@@ -37,12 +37,12 @@ namespace Models.PlayList
 {
   public class PlayList
   {
-    private readonly ItemsCollection _playList;
+    private readonly ItemsList _playList;
     ListItem _selectedItem;
 
     public PlayList()
     {
-      _playList = new ItemsCollection();
+      _playList = new ItemsList();
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
       queue.OnMessageReceive += new MessageReceivedHandler(onPlayListMessage);
     }
@@ -53,7 +53,7 @@ namespace Models.PlayList
       _playList.FireChange();
     }
 
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -86,7 +86,7 @@ namespace Models.PlayList
             {
               newItem.Labels.Remove(item.SkinLabel);
             }
-            newItem.Add(item.SkinLabel, text);
+            newItem.SetLabel(item.SkinLabel, text);
           }
           else if (metadata.ContainsKey(item.MetaDataField))
           {
@@ -95,7 +95,7 @@ namespace Models.PlayList
             {
               newItem.Labels.Remove(item.SkinLabel);
             }
-            newItem.Add(item.SkinLabel, text);
+            newItem.SetLabel(item.SkinLabel, text);
           }
         }
       }
@@ -104,7 +104,7 @@ namespace Models.PlayList
     /// provides a collection of moves to the skin
     /// </summary>
     /// <value>The movies.</value>
-    public ItemsCollection PlayListItems
+    public ItemsList PlayListItems
     {
       get
       {
@@ -124,11 +124,11 @@ namespace Models.PlayList
 
         if (playlistMgr.CurrentMediaItemPlaying == mediaItem)
         {
-          item.Add("isplaying", "true");
+          item.SetLabel("isplaying", "true");
         }
         else
         {
-          item.Add("isplaying", "false");
+          item.SetLabel("isplaying", "false");
         }
         _playList.Add(item);
       }
@@ -240,17 +240,17 @@ namespace Models.PlayList
     /// Gets the available Playlists from the Playlist Directory and exposes them to the skin
     /// </summary>
     /// <value>The zoom modes.</value>
-    public ItemsCollection StoredPlayLists
+    public ItemsList StoredPlayLists
     {
       get
       {
-        ItemsCollection items = new ItemsCollection();
+        ItemsList items = new ItemsList();
         // FIXME Albert78: No constants in the code! Move it to PathManager.
         string playlistfolder = @"C:\My Playlists";
         foreach (string file in Directory.GetFiles(playlistfolder, "*.*"))
         {
           ListItem item = new ListItem("Name", Path.GetFileNameWithoutExtension(file));
-          item.Add("FullPath", file);
+          item.SetLabel("FullPath", file);
           items.Add(item);
         }
         return items;

@@ -25,7 +25,6 @@
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localisation;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;
@@ -35,8 +34,8 @@ namespace Models.Settings
 {
   public class Language
   {
-    ItemsCollection _mainMenu;
-    ItemsCollection _languages;
+    ItemsList _mainMenu;
+    ItemsList _languages;
 
     public Language()
     {
@@ -44,7 +43,7 @@ namespace Models.Settings
 
       CultureInfo[] langs = localProvider.AvailableLanguages();
 
-      _languages = new ItemsCollection();
+      _languages = new ItemsList();
       for (int i = 0; i < langs.Length; ++i)
       {
         ListItem item = new ListItem("Name", langs[i].EnglishName);
@@ -56,7 +55,7 @@ namespace Models.Settings
     /// Exposes all languages available to the skinengine.
     /// </summary>
     /// <value>The languages.</value>
-    public ItemsCollection Languages
+    public ItemsList Languages
     {
       get
       {
@@ -105,7 +104,7 @@ namespace Models.Settings
     /// exposes the main settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {

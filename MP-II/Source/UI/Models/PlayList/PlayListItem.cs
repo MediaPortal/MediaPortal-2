@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -33,11 +33,11 @@ namespace Models.PlayList
     public PlayListItem(IMediaItem mediaItem)
     {
       MediaItem = mediaItem;
-      Add("Name", mediaItem.Title);
+      SetLabel("Name", mediaItem.Title);
       if (mediaItem.MetaData.ContainsKey("CoverArt"))
-        Add("CoverArt", mediaItem.MetaData["CoverArt"].ToString());
+        SetLabel("CoverArt", mediaItem.MetaData["CoverArt"].ToString());
       if (mediaItem.MetaData.ContainsKey("defaulticon"))
-        Add("defaulticon", mediaItem.MetaData["defaulticon"].ToString());
+        SetLabel("defaulticon", mediaItem.MetaData["defaulticon"].ToString());
     }
   }
 }

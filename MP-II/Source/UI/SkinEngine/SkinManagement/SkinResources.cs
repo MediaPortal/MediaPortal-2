@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.FileSystem;
@@ -238,11 +240,18 @@ namespace MediaPortal.SkinEngine.SkinManagement
           if (resourceKey.StartsWith(STYLES_DIRECTORY) &&
               resourceKey.Substring(STYLES_DIRECTORY.Length + 1).IndexOf('\\') == -1)
           {
-            ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
-            if (rd == null)
-              throw new InvalidCastException("Style resource file '" + resource.Value +
-                  "' doesn't contain a ResourceDictionary");
-            _localStyleResources.Merge(rd);
+            try
+            {
+              ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
+              if (rd == null)
+                throw new InvalidCastException("Style resource file '" + resource.Value +
+                    "' doesn't contain a ResourceDictionary");
+              _localStyleResources.Merge(rd);
+            }
+            catch (Exception ex)
+            {
+              ServiceScope.Get<ILogger>().Error("SkinResources: Error loading style resource '{0}'", ex, resource.Value);
+            }
           }
         }
       }

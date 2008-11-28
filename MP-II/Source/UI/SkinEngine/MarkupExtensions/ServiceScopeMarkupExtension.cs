@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
@@ -36,7 +37,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 {
   public class ServiceScopeMarkupExtension: IEvaluableMarkupExtension
   {
-
     #region Protected fields
 
     protected static IDictionary<string, Type> TYPE_MAPPING = new Dictionary<string, Type>();
@@ -77,12 +77,20 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       if (!TYPE_MAPPING.ContainsKey(_interfaceName))
         throw new XamlBindingException("ServiceScopeMarkupExtension: Type '{0}' is not known", _interfaceName);
       Type t = TYPE_MAPPING[_interfaceName];
-      Type scType = typeof(ServiceScope);
-      MethodInfo mi = scType.GetMethod("Get",
-        BindingFlags.Public | BindingFlags.Static,
-        null, new Type[] {}, null);
-      mi = mi.MakeGenericMethod(t);
-      return mi.Invoke(null, new object[] {});
+      try
+      {
+        Type scType = typeof(ServiceScope);
+        MethodInfo mi = scType.GetMethod("Get",
+          BindingFlags.Public | BindingFlags.Static,
+          null, new Type[] { }, null);
+        mi = mi.MakeGenericMethod(t);
+        return mi.Invoke(null, new object[] { });
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("ServiceScopeMarkupExtension: Error getting service '{0}'", ex, t.Name);
+      }
+      return null;
     }
 
     #endregion

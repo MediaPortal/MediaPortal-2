@@ -30,7 +30,7 @@ namespace Models.Settings
 {
   public class VideoSettings
   {
-    ItemsCollection _mainMenu;
+    ItemsList _mainMenu;
 
     public VideoSettings()
     {
@@ -40,7 +40,7 @@ namespace Models.Settings
     /// exposes the main video-settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {

@@ -36,17 +36,17 @@ namespace Models.Shares
     {
       if (name == "..")
       {
-        Add("CoverArt", "DefaultFolderBackBig.png");
+        SetLabel("CoverArt", "DefaultFolderBackBig.png");
       }
       else
       {
-        Add("CoverArt", "DefaultFolderBig.png");
+        SetLabel("CoverArt", "DefaultFolderBig.png");
       }
 
-      Add("Name", name);
-      Add("Size", "");
-      Add("Date", "");
-      Add("Path", folder);
+      SetLabel("Name", name);
+      SetLabel("Size", "");
+      SetLabel("Date", "");
+      SetLabel("Path", folder);
       _folder = folder;
       _name = name;
       _parentfolder = parentfolder;

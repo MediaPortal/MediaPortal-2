@@ -36,7 +36,7 @@ namespace Models.Login
   /// </summary>
   public class LoginModel
   {
-    private ItemsCollection _usersExposed = new ItemsCollection();
+    private ItemsList _usersExposed = new ItemsList();
     private Property _currentUser;
 
     /// <summary>
@@ -82,17 +82,17 @@ namespace Models.Login
           continue;
         }
         ListItem buff = new ListItem();
-        buff.Add("UserName", user.UserName);
-        buff.Add("UserImage", user.UserImage);
+        buff.SetLabel("UserName", user.UserName);
+        buff.SetLabel("UserImage", user.UserImage);
         if (user.NeedsPassword)
         {
-          buff.Add("NeedsPassword", "true");
+          buff.SetLabel("NeedsPassword", "true");
         }
         else
         {
-          buff.Add("NeedsPassword", "false");
+          buff.SetLabel("NeedsPassword", "false");
         }
-        buff.Add("LastLogin", user.LastLogin.ToString("G"));
+        buff.SetLabel("LastLogin", user.LastLogin.ToString("G"));
         Users.Add(buff);
       }
       // tell the skin that something might have changed
@@ -138,7 +138,7 @@ namespace Models.Login
     /// <summary>
     /// exposes the users to the skin
     /// </summary>
-    public ItemsCollection Users
+    public ItemsList Users
     {
       get { return _usersExposed; }
     }

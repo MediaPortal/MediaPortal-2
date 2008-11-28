@@ -28,9 +28,9 @@ using MediaPortal.Core.General;
 namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
-  /// interface to a collection of UI items.
+  /// List of <see cref="ListItem"/> instances to be shown in the GUI.
   /// </summary>
-  public class ItemsCollection : List<ListItem>, IObservable
+  public class ItemsList : List<ListItem>, IObservable
   {
     /// <summary>
     /// Event which gets fired when the collection changes.

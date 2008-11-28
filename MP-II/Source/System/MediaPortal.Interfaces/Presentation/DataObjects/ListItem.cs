@@ -80,7 +80,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// an unlocalized label will be used.</param>
     public ListItem(string name, string value)
     {
-      Add(name, value);
+      SetLabel(name, value);
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="name">The name for the new label.</param>
     /// <param name="value">The string label to be added. If this parameter references a
     /// localized resource, the new label will be a localized string label.</param>
-    public void Add(string name, string value)
+    public void SetLabel(string name, string value)
     {
       _labels[name] = LocalizationHelper.CreateLabelProperty(value);
     }

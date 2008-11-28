@@ -35,8 +35,8 @@ namespace Models.Shares
 {
   public class Model
   {
-    protected readonly ItemsCollection _folders = new ItemsCollection();
-    protected readonly ItemsCollection _shares = new ItemsCollection();
+    protected readonly ItemsList _folders = new ItemsList();
+    protected readonly ItemsList _shares = new ItemsList();
 
     public Model()
     {
@@ -44,7 +44,7 @@ namespace Models.Shares
       UpdateShares();
     }
 
-    public ItemsCollection Shares
+    public ItemsList Shares
     {
       get { return _shares; }
     }
@@ -58,7 +58,7 @@ namespace Models.Shares
       UpdateShares();
     }
 
-    public ItemsCollection NoSharesMenu
+    public ItemsList NoSharesMenu
     {
       get
       {
@@ -67,7 +67,7 @@ namespace Models.Shares
       }
     }
 
-    public ItemsCollection SharesRemoveMainMenu
+    public ItemsList SharesRemoveMainMenu
     {
       get
       {
@@ -76,7 +76,7 @@ namespace Models.Shares
       }
     }
 
-    public ItemsCollection SharesAddMainMenu
+    public ItemsList SharesAddMainMenu
     {
       get
       {
@@ -85,7 +85,7 @@ namespace Models.Shares
       }
     }
 
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -100,7 +100,7 @@ namespace Models.Shares
     /// <see cref="UpdateShares"/>, and can be written to the importer manager by calling
     /// <see cref="CommitShares"/>.
     /// </summary>
-    public ItemsCollection Folders
+    public ItemsList Folders
     {
       get { return _folders; }
     }
@@ -214,9 +214,9 @@ namespace Models.Shares
       SynchronizeShares(_folders, shares);
     }
 
-    protected void SynchronizeShares(ItemsCollection collection, ICollection<string> shares)
+    protected void SynchronizeShares(ItemsList list, ICollection<string> shares)
     {
-      foreach (FolderItem folder in collection)
+      foreach (FolderItem folder in list)
       {
         folder.Selected = shares.Contains(folder.Folder);
         SynchronizeShares(folder.SubItems, shares);
@@ -259,38 +259,38 @@ namespace Models.Shares
       SynchronizeShares();
     }
 
-    protected void Refresh(ItemsCollection childrenCollection, FolderItem folder, bool addParent)
+    protected void Refresh(ItemsList childrenList, FolderItem folder, bool addParent)
     {
-      childrenCollection.Clear();
+      childrenList.Clear();
       if (folder == null)
       { // Refreshing the root folder
         string[] drives = Environment.GetLogicalDrives();
         for (int i = 0; i < drives.Length; ++i)
-          childrenCollection.Add(new FolderItem(drives[i], drives[i], null));
+          childrenList.Add(new FolderItem(drives[i], drives[i], null));
       }
       else
       {
         // Refreshing a subfolder
         if (addParent)
-          childrenCollection.Add(new FolderItem("..", folder.ParentFolder.Folder, folder.ParentFolder));
+          childrenList.Add(new FolderItem("..", folder.ParentFolder.Folder, folder.ParentFolder));
         try
         {
           foreach (string folderPath in Directory.GetDirectories(folder.Folder))
           {
             string folderName = Path.GetFileName(folderPath);
-            childrenCollection.Add(new FolderItem(folderName, folderPath, folder));
+            childrenList.Add(new FolderItem(folderName, folderPath, folder));
           }
         }
         catch (IOException) { }
       }
       IImporterManager mgr = ServiceScope.Get<IImporterManager>();
-      foreach (FolderItem item in childrenCollection)
+      foreach (FolderItem item in childrenList)
       {
         if (mgr.Shares.Contains(item.Folder))
           item.Selected = true;
       }
       SynchronizeShares();
-      childrenCollection.FireChange();
+      childrenList.FireChange();
     }
   }
 }

@@ -30,7 +30,7 @@ namespace Models.Settings
 {
   public class General
   {
-    ItemsCollection _mainMenu;
+    ItemsList _mainMenu;
 
     public General() { }
 
@@ -38,7 +38,7 @@ namespace Models.Settings
     /// exposes the main settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {

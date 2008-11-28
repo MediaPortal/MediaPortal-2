@@ -38,14 +38,14 @@ namespace Models.Settings
 
   public class Appearance
   {
-    ItemsCollection _mainMenu;
+    ItemsList _mainMenu;
 
-    ItemsCollection _skins;
-    ItemsCollection _themes;
+    ItemsList _skins;
+    ItemsList _themes;
 
     public Appearance()
     {
-      _skins = new ItemsCollection();
+      _skins = new ItemsList();
       // FIXME Albert78: Use the SkinResources lookup mechanism here, after this class was moved
       // to SkinEngine project.
       // THIS IS A HACK!
@@ -60,13 +60,13 @@ namespace Models.Settings
             continue;
           ListItem item = new ListItem("Name", skinName);
           string previewImagePath = String.Format("{0}\\themes\\default\\media\\preview.png", skinDirectoryPath);
-          item.Add("CoverArt", previewImagePath);
-          item.Add("defaulticon", previewImagePath);
+          item.SetLabel("CoverArt", previewImagePath);
+          item.SetLabel("defaulticon", previewImagePath);
           _skins.Add(item);
         }
       pluginManager.RevokeAllPluginItems("/Resources/Skin", stateTracker);
 
-      _themes = new ItemsCollection();
+      _themes = new ItemsList();
       UpdateThemes();
     }
 
@@ -85,7 +85,7 @@ namespace Models.Settings
         ListItem item = new ListItem("Name", themeName);
         string previewImagePath = ra.GetResourceFilePath("themes\\" + themeName + "\\media\\preview.png");
         if (previewImagePath != null)
-          item.Add("CoverArt", previewImagePath);
+          item.SetLabel("CoverArt", previewImagePath);
         _themes.Add(item);
       }
     }
@@ -106,7 +106,7 @@ namespace Models.Settings
     /// <summary>
     /// Exposes all skins available to the skinengine.
     /// </summary>
-    public ItemsCollection Skins
+    public ItemsList Skins
     {
       get
       {
@@ -134,7 +134,7 @@ namespace Models.Settings
     /// exposes the main settings menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -150,7 +150,7 @@ namespace Models.Settings
     /// Exposes all skins available to the skinengine.
     /// </summary>
     /// <value>The skins.</value>
-    public ItemsCollection Themes
+    public ItemsList Themes
     {
       get
       {

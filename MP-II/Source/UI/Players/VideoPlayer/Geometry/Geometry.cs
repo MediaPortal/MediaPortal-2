@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,31 +22,6 @@
 
 #endregion
 
-#region Copyright (C) 2005-2008 Team MediaPortal
-
-/* 
- *	Copyright (C) 2005-2008 Team MediaPortal
- *	http://www.team-mediaportal.com
- *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *  http://www.gnu.org/copyleft/gpl.html
- *
- */
-
-#endregion
-
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core;
@@ -57,6 +32,14 @@ namespace MediaPortal.SkinEngine.Players.Geometry
   /// <summary>
   /// Class which can do transformations for video windows
   /// currently it supports Zoom, Zoom 14:9, normal, stretch, original, letterbox 4:3 and panscan 4:3
+  /// FIXME Albert78, 2008-11-27: This class was "originally" instanciated as static field in the SkinEngine's
+  /// SkinContext. The class has to be reworked: Currently, it contains a) general members like the collection of
+  /// available <see cref="IGeometry"/> instances, but it also contains context members like the image size, screen size
+  /// and a current geometry (<see cref="_currentIndex"/>), which are NOT general but context dependent. This class has
+  /// to be splitted to a general part containing the available geometries and maybe other helper functions and
+  /// the context dependent part, which has to be moved to the video players (VideoBrush, VideoPlayer, ...).
+  /// The <see cref="OsdProperties"/> class also accesses some of the settings like the CropSettings, which originally
+  /// were located in the SkinContext class of SkinEngine.
   /// </summary>
   public class Geometry : IGeometryHelper
   {
@@ -67,6 +50,7 @@ namespace MediaPortal.SkinEngine.Players.Geometry
     private float _pixelRatio = 1.0f; // pixelratio correction 
     private List<IGeometry> _geometries = new List<IGeometry>();
     private int _currentIndex = 0;
+    private CropSettings _cropSettings = new CropSettings();
 
     /// <summary>
     /// Empty constructor
@@ -192,6 +176,18 @@ namespace MediaPortal.SkinEngine.Players.Geometry
     {
       get { return _pixelRatio; }
       set { _pixelRatio = value; }
+    }
+
+    public CropSettings CropSettings
+    {
+      get { return _cropSettings; }
+      set
+      {
+        if (value == null)
+          _cropSettings = new CropSettings();
+        else
+          _cropSettings = value;
+      }
     }
 
     /// <summary>

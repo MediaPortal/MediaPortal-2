@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -290,42 +290,6 @@
     <Compile Include="Xaml\NameScope.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\ModelManager.cs" />
-    <Compile Include="Players\CropSettings.cs" />
-    <Compile Include="Players\DvdPlayer.cs" />
-    <Compile Include="Players\FilterGraphTools.cs" />
-    <Compile Include="Players\Geometry\Geometry.cs" />
-    <Compile Include="Players\Geometry\GeometryIntelligentZoom.cs" />
-    <Compile Include="Players\Geometry\GeometryLetterBox.cs" />
-    <Compile Include="Players\Geometry\GeometryNormal.cs" />
-    <Compile Include="Players\Geometry\GeometryOrignal.cs" />
-    <Compile Include="Players\Geometry\GeometryZoom149.cs" />
-    <Compile Include="Players\Geometry\GeometryPanAndScan.cs" />
-    <Compile Include="Players\Geometry\GeometryStretch.cs" />
-    <Compile Include="Players\Geometry\GeometryZoom.cs" />
-    <Compile Include="Players\IPersistMemory.cs" />
-    <Compile Include="Players\OsdProperties.cs" />
-    <Compile Include="Players\PlayerFactory.cs" />
-    <Compile Include="Players\Players.cs" />
-    <Compile Include="Players\Seeking.cs" />
-    <Compile Include="Players\settings\Settings.cs" />
-    <Compile Include="Players\settings\AudioSettings.cs" />
-    <Compile Include="Players\settings\VideoSettings.cs" />
-    <Compile Include="Players\StringTokenizer.cs" />
-    <Compile Include="Players\Subtitles\SubtitleRenderer.cs" />
-    <Compile Include="Players\Subtitles\SubtitleSelector.cs" />
-    <Compile Include="Players\Subtitles\TeletextMagazine.cs" />
-    <Compile Include="Players\Subtitles\TeletextPageHeader.cs" />
-    <Compile Include="Players\Subtitles\TeletextSubtitleDecoder.cs" />
-    <Compile Include="Players\Subtitles\TextConversion.cs" />
-    <Compile Include="Players\Teletext\Hamming.cs" />
-    <Compile Include="Players\Teletext\IDVBTeletextDecoder.cs" />
-    <Compile Include="Players\Teletext\ITeletextSource.cs" />
-    <Compile Include="Players\Teletext\PESDecoder.cs" />
-    <Compile Include="Players\Teletext\TeletextReceiver.cs" />
-    <Compile Include="Players\Teletext\TSHeader.cs" />
-    <Compile Include="Players\TsVideoPlayer.cs" />
-    <Compile Include="Players\VideoPlayer.cs" />
-    <Compile Include="Players\Vmr9\Allocator.cs" />
     <Compile Include="ContentManagement\ContentManager.cs" />
     <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\TextureAsset.cs" />

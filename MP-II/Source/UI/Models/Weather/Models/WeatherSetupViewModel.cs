@@ -41,11 +41,11 @@ namespace Models.Weather
     private List<CitySetupInfo> _locationsSearch; 
 
     // vatiants of the above that is exposed to the skin
-    private readonly ItemsCollection _locationsExposed = new ItemsCollection(); 
-    private readonly ItemsCollection _locationsSearchExposed = new ItemsCollection();
+    private readonly ItemsList _locationsExposed = new ItemsList(); 
+    private readonly ItemsList _locationsSearchExposed = new ItemsList();
 
 
-    private ItemsCollection _mainMenu;
+    private ItemsList _mainMenu;
     private Property _searchCity;
 
     /// <summary>
@@ -67,7 +67,7 @@ namespace Models.Weather
     /// exposes the main menu to the skin
     /// </summary>
     /// <value>The main menu.</value>
-    public ItemsCollection MainMenu
+    public ItemsList MainMenu
     {
       get
       {
@@ -192,8 +192,8 @@ namespace Models.Weather
           if (c != null)
           {
             buff = new ListItem();
-            buff.Add("Name", c.Name);
-            buff.Add("Id", c.Id);
+            buff.SetLabel("Name", c.Name);
+            buff.SetLabel("Id", c.Id);
             _locationsExposed.Add(buff);
           }
         }
@@ -223,8 +223,8 @@ namespace Models.Weather
           if (c != null)
           {
             buff = new ListItem();
-            buff.Add("Name", c.Name);
-            buff.Add("Id", c.Id);
+            buff.SetLabel("Name", c.Name);
+            buff.SetLabel("Id", c.Id);
             _locationsSearchExposed.Add(buff);
           }
         }
@@ -235,7 +235,7 @@ namespace Models.Weather
     /// <summary>
     /// exposes the available locations
     /// </summary>
-    public ItemsCollection SetupLocations
+    public ItemsList SetupLocations
     {
       get { return _locationsExposed; }
     }
@@ -243,7 +243,7 @@ namespace Models.Weather
     /// <summary>
     /// exposes the search result
     /// </summary>
-    public ItemsCollection SetupSearchLocations
+    public ItemsList SetupSearchLocations
     {
       get { return _locationsSearchExposed; }
     }

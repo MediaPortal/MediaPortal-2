@@ -30,11 +30,11 @@ namespace Models.HomeMenu
 {
   public class HomeMenu
   {
-    public ItemsCollection _pluginMenu;
+    public ItemsList _pluginMenu;
 
     public HomeMenu() { }
 
-    public ItemsCollection Plugins
+    public ItemsList Plugins
     {
       get
       {

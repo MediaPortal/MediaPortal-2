@@ -35,19 +35,19 @@ namespace MediaPortal.Presentation.MenuManager
   public class MenuHelper
   {
     /// <summary>
-    /// Wraps the given <paramref name="menu"/> into an <see cref="ItemsCollection"/> to be displayed
+    /// Wraps the given <paramref name="menu"/> into an <see cref="ItemsList"/> to be displayed
     /// in the UI.
     /// </summary>
     /// <param name="menu">The menu to wrap.</param>
     /// <returns>Wrapped menu.</returns>
-    public static ItemsCollection WrapMenu(IMenu menu)
+    public static ItemsList WrapMenu(IMenu menu)
     {
-      ItemsCollection result = new ItemsCollection();
+      ItemsList result = new ItemsList();
       ICommandBuilder builder = ServiceScope.Get<ICommandBuilder>();
       foreach (IMenuItem item in menu.Items)
       {
         TreeItem treeItem = new TreeItem("Name", item.Text);
-        treeItem.Add("CoverArt", item.ImagePath);
+        treeItem.SetLabel("CoverArt", item.ImagePath);
         if (item.Command != "")
         {
           treeItem.Command = builder.BuildCommand(item.Command);
@@ -60,7 +60,7 @@ namespace MediaPortal.Presentation.MenuManager
           foreach (IMenuItem subitem in item.Items)
           {
             ListItem sublistItem = new ListItem("Name", subitem.Text);
-            sublistItem.Add("CoverArt", subitem.ImagePath);
+            sublistItem.SetLabel("CoverArt", subitem.ImagePath);
             if (subitem.Command != "")
             {
               sublistItem.Command = builder.BuildCommand(subitem.Command);
