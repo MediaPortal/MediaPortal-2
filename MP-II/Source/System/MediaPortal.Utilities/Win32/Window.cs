@@ -29,6 +29,7 @@ namespace MediaPortal.Utilities.Win32
   /// <summary>
   /// Contains Window Releated Win32 Methods
   /// </summary>
+  [Obsolete("Will be replaced by a class in namespace MediaPortal.Utilities.System which can cope with all Windows systems")]
   public class Window
   {
     /// <summary>

@@ -31,6 +31,7 @@ namespace MediaPortal.Utilities.Win32
   /// <summary>
   /// This class contains definitions for the Win32 API
   /// </summary>
+  [Obsolete("Direct usages in the code should be replaced by usages of more abstract classes")]
   public class Win32API
   {
     #region Interop declarations
@@ -183,6 +184,7 @@ namespace MediaPortal.Utilities.Win32
 
     #region Shell32
     // Takes the CSIDL of a folder and returns the pathname.
+    // Will be deprecated in Vista and replaced by SHGetKnownFolderPath
     [DllImport("shell32.dll")]
     public static extern Int32 SHGetFolderPath(
         IntPtr hwndOwner,        // Handle to an owner window.
@@ -282,7 +284,5 @@ namespace MediaPortal.Utilities.Win32
     }
     #endregion
     #endregion
-
-
   }
 }

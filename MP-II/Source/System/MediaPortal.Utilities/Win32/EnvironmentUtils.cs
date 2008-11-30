@@ -129,17 +129,6 @@ namespace MediaPortal.Utilities.Win32
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Returns the Special Folder Path for the giveb CSIDL
-    /// </summary>
-    /// <param name="csidl"></param>
-    /// <returns></returns>
-    public static string GetFolderPath(int csidl)
-    {
-      StringBuilder folder = new System.Text.StringBuilder(256);
-      Win32API.SHGetFolderPath(IntPtr.Zero, csidl, IntPtr.Zero, Win32API.SHGFP_TYPE_CURRENT, folder);
-      return folder.ToString();
-    }
 
     /// <summary>
     /// Returns the the operating system running on this computer.
