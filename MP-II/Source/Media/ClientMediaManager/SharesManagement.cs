@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
@@ -42,15 +43,24 @@ namespace MediaPortal.Media.ClientMediaManager
     #region Protected fields
 
     /// <summary>
-    /// Contains the id of the LocalFsMediaProvider class.
+    /// Contains the id of the LocalFsMediaProvider.
     /// </summary>
     protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
 
+    /// <summary>
+    /// Contains the id of the MusicMetadataExtractor.
+    /// </summary>
     protected const string MUSIC_METADATAEXTRACTOR_ID = "{817FEE2E-8690-4355-9F24-3BDC65AEDFFE}";
 
     // TODO: When the movie and picture MEs are implemented, comment this in:
+    ///// <summary>
+    ///// Contains the id of the MovieMetadataExtractor.
+    ///// </summary>
     //protected const string MOVIE_METADATAEXTRACTOR_ID = ...;
 
+    ///// <summary>
+    ///// Contains the id of the PictureMetadataExtractor.
+    ///// </summary>
     //protected const string PICTURE_METADATAEXTRACTOR_ID = ...;
 
     protected IDictionary<Guid, ShareDescriptor> _shares = new Dictionary<Guid, ShareDescriptor>();
@@ -89,43 +99,48 @@ namespace MediaPortal.Media.ClientMediaManager
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
       if (mediaManager.LocalMediaProviders.ContainsKey(localFsMediaProviderId))
       {
-        string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        Guid shareId = Guid.NewGuid();
-        string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
-        ICollection<Guid> metadataExtractorIds = new List<Guid>();
-        foreach (string mediaCategory in mediaCategories)
-          CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-        ShareDescriptor sd = new ShareDescriptor(
-            shareId, SystemName.Loopback(), localFsMediaProviderId,
-            folderPath, "[Media.MyMusic]",
-            mediaCategories, metadataExtractorIds);
-        _shares.Add(shareId, sd);
+        string folderPath;
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
+        {
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              folderPath, "[Media.MyMusic]",
+              mediaCategories, metadataExtractorIds);
+          _shares.Add(shareId, sd);
+        }
 
-        // TODO Albert78, 2008-11-28: Commented out because Environment.SpecialFolder.MyVideos is not available...
-        // -> what can we do to get the MyVideos special folder? I don't want to call the WinAPI directly here...
-        //folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-        //shareId = Guid.NewGuid();
-        //mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
-        //metadataExtractorIds = new List<Guid>();
-        //foreach (string mediaCategory in mediaCategories)
-        //  CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-        //sd = new ShareDescriptor(
-        //    shareId, SystemName.Loopback(), localFsMediaProviderId,
-        //    folderPath, "[Media.MyVideos]",
-        //    mediaCategories, metadataExtractorIds);
-        //_shares.Add(shareId, sd);
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
+        {
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              folderPath, "[Media.MyVideos]",
+              mediaCategories, metadataExtractorIds);
+          _shares.Add(shareId, sd);
+        }
 
-        string myPicturesFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-        shareId = Guid.NewGuid();
-        mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
-        metadataExtractorIds = new List<Guid>();
-        foreach (string mediaCategory in mediaCategories)
-          CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-        sd = new ShareDescriptor(
-            shareId, SystemName.Loopback(), localFsMediaProviderId,
-            myPicturesFolderPath, "[Media.MyMusic]",
-            mediaCategories, metadataExtractorIds);
-        _shares.Add(shareId, sd);
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
+        {
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              folderPath, "[Media.MyMusic]",
+              mediaCategories, metadataExtractorIds);
+          _shares.Add(shareId, sd);
+        }
       }
       if (_shares.Count > 0)
         return;
