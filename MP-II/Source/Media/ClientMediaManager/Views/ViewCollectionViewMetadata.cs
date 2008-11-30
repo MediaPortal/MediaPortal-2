@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,14 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Media.ClientMediaManager.Views
 {
   /// <summary>
-  /// Holds the metadata of a view which is based on a local provider path.
+  /// Holds the metadata of a view which only contains subviews and no media items.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -38,46 +36,15 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class MediaLibraryViewMetadata : ViewMetadata
+  public class ViewCollectionViewMetadata : ViewMetadata
   {
-    #region Protected fields
-
-    protected IQuery _query;
-
-    #endregion
-
-    internal MediaLibraryViewMetadata(Guid viewId, string displayName, IQuery query,
-        Guid? parentViewId, IEnumerable<Guid> mediaItemAspectIds) :
-      base(viewId, displayName, parentViewId, mediaItemAspectIds)
-    {
-      _query = query;
-    }
-
-    /// <summary>
-    /// Returns the media library query this view is based on.
-    /// </summary>
-    [XmlIgnore]
-    public IQuery Query
-    {
-      get { return _query; }
-    }
+    internal ViewCollectionViewMetadata(Guid viewId, string displayName,
+        Guid? parentViewId) :
+        base(viewId, displayName, parentViewId, new Guid[] { }) { }
 
     #region Additional members for the XML serialization
 
-    internal MediaLibraryViewMetadata() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("QueryString")]
-    public string XML_QueryString
-    {
-      get { return "Not used yet"; }
-      set
-      {
-        // TODO
-      }
-    }
+    internal ViewCollectionViewMetadata() { }
 
     #endregion
   }

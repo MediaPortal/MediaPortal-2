@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 
@@ -40,50 +41,136 @@ namespace MediaPortal.Media.ClientMediaManager
   {
     #region Protected fields
 
+    /// <summary>
+    /// Contains the id of the LocalFsMediaProvider class.
+    /// </summary>
+    protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
+
+    protected const string MUSIC_METADATAEXTRACTOR_ID = "{817FEE2E-8690-4355-9F24-3BDC65AEDFFE}";
+
+    // TODO: When the movie and picture MEs are implemented, comment this in:
+    //protected const string MOVIE_METADATAEXTRACTOR_ID = ...;
+
+    //protected const string PICTURE_METADATAEXTRACTOR_ID = ...;
+
     protected IDictionary<Guid, ShareDescriptor> _shares = new Dictionary<Guid, ShareDescriptor>();
 
     #endregion
 
     #region Ctor
 
-    public SharesManagement()
-    {
-      LoadSharesFromSettings();
-    }
+    public SharesManagement() { }
 
     #endregion
 
-    protected void LoadSharesFromSettings()
+    /// <summary>
+    /// Returns an enumeration of default metadata extractors which can cope with the specified
+    /// <paramref name="mediaCategory"/>.
+    /// </summary>
+    /// <param name="mediaCategory">The category to find all default metadata extractors for. If
+    /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
+    /// independent of their category.</param>
+    /// <returns>Enumeration of metadata extractors which can be asigned to shares of the
+    /// specified <paramref name="mediaCategory"/> by default.</returns>
+    protected static IEnumerable<Guid> GetDefaultMetadataExtractorsForCategory(string mediaCategory)
     {
-      // FIXME: Test-Code, creates a single share. This is only temporary code and will be
-      // removed as soon as the shares management GUI is ready (Albert78, 2008-11-15)
-      Guid shareId = new Guid("{04A9B3CA-0808-42e8-A0A4-B2C65D19945A}");
-      Guid fsProviderId = new Guid("{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}");
-      Guid musicMetadataExtractor = new Guid("{817FEE2E-8690-4355-9F24-3BDC65AEDFFE}");
-      ShareDescriptor sd = new ShareDescriptor(shareId, SystemName.Loopback(), fsProviderId,
-          "D:\\Tmp\\MP-Test", "Test-Share", null, new Guid[]
-          {
-            musicMetadataExtractor
-          });
-      _shares.Add(shareId, sd);
-      return;
-      //////////// FIXME: End test code
-      SharesSettings settings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
-      ICollection<ShareDescriptor> shares = settings.LocalShares;
-      if (shares != null)
-        foreach (ShareDescriptor share in shares)
-          _shares.Add(share.ShareId, share);
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      foreach (IMetadataExtractor metadataExtractor in mediaManager.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
+        if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
+          yield return metadataExtractor.Metadata.MetadataExtractorId;
+      }
     }
 
-    protected void SaveSharesToSettings()
+    protected void InitializeDefaultShares()
     {
-      SharesSettings settings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
-      settings.LocalShares.Clear();
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
+      if (mediaManager.LocalMediaProviders.ContainsKey(localFsMediaProviderId))
+      {
+        string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+        Guid shareId = Guid.NewGuid();
+        string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
+        ICollection<Guid> metadataExtractorIds = new List<Guid>();
+        foreach (string mediaCategory in mediaCategories)
+          CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+        ShareDescriptor sd = new ShareDescriptor(
+            shareId, SystemName.Loopback(), localFsMediaProviderId,
+            folderPath, "[Media.MyMusic]",
+            mediaCategories, metadataExtractorIds);
+        _shares.Add(shareId, sd);
+
+        // TODO Albert78, 2008-11-28: Commented out because Environment.SpecialFolder.MyVideos is not available...
+        // -> what can we do to get the MyVideos special folder? I don't want to call the WinAPI directly here...
+        //folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+        //shareId = Guid.NewGuid();
+        //mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
+        //metadataExtractorIds = new List<Guid>();
+        //foreach (string mediaCategory in mediaCategories)
+        //  CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+        //sd = new ShareDescriptor(
+        //    shareId, SystemName.Loopback(), localFsMediaProviderId,
+        //    folderPath, "[Media.MyVideos]",
+        //    mediaCategories, metadataExtractorIds);
+        //_shares.Add(shareId, sd);
+
+        string myPicturesFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        shareId = Guid.NewGuid();
+        mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
+        metadataExtractorIds = new List<Guid>();
+        foreach (string mediaCategory in mediaCategories)
+          CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+        sd = new ShareDescriptor(
+            shareId, SystemName.Loopback(), localFsMediaProviderId,
+            myPicturesFolderPath, "[Media.MyMusic]",
+            mediaCategories, metadataExtractorIds);
+        _shares.Add(shareId, sd);
+      }
+      if (_shares.Count > 0)
+        return;
+      // Fallback: If no share was added for the defaults above, use the provider's root folders
+      foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
+      {
+        MediaProviderMetadata metadata = mediaProvider.Metadata;
+        Guid shareId = Guid.NewGuid();
+        ShareDescriptor sd = new ShareDescriptor(
+            shareId, SystemName.Loopback(), metadata.MediaProviderId,
+            "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
+        _shares.Add(shareId, sd);
+      }
+    }
+
+    #region Public methods
+
+    public void LoadSharesFromSettings()
+    {
+      SharesSettings sharesSettings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
+      if (sharesSettings.LocalShares.Count == 0)
+      { // The shares are still uninitialized - use defaults
+        InitializeDefaultShares();
+        SaveSharesToSettings();
+        return;
+      }
+      foreach (ShareDescriptor share in sharesSettings.LocalShares)
+        _shares.Add(share.ShareId, share);
+    }
+
+    public void SaveSharesToSettings()
+    {
+      SharesSettings settings = new SharesSettings();
       CollectionUtils.AddAll(settings.LocalShares, _shares.Values);
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
-    #region Implementation of IShareManagement
+    #endregion
+
+    #region ISharesManagement implementation
+
+    public void Initialize()
+    {
+      LoadSharesFromSettings();
+    }
 
     public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
@@ -137,7 +224,7 @@ namespace MediaPortal.Media.ClientMediaManager
       if (sd == null)
         return;
       foreach (Guid metadataExtractorId in metadataExtractorIds)
-        sd.MetadataExtractors.Add(metadataExtractorId);
+        sd.MetadataExtractorIds.Add(metadataExtractorId);
       ServiceScope.Get<MediaManager>().InvalidateMediaItemsFromShare(shareId);
     }
 
@@ -147,7 +234,7 @@ namespace MediaPortal.Media.ClientMediaManager
       if (sd == null)
         return;
       foreach (Guid metadataExtractorId in metadataExtractorIds)
-        sd.MetadataExtractors.Remove(metadataExtractorId);
+        sd.MetadataExtractorIds.Remove(metadataExtractorId);
       ServiceScope.Get<MediaManager>().InvalidateMediaItemsFromShare(shareId);
     }
 

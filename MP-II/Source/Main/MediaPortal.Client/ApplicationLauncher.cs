@@ -25,7 +25,10 @@
 using System;
 using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.UserManagement;
+using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.Logging; // Needed for Release build configuration
@@ -95,29 +98,33 @@ namespace MediaPortal
 
         logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
-        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputMapper service");
+        logger.Debug("ApplicationLauncher: Create MediaManager service");
+        MediaManager mediaManager = new MediaManager();
+        ServiceScope.Add<MediaManager>(mediaManager);
+
+        logger.Debug("ApplicationLauncher: Create IInputMapper service");
         InputMapper inputMapper = new InputMapper();
         ServiceScope.Add<IInputMapper>(inputMapper);
 
-        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuManager service");
+        logger.Debug("ApplicationLauncher: Create IMenuManager service");
         MenuCollection menuCollection = new MenuCollection();
         ServiceScope.Add<IMenuCollection>(menuCollection);
 
-        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IMenuBuilder service");
+        logger.Debug("ApplicationLauncher: Create IMenuBuilder service");
         MenuBuilder menuBuilder = new MenuBuilder();
         ServiceScope.Add<IMenuBuilder>(menuBuilder);
 
-        ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create UserService service");
+        logger.Debug("ApplicationLauncher: Create UserService service");
         UserService userservice = new UserService();
         ServiceScope.Add<IUserService>(userservice);
 
-        logger.Debug("ApplicationLauncher: Registering strings manager");
+        logger.Debug("ApplicationLauncher: Create StringManager");
         ServiceScope.Add<ILocalisation>(new StringManager());
 
-        logger.Debug("ApplicationLauncher: Registering thumbnail generator");
+        logger.Debug("ApplicationLauncher: Create ThumbnailGenerator");
         ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
 
-        logger.Debug("ApplicationLauncher: Registering BurnManager");
+        logger.Debug("ApplicationLauncher: Create BurnManager");
         ServiceScope.Add<IBurnManager>(new BurnManager());
         EventHelper.Init(); // only for quick test simulating a plugin
 
@@ -129,8 +136,15 @@ namespace MediaPortal
 #endif
         // Start the core
         logger.Debug("ApplicationLauncher: Starting core");
-        ApplicationCore core = new ApplicationCore();
-        core.Start();
+
+        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        pluginManager.Initialize();
+        pluginManager.Startup(false);
+
+        mediaManager.Startup();
+
+        Application.Run();
+        pluginManager.Shutdown();
 #if !DEBUG
         }
         catch (Exception ex)

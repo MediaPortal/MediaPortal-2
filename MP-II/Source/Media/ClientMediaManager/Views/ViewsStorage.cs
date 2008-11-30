@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,12 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Media.ClientMediaManager.Views
 {
   /// <summary>
-  /// Holds the metadata of a view which is based on a local provider path.
+  /// Storage data object for holding all local view configuration.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -38,45 +37,46 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class MediaLibraryViewMetadata : ViewMetadata
+  public class ViewsStorage
   {
     #region Protected fields
 
-    protected IQuery _query;
+    protected List<ViewMetadata> _views = new List<ViewMetadata>();
+    protected Guid _rootView;
 
     #endregion
 
-    internal MediaLibraryViewMetadata(Guid viewId, string displayName, IQuery query,
-        Guid? parentViewId, IEnumerable<Guid> mediaItemAspectIds) :
-      base(viewId, displayName, parentViewId, mediaItemAspectIds)
+    /// <summary>
+    /// Gets or sets the root view's id.
+    /// </summary>
+    public Guid RootViewId
     {
-      _query = query;
+      get { return _rootView; }
+      set { _rootView = value; }
     }
 
     /// <summary>
-    /// Returns the media library query this view is based on.
+    /// Gets or sets the collection of view metadata descriptors for all available views.
     /// </summary>
     [XmlIgnore]
-    public IQuery Query
+    public ICollection<ViewMetadata> Views
     {
-      get { return _query; }
+      get { return _views; }
     }
 
-    #region Additional members for the XML serialization
-
-    internal MediaLibraryViewMetadata() { }
+    #region Additional Additional members for the XML serialization
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("QueryString")]
-    public string XML_QueryString
+    [XmlArray("Views")]
+    [XmlArrayItem("LocalShareView", Type = typeof(LocalShareViewMetadata))]
+    [XmlArrayItem("MediaLibraryView", Type = typeof(MediaLibraryViewMetadata))]
+    [XmlArrayItem("ViewCollectionView", Type = typeof(ViewCollectionViewMetadata))]
+    public List<ViewMetadata> XML_Views
     {
-      get { return "Not used yet"; }
-      set
-      {
-        // TODO
-      }
+      get { return _views; }
+      set { _views = value; }
     }
 
     #endregion

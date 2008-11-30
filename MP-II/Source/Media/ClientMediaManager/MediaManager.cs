@@ -23,13 +23,18 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Core.Settings;
 using MediaPortal.Media.ClientMediaManager.Views;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
@@ -57,34 +62,80 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #endregion
 
-    #region Ctor
+    #region Ctor & initialization
 
     public MediaManager()
     {
-      //TODO: load views
-      // Test-Code, creates a view for the first local share. Will be replaced by the loading
-      // of views from the local settings (Albert78, 2008-11-16):
-      Guid shareId = new Guid("{04A9B3CA-0808-42e8-A0A4-B2C65D19945A}");
-      Guid viewId = new Guid("{C6AE9989-679D-4520-967C-831BE969C322}");
-      ICollection<Guid> mediaItemAspectIds = new List<Guid>
+      ServiceScope.Get<ILogger>().Debug("MediaManager: Create SharesManagement service");
+      SharesManagement sharesManagement = new SharesManagement();
+      ServiceScope.Add<ISharesManagement>(sharesManagement);
+    }
+
+    public void Startup()
+    {
+      ServiceScope.Get<ISharesManagement>().Initialize();
+      LoadViews();
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected void InitializeDefaultViews()
+    {
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      // Create root view
+      ViewCollectionViewMetadata vcvm = new ViewCollectionViewMetadata(Guid.NewGuid(),
+          "[Media.RootView]", null);
+      _rootView = vcvm;
+      _viewsIndex.Add(vcvm.ViewId, vcvm);
+
+      // Create a local view for each share
+      ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.Loopback()).Values;
+      foreach (ShareDescriptor share in shares)
+      {
+        Guid viewId = Guid.NewGuid();
+        ICollection<Guid> mediaItemAspectIds = new HashSet<Guid>();
+        foreach (Guid metadataExtractorId in share.MetadataExtractorIds)
         {
-            ProviderResourceAspect.ASPECT_ID,
-            MediaAspect.ASPECT_ID,
-            MusicAspect.ASPECT_ID
-        };
-      LocalShareViewMetadata lsvm = new LocalShareViewMetadata(viewId, "Test-Root-View",
-          shareId, string.Empty, null, mediaItemAspectIds);
-      _rootView = lsvm;
-      _viewsIndex.Add(viewId, lsvm);
+          MetadataExtractorMetadata metadata = LocalMetadataExtractors[metadataExtractorId].Metadata;
+          foreach (MediaItemAspectMetadata aspectMetadata in metadata.ExtractedAspectTypes)
+            mediaItemAspectIds.Add(aspectMetadata.AspectId);
+        }
+        mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
+        mediaItemAspectIds.Add(MediaAspect.ASPECT_ID);
+        LocalShareViewMetadata lsvm = new LocalShareViewMetadata(viewId, share.Name,
+            share.ShareId, string.Empty, _rootView.ViewId, mediaItemAspectIds);
+        _viewsIndex.Add(viewId, lsvm);
+        _rootView.SubViewIds.Add(viewId);
+      }
     }
 
     #endregion
 
     #region View access & management
 
-    public void SaveViews()
+    protected void LoadViews()
     {
-      //TODO
+      ViewsSettings viewsSettings = ServiceScope.Get<ISettingsManager>().Load<ViewsSettings>();
+      if (viewsSettings.ViewsStorage.Views.Count == 0)
+      {
+        // The views are still uninitialized - use defaults
+        InitializeDefaultViews();
+        SaveViews();
+        return;
+      }
+      foreach (ViewMetadata view in viewsSettings.ViewsStorage.Views)
+        _viewsIndex.Add(view.ViewId, view);
+      _rootView = _viewsIndex[viewsSettings.ViewsStorage.RootViewId];
+    }
+
+    protected void SaveViews()
+    {
+      ViewsSettings viewsSettings = new ViewsSettings();
+      viewsSettings.ViewsStorage.RootViewId = _rootView.ViewId;
+      CollectionUtils.AddAll(viewsSettings.ViewsStorage.Views, _viewsIndex.Values);
+      ServiceScope.Get<ISettingsManager>().Save(viewsSettings);
     }
 
     /// <summary>

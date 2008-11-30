@@ -36,7 +36,7 @@ namespace MediaPortal.Media.ClientMediaManager
   {
     #region Protected fields
 
-    protected ICollection<ShareDescriptor> _shares = new List<ShareDescriptor>();
+    protected HashSet<ShareDescriptor> _shares = new HashSet<ShareDescriptor>();
 
     #endregion
 
@@ -45,11 +45,11 @@ namespace MediaPortal.Media.ClientMediaManager
     /// <summary>
     /// Gets the collection of local shares. Change the returned collection to modify the setting.
     /// </summary>
-    [Setting(SettingScope.Global, null)]
-    // FIXME: Make settings service able to cope with unknown data structures
-    public ICollection<ShareDescriptor> LocalShares
+    [Setting(SettingScope.Global)]
+    public HashSet<ShareDescriptor> LocalShares
     {
       get { return _shares; }
+      internal set { _shares = value; }
     }
 
     #endregion

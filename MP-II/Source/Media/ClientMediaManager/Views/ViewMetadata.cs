@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Media.ClientMediaManager.Views
@@ -35,6 +36,10 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   /// </summary>
   /// <remarks>
   /// A view is a client-only concept of specifying a collection of media items.
+  /// <para>
+  /// Note: This class and its subclasses are serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
   /// </remarks>
   public abstract class ViewMetadata
   {
@@ -43,25 +48,26 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     protected Guid _viewId;
     protected string _displayName;
     protected Guid? _parentViewId;
-    protected ICollection<Guid> _mediaItemAspectIds;
-    protected ICollection<Guid> _subViews;
+    protected HashSet<Guid> _mediaItemAspectIds;
+    protected List<Guid> _subViewIds;
 
     #endregion
 
     protected ViewMetadata(Guid viewId, string displayName, Guid? parentViewId,
-        ICollection<Guid> mediaItemAspectIds)
+        IEnumerable<Guid> mediaItemAspectIds)
     {
-      if (!mediaItemAspectIds.Contains(ProviderResourceAspect.ASPECT_ID))
-        mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
+      _mediaItemAspectIds = new HashSet<Guid>(mediaItemAspectIds);
+      if (!_mediaItemAspectIds.Contains(ProviderResourceAspect.ASPECT_ID))
+        _mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
       _viewId = viewId;
       _displayName = displayName;
       _parentViewId = parentViewId;
-      _mediaItemAspectIds = mediaItemAspectIds;
     }
 
     /// <summary>
     /// Returns the id of the view.
     /// </summary>
+    [XmlIgnore]
     public Guid ViewId
     {
       get { return _viewId; }
@@ -70,6 +76,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// <summary>
     /// Returns the name shown for the view in the GUI.
     /// </summary>
+    [XmlIgnore]
     public string DisplayName
     {
       get { return _displayName; }
@@ -89,6 +96,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// Changing the returned collection of media item aspects will change the associated media item aspects
     /// of this metadata instance.
     /// </summary>
+    [XmlIgnore]
     public ICollection<Guid> MediaItemAspectIds
     {
       get { return _mediaItemAspectIds; }
@@ -99,9 +107,56 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// Changing the returned collection of subviews will change the subviews for the view
     /// described by this instance.
     /// </summary>
-    public ICollection<Guid> SubViewIds
+    [XmlIgnore]
+    public IList<Guid> SubViewIds
     {
-      get { return _subViews; }
+      get { return _subViewIds; }
     }
+
+    #region Additional members for the XML serialization
+
+    internal ViewMetadata() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("MediaItemAspectIds")]
+    public HashSet<Guid> XML_MediaItemAspectIds
+    {
+      get { return _mediaItemAspectIds; }
+      set { _mediaItemAspectIds = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("SubViewIds")]
+    public List<Guid> XML_SubViewIds
+    {
+      get { return _subViewIds; }
+      set { _subViewIds = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("ViewId")]
+    public Guid XML_ViewId
+    {
+      get { return _viewId; }
+      set { _viewId = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("DisplayName")]
+    public string XML_DisplayName
+    {
+      get { return _displayName; }
+      set { _displayName = value; }
+    }
+
+    #endregion
   }
 }

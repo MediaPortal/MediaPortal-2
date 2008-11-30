@@ -54,7 +54,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
       string path = LocalShareViewMetadata.ProviderPath;
-      IEnumerable<Guid> metadataExtractorIds = share.MetadataExtractors;
+      IEnumerable<Guid> metadataExtractorIds = share.MetadataExtractorIds;
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
@@ -67,6 +67,17 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       return result;
     }
 
+    /// <summary>
+    /// Adds a media item with metadata extracted by the metadata extractors specified by the
+    /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="providerId"/> and
+    /// <paramref name="path"/> to the <paramref name="result"/>.
+    /// </summary>
+    /// <param name="mediaManager">Media manager instance. This parameter is for performance to avoid
+    /// iterated calls to the <see cref="ServiceScope"/>.</param>
+    /// <param name="providerId">Id of the media provider which provides the media item to analyse.</param>
+    /// <param name="path">Path of the media item to analyse.</param>
+    /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
+    /// <param name="result">Collection to add the resulting <see cref="MediaItem"/> to.</param>
     protected static void AddMetadata(MediaManager mediaManager, Guid providerId, string path,
         IEnumerable<Guid> metadataExtractorIds, ICollection<MediaItem> result)
     {
