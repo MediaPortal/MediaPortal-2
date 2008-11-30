@@ -133,7 +133,7 @@ namespace MediaPortal.Core.Services.Settings
           SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalHandler : userHandler);
           object value = s.GetValue(property.Name, property.PropertyType);
           if (value == null)
-            if (att.SetDefault)
+            if (att.HasDefault)
               value = att.DefaultValue;
             else
               continue;

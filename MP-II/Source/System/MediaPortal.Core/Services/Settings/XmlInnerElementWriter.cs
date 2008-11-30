@@ -29,69 +29,21 @@ using System.Xml;
 namespace MediaPortal.Core.Services.Settings
 {
   /// <summary>
-  /// Xml Writer that doesn't write the Namespace attributes nor the XML header.
+  /// Xml Writer that doesn't write the XML header.
   /// </summary>
   public class XmlInnerElementWriter : XmlTextWriter
   {
-    #region Variables
-
-    private bool _skipAttribute = false;
-
-    #endregion
-
     #region Constructors/Destructors
 
     public XmlInnerElementWriter(StringBuilder output) : base(new StringWriter(output)) { }
 
     #endregion
 
-    #region Public Methods
+    #region Base overrides
 
     public override void WriteStartDocument() { }
 
     public override void WriteStartDocument(bool standalone) { }
-
-    public override void WriteStartElement(string prefix, string localName, string ns)
-    {
-      base.WriteStartElement(null, localName, null);
-    }
-
-    public override void WriteStartAttribute(string prefix, string localName, string ns)
-    {
-      //If the prefix or localname are "xmlns", don't write it.
-      if (prefix == "xmlns" ||
-          localName == "xmlns")
-        _skipAttribute = true;
-      else
-        base.WriteStartAttribute(null, localName, null);
-    }
-
-    public override void WriteString(string text)
-    {
-      //If we are writing an attribute, the text for the xmlns
-      //or xmlns:prefix declaration would occur here.  Skip
-      //it if this is the case.
-      if (!_skipAttribute)
-        base.WriteString(text);
-    }
-
-    public override void WriteEndAttribute()
-    {
-      //If we skipped the WriteStartAttribute call, we have to
-      //skip the WriteEndAttribute call as well or else the XmlWriter
-      //will have an invalid state.
-      if (!_skipAttribute)
-        base.WriteEndAttribute();
-      //reset the boolean for the next attribute.
-      _skipAttribute = false;
-    }
-
-    public override void WriteQualifiedName(string localName, string ns)
-    {
-      //Always write the qualified name using only the
-      //localname.
-      base.WriteQualifiedName(localName, null);
-    }
 
     #endregion
   }

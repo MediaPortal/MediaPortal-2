@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MediaPortal.Core.General;
 
 namespace MediaPortal.Core.MediaManagement
@@ -34,6 +35,7 @@ namespace MediaPortal.Core.MediaManagement
     AudioStream,
     Video,
     VideoStream,
+    Image,
     RemovableDisc,
     TvData
   }
@@ -45,17 +47,23 @@ namespace MediaPortal.Core.MediaManagement
   /// Some user interaction at the GUI level will use the share as a means to simplify the work with
   /// media provider paths (for example the automatic import).
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class ShareDescriptor
   {
     #region Protected fields
 
     protected Guid _shareId;
-    protected SystemName _systemName;
+    protected SystemName _nativeSystemName;
     protected Guid _mediaProviderId;
     protected string _path;
     protected string _name;
-    protected IEnumerable<string> _mediaCategories;
-    protected ICollection<Guid> _metadataExtractors;
+    protected HashSet<string> _mediaCategories;
+    protected HashSet<Guid> _metadataExtractorIds;
 
     #endregion
 
@@ -76,19 +84,19 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Categories of media in this share. If set, the categories describe
     /// the desired contents of this share. If set to <c>null</c>, the share has no explicit media categories,
     /// i.e. it is a general share.</param>
-    /// <param name="metadataExtractors">Enumeration of metadata extractors which should be used for the
-    /// automatic import.</param>
+    /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors which should be used
+    /// for the automatic import.</param>
     public ShareDescriptor(Guid shareId, SystemName systemName,
         Guid mediaProviderId, string path, string name,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractors)
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
       _shareId = shareId;
-      _systemName = systemName;
+      _nativeSystemName = systemName;
       _mediaProviderId = mediaProviderId;
       _path = path;
       _name = name;
-      _mediaCategories = mediaCategories == null ? new List<string>() : new List<string>(mediaCategories);
-      _metadataExtractors = new List<Guid>(metadataExtractors);
+      _mediaCategories = mediaCategories == null ? new HashSet<string>() : new HashSet<string>(mediaCategories);
+      _metadataExtractorIds = new HashSet<Guid>(metadataExtractorIds);
     }
 
     /// <summary>
@@ -119,6 +127,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns the globally unique id of this share.
     /// </summary>
+    [XmlIgnore]
     public Guid ShareId
     {
       get { return _shareId; }
@@ -127,14 +136,16 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns the system name where this share is located.
     /// </summary>
-    public SystemName System
+    [XmlIgnore]
+    public SystemName NativeSystem
     {
-      get { return _systemName; }
+      get { return _nativeSystemName; }
     }
 
     /// <summary>
     /// Returns the id of the media provider this share is based on.
     /// </summary>
+    [XmlIgnore]
     public Guid MediaProviderId
     {
       get { return _mediaProviderId; }
@@ -143,6 +154,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns the path used for the media provider (specified by <see cref="MediaProviderId"/>) for this share.
     /// </summary>
+    [XmlIgnore]
     public string Path
     {
       get { return _path; }
@@ -151,6 +163,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns the name of this share.
     /// </summary>
+    [XmlIgnore]
     public string Name
     {
       get { return _name; }
@@ -160,6 +173,7 @@ namespace MediaPortal.Core.MediaManagement
     /// Returns the media contents categories of this share. The media categories can be used for a filtering
     /// of shares or for the GUI to add default metadata extractors for the specified categories.
     /// </summary>
+    [XmlIgnore]
     public IEnumerable<string> MediaCategories
     {
       get { return _mediaCategories; }
@@ -168,9 +182,99 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns a collection of ids of metadata extractors which are used for the automatic import of this share.
     /// </summary>
-    public ICollection<Guid> MetadataExtractors
+    [XmlIgnore]
+    public ICollection<Guid> MetadataExtractorIds
     {
-      get { return _metadataExtractors; }
+      get { return _metadataExtractorIds; }
     }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is ShareDescriptor))
+        return false;
+      ShareDescriptor other = (ShareDescriptor) obj;
+      return ShareId == other.ShareId;
+    }
+
+    public override int GetHashCode()
+    {
+      return ShareId.GetHashCode();
+    }
+
+    #region Additional members for the XML serialization
+
+    internal ShareDescriptor() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("ShareId")]
+    public Guid XML_ShareId
+    {
+      get { return _shareId; }
+      set { _shareId = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("NativeSystem")]
+    public SystemName XML_NativeSystem
+    {
+      get { return _nativeSystemName; }
+      set { _nativeSystemName = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("MediaProviderId")]
+    public Guid XML_MediaProviderId
+    {
+      get { return _mediaProviderId; }
+      set { _mediaProviderId = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("Path")]
+    public string XML_Path
+    {
+      get { return _path; }
+      set { _path = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("Name")]
+    public string XML_Name
+    {
+      get { return _name; }
+      set { _name = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("MediaCategories")]
+    public HashSet<string> XML_MediaCategories
+    {
+      get { return _mediaCategories; }
+      set { _mediaCategories = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("MetadataExtractorIds")]
+    public HashSet<Guid> XML_MetadataExtractorIds
+    {
+      get { return _metadataExtractorIds; }
+      set { _metadataExtractorIds = value; }
+    }
+
+    #endregion
   }
 }

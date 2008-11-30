@@ -24,12 +24,19 @@
 
 using System.Collections.Generic;
 using System.Net;
+using System.Xml.Serialization;
 
 namespace MediaPortal.Core.General
 {
   /// <summary>
   /// Address of a computer in an IP network.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class SystemName
   {
     #region Protected fields
@@ -54,6 +61,7 @@ namespace MediaPortal.Core.General
     /// <summary>
     /// Returns the ip address of the specified system.
     /// </summary>
+    [XmlIgnore]
     public IPAddress IPAddress
     {
       get { return _ipAddress; }
@@ -80,5 +88,21 @@ namespace MediaPortal.Core.General
         result.Add(new SystemName(ipAddress));
       return result;
     }
+
+    #region Additional members for the XML serialization
+
+    internal SystemName() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("IPAddressBytes")]
+    public byte[] XML_IPAddress
+    {
+      get { return _ipAddress.GetAddressBytes(); }
+      set { _ipAddress = new IPAddress(value); }
+    }
+
+    #endregion
   }
 }

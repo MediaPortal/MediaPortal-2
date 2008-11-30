@@ -64,7 +64,7 @@ namespace MediaPortal.Core
       pool.WarnLog += ServiceScope.Get<ILogger>().Warn;
       pool.InfoLog += ServiceScope.Get<ILogger>().Info;
       pool.DebugLog += ServiceScope.Get<ILogger>().Debug;
-      ServiceScope.Add<MediaPortal.Core.Threading.IThreadPool>(pool);
+      ServiceScope.Add<Threading.IThreadPool>(pool);
 
       logger.Debug("ApplicationLauncher: Registering IMessageBroker");
       ServiceScope.Add<IMessageBroker>(new MessageBroker());

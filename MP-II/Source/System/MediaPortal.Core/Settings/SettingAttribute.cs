@@ -47,15 +47,15 @@ namespace MediaPortal.Core.Settings
   {
     private SettingScope _settingScope;
     private object _defaultValue = null;
-    private bool _setDefault = false;
+    private bool _hasDefault = false;
 
     /// <summary>
     /// Constructor which configures the scope of the annotated setting.
     /// </summary>
     /// <param name="settingScope">The scope the annotated setting should be contained in.</param>
-    public SettingAttribute(SettingScope settingScope) : this(settingScope, null)
+    public SettingAttribute(SettingScope settingScope)
     {
-      _setDefault = false;
+      _settingScope = settingScope;
     }
 
     /// <summary>
@@ -64,11 +64,10 @@ namespace MediaPortal.Core.Settings
     /// <param name="settingScope">The scope the annotated setting should be contained in.</param>
     /// <param name="defaultValue">Default value this setting will get if the value can not be
     /// loaded.</param>
-    public SettingAttribute(SettingScope settingScope, object defaultValue)
+    public SettingAttribute(SettingScope settingScope, object defaultValue) : this(settingScope)
     {
-      _settingScope = settingScope;
       _defaultValue = defaultValue;
-      _setDefault = true;
+      _hasDefault = true;
     }
 
     /// <summary>
@@ -89,7 +88,7 @@ namespace MediaPortal.Core.Settings
       set
       {
         _defaultValue = value;
-        _setDefault = true;
+        _hasDefault = true;
       }
     }
 
@@ -97,10 +96,10 @@ namespace MediaPortal.Core.Settings
     /// Gets/sets the information if the configured <see cref="DefaultValue"/> will be used when no
     /// not-<c>null</c> value is available.
     /// </summary>
-    public bool SetDefault
+    public bool HasDefault
     {
-      get { return _setDefault; }
-      set { _setDefault = value; }
+      get { return _hasDefault; }
+      set { _hasDefault = value; }
     }
   }
 }
