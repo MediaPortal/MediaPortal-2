@@ -38,7 +38,7 @@ namespace MediaPortal.Media.ClientMediaManager
   /// Shares management class for client-local shares. All shares are managed redundantly at
   /// the client's media manager via this class and at the MediaPortal server's MediaLibrary.
   /// </summary>
-  public class SharesManagement : ISharesManagement
+  public class LocalSharesManagement : ISharesManagement
   {
     #region Protected fields
 
@@ -69,7 +69,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #region Ctor
 
-    public SharesManagement() { }
+    public LocalSharesManagement() { }
 
     #endregion
 
@@ -109,7 +109,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           // TODO: Localization resource for [Media.MyMusic]
           ShareDescriptor sd = new ShareDescriptor(
-              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyMusic]",
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
@@ -124,7 +124,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           // TODO: Localization resource for [Media.MyVideos]
           ShareDescriptor sd = new ShareDescriptor(
-              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyVideos]",
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
@@ -139,7 +139,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           // TODO: Localization resource for [Media.MyPictures]
           ShareDescriptor sd = new ShareDescriptor(
-              shareId, SystemName.Loopback(), localFsMediaProviderId,
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyPictures]",
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
@@ -153,7 +153,7 @@ namespace MediaPortal.Media.ClientMediaManager
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         Guid shareId = Guid.NewGuid();
         ShareDescriptor sd = new ShareDescriptor(
-            shareId, SystemName.Loopback(), metadata.MediaProviderId,
+            shareId, SystemName.GetLocalSystemName(), metadata.MediaProviderId,
             "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
         _shares.Add(shareId, sd);
       }
@@ -185,14 +185,11 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #region ISharesManagement implementation
 
-    public void Initialize()
-    {
-      LoadSharesFromSettings();
-    }
-
     public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
+      if (systemName != SystemName.GetLocalSystemName())
+        return null;
       ShareDescriptor sd = ShareDescriptor.CreateNewShare(systemName, providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
@@ -216,23 +213,23 @@ namespace MediaPortal.Media.ClientMediaManager
 
     public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
     {
-      if (SystemName.GetLocalNames().Contains(systemName))
-        return _shares;
-      return new Dictionary<Guid, ShareDescriptor>();
+      if (systemName != SystemName.GetLocalSystemName())
+        return new Dictionary<Guid, ShareDescriptor>();;
+      return _shares;
     }
 
     public ICollection<SystemName> GetManagedClients()
     {
-      return SystemName.GetLocalNames();
+      return new List<SystemName>(new[] {SystemName.GetLocalSystemName()});
     }
 
     public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
     {
+      if (systemName != SystemName.GetLocalSystemName())
+        return new Dictionary<Guid, MetadataExtractorMetadata>();
       IDictionary<Guid, MetadataExtractorMetadata> result = new Dictionary<Guid, MetadataExtractorMetadata>();
-      if (SystemName.GetLocalNames().Contains(systemName))
-        foreach (MetadataExtractorMetadata metadata in
-            ServiceScope.Get<MediaManager>().LocalMetadataExtractors.Values)
-          result.Add(metadata.MetadataExtractorId, metadata);
+      foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<MediaManager>().LocalMetadataExtractors.Values)
+        result.Add(metadata.MetadataExtractorId, metadata);
       return result;
     }
 

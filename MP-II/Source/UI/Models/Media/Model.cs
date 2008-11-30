@@ -94,7 +94,7 @@ namespace Models.Media
     /// Provides a callable method for the skin to select an item.
     /// Depending on the item type, we will navigate to the choosen view or play the choosen item.
     /// </summary>
-    /// <param name="item">The choosen item. This item should be either <see cref="NavigateParentItem"/> or
+    /// <param name="item">The choosen item. This item should be either <see cref="NavigatableParentItem"/> or
     /// one of the items in the <see cref="Items"/> list.</param>
     public void Select(ListItem item)
     {

@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -42,7 +41,7 @@ namespace MediaPortal.Media.ClientMediaManager
   /// The client's media manager class. It holds all media providers and metadata extractors and
   /// provides the concept of "views".
   /// </summary>
-  public class MediaManager : MediaManagerBase, IImporter
+  public class MediaManager : MediaManagerBase, IImporter, ISharesManagement
   {
     /// <summary>
     /// Cache size for the internal LRU view cache.
@@ -60,20 +59,23 @@ namespace MediaPortal.Media.ClientMediaManager
     /// </summary>
     protected SmallLRUCache<Guid, View> _viewCache = new SmallLRUCache<Guid, View>(VIEW_CACHE_SIZE);
 
+    protected LocalSharesManagement _localLocalSharesManagement;
+
     #endregion
 
     #region Ctor & initialization
 
     public MediaManager()
     {
-      ServiceScope.Get<ILogger>().Debug("MediaManager: Create SharesManagement service");
-      SharesManagement sharesManagement = new SharesManagement();
-      ServiceScope.Add<ISharesManagement>(sharesManagement);
+      _localLocalSharesManagement = new LocalSharesManagement();
+
+      ServiceScope.Get<ILogger>().Debug("MediaManager: Registering global SharesManagement service");
+      ServiceScope.Add<ISharesManagement>(this);
     }
 
     public void Startup()
     {
-      ServiceScope.Get<ISharesManagement>().Initialize();
+      _localLocalSharesManagement.LoadSharesFromSettings();
       LoadViews();
     }
 
@@ -92,7 +94,7 @@ namespace MediaPortal.Media.ClientMediaManager
       _viewsIndex.Add(vcvm.ViewId, vcvm);
 
       // Create a local view for each share
-      ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.Loopback()).Values;
+      ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values;
       foreach (ShareDescriptor share in shares)
       {
         Guid viewId = Guid.NewGuid();
@@ -196,12 +198,14 @@ namespace MediaPortal.Media.ClientMediaManager
         return result;
       ViewMetadata metadata = GetViewMetadata(viewId);
       if (metadata is LocalShareViewMetadata)
-        return new LocalShareView((LocalShareViewMetadata) metadata);
+        return new LocalShareView((LocalShareViewMetadata)metadata);
       else if (metadata is MediaLibraryViewMetadata)
-        return new MediaLibraryView((MediaLibraryViewMetadata) metadata);
+        return new MediaLibraryView((MediaLibraryViewMetadata)metadata);
+      else if (metadata is ViewCollectionViewMetadata)
+        return new ViewCollectionView((ViewCollectionViewMetadata) metadata);
       else
         throw new NotImplementedException(string.Format(
-            "View generation for the view's metadata class '{0}' is not supported.", metadata.GetType().Name));
+            "View generation for the view metadata class '{0}' is not supported.", metadata.GetType().Name));
     }
 
     /// <summary>
@@ -260,5 +264,77 @@ namespace MediaPortal.Media.ClientMediaManager
       }
       return success ? result.Values : null;
     }
+
+    #region ISharesManagement implementation
+
+    public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    {
+      // TODO: When connected, assign result from the call of the method at the MP server's
+      // ISharesManagement interface
+      ShareDescriptor result = null;
+      if (systemName == SystemName.GetLocalSystemName())
+        result = _localLocalSharesManagement.RegisterShare(systemName, providerId, path, shareName, mediaCategories,
+            metadataExtractorIds);
+      return result;
+    }
+
+    public void RemoveShare(Guid shareId)
+    {
+      // TODO: When connected, also call the method at the MP server's ISharesManagement interface
+      _localLocalSharesManagement.RemoveShare(shareId);
+    }
+
+    public IDictionary<Guid, ShareDescriptor> GetShares()
+    {
+      // TODO: When connected, call the method at the MP server's ISharesManagement interface instead of
+      // calling it on the local shares management
+      return _localLocalSharesManagement.GetShares();
+    }
+
+    public ShareDescriptor GetShare(Guid shareId)
+    {
+      ShareDescriptor result = _localLocalSharesManagement.GetShare(shareId);
+      // TODO: When connected and result == null, call method at the MP server's ISharesManagement interface
+      return result;
+    }
+
+    public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
+    {
+      if (systemName == SystemName.GetLocalSystemName())
+        return _localLocalSharesManagement.GetSharesBySystem(systemName);
+      else
+        // TODO: When connected, call the method at the MP server's ISharesManagement interface and return
+        // its results
+        return new Dictionary<Guid, ShareDescriptor>();
+    }
+
+    public ICollection<SystemName> GetManagedClients()
+    {
+      // TODO: When connected, call the method at the MP server's ISharesManagement interface
+      return new List<SystemName>(new[] {SystemName.GetLocalSystemName()});
+    }
+
+    public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
+    {
+      if (systemName == SystemName.GetLocalSystemName())
+        return _localLocalSharesManagement.GetMetadataExtractorsBySystem(SystemName.GetLocalSystemName());
+      else
+        // TODO: When connected, call the method at the MP server's ISharesManagement interface
+        return new Dictionary<Guid, MetadataExtractorMetadata>();
+    }
+
+    public void AddMetadataExtractorsToShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    {
+      _localLocalSharesManagement.AddMetadataExtractorsToShare(shareId, metadataExtractorIds);
+      // TODO: When connected, also call the method at the MP server's ISharesManagement interface
+    }
+
+    public void RemoveMetadataExtractorsFromShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    {
+      _localLocalSharesManagement.RemoveMetadataExtractorsFromShare(shareId, metadataExtractorIds);
+      // TODO: When connected, also call the method at the MP server's ISharesManagement interface
+    }
+
+    #endregion
   }
 }

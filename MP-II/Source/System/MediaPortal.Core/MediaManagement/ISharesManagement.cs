@@ -46,13 +46,6 @@ namespace MediaPortal.Core.MediaManagement
   public interface ISharesManagement
   {
     /// <summary>
-    /// Initializes the shares management. This method has to be called when all media providers and
-    /// all metadata extractors have been registered and before any other method of this interface
-    /// gets called.
-    /// </summary>
-    void Initialize();
-
-    /// <summary>
     /// Adds a share to the media library's collection of registered shares.
     /// </summary>
     /// <param name="systemName">System where the media provider for the new share is located.</param>

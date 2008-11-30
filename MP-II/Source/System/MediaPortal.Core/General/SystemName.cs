@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Net;
 using System.Xml.Serialization;
 
@@ -41,19 +40,19 @@ namespace MediaPortal.Core.General
   {
     #region Protected fields
 
-    protected IPAddress _ipAddress;
+    protected string _hostName;
 
     #endregion
 
     #region Ctor
 
     /// <summary>
-    /// Creates a new computer address with the specified ip address.
+    /// Creates a new system name for the specified host.
     /// </summary>
-    /// <param name="ipAddress">IP address to use.</param>
-    public SystemName(IPAddress ipAddress)
+    /// <param name="hostName">The DNS host name to use for this <see cref="SystemName"/>.</param>
+    public SystemName(string hostName)
     {
-      _ipAddress = ipAddress;
+      _hostName = hostName;
     }
 
     #endregion
@@ -62,9 +61,9 @@ namespace MediaPortal.Core.General
     /// Returns the ip address of the specified system.
     /// </summary>
     [XmlIgnore]
-    public IPAddress IPAddress
+    public string HostName
     {
-      get { return _ipAddress; }
+      get { return _hostName; }
     }
 
     /// <summary>
@@ -73,22 +72,40 @@ namespace MediaPortal.Core.General
     /// <returns>Loopback adapter address.</returns>
     public static SystemName Loopback()
     {
-      return new SystemName(System.Net.IPAddress.IPv6Loopback);
+      return new SystemName("localhost");
     }
 
-    /// <summary>
-    /// Returns a collection of system names for all local network cards.
-    /// </summary>
-    /// <returns>Collection of all local names.</returns>
-    public static ICollection<SystemName> GetLocalNames()
+    public static SystemName GetLocalSystemName()
     {
-      string strHostName = Dns.GetHostName();
-      ICollection<SystemName> result = new List<SystemName>();
-      foreach (IPAddress ipAddress in Dns.GetHostAddresses(strHostName))
-        result.Add(new SystemName(ipAddress));
-      return result;
+      return new SystemName(Dns.GetHostName());
     }
 
+    public static bool operator==(SystemName first, SystemName second)
+    {
+      return first.HostName == second.HostName;
+    }
+
+    public static bool operator!=(SystemName first, SystemName second)
+    {
+      return !(first == second);
+    }
+
+    public bool Equals(SystemName obj)
+    {
+      return obj._hostName == _hostName;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is SystemName))
+        return false;
+      return Equals((SystemName)obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return _hostName.GetHashCode();
+    }
     #region Additional members for the XML serialization
 
     internal SystemName() { }
@@ -96,11 +113,11 @@ namespace MediaPortal.Core.General
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("IPAddressBytes")]
-    public byte[] XML_IPAddress
+    [XmlElement("HostName")]
+    public string XML_HostName
     {
-      get { return _ipAddress.GetAddressBytes(); }
-      set { _ipAddress = new IPAddress(value); }
+      get { return _hostName; }
+      set { _hostName = value; }
     }
 
     #endregion
