@@ -31,6 +31,11 @@ namespace Models.Media
   /// <summary>
   /// Holds a GUI item which encapsulates a playable media item.
   /// </summary>
+  /// <remarks>
+  /// Instances of this class represent playable items to be displayed in a GUI view's items list.
+  /// View's items lists contain view items (<see cref="NavigationItem"/>s) as well as
+  /// Playable items (<see cref="PlayableItem"/>).
+  /// </remarks>
   public class PlayableItem : ListItem
   {
     #region Protected fields

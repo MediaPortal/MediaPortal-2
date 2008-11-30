@@ -85,8 +85,9 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
       // Create root view
+      // TODO: Localization resource for [Media.RootViewName]
       ViewCollectionViewMetadata vcvm = new ViewCollectionViewMetadata(Guid.NewGuid(),
-          "[Media.RootView]", null);
+          "[Media.RootViewName]", null);
       _rootView = vcvm;
       _viewsIndex.Add(vcvm.ViewId, vcvm);
 

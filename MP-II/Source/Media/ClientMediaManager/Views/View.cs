@@ -95,6 +95,10 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// Loads or reloads the items of this view. This will re-request the database or datastore for
     /// this view.
     /// </summary>
+    /// <remarks>
+    /// This method will load the media items of this view. It will load all of the specified
+    /// media item aspects which are available for the media items.
+    /// </remarks>
     /// <returns>List of media items in this view.</returns>
     protected abstract IList<MediaItem> ReLoadItems();
   }

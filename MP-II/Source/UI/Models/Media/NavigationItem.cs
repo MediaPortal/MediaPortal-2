@@ -33,6 +33,11 @@ namespace Models.Media
   /// <summary>
   /// Holds a GUI item which encapsulates a view to navigate to.
   /// </summary>
+  /// <remarks>
+  /// Instances of this class represent view items to be displayed in a GUI view's items list.
+  /// View's items lists contain view items (<see cref="NavigationItem"/>s) as well as
+  /// Playable items (<see cref="PlayableItem"/>).
+  /// </remarks>
   public class NavigationItem : ListItem
   {
     #region Protected fields

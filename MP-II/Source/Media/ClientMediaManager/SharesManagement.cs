@@ -107,6 +107,7 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          // TODO: Localization resource for [Media.MyMusic]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.Loopback(), localFsMediaProviderId,
               folderPath, "[Media.MyMusic]",
@@ -121,6 +122,7 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          // TODO: Localization resource for [Media.MyVideos]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.Loopback(), localFsMediaProviderId,
               folderPath, "[Media.MyVideos]",
@@ -135,9 +137,10 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          // TODO: Localization resource for [Media.MyPictures]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.Loopback(), localFsMediaProviderId,
-              folderPath, "[Media.MyMusic]",
+              folderPath, "[Media.MyPictures]",
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
         }
