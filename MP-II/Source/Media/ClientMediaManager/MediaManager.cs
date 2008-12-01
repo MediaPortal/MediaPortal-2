@@ -43,7 +43,7 @@ namespace MediaPortal.Media.ClientMediaManager
   {
     #region Protected fields
 
-    protected View _rootView;
+    protected ViewCollectionView _rootView;
 
     protected LocalSharesManagement _localLocalSharesManagement;
 

@@ -30,12 +30,12 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   {
     #region Protected fields
 
-    protected View _rootView;
+    protected ViewCollectionView _rootView;
 
     #endregion
 
     [Setting(SettingScope.User)]
-    public View RootView
+    public ViewCollectionView RootView
     {
       get { return _rootView; }
       set { _rootView = value; }
