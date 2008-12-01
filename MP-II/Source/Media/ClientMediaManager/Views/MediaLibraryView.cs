@@ -22,25 +22,84 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Media.ClientMediaManager.Views
 {
+  /// <summary>
+  /// View which is based on a media library query.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class MediaLibraryView : View
   {
+    #region Protected fields
+
+    protected MediaLibraryQueryHierarchyNode _queryHierarchyNode;
+
+    #endregion
+
     #region Ctor
 
-    internal MediaLibraryView(MediaLibraryViewMetadata metadata) : base(metadata)
+    internal MediaLibraryView(MediaLibraryQueryHierarchyNode queryHierarchyNode,
+        View parentView) :
+      base(parentView, queryHierarchyNode.MediaItemAspectIds)
     {
+      _queryHierarchyNode = queryHierarchyNode;
     }
 
     #endregion
+
+    public override string DisplayName
+    {
+      get { return _queryHierarchyNode.DisplayName; }
+    }
+
+    [XmlIgnore]
+    public override ICollection<Guid> MediaItemAspectIds
+    {
+      get { return _queryHierarchyNode.MediaItemAspectIds; }
+    }
 
     protected override IList<MediaItem> ReLoadItems()
     {
       // TODO (Albert78, 2008-11-15): Load view contents from the media library, if connected
       return new List<MediaItem>();
     }
+
+    protected override IList<View> ReLoadSubViews()
+    {
+      IList<View> result = new List<View>();
+      foreach (MediaLibraryQueryHierarchyNode node in _queryHierarchyNode.SubQueryNodes)
+        result.Add(new MediaLibraryView(node, this));
+      return result;
+    }
+
+    #region Additional members for the XML serialization
+
+    // Serialization of media library views works like this:
+    // The top media library view serializes the query hierarchy. The sub views are
+    // rebuilt dynamically.
+
+    internal MediaLibraryView() { }
+
+    /// <summary>
+    /// Returns the media library query this view is based on.
+    /// </summary>
+    [XmlIgnore]
+    public MediaLibraryQueryHierarchyNode QueryHierarchyNode
+    {
+      get { return _queryHierarchyNode; }
+      set { _queryHierarchyNode = value; }
+    }
+
+    #endregion
   }
 }

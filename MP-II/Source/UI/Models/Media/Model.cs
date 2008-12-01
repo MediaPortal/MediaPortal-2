@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Media.ClientMediaManager;
@@ -41,7 +40,7 @@ namespace Models.Media
 
     protected ItemsList _sortMenu;
     protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
-    protected ViewMetadata _currentView;
+    protected View _currentView;
     protected NavigationItem _navigateParentItem;
 
     #endregion
@@ -85,7 +84,7 @@ namespace Models.Media
     /// <summary>
     /// Provides the data to the view currently shown.
     /// </summary>
-    public ViewMetadata CurrentView
+    public View CurrentView
     {
       get { return _currentView; }
     }
@@ -103,7 +102,7 @@ namespace Models.Media
       NavigationItem navigationItem = item as NavigationItem;
       if (navigationItem != null)
       {
-        NavigateToView(navigationItem.ViewId);
+        NavigateToView(navigationItem.View);
         return;
       }
       PlayableItem playableItem = item as PlayableItem;
@@ -118,13 +117,12 @@ namespace Models.Media
 
     /// <summary>
     /// Does the actual work of navigating to the specifield view. This will exchange our
-    /// <see cref="CurrentView"/> to the view specified by the given <paramref name="viewId"/>.
+    /// <see cref="CurrentView"/> to the specified <paramref name="view"/>.
     /// </summary>
-    /// <param name="viewId">Id of the view to navigate to.</param>
-    protected void NavigateToView(Guid viewId)
+    /// <param name="view">View to navigate to.</param>
+    protected void NavigateToView(View view)
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      _currentView = mediaManager.GetViewMetadata(viewId);
+      _currentView = view;
       ReloadItems();
     }
 
@@ -140,16 +138,14 @@ namespace Models.Media
     protected void ReloadItems()
     {
       _items.Clear();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      _navigateParentItem = _currentView.ParentViewId.HasValue ? new NavigationItem(_currentView.ParentViewId.Value, "..") : null;
+      _navigateParentItem = _currentView.ParentView == null ? null : new NavigationItem(_currentView.ParentView, "..");
       // Note: we don't add the NavigateParentItem to _items - it is the job of the screenfile to
       // provide an item to navigate to the view denoted by NavigateParentItem
 
       // Add items for sub views
-      foreach (Guid subViewId in _currentView.SubViewIds)
-        _items.Add(new NavigationItem(subViewId, null));
-      View view = mediaManager.GetView(_currentView.ViewId);
-      foreach (MediaItem item in view.MediaItems)
+      foreach (View subView in _currentView.SubViews)
+        _items.Add(new NavigationItem(subView, null));
+      foreach (MediaItem item in _currentView.MediaItems)
         _items.Add(new PlayableItem(item));
       _items.FireChange();
     }

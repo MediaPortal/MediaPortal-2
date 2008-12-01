@@ -240,7 +240,6 @@ namespace MediaPortal.Media.ClientMediaManager
         return;
       foreach (Guid metadataExtractorId in metadataExtractorIds)
         sd.MetadataExtractorIds.Add(metadataExtractorId);
-      ServiceScope.Get<MediaManager>().InvalidateMediaItemsFromShare(shareId);
     }
 
     public void RemoveMetadataExtractorsFromShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
@@ -250,7 +249,6 @@ namespace MediaPortal.Media.ClientMediaManager
         return;
       foreach (Guid metadataExtractorId in metadataExtractorIds)
         sd.MetadataExtractorIds.Remove(metadataExtractorId);
-      ServiceScope.Get<MediaManager>().InvalidateMediaItemsFromShare(shareId);
     }
 
     #endregion

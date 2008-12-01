@@ -30,18 +30,15 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   {
     #region Protected fields
 
-    protected ViewsStorage _storage = new ViewsStorage();
+    protected View _rootView;
 
     #endregion
 
-    /// <summary>
-    /// Gets or sets the views storage.
-    /// </summary>
     [Setting(SettingScope.User)]
-    public ViewsStorage ViewsStorage
+    public View RootView
     {
-      get { return _storage; }
-      set { _storage = value; }
+      get { return _rootView; }
+      set { _rootView = value; }
     }
   }
 }

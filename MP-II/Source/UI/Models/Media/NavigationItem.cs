@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core;
-using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
 
@@ -42,31 +39,30 @@ namespace Models.Media
   {
     #region Protected fields
 
-    protected Guid _viewId;
+    protected View _view;
     protected string _overrideName;
 
     #endregion
 
-    public NavigationItem(Guid viewId, string overrideName)
+    public NavigationItem(View view, string overrideName)
     {
-      _viewId = viewId;
+      _view = view;
       _overrideName = overrideName;
+      UpdateData();
     }
 
     public void UpdateData()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      ViewMetadata viewMetadata = mediaManager.GetViewMetadata(_viewId);
       if (string.IsNullOrEmpty(_overrideName))
-        SetLabel("Name", viewMetadata.DisplayName);
+        SetLabel("Name", _view.DisplayName);
       else
         SetLabel("Name", _overrideName);
       // TODO: Other properties
     }
 
-    public Guid ViewId
+    public View View
     {
-      get { return _viewId; }
+      get { return _view; }
     }
   }
 }

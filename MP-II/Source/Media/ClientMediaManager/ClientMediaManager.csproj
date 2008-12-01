@@ -70,15 +70,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharesSettings.cs" />
     <Compile Include="Views\LocalShareView.cs" />
-    <Compile Include="Views\LocalShareViewMetadata.cs" />
     <Compile Include="Views\MediaLibraryView.cs" />
-    <Compile Include="Views\MediaLibraryViewMetadata.cs" />
+    <Compile Include="Views\MediaLibraryQueryHierarchyNode.cs" />
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionView.cs" />
-    <Compile Include="Views\ViewCollectionViewMetadata.cs" />
-    <Compile Include="Views\ViewMetadata.cs" />
     <Compile Include="Views\ViewsSettings.cs" />
-    <Compile Include="Views\ViewsStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

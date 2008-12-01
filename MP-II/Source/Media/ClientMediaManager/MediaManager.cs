@@ -30,10 +30,8 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
-using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.Settings;
 using MediaPortal.Media.ClientMediaManager.Views;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
@@ -43,21 +41,9 @@ namespace MediaPortal.Media.ClientMediaManager
   /// </summary>
   public class MediaManager : MediaManagerBase, IImporter, ISharesManagement
   {
-    /// <summary>
-    /// Cache size for the internal LRU view cache.
-    /// </summary>
-    protected const int VIEW_CACHE_SIZE = 20;
-
     #region Protected fields
 
-    protected ViewMetadata _rootView;
-    protected IDictionary<Guid, ViewMetadata> _viewsIndex = new Dictionary<Guid, ViewMetadata>();
-
-    /// <summary>
-    /// Stores the <see cref="VIEW_CACHE_SIZE"/> last accessed views (with their content).
-    /// The entries consist of (view id; view instance) mappings.
-    /// </summary>
-    protected SmallLRUCache<Guid, View> _viewCache = new SmallLRUCache<Guid, View>(VIEW_CACHE_SIZE);
+    protected View _rootView;
 
     protected LocalSharesManagement _localLocalSharesManagement;
 
@@ -88,16 +74,13 @@ namespace MediaPortal.Media.ClientMediaManager
       ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
       // Create root view
       // TODO: Localization resource for [Media.RootViewName]
-      ViewCollectionViewMetadata vcvm = new ViewCollectionViewMetadata(Guid.NewGuid(),
-          "[Media.RootViewName]", null);
-      _rootView = vcvm;
-      _viewsIndex.Add(vcvm.ViewId, vcvm);
+      ViewCollectionView vcv = new ViewCollectionView("[Media.RootViewName]", null);
+      _rootView = vcv;
 
       // Create a local view for each share
       ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values;
       foreach (ShareDescriptor share in shares)
       {
-        Guid viewId = Guid.NewGuid();
         ICollection<Guid> mediaItemAspectIds = new HashSet<Guid>();
         foreach (Guid metadataExtractorId in share.MetadataExtractorIds)
         {
@@ -107,11 +90,10 @@ namespace MediaPortal.Media.ClientMediaManager
         }
         mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
         mediaItemAspectIds.Add(MediaAspect.ASPECT_ID);
-        LocalShareViewMetadata lsvm = new LocalShareViewMetadata(viewId, share.Name,
-            share.ShareId, string.Empty, _rootView.ViewId, mediaItemAspectIds);
-        _viewsIndex.Add(viewId, lsvm);
-        _rootView.SubViewIds.Add(viewId);
+        LocalShareView lsvm = new LocalShareView(share.ShareId, share.Name, string.Empty, _rootView, mediaItemAspectIds);
+        vcv.SubViews.Add(lsvm);
       }
+      // TODO: Create default database views
     }
 
     #endregion
@@ -120,103 +102,32 @@ namespace MediaPortal.Media.ClientMediaManager
 
     protected void LoadViews()
     {
-      ViewsSettings viewsSettings = ServiceScope.Get<ISettingsManager>().Load<ViewsSettings>();
-      if (viewsSettings.ViewsStorage.Views.Count == 0)
+      ViewsSettings settings = ServiceScope.Get<ISettingsManager>().Load<ViewsSettings>();
+      _rootView = settings.RootView;
+      if (_rootView == null)
       {
         // The views are still uninitialized - use defaults
         InitializeDefaultViews();
         SaveViews();
         return;
       }
-      foreach (ViewMetadata view in viewsSettings.ViewsStorage.Views)
-        _viewsIndex.Add(view.ViewId, view);
-      _rootView = _viewsIndex[viewsSettings.ViewsStorage.RootViewId];
+      else
+        _rootView.Loaded(null);
     }
 
     protected void SaveViews()
     {
-      ViewsSettings viewsSettings = new ViewsSettings();
-      viewsSettings.ViewsStorage.RootViewId = _rootView.ViewId;
-      CollectionUtils.AddAll(viewsSettings.ViewsStorage.Views, _viewsIndex.Values);
-      ServiceScope.Get<ISettingsManager>().Save(viewsSettings);
+      ViewsSettings settings = new ViewsSettings();
+      settings.RootView = _rootView;
+      ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
     /// <summary>
-    /// Returns the metadata of the root view. The root view is the entrance point into the
-    /// hierarchy of media items.
+    /// Returns the root view. The root view is the entrance point into the navigation hierarchy of media items.
     /// </summary>
-    /// <returns>Metadata descriptor for the root view.</returns>
-    public ViewMetadata RootView
+    public View RootView
     {
-      get { return GetViewMetadata(_rootView.ViewId); }
-    }
-
-    /// <summary>
-    /// Returns the metadata of the view with the specified <paramref name="viewId"/>.
-    /// </summary>
-    /// <returns>Metadata descriptor for the view with the specified <paramref name="viewId"/>.</returns>
-    public ViewMetadata GetViewMetadata(Guid viewId)
-    {
-      return _viewsIndex[viewId];
-    }
-
-    /// <summary>
-    /// Adds a new database view with the specified settings.
-    /// </summary>
-    /// <param name="displayName">Name of the new view to be displayed in the GUI. This
-    /// might be a localized string ("[section.name]").</param>
-    /// <param name="parentViewId">Id of the parent view, under that the new view should be located.</param>
-    /// <param name="query">Database query which specifies the items contained in the new view.</param>
-    /// <param name="mediaItemAspectIds">Collection of ids of media item aspects which should be contained
-    /// in the new view.</param>
-    public void AddDatabaseView(string displayName, Guid parentViewId,
-        IQuery query, ICollection<Guid> mediaItemAspectIds)
-    {
-      Guid viewId = Guid.NewGuid();
-      MediaLibraryViewMetadata mlvm = new MediaLibraryViewMetadata(viewId, displayName, query, parentViewId, mediaItemAspectIds);
-      _viewsIndex.Add(viewId, mlvm);
-    }
-
-    /// <summary>
-    /// Removes the view with the specified id. The root view and local views cannot be removed.
-    /// </summary>
-    /// <param name="viewId">Id of the view to be removed.</param>
-    public void RemoveView(Guid viewId)
-    {
-      _viewsIndex.Remove(viewId);
-    }
-
-    /// <summary>
-    /// Returns the view with the specified <paramref name="viewId"/>.
-    /// </summary>
-    /// <param name="viewId">Id of the view to return.</param>
-    /// <returns>View with the specified id.</returns>
-    public View GetView(Guid viewId)
-    {
-      View result = _viewCache.Get(viewId);
-      if (result != null)
-        return result;
-      ViewMetadata metadata = GetViewMetadata(viewId);
-      if (metadata is LocalShareViewMetadata)
-        return new LocalShareView((LocalShareViewMetadata)metadata);
-      else if (metadata is MediaLibraryViewMetadata)
-        return new MediaLibraryView((MediaLibraryViewMetadata)metadata);
-      else if (metadata is ViewCollectionViewMetadata)
-        return new ViewCollectionView((ViewCollectionViewMetadata) metadata);
-      else
-        throw new NotImplementedException(string.Format(
-            "View generation for the view metadata class '{0}' is not supported.", metadata.GetType().Name));
-    }
-
-    /// <summary>
-    /// Invalidates all cached media items which belong to the specified share.
-    /// </summary>
-    /// <param name="shareId">Id of the share whose items should be invalidated.</param>
-    internal void InvalidateMediaItemsFromShare(Guid shareId)
-    {
-      foreach (View view in _viewCache.Values)
-        if (view is LocalShareView && ((LocalShareView) view).LocalShareViewMetadata.ShareId.Equals(shareId))
-          view.Invalidate();
+      get { return _rootView; }
     }
 
     #endregion
