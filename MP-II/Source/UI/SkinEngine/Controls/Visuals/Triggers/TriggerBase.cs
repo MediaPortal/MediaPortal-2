@@ -22,7 +22,12 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {
@@ -31,19 +36,108 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     #region Protected fields
 
     protected UIElement _element;
+    protected Property _enterActionsProperty;
+    protected Property _exitActionsProperty;
+    protected Property _settersProperty;
 
     #endregion
 
     #region Ctor
 
     public TriggerBase()
-    { }
+    {
+      Init();
+    }
+
+    void Init()
+    {
+      _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _settersProperty = new Property(typeof(IList<Setter>), new List<Setter>());
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      TriggerBase tb = (TriggerBase) source;
+      foreach (TriggerAction ac in tb.EnterActions)
+        EnterActions.Add(copyManager.GetCopy(ac));
+      foreach (TriggerAction ac in tb.ExitActions)
+        ExitActions.Add(copyManager.GetCopy(ac));
+      foreach (Setter s in tb.Setters)
+        Setters.Add(copyManager.GetCopy(s));
+    }
 
     #endregion
 
     public virtual void Setup(UIElement element)
     {
       _element = element;
+      foreach (TriggerAction action in EnterActions)
+        action.Setup(element);
+      foreach (TriggerAction action in ExitActions)
+        action.Setup(element);
+    }
+
+    #region Public properties
+
+    public bool IsInitialized
+    {
+      get { return _element != null; }
+    }
+
+    public Property EnterActionsProperty
+    {
+      get { return _enterActionsProperty; }
+    }
+
+    public IList<TriggerAction> EnterActions
+    {
+      get { return (IList<TriggerAction>) _enterActionsProperty.GetValue(); }
+    }
+
+    public Property ExitActionsProperty
+    {
+      get { return _exitActionsProperty; }
+    }
+
+    public IList<TriggerAction> ExitActions
+    {
+      get { return (IList<TriggerAction>) _exitActionsProperty.GetValue(); }
+    }
+
+    public Property SettersProperty
+    {
+      get { return _settersProperty; }
+    }
+
+    public IList<Setter> Setters
+    {
+      get { return (IList<Setter>) _settersProperty.GetValue(); }
+    }
+
+    #endregion
+
+    protected void TriggerIfValuesEqual(object triggerValue, object checkValue)
+    {
+      object obj;
+      if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
+          Equals(triggerValue, obj))
+      {
+        //execute start actions
+        foreach (TriggerAction action in EnterActions)
+          action.Execute(_element);
+        foreach (Setter s in Setters)
+          s.Set(_element);
+      }
+      else
+      {
+        //execute stop actions
+        foreach (TriggerAction action in ExitActions)
+          action.Execute(_element);
+        foreach (Setter s in Setters)
+          s.Restore(_element);
+      }
     }
   }
 }

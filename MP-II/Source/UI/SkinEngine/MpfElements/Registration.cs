@@ -120,6 +120,7 @@ namespace MediaPortal.SkinEngine.MpfElements
       // Triggers
       objectClassRegistrations.Add("EventTrigger", typeof(SkinEngine.Controls.Visuals.Triggers.EventTrigger));
       objectClassRegistrations.Add("Trigger", typeof(SkinEngine.Controls.Visuals.Triggers.Trigger));
+      objectClassRegistrations.Add("DataTrigger", typeof(SkinEngine.Controls.Visuals.Triggers.DataTrigger));
       objectClassRegistrations.Add("BeginStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.BeginStoryboard));
       objectClassRegistrations.Add("StopStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.StopStoryboard));
       objectClassRegistrations.Add("TriggerCommand", typeof(SkinEngine.Controls.Bindings.TriggerCommand));

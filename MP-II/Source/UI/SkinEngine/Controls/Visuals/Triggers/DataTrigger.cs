@@ -22,59 +22,69 @@
 
 #endregion
 
-using System;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {
-  public class Trigger: TriggerBase, IAddChild<Setter>
+  public class DataTrigger : TriggerBase, IAddChild<Setter>
   {
-    #region Protected fields
+    #region Private fields
 
-    protected Property _propertyProperty;
+    protected Property _bindingProperty;
     protected Property _valueProperty;
-    protected IDataDescriptor _dataDescriptor;
 
     #endregion
 
     #region Ctor
 
-    public Trigger()
+    public DataTrigger()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
-      _propertyProperty = new Property(typeof(string), "");
-      _valueProperty = new Property(typeof(object), false);
+      _bindingProperty = new Property(typeof(object), "");
+      _valueProperty = new Property(typeof(object));
+    }
+
+    void Attach()
+    {
+      _bindingProperty.Attach(OnBindingValueChanged);
+    }
+
+    void Detach()
+    {
+      _bindingProperty.Detach(OnBindingValueChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
-      Trigger t = (Trigger) source;
-      Property = copyManager.GetCopy(t.Property);
+      DataTrigger t = (DataTrigger) source;
+      Binding = copyManager.GetCopy(t.Binding);
       Value = copyManager.GetCopy(t.Value);
+      Attach();
     }
 
     #endregion
 
     #region Public properties
 
-    public Property PropertyProperty
+    public Property BindingProperty
     {
-      get { return _propertyProperty; }
+      get { return _bindingProperty; }
     }
 
-    public string Property
+    public object Binding
     {
-      get { return _propertyProperty.GetValue() as string; }
-      set { _propertyProperty.SetValue(value); }
+      get { return _bindingProperty.GetValue(); }
+      set { _bindingProperty.SetValue(value); }
     }
 
     public Property ValueProperty
@@ -93,26 +103,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void Setup(UIElement element)
     {
       base.Setup(element);
-      if (_dataDescriptor != null)
-      {
-        _dataDescriptor.Detach(OnPropertyChanged);
-        _dataDescriptor = null;
-      }
-      if (!String.IsNullOrEmpty(Property))
-      {
-        if (ReflectionHelper.FindMemberDescriptor(element, Property, out _dataDescriptor))
-          _dataDescriptor.Attach(OnPropertyChanged);
-      }
-      OnPropertyChanged(_dataDescriptor);
+      OnBindingValueChanged(_bindingProperty);
     }
 
     /// <summary>
     /// Listens for changes of our trigger property data descriptor.
     /// </summary>
-    void OnPropertyChanged(IDataDescriptor dd)
+    void OnBindingValueChanged(Property bindingValue)
     {
-      if (_dataDescriptor == null) return;
-      TriggerIfValuesEqual(_dataDescriptor.Value, Value);
+      if (!IsInitialized)
+        return;
+      TriggerIfValuesEqual(bindingValue.GetValue(), Value);
     }
 
     #region IAddChild Members
