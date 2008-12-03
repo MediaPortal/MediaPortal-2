@@ -102,7 +102,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           FindElement_DepthFirst(new SubTypeFinder(typeof(ScrollContentPresenter))) as ScrollContentPresenter;
       if (scp == null)
         return;
-      IScrollInfo scrollInfo = scp.Content as IScrollInfo;
+      IScrollInfo scrollInfo = scp.TemplateControl as IScrollInfo;
       if (scrollInfo == null)
         return;
       float totalWidth = Math.Max(1, scrollInfo.TotalWidth);
@@ -203,7 +203,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      FrameworkElement content = Content;
+      FrameworkElement content = TemplateControl;
       if (content == null)
         return;
 

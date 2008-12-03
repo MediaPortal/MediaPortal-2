@@ -46,7 +46,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       childItemTemplate.LogicalParent = container;
       container.ContentTemplate = childItemTemplate;
-      container.Content = (FrameworkElement) ItemTemplate.LoadContent();
       container.VisualParent = _itemsHostPanel;
       return container;
     }

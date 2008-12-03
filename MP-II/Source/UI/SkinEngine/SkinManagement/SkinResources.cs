@@ -114,7 +114,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       set { _inheritedSkinResources = value; }
     }
 
-    public object FindStyleResource(string resourceKey)
+    public object FindStyleResource(object resourceKey)
     {
       CheckStylesInitialized();
       if (_localStyleResources.ContainsKey(resourceKey))

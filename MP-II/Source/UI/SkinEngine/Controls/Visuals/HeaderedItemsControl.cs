@@ -93,7 +93,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ContentPresenter headerContentPresenter = containerTemplateControl.FindElement(
           new TypeFinder(typeof(ContentPresenter))) as ContentPresenter;
       if (headerContentPresenter != null)
-        headerContentPresenter.Content = (FrameworkElement) container.ItemTemplate.LoadContent();
+        headerContentPresenter.ContentTemplate = container.ItemTemplate;
       return container;
     }
   }

@@ -698,18 +698,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="resourceKey">The resource key.</param>
     /// <returns>Resource with the specified key, or <c>null</c> if not found.</returns>
-    public object FindResource(string resourceKey)
+    public object FindResource(object resourceKey)
     {
       if (Resources.ContainsKey(resourceKey))
-      {
         return Resources[resourceKey];
-      }
-      else if (LogicalParent is UIElement)
-      {
-        return ((UIElement)LogicalParent).FindResource(resourceKey);
-      }
-      else
-        return SkinContext.SkinResources.FindStyleResource(resourceKey);
+      if (LogicalParent is UIElement)
+        return ((UIElement) LogicalParent).FindResource(resourceKey);
+      return SkinContext.SkinResources.FindStyleResource(resourceKey);
     }
 
     public void InitializeTriggers()

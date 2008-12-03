@@ -255,7 +255,7 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
-      string key;
+      object key;
       _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
       if (key != null)
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
@@ -287,7 +287,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// element to parse.</param>
     /// <returns>Instantiated XAML visual element corresponding to the
     /// specified <paramref name="currentElement"/>.</returns>
-    protected object Instantiate(XmlElement currentElement, out string key)
+    protected object Instantiate(XmlElement currentElement, out object key)
     {
       ElementContextInfo elementContext = _elementContextStack.PushElementContext(currentElement);
       try
@@ -535,7 +535,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// This method ignores "normal" member and event attributes.</param>
     /// <param name="name">Will be set if the node to handle is an <c>x:Name</c>.</param>
     /// <param name="key">Will be set if the node to handle is an <c>x:Key</c>.</param>
-    protected void CheckNameOrKey(XmlNode memberDeclarationNode, ref string name, ref string key)
+    protected void CheckNameOrKey(XmlNode memberDeclarationNode, ref string name, ref object key)
     {
       ElementContextInfo elementContext = _elementContextStack.CurrentElementContext;
       // Name
@@ -550,12 +550,12 @@ namespace MediaPortal.SkinEngine.Xaml
         // Ignore other attributes not located in the x: namespace
         return;
       // x: attributes
-      string value = Convert(ParseValue(memberDeclarationNode), typeof(string)) as string;
+      object value = ParseValue(memberDeclarationNode);
       if (memberDeclarationNode.LocalName == "Name") // x:Name
       { // x:Name
         if (name == null)
         {
-          name = value;
+          name = TypeConverter.Convert(value, typeof(string)) as string;
           // Assign name to "Name" member, if one exists
           IDataDescriptor dd;
           if (ReflectionHelper.FindMemberDescriptor(
@@ -606,7 +606,7 @@ namespace MediaPortal.SkinEngine.Xaml
     protected static object GetImplicitKey(object o)
     {
       if (o is IImplicitKey)
-        return ((IImplicitKey)o).GetImplicitKey();
+        return ((IImplicitKey) o).GetImplicitKey();
       else
         throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
     }
@@ -647,7 +647,7 @@ namespace MediaPortal.SkinEngine.Xaml
             }
             else
             {
-              string key;
+              object key;
               object value = Instantiate((XmlElement)childNode, out key);
               // Handle the case if a markup extension was instantiated as a child
               if (value is IEvaluableMarkupExtension)

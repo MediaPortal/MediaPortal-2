@@ -35,7 +35,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: DependencyObject, IDictionary<string, object>, IInitializable, INameScope, IDeepCopyable
+  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, IInitializable, INameScope, IDeepCopyable
   {
     #region Protected fields
 
@@ -43,7 +43,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
-    protected IDictionary<string, object> _resources = new Dictionary<string, object>();
+    protected IDictionary<object, object> _resources = new Dictionary<object, object>();
 
     #endregion
 
@@ -83,7 +83,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       set { _source = value; }
     }
 
-    public IDictionary<string, object> UnderlayingDictionary
+    public IDictionary<object, object> UnderlayingDictionary
     {
       get { return _resources; }
     }
@@ -100,7 +100,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     public void Merge(ResourceDictionary dict)
     {
-      IEnumerator<KeyValuePair<string, object>> enumer = ((IDictionary<string, object>) dict).GetEnumerator();
+      IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>)dict).GetEnumerator();
       while (enumer.MoveNext())
         this[enumer.Current.Key] = enumer.Current.Value;
       FireChanged();
@@ -168,32 +168,32 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     #endregion
 
-    #region IDictionary<string,object> implementation
+    #region IDictionary<object,object> implementation
 
-    public bool ContainsKey(string key)
+    public bool ContainsKey(object key)
     {
       return _resources.ContainsKey(key);
     }
 
-    public void Add(string key, object value)
+    public void Add(object key, object value)
     {
       _resources.Add(key, value);
       FireChanged();
     }
 
-    public bool Remove(string key)
+    public bool Remove(object key)
     {
       bool result = _resources.Remove(key);
       FireChanged();
       return result;
     }
 
-    public bool TryGetValue(string key, out object value)
+    public bool TryGetValue(object key, out object value)
     {
       return _resources.TryGetValue(key, out value);
     }
 
-    public object this[string key]
+    public object this[object key]
     {
       get { return _resources[key]; }
       set
@@ -203,7 +203,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       }
     }
 
-    public ICollection<string> Keys
+    public ICollection<object> Keys
     {
       get { return _resources.Keys; }
     }
@@ -215,9 +215,9 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     #endregion
 
-    #region ICollection<KeyValuePair<string,object>> implementation
+    #region ICollection<KeyValuePair<object,object>> implementation
 
-    public void Add(KeyValuePair<string, object> item)
+    public void Add(KeyValuePair<object, object> item)
     {
       _resources.Add(item);
       FireChanged();
@@ -229,17 +229,17 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       FireChanged();
     }
 
-    public bool Contains(KeyValuePair<string, object> item)
+    public bool Contains(KeyValuePair<object, object> item)
     {
       return _resources.Contains(item);
     }
 
-    public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+    public void CopyTo(KeyValuePair<object, object>[] array, int arrayIndex)
     {
       _resources.CopyTo(array, arrayIndex);
     }
 
-    public bool Remove(KeyValuePair<string, object> item)
+    public bool Remove(KeyValuePair<object, object> item)
     {
       return _resources.Remove(item);
       FireChanged();
@@ -259,7 +259,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     #region IEnumerable<KeyValuePair<string,object>> implementation
 
-    IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+    IEnumerator<KeyValuePair<object, object>> IEnumerable<KeyValuePair<object, object>>.GetEnumerator()
     {
       return _resources.GetEnumerator();
     }

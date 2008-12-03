@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
@@ -35,10 +36,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ContentPresenter : FrameworkElement
   {
-    #region Private fields
+    #region Protected fields
 
-    private Property _contentProperty;
-    private Property _contentTemplateProperty;
+    protected Property _contentProperty;
+    protected Property _contentTemplateProperty;
+    protected FrameworkElement _templateControl = null;
 
     #endregion
 
@@ -52,18 +54,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new Property(typeof(FrameworkElement), null);
+      _contentProperty = new Property(typeof(object), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
     }
 
     void Attach()
     {
       _contentProperty.Attach(OnContentChanged);
+      _contentTemplateProperty.Attach(OnContentTemplateChanged);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
+      _contentTemplateProperty.Detach(OnContentTemplateChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -74,16 +78,67 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(p.Content);
       ContentTemplate = copyManager.GetCopy(p.ContentTemplate);
       Attach();
+      OnContentTemplateChanged(_contentTemplateProperty);
     }
 
     #endregion
 
     void OnContentChanged(Property property)
     {
+      if (_templateControl == null)
+      { // No ContentTemplate set
+        FindAutomaticContentDataTemplate();
+      }
+      if (_templateControl != null)
+        // The controls in the DataTemplate access their "data" via their data context, so we must assign it
+        _templateControl.Context = Content;
+    }
+
+    /// <summary>
+    /// Does an automatic search for an approppriate data template for our content, i.e. looks
+    /// in our resources for a resource with the Content's type as key.
+    /// </summary>
+    void FindAutomaticContentDataTemplate()
+    {
       if (Content == null)
         return;
-      Content.VisualParent = this;
-      Content.SetScreen(Screen);
+      DataTemplate dt = FindResource(Content.GetType()) as DataTemplate;
+      if (dt != null)
+      {
+        SetTemplateControl(dt.LoadContent() as FrameworkElement);
+        return;
+      }
+      object templateControl;
+      if (TypeConverter.Convert(Content, typeof(FrameworkElement), out templateControl))
+      {
+        SetTemplateControl((FrameworkElement) templateControl);
+        return;
+      }
+    }
+
+    void SetTemplateControl(FrameworkElement templateControl)
+    {
+      if (templateControl == null)
+        return;
+      _templateControl = templateControl;
+      _templateControl.VisualParent = this;
+      _templateControl.SetScreen(Screen);
+      _templateControl.Context = Content;
+    }
+
+    void OnContentTemplateChanged(Property property)
+    {
+      if (ContentTemplate == null)
+      {
+        FindAutomaticContentDataTemplate();
+        return;
+      }
+      SetTemplateControl(ContentTemplate.LoadContent() as FrameworkElement);
+    }
+
+    public FrameworkElement TemplateControl
+    {
+      get { return _templateControl; }
     }
 
     public Property ContentProperty
@@ -91,9 +146,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get { return _contentProperty; }
     }
 
-    public FrameworkElement Content
+    public object Content
     {
-      get { return (FrameworkElement) _contentProperty.GetValue(); }
+      get { return _contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
     }
 
@@ -120,10 +175,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       // Do we have a child
-      if (Content != null)
+      if (_templateControl != null)
       {
         // Measure the child
-        Content.Measure(ref childSize);
+        _templateControl.Measure(ref childSize);
       }
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
@@ -165,12 +220,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.AddLayoutTransform(m);
       }
 
-      if (Content != null)
+      if (_templateControl != null)
       {
         PointF position = new PointF(finalRect.X, finalRect.Y);
         SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
-        ArrangeChild(Content, ref position, ref availableSize);
-        Content.Arrange(finalRect);
+        ArrangeChild(_templateControl, ref position, ref availableSize);
+        _templateControl.Arrange(finalRect);
       }
 
       if (LayoutTransform != null)
@@ -209,10 +264,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       base.DoRender();
-      if (Content != null)
+      if (_templateControl != null)
       {
         SkinContext.AddOpacity(Opacity);
-        Content.Render();
+        _templateControl.Render();
         SkinContext.RemoveOpacity();
       }
     }
@@ -220,66 +275,54 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) return;
-      if (Content != null)
-      {
-        Content.BuildRenderTree();
-      }
+      if (_templateControl != null)
+        _templateControl.BuildRenderTree();
     }
 
     public override void DestroyRenderTree()
     {
-      if (Content != null)
-      {
-        Content.DestroyRenderTree();
-      }
+      if (_templateControl != null)
+        _templateControl.DestroyRenderTree();
     }
 
     public override void OnMouseMove(float x, float y)
     {
-      if (Content != null)
-      {
-        Content.OnMouseMove(x, y);
-      }
+      if (_templateControl != null)
+        _templateControl.OnMouseMove(x, y);
       base.OnMouseMove(x, y);
     }
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
-      if (Content != null)
-        Content.FireUIEvent(eventType,  source);
+      if (_templateControl != null)
+        _templateControl.FireUIEvent(eventType, source);
     }
 
     public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
     {
-      if (Content != null)
-      {
-        Content.OnKeyPressed(ref key);
-      }
+      if (_templateControl != null)
+        _templateControl.OnKeyPressed(ref key);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      if (Content != null)
-        childrenOut.Add(Content);
+      if (_templateControl != null)
+        childrenOut.Add(_templateControl);
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
-      if (Content != null)
-      {
-        Content.Deallocate();
-      }
+      if (_templateControl != null)
+        _templateControl.Deallocate();
     }
 
     public override void Allocate()
     {
       base.Allocate();
-      if (Content != null)
-      {
-        Content.Allocate();
-      }
+      if (_templateControl != null)
+        _templateControl.Allocate();
     }
   }
 }

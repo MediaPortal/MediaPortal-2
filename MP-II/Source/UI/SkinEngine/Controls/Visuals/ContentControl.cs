@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get { return _contentProperty; }
     }
 
-    public FrameworkElement Content
+    public object Content
     {
       get { return _contentProperty.GetValue() as FrameworkElement; }
       set { _contentProperty.SetValue(value); }
@@ -143,8 +143,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      if (Content != null)
-        childrenOut.Add(Content);
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter != null && presenter.TemplateControl != null)
+        childrenOut.Add(presenter.TemplateControl);
     }
 
     #endregion
