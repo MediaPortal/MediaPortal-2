@@ -49,7 +49,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new Property(typeof(FrameworkElement), null);
+      _contentProperty = new Property(typeof(object), null);
       _contentTemplateProperty = new Property(typeof(DataTemplate), null);
     }
 
@@ -106,7 +106,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public object Content
     {
-      get { return _contentProperty.GetValue() as FrameworkElement; }
+      get { return _contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
     }
 

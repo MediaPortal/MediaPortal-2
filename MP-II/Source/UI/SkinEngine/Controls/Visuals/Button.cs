@@ -70,9 +70,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set
       {
         base.HasFocus = value;
-        if (value == false)
+        if (!value)
           IsPressed = false;
-        //Trace.WriteLine(String.Format("{0} focus:{1}", Name, value));
       }
     }
 

@@ -120,7 +120,10 @@ namespace MediaPortal.SkinEngine.Xaml
       else if (Convert(obj, entryType, out o2))
         res.Add(o2);
       else
-        res.Add(obj);
+      {
+        result = null;
+        return false;
+      }
       result = res;
       return true;
     }

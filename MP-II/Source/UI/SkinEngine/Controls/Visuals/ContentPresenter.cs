@@ -121,9 +121,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (templateControl == null)
         return;
       _templateControl = templateControl;
+      _templateControl.Context = Content;
       _templateControl.VisualParent = this;
       _templateControl.SetScreen(Screen);
-      _templateControl.Context = Content;
     }
 
     void OnContentTemplateChanged(Property property)
