@@ -152,9 +152,9 @@ namespace MediaPortal.Media.ClientMediaManager
     /// <param name="path">Path in the provider to extract metadata from.</param>
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
     /// specified media file.</param>
-    /// <returns>Enumeration of extracted media item aspects or <c>null</c>, if the specified provider doesn't
-    /// exist or if no metadata could be extracted.</returns>
-    public ICollection<MediaItemAspect> ExtractMetadata(Guid providerId, string path,
+    /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
+    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.</returns>
+    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
       IEnumerable<Guid> metadataExtractorIds)
     {
       if (!LocalMediaProviders.ContainsKey(providerId))
@@ -169,11 +169,11 @@ namespace MediaPortal.Media.ClientMediaManager
         IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
         foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
           if (!result.ContainsKey(miaMetadata.AspectId))
-            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata, providerId, path));
+            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
         if (extractor.TryExtractMetadata(provider, path, result))
           success = true;
       }
-      return success ? result.Values : null;
+      return success ? result : null;
     }
 
     #region ISharesManagement implementation

@@ -33,15 +33,62 @@ using MediaPortal.Presentation.Screen;
 
 namespace Models.Shares
 {
+  /// <summary>
+  /// Model which holds the GUI state for the shares configuration screens.
+  /// </summary>
   public class Model
   {
-    protected readonly ItemsList _folders = new ItemsList();
-    protected readonly ItemsList _shares = new ItemsList();
+    /// <summary>
+    /// Holds a cached list of all shares available in the <see cref="MediaManager"/>.
+    /// For GUI presentation.
+    /// </summary>
+    protected ItemsList _shares = new ItemsList();
+
+    /// <summary>
+    /// Holds a cached list of all local media providers available in the <see cref="MediaManager"/>.
+    /// For GUI presentation.
+    /// </summary>
+    protected ItemsList _mediaProviders = new ItemsList();
+
+    /// <summary>
+    /// Holds a cached tree of all directories provided by the choosen media provider.
+    /// For GUI presentation.
+    /// </summary>
+    protected ItemsList _providerDirectories = new ItemsList();
+
+    /// <summary>
+    /// Holds a list of all categories to be choosen from.
+    /// For GUI presentation.
+    /// </summary>
+    protected ItemsList _mediaCategories = new ItemsList();
+
+    /// <summary>
+    /// Holds a cached list of all metadata extractors available in the <see cref="MediaManager"/>.
+    /// For GUI presentation.
+    /// </summary>
+    protected ItemsList _metadataExtractors = new ItemsList();
+
+    /// <summary>
+    /// Holds the media provider for the new share.
+    /// Input from GUI.
+    /// </summary>
+    protected Guid _mediaProvider = null;
+
+    /// <summary>
+    /// Holds the path for the new share.
+    /// Input from GUI.
+    /// </summary>
+    protected string _path = null;
+
+    /// <summary>
+    /// Holds the name for the new share.
+    /// Input from GUI.
+    /// </summary>
+    protected string _name = null;
 
     public Model()
     {
-      Refresh(_folders, null, true);
-      UpdateShares();
+      UpdateGuiData();
     }
 
     public ItemsList Shares

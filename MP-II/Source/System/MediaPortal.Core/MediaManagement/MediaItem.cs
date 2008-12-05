@@ -39,16 +39,18 @@ namespace MediaPortal.Core.MediaManagement
   {
     #region Protected fields
 
-    protected readonly IDictionary<Guid, MediaItemAspect> _aspects = new Dictionary<Guid, MediaItemAspect>();
+    protected readonly IDictionary<Guid, MediaItemAspect> _aspects;
 
     #endregion
 
-    public MediaItem() { }
-
-    public MediaItem(IEnumerable<MediaItemAspect> aspects)
+    public MediaItem()
     {
-      foreach (MediaItemAspect aspect in aspects)
-        _aspects.Add(aspect.Metadata.AspectId, aspect);
+      _aspects = new Dictionary<Guid, MediaItemAspect>();
+    }
+
+    public MediaItem(IDictionary<Guid, MediaItemAspect> aspects)
+    {
+      _aspects = new Dictionary<Guid, MediaItemAspect>(aspects);
       if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
         throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
             typeof(ProviderResourceAspect).Name));

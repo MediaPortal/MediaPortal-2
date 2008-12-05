@@ -101,12 +101,10 @@ namespace MediaPortal.Core.MediaManagement
 
     #region Protected fields
 
-    protected bool _providerPluginsLoaded = false;
-    protected bool _metadataExtractorPluginsLoaded = false;
     protected MediaProviderPluginItemChangeListener _mediaProvidersPluginItemChangeListener;
     protected MetadataExtractorPluginItemChangeListener _metadataExtractorsPluginItemChangeListener;
-    protected readonly IDictionary<Guid, IMediaProvider> _providers;
-    protected readonly IDictionary<Guid, IMetadataExtractor> _metadataExtractors;
+    protected IDictionary<Guid, IMediaProvider> _providers = null;
+    protected IDictionary<Guid, IMetadataExtractor> _metadataExtractors = null;
 
     #endregion
 
@@ -116,8 +114,6 @@ namespace MediaPortal.Core.MediaManagement
     {
       _mediaProvidersPluginItemChangeListener = new MediaProviderPluginItemChangeListener(this);
       _metadataExtractorsPluginItemChangeListener = new MetadataExtractorPluginItemChangeListener(this);
-      _providers = new Dictionary<Guid, IMediaProvider>();
-      _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
     }
 
     #endregion
@@ -237,12 +233,12 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     protected void CheckProviderPluginsLoaded()
     {
-      if (_providerPluginsLoaded)
+      if (_providers != null)
         return;
+      _providers = new Dictionary<Guid, IMediaProvider>();
       foreach (IMediaProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMediaProvider>(
           MEDIA_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker())) // TODO: Make providers removable
         RegisterProvider(provider);
-      _providerPluginsLoaded = true;
     }
 
     /// <summary>
@@ -250,8 +246,10 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     protected void CheckMetadataExtractorPluginsLoaded()
     {
-      if (_metadataExtractorPluginsLoaded)
+      if (_metadataExtractors != null)
         return;
+      _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
+
       foreach (IMetadataExtractor metadataExtractor in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMetadataExtractor>(
           METADATA_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker())) // TODO: Make metadata extractors removable
         RegisterMetadataExtractor(metadataExtractor);

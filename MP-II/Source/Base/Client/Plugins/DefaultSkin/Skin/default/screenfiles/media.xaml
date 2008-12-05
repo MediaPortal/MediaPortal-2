@@ -33,21 +33,29 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Grid.Column="0"
-            DataContext="{Binding Source={StaticResource Model},Path=CurrentView}"
-            Content="{Binding DisplayName}"/>
-        <!-- Binding Content to NavigatableParentItem[Name] doesn't work here, because the BindingMarkupExtension
-             doesn't bind to each path segment, and NavigatableParentItem is null in the first view -->
-        <Button Grid.Row="0" Grid.Column="1" Height="40" Width="60"
-            Style="{StaticResource ButtonStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            Content=".."
-            Command="{Command Path=Select,Parameters={LateBoundValue Value={Binding NavigatableParentItem}}}"
-            IsVisible="{Binding Path=HasParentDirectory}"/>
+        <Grid Grid.Row="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Grid.Column="0"
+              DataContext="{Binding Source={StaticResource Model},Path=CurrentView}"
+              Content="{Binding DisplayName}"/>
+          <!-- Binding Content to NavigatableParentItem[Name] doesn't work here, because the BindingMarkupExtension
+               doesn't bind to each path segment, and NavigatableParentItem is null in the first view -->
+          <Button Grid.Row="0" Grid.Column="1" Height="40" Width="60"
+              Style="{StaticResource ButtonStyle}"
+              DataContext="{Binding Source={StaticResource Model}}"
+              Content=".."
+              Command="{Command Path=Select,Parameters={LateBoundValue Value={Binding NavigatableParentItem}}}"
+              IsVisible="{Binding Path=HasParentDirectory}"/>
+        </Grid>
 <!-- Another solution for displaying the ".." button as a list item:
-        <ContentControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+        <ContentControl Grid.Row="0" Grid.Column="0"
             Style="{StaticResource DefaultMenuItemContainerStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             Content="{Binding Source={StaticResource Model},Path=NavigatableParentItem}"
@@ -59,7 +67,7 @@
           </ContentControl.Resources>
         </ContentControl>
 -->
-        <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <ListView Grid.Row="1"
             Style="{StaticResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding Items}">

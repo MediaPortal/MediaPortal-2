@@ -85,7 +85,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// i.e. if <see cref="GetValue()"/> will return another value
     /// than <c>null</c>.
     /// </summary>
-    /// <returns>true, if this property has a value, else false.</returns>
+    /// <returns><c>true</c>, if this property has a not-<c>null</c>value, else <c>false</c>.</returns>
     public bool HasValue()
     {
       return _value != null;
@@ -94,7 +94,6 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Gets the value of the property
     /// </summary>
-    /// <returns></returns>
     public object GetValue()
     {
       return _value;
@@ -103,13 +102,12 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Sets the value of the property.
     /// </summary>
-    /// <param name="value">The value.</param>
     public void SetValue(object value)
     {
       bool changed;
       if (value != null && _type != null && !_type.IsAssignableFrom(value.GetType()))
         throw new InvalidCastException(
-          String.Format("Value '{0}' cannot be assigned to property with type '{1}'", value, _type.Name));
+          String.Format("Value '{0}' cannot be assigned to property of type '{1}'", value, _type.Name));
       if (_value == null)
         changed = value != null;
       else

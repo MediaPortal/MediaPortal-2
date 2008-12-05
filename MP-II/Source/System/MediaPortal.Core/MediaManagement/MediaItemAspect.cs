@@ -37,8 +37,6 @@ namespace MediaPortal.Core.MediaManagement
     #region Protected fields
 
     protected MediaItemAspectMetadata _metadata;
-    protected Guid _mediaItemProviderId;
-    protected string _mediaItemPath;
     protected IDictionary<MediaItemAspectMetadata.AttributeSpecification, object> _aspectData =
         new Dictionary<MediaItemAspectMetadata.AttributeSpecification, object>();
 
@@ -46,18 +44,17 @@ namespace MediaPortal.Core.MediaManagement
 
     /// <summary>
     /// Creates a new media item aspect instance for the specified media item aspect <paramref name="metadata"/>.
-    /// The new aspect is tied to the media item specified by <paramref name="mediaItemProviderId"/> and
-    /// <paramref name="mediaItemPath"/>.
     /// </summary>
     /// <param name="metadata">Media item aspect specification.</param>
-    /// <param name="mediaItemProviderId">Id of the provider which provides the media item, this aspect belongs to.</param>
-    /// <param name="mediaItemPath">Path of the media item, this aspect belongs to.</param>
-    public MediaItemAspect(MediaItemAspectMetadata metadata, Guid mediaItemProviderId, string mediaItemPath)
+    public MediaItemAspect(MediaItemAspectMetadata metadata)
     {
       _metadata = metadata;
-      _mediaItemProviderId = mediaItemProviderId;
-      _mediaItemPath = mediaItemPath;
       Initialize();
+    }
+
+    public object this[MediaItemAspectMetadata.AttributeSpecification attributeSpecification]
+    {
+      get { return _aspectData.ContainsKey(attributeSpecification) ? _aspectData[attributeSpecification] : null; }
     }
 
     /// <summary>
@@ -73,7 +70,8 @@ namespace MediaPortal.Core.MediaManagement
     public T GetAttribute<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
-      return (T) _aspectData[attributeSpecification];
+      CheckSingleAttribute(attributeSpecification);
+      return (T)_aspectData[attributeSpecification];
     }
 
     /// <summary>
@@ -108,13 +106,8 @@ namespace MediaPortal.Core.MediaManagement
     public void SetAttribute<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, T value)
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
+      CheckSingleAttribute(attributeSpecification);
       _aspectData[attributeSpecification] = value;
-    }
-
-    public object this[MediaItemAspectMetadata.AttributeSpecification attributeSpecification]
-    {
-      get { return _aspectData.ContainsKey(attributeSpecification) ? _aspectData[attributeSpecification] :
-          null; }
     }
 
     /// <summary>
@@ -147,7 +140,15 @@ namespace MediaPortal.Core.MediaManagement
     {
       if (!attributeSpecification.IsCollectionAttribute)
         throw new ArgumentException(string.Format(
-            "Media item aspect '{0}': Attribute '{1}' is no collection type",
+            "Media item aspect '{0}': Attribute '{1}' is not of a collection type, but a collection attribute is requrested",
+            _metadata.Name, attributeSpecification.AttributeName));
+    }
+
+    protected void CheckSingleAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    {
+      if (attributeSpecification.IsCollectionAttribute)
+        throw new ArgumentException(string.Format(
+            "Media item aspect '{0}': Attribute '{1}' is of collection type, but a single attribute is requested",
             _metadata.Name, attributeSpecification.AttributeName));
     }
 

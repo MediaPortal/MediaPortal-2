@@ -11,7 +11,7 @@
   </Runtime>
 
   <Register Location = "/Media/MetadataExtractors">
-    <Importer
+    <Instance
         Id = "MusicMetadataExtractor"
         ClassName = "MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor.MusicMetadataExtractor"/>
   </Register>

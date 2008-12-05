@@ -67,6 +67,14 @@ namespace MediaPortal.Core.General
     }
 
     /// <summary>
+    /// Returns the name of the local computer.
+    /// </summary>
+    public static string LocalHostName
+    {
+      get { return Dns.GetHostName(); }
+    }
+
+    /// <summary>
     /// Returns a new <see cref="SystemName"/> specifying the loopback adapter.
     /// </summary>
     /// <returns>Loopback adapter address.</returns>

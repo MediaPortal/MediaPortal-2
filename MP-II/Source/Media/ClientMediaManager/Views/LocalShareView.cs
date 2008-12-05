@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
@@ -161,9 +162,21 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     protected static void AddMetadata(MediaManager mediaManager, Guid providerId, string path,
         IEnumerable<Guid> metadataExtractorIds, ICollection<MediaItem> result)
     {
-      ICollection<MediaItemAspect> aspects = mediaManager.ExtractMetadata(providerId, path, metadataExtractorIds);
+      IDictionary<Guid, MediaItemAspect> aspects = mediaManager.ExtractMetadata(providerId, path, metadataExtractorIds);
       if (aspects != null)
+      {
+        MediaItemAspect providerResourceAspect;
+        if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+          providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
+        else
+          providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
+              ProviderResourceAspect.Metadata);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SOURCE_COMPUTER, SystemName.LocalHostName);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PROVIDER_ID, providerId.ToString());
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PATH, path);
+        providerResourceAspect.SetCollectionAttribute(ProviderResourceAspect.ATTR_PARENTPROVIDERS, new string[] {});
         result.Add(new MediaItem(aspects));
+      }
     }
 
     #region Additional members for the XML serialization

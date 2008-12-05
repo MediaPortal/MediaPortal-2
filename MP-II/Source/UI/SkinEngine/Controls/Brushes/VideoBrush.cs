@@ -173,6 +173,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
+      // FIXME Albert78: Temporary don't execute this method because it generates too much debug error
+      // messages
+      return false;
       IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
       if (players == null)
       {

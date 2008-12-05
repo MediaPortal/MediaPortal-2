@@ -225,7 +225,11 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_GENRES, tag.Tag.Genres);
         musicAspect.SetAttribute(MusicAspect.ATTR_TRACK, (int) tag.Tag.Track);
         musicAspect.SetAttribute(MusicAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_DATE, new DateTime((int) tag.Tag.Year, 0, 0));
+        try
+        {
+          mediaAspect.SetAttribute(MediaAspect.ATTR_DATE, new DateTime((int) tag.Tag.Year, 1, 1));
+        }
+        catch (ArgumentOutOfRangeException) { }
 
         if (tag.MimeType == "taglib/mp3")
         {
