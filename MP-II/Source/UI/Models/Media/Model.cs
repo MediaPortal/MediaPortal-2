@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -40,15 +40,18 @@ namespace Models.Media
 
     protected ItemsList _sortMenu;
     protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
-    protected View _currentView;
-    protected NavigationItem _navigateParentItem;
+    protected Property _currentViewProperty;
+    protected Property _navigatableParentItemProperty;
+    protected Property _hasParentDirectoryProperty;
 
     #endregion
 
     public Model()
     {
       _items = new ItemsList();
-      _currentView = ServiceScope.Get<MediaManager>().RootView;
+      _currentViewProperty = new Property(typeof(View), ServiceScope.Get<MediaManager>().RootView);
+      _navigatableParentItemProperty = new Property(typeof(NavigationItem), null);
+      _hasParentDirectoryProperty = new Property(typeof(bool), false);
       ReloadItems();
     }
 
@@ -78,7 +81,29 @@ namespace Models.Media
     /// </summary>
     public NavigationItem NavigatableParentItem
     {
-      get { return _navigateParentItem; }
+      get { return (NavigationItem) _navigatableParentItemProperty.GetValue(); }
+      set { _navigatableParentItemProperty.SetValue(value); }
+    }
+
+    public Property NavigatableParentItemProperty
+    {
+      get { return _navigatableParentItemProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view has a navigatable parent view. In this case, the
+    /// property <see cref="NavigatableParentItem"/> will contain the navigation item to the parent
+    /// view. Else, <see cref="NavigatableParentItem"/> will be <c>null</c>.
+    /// </summary>
+    public bool HasParentDirectory
+    {
+      get { return (bool) _hasParentDirectoryProperty.GetValue(); }
+      set { _hasParentDirectoryProperty.SetValue(value); }
+    }
+
+    public Property HasParentDirectoryProperty
+    {
+      get { return _hasParentDirectoryProperty; }
     }
 
     /// <summary>
@@ -86,7 +111,13 @@ namespace Models.Media
     /// </summary>
     public View CurrentView
     {
-      get { return _currentView; }
+      get { return (View) _currentViewProperty.GetValue(); }
+      set { _currentViewProperty.SetValue(value); }
+    }
+
+    public Property CurrentViewProperty
+    {
+      get { return _currentViewProperty; }
     }
 
     /// <summary>
@@ -122,7 +153,7 @@ namespace Models.Media
     /// <param name="view">View to navigate to.</param>
     protected void NavigateToView(View view)
     {
-      _currentView = view;
+      CurrentView = view;
       ReloadItems();
     }
 
@@ -138,14 +169,16 @@ namespace Models.Media
     protected void ReloadItems()
     {
       _items.Clear();
-      _navigateParentItem = _currentView.ParentView == null ? null : new NavigationItem(_currentView.ParentView, "..");
+      View currentView = CurrentView;
+      NavigatableParentItem = currentView.ParentView == null ? null : new NavigationItem(currentView.ParentView, "..");
+      HasParentDirectory = currentView.ParentView != null;
       // Note: we don't add the NavigateParentItem to _items - it is the job of the screenfile to
       // provide an item to navigate to the view denoted by NavigateParentItem
 
       // Add items for sub views
-      foreach (View subView in _currentView.SubViews)
+      foreach (View subView in currentView.SubViews)
         _items.Add(new NavigationItem(subView, null));
-      foreach (MediaItem item in _currentView.MediaItems)
+      foreach (MediaItem item in currentView.MediaItems)
         _items.Add(new PlayableItem(item));
       _items.FireChange();
     }

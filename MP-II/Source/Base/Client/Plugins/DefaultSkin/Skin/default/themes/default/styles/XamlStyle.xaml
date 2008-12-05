@@ -2,7 +2,9 @@
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections">
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    >
 
   <!-- ***************************** Colors ******************************** -->
 
@@ -73,6 +75,13 @@
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20000000"/>
 
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- ************************** Default conversions ****************************** -->
+<!-- Example:
+  <DataTemplate DataType="{x:Type system:String}">
+    <Label Content="{Binding}"/>
+  </DataTemplate>
+-->
 
   <!-- ***************************** Brushes ******************************** -->
 
@@ -1144,7 +1153,7 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28"/>
